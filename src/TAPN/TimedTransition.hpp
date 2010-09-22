@@ -3,7 +3,7 @@
 
 #include <string>
 #include <vector>
-using std::string;
+#include "boost/shared_ptr.hpp"
 
 namespace VerifyTAPN {
 	namespace TAPN {
@@ -11,17 +11,24 @@ namespace VerifyTAPN {
 		class TimedTransition
 		{
 		public: // typedefs
-			typedef std::vector<TimedTransition> Vector; // Probably need to be pointers?
+			typedef std::vector< boost::shared_ptr<TimedTransition> > Vector;
 		public:
-			TimedTransition(const string& name) : name(name) { };
+			TimedTransition(const std::string& name) : name(name) { };
 			virtual ~TimedTransition() { /* empty */ }
 
 		public: // inspectors
-			const string& getName() const;
+			const std::string& GetName() const;
+			void Print(std::ostream&) const;
 
 		private: // data
-			const string name;
+			const std::string name;
 		};
+
+		inline std::ostream& operator<<(std::ostream& out, const TimedTransition& transition)
+		{
+			transition.Print(out);
+			return out;
+		}
 	}
 }
 

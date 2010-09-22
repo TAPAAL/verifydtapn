@@ -1,29 +1,10 @@
-#ifndef VERIFYTAPN_TAPN_TAPN_HPP_
-#define VERIFYTAPN_TAPN_TAPN_HPP_
+#ifndef TAPN_HPP_
+#define TAPN_HPP_
 
+// This is a convenience header to include all elements of a TAPN
+
+#include "TimedArcPetriNet.hpp"
 #include "TimedPlace.hpp"
 #include "TimedTransition.hpp"
-#include "TimedInputArc.hpp"
-#include "OutputArc.hpp"
 
-namespace VerifyTAPN {
-	namespace TAPN {
-
-		class TAPN
-		{
-		public:// construction
-			TAPN();
-			virtual ~TAPN() { /* empty */ }
-
-		public: // modifiers
-			void initialize();
-		private: // data
-			const TimedPlace::Vector places;
-			const TimedTransition::Vector transitions;
-			const TimedInputArc::Vector inputArcs;
-			const OutputArc::Vector outputArcs;
-		};
-	}
-}
-
-#endif /* VERIFYTAPN_TAPN_TAPN_HPP_ */
+#endif /* TAPN_HPP_ */
