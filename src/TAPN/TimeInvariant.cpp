@@ -4,7 +4,7 @@
 
 namespace VerifyTAPN {
 	namespace TAPN {
-		TimeInvariant TimeInvariant::createFor(const std::string& invariant)
+		TimeInvariant TimeInvariant::CreateFor(const std::string& invariant)
 		{
 			bool strict = !boost::algorithm::icontains(invariant, "<=");
 			int bound = std::numeric_limits<int>().max();

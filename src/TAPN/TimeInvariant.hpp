@@ -22,14 +22,21 @@ namespace VerifyTAPN {
 
 			virtual ~TimeInvariant() { /* Empty */ };
 		public: // inspectors
-			static TimeInvariant createFor(const std::string& invariant);
 			void Print(std::ostream& out) const;
+
+		public: // statics
+			static TimeInvariant CreateFor(const std::string& invariant);
 
 		private: // data
 			bool strictComparison;
 			int bound;
 		};
 
+		inline std::ostream& operator<<(std::ostream& out, const TimeInvariant& invariant)
+		{
+			invariant.Print(out);
+			return out;
+		}
 	}
 
 }

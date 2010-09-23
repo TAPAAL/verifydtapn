@@ -27,6 +27,24 @@ int main(int argc, const char* argv[]) {
 	boost::shared_ptr<TimedArcPetriNet> tapn = CreateTAPN();
 	cout << (*tapn);
 
+	TimeInvariant ti = TimeInvariant::CreateFor("<= 4");
+	cout << ti << endl;
+
+	ti = TimeInvariant::CreateFor("<inf");
+	cout << ti << endl;
+
+	TimeInterval interval = TimeInterval::CreateFor("[0,3]");
+	cout << interval << endl;
+
+	interval = TimeInterval::CreateFor("[1, 4)");
+	cout << interval << endl;
+
+	interval = TimeInterval::CreateFor("(3,5]");
+	cout << interval << endl;
+
+	interval = TimeInterval::CreateFor("( 4, inf)");
+	cout << interval << endl;
+
 	return 0;
 }
 
