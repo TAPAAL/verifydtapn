@@ -11,7 +11,7 @@ namespace VerifyTAPN{
 	namespace TAPN{
 		class TimedPlace {
 		public: // typedefs
-			typedef std::vector< boost::shared_ptr<TimedPlace> > Vector; // Probably need to be pointers?
+			typedef std::vector< boost::shared_ptr<TimedPlace> > Vector;
 
 		public: // construction / destruction
 			TimedPlace(const std::string& name) : name(name), timeInvariant() { };
