@@ -9,7 +9,7 @@ namespace VerifyTAPN {
 		class OutputArc
 		{
 		public: // typedefs
-			typedef std::vector<OutputArc> Vector; // probably needs to be pointers?
+			typedef std::vector< boost::shared_ptr<OutputArc> > Vector;
 		public:
 			OutputArc();
 			virtual ~OutputArc() { /* empty */ }

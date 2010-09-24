@@ -9,7 +9,7 @@ namespace VerifyTAPN{
 
 	    void TimedPlace::Print(std::ostream& out) const
 	    {
-	    	out << GetName();
+	    	out << "(" << name << ", " << timeInvariant << ")";
 	    }
 	}
 }

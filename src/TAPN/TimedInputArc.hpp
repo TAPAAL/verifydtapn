@@ -3,6 +3,7 @@
 
 #include <vector>
 #include "TimeInterval.hpp"
+#include "boost/smart_ptr.hpp"
 
 namespace VerifyTAPN {
 	namespace TAPN {
@@ -10,7 +11,7 @@ namespace VerifyTAPN {
 		class TimedInputArc
 		{
 		public: // typedefs
-			typedef std::vector<TimedInputArc> Vector; // probably needs to be pointers?
+			typedef std::vector< boost::shared_ptr<TimedInputArc> > Vector;
 		public:
 			TimedInputArc(const TimeInterval& interval) : interval(interval) { };
 			virtual ~TimedInputArc() { /* empty */}

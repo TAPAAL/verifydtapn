@@ -4,6 +4,7 @@
 
 #include <string>
 #include <vector>
+#include <iostream>
 #include "TimeInvariant.hpp"
 #include "boost/shared_ptr.hpp"
 
@@ -14,7 +15,7 @@ namespace VerifyTAPN{
 			typedef std::vector< boost::shared_ptr<TimedPlace> > Vector;
 
 		public: // construction / destruction
-			TimedPlace(const std::string& name) : name(name), timeInvariant() { };
+			TimedPlace(const std::string& name, const TimeInvariant timeInvariant) : name(name), timeInvariant(timeInvariant) { };
 
 			virtual ~TimedPlace() { /* empty */ };
 		public: // inspection

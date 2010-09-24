@@ -2,6 +2,7 @@
 #include "TAPN/TAPN.hpp"
 #include "boost/smart_ptr.hpp"
 #include "boost/make_shared.hpp"
+#include "Core/TAPNXmlParser.hpp"
 
 using namespace std;
 using namespace VerifyTAPN::TAPN;
@@ -10,7 +11,7 @@ using namespace boost;
 shared_ptr<TimedArcPetriNet> CreateTAPN(){
 	shared_ptr<TimedPlace::Vector> places = make_shared<TimedPlace::Vector>();
 
-	shared_ptr<TimedPlace> place = make_shared<TimedPlace>("p0");
+	shared_ptr<TimedPlace> place = make_shared<TimedPlace>("p0", TimeInvariant::CreateFor("<inf"));
 	places->push_back(place);
 
 	shared_ptr<TimedTransition::Vector> transitions = make_shared<TimedTransition::Vector>();
@@ -44,6 +45,9 @@ int main(int argc, const char* argv[]) {
 
 	interval = TimeInterval::CreateFor("( 4, inf)");
 	cout << interval << endl;
+
+	VerifyTAPN::TAPNXmlParser parser;
+	cout << (*parser.Parse("/home/mortenja/Desktop/test.xml"));
 
 	return 0;
 }
