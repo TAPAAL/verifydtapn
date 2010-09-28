@@ -19,7 +19,7 @@ namespace VerifyTAPN {
 			ArcCollections(const boost::shared_ptr<TimedInputArc::Vector>& inputArcs, const boost::shared_ptr<OutputArc::Vector>& outputArcs) : inputArcs(inputArcs), outputArcs(outputArcs) {};
 		};
 	public: // construction
-		TAPNXmlParser(){};
+		TAPNXmlParser() {};
 		virtual ~TAPNXmlParser() { /* empty */ };
 
 	public:
@@ -34,9 +34,9 @@ namespace VerifyTAPN {
 		boost::shared_ptr<TimedTransition::Vector> ParseTransitions(const rapidxml::xml_node<>& root) const;
 		boost::shared_ptr<TimedTransition> ParseTransition(const rapidxml::xml_node<>& transitionNode) const;
 
-		ArcCollections ParseArcs(const rapidxml::xml_node<>& root) const;
-
-	private: // data
+		ArcCollections ParseArcs(const rapidxml::xml_node<>& root, const TimedPlace::Vector& places, const TimedTransition::Vector& transitions) const;
+		boost::shared_ptr<TimedInputArc> ParseInputArc(const rapidxml::xml_node<>& arcNode, const TimedPlace::Vector& places, const TimedTransition::Vector& transitions) const;
+		boost::shared_ptr<OutputArc> ParseOutputArc(const rapidxml::xml_node<>& arcNode, const TimedPlace::Vector& places, const TimedTransition::Vector& transitions) const;
 	};
 }
 

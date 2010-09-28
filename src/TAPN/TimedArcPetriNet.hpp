@@ -15,12 +15,16 @@ namespace VerifyTAPN {
 		{
 		public:// construction
 			TimedArcPetriNet(const boost::shared_ptr<TimedPlace::Vector>& places,
-				const boost::shared_ptr<TimedTransition::Vector>& transitions)
-				: places(places), transitions(transitions) { };
+				const boost::shared_ptr<TimedTransition::Vector>& transitions,
+				const boost::shared_ptr<TimedInputArc::Vector>& inputArcs,
+				const boost::shared_ptr<OutputArc::Vector>& outputArcs)
+				: places(places), transitions(transitions), inputArcs(inputArcs), outputArcs(outputArcs) { };
 			virtual ~TimedArcPetriNet() { /* empty */ }
 
 		public: // inspectors
 			void Print(std::ostream& out) const;
+			bool ContainsPlaceWithName(const std::string& name) const;
+			const TimedPlace& FindPlaceByName(const std::string& name) const;
 
 		public: // modifiers
 			void Initialize();
@@ -28,6 +32,8 @@ namespace VerifyTAPN {
 		private: // data
 			const boost::shared_ptr<TimedPlace::Vector> places;
 			const boost::shared_ptr<TimedTransition::Vector> transitions;
+			const boost::shared_ptr<TimedInputArc::Vector> inputArcs;
+			const boost::shared_ptr<OutputArc::Vector> outputArcs;
 		};
 
 		inline std::ostream& operator<<(std::ostream& out, const VerifyTAPN::TAPN::TimedArcPetriNet& tapn)
