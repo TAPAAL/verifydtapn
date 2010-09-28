@@ -14,14 +14,15 @@ namespace VerifyTAPN {
 		public: // typedefs
 			typedef std::vector< boost::shared_ptr<OutputArc> > Vector;
 		public:
-			OutputArc();
+			OutputArc(const TimedTransition& transition, const TimedPlace& place)
+				: transition(transition), place(place) { };
 			virtual ~OutputArc() { /* empty */ }
 
 		public: // inspectors
 			void Print(std::ostream& out) const;
 		private:
-			const TimedPlace& place;
 			const TimedTransition& transition;
+			const TimedPlace& place;
 		};
 
 		inline std::ostream& operator<<(std::ostream& out, const OutputArc& arc)

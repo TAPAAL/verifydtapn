@@ -23,8 +23,6 @@ namespace VerifyTAPN {
 
 		public: // inspectors
 			void Print(std::ostream& out) const;
-			bool ContainsPlaceWithName(const std::string& name) const;
-			const TimedPlace& FindPlaceByName(const std::string& name) const;
 
 		public: // modifiers
 			void Initialize();

@@ -124,7 +124,16 @@ namespace VerifyTAPN {
 
 	boost::shared_ptr<OutputArc> TAPNXmlParser::ParseOutputArc(const rapidxml::xml_node<>& arcNode, const TimedPlace::Vector& places, const TimedTransition::Vector& transitions) const
 	{
+		std::string source = arcNode.first_attribute("source")->value();
+		std::string target = arcNode.first_attribute("target")->value();
+
+		TimedTransition::Vector::const_iterator transition = find_if(transitions.begin(), transitions.end(), boost::bind(boost::mem_fn(&TimedTransition::GetName), _1) == source);
+		TimedPlace::Vector::const_iterator place = find_if(places.begin(), places.end(), boost::bind(boost::mem_fn(&TimedPlace::GetName), _1) == target);
+
+		return boost::make_shared<OutputArc>(**transition, **place);
 
 	}
+
+
 
 }
