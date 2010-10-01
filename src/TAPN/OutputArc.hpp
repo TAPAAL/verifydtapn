@@ -3,26 +3,26 @@
 
 #include <vector>
 #include "boost/smart_ptr.hpp"
-#include "TimedPlace.hpp"
-#include "TimedTransition.hpp"
 
 namespace VerifyTAPN {
 	namespace TAPN {
+		class TimedPlace;
+		class TimedTransition;
 
 		class OutputArc
 		{
 		public: // typedefs
 			typedef std::vector< boost::shared_ptr<OutputArc> > Vector;
 		public:
-			OutputArc(const TimedTransition& transition, const TimedPlace& place)
+			OutputArc(const boost::shared_ptr<TimedTransition>& transition, const boost::shared_ptr<TimedPlace>& place)
 				: transition(transition), place(place) { };
 			virtual ~OutputArc() { /* empty */ }
 
 		public: // inspectors
 			void Print(std::ostream& out) const;
 		private:
-			const TimedTransition& transition;
-			const TimedPlace& place;
+			const boost::shared_ptr<TimedTransition> transition;
+			const boost::shared_ptr<TimedPlace> place;
 		};
 
 		inline std::ostream& operator<<(std::ostream& out, const OutputArc& arc)
