@@ -12,11 +12,11 @@ namespace VerifyTAPN {
 	{
 	private:
 		struct ArcCollections{
-			boost::shared_ptr<TimedInputArc::Vector> inputArcs;
-			boost::shared_ptr<OutputArc::Vector> outputArcs;
+			TimedInputArc::Vector inputArcs;
+			OutputArc::Vector outputArcs;
 
 		public:
-			ArcCollections(const boost::shared_ptr<TimedInputArc::Vector>& inputArcs, const boost::shared_ptr<OutputArc::Vector>& outputArcs) : inputArcs(inputArcs), outputArcs(outputArcs) {};
+			ArcCollections(const TimedInputArc::Vector& inputArcs, const OutputArc::Vector& outputArcs) : inputArcs(inputArcs), outputArcs(outputArcs) {};
 		};
 	public: // construction
 		TAPNXmlParser() {};
@@ -28,15 +28,15 @@ namespace VerifyTAPN {
 		boost::shared_ptr<TimedArcPetriNet> ParseTAPN(const rapidxml::xml_node<> & root) const;
 		const std::string ReadFile(const std::string & filename) const;
 
-		void ParsePlaces(const rapidxml::xml_node<>& root, TimedArcPetriNet& tapn) const;
-		TimedPlace* ParsePlace(const rapidxml::xml_node<>& placeNode) const;
+		TimedPlace::Vector ParsePlaces(const rapidxml::xml_node<>& root) const;
+		boost::shared_ptr<TimedPlace> ParsePlace(const rapidxml::xml_node<>& placeNode) const;
 
-		void ParseTransitions(const rapidxml::xml_node<>& root, TimedArcPetriNet& tapn) const;
-		TimedTransition* ParseTransition(const rapidxml::xml_node<>& transitionNode) const;
+		TimedTransition::Vector ParseTransitions(const rapidxml::xml_node<>& root) const;
+		boost::shared_ptr<TimedTransition> ParseTransition(const rapidxml::xml_node<>& transitionNode) const;
 
-		void ParseArcs(const rapidxml::xml_node<>& root, TimedArcPetriNet& tapn) const;
-		TimedInputArc* ParseInputArc(const rapidxml::xml_node<>& arcNode, TimedArcPetriNet& tapn) const;
-		OutputArc* ParseOutputArc(const rapidxml::xml_node<>& arcNode, TimedArcPetriNet& tapn) const;
+		ArcCollections ParseArcs(const rapidxml::xml_node<>& root, const TimedPlace::Vector& places, const TimedTransition::Vector& transitions) const;
+		boost::shared_ptr<TimedInputArc> ParseInputArc(const rapidxml::xml_node<>& arcNode, const TimedPlace::Vector& places, const TimedTransition::Vector& transitions) const;
+		boost::shared_ptr<OutputArc> ParseOutputArc(const rapidxml::xml_node<>& arcNode, const TimedPlace::Vector& places, const TimedTransition::Vector& transitions) const;
 	};
 }
 

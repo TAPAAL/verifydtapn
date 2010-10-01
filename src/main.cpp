@@ -30,7 +30,7 @@ int main(int argc, const char* argv[]) {
 	cout << interval << endl;
 
 	VerifyTAPN::TAPNXmlParser parser;
-	cout << (*parser.Parse("/home/mortenja/Desktop/test.xml"));
+	cout << (*parser.Parse("example-nets/simple_net.xml"));
 
 	return 0;
 }

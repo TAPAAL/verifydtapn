@@ -6,13 +6,14 @@
 #include <vector>
 #include <iostream>
 #include "TimeInvariant.hpp"
-#include "boost/ptr_container/ptr_vector.hpp"
+#include "boost/shared_ptr.hpp"
 
 namespace VerifyTAPN{
 	namespace TAPN{
 		class TimedPlace {
 		public: // typedefs
-			typedef boost::ptr_vector<TimedPlace> Vector;
+			typedef std::vector< boost::shared_ptr<TimedPlace> > Vector;
+
 		public: // construction / destruction
 			TimedPlace(const std::string& name, const TimeInvariant timeInvariant) : name(name), timeInvariant(timeInvariant) { };
 

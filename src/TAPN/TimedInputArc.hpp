@@ -5,7 +5,7 @@
 #include "TimeInterval.hpp"
 #include "TimedPlace.hpp"
 #include "TimedTransition.hpp"
-#include "boost/ptr_container/ptr_vector.hpp"
+#include "boost/smart_ptr.hpp"
 
 namespace VerifyTAPN {
 	namespace TAPN {
@@ -13,7 +13,7 @@ namespace VerifyTAPN {
 		class TimedInputArc
 		{
 		public: // typedefs
-			typedef boost::ptr_vector<TimedInputArc> Vector;
+			typedef std::vector< boost::shared_ptr<TimedInputArc> > Vector;
 		public:
 			TimedInputArc(const TimedPlace& place, const TimedTransition& transition, const TimeInterval& interval) : interval(interval), place(place), transition(transition) { };
 			virtual ~TimedInputArc() { /* empty */}

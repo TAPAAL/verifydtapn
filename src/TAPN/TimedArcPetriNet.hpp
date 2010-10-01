@@ -14,31 +14,24 @@ namespace VerifyTAPN {
 		class TimedArcPetriNet
 		{
 		public:// construction
-			TimedArcPetriNet() : places(), transitions(), inputArcs(), outputArcs() {  };
-//			TimedArcPetriNet(const boost::shared_ptr<TimedTransition::Vector>& transitions,
-//				const boost::shared_ptr<TimedInputArc::Vector>& inputArcs,
-//				const boost::shared_ptr<OutputArc::Vector>& outputArcs)
-//				: places(), transitions(transitions), inputArcs(inputArcs), outputArcs(outputArcs) { };
+			TimedArcPetriNet(const TimedPlace::Vector& places,
+				const TimedTransition::Vector& transitions,
+				const TimedInputArc::Vector& inputArcs,
+				const OutputArc::Vector& outputArcs)
+				: places(places), transitions(transitions), inputArcs(inputArcs), outputArcs(outputArcs) { };
 			virtual ~TimedArcPetriNet() { /* empty */ }
 
 		public: // inspectors
 			void Print(std::ostream& out) const;
-			const TimedPlace& FindPlaceByName(const std::string& name) const;
-			const TimedTransition& FindTransitionByName(const std::string& name) const;
-			bool ContainsPlaceByName(const std::string& name) const;
 
 		public: // modifiers
 			void Initialize();
-			void AddPlace(TimedPlace* place);
-			void AddTransition(TimedTransition* transition);
-			void AddInputArc(TimedInputArc* arc);
-			void AddOutputArc(OutputArc* arc);
 
 		private: // data
-			TimedPlace::Vector places;
-			TimedTransition::Vector transitions;
-			TimedInputArc::Vector inputArcs;
-			OutputArc::Vector outputArcs;
+			const TimedPlace::Vector places;
+			const TimedTransition::Vector transitions;
+			const TimedInputArc::Vector inputArcs;
+			const OutputArc::Vector outputArcs;
 		};
 
 		inline std::ostream& operator<<(std::ostream& out, const VerifyTAPN::TAPN::TimedArcPetriNet& tapn)

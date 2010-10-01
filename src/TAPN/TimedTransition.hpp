@@ -3,7 +3,7 @@
 
 #include <string>
 #include <vector>
-#include "boost/ptr_container/ptr_vector.hpp"
+#include "boost/shared_ptr.hpp"
 
 namespace VerifyTAPN {
 	namespace TAPN {
@@ -11,7 +11,7 @@ namespace VerifyTAPN {
 		class TimedTransition
 		{
 		public: // typedefs
-			typedef boost::ptr_vector<TimedTransition> Vector;
+			typedef std::vector< boost::shared_ptr<TimedTransition> > Vector;
 		public:
 			TimedTransition(const std::string& name) : name(name) { };
 			virtual ~TimedTransition() { /* empty */ }
