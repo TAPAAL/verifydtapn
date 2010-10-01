@@ -3,6 +3,7 @@
 
 #include "../TAPN/TAPN.hpp"
 #include "boost/smart_ptr.hpp"
+#include "SymMarking.hpp"
 #include "../../lib/rapidxml-1.13/rapidxml.hpp"
 
 namespace VerifyTAPN {
@@ -37,6 +38,7 @@ namespace VerifyTAPN {
 		ArcCollections ParseArcs(const rapidxml::xml_node<>& root, const TimedPlace::Vector& places, const TimedTransition::Vector& transitions) const;
 		boost::shared_ptr<TimedInputArc> ParseInputArc(const rapidxml::xml_node<>& arcNode, const TimedPlace::Vector& places, const TimedTransition::Vector& transitions) const;
 		boost::shared_ptr<OutputArc> ParseOutputArc(const rapidxml::xml_node<>& arcNode, const TimedPlace::Vector& places, const TimedTransition::Vector& transitions) const;
+		boost::shared_ptr<SymMarking> ParseInitialMarking(const rapidxml::xml_node<>& root) const;
 	};
 }
 

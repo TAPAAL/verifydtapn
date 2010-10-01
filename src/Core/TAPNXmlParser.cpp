@@ -3,6 +3,8 @@
 #include <string>
 #include <algorithm>
 #include "boost/bind.hpp"
+#include "boost/algorithm/string.hpp"
+#include "boost/lexical_cast.hpp"
 
 namespace VerifyTAPN {
 	using namespace rapidxml;
@@ -132,6 +134,31 @@ namespace VerifyTAPN {
 
 		return boost::make_shared<OutputArc>(*transition, *place);
 
+	}
+
+	boost::shared_ptr<SymMarking> TAPNXmlParser::ParseInitialMarking(const rapidxml::xml_node<>& root) const
+	{
+		TimedPlace::Vector markedPlaces;
+		xml_node<>* placeNode = root.first_node("place");
+		while(placeNode != NULL)
+		{
+			xml_node<>* initialMarkingNode = placeNode->first_node("initialMarking");
+			boost::shared_ptr<TimedPlace> place = ParsePlace(*placeNode);
+			std::string value = initialMarkingNode->first_node("value")->value();
+
+			boost::algorithm::trim(value);
+
+			int nTokens = boost::lexical_cast<int>(value);
+
+			if(nTokens > 0)
+			{
+				markedPlaces.push_back(place);
+			}
+
+			placeNode = placeNode->next_sibling("place");
+		}
+
+		return boost::make_shared<SymMarking>(markedPlaces);
 	}
 
 
