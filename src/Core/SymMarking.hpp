@@ -1,15 +1,15 @@
 #ifndef SYMMARKING_HPP_
 #define SYMMARKING_HPP_
 
-#include "../TAPN/TimedPlace.hpp"
-
+#include "DiscretePart.hpp"
 
 namespace VerifyTAPN {
 
+// Class representing a symbolic marking.
 class SymMarking {
 public:
 	public:// construction
-		SymMarking(const TAPN::TimedPlace::Vector& placement) : placement(placement) { };
+		SymMarking(const DiscretePart& dp) : dp(dp) { };
 		virtual ~SymMarking() { };
 
 
@@ -19,7 +19,7 @@ public:
 
 
 	private: // data
-		TAPN::TimedPlace::Vector placement;
+		DiscretePart dp;
 		// DBM dbm;
 };
 
