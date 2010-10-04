@@ -18,6 +18,10 @@ namespace VerifyTAPN {
 			TimedInputArc(const boost::shared_ptr<TimedPlace>& place, const boost::shared_ptr<TimedTransition>& transition, const TimeInterval& interval) : interval(interval), place(place), transition(transition) { };
 			virtual ~TimedInputArc() { /* empty */}
 
+		public: // modifiers
+			TimedPlace& InputPlace();
+			TimedTransition& OutputTransition();
+
 		public: // Inspectors
 			void Print(std::ostream& out) const;
 		private:

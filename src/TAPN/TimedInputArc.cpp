@@ -9,5 +9,15 @@ namespace VerifyTAPN {
 			out << "From " << place->GetName() << " to " << transition->GetName();
 			out << " with interval " << interval;
 		}
+
+		TimedPlace& TimedInputArc::InputPlace()
+		{
+			return *place;
+		}
+
+		TimedTransition& TimedInputArc::OutputTransition()
+		{
+			return *transition;
+		}
 	}
 }

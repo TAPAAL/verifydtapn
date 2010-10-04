@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include "TimedInputArc.hpp"
+#include "OutputArc.hpp"
 #include "boost/shared_ptr.hpp"
 
 namespace VerifyTAPN {
@@ -18,6 +19,7 @@ namespace VerifyTAPN {
 
 		public: // modifiers
 			void AddToPreset(const boost::shared_ptr<TimedInputArc>& arc);
+			void AddToPostset(const boost::shared_ptr<OutputArc>& arc);
 
 		public: // inspectors
 			const std::string& GetName() const;
@@ -26,6 +28,7 @@ namespace VerifyTAPN {
 		private: // data
 			const std::string name;
 			TimedInputArc::Vector preset;
+			OutputArc::Vector postset;
 		};
 
 		inline std::ostream& operator<<(std::ostream& out, const TimedTransition& transition)

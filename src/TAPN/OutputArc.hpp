@@ -18,6 +18,10 @@ namespace VerifyTAPN {
 				: transition(transition), place(place) { };
 			virtual ~OutputArc() { /* empty */ }
 
+		public: // modifiers
+			TimedPlace& OutputPlace();
+			TimedTransition& InputTransition();
+
 		public: // inspectors
 			void Print(std::ostream& out) const;
 		private:

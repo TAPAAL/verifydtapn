@@ -8,5 +8,15 @@ namespace VerifyTAPN {
 		{
 			out << "From " << transition->GetName() << " to " << place->GetName();
 		}
+
+		TimedPlace& OutputArc::OutputPlace()
+		{
+			return *place;
+		}
+
+		TimedTransition& OutputArc::InputTransition()
+		{
+			return *transition;
+		}
 	}
 }

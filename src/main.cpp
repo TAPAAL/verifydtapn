@@ -30,7 +30,10 @@ int main(int argc, const char* argv[]) {
 	cout << interval << endl;
 
 	VerifyTAPN::TAPNXmlParser parser;
-	cout << (*parser.Parse("example-nets/simple_net.xml"));
+	boost::shared_ptr<TimedArcPetriNet> tapn(parser.Parse("example-nets/simple_net.xml"));
+	tapn->Initialize();
+
+	cout << *tapn;
 
 	return 0;
 }

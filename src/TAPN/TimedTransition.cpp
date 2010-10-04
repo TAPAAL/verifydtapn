@@ -14,7 +14,18 @@ namespace VerifyTAPN {
 
 		void TimedTransition::AddToPreset(const boost::shared_ptr<TimedInputArc>& arc)
 		{
-			preset.push_back(arc);
+			if(arc)
+			{
+				preset.push_back(arc);
+			}
+		}
+
+		void TimedTransition::AddToPostset(const boost::shared_ptr<OutputArc>& arc)
+		{
+			if(arc)
+			{
+				postset.push_back(arc);
+			}
 		}
 	}
 }
