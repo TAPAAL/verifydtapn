@@ -9,14 +9,14 @@ namespace VerifyTAPN {
 class SymMarking {
 public:
 	public:// construction
-		SymMarking(const DiscretePart& dp) : dp(dp) { };
+		explicit SymMarking(const DiscretePart& dp) : dp(dp) { };
 		virtual ~SymMarking() { };
 
 
 	public: // inspectors
 
 	public: // modifiers
-
+		const DiscretePart* GetDiscretePart() const;
 
 	private: // data
 		DiscretePart dp;
