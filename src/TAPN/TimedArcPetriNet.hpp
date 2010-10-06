@@ -23,6 +23,7 @@ namespace VerifyTAPN {
 
 		public: // inspectors
 			void Print(std::ostream& out) const;
+			int GetPlaceIndex(const TimedPlace& p) const;
 
 		public: // modifiers
 			void Initialize();

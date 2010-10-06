@@ -7,11 +7,16 @@ namespace VerifyTAPN {
 
 class DiscretePart {
 	public: // construction
-		DiscretePart(const VerifyTAPN::TAPN::TimedPlace::Vector& placement) : placement(placement) { };
+		DiscretePart(const std::vector<int>& placement) : placement(placement) { };
+		explicit DiscretePart(const DiscretePart& dp) : placement(dp.placement) { };
+
 		virtual ~DiscretePart() { };
 
+	public: // inspectors
+
 	private: // data
-		VerifyTAPN::TAPN::TimedPlace::Vector placement;
+		std::vector<int> placement;
+
 };
 
 }

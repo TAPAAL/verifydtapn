@@ -2,6 +2,7 @@
 #define SYMMARKING_HPP_
 
 #include "DiscretePart.hpp"
+#include "dbm/fed.h"
 
 namespace VerifyTAPN {
 
@@ -9,18 +10,19 @@ namespace VerifyTAPN {
 class SymMarking {
 public:
 	public:// construction
-		SymMarking(const DiscretePart& dp) : dp(dp) { };
+		SymMarking(const std::vector<int>& placement) : dp(placement), dbm(placement.size()) { };
+		SymMarking(const DiscretePart& dp, const dbm::dbm_t& dbm) : dp(dp), dbm(dbm) { };
 		virtual ~SymMarking() { };
 
 
 	public: // inspectors
-
+		const dbm::dbm_t& GetZone() const;
 	public: // modifiers
 
 
 	private: // data
 		DiscretePart dp;
-		// DBM dbm;
+		dbm::dbm_t dbm;
 };
 
 }

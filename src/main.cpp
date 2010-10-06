@@ -3,14 +3,16 @@
 #include "boost/smart_ptr.hpp"
 #include "boost/make_shared.hpp"
 #include "Core/TAPNXmlParser.hpp"
+#include "Core/VerificationOptions.hpp"
 
 using namespace std;
 using namespace VerifyTAPN::TAPN;
 using namespace boost;
 
+int main(int argc, char* argv[]) {
 
+	//VerifyTAPN::VerificationOptions vo = VerifyTAPN::VerificationOptions::ParseVerificationOptions(argc, argv);
 
-int main(int argc, const char* argv[]) {
 	TimeInvariant ti = TimeInvariant::CreateFor("<= 4");
 	cout << ti << endl;
 
@@ -33,9 +35,14 @@ int main(int argc, const char* argv[]) {
 	boost::shared_ptr<TimedArcPetriNet> tapn(parser.Parse("example-nets/simple_net.xml"));
 	tapn->Initialize();
 
+
+	boost::shared_ptr<VerifyTAPN::SymMarking> marking(parser.ParseMarking("example-nets/simple_net.xml",*tapn));
+
+
 	cout << *tapn;
+
+
 
 	return 0;
 }
-
 
