@@ -6,4 +6,8 @@ namespace VerifyTAPN {
 		return &dp;
 	}
 
+	const dbm::dbm_t& SymMarking::GetZone() const
+	{
+		return dbm;
+	}
 }

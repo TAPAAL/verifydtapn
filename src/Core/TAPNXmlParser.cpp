@@ -35,6 +35,18 @@ namespace VerifyTAPN {
 		return ParseTAPN(*xmldoc.first_node()->first_node());
 	}
 
+	boost::shared_ptr<SymMarking> TAPNXmlParser::ParseMarking(const std::string & filename, const TimedArcPetriNet& tapn) const
+	{
+		const std::string contents = ReadFile(filename); // not sure if this is a good idea, because it copies to string? Maybe the compiler is smart enough not to make a copy
+		std::vector<char> charArray(contents.begin(), contents.end());
+		charArray.push_back('\0');
+
+		xml_document<> xmldoc;
+		xmldoc.parse<0>(&charArray[0]); // we need a char* to the string, and contents.c_str() returns const char*
+
+		return ParseInitialMarking(*xmldoc.first_node()->first_node(),tapn);
+	}
+
 	boost::shared_ptr<TimedArcPetriNet> TAPNXmlParser::ParseTAPN(const xml_node<>& root) const
 	{
 		TimedPlace::Vector places = ParsePlaces(root);
@@ -136,10 +148,11 @@ namespace VerifyTAPN {
 
 	}
 
-	boost::shared_ptr<SymMarking> TAPNXmlParser::ParseInitialMarking(const rapidxml::xml_node<>& root) const
+	boost::shared_ptr<SymMarking> TAPNXmlParser::ParseInitialMarking(const rapidxml::xml_node<>& root, const TimedArcPetriNet& tapn) const
 	{
-		TimedPlace::Vector markedPlaces;
+		std::vector<int> markedPlaces;
 		xml_node<>* placeNode = root.first_node("place");
+		int totalInitTokens = 0;
 		while(placeNode != NULL)
 		{
 			xml_node<>* initialMarkingNode = placeNode->first_node("initialMarking");
@@ -149,18 +162,19 @@ namespace VerifyTAPN {
 			boost::algorithm::trim(value);
 
 			int nTokens = boost::lexical_cast<int>(value);
+			totalInitTokens += nTokens;
 
 			if(nTokens > 0)
 			{
-				markedPlaces.push_back(place);
+				markedPlaces.push_back(tapn.GetPlaceIndex(*place));
 			}
 
 			placeNode = placeNode->next_sibling("place");
 		}
 
-		return boost::make_shared<SymMarking>(markedPlaces);
+		boost::shared_ptr<SymMarking> marking = boost::make_shared<SymMarking>(markedPlaces);
+		return marking;
 	}
-
 
 
 }

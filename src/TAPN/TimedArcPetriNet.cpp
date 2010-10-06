@@ -19,6 +19,20 @@ namespace VerifyTAPN {
 			}
 		}
 
+		int TimedArcPetriNet::GetPlaceIndex(const TimedPlace& p) const
+		{
+			int idx = -1;
+			for(int i = 0; i < places.size(); ++i)
+			{
+				if(places[i]->GetName() == p.GetName())
+				{
+					idx = i;
+				}
+			}
+
+			return idx;
+		}
+
 		void TimedArcPetriNet::Print(std::ostream & out) const
 		{
 			out << "TAPN:" << std::endl << "  Places: ";
