@@ -27,8 +27,8 @@ namespace VerifyTAPN {
 
 		private: // data
 			const std::string name;
-			TimedInputArc::Vector preset;
-			OutputArc::Vector postset;
+			TimedInputArc::WeakPtrVector preset;
+			OutputArc::WeakPtrVector postset;
 		};
 
 		inline std::ostream& operator<<(std::ostream& out, const TimedTransition& transition)

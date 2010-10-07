@@ -9,9 +9,10 @@ namespace VerifyTAPN
 		virtual ~PassedWaitingList() { };
 
 		virtual long long Size() const = 0;
-		virtual bool IsEmpty() const = 0;
+		virtual bool HasWaitingStates() const = 0;
+
 		virtual void Add(const SymMarking& marking) = 0;
-		//virtual const SymMarking& GetNextUnexplored() = 0;
+		virtual const SymMarking& GetNextUnexplored() = 0;
 	};
 }
 

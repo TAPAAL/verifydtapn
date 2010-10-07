@@ -14,6 +14,7 @@ namespace VerifyTAPN {
 		{
 		public: // typedefs
 			typedef std::vector< boost::shared_ptr<TimedInputArc> > Vector;
+			typedef std::vector< boost::weak_ptr<TimedInputArc> > WeakPtrVector;
 		public:
 			TimedInputArc(const boost::shared_ptr<TimedPlace>& place, const boost::shared_ptr<TimedTransition>& transition, const TimeInterval& interval) : interval(interval), place(place), transition(transition) { };
 			virtual ~TimedInputArc() { /* empty */}

@@ -6,6 +6,7 @@ namespace VerifyTAPN {
 		const DiscretePart* dp = symMarking.GetDiscretePart();
 		Node node(symMarking, WAITING);
 		map[dp].push_back(node);
+		waitingList->Add(&node);
 	}
 
 	long long PWList::Size() const
@@ -13,8 +14,13 @@ namespace VerifyTAPN {
 		return map.size();
 	}
 
-	bool PWList::IsEmpty() const
+	bool PWList::HasWaitingStates() const
 	{
-		return Size() == 0;
+		return waitingList->Size() > 0;
+	}
+
+	const SymMarking& PWList::GetNextUnexplored()
+	{
+		return waitingList->Next()->GetMarking();
 	}
 }

@@ -13,6 +13,7 @@ namespace VerifyTAPN {
 		{
 		public: // typedefs
 			typedef std::vector< boost::shared_ptr<OutputArc> > Vector;
+			typedef std::vector< boost::weak_ptr<OutputArc> > WeakPtrVector;
 		public:
 			OutputArc(const boost::shared_ptr<TimedTransition>& transition, const boost::shared_ptr<TimedPlace>& place)
 				: transition(transition), place(place) { };

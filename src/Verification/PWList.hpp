@@ -18,11 +18,11 @@ namespace VerifyTAPN {
 		virtual ~PWList() { delete waitingList; };
 
 	public: // inspectors
-		virtual bool IsEmpty() const;
+		virtual bool HasWaitingStates() const;
 		virtual long long Size() const;
 	public: // modifiers
 		virtual void Add(const SymMarking& symMarking);
-
+		virtual const SymMarking& GetNextUnexplored();
 	private:
 		HashMap map;
 		WaitingList* waitingList;

@@ -2,7 +2,9 @@
 #define WAITINGLIST_HPP_
 
 #include <queue>
+#include <stack>
 #include "Node.hpp"
+
 
 namespace VerifyTAPN{
 	class WaitingList {
@@ -23,6 +25,17 @@ namespace VerifyTAPN{
 	private:
 		std::queue<Node*> queue;
 	};
+
+	class StackWaitingList : public WaitingList{
+		public:
+		StackWaitingList() : stack() { };
+		public:
+			virtual void Add(Node* node);
+			virtual Node* Next();
+			virtual long long Size() const;
+		private:
+			std::stack<Node*> stack;
+		};
 
 
 }
