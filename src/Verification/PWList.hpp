@@ -3,16 +3,18 @@
 
 #include "google/sparse_hash_map"
 #include <list>
-#include "../Core/SymMarking.hpp"
 #include "PassedWaitingList.hpp"
-#include "WaitingList.hpp"
 #include "Node.hpp"
-
+#include "../Core/DiscretePart.hpp"
+#include "WaitingList.hpp"
 
 namespace VerifyTAPN {
+	class SymMarking;
+	class Node;
+
 	class PWList : public PassedWaitingList {
 	private:
-		typedef google::sparse_hash_map<const DiscretePart*, std::list<Node> > HashMap;
+		typedef google::sparse_hash_map<const DiscretePart*, std::list<Node>, VerifyTAPN::hash > HashMap;
 	public:
 		explicit PWList(WaitingList* waitingList) : map(), waitingList(waitingList) {};
 		virtual ~PWList() { delete waitingList; };

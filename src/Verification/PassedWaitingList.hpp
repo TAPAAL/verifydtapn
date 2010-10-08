@@ -3,6 +3,8 @@
 
 namespace VerifyTAPN
 {
+	class SymMarking;
+
 	class PassedWaitingList
 	{
 	public:

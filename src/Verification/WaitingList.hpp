@@ -3,10 +3,10 @@
 
 #include <queue>
 #include <stack>
-#include "Node.hpp"
-
 
 namespace VerifyTAPN{
+	class Node;
+
 	class WaitingList {
 	public:
 		WaitingList() { };

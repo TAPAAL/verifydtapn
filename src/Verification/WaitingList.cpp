@@ -1,4 +1,5 @@
 #include "WaitingList.hpp"
+#include "Node.hpp"
 
 namespace VerifyTAPN
 {

@@ -15,6 +15,9 @@ using namespace boost;
 
 int main(int argc, char* argv[]) {
 	std::vector<int> vec;
+	vec.push_back(2);
+	vec.push_back(6);
+
 	DiscretePart dp(vec);
 	dbm::dbm_t dbm(5);
 	SymMarking marking(dp, dbm);
@@ -22,7 +25,6 @@ int main(int argc, char* argv[]) {
 	WaitingList* wl = new QueueWaitingList();
 	PWList list(wl);
 	list.Add(marking);
-
 	return 0;
 }
 

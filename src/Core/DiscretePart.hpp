@@ -1,11 +1,14 @@
 #ifndef DISCRETEPART_HPP_
 #define DISCRETEPART_HPP_
 
-#include "../TAPN/TimedPlace.hpp"
+#include <vector>
+#include "boost/functional/hash.hpp"
 
 namespace VerifyTAPN {
+	struct hash;
 
-class DiscretePart {
+	class DiscretePart {
+		friend struct VerifyTAPN::hash;
 	public: // construction
 		DiscretePart(const std::vector<int>& placement) : placement(placement) { };
 		explicit DiscretePart(const DiscretePart& dp) : placement(dp.placement) { };
@@ -17,7 +20,16 @@ class DiscretePart {
 	private: // data
 		std::vector<int> placement;
 
-};
+	};
+
+	struct hash : public std::unary_function<const VerifyTAPN::DiscretePart*, size_t>
+		{
+			size_t operator()(const VerifyTAPN::DiscretePart* const& dp) const
+			{
+				size_t hash = boost::hash_range(dp->placement.begin(), dp->placement.end());
+				return hash;
+			}
+		};
 
 }
 
