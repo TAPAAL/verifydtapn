@@ -13,12 +13,18 @@
 namespace VerifyTAPN{
 	namespace TAPN{
 		class TimedPlace {
+		public: // static
+			static const TimedPlace& Bottom() {
+				static TimedPlace bottom;
+				return bottom;
+			}
+
 		public: // typedefs
 			typedef std::vector< boost::shared_ptr<TimedPlace> > Vector;
 
 		public: // construction / destruction
 			TimedPlace(const std::string& name, const TimeInvariant timeInvariant) : name(name), timeInvariant(timeInvariant) { };
-
+			TimedPlace() : name("*BOTTOM*"), timeInvariant() { };
 			virtual ~TimedPlace() { /* empty */ };
 
 		public: // modifiers
@@ -27,9 +33,10 @@ namespace VerifyTAPN{
 		public: // inspection
 			const std::string& GetName() const;
 			void Print(std::ostream& out) const;
+
 		private: // data
-			const std::string	name;
-			const TimeInvariant timeInvariant;
+			std::string	name;
+			TimeInvariant timeInvariant;
 			TimedInputArc::WeakPtrVector postset;
 			OutputArc::WeakPtrVector preset;
 		};
@@ -39,6 +46,15 @@ namespace VerifyTAPN{
 			place.Print(out);
 			return out;
 		}
+
+		// TAPAAL does not allow multiple places with the same name,
+		// thus it is enough to use the name to determine equality.
+		inline bool operator==(TimedPlace const& a, TimedPlace const& b)
+		{
+			return a.GetName() == b.GetName();
+		}
+
+
 	}
 }
 #endif /* VERIFYYAPN_TAPN_TIMEDPLACE_HPP_ */

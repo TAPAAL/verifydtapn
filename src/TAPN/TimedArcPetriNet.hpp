@@ -24,9 +24,13 @@ namespace VerifyTAPN {
 		public: // inspectors
 			void Print(std::ostream& out) const;
 			int GetPlaceIndex(const TimedPlace& p) const;
+			const TimedTransition::Vector& GetTransitions() const { return transitions; }
 
 		public: // modifiers
 			void Initialize();
+
+		private: // modifiers
+			void MakeTAPNConservative();
 
 		private: // data
 			const TimedPlace::Vector places;

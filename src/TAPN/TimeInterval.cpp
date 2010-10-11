@@ -40,5 +40,22 @@ namespace VerifyTAPN {
 
 			out << leftParenthesis << strLowerBound << "," << strUpperBound << rightParenthesis;
 		}
+
+
+		const raw_t TimeInterval::LowerBoundToDBMRaw() const
+		{
+			return dbm_bound2raw(-lowerBound, leftStrict ? dbm_STRICT : dbm_WEAK);
+		}
+
+		const raw_t TimeInterval::UpperBoundToDBMRaw() const
+		{
+			if(upperBound == std::numeric_limits<int>().max()) {
+				return dbm_LS_INFINITY;
+			}
+			else
+			{
+				return dbm_bound2raw(upperBound, rightStrict ? dbm_STRICT : dbm_WEAK);
+			}
+		}
 	}
 }

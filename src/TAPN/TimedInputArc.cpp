@@ -19,5 +19,10 @@ namespace VerifyTAPN {
 		{
 			return *transition;
 		}
+
+		const TimeInterval& TimedInputArc::Interval()
+		{
+			return interval;
+		}
 	}
 }

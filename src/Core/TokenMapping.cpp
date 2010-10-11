@@ -6,7 +6,7 @@ namespace VerifyTAPN {
 	{
 		if(index > mapping.size()-1)
 		{
-			return std::numeric_limits<int>().max(); // return something that represents BOTTOM here.
+			return -1; // return something that represents BOTTOM here.
 		}
 		else
 		{

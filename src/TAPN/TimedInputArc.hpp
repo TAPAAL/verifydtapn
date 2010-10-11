@@ -22,6 +22,7 @@ namespace VerifyTAPN {
 		public: // modifiers
 			TimedPlace& InputPlace();
 			TimedTransition& OutputTransition();
+			const TimeInterval& Interval();
 
 		public: // Inspectors
 			void Print(std::ostream& out) const;

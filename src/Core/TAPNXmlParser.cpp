@@ -166,13 +166,19 @@ namespace VerifyTAPN {
 
 			if(nTokens > 0)
 			{
-				markedPlaces.push_back(tapn.GetPlaceIndex(*place));
+				for(int i = 0; i < nTokens; i++) {
+					markedPlaces.push_back(tapn.GetPlaceIndex(*place));
+				}
 			}
 
 			placeNode = placeNode->next_sibling("place");
 		}
 
-		boost::shared_ptr<SymMarking> marking = boost::make_shared<SymMarking>(markedPlaces);
+		DiscretePart dp(markedPlaces);
+		dbm::dbm_t dbm(totalInitTokens+1);
+		dbm.setZero();
+
+		boost::shared_ptr<SymMarking> marking = boost::make_shared<SymMarking>(dp,dbm);
 		return marking;
 	}
 
