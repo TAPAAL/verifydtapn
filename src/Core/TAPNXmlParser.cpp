@@ -1,31 +1,17 @@
 #include "TAPNXmlParser.hpp"
-#include <fstream>
 #include <string>
 #include <algorithm>
 #include "boost/bind.hpp"
 #include "boost/algorithm/string.hpp"
 #include "boost/lexical_cast.hpp"
+#include "util.hpp"
 
 namespace VerifyTAPN {
 	using namespace rapidxml;
 
-	const std::string TAPNXmlParser::ReadFile(const std::string& filename) const
-	{
-		std::ifstream file (filename.c_str());
-		if(!file){
-			throw new std::exception();
-		}
-		std::string contents;
-		std::string line;
-		while(std::getline(file, line)){
-			contents += line;
-		}
-		return contents;
-	}
-
 	boost::shared_ptr<TimedArcPetriNet> TAPNXmlParser::Parse(const std::string & filename) const
 	{
-		const std::string contents = ReadFile(filename); // not sure if this is a good idea, because it copies to string? Maybe the compiler is smart enough not to make a copy
+		const std::string contents = VerifyTAPN::ReadFile(filename); // not sure if this is a good idea, because it copies to string? Maybe the compiler is smart enough not to make a copy
 		std::vector<char> charArray(contents.begin(), contents.end());
 		charArray.push_back('\0');
 
@@ -37,7 +23,7 @@ namespace VerifyTAPN {
 
 	boost::shared_ptr<SymMarking> TAPNXmlParser::ParseMarking(const std::string & filename, const TimedArcPetriNet& tapn) const
 	{
-		const std::string contents = ReadFile(filename); // not sure if this is a good idea, because it copies to string? Maybe the compiler is smart enough not to make a copy
+		const std::string contents = VerifyTAPN::ReadFile(filename); // not sure if this is a good idea, because it copies to string? Maybe the compiler is smart enough not to make a copy
 		std::vector<char> charArray(contents.begin(), contents.end());
 		charArray.push_back('\0');
 

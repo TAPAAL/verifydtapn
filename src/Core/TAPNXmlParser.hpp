@@ -28,7 +28,6 @@ namespace VerifyTAPN {
 		boost::shared_ptr<SymMarking> ParseMarking(const std::string & filename, const TimedArcPetriNet& tapn) const;
 	private:
 		boost::shared_ptr<TimedArcPetriNet> ParseTAPN(const rapidxml::xml_node<> & root) const;
-		const std::string ReadFile(const std::string & filename) const;
 
 		TimedPlace::Vector ParsePlaces(const rapidxml::xml_node<>& root) const;
 		boost::shared_ptr<TimedPlace> ParsePlace(const rapidxml::xml_node<>& placeNode) const;
