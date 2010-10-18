@@ -17,41 +17,6 @@ namespace VerifyTAPN {
 				arc->OutputPlace().AddToPreset(arc);
 				arc->InputTransition().AddToPostset(arc);
 			}
-
-			MakeTAPNConservative();
-		}
-
-		void TimedArcPetriNet::MakeTAPNConservative()
-		{
-			for(TimedTransition::Vector::const_iterator iter = transitions.begin(); iter != transitions.end(); ++iter)
-			{
-				if(!(*iter)->isConservative())
-				{
-					int diff = std::abs((*iter)->GetPresetSize() - (*iter)->GetPostsetSize());
-
-					if((*iter)->GetPresetSize() > (*iter)->GetPostsetSize())
-					{
-						while(diff > 0)
-						{
-//							boost::shared_ptr<OutputArc> bottomArc = boost::make_shared<OutputArc>((*(*iter)), TimedPlace::Bottom());
-//							(*iter)->AddToPostset(bottomArc);
-							diff--;
-						}
-					}
-					else
-					{
-						// add bottom to preset until t is conservative
-						while(diff > 0)
-						{
-//							boost::shared_ptr<TimedInputArc> bottomArc = boost::make_shared<TimedInputArc>(TimedPlace::Bottom(), (*iter));
-//							(*iter)->AddToPreset(bottomArc);
-
-							diff--;
-						}
-					}
-
-				}
-			}
 		}
 
 		int TimedArcPetriNet::GetPlaceIndex(const TimedPlace& p) const
@@ -61,7 +26,7 @@ namespace VerifyTAPN {
 
 		int TimedArcPetriNet::GetPlaceIndex(const std::string& placeName) const
 			{
-				int idx = -1;
+				int idx = TimedPlace::BottomIndex();
 				for(unsigned int i = 0; i < places.size(); ++i)
 				{
 					if(places[i]->GetName() == placeName)

@@ -7,9 +7,9 @@ namespace VerifyTAPN {
 		Node node(symMarking, WAITING);
 
 		std::list<Node>& markings = map[dp];
-		const dbm::dbm_t& newDBM = symMarking.GetZone();
+		const dbm::dbm_t& newDBM = symMarking.Zone();
 		for(std::list<Node>::const_iterator iter = markings.begin(); iter != markings.end(); ++iter){
-			const dbm::dbm_t& other = iter->GetMarking().GetZone();
+			const dbm::dbm_t& other = iter->GetMarking().Zone();
 			relation_t relation = newDBM.relation(other);
 			if(relation == base_SUBSET){
 				return;

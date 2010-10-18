@@ -20,6 +20,11 @@ namespace VerifyTAPN {
 		int IsTokenPresentInPlace(int placeIndex) const;
 		int NumberOfTokensInPlace(int placeIndex) const;
 		const std::vector<int>& GetTokenPlacementVector() const;
+
+	public: // modifiers
+		void MoveToken(int tokenIndex, int newPlaceIndex);
+		void MoveFirstTokenAtBottomTo(int newPlaceIndex);
+
 	private: // data
 		std::vector<int> placement;
 

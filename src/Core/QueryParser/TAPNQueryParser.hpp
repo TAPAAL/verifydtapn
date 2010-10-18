@@ -15,6 +15,7 @@ YY_DECL;
 
 namespace VerifyTAPN
 {
+
 	namespace AST{
 		class Query;
 	}

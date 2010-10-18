@@ -27,11 +27,12 @@ namespace VerifyTAPN {
 
 
 		public: // inspectors
-			std::list<TAPN::TimedPlace>& GetOutputPlaceFor(const TAPN::TimedPlace& inputPlace);
+			std::list<TAPN::TimedPlace>& GetOutputPlacesFor(const TAPN::TimedPlace& inputPlace);
 			void Print(std::ostream& out) const;
 
 		public: // modifiers
 			void Add(const TAPN::TimedPlace& inputPlace, const TAPN::TimedPlace& outputPlace);
+
 
 		private: // initializers
 			void GeneratePairingFor(const TAPN::TimedTransition& t);

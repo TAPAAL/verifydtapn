@@ -335,7 +335,7 @@
 <arc id="P0 to T0" source="P0" target="T0">
 <graphics/>
 <inscription>
-<value>[0,inf)</value>
+<value>[2,inf)</value>
 <graphics/>
 </inscription>
 <tagged>
@@ -348,13 +348,13 @@
 <arc id="P10 to T2" source="P10" target="T2">
 <graphics/>
 <inscription>
-<value>[0,inf)</value>
+<value>[2,inf)</value>
 <graphics/>
 </inscription>
 <tagged>
 <value>false</value>
 </tagged>
-<arcpath id="000" x="311" y="534" curvePoint="false"/>
+<arcpath id="000" x="311" y="533" curvePoint="false"/>
 <arcpath id="001" x="411" y="515" curvePoint="false"/>
 <type value="timed"/>
 </arc>

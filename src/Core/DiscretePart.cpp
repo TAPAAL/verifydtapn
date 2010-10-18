@@ -1,5 +1,8 @@
 
 #include "DiscretePart.hpp"
+#include "../TAPN/TimedPlace.hpp"
+#include <algorithm>
+#include <exception>
 
 namespace VerifyTAPN {
 
@@ -29,6 +32,24 @@ namespace VerifyTAPN {
 		}
 
 		return -1;
+	}
+
+
+	void DiscretePart::MoveToken(int tokenIndex, int newPlaceIndex)
+	{
+		assert(tokenIndex >= 0 && tokenIndex < placement.size());
+
+		placement[tokenIndex] = newPlaceIndex;
+	}
+
+	void DiscretePart::MoveFirstTokenAtBottomTo(int newPlaceIndex)
+	{
+		std::vector<int>::iterator i = std::find( placement.begin(), placement.end(), VerifyTAPN::TAPN::TimedPlace::BottomIndex());
+
+		assert(i != placement.end());
+
+		*i = newPlaceIndex;
+
 	}
 
 	int DiscretePart::NumberOfTokensInPlace(int placeIndex) const

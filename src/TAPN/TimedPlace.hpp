@@ -19,6 +19,10 @@ namespace VerifyTAPN{
 				return bottom;
 			}
 
+			static const int BottomIndex() {
+				return -1;
+			}
+
 		public: // typedefs
 			typedef std::vector< boost::shared_ptr<TimedPlace> > Vector;
 

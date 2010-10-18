@@ -26,6 +26,10 @@ namespace VerifyTAPN {
 			int GetPlaceIndex(const TimedPlace& p) const;
 			int GetPlaceIndex(const std::string& placeName) const;
 			const TimedTransition::Vector& GetTransitions() const { return transitions; }
+			const TimedInputArc::Vector& GetInputArcs() const { return inputArcs; }
+			const int GetNumberOfInputArcs() const { return inputArcs.size(); }
+			const OutputArc::Vector& GetOutputArcs() const { return outputArcs; }
+			const int GetNumberOfOutputArcs() const { return outputArcs.size(); }
 
 		public: // modifiers
 			void Initialize();

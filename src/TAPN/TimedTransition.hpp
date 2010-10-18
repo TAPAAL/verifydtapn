@@ -30,10 +30,10 @@ class SymMarking;
 			const std::string& GetName() const;
 			void Print(std::ostream&) const;
 			const TimedInputArc::WeakPtrVector& GetPreset() const { return preset; }
-			const int GetPresetSize() const { return preset.size(); }
+			const unsigned int GetPresetSize() const { return preset.size(); }
 			const OutputArc::WeakPtrVector& GetPostset() const { return postset; }
-			const int GetPostsetSize() const { return postset.size(); }
-			bool isEnabledBy(const TimedArcPetriNet& tapn, const VerifyTAPN::SymMarking& marking) const;
+			const unsigned int GetPostsetSize() const { return postset.size(); }
+		//	bool isEnabledBy(const TimedArcPetriNet& tapn, const VerifyTAPN::SymMarking& marking) const;
 			const bool isConservative() const { return preset.size() == postset.size(); }
 
 		private: // data

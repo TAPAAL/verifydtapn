@@ -11,6 +11,14 @@ using namespace VerifyTAPN::TAPN;
 	/////////////////////////////////////////////
 	SymMarking::SymMarking(const DiscretePart& dp, const dbm::dbm_t& dbm) : dp(dp), dbm(dbm)
 	{
+		initMapping();
+	}
+
+	/////////////////////////////////////////////
+	// Initializers
+	/////////////////////////////////////////////
+	void SymMarking::initMapping()
+	{
 		std::vector<int> pVector = dp.GetTokenPlacementVector();
 		std::vector<int> map;
 		int i = 0;
@@ -30,14 +38,6 @@ using namespace VerifyTAPN::TAPN;
 	}
 
 	/////////////////////////////////////////////
-	// Initializers
-	/////////////////////////////////////////////
-	void SymMarking::initMapping(const std::vector<int> & placement)
-	{
-
-	}
-
-	/////////////////////////////////////////////
 	// Inspectors
 	/////////////////////////////////////////////
 	const DiscretePart* SymMarking::GetDiscretePart() const
@@ -45,10 +45,11 @@ using namespace VerifyTAPN::TAPN;
 		return &dp;
 	}
 
-	const dbm::dbm_t& SymMarking::GetZone() const
+	const dbm::dbm_t& SymMarking::Zone() const
 	{
 		return dbm;
 	}
+
 
 	const TokenMapping& SymMarking::GetTokenMapping() const
 	{
@@ -57,35 +58,67 @@ using namespace VerifyTAPN::TAPN;
 
 	void SymMarking::GenerateDiscreteTransitionSuccessors(const VerifyTAPN::TAPN::TimedArcPetriNet& tapn, std::vector<SymMarking*>& succ) const
 	{
-		TimedTransition::Vector transitions = tapn.GetTransitions();
-
-		for (TimedTransition::Vector::const_iterator iter = transitions.begin(); iter != transitions.end(); ++iter) {
-			boost::shared_ptr<TimedTransition> t = (*iter);
-
-			if(t->isEnabledBy(tapn,*this))
-			{
-				GenerateDiscreteTransitionSuccessorFor(*t,succ);
-			}
-
-		}
-
-		// For each transition
-		//   if enabled
-		//      create successor(s) (if choice between multiple tokens)
-
-
-	}
-
-	void SymMarking::GenerateDiscreteTransitionSuccessorFor(const TimedTransition& t, std::vector<SymMarking*>& succ) const
-	{
-		Pairing pairing(t);
-
-
-
+		// call successor generator
 	}
 
 	void SymMarking::Delay()
 	{
 		dbm.up();
 	}
+
+	void SymMarking::ResetClock(int clockIndex)
+	{
+		dbm(clockIndex) = 0;
+	}
+
+	void SymMarking::MoveToken(int tokenIndex, int newPlaceIndex)
+	{
+		dp.MoveToken(tokenIndex, newPlaceIndex);
+	}
+
+	void SymMarking::MoveFirstTokenAtBottomTo(int newPlaceIndex)
+	{
+		dp.MoveFirstTokenAtBottomTo(newPlaceIndex);
+	}
+
+	void SymMarking::AddActiveToken(int nAdditionalTokens)
+	{
+		int newDimension = dbm.getDimension()+nAdditionalTokens;
+		dbm::dbm_t newDbm(newDimension);
+		newDbm.setInit();
+
+		unsigned int bitSrc = 0;
+		unsigned int bitDst = 0;
+		int bitval = 1;
+		int dim = 0;
+		unsigned int table[newDimension];
+		while(dim < newDimension)
+		{
+			if(dim < dbm.getDimension())
+				bitSrc |= bitval;
+
+			bitDst |= bitval;
+			bitval <<= 1;
+			table[dim] = dim;
+			dim++;
+		}
+
+		dbm_shrinkExpand(dbm.getDBM(), newDbm.getDBM(), dbm.getDimension(), &bitSrc, &bitDst, 1, table);
+
+		dbm = newDbm;
+
+		// TODO: update token mapping
+	}
+
+	void SymMarking::RemoveInactiveToken(int nTokensToRemove)
+	{
+
+	}
+
+	void SymMarking::Constrain(const int tokenIndex, const TAPN::TimeInterval& ti)
+	{
+		dbm.constrain(0, tokenIndex, ti.LowerBoundToDBMRaw());
+		dbm.constrain(tokenIndex, 0, ti.UpperBoundToDBMRaw());
+	}
 }
+

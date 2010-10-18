@@ -3,6 +3,7 @@
 #include <fstream>
 namespace VerifyTAPN
 {
+
 	int TAPNQueryParser::parse(const std::string& filepath)
 	{
 		this->file = filepath;
