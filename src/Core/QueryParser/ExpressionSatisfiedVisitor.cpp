@@ -1,0 +1,63 @@
+#include "ExpressionSatisfiedVisitor.hpp"
+#include "AST.hpp"
+#include "../SymMarking.hpp"
+#include <exception>
+
+namespace VerifyTAPN
+{
+	namespace AST
+	{
+		void ExpressionSatisfiedVisitor::Visit(const ParExpression& expr, boost::any& context)
+		{
+			expr.Child().Accept(*this, context);
+		}
+
+		void ExpressionSatisfiedVisitor::Visit(const OrExpression& expr, boost::any& context)
+		{
+			boost::any left, right;
+			expr.Left().Accept(*this, left);
+			expr.Right().Accept(*this, right);
+
+			context = boost::any_cast<bool>(left) || boost::any_cast<bool>(right);
+		}
+
+		void ExpressionSatisfiedVisitor::Visit(const AndExpression& expr, boost::any& context)
+		{
+			boost::any left, right;
+			expr.Left().Accept(*this, left);
+			expr.Right().Accept(*this, right);
+
+			context = boost::any_cast<bool>(left) && boost::any_cast<bool>(right);
+		}
+
+		void ExpressionSatisfiedVisitor::Visit(const AtomicProposition& expr, boost::any& context)
+		{
+			const DiscretePart* dp = marking.GetDiscretePart();
+			int numberOfTokens = dp->NumberOfTokensInPlace(expr.Place());
+			context = Compare(numberOfTokens, expr.Operator(), expr.N());
+		}
+
+		void ExpressionSatisfiedVisitor::Visit(const Query& query, boost::any& context)
+		{
+			query.Child().Accept(*this, context);
+		}
+
+		bool ExpressionSatisfiedVisitor::Compare(int numberOfTokensInPlace, const std::string& op, int n) const
+		{
+			if(op == "<") return numberOfTokensInPlace < n;
+			else if(op == "<=") return numberOfTokensInPlace <= n;
+			else if(op == "=" || op == "==") return numberOfTokensInPlace == n;
+			else if(op == ">=") return numberOfTokensInPlace >= n;
+			else if(op == ">") return numberOfTokensInPlace > n;
+			else
+				throw std::exception();
+		}
+
+		bool ExpressionSatisfiedVisitor::IsSatisfied(const Query& query)
+		{
+			boost::any any;
+			Visit(query, any);
+			return boost::any_cast<bool>(any);
+		}
+	}
+}

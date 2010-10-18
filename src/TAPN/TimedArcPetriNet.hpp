@@ -24,6 +24,7 @@ namespace VerifyTAPN {
 		public: // inspectors
 			void Print(std::ostream& out) const;
 			int GetPlaceIndex(const TimedPlace& p) const;
+			int GetPlaceIndex(const std::string& placeName) const;
 			const TimedTransition::Vector& GetTransitions() const { return transitions; }
 
 		public: // modifiers

@@ -31,4 +31,18 @@ namespace VerifyTAPN {
 		return -1;
 	}
 
+	int DiscretePart::NumberOfTokensInPlace(int placeIndex) const
+		{
+			int i = 0;
+			for(std::vector<int>::const_iterator iter = placement.begin(); iter != placement.end(); ++iter)
+			{
+				if((*iter) == placeIndex)
+				{
+					i++;
+				}
+			}
+
+			return i;
+		}
+
 }

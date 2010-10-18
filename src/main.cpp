@@ -8,6 +8,9 @@
 #include "Core/SymMarking.hpp"
 #include "Verification/PWList.hpp"
 #include "Core/Pairing.hpp"
+#include "Core/QueryParser/AST.hpp"
+#include "Core/QueryParser/TAPNQueryParser.hpp"
+#include "Core/QueryParser/ToStringVisitor.hpp"
 
 using namespace std;
 using namespace VerifyTAPN;
@@ -76,11 +79,24 @@ void testPairing(const string& filename)
 }
 
 int main(int argc, char* argv[]) {
-	string filename = "/home/lassejac/Documents/Uni/development/DAT7/verifytapn/example-nets/pairing_test_net.xml";
+	//string filename = "example-nets/pairing_test_net.xml";
 	//testInitMarkingParsing(filename);
 
   //  testIsEnabled(filename);
 
-	testPairing(filename);
+	//testPairing(filename);
+
+	string file = "example-nets/simple_net.xml";
+	TAPNXmlParser parser;
+	boost::shared_ptr<TimedArcPetriNet> tapn = parser.Parse(file);
+
+	VerifyTAPN::TAPNQueryParser queryParser(*tapn);
+	queryParser.parse("example-queries/ef-query-test");
+	AST::Query* ast = queryParser.GetAST();
+	VerifyTAPN::AST::ToStringVisitor visitor;
+	boost::any any;
+	ast->Accept(visitor, any);
+	delete ast;
+
     return 0;
 }

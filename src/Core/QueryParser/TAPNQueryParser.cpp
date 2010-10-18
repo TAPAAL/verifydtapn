@@ -1,19 +1,33 @@
 #include "TAPNQueryParser.hpp"
-#include "../util.hpp"
-#include "boost/spirit/include/qi_parse.hpp"
-#include "boost/spirit/include/qi.hpp"
-
+#include "AST.hpp"
+#include <fstream>
 namespace VerifyTAPN
 {
-	namespace Query
+	int TAPNQueryParser::parse(const std::string& filepath)
 	{
-		void TAPNQueryParser::Parse(const std::string& file) const
-		{
-			std::string contents = ReadFile(file);
-			std::string::const_iterator begin = contents.begin();
-			std::string::const_iterator end = contents.end();
+		this->file = filepath;
+		scan_begin();
+		Parser parser(*this);
+		int result = parser.parse();
+		scan_end();
+		return result;
+	}
 
-			bool succ = phrase_parse(begin, end, grammar, boost::spirit::ascii::space);
-		}
+	void TAPNQueryParser::SetAST(AST::Query* query){
+		ast = query->clone();
+	}
+
+	AST::Query* TAPNQueryParser::GetAST(){
+		return ast;
+	}
+
+	void TAPNQueryParser::error(const location& l, const std::string& m)
+	{
+		std::cerr << l << ": " << m << std::endl;
+	}
+
+	void TAPNQueryParser::error(const std::string& m)
+	{
+		std::cerr << m << std::endl;
 	}
 }

@@ -18,6 +18,7 @@ namespace VerifyTAPN {
 	public: // inspectors
 		int GetTokenPlacement(int tokenIndex) const;
 		int IsTokenPresentInPlace(int placeIndex) const;
+		int NumberOfTokensInPlace(int placeIndex) const;
 		const std::vector<int>& GetTokenPlacementVector() const;
 	private: // data
 		std::vector<int> placement;
