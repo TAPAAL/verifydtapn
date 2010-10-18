@@ -3,6 +3,7 @@
 
 #include "WaitingList.hpp"
 #include "PWList.hpp"
+#include "../Core/QueryChecker.hpp"
 
 namespace VerifyTAPN
 {
@@ -11,6 +12,10 @@ namespace VerifyTAPN
 
 	namespace TAPN{
 		class TimedArcPetriNet;
+	}
+
+	namespace AST{
+		class Query;
 	}
 
 
@@ -26,16 +31,19 @@ namespace VerifyTAPN
 	class DFS : SearchStrategy
 	{
 	public:
-		DFS(const VerifyTAPN::TAPN::TimedArcPetriNet& tapn,
-				const SymMarking& initialMarking)
-			: tapn(tapn), initialMarking(initialMarking)
-			  { pwList = new PWList(new StackWaitingList); };
+		DFS(
+			const VerifyTAPN::TAPN::TimedArcPetriNet& tapn,
+			const SymMarking& initialMarking,
+			const AST::Query* query
+		);
 		virtual ~DFS() { delete pwList; };
 		virtual bool Execute();
+		virtual bool CheckQuery(const SymMarking& marking) const;
 	private:
 		PassedWaitingList* pwList;
 		const VerifyTAPN::TAPN::TimedArcPetriNet& tapn;
 		const SymMarking& initialMarking;
+		const QueryChecker checker;
 	};
 }
 

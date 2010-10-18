@@ -11,6 +11,8 @@
 #include "Core/QueryParser/AST.hpp"
 #include "Core/QueryParser/TAPNQueryParser.hpp"
 #include "Core/QueryParser/ToStringVisitor.hpp"
+#include "Core/QueryChecker.hpp"
+#include <vector>
 
 using namespace std;
 using namespace VerifyTAPN;
@@ -96,7 +98,21 @@ int main(int argc, char* argv[]) {
 	VerifyTAPN::AST::ToStringVisitor visitor;
 	boost::any any;
 	ast->Accept(visitor, any);
-	delete ast;
+
+	dbm::dbm_t dbm;
+	std::vector<int> vec1;
+	vec1.push_back(1);
+	vec1.push_back(1);
+//	vec1.push_back(1);
+	vec1.push_back(2);
+	vec1.push_back(3);
+
+	DiscretePart dp1(vec1);
+	SymMarking marking(dp1, dbm);
+
+	QueryChecker checker(ast);
+	std::cout << std::endl << checker.IsExpressionSatisfied(marking);
+
 
     return 0;
 }

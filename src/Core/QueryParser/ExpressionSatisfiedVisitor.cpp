@@ -52,12 +52,5 @@ namespace VerifyTAPN
 			else
 				throw std::exception();
 		}
-
-		bool ExpressionSatisfiedVisitor::IsSatisfied(const Query& query)
-		{
-			boost::any any;
-			Visit(query, any);
-			return boost::any_cast<bool>(any);
-		}
 	}
 }

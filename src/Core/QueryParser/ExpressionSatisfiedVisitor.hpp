@@ -27,8 +27,6 @@ namespace VerifyTAPN
 			virtual void Visit(const AndExpression& expr, boost::any& context);
 			virtual void Visit(const AtomicProposition& expr, boost::any& context);
 			virtual void Visit(const Query& query, boost::any& context);
-
-			bool IsSatisfied(const Query& query);
 		private:
 			bool Compare(int numberOfTokensInPlace, const std::string& op, int n) const;
 
