@@ -2,13 +2,21 @@
 #include "../TAPN/TimedInputArc.hpp"
 #include "../Core/SymMarking.hpp"
 #include "../Core/Pairing.hpp"
+#include "dbm/print.h"
 
 namespace VerifyTAPN {
 	void SuccessorGenerator::GenerateDiscreteTransitionsSuccessors(const SymMarking* marking, std::vector<SymMarking*>& succ)
 	{
 		const TAPN::TimedTransition::Vector& transitions = tapn->GetTransitions();
-		unsigned int currInputArcIdx = 0;
 
+		CollectArcsAndAppropriateTokens(transitions, marking);
+
+		GenerateSuccessors(transitions, marking, succ);
+	}
+
+	void SuccessorGenerator::CollectArcsAndAppropriateTokens(const TAPN::TimedTransition::Vector& transitions, const SymMarking* marking)
+	{
+		unsigned int currInputArcIdx = 0;
 
 		// for all input arcs
 		//		collect Arcs - should be sorted by transition in arcsArray
@@ -19,8 +27,8 @@ namespace VerifyTAPN {
 			for(TAPN::TimedInputArc::WeakPtrVector::const_iterator presetIter = preset.begin(); presetIter != preset.end(); ++presetIter)
 			{
 				boost::shared_ptr<TAPN::TimedInputArc> ia = (*presetIter).lock();
-				const TokenMapping& map = marking->GetTokenMapping();
 				const TAPN::TimeInterval& ti = ia->Interval();
+				const TokenMapping& map = marking->GetTokenMapping();
 
 				unsigned int nTokensFromCurrInputPlace = 0;
 				for(unsigned int i = 0; i < map.size(); i++)
@@ -53,7 +61,10 @@ namespace VerifyTAPN {
 				currInputArcIdx++;
 			}
 		}
+	}
 
+	void SuccessorGenerator::GenerateSuccessors(const TAPN::TimedTransition::Vector& transitions, const SymMarking* marking, std::vector<SymMarking*>& succ)
+	{
 		// for all marked transitions
 		// 		try to take them
 		int currTransitionIdx = 0;
@@ -77,11 +88,11 @@ namespace VerifyTAPN {
 				// generate permutations of successors
 				Pairing pairing(*(*iter));
 				const TAPN::TimedInputArc::WeakPtrVector& preset = (*iter)->GetPreset();
-
+				std::vector<int> tokensToRemove;
 
 
 				unsigned int indices[presetSize];
-				for(int i = 0; i < presetSize; ++i)
+				for(unsigned int i = 0; i < presetSize; ++i)
 					indices[i] = 0;
 
 				bool done = false;
@@ -90,7 +101,7 @@ namespace VerifyTAPN {
 					bool skipCurrentPermutation = false;
 					SymMarking* next = marking->clone();
 
-					for(int i = 0; i < presetSize; ++i)
+					for(unsigned int i = 0; i < presetSize; ++i)
 					{
 						boost::shared_ptr<TAPN::TimedInputArc> ia = preset[i].lock();
 						const TAPN::TimedPlace& inputPlace = ia->InputPlace();
@@ -105,10 +116,20 @@ namespace VerifyTAPN {
 							// change placement
 							int tokenMappingIdx = tokenIndices->at_element(currTransitionIdx+i, indices[i]);
 							int tokenIndex = map.GetMapping(tokenMappingIdx);
-							next->MoveToken(tokenIndex,tapn->GetPlaceIndex(*opIter));
+							int outputPlaceIndex = tapn->GetPlaceIndex(*opIter);
+
+							if(outputPlaceIndex == TAPN::TimedPlace::BottomIndex())
+								tokensToRemove.push_back(tokenMappingIdx);
+
+							next->MoveToken(tokenIndex, outputPlaceIndex);
 
 							// constrain dbm with lower bound and upper bound in guard
 							next->Constrain(tokenMappingIdx, ti);
+
+//							std::cout << "-------------------------------\n";
+//							std::cout << "Next DBM constrained on mapping index: " << tokenMappingIdx << " with time interval: " << ti << "\n";
+//							std::cout << "\n------------------------------------\n";
+//							std::cout << next->Zone() << "\n-----------------------------------------\n\n";
 
 							if(next->Zone().isEmpty())
 							{
@@ -116,13 +137,21 @@ namespace VerifyTAPN {
 								break;
 							}
 
-							// reset age to 0
-							next->ResetClock(tokenMappingIdx);
 						}
 						if(skipCurrentPermutation)
 							break;
 					}
 
+					for (unsigned int i = 0; i < presetSize; ++i) {
+						int tokenMappingIdx = tokenIndices->at_element(currTransitionIdx+i, indices[i]);
+						// reset age to 0
+						next->ResetClock(tokenMappingIdx);
+					}
+
+//					std::cout << "-------------------------------\n";
+//					std::cout << "Next DBM with clocks reset:\n";
+//					std::cout << "\n------------------------------------\n";
+//					std::cout << next->Zone() << "\n-----------------------------------------\n\n";
 
 					if(!skipCurrentPermutation)
 					{
@@ -130,36 +159,40 @@ namespace VerifyTAPN {
 						int diff = presetSize - (*iter)->GetPostsetSize();
 						if(diff > 0) // preset bigger than postset, i.e. more tokens consumed than produced
 						{
+							assert(tokensToRemove.size() == std::abs(diff));
+
 							// remove diff active tokens, placement already fixed
-							next->RemoveInactiveToken(diff);
+							next->RemoveInactiveTokensFromDBM(tokensToRemove);
 						}
 						else if(diff < 0) // postset bigger than preset, i.e. more tokens produced than consumed
 						{
+							int dim = next->Zone().getDimension();
+
 							// add diff active tokens and move diff tokens from BOTTOM to paired places
-							next->AddActiveToken(std::abs(diff));
+							next->AddActiveTokensToDBM(std::abs(diff));
 
 							std::list<TAPN::TimedPlace> outputPlaces = pairing.GetOutputPlacesFor(TAPN::TimedPlace::Bottom());
+							int i = 0;
 							for(std::list<TAPN::TimedPlace>::const_iterator bottomIter = outputPlaces.begin(); bottomIter != outputPlaces.end(); ++bottomIter)
 							{
 								// change token placement
-								next->MoveFirstTokenAtBottomTo(tapn->GetPlaceIndex(*bottomIter));
-							}
+								int tokenIndex = next->MoveFirstTokenAtBottomTo(tapn->GetPlaceIndex(*bottomIter));
 
+								assert(tokenIndex > 0); // if this assertion fails a token should have been moved from bottom but there are currently no tokens in bottom
+
+								next->AddTokenToMapping(tokenIndex);
+
+								// reset clock to 0
+								next->ResetClock(dim+i);
+								i++;
+
+							}
 						}
 
 						succ.push_back(next);
+						tokensToRemove.clear();
 					}
 
-
-
-//					for(int i = 0; i < presetSize; ++i)
-//					{
-//						// Generate concrete successor
-//
-//
-//						std::cout << tokenIndices->at_element(currTransitionIdx+i, indices[i]) << " ";
-//					}
-					std::cout << "\n";
 
 					int j = presetSize - 1;
 					while(true)
@@ -178,30 +211,10 @@ namespace VerifyTAPN {
 					if(done)
 						break;
 				}
-
-//				int i = 0;
-//				while(true)
-//				{
-//
-//					int j = i;
-//					for(int k = 0; k < presetSize; ++k)
-//					{
-//						std::cout << tokenIndices->at_element(currTransitionIdx+k, j % arcsArray[currTransitionIdx+k]) << " ";
-//						j /= arcsArray[currTransitionIdx+k];
-//					}
-//					std::cout << "\n";
-//					if(j > 0)
-//						break;
-//
-//					i += 1;
-//				}
-
 			}
 
 			currTransitionIdx += presetSize;
 		}
-
-
 	}
 
 

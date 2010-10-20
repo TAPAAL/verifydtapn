@@ -13,4 +13,9 @@ namespace VerifyTAPN {
 			return mapping[index];
 		}
 	}
+
+	void TokenMapping::AddTokenToMapping(int tokenIndex)
+	{
+		mapping.push_back(tokenIndex);
+	}
 }

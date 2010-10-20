@@ -23,7 +23,8 @@ namespace VerifyTAPN {
 
 	public: // modifiers
 		void MoveToken(int tokenIndex, int newPlaceIndex);
-		void MoveFirstTokenAtBottomTo(int newPlaceIndex);
+		int MoveFirstTokenAtBottomTo(int newPlaceIndex);
+		void MakeKBound(int kBound);
 
 	private: // data
 		std::vector<int> placement;

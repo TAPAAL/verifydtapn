@@ -32,16 +32,18 @@ namespace VerifyTAPN {
 			const dbm::dbm_t & Zone() const;
 			const TokenMapping& GetTokenMapping() const;
 			void GenerateDiscreteTransitionSuccessors(const VerifyTAPN::TAPN::TimedArcPetriNet & tapn, std::vector<SymMarking*>& succ) const;
+			void Print(std::ostream& out) const;
 
 		public: // Modifiers
 			void Delay();
 			void MoveToken(int tokenIndex, int newPlaceIndex);
-			void MoveFirstTokenAtBottomTo(int newPlaceIndex);
+			int MoveFirstTokenAtBottomTo(int newPlaceIndex);
 			void ResetClock(int clockIndex);
-			void AddActiveToken(int nAdditionalTokens);
-			void RemoveInactiveToken(int nTokensToRemove);
+			void AddActiveTokensToDBM(int nAdditionalTokens);
+			void RemoveInactiveTokensFromDBM(const std::vector<int>& tokensToRemove);
 			void Constrain(const int tokenIndex, const TAPN::TimeInterval& ti);
-
+			void AddTokenToMapping(int tokenIndex);
+			void MakeKBound(int kBound) { dp.MakeKBound(kBound); }
 
 		private: // Initializers
 			void initMapping();
@@ -56,6 +58,13 @@ namespace VerifyTAPN {
 			TokenMapping mapping;
 
 	};
+
+
+	inline std::ostream& operator<<(std::ostream& out, const VerifyTAPN::SymMarking& marking)
+	{
+		marking.Print( out );
+		return out;
+	}
 
 }
 

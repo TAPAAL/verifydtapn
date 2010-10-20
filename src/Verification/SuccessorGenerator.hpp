@@ -39,6 +39,10 @@ namespace VerifyTAPN {
 		void ClearArcsArray();
 		void ClearTokenIndices();
 
+	private: // initialization
+		void CollectArcsAndAppropriateTokens(const TAPN::TimedTransition::Vector& transitions, const SymMarking* marking);
+		void GenerateSuccessors(const TAPN::TimedTransition::Vector& transitions, const SymMarking* marking, std::vector<SymMarking*>& succ);
+
 	private: // data
 		boost::shared_ptr<TAPN::TimedArcPetriNet> tapn;
 		unsigned* arcsArray;
