@@ -84,7 +84,8 @@ using namespace VerifyTAPN::TAPN;
 
 	void SymMarking::AddActiveTokensToDBM(int nAdditionalTokens)
 	{
-		int newDimension = dbm.getDimension()+nAdditionalTokens;
+		int oldDimension = dbm.getDimension();
+		int newDimension = oldDimension + nAdditionalTokens;
 		dbm::dbm_t newDbm(newDimension);
 		newDbm.setInit();
 
@@ -95,7 +96,7 @@ using namespace VerifyTAPN::TAPN;
 		unsigned int table[newDimension];
 		while(dim < newDimension)
 		{
-			if(dim < dbm.getDimension())
+			if(dim < oldDimension)
 				bitSrc |= bitval;
 
 			bitDst |= bitval;
@@ -104,7 +105,12 @@ using namespace VerifyTAPN::TAPN;
 			dim++;
 		}
 
-		dbm_shrinkExpand(dbm.getDBM(), newDbm.getDBM(), dbm.getDimension(), &bitSrc, &bitDst, 1, table);
+		dbm_shrinkExpand(dbm.getDBM(), newDbm.getDBM(), oldDimension, &bitSrc, &bitDst, 1, table);
+
+		for(int i = 0; i < nAdditionalTokens; ++i)
+		{
+			newDbm(oldDimension+i) = 0; // reset new clocks to zero
+		}
 
 		dbm = newDbm;
 	}
@@ -133,20 +139,19 @@ using namespace VerifyTAPN::TAPN;
 
 			bitSrc |= bitval;
 			bitval <<= 1;
-			table[dim] = std::numeric_limits<int>().max();
+			table[dim] = std::numeric_limits<unsigned int>().max();
 			dim++;
 		}
 
-		dbm_shrinkExpand(dbm.getDBM(), newDbm.getDBM(), dbm.getDimension(), &bitSrc, &bitDst, 1, table);
+		dbm_shrinkExpand(dbm.getDBM(), newDbm.getDBM(), oldDimension, &bitSrc, &bitDst, 1, table);
 		dbm = newDbm;
 
 		// fix token mapping according to new DBM:
 		std::vector<int> newTokenMap;
 
-		int j = 0;
 		for(int i = 0; i < oldDimension; ++i)
 		{
-			if(table[i] != std::numeric_limits<int>().max())
+			if(table[i] != std::numeric_limits<unsigned int>().max())
 				newTokenMap.push_back(mapping.GetMapping(i));
 		}
 

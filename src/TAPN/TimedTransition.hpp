@@ -20,6 +20,7 @@ class SymMarking;
 			typedef std::vector< boost::shared_ptr<TimedTransition> > Vector;
 		public:
 			TimedTransition(const std::string& name) : name(name) { };
+			TimedTransition() : name("*EMPTY*") { };
 			virtual ~TimedTransition() { /* empty */ }
 
 		public: // modifiers
@@ -37,7 +38,7 @@ class SymMarking;
 			const bool isConservative() const { return preset.size() == postset.size(); }
 
 		private: // data
-			const std::string name;
+			std::string name;
 			TimedInputArc::WeakPtrVector preset;
 			OutputArc::WeakPtrVector postset;
 		};
@@ -46,6 +47,13 @@ class SymMarking;
 		{
 			transition.Print(out);
 			return out;
+		}
+
+		// TAPAAL does not allow multiple places with the same name,
+		// thus it is enough to use the name to determine equality.
+		inline bool operator==(TimedTransition const& a, TimedTransition const& b)
+		{
+			return a.GetName() == b.GetName();
 		}
 	}
 }

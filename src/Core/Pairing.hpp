@@ -23,11 +23,13 @@ namespace VerifyTAPN {
 			typedef google::sparse_hash_map<TAPN::TimedPlace, std::list<TAPN::TimedPlace>, boost::hash<TAPN::TimedPlace> > HashMap;
 		public: // construction
 			Pairing(const TAPN::TimedTransition& t) : pairing() { GeneratePairingFor(t); };
+			Pairing() : pairing() { };
 
 
 
 		public: // inspectors
 			std::list<TAPN::TimedPlace>& GetOutputPlacesFor(const TAPN::TimedPlace& inputPlace);
+			bool IsPairingEmpty() const { return pairing.empty(); }
 			void Print(std::ostream& out) const;
 
 		public: // modifiers

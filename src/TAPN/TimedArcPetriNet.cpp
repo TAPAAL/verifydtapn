@@ -17,6 +17,8 @@ namespace VerifyTAPN {
 				arc->OutputPlace().AddToPreset(arc);
 				arc->InputTransition().AddToPostset(arc);
 			}
+
+			GeneratePairings();
 		}
 
 		int TimedArcPetriNet::GetPlaceIndex(const TimedPlace& p) const
@@ -71,7 +73,20 @@ namespace VerifyTAPN {
 
 			out << std::endl;
 		}
+
+
+		void TimedArcPetriNet::GeneratePairings()
+		{
+			for(TimedTransition::Vector::const_iterator iter = transitions.begin(); iter != transitions.end(); ++iter)
+			{
+				TimedTransition t = *(*iter);
+				Pairing p(t);
+				pairings[t] = p;
+			}
+		}
 	}
+
+
 }
 
 

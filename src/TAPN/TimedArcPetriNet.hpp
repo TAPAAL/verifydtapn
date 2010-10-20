@@ -7,12 +7,19 @@
 #include "TimedInputArc.hpp"
 #include "OutputArc.hpp"
 #include "boost/make_shared.hpp"
+#include "google/sparse_hash_map"
+#include "boost/functional/hash.hpp"
+#include "../Core/Pairing.hpp"
 
 namespace VerifyTAPN {
+
 	namespace TAPN {
 
 		class TimedArcPetriNet
 		{
+		public: // typedefs
+			typedef google::sparse_hash_map<TimedTransition, VerifyTAPN::Pairing, boost::hash<TAPN::TimedTransition> > HashMap;
+
 		public:// construction
 			TimedArcPetriNet(const TimedPlace::Vector& places,
 				const TimedTransition::Vector& transitions,
@@ -30,24 +37,34 @@ namespace VerifyTAPN {
 			const int GetNumberOfInputArcs() const { return inputArcs.size(); }
 			const OutputArc::Vector& GetOutputArcs() const { return outputArcs; }
 			const int GetNumberOfOutputArcs() const { return outputArcs.size(); }
+			const Pairing& GetPairing(const TimedTransition& t) { return pairings[t]; }
 
 		public: // modifiers
 			void Initialize();
 
+
 		private: // modifiers
 			void MakeTAPNConservative();
+			void GeneratePairings();
 
 		private: // data
 			const TimedPlace::Vector places;
 			const TimedTransition::Vector transitions;
 			const TimedInputArc::Vector inputArcs;
 			const OutputArc::Vector outputArcs;
+			HashMap pairings;
 		};
 
 		inline std::ostream& operator<<(std::ostream& out, const VerifyTAPN::TAPN::TimedArcPetriNet& tapn)
 		{
 			tapn.Print( out );
 			return out;
+		}
+
+		inline std::size_t hash_value(TimedTransition const& transition)
+		{
+			boost::hash<std::string> hasher;
+			return hasher(transition.GetName());
 		}
 	}
 }
