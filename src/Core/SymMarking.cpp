@@ -91,23 +91,43 @@ using namespace VerifyTAPN::TAPN;
 		dbm::dbm_t newDbm(newDimension);
 		newDbm.setInit();
 
-		unsigned int bitSrc = 0;
-		unsigned int bitDst = 0;
-		int bitval = 1;
-		int dim = 0;
-		unsigned int table[newDimension];
-		while(dim < newDimension)
-		{
-			if(dim < oldDimension)
-				bitSrc |= bitval;
+		unsigned int bitArraySize = newDimension/32+1;
 
-			bitDst |= bitval;
-			bitval <<= 1;
-			table[dim] = dim;
-			dim++;
+		unsigned int bitSrc[bitArraySize];
+		unsigned int bitDst[bitArraySize];
+		unsigned int table[newDimension];
+
+		// init to zero
+		for(int i = 0; i < bitArraySize; ++i)
+		{
+			bitSrc[i] = 0;
+			bitDst[i] = 0;
 		}
 
-		dbm_shrinkExpand(dbm.getDBM(), newDbm.getDBM(), oldDimension, &bitSrc, &bitDst, 1, table);
+		int j = 0;
+
+		while(oldDimension-j*32 > 32)
+		{
+			bitSrc[j] = ~(bitSrc[j] & 0);
+			bitDst[j] = ~(bitDst[j] & 0);
+			j++;
+		}
+
+		//set final bits of bitSrc
+		for(int i = j; i < oldDimension; i++)
+		{
+			bitSrc[i/32] |= (1 << i % 32);
+		}
+
+		//set final bits of bitDst
+		for(int i = j; i < newDimension; i++)
+		{
+			bitDst[i/32] |= (1 << i % 32);
+			table[i] = std::numeric_limits<unsigned int>().max();
+		}
+
+
+		dbm_shrinkExpand(dbm.getDBM(), newDbm.getDBM(), oldDimension, bitSrc, bitDst, bitArraySize, table);
 
 		for(int i = 0; i < nAdditionalTokens; ++i)
 		{
@@ -128,24 +148,43 @@ using namespace VerifyTAPN::TAPN;
 		dbm::dbm_t newDbm(newDimension);
 		newDbm.setInit();
 
-		unsigned int bitSrc = 0;
-		unsigned int bitDst = 0;
-		int bitval = 1;
+		unsigned int bitArraySize = oldDimension/32+1;
+
+		unsigned int bitSrc[bitArraySize];
+		unsigned int bitDst[bitArraySize];
 		unsigned int table[oldDimension];
-		int dim = 0;
 
-		while(dim < oldDimension)
+		// init to zero
+		for(int i = 0; i < bitArraySize; ++i)
 		{
-			if(dim == 0 || std::find(tokensToRemove.begin(), tokensToRemove.end(), dim) == tokensToRemove.end())
-				bitDst |= bitval;
-
-			bitSrc |= bitval;
-			bitval <<= 1;
-			table[dim] = std::numeric_limits<unsigned int>().max();
-			dim++;
+			bitSrc[i] = 0;
+			bitDst[i] = 0;
 		}
 
-		dbm_shrinkExpand(dbm.getDBM(), newDbm.getDBM(), oldDimension, &bitSrc, &bitDst, 1, table);
+		for(int i = 0; i < oldDimension; ++i)
+		{
+			table[i] = std::numeric_limits<unsigned int>().max();
+		}
+
+		int j = 0;
+
+		while(oldDimension-j*32 > 32)
+		{
+			bitSrc[j] = ~(bitSrc[j] & 0);
+			j++;
+		}
+
+		//set final bits of bitSrc
+		for(int i = j; i < oldDimension; i++)
+		{
+			bitSrc[i/32] |= (1 << i % 32);
+
+			if(i == 0 || std::find(tokensToRemove.begin(), tokensToRemove.end(), i) == tokensToRemove.end())
+				bitDst[i/32] |= (1 << i % 32);
+		}
+
+
+		dbm_shrinkExpand(dbm.getDBM(), newDbm.getDBM(), oldDimension, bitSrc, bitDst, bitArraySize, table);
 		dbm = newDbm;
 
 		// fix token mapping according to new DBM:
