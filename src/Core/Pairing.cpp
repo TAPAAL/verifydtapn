@@ -47,7 +47,7 @@ using namespace TAPN;
 		}
 	}
 
-	std::list<TimedPlace>& Pairing::GetOutputPlacesFor(const TimedPlace& inputPlace)
+	const std::list<TimedPlace>& Pairing::GetOutputPlacesFor(const TimedPlace& inputPlace) const
 	{
 		return pairing[inputPlace];
 	}

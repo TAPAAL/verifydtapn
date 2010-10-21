@@ -9,6 +9,11 @@ namespace VerifyTAPN {
 		return inputFile;
 	}
 
+	const std::string VerificationOptions::QueryFile() const
+	{
+		return queryFile;
+	}
+
 	const int VerificationOptions::GetKBound() const
 	{
 		return k_bound;
@@ -18,15 +23,17 @@ namespace VerifyTAPN {
 	{
 		bool error = false;
 
-		boost::program_options::options_description desc("Usage: verifytapn -k <number> inputfile \nAllowed Options:");
+		boost::program_options::options_description desc("Usage: verifytapn -k <number> model-file query-file \nAllowed Options:");
 		desc.add_options()
 				("help,h", "Produce help message")
 				("k-bound,k", boost::program_options::value<int>(), "Specify the bound of the TAPN model")
-				("input-file", boost::program_options::value<std::string>(), "input file")
+				("model-file", boost::program_options::value<std::string>(), "model file")
+				("query-file", boost::program_options::value<std::string>(), "query file")
 		;
 
 		boost::program_options::positional_options_description p;
-		p.add("input-file", 1);
+		p.add("model-file", 1);
+		p.add("query-file", 2);
 
 		boost::program_options::variables_map vm;
 		boost::program_options::store(boost::program_options::command_line_parser(argc,argv).options(desc).positional(p).run(), vm);
@@ -46,11 +53,19 @@ namespace VerifyTAPN {
 
 		}
 
-		if(vm.count("input-file")) {
-			std::cout << "input file is: " << vm["input-file"].as<std::string>() << "\n";
+		if(vm.count("model-file")) {
+			std::cout << "model file is: " << vm["model-file"].as<std::string>() << "\n";
 		}
 		else{
-			std::cout << "Error! You must specify an input file" << "\n\n";
+			std::cout << "Error! You must specify an model file" << "\n\n";
+			error = true;
+		}
+
+		if(vm.count("query-file")) {
+			std::cout << "query file is: " << vm["query-file"].as<std::string>() << "\n";
+		}
+		else{
+			std::cout << "Error! You must specify an query file" << "\n\n";
 			error = true;
 		}
 
@@ -59,7 +74,7 @@ namespace VerifyTAPN {
 			exit(0);
 		}
 
-		return VerificationOptions(vm["input-file"].as<std::string>(), vm["k-bound"].as<int>());
+		return VerificationOptions(vm["model-file"].as<std::string>(), vm["query-file"].as<std::string>(), vm["k-bound"].as<int>());
 	}
 
 }

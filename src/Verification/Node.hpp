@@ -5,13 +5,13 @@
 
 namespace VerifyTAPN
 {
-	enum Color { WAITING, PASSED };
+	enum Color { WAITING, PASSED, COVERED };
 
 	class Node{
 	public:
 		Node(const SymMarking& marking, Color color) : marking(marking), color(color) {};
 		inline Color GetColor() const { return color; };
-		inline const SymMarking& GetMarking() const { return marking; };
+		inline SymMarking& GetMarking() { return marking; };
 	public:
 		inline void Recolor(Color newColor) { color = newColor; }
 	private:

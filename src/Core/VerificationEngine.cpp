@@ -2,12 +2,12 @@
 
 namespace VerifyTAPN {
 
-	const TimedArcPetriNet VerificationEngine::GetModel() const
+	const TimedArcPetriNet& VerificationEngine::GetModel() const
 	{
 		return tapn;
 	}
 
-	const VerificationOptions VerificationEngine::GetVerificationOptions() const
+	const VerificationOptions& VerificationEngine::GetVerificationOptions() const
 	{
 		return vo;
 	}

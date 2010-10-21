@@ -37,7 +37,7 @@ namespace VerifyTAPN {
 			const int GetNumberOfInputArcs() const { return inputArcs.size(); }
 			const OutputArc::Vector& GetOutputArcs() const { return outputArcs; }
 			const int GetNumberOfOutputArcs() const { return outputArcs.size(); }
-			const Pairing& GetPairing(const TimedTransition& t) { return pairings[t]; }
+			const Pairing& GetPairing(const TimedTransition& t) const { return pairings[t]; }
 
 		public: // modifiers
 			void Initialize();
@@ -52,7 +52,7 @@ namespace VerifyTAPN {
 			const TimedTransition::Vector transitions;
 			const TimedInputArc::Vector inputArcs;
 			const OutputArc::Vector outputArcs;
-			HashMap pairings;
+			mutable HashMap pairings;
 		};
 
 		inline std::ostream& operator<<(std::ostream& out, const VerifyTAPN::TAPN::TimedArcPetriNet& tapn)
@@ -61,7 +61,7 @@ namespace VerifyTAPN {
 			return out;
 		}
 
-		inline std::size_t hash_value(TimedTransition const& transition)
+		inline std::size_t hash_value(const TimedTransition& transition)
 		{
 			boost::hash<std::string> hasher;
 			return hasher(transition.GetName());

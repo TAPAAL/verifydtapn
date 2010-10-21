@@ -16,8 +16,8 @@ namespace VerifyTAPN {
 			void Verify();
 
 		public: // inspectors
-			const TimedArcPetriNet GetModel() const;
-			const VerificationOptions GetVerificationOptions() const;
+			const TimedArcPetriNet& GetModel() const;
+			const VerificationOptions& GetVerificationOptions() const;
 
 		private: // data
 			TimedArcPetriNet tapn;

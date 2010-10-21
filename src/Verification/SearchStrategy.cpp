@@ -5,8 +5,9 @@ namespace VerifyTAPN
 	DFS::DFS(
 		const VerifyTAPN::TAPN::TimedArcPetriNet& tapn,
 		const SymMarking& initialMarking,
-		const AST::Query* query
-	) : tapn(tapn), initialMarking(initialMarking), checker(query)
+		const AST::Query* query,
+		const VerificationOptions& options
+	) : tapn(tapn), initialMarking(initialMarking), checker(query), options(options)
 	{
 		pwList = new PWList(new StackWaitingList);
 	};
@@ -14,22 +15,26 @@ namespace VerifyTAPN
 	bool DFS::Execute()
 	{
 		pwList->Add(initialMarking);
-		if(CheckQuery(initialMarking)) return checker.IsEF(); // return true if EF query, or false if AG query (counter example found)
+		if(CheckQuery(initialMarking)) return checker.IsEF(); // return true if EF query (proof found), or false if AG query (counter example found)
 
 		while(pwList->HasWaitingStates()){
-			const SymMarking& next = pwList->GetNextUnexplored();
+			SymMarking& next = pwList->GetNextUnexplored();
 
-			//next.Delay();
+			next.Delay();
 
-			std::vector<SymMarking*> successors;
+			typedef std::vector<SymMarking*> SuccessorVector;
+			SuccessorVector successors;
 
-			//if(CheckQuery(succ)) return checker.IsEF();
-			// successors
-			// add successors to pwList
+			next.GenerateDiscreteTransitionSuccessors(tapn, options.GetKBound(), successors);
 
+			for(SuccessorVector::iterator iter = successors.begin(); iter != successors.end(); ++iter)
+			{
+				if(CheckQuery(**iter)) return checker.IsEF();
+				pwList->Add(**iter);
+			}
 		}
 
-		return false;
+		return checker.IsAG(); // return true if AG query (no counter example found), false if EF query (no proof found)
 	}
 
 	bool DFS::CheckQuery(const SymMarking& marking) const

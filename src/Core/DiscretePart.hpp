@@ -16,15 +16,15 @@ namespace VerifyTAPN {
 		virtual ~DiscretePart() { };
 
 	public: // inspectors
-		int GetTokenPlacement(int tokenIndex) const;
+		int GetTokenPlacement(unsigned int tokenIndex) const;
 		int IsTokenPresentInPlace(int placeIndex) const;
 		int NumberOfTokensInPlace(int placeIndex) const;
 		const std::vector<int>& GetTokenPlacementVector() const;
 
 	public: // modifiers
-		void MoveToken(int tokenIndex, int newPlaceIndex);
+		void MoveToken(unsigned int tokenIndex, int newPlaceIndex);
 		int MoveFirstTokenAtBottomTo(int newPlaceIndex);
-		void MakeKBound(int kBound);
+		void MakeKBound(unsigned int kBound);
 
 	private: // data
 		std::vector<int> placement;

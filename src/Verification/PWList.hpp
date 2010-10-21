@@ -24,7 +24,7 @@ namespace VerifyTAPN {
 		virtual long long Size() const;
 	public: // modifiers
 		virtual void Add(const SymMarking& symMarking);
-		virtual const SymMarking& GetNextUnexplored();
+		virtual  SymMarking& GetNextUnexplored();
 	private:
 		HashMap map;
 		WaitingList* waitingList;

@@ -12,13 +12,11 @@ namespace VerifyTAPN {
 
 	class SuccessorGenerator {
 	public: // construction
-		SuccessorGenerator(boost::shared_ptr<TAPN::TimedArcPetriNet> tapn, unsigned kBound) : tapn(tapn), kBound(kBound)
+		SuccessorGenerator(const TAPN::TimedArcPetriNet& tapn, unsigned int kBound) : tapn(tapn), kBound(kBound)
 		{
-			nInputArcs = tapn->GetNumberOfInputArcs();
+			nInputArcs = tapn.GetNumberOfInputArcs();
 			arcsArray = new unsigned[nInputArcs];
 			tokenIndices = new boost::numeric::ublas::matrix<int>(nInputArcs,kBound);
-
-			ClearAll();
 		};
 
 		virtual ~SuccessorGenerator()
@@ -49,10 +47,10 @@ namespace VerifyTAPN {
 
 
 	private: // data
-		boost::shared_ptr<TAPN::TimedArcPetriNet> tapn;
-		unsigned* arcsArray;
-		unsigned nInputArcs;
-		unsigned kBound;
+		const TAPN::TimedArcPetriNet& tapn;
+		unsigned int* arcsArray;
+		unsigned int nInputArcs;
+		unsigned int kBound;
 		boost::numeric::ublas::matrix<int>* tokenIndices;
 	};
 

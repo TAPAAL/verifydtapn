@@ -7,7 +7,9 @@
 namespace VerifyTAPN {
 	void SuccessorGenerator::GenerateDiscreteTransitionsSuccessors(const SymMarking* marking, std::vector<SymMarking*>& succ)
 	{
-		const TAPN::TimedTransition::Vector& transitions = tapn->GetTransitions();
+		ClearAll();
+
+		const TAPN::TimedTransition::Vector& transitions = tapn.GetTransitions();
 
 		CollectArcsAndAppropriateTokens(transitions, marking);
 
@@ -39,7 +41,7 @@ namespace VerifyTAPN {
 					int tokenIndex = map.GetMapping(i);
 					int placeIndex = marking->GetTokenPlacement(tokenIndex);
 
-					if(placeIndex >= 0 && placeIndex == tapn->GetPlaceIndex(ia->InputPlace()))
+					if(placeIndex >= 0 && placeIndex == tapn.GetPlaceIndex(ia->InputPlace()))
 					{
 						// check lower bound
 						bool isLowerBoundSat = marking->Zone().satisfies(0,i,ti.LowerBoundToDBMRaw());
@@ -128,7 +130,7 @@ namespace VerifyTAPN {
 	// Generates a successor node for the current permutation of input tokens
 	void SuccessorGenerator::GenerateSuccessorForCurrentPermutation(const TAPN::TimedTransition& transition, const unsigned int* currPermutationindices, const unsigned int currTransitionIndex, const unsigned int presetSize, const SymMarking* marking, std::vector<SymMarking*>& succ)
 	{
-		Pairing pairing = tapn->GetPairing(transition);
+		const Pairing& pairing = tapn.GetPairing(transition);
 		const TAPN::TimedInputArc::WeakPtrVector& preset = transition.GetPreset();
 		std::vector<int> tokensToRemove;
 		SymMarking* next = marking->clone();
@@ -148,7 +150,7 @@ namespace VerifyTAPN {
 				// change placement
 				int tokenMappingIdx = tokenIndices->at_element(currTransitionIndex+i, currPermutationindices[i]);
 				int tokenIndex = map.GetMapping(tokenMappingIdx);
-				int outputPlaceIndex = tapn->GetPlaceIndex(*opIter);
+				int outputPlaceIndex = tapn.GetPlaceIndex(*opIter);
 
 				if(outputPlaceIndex == TAPN::TimedPlace::BottomIndex())
 					tokensToRemove.push_back(tokenMappingIdx);
@@ -201,7 +203,7 @@ namespace VerifyTAPN {
 			for(std::list<TAPN::TimedPlace>::const_iterator bottomIter = outputPlaces.begin(); bottomIter != outputPlaces.end(); ++bottomIter)
 			{
 				// change token placement
-				int tokenIndex = next->MoveFirstTokenAtBottomTo(tapn->GetPlaceIndex(*bottomIter));
+				int tokenIndex = next->MoveFirstTokenAtBottomTo(tapn.GetPlaceIndex(*bottomIter));
 
 				assert(tokenIndex > 0); // if this assertion fails a token should have been moved from bottom but there are currently no tokens in bottom
 

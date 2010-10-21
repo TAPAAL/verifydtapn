@@ -7,6 +7,11 @@ namespace VerifyTAPN{
 			return name;
 		}
 
+		const std::string& TimedPlace::GetId() const
+		{
+			return id;
+		}
+
 		void TimedPlace::Print(std::ostream& out) const
 		{
 			out << "(" << name << ", " << timeInvariant << ")";

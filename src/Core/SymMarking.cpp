@@ -2,6 +2,7 @@
 #include "../TAPN/TimedArcPetriNet.hpp"
 #include "Pairing.hpp"
 #include "dbm/print.h"
+#include "../Verification/SuccessorGenerator.hpp"
 
 namespace VerifyTAPN {
 
@@ -57,9 +58,10 @@ using namespace VerifyTAPN::TAPN;
 		return mapping;
 	}
 
-	void SymMarking::GenerateDiscreteTransitionSuccessors(const VerifyTAPN::TAPN::TimedArcPetriNet& tapn, std::vector<SymMarking*>& succ) const
+	void SymMarking::GenerateDiscreteTransitionSuccessors(const VerifyTAPN::TAPN::TimedArcPetriNet& tapn, unsigned int kbound, std::vector<SymMarking*>& succ) const
 	{
-		// call successor generator
+		SuccessorGenerator succGen(tapn, kbound);
+		succGen.GenerateDiscreteTransitionsSuccessors(this, succ);
 	}
 
 	void SymMarking::Delay()

@@ -4,6 +4,7 @@
 #include "WaitingList.hpp"
 #include "PWList.hpp"
 #include "../Core/QueryChecker.hpp"
+#include "../Core/VerificationOptions.hpp"
 
 namespace VerifyTAPN
 {
@@ -28,13 +29,14 @@ namespace VerifyTAPN
 
 
 
-	class DFS : SearchStrategy
+	class DFS : public SearchStrategy
 	{
 	public:
 		DFS(
 			const VerifyTAPN::TAPN::TimedArcPetriNet& tapn,
 			const SymMarking& initialMarking,
-			const AST::Query* query
+			const AST::Query* query,
+			const VerificationOptions& options
 		);
 		virtual ~DFS() { delete pwList; };
 		virtual bool Execute();
@@ -44,6 +46,7 @@ namespace VerifyTAPN
 		const VerifyTAPN::TAPN::TimedArcPetriNet& tapn;
 		const SymMarking& initialMarking;
 		const QueryChecker checker;
+		const VerificationOptions& options;
 	};
 }
 

@@ -14,7 +14,7 @@ namespace VerifyTAPN
 		virtual bool HasWaitingStates() const = 0;
 
 		virtual void Add(const SymMarking& marking) = 0;
-		virtual const SymMarking& GetNextUnexplored() = 0;
+		virtual SymMarking& GetNextUnexplored() = 0;
 	};
 }
 

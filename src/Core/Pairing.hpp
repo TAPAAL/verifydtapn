@@ -28,7 +28,7 @@ namespace VerifyTAPN {
 
 
 		public: // inspectors
-			std::list<TAPN::TimedPlace>& GetOutputPlacesFor(const TAPN::TimedPlace& inputPlace);
+			const std::list<TAPN::TimedPlace>& GetOutputPlacesFor(const TAPN::TimedPlace& inputPlace) const;
 			bool IsPairingEmpty() const { return pairing.empty(); }
 			void Print(std::ostream& out) const;
 
@@ -40,7 +40,7 @@ namespace VerifyTAPN {
 			void GeneratePairingFor(const TAPN::TimedTransition& t);
 
 		private: // data
-			HashMap pairing;
+			mutable HashMap pairing;
 
 	};
 

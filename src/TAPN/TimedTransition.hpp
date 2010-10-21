@@ -19,8 +19,8 @@ class SymMarking;
 		public: // typedefs
 			typedef std::vector< boost::shared_ptr<TimedTransition> > Vector;
 		public:
-			TimedTransition(const std::string& name) : name(name) { };
-			TimedTransition() : name("*EMPTY*") { };
+			TimedTransition(const std::string& name, const std::string& id) : name(name), id(id) { };
+			TimedTransition() : name("*EMPTY*"), id("-1") { };
 			virtual ~TimedTransition() { /* empty */ }
 
 		public: // modifiers
@@ -29,6 +29,7 @@ class SymMarking;
 
 		public: // inspectors
 			const std::string& GetName() const;
+			const std::string& GetId() const;
 			void Print(std::ostream&) const;
 			const TimedInputArc::WeakPtrVector& GetPreset() const { return preset; }
 			const unsigned int GetPresetSize() const { return preset.size(); }
@@ -39,6 +40,7 @@ class SymMarking;
 
 		private: // data
 			std::string name;
+			std::string id;
 			TimedInputArc::WeakPtrVector preset;
 			OutputArc::WeakPtrVector postset;
 		};

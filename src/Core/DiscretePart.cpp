@@ -11,7 +11,7 @@ namespace VerifyTAPN {
 		return placement;
 	}
 
-	int DiscretePart::GetTokenPlacement(int tokenIndex) const
+	int DiscretePart::GetTokenPlacement(unsigned int tokenIndex) const
 	{
 		if(tokenIndex < 0 || tokenIndex > placement.size()-1)
 			return -1; // Return BOTTOM - should not happen
@@ -35,7 +35,7 @@ namespace VerifyTAPN {
 	}
 
 
-	void DiscretePart::MoveToken(int tokenIndex, int newPlaceIndex)
+	void DiscretePart::MoveToken(unsigned int tokenIndex, int newPlaceIndex)
 	{
 		assert(tokenIndex >= 0 && tokenIndex < placement.size());
 
@@ -45,7 +45,8 @@ namespace VerifyTAPN {
 	int DiscretePart::MoveFirstTokenAtBottomTo(int newPlaceIndex)
 	{
 		int idx = -1;
-		for(int i = 0; i < placement.size(); ++i)
+		int size = placement.size();
+		for(int i = 0; i < size; ++i)
 		{
 			if(placement[i] == TAPN::TimedPlace::BottomIndex())
 			{
@@ -72,7 +73,7 @@ namespace VerifyTAPN {
 		return i;
 	}
 
-	void DiscretePart::MakeKBound(int kBound)
+	void DiscretePart::MakeKBound(unsigned int kBound)
 	{
 		while(placement.size() < kBound)
 		{

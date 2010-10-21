@@ -27,7 +27,7 @@ namespace VerifyTAPN{
 			typedef std::vector< boost::shared_ptr<TimedPlace> > Vector;
 
 		public: // construction / destruction
-			TimedPlace(const std::string& name, const TimeInvariant timeInvariant) : name(name), timeInvariant(timeInvariant) { };
+			TimedPlace(const std::string& name, const std::string& id, const TimeInvariant timeInvariant) : name(name), id(id), timeInvariant(timeInvariant) { };
 			TimedPlace() : name("*BOTTOM*"), timeInvariant() { };
 			virtual ~TimedPlace() { /* empty */ };
 
@@ -36,10 +36,12 @@ namespace VerifyTAPN{
 			void AddToPostset(const boost::shared_ptr<TimedInputArc>& arc);
 		public: // inspection
 			const std::string& GetName() const;
+			const std::string& GetId() const;
 			void Print(std::ostream& out) const;
 
 		private: // data
 			std::string	name;
+			std::string id;
 			TimeInvariant timeInvariant;
 			TimedInputArc::WeakPtrVector postset;
 			OutputArc::WeakPtrVector preset;

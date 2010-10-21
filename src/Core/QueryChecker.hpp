@@ -1,12 +1,11 @@
 #ifndef QUERYCHECKER_HPP_
 #define QUERYCHECKER_HPP_
 
+#include "QueryParser/AST.hpp"
+
 namespace VerifyTAPN
 {
 	class SymMarking;
-	namespace AST{
-		class Query;
-	}
 
 	class QueryChecker
 	{
@@ -15,8 +14,8 @@ namespace VerifyTAPN
 		virtual ~QueryChecker();
 
 		bool IsExpressionSatisfied(const SymMarking& marking) const;
-		bool IsEF() const;
-		bool IsAG() const;
+		inline bool IsEF() const { return query->GetQuantifier() == VerifyTAPN::AST::EF; };
+		inline bool IsAG() const { return query->GetQuantifier() == VerifyTAPN::AST::AG; };
 
 	private:
 		const AST::Query* query;

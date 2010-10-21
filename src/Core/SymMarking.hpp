@@ -49,14 +49,13 @@ namespace VerifyTAPN {
 			void initMapping();
 
 
-		private: // Helper functions
-			void GenerateDiscreteTransitionSuccessorFor(const TAPN::TimedTransition& t, std::vector<SymMarking*>& succ) const;
+		public: // Helper functions
+			void GenerateDiscreteTransitionSuccessors(const TAPN::TimedArcPetriNet& tapn, unsigned int kbound, std::vector<SymMarking*>& succ) const;
 
 		private:
 			DiscretePart dp;
 			dbm::dbm_t dbm;
 			TokenMapping mapping;
-
 	};
 
 
