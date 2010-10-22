@@ -111,7 +111,7 @@ using namespace VerifyTAPN::TAPN;
 
 		dbm.resize(bitSrc, bitDst, bitArraySize, table);
 
-		for(int i = 0; i < nAdditionalTokens; ++i)
+		for(unsigned int i = 0; i < nAdditionalTokens; ++i)
 		{
 			dbm(oldDimension+i) = 0; // reset new clocks to zero
 		}
@@ -166,7 +166,7 @@ using namespace VerifyTAPN::TAPN;
 		// fix token mapping according to new DBM:
 		std::vector<int> newTokenMap;
 
-		for(int i = 0; i < oldDimension; ++i)
+		for(unsigned int i = 0; i < oldDimension; ++i)
 		{
 			if(table[i] != std::numeric_limits<unsigned int>().max())
 				newTokenMap.push_back(mapping.GetMapping(i));

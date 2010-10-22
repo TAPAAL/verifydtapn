@@ -61,7 +61,7 @@ namespace VerifyTAPN
 	{
 		if(Size() == 0) return NULL;
 		Node* node = stack.back();
-		//assert(ElementsAreEqual(stack, copies));
+		assert(node->GetColor() == WAITING || node->GetColor() == COVERED);
 		while(node->GetColor() == COVERED){
 			Pop();
 			node = stack.back();
@@ -70,7 +70,7 @@ namespace VerifyTAPN
 
 		Pop();
 		node->Recolor(PASSED);
-		//assert(AllElementsAreWatingOrCovered(stack.begin(), stack.end()));
+		assert(AllElementsAreWatingOrCovered(stack.begin(), stack.end()));
 		return node;
 	}
 
