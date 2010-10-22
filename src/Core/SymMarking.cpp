@@ -84,57 +84,42 @@ using namespace VerifyTAPN::TAPN;
 		return dp.MoveFirstTokenAtBottomTo(newPlaceIndex);
 	}
 
-	void SymMarking::AddActiveTokensToDBM(int nAdditionalTokens)
+	void SymMarking::AddActiveTokensToDBM(unsigned int nAdditionalTokens)
 	{
-		int oldDimension = dbm.getDimension();
-		int newDimension = oldDimension + nAdditionalTokens;
-		dbm::dbm_t newDbm(newDimension);
-		newDbm.setInit();
+		unsigned int oldDimension = dbm.getDimension();
+		unsigned int newDimension = oldDimension + nAdditionalTokens;
 
-		unsigned int bitArraySize = newDimension/32+1;
+		unsigned int bitArraySize = (newDimension % 32 == 0 ? newDimension/32 : newDimension/32+1);
 
 		unsigned int bitSrc[bitArraySize];
 		unsigned int bitDst[bitArraySize];
 		unsigned int table[newDimension];
 
-		// init to zero
-		for(int i = 0; i < bitArraySize; ++i)
+		for(unsigned int i = 0; i < bitArraySize; ++i)
 		{
-			bitSrc[i] = 0;
-			bitDst[i] = 0;
+			if(oldDimension >= i*32 && oldDimension < (i+1)*32)
+				bitSrc[i] = 0 | ((1 << oldDimension%32)-1);
+			else if(oldDimension >= i*32 && oldDimension >= (i+1)*32)
+				bitSrc[i] = ~(bitSrc[i] & 0);
+			else
+				bitSrc[i] = 0;
+
+			bitDst[i] = ~(bitDst[i] & 0);
 		}
 
-		int j = 0;
-
-		while(oldDimension-j*32 > 32)
+		if(newDimension%32 != 0)
 		{
-			bitSrc[j] = ~(bitSrc[j] & 0);
-			bitDst[j] = ~(bitDst[j] & 0);
-			j++;
-		}
-
-		//set final bits of bitSrc
-		for(int i = j; i < oldDimension; i++)
-		{
-			bitSrc[i/32] |= (1 << i % 32);
-		}
-
-		//set final bits of bitDst
-		for(int i = j; i < newDimension; i++)
-		{
-			bitDst[i/32] |= (1 << i % 32);
-			table[i] = std::numeric_limits<unsigned int>().max();
+			bitDst[bitArraySize-1] ^= ~((1 << newDimension % 32)-1);
 		}
 
 
-		dbm_shrinkExpand(dbm.getDBM(), newDbm.getDBM(), oldDimension, bitSrc, bitDst, bitArraySize, table);
+
+		dbm.resize(bitSrc, bitDst, bitArraySize, table);
 
 		for(int i = 0; i < nAdditionalTokens; ++i)
 		{
-			newDbm(oldDimension+i) = 0; // reset new clocks to zero
+			dbm(oldDimension+i) = 0; // reset new clocks to zero
 		}
-
-		dbm = newDbm;
 	}
 
 	void SymMarking::RemoveInactiveTokensFromDBM(const std::vector<int>& tokensToRemove)
@@ -142,50 +127,46 @@ using namespace VerifyTAPN::TAPN;
 		int oldDimension = dbm.getDimension();
 		int newDimension = oldDimension-tokensToRemove.size();
 
-
 		assert(newDimension > 0); // should at least be the zero clock left in the DBM
 
-		dbm::dbm_t newDbm(newDimension);
-		newDbm.setInit();
-
-		unsigned int bitArraySize = oldDimension/32+1;
+		unsigned int bitArraySize = (oldDimension % 32 == 0 ? oldDimension/32 : oldDimension/32+1);
 
 		unsigned int bitSrc[bitArraySize];
+		unsigned int bitDstMask[bitArraySize];
 		unsigned int bitDst[bitArraySize];
 		unsigned int table[oldDimension];
 
 		// init to zero
-		for(int i = 0; i < bitArraySize; ++i)
+		for(unsigned int i = 0; i < bitArraySize; ++i)
 		{
-			bitSrc[i] = 0;
-			bitDst[i] = 0;
+			bitSrc[i] = ~(bitSrc[i] & 0);
+			bitDst[i] = ~(bitDst[i] & 0);
+			bitDstMask[i] = 0;
 		}
 
-		for(int i = 0; i < oldDimension; ++i)
+		if(oldDimension%32 != 0)
+		{
+			bitSrc[bitArraySize-1] ^= ~((1 << oldDimension % 32)-1);
+			bitDst[bitArraySize-1] ^= ~((1 << oldDimension % 32)-1);
+		}
+
+
+		for(unsigned int i = 0; i < tokensToRemove.size(); ++i)
+		{
+			bitDstMask[tokensToRemove[i]/32] |= (1 << tokensToRemove[i] % 32);
+		}
+
+		for(unsigned int i = 0; i < bitArraySize; ++i)
+		{
+			bitDst[i] ^= bitDstMask[i];
+		}
+
+		for(unsigned int i = 0; i < oldDimension; ++i)
 		{
 			table[i] = std::numeric_limits<unsigned int>().max();
 		}
 
-		int j = 0;
-
-		while(oldDimension-j*32 > 32)
-		{
-			bitSrc[j] = ~(bitSrc[j] & 0);
-			j++;
-		}
-
-		//set final bits of bitSrc
-		for(int i = j; i < oldDimension; i++)
-		{
-			bitSrc[i/32] |= (1 << i % 32);
-
-			if(i == 0 || std::find(tokensToRemove.begin(), tokensToRemove.end(), i) == tokensToRemove.end())
-				bitDst[i/32] |= (1 << i % 32);
-		}
-
-
-		dbm_shrinkExpand(dbm.getDBM(), newDbm.getDBM(), oldDimension, bitSrc, bitDst, bitArraySize, table);
-		dbm = newDbm;
+		dbm.resize(bitSrc,bitDst,bitArraySize, table);
 
 		// fix token mapping according to new DBM:
 		std::vector<int> newTokenMap;

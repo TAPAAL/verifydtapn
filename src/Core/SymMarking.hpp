@@ -39,7 +39,7 @@ namespace VerifyTAPN {
 			void MoveToken(int tokenIndex, int newPlaceIndex);
 			int MoveFirstTokenAtBottomTo(int newPlaceIndex);
 			void ResetClock(int clockIndex);
-			void AddActiveTokensToDBM(int nAdditionalTokens);
+			void AddActiveTokensToDBM(unsigned int nAdditionalTokens);
 			void RemoveInactiveTokensFromDBM(const std::vector<int>& tokensToRemove);
 			void Constrain(const int tokenIndex, const TAPN::TimeInterval& ti);
 			void AddTokenToMapping(int tokenIndex);
