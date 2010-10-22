@@ -35,7 +35,8 @@ namespace VerifyTAPN {
 			void Print(std::ostream& out) const;
 
 		public: // Modifiers
-			void Delay();
+			inline void Delay() { dbm.up(); };
+			inline void Extrapolate(const int* maxConstants) { dbm.extrapolateMaxBounds(maxConstants); };
 			void MoveToken(int tokenIndex, int newPlaceIndex);
 			int MoveFirstTokenAtBottomTo(int newPlaceIndex);
 			void ResetClock(int clockIndex);

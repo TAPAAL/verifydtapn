@@ -64,11 +64,6 @@ using namespace VerifyTAPN::TAPN;
 		succGen.GenerateDiscreteTransitionsSuccessors(this, succ);
 	}
 
-	void SymMarking::Delay()
-	{
-		dbm.up();
-	}
-
 	void SymMarking::ResetClock(int clockIndex)
 	{
 		dbm(clockIndex) = 0;
@@ -124,8 +119,8 @@ using namespace VerifyTAPN::TAPN;
 
 	void SymMarking::RemoveInactiveTokensFromDBM(const std::vector<int>& tokensToRemove)
 	{
-		int oldDimension = dbm.getDimension();
-		int newDimension = oldDimension-tokensToRemove.size();
+		unsigned int oldDimension = dbm.getDimension();
+		unsigned int newDimension = oldDimension-tokensToRemove.size();
 
 		assert(newDimension > 0); // should at least be the zero clock left in the DBM
 

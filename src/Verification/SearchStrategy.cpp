@@ -1,4 +1,5 @@
 #include "SearchStrategy.hpp"
+#include "../TAPN/TimedArcPetriNet.hpp"
 
 namespace VerifyTAPN
 {
@@ -10,6 +11,12 @@ namespace VerifyTAPN
 	) : tapn(tapn), initialMarking(initialMarking), checker(query), options(options)
 	{
 		pwList = new PWList(new StackWaitingList);
+
+		maxConstantsArray = new int[options.GetKBound()+1];
+		for(int i = 0; i < options.GetKBound()+1; ++i)
+		{
+			maxConstantsArray[i] = tapn.MaxConstant();
+		}
 	};
 
 	bool DFS::Execute()
@@ -29,8 +36,10 @@ namespace VerifyTAPN
 
 			for(SuccessorVector::iterator iter = successors.begin(); iter != successors.end(); ++iter)
 			{
-				if(CheckQuery(**iter)) return checker.IsEF();
-				pwList->Add(**iter);
+				SymMarking& succ = **iter;
+				succ.Extrapolate(maxConstantsArray);
+				if(CheckQuery(succ)) return checker.IsEF();
+				pwList->Add(succ);
 			}
 		}
 

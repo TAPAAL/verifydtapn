@@ -1,5 +1,8 @@
 #include "TimedArcPetriNet.hpp"
 
+#include "TimeInterval.hpp"
+#include <limits>
+
 namespace VerifyTAPN {
 	namespace TAPN {
 		void TimedArcPetriNet::Initialize()
@@ -9,6 +12,7 @@ namespace VerifyTAPN {
 				const boost::shared_ptr<TimedInputArc>& arc = *iter;
 				arc->InputPlace().AddToPostset(arc);
 				arc->OutputTransition().AddToPreset(arc);
+				UpdateMaxConstant(arc->Interval());
 			}
 
 			for(OutputArc::Vector::const_iterator iter = outputArcs.begin(); iter != outputArcs.end(); ++iter)
@@ -19,6 +23,20 @@ namespace VerifyTAPN {
 			}
 
 			GeneratePairings();
+		}
+
+		void TimedArcPetriNet::UpdateMaxConstant(const TimeInterval& interval)
+		{
+			int lowerBound = interval.GetLowerBound();
+			int upperBound = interval.GetUpperBound();
+			if(lowerBound < std::numeric_limits<int>().max() && lowerBound > maxConstant)
+			{
+				maxConstant = lowerBound;
+			}
+			if(upperBound < std::numeric_limits<int>().max() && upperBound > maxConstant)
+			{
+				maxConstant = upperBound;
+			}
 		}
 
 		int TimedArcPetriNet::GetPlaceIndex(const TimedPlace& p) const

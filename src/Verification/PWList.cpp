@@ -4,7 +4,6 @@ namespace VerifyTAPN {
 	void PWList::Add(const SymMarking& symMarking)
 	{
 		const DiscretePart* dp = symMarking.GetDiscretePart();
-
 		std::list<Node>& markings = map[dp];
 		const dbm::dbm_t& newDBM = symMarking.Zone();
 		for(std::list<Node>::iterator iter = markings.begin(); iter != markings.end(); ++iter){
@@ -23,7 +22,9 @@ namespace VerifyTAPN {
 
 		Node node(symMarking, WAITING);
 		markings.push_back(node);
-		waitingList->Add(&markings.back());
+		Node* inserted_node = &markings.back();
+		assert(inserted_node->GetColor() == WAITING);
+		waitingList->Add(inserted_node);
 	}
 
 	long long PWList::Size() const

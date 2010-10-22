@@ -3,6 +3,21 @@
 
 namespace VerifyTAPN
 {
+	template<class InputIterator>
+	bool AllElementsAreWatingOrCovered ( InputIterator first, InputIterator last )
+	{
+		for ( ;first!=last; first++)
+		{
+			Node* node = *first;
+			if ( node->GetColor() != WAITING && node->GetColor() != PASSED )
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+
+
 	void QueueWaitingList::Add(Node* node)
 	{
 		if(node){
@@ -35,7 +50,9 @@ namespace VerifyTAPN
 	void StackWaitingList::Add(Node* node)
 	{
 		if(node){
-			stack.push(node);
+			assert(node->GetColor()==WAITING);
+			stack.push_back(node);
+			copies.push_back(*node);
 			actualSize++;
 		}
 	}
@@ -43,16 +60,17 @@ namespace VerifyTAPN
 	Node* StackWaitingList::Next()
 	{
 		if(Size() == 0) return NULL;
-		Node* node = stack.top();
-
+		Node* node = stack.back();
+		//assert(ElementsAreEqual(stack, copies));
 		while(node->GetColor() == COVERED){
 			Pop();
-			node = stack.top();
+			node = stack.back();
 			if(node == NULL) return NULL;
 		}
 
 		Pop();
 		node->Recolor(PASSED);
+		//assert(AllElementsAreWatingOrCovered(stack.begin(), stack.end()));
 		return node;
 	}
 

@@ -59,8 +59,6 @@ namespace VerifyTAPN{
 		{
 			return a.GetName() == b.GetName();
 		}
-
-
 	}
 }
 #endif /* VERIFYYAPN_TAPN_TIMEDPLACE_HPP_ */

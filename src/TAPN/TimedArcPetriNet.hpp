@@ -25,7 +25,7 @@ namespace VerifyTAPN {
 				const TimedTransition::Vector& transitions,
 				const TimedInputArc::Vector& inputArcs,
 				const OutputArc::Vector& outputArcs)
-				: places(places), transitions(transitions), inputArcs(inputArcs), outputArcs(outputArcs) { };
+				: places(places), transitions(transitions), inputArcs(inputArcs), outputArcs(outputArcs), maxConstant(0) { };
 			virtual ~TimedArcPetriNet() { /* empty */ }
 
 		public: // inspectors
@@ -38,7 +38,7 @@ namespace VerifyTAPN {
 			const OutputArc::Vector& GetOutputArcs() const { return outputArcs; }
 			const int GetNumberOfOutputArcs() const { return outputArcs.size(); }
 			const Pairing& GetPairing(const TimedTransition& t) const { return pairings[t]; }
-
+			inline int MaxConstant() const { return maxConstant; };
 		public: // modifiers
 			void Initialize();
 
@@ -46,6 +46,7 @@ namespace VerifyTAPN {
 		private: // modifiers
 			void MakeTAPNConservative();
 			void GeneratePairings();
+			void UpdateMaxConstant(const TimeInterval& interval);
 
 		private: // data
 			const TimedPlace::Vector places;
@@ -53,6 +54,7 @@ namespace VerifyTAPN {
 			const TimedInputArc::Vector inputArcs;
 			const OutputArc::Vector outputArcs;
 			mutable HashMap pairings;
+			int maxConstant;
 		};
 
 		inline std::ostream& operator<<(std::ostream& out, const VerifyTAPN::TAPN::TimedArcPetriNet& tapn)

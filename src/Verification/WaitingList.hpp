@@ -2,7 +2,7 @@
 #define WAITINGLIST_HPP_
 
 #include <queue>
-#include <stack>
+#include <deque>
 
 namespace VerifyTAPN{
 	class Node;
@@ -34,16 +34,17 @@ namespace VerifyTAPN{
 
 	class StackWaitingList : public WaitingList{
 		public:
-		StackWaitingList() : stack(), actualSize(0) { };
+		StackWaitingList() : stack(), copies(), actualSize(0) { };
 		public:
 			virtual void Add(Node* node);
 			virtual Node* Next();
 			virtual long long Size() const;
 			inline virtual void DecrementActualSize() { actualSize--; };
 		private:
-			inline void Pop() { stack.pop(); actualSize--; };
+			inline void Pop() { stack.pop_back(); copies.pop_back(); actualSize--; };
 		private:
-			std::stack<Node*> stack;
+			std::deque<Node*> stack;
+			std::deque<Node> copies;
 			long long actualSize;
 		};
 

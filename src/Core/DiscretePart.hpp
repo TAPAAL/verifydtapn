@@ -3,12 +3,15 @@
 
 #include <vector>
 #include "boost/functional/hash.hpp"
+#include <iostream>
 
 namespace VerifyTAPN {
 	struct hash;
+	struct eqdp;
 
 	class DiscretePart {
 		friend struct VerifyTAPN::hash;
+		friend struct VerifyTAPN::eqdp;
 	public: // construction
 		DiscretePart(const std::vector<int>& placement) : placement(placement) { };
 		explicit DiscretePart(const DiscretePart& dp) : placement(dp.placement) { };
@@ -32,13 +35,21 @@ namespace VerifyTAPN {
 	};
 
 	struct hash : public std::unary_function<const VerifyTAPN::DiscretePart*, size_t>
+	{
+		size_t operator()(const VerifyTAPN::DiscretePart* const& dp) const
 		{
-			size_t operator()(const VerifyTAPN::DiscretePart* const& dp) const
-			{
-				size_t hash = boost::hash_range(dp->placement.begin(), dp->placement.end());
-				return hash;
-			}
-		};
+			size_t hash = boost::hash_range(dp->placement.begin(), dp->placement.end());
+			return hash;
+		}
+	};
+
+	struct eqdp : public std::binary_function<const VerifyTAPN::DiscretePart*, const VerifyTAPN::DiscretePart*, bool>
+	{
+		bool operator()(const VerifyTAPN::DiscretePart* const& dp1, const VerifyTAPN::DiscretePart* const& dp2) const
+		{
+			return dp1->placement == dp2->placement;
+		}
+	};
 
 }
 

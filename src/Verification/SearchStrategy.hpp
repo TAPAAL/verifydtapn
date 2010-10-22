@@ -38,7 +38,7 @@ namespace VerifyTAPN
 			const AST::Query* query,
 			const VerificationOptions& options
 		);
-		virtual ~DFS() { delete pwList; };
+		virtual ~DFS() { delete pwList; delete[] maxConstantsArray; };
 		virtual bool Execute();
 		virtual bool CheckQuery(const SymMarking& marking) const;
 	private:
@@ -47,6 +47,7 @@ namespace VerifyTAPN
 		const SymMarking& initialMarking;
 		const QueryChecker checker;
 		const VerificationOptions& options;
+		int* maxConstantsArray;
 	};
 }
 

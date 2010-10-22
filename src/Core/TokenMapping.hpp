@@ -9,7 +9,7 @@ namespace VerifyTAPN {
 	// a new token index in the current marking. Needed for active clock reduction.
 	class TokenMapping {
 		public: // Constructors
-			TokenMapping() {};
+			TokenMapping() : mapping() {};
 			TokenMapping(const std::vector<int>& mapping) : mapping(mapping) {};
 			virtual ~TokenMapping() {};
 
