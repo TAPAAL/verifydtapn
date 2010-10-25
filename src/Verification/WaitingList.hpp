@@ -13,6 +13,7 @@ namespace VerifyTAPN{
 		virtual void Add(Node* node) = 0;
 		virtual Node* Next() = 0;
 		virtual long long Size() const = 0;
+		virtual long long SizeIncludingCovered() const = 0;
 		virtual void DecrementActualSize() = 0;
 	};
 
@@ -25,6 +26,7 @@ namespace VerifyTAPN{
 		virtual long long Size() const;
 	public:
 		inline virtual void DecrementActualSize() { actualSize--; };
+		inline virtual long long SizeIncludingCovered() const { return queue.size(); };
 	private:
 		inline void Pop() { queue.pop(); actualSize--; };
 	private:
@@ -39,6 +41,7 @@ namespace VerifyTAPN{
 			virtual void Add(Node* node);
 			virtual Node* Next();
 			virtual long long Size() const;
+			inline virtual long long SizeIncludingCovered() const { return stack.size(); };
 			inline virtual void DecrementActualSize() { actualSize--; };
 		private:
 			inline void Pop() { stack.pop_back(); copies.pop_back(); actualSize--; };

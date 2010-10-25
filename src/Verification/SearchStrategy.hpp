@@ -42,6 +42,8 @@ namespace VerifyTAPN
 		virtual bool Execute();
 		virtual bool CheckQuery(const SymMarking& marking) const;
 	private:
+		void PrintDiagnostics(size_t successors) const;
+	private:
 		PassedWaitingList* pwList;
 		const VerifyTAPN::TAPN::TimedArcPetriNet& tapn;
 		const SymMarking& initialMarking;

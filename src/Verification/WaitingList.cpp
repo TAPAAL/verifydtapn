@@ -9,7 +9,7 @@ namespace VerifyTAPN
 		for ( ;first!=last; first++)
 		{
 			Node* node = *first;
-			if ( node->GetColor() != WAITING && node->GetColor() != PASSED )
+			if ( node->GetColor() != WAITING && node->GetColor() != COVERED )
 			{
 				return false;
 			}
@@ -59,17 +59,20 @@ namespace VerifyTAPN
 
 	Node* StackWaitingList::Next()
 	{
-		if(Size() == 0) return NULL;
+		long long size = Size();
+		int decBy = 0;
+		if(size == 0) return NULL;
 		Node* node = stack.back();
 		assert(node->GetColor() == WAITING || node->GetColor() == COVERED);
 		while(node->GetColor() == COVERED){
-			Pop();
+			Pop();decBy++;
 			node = stack.back();
 			if(node == NULL) return NULL;
 		}
 
-		Pop();
+		Pop();decBy++;
 		node->Recolor(PASSED);
+		assert(Size() == size-decBy);
 		assert(AllElementsAreWatingOrCovered(stack.begin(), stack.end()));
 		return node;
 	}

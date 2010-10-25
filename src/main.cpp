@@ -221,6 +221,7 @@ int main(int argc, char* argv[]) {
 	strategy = new DFS(*tapn, *initialMarking, query, options);
 
 	bool result = strategy->Execute();
+	delete strategy;
 
 	std::cout << "Query is " << (result ? "satisfied" : "NOT satisfied") << "." << std::endl;
 

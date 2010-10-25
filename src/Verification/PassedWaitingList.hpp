@@ -13,8 +13,10 @@ namespace VerifyTAPN
 		virtual long long Size() const = 0;
 		virtual bool HasWaitingStates() const = 0;
 
-		virtual void Add(const SymMarking& marking) = 0;
+		virtual bool Add(const SymMarking& marking) = 0;
 		virtual SymMarking& GetNextUnexplored() = 0;
+
+		virtual void Print() const = 0;
 	};
 }
 

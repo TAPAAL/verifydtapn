@@ -39,8 +39,11 @@ namespace VerifyTAPN
 				SymMarking& succ = **iter;
 				succ.Extrapolate(maxConstantsArray);
 				if(CheckQuery(succ)) return checker.IsEF();
-				pwList->Add(succ);
+				bool added = pwList->Add(succ);
+				if(!added) delete *iter;
 			}
+
+			//PrintDiagnostics(successors.size());
 		}
 
 		return checker.IsAG(); // return true if AG query (no counter example found), false if EF query (no proof found)
@@ -50,5 +53,12 @@ namespace VerifyTAPN
 	{
 		bool satisfied = checker.IsExpressionSatisfied(marking);
 		return (satisfied && checker.IsEF()) || (!satisfied && checker.IsAG());
+	}
+
+	void DFS::PrintDiagnostics(size_t successors) const
+	{
+		pwList->Print();
+		std::cout << ", successors: " << successors;
+		std::cout << std::endl;
 	}
 }

@@ -17,17 +17,23 @@ namespace VerifyTAPN {
 		typedef std::list<Node*> NodeList;
 		typedef google::sparse_hash_map<const DiscretePart*, NodeList, VerifyTAPN::hash, VerifyTAPN::eqdp > HashMap;
 	public:
-		explicit PWList(WaitingList* waitingList) : map(), waitingList(waitingList) {};
+		explicit PWList(WaitingList* waitingList) : map(), exploredStates(0), discoveredStates(0), storedStates(0), waitingList(waitingList) {};
 		virtual ~PWList();
 
 	public: // inspectors
 		virtual bool HasWaitingStates() const;
 		virtual long long Size() const;
+
+		virtual void Print() const;
+
 	public: // modifiers
-		virtual void Add(const SymMarking& symMarking);
+		virtual bool Add(const SymMarking& symMarking);
 		virtual  SymMarking& GetNextUnexplored();
 	private:
 		HashMap map;
+		long long exploredStates;
+		long long discoveredStates;
+		long long storedStates;
 		WaitingList* waitingList;
 	};
 }
