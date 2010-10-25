@@ -205,7 +205,7 @@ namespace VerifyTAPN {
 				// change token placement
 				int tokenIndex = next->MoveFirstTokenAtBottomTo(tapn.GetPlaceIndex(*bottomIter));
 
-				assert(tokenIndex > 0); // if this assertion fails a token should have been moved from bottom but there are currently no tokens in bottom
+				assert(tokenIndex >= 0); // if this assertion fails a token should have been moved from bottom but there are currently no tokens in bottom
 
 				next->AddTokenToMapping(tokenIndex);
 
