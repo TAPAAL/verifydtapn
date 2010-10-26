@@ -7,6 +7,14 @@ namespace VerifyTAPN {
 	namespace TAPN {
 		void TimedArcPetriNet::Initialize()
 		{
+			placeIndices.set_empty_key(""); // assume place always have a name
+			IndexMap::value_type bottom(TimedPlace::Bottom().GetName(), TimedPlace::BottomIndex());
+			placeIndices.insert(bottom);
+			for(unsigned int i = 0; i < places.size(); i++){
+				IndexMap::value_type pair(places[i]->GetName(), i);
+				placeIndices.insert(pair);
+			}
+
 			for(TimedInputArc::Vector::const_iterator iter = inputArcs.begin(); iter != inputArcs.end(); ++iter)
 			{
 				const boost::shared_ptr<TimedInputArc>& arc = *iter;
@@ -45,19 +53,22 @@ namespace VerifyTAPN {
 		}
 
 		int TimedArcPetriNet::GetPlaceIndex(const std::string& placeName) const
-			{
-				int idx = TimedPlace::BottomIndex();
-				for(unsigned int i = 0; i < places.size(); ++i)
-				{
-					if(places[i]->GetName() == placeName)
-					{
-						idx = i;
-						break;
-					}
-				}
-
-				return idx;
-			}
+		{
+			IndexMap::const_iterator iter = placeIndices.find(placeName);
+			assert(iter != placeIndices.end());
+			return iter->second;
+//				int idx = TimedPlace::BottomIndex();
+//				for(unsigned int i = 0; i < places.size(); ++i)
+//				{
+//					if(places[i]->GetName() == placeName)
+//					{
+//						idx = i;
+//						break;
+//					}
+//				}
+//
+//				return idx;
+		}
 
 		void TimedArcPetriNet::Print(std::ostream & out) const
 		{

@@ -8,6 +8,7 @@
 #include "OutputArc.hpp"
 #include "boost/make_shared.hpp"
 #include "google/sparse_hash_map"
+#include "google/dense_hash_map"
 #include "boost/functional/hash.hpp"
 #include "../Core/Pairing.hpp"
 
@@ -19,13 +20,13 @@ namespace VerifyTAPN {
 		{
 		public: // typedefs
 			typedef google::sparse_hash_map<TimedTransition, VerifyTAPN::Pairing, boost::hash<TAPN::TimedTransition> > HashMap;
-
+			typedef google::dense_hash_map<std::string, unsigned int> IndexMap;
 		public:// construction
 			TimedArcPetriNet(const TimedPlace::Vector& places,
 				const TimedTransition::Vector& transitions,
 				const TimedInputArc::Vector& inputArcs,
 				const OutputArc::Vector& outputArcs)
-				: places(places), transitions(transitions), inputArcs(inputArcs), outputArcs(outputArcs), maxConstant(0) { };
+				: places(places), transitions(transitions), inputArcs(inputArcs), outputArcs(outputArcs), maxConstant(0), placeIndices(places.size()+1) { };
 			virtual ~TimedArcPetriNet() { /* empty */ }
 
 		public: // inspectors
@@ -55,6 +56,7 @@ namespace VerifyTAPN {
 			const OutputArc::Vector outputArcs;
 			mutable HashMap pairings;
 			int maxConstant;
+			IndexMap placeIndices;
 		};
 
 		inline std::ostream& operator<<(std::ostream& out, const VerifyTAPN::TAPN::TimedArcPetriNet& tapn)
