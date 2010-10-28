@@ -12,7 +12,6 @@ namespace VerifyTAPN {
 		const TAPN::TimedTransition::Vector& transitions = tapn.GetTransitions();
 
 		CollectArcsAndAppropriateTokens(transitions, marking);
-
 		GenerateSuccessors(transitions, marking, succ);
 	}
 
@@ -40,8 +39,8 @@ namespace VerifyTAPN {
 				{
 					int tokenIndex = map.GetMapping(i);
 					int placeIndex = marking->GetTokenPlacement(tokenIndex);
-
-					if(placeIndex >= 0 && placeIndex == tapn.GetPlaceIndex(ia->InputPlace()))
+					int tmp = tapn.GetPlaceIndex(ia->InputPlace());
+					if(placeIndex >= 0 && placeIndex == tmp)
 					{
 						// check lower bound
 						bool isLowerBoundSat = marking->Zone().satisfies(0,i,ti.LowerBoundToDBMRaw());

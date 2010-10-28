@@ -144,8 +144,8 @@ namespace VerifyTAPN {
 		while(placeNode != NULL)
 		{
 			xml_node<>* initialMarkingNode = placeNode->first_node("initialMarking");
-			boost::shared_ptr<TimedPlace> place = ParsePlace(*placeNode);
-			std::string value = initialMarkingNode->first_node("value")->value();
+			std::string placeName(placeNode->first_node("name")->first_node("value")->value());
+			std::string value(initialMarkingNode->first_node("value")->value());
 
 			boost::algorithm::trim(value);
 
@@ -155,7 +155,7 @@ namespace VerifyTAPN {
 			if(nTokens > 0)
 			{
 				for(int i = 0; i < nTokens; i++) {
-					markedPlaces.push_back(tapn.GetPlaceIndex(*place));
+					markedPlaces.push_back(tapn.GetPlaceIndex(placeName));
 				}
 			}
 

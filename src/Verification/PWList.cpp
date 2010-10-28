@@ -16,7 +16,7 @@ namespace VerifyTAPN {
 
 	bool PWList::Add(const SymMarking& symMarking)
 	{
-		discoveredStates++;
+		stats.discoveredStates++;
 		const DiscretePart* dp = symMarking.GetDiscretePart();
 		NodeList& markings = map[dp];
 		const dbm::dbm_t& newDBM = symMarking.Zone();
@@ -37,7 +37,7 @@ namespace VerifyTAPN {
 				currentNode->Recolor(COVERED);
 			}
 		}
-		storedStates++;
+		stats.storedStates++;
 		Node* node = new Node(symMarking, WAITING);
 		markings.push_back(node);
 		waitingList->Add(node);
@@ -56,14 +56,18 @@ namespace VerifyTAPN {
 
 	SymMarking& PWList::GetNextUnexplored()
 	{
-		exploredStates++;
+		stats.exploredStates++;
 		return waitingList->Next()->GetMarking();
+	}
+
+	Stats PWList::GetStats() const
+	{
+		return stats;
 	}
 
 	void PWList::Print() const
 	{
-		std::cout << "stored: " << storedStates << "/" << discoveredStates;
-		std::cout << ", explored: " << exploredStates << "/" << storedStates;
+		std::cout << stats;
 		std::cout << ", waitingList: " << waitingList->Size() << "/" << waitingList->SizeIncludingCovered();
 
 	}

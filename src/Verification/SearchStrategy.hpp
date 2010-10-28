@@ -19,12 +19,12 @@ namespace VerifyTAPN
 		class Query;
 	}
 
-
 	class SearchStrategy
 	{
 	public:
 		virtual ~SearchStrategy() { };
 		virtual bool Execute() = 0;
+		virtual Stats GetStats() const = 0;
 	};
 
 
@@ -41,6 +41,7 @@ namespace VerifyTAPN
 		virtual ~DFS() { delete pwList; delete[] maxConstantsArray; };
 		virtual bool Execute();
 		virtual bool CheckQuery(const SymMarking& marking) const;
+		virtual Stats GetStats() const;
 	private:
 		void PrintDiagnostics(size_t successors) const;
 	private:

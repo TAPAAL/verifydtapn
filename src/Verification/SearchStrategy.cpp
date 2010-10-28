@@ -55,6 +55,11 @@ namespace VerifyTAPN
 		return (satisfied && checker.IsEF()) || (!satisfied && checker.IsAG());
 	}
 
+	Stats DFS::GetStats() const
+	{
+		return pwList->GetStats();
+	}
+
 	void DFS::PrintDiagnostics(size_t successors) const
 	{
 		pwList->Print();

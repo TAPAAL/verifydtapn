@@ -14,7 +14,7 @@ namespace VerifyTAPN{
 
 		void TimedPlace::Print(std::ostream& out) const
 		{
-			out << "(" << name << ", " << timeInvariant << ")";
+			out << "(" << name << " (index: " << index << "), " << timeInvariant << ")";
 		}
 
 		void TimedPlace::AddToPostset(const boost::shared_ptr<TimedInputArc>& arc)
