@@ -35,12 +35,12 @@ namespace VerifyTAPN {
 				const TokenMapping& map = marking->GetTokenMapping();
 
 				unsigned int nTokensFromCurrInputPlace = 0;
-				for(unsigned int i = 0; i < map.size(); i++)
+				for(unsigned int i = 1; i < map.size(); i++)
 				{
 					int tokenIndex = map.GetMapping(i);
 					int placeIndex = marking->GetTokenPlacement(tokenIndex);
-					int tmp = tapn.GetPlaceIndex(ia->InputPlace());
-					if(placeIndex >= 0 && placeIndex == tmp)
+
+					if(placeIndex >= 0 && placeIndex == tapn.GetPlaceIndex(ia->InputPlace()))
 					{
 						// check lower bound
 						bool isLowerBoundSat = marking->Zone().satisfies(0,i,ti.LowerBoundToDBMRaw());
@@ -50,7 +50,7 @@ namespace VerifyTAPN {
 
 						bool notAppropriateAge = !isLowerBoundSat || !isUpperBoundSat;
 
-						if(!notAppropriateAge) // token satisfies guard
+						if(!notAppropriateAge) // token potentially satisfies guard
 						{
 							assert(currInputArcIdx <= nInputArcs);
 							assert(nTokensFromCurrInputPlace <= kBound);
@@ -165,7 +165,11 @@ namespace VerifyTAPN {
 //				std::cout << next->Zone() << "\n-----------------------------------------\n\n";
 
 				if(next->Zone().isEmpty())
+				{
+					delete next;
 					return;
+				}
+
 
 
 			}

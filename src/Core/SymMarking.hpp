@@ -28,7 +28,7 @@ namespace VerifyTAPN {
 
 		public: // Inspectors
 			const DiscretePart* GetDiscretePart() const;
-			const int GetTokenPlacement(int tokenIndex) const { return dp.GetTokenPlacement(tokenIndex); }
+			inline const int GetTokenPlacement(int tokenIndex) const { return dp.GetTokenPlacement(tokenIndex); }
 			const dbm::dbm_t & Zone() const;
 			const TokenMapping& GetTokenMapping() const;
 			void GenerateDiscreteTransitionSuccessors(const VerifyTAPN::TAPN::TimedArcPetriNet & tapn, std::vector<SymMarking*>& succ) const;

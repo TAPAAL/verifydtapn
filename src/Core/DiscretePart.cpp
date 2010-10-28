@@ -11,14 +11,6 @@ namespace VerifyTAPN {
 		return placement;
 	}
 
-	int DiscretePart::GetTokenPlacement(unsigned int tokenIndex) const
-	{
-		if(tokenIndex < 0 || tokenIndex > placement.size()-1)
-			return -1; // Return BOTTOM - should not happen
-		else
-			return placement[tokenIndex];
-	}
-
 	int DiscretePart::IsTokenPresentInPlace(int placeIndex) const
 	{
 		int i = 0;

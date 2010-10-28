@@ -19,7 +19,7 @@ namespace VerifyTAPN {
 		virtual ~DiscretePart() { };
 
 	public: // inspectors
-		int GetTokenPlacement(unsigned int tokenIndex) const;
+		inline int GetTokenPlacement(unsigned int tokenIndex) const { return placement[tokenIndex]; }
 		int IsTokenPresentInPlace(int placeIndex) const;
 		int NumberOfTokensInPlace(int placeIndex) const;
 		const std::vector<int>& GetTokenPlacementVector() const;

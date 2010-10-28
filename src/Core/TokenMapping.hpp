@@ -14,7 +14,7 @@ namespace VerifyTAPN {
 			virtual ~TokenMapping() {};
 
 		public: // inspectors
-			const int GetMapping(int index) const;
+			inline const int GetMapping(int index) const { return mapping[index]; }
 			const std::vector<int>& GetMappingVector() const { return mapping; }
 			const unsigned int size() const { return mapping.size(); }
 

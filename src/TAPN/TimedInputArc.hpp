@@ -21,9 +21,9 @@ namespace VerifyTAPN {
 			virtual ~TimedInputArc() { /* empty */}
 
 		public: // modifiers
-			TimedPlace& InputPlace();
-			TimedTransition& OutputTransition();
-			const TimeInterval& Interval();
+			inline TimedPlace& InputPlace() { return *place; }
+			inline TimedTransition& OutputTransition() { return *transition; }
+			inline const TimeInterval& Interval() { return interval; }
 
 		public: // Inspectors
 			void Print(std::ostream& out) const;
