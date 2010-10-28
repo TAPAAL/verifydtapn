@@ -31,7 +31,6 @@ namespace VerifyTAPN {
 
 	private: // data
 		std::vector<int> placement;
-
 	};
 
 	struct hash : public std::unary_function<const VerifyTAPN::DiscretePart*, size_t>

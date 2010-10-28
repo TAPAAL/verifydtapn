@@ -9,13 +9,14 @@ namespace VerifyTAPN
 
 	class Node{
 	public:
-		Node(const SymMarking& marking, Color color) : marking(marking), color(color) {};
+		Node(SymMarking* marking, Color color) : marking(marking), color(color) {};
+		virtual ~Node() { delete marking; };
 		inline Color GetColor() const { return color; };
-		inline SymMarking& GetMarking() { return marking; };
+		inline SymMarking& GetMarking() const { return *marking; };
 	public:
 		inline void Recolor(Color newColor) { color = newColor; }
 	private:
-		SymMarking marking;
+		SymMarking* marking;
 		Color color;
 	};
 }

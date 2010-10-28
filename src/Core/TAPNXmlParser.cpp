@@ -21,7 +21,7 @@ namespace VerifyTAPN {
 		return ParseTAPN(*xmldoc.first_node()->first_node());
 	}
 
-	boost::shared_ptr<SymMarking> TAPNXmlParser::ParseMarking(const std::string & filename, const TimedArcPetriNet& tapn) const
+	SymMarking* TAPNXmlParser::ParseMarking(const std::string & filename, const TimedArcPetriNet& tapn) const
 	{
 		const std::string contents = VerifyTAPN::ReadFile(filename); // not sure if this is a good idea, because it copies to string? Maybe the compiler is smart enough not to make a copy
 		std::vector<char> charArray(contents.begin(), contents.end());
@@ -136,7 +136,7 @@ namespace VerifyTAPN {
 
 	}
 
-	boost::shared_ptr<SymMarking> TAPNXmlParser::ParseInitialMarking(const rapidxml::xml_node<>& root, const TimedArcPetriNet& tapn) const
+	SymMarking* TAPNXmlParser::ParseInitialMarking(const rapidxml::xml_node<>& root, const TimedArcPetriNet& tapn) const
 	{
 		std::vector<int> markedPlaces;
 		xml_node<>* placeNode = root.first_node("place");
@@ -166,8 +166,7 @@ namespace VerifyTAPN {
 		dbm::dbm_t dbm(totalInitTokens+1);
 		dbm.setZero();
 
-		boost::shared_ptr<SymMarking> marking = boost::make_shared<SymMarking>(dp,dbm);
-		return marking;
+		return new SymMarking(dp,dbm);
 	}
 
 

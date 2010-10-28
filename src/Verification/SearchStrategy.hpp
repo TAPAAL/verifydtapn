@@ -23,7 +23,7 @@ namespace VerifyTAPN
 	{
 	public:
 		virtual ~SearchStrategy() { };
-		virtual bool Execute() = 0;
+		virtual bool Verify() = 0;
 		virtual Stats GetStats() const = 0;
 	};
 
@@ -34,22 +34,22 @@ namespace VerifyTAPN
 	public:
 		DFS(
 			const VerifyTAPN::TAPN::TimedArcPetriNet& tapn,
-			const SymMarking& initialMarking,
+			SymMarking* initialMarking,
 			const AST::Query* query,
-			const VerificationOptions& options
+			int kBound
 		);
 		virtual ~DFS() { delete pwList; delete[] maxConstantsArray; };
-		virtual bool Execute();
-		virtual bool CheckQuery(const SymMarking& marking) const;
+		virtual bool Verify();
 		virtual Stats GetStats() const;
 	private:
+		virtual bool CheckQuery(const SymMarking& marking) const;
 		void PrintDiagnostics(size_t successors) const;
 	private:
 		PassedWaitingList* pwList;
 		const VerifyTAPN::TAPN::TimedArcPetriNet& tapn;
-		const SymMarking& initialMarking;
+		SymMarking* initialMarking;
 		const QueryChecker checker;
-		const VerificationOptions& options;
+		int kBound;
 		int* maxConstantsArray;
 	};
 }

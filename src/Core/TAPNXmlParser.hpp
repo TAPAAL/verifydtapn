@@ -25,7 +25,7 @@ namespace VerifyTAPN {
 
 	public:
 		boost::shared_ptr<TimedArcPetriNet> Parse(const std::string & filename) const;
-		boost::shared_ptr<SymMarking> ParseMarking(const std::string & filename, const TimedArcPetriNet& tapn) const;
+		SymMarking* ParseMarking(const std::string & filename, const TimedArcPetriNet& tapn) const;
 	private:
 		boost::shared_ptr<TimedArcPetriNet> ParseTAPN(const rapidxml::xml_node<> & root) const;
 
@@ -38,7 +38,7 @@ namespace VerifyTAPN {
 		ArcCollections ParseArcs(const rapidxml::xml_node<>& root, const TimedPlace::Vector& places, const TimedTransition::Vector& transitions) const;
 		boost::shared_ptr<TimedInputArc> ParseInputArc(const rapidxml::xml_node<>& arcNode, const TimedPlace::Vector& places, const TimedTransition::Vector& transitions) const;
 		boost::shared_ptr<OutputArc> ParseOutputArc(const rapidxml::xml_node<>& arcNode, const TimedPlace::Vector& places, const TimedTransition::Vector& transitions) const;
-		boost::shared_ptr<SymMarking> ParseInitialMarking(const rapidxml::xml_node<>& root, const TimedArcPetriNet& tapn) const;
+		SymMarking* ParseInitialMarking(const rapidxml::xml_node<>& root, const TimedArcPetriNet& tapn) const;
 	};
 }
 

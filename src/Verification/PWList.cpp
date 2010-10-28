@@ -38,7 +38,7 @@ namespace VerifyTAPN {
 			}
 		}
 		stats.storedStates++;
-		Node* node = new Node(symMarking, WAITING);
+		Node* node = new Node(const_cast<SymMarking*>(&symMarking), WAITING);
 		markings.push_back(node);
 		waitingList->Add(node);
 		return true;

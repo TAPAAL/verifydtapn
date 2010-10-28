@@ -36,7 +36,7 @@ namespace VerifyTAPN{
 
 	class StackWaitingList : public WaitingList{
 		public:
-		StackWaitingList() : stack(), copies(), actualSize(0) { };
+		StackWaitingList() : stack(), actualSize(0) { };
 		public:
 			virtual void Add(Node* node);
 			virtual Node* Next();
@@ -44,10 +44,9 @@ namespace VerifyTAPN{
 			inline virtual long long SizeIncludingCovered() const { return stack.size(); };
 			inline virtual void DecrementActualSize() { actualSize--; };
 		private:
-			inline void Pop() { stack.pop_back(); copies.pop_back(); actualSize--; };
+			inline void Pop() { stack.pop_back(); actualSize--; };
 		private:
 			std::deque<Node*> stack;
-			std::deque<Node> copies;
 			long long actualSize;
 		};
 

@@ -5,24 +5,24 @@ namespace VerifyTAPN
 {
 	DFS::DFS(
 		const VerifyTAPN::TAPN::TimedArcPetriNet& tapn,
-		const SymMarking& initialMarking,
+		SymMarking* initialMarking,
 		const AST::Query* query,
-		const VerificationOptions& options
-	) : tapn(tapn), initialMarking(initialMarking), checker(query), options(options)
+		int kBound
+	) : tapn(tapn), initialMarking(initialMarking), checker(query), kBound(kBound)
 	{
 		pwList = new PWList(new StackWaitingList);
 
-		maxConstantsArray = new int[options.GetKBound()+1];
-		for(int i = 0; i < options.GetKBound()+1; ++i)
+		maxConstantsArray = new int[kBound+1];
+		for(int i = 0; i < kBound+1; ++i)
 		{
 			maxConstantsArray[i] = tapn.MaxConstant();
 		}
 	};
 
-	bool DFS::Execute()
+	bool DFS::Verify()
 	{
-		pwList->Add(initialMarking);
-		if(CheckQuery(initialMarking)) return checker.IsEF(); // return true if EF query (proof found), or false if AG query (counter example found)
+		pwList->Add(*initialMarking);
+		if(CheckQuery(*initialMarking)) return checker.IsEF(); // return true if EF query (proof found), or false if AG query (counter example found)
 
 		while(pwList->HasWaitingStates()){
 			SymMarking& next = pwList->GetNextUnexplored();
@@ -32,7 +32,7 @@ namespace VerifyTAPN
 			typedef std::vector<SymMarking*> SuccessorVector;
 			SuccessorVector successors;
 
-			next.GenerateDiscreteTransitionSuccessors(tapn, options.GetKBound(), successors);
+			next.GenerateDiscreteTransitionSuccessors(tapn, kBound, successors);
 
 			for(SuccessorVector::iterator iter = successors.begin(); iter != successors.end(); ++iter)
 			{
