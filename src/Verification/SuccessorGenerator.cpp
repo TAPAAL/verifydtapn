@@ -214,29 +214,9 @@ namespace VerifyTAPN {
 
 			}
 		}
-
+		next->DBMIntern();
 		succ.push_back(next);
 		tokensToRemove.clear();
-	}
-
-
-	void SuccessorGenerator::ClearAll()
-	{
-		ClearArcsArray();
-		ClearTokenIndices();
-	}
-
-	void SuccessorGenerator::ClearArcsArray()
-	{
-		for(unsigned int i = 0; i < nInputArcs; i++)
-			arcsArray[i] = 0;
-	}
-
-	void SuccessorGenerator::ClearTokenIndices()
-	{
-		for (unsigned i = 0; i < tokenIndices->size1(); ++i)
-			for (unsigned j = 0; j < tokenIndices->size2(); ++j)
-				tokenIndices->insert_element(i, j, -1);
 	}
 
 

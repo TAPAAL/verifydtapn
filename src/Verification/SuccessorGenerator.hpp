@@ -33,9 +33,9 @@ namespace VerifyTAPN {
 		void Print(std::ostream& out) const;
 
 	public: // modifiers
-		void ClearAll();
-		void ClearArcsArray();
-		void ClearTokenIndices();
+		inline void ClearAll() { ClearArcsArray(); ClearTokenIndices(); }
+		inline void ClearArcsArray() { memset(arcsArray,0,nInputArcs*sizeof(arcsArray[0])); }
+		inline void ClearTokenIndices() { tokenIndices->clear(); }
 
 	private: // modifiers
 		void CollectArcsAndAppropriateTokens(const TAPN::TimedTransition::Vector& transitions, const SymMarking* marking);
