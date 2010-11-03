@@ -22,12 +22,9 @@ namespace VerifyTAPN {
 		const dbm::dbm_t& newDBM = symMarking.Zone();
 		for(NodeList::iterator iter = markings.begin(); iter != markings.end(); ++iter){
 			Node* currentNode = *iter;
-			assert(eqdp()(dp, currentNode->GetMarking().GetDiscretePart()));
-//			std::cout << currentNode->GetMarking() << std::endl;
-//			std::cout << symMarking << std::endl;
 			const dbm::dbm_t& other = currentNode->GetMarking().Zone();
 			relation_t relation = newDBM.relation(other);
-			if(relation == base_SUBSET){
+			if((relation & base_SUBSET) != 0){ // check subseteq
 				return false;
 			}else if(relation == base_SUPERSET){
 				if(currentNode->GetColor() == WAITING){

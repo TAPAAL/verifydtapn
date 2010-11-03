@@ -21,13 +21,12 @@ namespace VerifyTAPN
 
 	bool DFS::Verify()
 	{
+		initialMarking->Delay();
 		pwList->Add(*initialMarking);
 		if(CheckQuery(*initialMarking)) return checker.IsEF(); // return true if EF query (proof found), or false if AG query (counter example found)
 
 		while(pwList->HasWaitingStates()){
 			SymMarking& next = pwList->GetNextUnexplored();
-
-			next.Delay();
 
 			typedef std::vector<SymMarking*> SuccessorVector;
 			SuccessorVector successors;
@@ -37,10 +36,14 @@ namespace VerifyTAPN
 			for(SuccessorVector::iterator iter = successors.begin(); iter != successors.end(); ++iter)
 			{
 				SymMarking& succ = **iter;
+				succ.Delay();
 				succ.Extrapolate(maxConstantsArray);
-				if(CheckQuery(succ)) return checker.IsEF();
+
 				bool added = pwList->Add(succ);
 				if(!added) delete *iter;
+				else {
+					if(CheckQuery(succ)) return checker.IsEF();
+				}
 			}
 
 			//PrintDiagnostics(successors.size());
