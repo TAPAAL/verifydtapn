@@ -45,6 +45,7 @@ namespace VerifyTAPN {
 			void Constrain(const int tokenIndex, const TAPN::TimeInterval& ti);
 			void AddTokenToMapping(int tokenIndex);
 			void MakeKBound(int kBound) { dp.MakeKBound(kBound); }
+			inline void DBMIntern() { dbm.intern(); }
 
 		private: // Initializers
 			void initMapping();
