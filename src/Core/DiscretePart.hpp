@@ -3,6 +3,7 @@
 
 #include <vector>
 #include "boost/functional/hash.hpp"
+#include "../HashFunctions/MurmurHash2Neutral.hpp"
 #include <iostream>
 
 namespace VerifyTAPN {
@@ -37,7 +38,7 @@ namespace VerifyTAPN {
 	{
 		size_t operator()(const VerifyTAPN::DiscretePart* const& dp) const
 		{
-			size_t hash = boost::hash_range(dp->placement.begin(), dp->placement.end());
+			size_t hash = MurmurHashNeutral2(dp->placement, 0xdeadbeef);//boost::hash_range(dp->placement.begin(), dp->placement.end());
 			return hash;
 		}
 	};

@@ -17,7 +17,7 @@ namespace VerifyTAPN {
 		typedef std::list<Node*> NodeList;
 		typedef google::sparse_hash_map<const DiscretePart*, NodeList, VerifyTAPN::hash, VerifyTAPN::eqdp > HashMap;
 	public:
-		explicit PWList(WaitingList* waitingList) : map(), stats(), waitingList(waitingList) {};
+		explicit PWList(WaitingList* waitingList) : map(256000), stats(), waitingList(waitingList) {};
 		virtual ~PWList();
 
 	public: // inspectors
