@@ -1,18 +1,19 @@
 #include "Pairing.hpp"
 #include "../TAPN/TimedTransition.hpp"
+#include "../TAPN/TimedArcPetriNet.hpp"
 
 namespace VerifyTAPN {
 
 using namespace TAPN;
 
-	void Pairing::GeneratePairingFor(const TAPN::TimedTransition& t) {
+	void Pairing::GeneratePairingFor(const TimedArcPetriNet& tapn, const TAPN::TimedTransition& t) {
 		TimedInputArc::WeakPtrVector preset = t.GetPreset();
 		OutputArc::WeakPtrVector postset = t.GetPostset();
 
 		unsigned int sizeOfPairing = preset.size() >= postset.size() ? preset.size() : postset.size();
 
-		TimedPlace inputPlace;
-		TimedPlace outputPlace;
+		int inputPlace;
+		int outputPlace;
 
 		for(unsigned int i = 0; i < sizeOfPairing; i++)
 		{
@@ -21,40 +22,36 @@ using namespace TAPN;
 				boost::shared_ptr<TimedInputArc> tiaPtr = preset[i].lock();
 				boost::shared_ptr<OutputArc> oaPtr = postset[i].lock();
 
-				inputPlace = tiaPtr->InputPlace();
-				outputPlace = oaPtr->OutputPlace();
+				inputPlace = tapn.GetPlaceIndex(tiaPtr->InputPlace());
+				outputPlace = tapn.GetPlaceIndex(oaPtr->OutputPlace());
 
-				Add(inputPlace,outputPlace);
+				Add(inputPlace, outputPlace);
 			}
 			else if(i < preset.size() && i >= postset.size()){
 				boost::shared_ptr<TimedInputArc> tiaPtr = preset[i].lock();
 
-				inputPlace = tiaPtr->InputPlace();
-				Add(inputPlace,TimedPlace::Bottom());
+				inputPlace = tapn.GetPlaceIndex(tiaPtr->InputPlace());
+				Add(inputPlace, TimedPlace::BottomIndex());
 			}
 			else if(i >= preset.size() && i < postset.size())
 			{
 				boost::shared_ptr<OutputArc> oaPtr = postset[i].lock();
 
-				outputPlace = oaPtr->OutputPlace();
+				outputPlace = tapn.GetPlaceIndex(oaPtr->OutputPlace());
 
-				Add(TimedPlace::Bottom(),outputPlace);
-			}
-			else{
-				// Should Not Happen
-
+				Add(TimedPlace::BottomIndex(),outputPlace);
 			}
 		}
 	}
 
-	const std::list<TimedPlace>& Pairing::GetOutputPlacesFor(const TimedPlace& inputPlace) const
+	const std::list<int>& Pairing::GetOutputPlacesFor(int inputPlace) const
 	{
 		return pairing[inputPlace];
 	}
 
-	void Pairing::Add(const TimedPlace& inputPlace, const TimedPlace& outputPlace)
+	void Pairing::Add(int inputPlace, int outputPlace)
 	{
-		std::list<TimedPlace>& outPlaces = pairing[inputPlace];
+		std::list<int>& outPlaces = pairing[inputPlace];
 
 		outPlaces.push_back(outputPlace);
 	}
@@ -65,8 +62,8 @@ using namespace TAPN;
 		out << "-------------------------------\n";
 		for(HashMap::const_iterator iter = pairing.begin(); iter != pairing.end(); ++iter)
 		{
-			std::list<TimedPlace> outPlaces = (*iter).second;
-			for(std::list<TimedPlace>::const_iterator pIter = outPlaces.begin(); pIter != outPlaces.end(); ++pIter)
+			std::list<int> outPlaces = (*iter).second;
+			for(std::list<int>::const_iterator pIter = outPlaces.begin(); pIter != outPlaces.end(); ++pIter)
 			{
 				out << "(" << (*iter).first << ", " << (*pIter) << ")" << "\n";
 			}

@@ -137,19 +137,19 @@ namespace VerifyTAPN {
 		for(unsigned int i = 0; i < presetSize; ++i)
 		{
 			boost::shared_ptr<TAPN::TimedInputArc> ia = preset[i].lock();
-			const TAPN::TimedPlace& inputPlace = ia->InputPlace();
+			int inputPlace = tapn.GetPlaceIndex(ia->InputPlace());
 			const TokenMapping& map = marking->GetTokenMapping();
 			const TAPN::TimeInterval& ti = ia->Interval();
-			std::list<TAPN::TimedPlace> outputPlaces = pairing.GetOutputPlacesFor(inputPlace);
+			const std::list<int>& outputPlaces = pairing.GetOutputPlacesFor(inputPlace);
 
 			assert(outputPlaces.size() <= 1);
 
-			for(std::list<TAPN::TimedPlace>::const_iterator opIter = outputPlaces.begin(); opIter != outputPlaces.end(); ++opIter)
+			for(std::list<int>::const_iterator opIter = outputPlaces.begin(); opIter != outputPlaces.end(); ++opIter)
 			{
 				// change placement
 				int tokenMappingIdx = tokenIndices->at_element(currTransitionIndex+i, currPermutationindices[i]);
 				int tokenIndex = map.GetMapping(tokenMappingIdx);
-				int outputPlaceIndex = tapn.GetPlaceIndex(*opIter);
+				int outputPlaceIndex = *opIter;
 
 				if(outputPlaceIndex == TAPN::TimedPlace::BottomIndex())
 					tokensToRemove.push_back(tokenMappingIdx);
@@ -201,12 +201,12 @@ namespace VerifyTAPN {
 			// add diff active tokens and move diff tokens from BOTTOM to paired places
 			next->AddActiveTokensToDBM(std::abs(diff));
 
-			std::list<TAPN::TimedPlace> outputPlaces = pairing.GetOutputPlacesFor(TAPN::TimedPlace::Bottom());
+			const std::list<int>& outputPlaces = pairing.GetOutputPlacesFor(TAPN::TimedPlace::BottomIndex());
 
-			for(std::list<TAPN::TimedPlace>::const_iterator bottomIter = outputPlaces.begin(); bottomIter != outputPlaces.end(); ++bottomIter)
+			for(std::list<int>::const_iterator bottomIter = outputPlaces.begin(); bottomIter != outputPlaces.end(); ++bottomIter)
 			{
 				// change token placement
-				int tokenIndex = next->MoveFirstTokenAtBottomTo(tapn.GetPlaceIndex(*bottomIter));
+				int tokenIndex = next->MoveFirstTokenAtBottomTo(*bottomIter);
 
 				assert(tokenIndex >= 0); // if this assertion fails a token should have been moved from bottom but there are currently no tokens in bottom
 

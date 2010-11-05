@@ -9,35 +9,24 @@
 namespace VerifyTAPN {
 	namespace TAPN {
 		class TimedTransition;
-
-		inline std::size_t hash_value(TAPN::TimedPlace const& inputPlace)
-		{
-			boost::hash<std::string> hasher;
-			return hasher(inputPlace.GetName());
-		}
-
+		class TimedArcPetriNet;
 	}
 
 	class Pairing {
 		public:
-			typedef google::sparse_hash_map<TAPN::TimedPlace, std::list<TAPN::TimedPlace>, boost::hash<TAPN::TimedPlace> > HashMap;
+			typedef google::sparse_hash_map<int, std::list<int>, boost::hash<int> > HashMap;
 		public: // construction
-			Pairing(const TAPN::TimedTransition& t) : pairing() { GeneratePairingFor(t); };
+			Pairing(const TAPN::TimedArcPetriNet& tapn, const TAPN::TimedTransition& t) : pairing() { GeneratePairingFor(tapn, t); };
 			Pairing() : pairing() { };
 
-
-
 		public: // inspectors
-			const std::list<TAPN::TimedPlace>& GetOutputPlacesFor(const TAPN::TimedPlace& inputPlace) const;
-			bool IsPairingEmpty() const { return pairing.empty(); }
+			const std::list<int>& GetOutputPlacesFor(int inputPlace) const;
+			inline bool IsPairingEmpty() const { return pairing.empty(); }
 			void Print(std::ostream& out) const;
 
-		public: // modifiers
-			void Add(const TAPN::TimedPlace& inputPlace, const TAPN::TimedPlace& outputPlace);
-
-
 		private: // initializers
-			void GeneratePairingFor(const TAPN::TimedTransition& t);
+			void GeneratePairingFor(const TAPN::TimedArcPetriNet& tapn, const TAPN::TimedTransition& t);
+			void Add(int inputPlace, int outputPlace);
 
 		private: // data
 			mutable HashMap pairing;

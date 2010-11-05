@@ -42,22 +42,6 @@ using namespace VerifyTAPN::TAPN;
 	/////////////////////////////////////////////
 	// Inspectors
 	/////////////////////////////////////////////
-	const DiscretePart* SymMarking::GetDiscretePart() const
-	{
-		return &dp;
-	}
-
-	const dbm::dbm_t& SymMarking::Zone() const
-	{
-		return dbm;
-	}
-
-
-	const TokenMapping& SymMarking::GetTokenMapping() const
-	{
-		return mapping;
-	}
-
 	void SymMarking::GenerateDiscreteTransitionSuccessors(const VerifyTAPN::TAPN::TimedArcPetriNet& tapn, unsigned int kbound, std::vector<SymMarking*>& succ) const
 	{
 		SuccessorGenerator succGen(tapn, kbound);

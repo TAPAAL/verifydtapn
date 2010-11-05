@@ -27,10 +27,10 @@ namespace VerifyTAPN {
 			SymMarking* clone() const { return new SymMarking(*this); }
 
 		public: // Inspectors
-			const DiscretePart* GetDiscretePart() const;
+			inline const DiscretePart* GetDiscretePart() const { return &dp; };
 			inline const int GetTokenPlacement(int tokenIndex) const { return dp.GetTokenPlacement(tokenIndex); }
-			const dbm::dbm_t & Zone() const;
-			const TokenMapping& GetTokenMapping() const;
+			inline const dbm::dbm_t& Zone() const { return dbm; };
+			inline const TokenMapping& GetTokenMapping() const { return mapping; };
 			void GenerateDiscreteTransitionSuccessors(const VerifyTAPN::TAPN::TimedArcPetriNet & tapn, std::vector<SymMarking*>& succ) const;
 			void Print(std::ostream& out) const;
 
