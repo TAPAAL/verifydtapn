@@ -33,20 +33,20 @@ namespace VerifyTAPN {
 				boost::shared_ptr<TAPN::TimedInputArc> ia = (*presetIter).lock();
 				const TAPN::TimeInterval& ti = ia->Interval();
 				const TokenMapping& map = marking->GetTokenMapping();
-
 				unsigned int nTokensFromCurrInputPlace = 0;
-				for(unsigned int i = 1; i < map.size(); i++)
-				{
-					int tokenIndex = map.GetMapping(i);
-					int placeIndex = marking->GetTokenPlacement(tokenIndex);
 
-					if(placeIndex >= 0 && placeIndex == tapn.GetPlaceIndex(ia->InputPlace()))
+				for(unsigned int i = 0; i < marking->GetNumberOfTokens(); i++)
+				{
+					int placeIndex = marking->GetTokenPlacement(i);
+					int currInputPlaceIndex = tapn.GetPlaceIndex(ia->InputPlace());
+
+					if(placeIndex == currInputPlaceIndex)
 					{
 						// check lower bound
-						bool isLowerBoundSat = marking->Zone().satisfies(0,i,ti.LowerBoundToDBMRaw());
+						bool isLowerBoundSat = marking->Zone().satisfies(0,map.GetMapping(i),ti.LowerBoundToDBMRaw());
 
 						// check upper bound
-						bool isUpperBoundSat = marking->Zone().satisfies(i,0, ti.UpperBoundToDBMRaw());
+						bool isUpperBoundSat = marking->Zone().satisfies(map.GetMapping(i),0, ti.UpperBoundToDBMRaw());
 
 						bool notAppropriateAge = !isLowerBoundSat || !isUpperBoundSat;
 
@@ -147,14 +147,15 @@ namespace VerifyTAPN {
 			for(std::list<int>::const_iterator opIter = outputPlaces.begin(); opIter != outputPlaces.end(); ++opIter)
 			{
 				// change placement
-				int tokenMappingIdx = tokenIndices->at_element(currTransitionIndex+i, currPermutationindices[i]);
-				int tokenIndex = map.GetMapping(tokenMappingIdx);
+				int tokenIndex = tokenIndices->at_element(currTransitionIndex+i, currPermutationindices[i]);
+				int tokenMappingIdx = map.GetMapping(tokenIndex);
 				int outputPlaceIndex = *opIter;
 
-				if(outputPlaceIndex == TAPN::TimedPlace::BottomIndex())
-					tokensToRemove.push_back(tokenMappingIdx);
 
-				next->MoveToken(tokenIndex, outputPlaceIndex);
+				if(outputPlaceIndex == TAPN::TimedPlace::BottomIndex())
+					tokensToRemove.push_back(tokenIndex);
+				else
+					next->MoveToken(tokenIndex, outputPlaceIndex);
 
 				// constrain dbm with lower bound and upper bound in guard
 				next->Constrain(tokenMappingIdx, ti);
@@ -181,10 +182,10 @@ namespace VerifyTAPN {
 //		std::cout << next->Zone() << "\n-----------------------------------------\n\n";
 
 		for (unsigned int i = 0; i < presetSize; ++i) {
-			int tokenMappingIdx = tokenIndices->at_element(currTransitionIndex+i, currPermutationindices[i]);
+			int tokenIndex = tokenIndices->at_element(currTransitionIndex+i, currPermutationindices[i]);
 
 			// reset age to 0
-			next->ResetClock(tokenMappingIdx);
+			next->ResetClock(tokenIndex);
 		}
 
 		// check if we need to add or remove tokens in the successor marking
@@ -193,26 +194,22 @@ namespace VerifyTAPN {
 		{
 			assert(tokensToRemove.size() == std::abs(diff));
 
-			// remove diff active tokens, placement already fixed
-			next->RemoveInactiveTokensFromDBM(tokensToRemove);
+			// remove tokens in placement and dbm
+			next->RemoveTokens(tokensToRemove);
 		}
 		else if(diff < 0) // postset bigger than preset, i.e. more tokens produced than consumed
 		{
-			// add diff active tokens and move diff tokens from BOTTOM to paired places
-			next->AddActiveTokensToDBM(std::abs(diff));
-
 			const std::list<int>& outputPlaces = pairing.GetOutputPlacesFor(TAPN::TimedPlace::BottomIndex());
+			std::vector<int> outputPlacesIndices;
 
-			for(std::list<int>::const_iterator bottomIter = outputPlaces.begin(); bottomIter != outputPlaces.end(); ++bottomIter)
+			// TODO: Fix this - currently it is just to get it to compile
+			// shouldn't have to convert list to vector
+			for(std::list<int>::const_iterator iter = outputPlaces.begin(); iter != outputPlaces.end(); ++iter)
 			{
-				// change token placement
-				int tokenIndex = next->MoveFirstTokenAtBottomTo(*bottomIter);
-
-				assert(tokenIndex >= 0); // if this assertion fails a token should have been moved from bottom but there are currently no tokens in bottom
-
-				next->AddTokenToMapping(tokenIndex);
-
+				outputPlacesIndices.push_back(*iter);
 			}
+
+			next->AddTokens(outputPlacesIndices);
 		}
 		next->DBMIntern();
 		succ.push_back(next);

@@ -29,8 +29,9 @@ namespace VerifyTAPN {
 		public: // Inspectors
 			inline const DiscretePart* GetDiscretePart() const { return &dp; };
 			inline const int GetTokenPlacement(int tokenIndex) const { return dp.GetTokenPlacement(tokenIndex); }
-			inline const dbm::dbm_t& Zone() const { return dbm; };
-			inline const TokenMapping& GetTokenMapping() const { return mapping; };
+			inline const unsigned int GetNumberOfTokens() const { return dp.size(); }
+			inline const dbm::dbm_t& Zone() const { return dbm; }
+			inline const TokenMapping& GetTokenMapping() const { return mapping; }
 			void GenerateDiscreteTransitionSuccessors(const VerifyTAPN::TAPN::TimedArcPetriNet & tapn, std::vector<SymMarking*>& succ) const;
 			void Print(std::ostream& out) const;
 
@@ -39,13 +40,14 @@ namespace VerifyTAPN {
 			inline void Extrapolate(const int* maxConstants) { dbm.extrapolateMaxBounds(maxConstants); };
 			void MoveToken(int tokenIndex, int newPlaceIndex);
 			int MoveFirstTokenAtBottomTo(int newPlaceIndex);
-			void ResetClock(int clockIndex);
-			void AddActiveTokensToDBM(unsigned int nAdditionalTokens);
-			void RemoveInactiveTokensFromDBM(const std::vector<int>& tokensToRemove);
+			void ResetClock(int tokenIndex);
+			void AddTokens(const std::vector<int>& outputPlacesOfTokensToAdd);
+			void RemoveTokens(const std::vector<int>& tokensToRemove);
 			void Constrain(const int tokenIndex, const TAPN::TimeInterval& ti);
 			void AddTokenToMapping(int tokenIndex);
 			void MakeKBound(int kBound) { dp.MakeKBound(kBound); }
 			inline void DBMIntern() { dbm.intern(); }
+			void Canonicalize();
 
 		private: // Initializers
 			void initMapping();

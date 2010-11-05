@@ -8,49 +8,37 @@ namespace VerifyTAPN {
 
 using namespace VerifyTAPN::TAPN;
 
-	/////////////////////////////////////////////
-	// Construction
-	/////////////////////////////////////////////
+
 	SymMarking::SymMarking(const DiscretePart& dp, const dbm::dbm_t& dbm) : dp(dp), dbm(dbm)
 	{
 		initMapping();
 	}
 
-	/////////////////////////////////////////////
-	// Initializers
-	/////////////////////////////////////////////
 	void SymMarking::initMapping()
 	{
 		std::vector<int> pVector = dp.GetTokenPlacementVector();
 		std::vector<int> map;
 		int i = 0;
-		map.push_back(-2); // token 0 in the dbm is always the 0 clock, thus it does not map to a token in the net.
 
 		for(std::vector<int>::const_iterator iter = pVector.begin(); iter != pVector.end(); ++iter)
 		{
-			if((*iter) != -1) // if not BOTTOM
-			{
-				map.push_back(i);
-
-			}
+			map.push_back(i+1);
 			i++;
 		}
 
 		mapping = map;
 	}
 
-	/////////////////////////////////////////////
-	// Inspectors
-	/////////////////////////////////////////////
+
 	void SymMarking::GenerateDiscreteTransitionSuccessors(const VerifyTAPN::TAPN::TimedArcPetriNet& tapn, unsigned int kbound, std::vector<SymMarking*>& succ) const
 	{
 		SuccessorGenerator succGen(tapn, kbound);
 		succGen.GenerateDiscreteTransitionsSuccessors(this, succ);
 	}
 
-	void SymMarking::ResetClock(int clockIndex)
+	void SymMarking::ResetClock(int tokenIndex)
 	{
-		dbm(clockIndex) = 0;
+		dbm(mapping.GetMapping(tokenIndex)) = 0;
 	}
 
 	void SymMarking::MoveToken(int tokenIndex, int newPlaceIndex)
@@ -63,8 +51,9 @@ using namespace VerifyTAPN::TAPN;
 		return dp.MoveFirstTokenAtBottomTo(newPlaceIndex);
 	}
 
-	void SymMarking::AddActiveTokensToDBM(unsigned int nAdditionalTokens)
+	void SymMarking::AddTokens(const std::vector<int>& outputPlacesOfTokensToAdd)
 	{
+		unsigned int nAdditionalTokens = outputPlacesOfTokensToAdd.size();
 		unsigned int oldDimension = dbm.getDimension();
 		unsigned int newDimension = oldDimension + nAdditionalTokens;
 
@@ -91,20 +80,27 @@ using namespace VerifyTAPN::TAPN;
 			bitDst[bitArraySize-1] ^= ~((1 << newDimension % 32)-1);
 		}
 
-
-
 		dbm.resize(bitSrc, bitDst, bitArraySize, table);
 
 		for(unsigned int i = 0; i < nAdditionalTokens; ++i)
 		{
 			dbm(oldDimension+i) = 0; // reset new clocks to zero
+			mapping.AddTokenToMapping(oldDimension+i);
+			dp.AddTokenInPlace(outputPlacesOfTokensToAdd[i]);
 		}
+
 	}
 
-	void SymMarking::RemoveInactiveTokensFromDBM(const std::vector<int>& tokensToRemove)
+	void SymMarking::RemoveTokens(const std::vector<int>& tokensToRemove)
 	{
+		std::vector<int> dbmTokensToRemove;
+		for(unsigned int i = 0; i < tokensToRemove.size(); ++i)
+		{
+			dbmTokensToRemove.push_back(mapping.GetMapping(tokensToRemove[i]));
+		}
+
 		unsigned int oldDimension = dbm.getDimension();
-		unsigned int newDimension = oldDimension-tokensToRemove.size();
+		unsigned int newDimension = oldDimension-dbmTokensToRemove.size();
 
 		assert(newDimension > 0); // should at least be the zero clock left in the DBM
 
@@ -130,9 +126,9 @@ using namespace VerifyTAPN::TAPN;
 		}
 
 
-		for(unsigned int i = 0; i < tokensToRemove.size(); ++i)
+		for(unsigned int i = 0; i < dbmTokensToRemove.size(); ++i)
 		{
-			bitDstMask[tokensToRemove[i]/32] |= (1 << tokensToRemove[i] % 32);
+			bitDstMask[dbmTokensToRemove[i]/32] |= (1 << dbmTokensToRemove[i] % 32);
 		}
 
 		for(unsigned int i = 0; i < bitArraySize; ++i)
@@ -148,15 +144,24 @@ using namespace VerifyTAPN::TAPN;
 		dbm.resize(bitSrc,bitDst,bitArraySize, table);
 
 		// fix token mapping according to new DBM:
-		std::vector<int> newTokenMap;
-
 		for(unsigned int i = 0; i < oldDimension; ++i)
 		{
 			if(table[i] != std::numeric_limits<unsigned int>().max())
-				newTokenMap.push_back(mapping.GetMapping(i));
+			{
+				for(unsigned int j = 0; j < mapping.size(); ++j)
+				{
+					if(mapping.GetMapping(j) == i)
+						mapping.SetMapping(j, table[i]);
+				}
+			}
 		}
 
-		mapping = newTokenMap;
+		// remove tokens from mapping and placement
+		for(int i = tokensToRemove.size()-1; i >= 0; --i)
+		{
+			mapping.RemoveToken(tokensToRemove[i]);
+			dp.RemoveToken(tokensToRemove[i]);
+		}
 	}
 
 	void SymMarking::Constrain(const int tokenIndex, const TAPN::TimeInterval& ti)
@@ -168,6 +173,11 @@ using namespace VerifyTAPN::TAPN;
 	void SymMarking::AddTokenToMapping(int tokenIndex)
 	{
 		mapping.AddTokenToMapping(tokenIndex);
+	}
+
+	void SymMarking::Canonicalize()
+	{
+
 	}
 
 	void SymMarking::Print(std::ostream& out) const

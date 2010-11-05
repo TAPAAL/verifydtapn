@@ -20,6 +20,8 @@ namespace VerifyTAPN {
 
 		public: // modifiers
 			void AddTokenToMapping(int tokenIndex);
+			void SetMapping(int index, int dbmIndex) { mapping[index] = dbmIndex; }
+			void RemoveToken(int index) { mapping.erase(mapping.begin() + index); }
 		private:
 			std::vector<int> mapping;
 	};
