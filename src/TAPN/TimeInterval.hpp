@@ -27,12 +27,26 @@ namespace VerifyTAPN {
 
 		public: // inspectors
 			void Print(std::ostream& out) const;
-			const int GetLowerBound() const { return lowerBound; }
-			const int GetUpperBound() const { return upperBound; }
-			const bool IsLowerBoundStrict() const { return leftStrict; }
-			const bool IsUpperBoundStrict() const { return rightStrict; }
-			const raw_t LowerBoundToDBMRaw() const;
-			const raw_t UpperBoundToDBMRaw() const;
+			inline const int GetLowerBound() const { return lowerBound; }
+			inline const int GetUpperBound() const { return upperBound; }
+			inline const bool IsLowerBoundStrict() const { return leftStrict; }
+			inline const bool IsUpperBoundStrict() const { return rightStrict; }
+			inline raw_t LowerBoundToDBMRaw() const
+			{
+				return dbm_bound2raw(-lowerBound, leftStrict ? dbm_STRICT : dbm_WEAK);
+			};
+
+			inline raw_t UpperBoundToDBMRaw() const
+			{
+				if(upperBound == std::numeric_limits<int>().max())
+				{
+					return dbm_LS_INFINITY;
+				}
+				else
+				{
+					return dbm_bound2raw(upperBound, rightStrict ? dbm_STRICT : dbm_WEAK);
+				}
+			};
 
 		public: // statics
 			static TimeInterval CreateFor(const std::string& interval);

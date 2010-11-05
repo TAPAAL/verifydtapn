@@ -5,16 +5,6 @@
 
 namespace VerifyTAPN {
 	namespace TAPN {
-		const std::string& TimedTransition::GetName() const
-		{
-			return name;
-		}
-
-		const std::string& TimedTransition::GetId() const
-		{
-			return id;
-		}
-
 		void TimedTransition::Print(std::ostream& out) const
 		{
 			out << GetName();

@@ -103,9 +103,9 @@ namespace VerifyTAPN {
 		{
 			for(TimedTransition::Vector::const_iterator iter = transitions.begin(); iter != transitions.end(); ++iter)
 			{
-				TimedTransition t = *(*iter);
+				const TimedTransition& t = *(*iter);
 				Pairing p(*this, t);
-				pairings[t] = p;
+				pairings.insert(std::pair<TimedTransition, Pairing>(t, p));
 			}
 		}
 	}

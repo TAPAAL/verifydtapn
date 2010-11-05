@@ -28,15 +28,15 @@ class SymMarking;
 			void AddToPostset(const boost::shared_ptr<OutputArc>& arc);
 
 		public: // inspectors
-			const std::string& GetName() const;
-			const std::string& GetId() const;
+			inline const std::string& GetName() const { return name; };
+			inline const std::string& GetId() const { return id; };
 			void Print(std::ostream&) const;
-			const TimedInputArc::WeakPtrVector& GetPreset() const { return preset; }
-			const unsigned int GetPresetSize() const { return preset.size(); }
-			const OutputArc::WeakPtrVector& GetPostset() const { return postset; }
-			const unsigned int GetPostsetSize() const { return postset.size(); }
+			inline const TimedInputArc::WeakPtrVector& GetPreset() const { return preset; }
+			inline const unsigned int GetPresetSize() const { return preset.size(); }
+			inline const OutputArc::WeakPtrVector& GetPostset() const { return postset; }
+			inline const unsigned int GetPostsetSize() const { return postset.size(); }
 		//	bool isEnabledBy(const TimedArcPetriNet& tapn, const VerifyTAPN::SymMarking& marking) const;
-			const bool isConservative() const { return preset.size() == postset.size(); }
+			inline const bool isConservative() const { return preset.size() == postset.size(); }
 
 		private: // data
 			std::string name;
