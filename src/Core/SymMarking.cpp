@@ -46,9 +46,9 @@ using namespace VerifyTAPN::TAPN;
 		dp.MoveToken(tokenIndex, newPlaceIndex);
 	}
 
-	void SymMarking::AddTokens(const std::list<int>& outputPlacesOfTokensToAdd)
+	void SymMarking::AddTokens(const std::list<int>& placesOfTokensToAdd)
 	{
-		unsigned int nAdditionalTokens = outputPlacesOfTokensToAdd.size();
+		unsigned int nAdditionalTokens = placesOfTokensToAdd.size();
 		unsigned int oldDimension = dbm.getDimension();
 		unsigned int newDimension = oldDimension + nAdditionalTokens;
 
@@ -78,7 +78,7 @@ using namespace VerifyTAPN::TAPN;
 		dbm.resize(bitSrc, bitDst, bitArraySize, table);
 
 		unsigned int i = 0;
-		for(std::list<int>::const_iterator iter = outputPlacesOfTokensToAdd.begin(); iter != outputPlacesOfTokensToAdd.end(); ++iter)
+		for(std::list<int>::const_iterator iter = placesOfTokensToAdd.begin(); iter != placesOfTokensToAdd.end(); ++iter)
 		{
 			dbm(oldDimension+i) = 0; // reset new clocks to zero
 			mapping.AddTokenToMapping(oldDimension+i);
@@ -167,14 +167,10 @@ using namespace VerifyTAPN::TAPN;
 		dbm.constrain(mapping.GetMapping(tokenIndex), 0, ti.UpperBoundToDBMRaw());
 	}
 
-	/// Sort the array between a low and high bound in either ascending or descending order
-	/// Iterative quick sort.
-	/// Parameters:
-	///      int  nFirst : between 0 and the upper bound of the array.
-	///      int  nLast  : between 0 and the upper bound of the array.
-	///                  : must be guaranteed >= nFirst.
-	///      bool bAscend: true  - sort in ascending order
-	///                  : false - sort in descending order
+	// Sort the state internally to obtain a canonical form.
+	// Used for symmetry reduction: if two states are symmetric they will have the same canonical form.
+	// The placement vector is sorted in ascending order, tokens in the same place are sorted on their lower bound and
+	// subsequently on their upper bound if necessary.
 	void SymMarking::Canonicalize()
 	{
 		quickSort(0, dp.size()-1);
@@ -222,28 +218,25 @@ using namespace VerifyTAPN::TAPN;
 
 	}
 
-	bool SymMarking::ShouldSwap(int i, int j)
-	{
-		if(i < j)
-		{
-			int placeI = dp.GetTokenPlacement(i);
-			int placeJ = dp.GetTokenPlacement(j);
-			unsigned int mapI = mapping.GetMapping(i);
-			unsigned int mapJ = mapping.GetMapping(j);
-
-			if(placeI > placeJ || (placeI == placeJ && dbm(0,mapI) > dbm(0,mapJ)) || (placeI == placeJ && dbm(0,mapI) == dbm(0,mapJ) && dbm(mapI,0) > dbm(mapJ,0)))
-				return true;
-
-			return false;
-		}
-		return false;
-	}
-
 	void SymMarking::Swap(int i, int j)
 	{
 		dp.Swap(i,j);
 		dbm.swapClocks(mapping.GetMapping(i), mapping.GetMapping(j));
 
+	}
+
+	// returns true if the specified token is not of appropriate age
+	// Note that if the result is false, then the token is potentially of appropriate age.
+	// cannot be sure until constraints are applied.
+	bool SymMarking::IsTokenOfInappropriateAge(const int tokenIndex, const TAPN::TimeInterval& ti) const
+	{
+		// check lower bound
+		bool isLowerBoundSat = dbm.satisfies(0,mapping.GetMapping(tokenIndex),ti.LowerBoundToDBMRaw());
+
+		// check upper bound
+		bool isUpperBoundSat = dbm.satisfies(mapping.GetMapping(tokenIndex),0, ti.UpperBoundToDBMRaw());
+
+		return !isLowerBoundSat || !isUpperBoundSat;
 	}
 
 	void SymMarking::Print(std::ostream& out) const
@@ -265,20 +258,6 @@ using namespace VerifyTAPN::TAPN;
 		}
 		out << "\nDBM:\n";
 		out << dbm << "\n\n";
-	}
-
-	// returns true if the specified token is not of appropriate age
-	// Note that if the result is false, then the token is potentially of appropriate age.
-	// cannot be sure until constraints are applied.
-	bool SymMarking::IsTokenOfInappropriateAge(const int tokenIndex, const TAPN::TimeInterval& ti) const
-	{
-		// check lower bound
-		bool isLowerBoundSat = dbm.satisfies(0,mapping.GetMapping(tokenIndex),ti.LowerBoundToDBMRaw());
-
-		// check upper bound
-		bool isUpperBoundSat = dbm.satisfies(mapping.GetMapping(tokenIndex),0, ti.UpperBoundToDBMRaw());
-
-		return !isLowerBoundSat || !isUpperBoundSat;
 	}
 }
 
