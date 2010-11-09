@@ -192,14 +192,11 @@ namespace VerifyTAPN {
 		else if(diff < 0) // postset bigger than preset, i.e. more tokens produced than consumed
 		{
 			const std::list<int>& outputPlaces = pairing.GetOutputPlacesFor(TAPN::TimedPlace::BottomIndex());
-//			std::vector<int> outputPlacesIndices;
-//
-//			// TODO: Fix this - currently it is just to get it to compile
-//			// shouldn't have to convert list to vector
-//			for(std::list<int>::const_iterator iter = outputPlaces.begin(); iter != outputPlaces.end(); ++iter)
-//			{
-//				outputPlacesIndices.push_back(*iter);
-//			}
+
+			if(next->GetNumberOfTokens() + outputPlaces.size() > kBound) {
+				delete next;
+				return;
+			}
 
 			next->AddTokens(outputPlaces);
 		}
