@@ -17,7 +17,7 @@ using namespace VerifyTAPN::TAPN;
 	void SymMarking::initMapping()
 	{
 		std::vector<int> pVector = dp.GetTokenPlacementVector();
-		std::vector<int> map;
+		std::vector<unsigned int> map;
 		int i = 0;
 
 		for(std::vector<int>::const_iterator iter = pVector.begin(); iter != pVector.end(); ++iter)
@@ -46,12 +46,7 @@ using namespace VerifyTAPN::TAPN;
 		dp.MoveToken(tokenIndex, newPlaceIndex);
 	}
 
-	int SymMarking::MoveFirstTokenAtBottomTo(int newPlaceIndex)
-	{
-		return dp.MoveFirstTokenAtBottomTo(newPlaceIndex);
-	}
-
-	void SymMarking::AddTokens(const std::vector<int>& outputPlacesOfTokensToAdd)
+	void SymMarking::AddTokens(const std::list<int>& outputPlacesOfTokensToAdd)
 	{
 		unsigned int nAdditionalTokens = outputPlacesOfTokensToAdd.size();
 		unsigned int oldDimension = dbm.getDimension();
@@ -82,11 +77,13 @@ using namespace VerifyTAPN::TAPN;
 
 		dbm.resize(bitSrc, bitDst, bitArraySize, table);
 
-		for(unsigned int i = 0; i < nAdditionalTokens; ++i)
+		unsigned int i = 0;
+		for(std::list<int>::const_iterator iter = outputPlacesOfTokensToAdd.begin(); iter != outputPlacesOfTokensToAdd.end(); ++iter)
 		{
 			dbm(oldDimension+i) = 0; // reset new clocks to zero
 			mapping.AddTokenToMapping(oldDimension+i);
-			dp.AddTokenInPlace(outputPlacesOfTokensToAdd[i]);
+			dp.AddTokenInPlace(*iter);
+			i++;
 		}
 
 	}
@@ -166,17 +163,86 @@ using namespace VerifyTAPN::TAPN;
 
 	void SymMarking::Constrain(const int tokenIndex, const TAPN::TimeInterval& ti)
 	{
-		dbm.constrain(0, tokenIndex, ti.LowerBoundToDBMRaw());
-		dbm.constrain(tokenIndex, 0, ti.UpperBoundToDBMRaw());
+		dbm.constrain(0, mapping.GetMapping(tokenIndex), ti.LowerBoundToDBMRaw());
+		dbm.constrain(mapping.GetMapping(tokenIndex), 0, ti.UpperBoundToDBMRaw());
 	}
 
-	void SymMarking::AddTokenToMapping(int tokenIndex)
-	{
-		mapping.AddTokenToMapping(tokenIndex);
-	}
-
+	/// Sort the array between a low and high bound in either ascending or descending order
+	/// Iterative quick sort.
+	/// Parameters:
+	///      int  nFirst : between 0 and the upper bound of the array.
+	///      int  nLast  : between 0 and the upper bound of the array.
+	///                  : must be guaranteed >= nFirst.
+	///      bool bAscend: true  - sort in ascending order
+	///                  : false - sort in descending order
 	void SymMarking::Canonicalize()
 	{
+		quickSort(0, dp.size()-1);
+
+	}
+
+	void SymMarking::quickSort(int lo, int hi)
+	{
+		if (lo >= hi)
+			return;
+		int pivot = hi;
+		int i = lo - 1;
+		int j = hi;
+
+		while (i < j)
+		{
+			while (IsLowerPositionLessThanPivot(++i, pivot));
+			while (j > lo && IsUpperPositionGreaterThanPivot(--j,pivot));
+			if (i < j)
+				Swap(i,j);
+		}
+		Swap(i, hi);
+		quickSort(lo, i-1);
+		quickSort(i+1, hi);
+	}
+
+	bool SymMarking::IsLowerPositionLessThanPivot(int lower, int pivotIndex) const
+	{
+		int placeLower = dp.GetTokenPlacement(lower);
+		int pivot = dp.GetTokenPlacement(pivotIndex);
+		unsigned int mapLower = mapping.GetMapping(lower);
+		unsigned int mapPivot = mapping.GetMapping(pivotIndex);
+
+		return placeLower < pivot || (placeLower == pivot && dbm(0,mapLower) < dbm(0,mapPivot)) || (placeLower == pivot && dbm(0,mapLower) == dbm(0,mapPivot) && dbm(mapLower,0) < dbm(mapPivot,0));
+	}
+
+	bool SymMarking::IsUpperPositionGreaterThanPivot(int upper, int pivotIndex) const
+	{
+		int placeUpper = dp.GetTokenPlacement(upper);
+		int pivot = dp.GetTokenPlacement(pivotIndex);
+		unsigned int mapUpper = mapping.GetMapping(upper);
+		unsigned int mapPivot = mapping.GetMapping(pivotIndex);
+
+		return placeUpper > pivot || (placeUpper == pivot && dbm(0,mapUpper) > dbm(0,mapPivot)) || (placeUpper == pivot && dbm(0,mapUpper) == dbm(0,mapPivot) && dbm(mapUpper,0) > dbm(mapPivot,0));
+
+	}
+
+	bool SymMarking::ShouldSwap(int i, int j)
+	{
+		if(i < j)
+		{
+			int placeI = dp.GetTokenPlacement(i);
+			int placeJ = dp.GetTokenPlacement(j);
+			unsigned int mapI = mapping.GetMapping(i);
+			unsigned int mapJ = mapping.GetMapping(j);
+
+			if(placeI > placeJ || (placeI == placeJ && dbm(0,mapI) > dbm(0,mapJ)) || (placeI == placeJ && dbm(0,mapI) == dbm(0,mapJ) && dbm(mapI,0) > dbm(mapJ,0)))
+				return true;
+
+			return false;
+		}
+		return false;
+	}
+
+	void SymMarking::Swap(int i, int j)
+	{
+		dp.Swap(i,j);
+		dbm.swapClocks(mapping.GetMapping(i), mapping.GetMapping(j));
 
 	}
 
@@ -193,12 +259,26 @@ using namespace VerifyTAPN::TAPN;
 		}
 		out << "\n\nMapping Vector:\n";
 		i = 0;
-		for(std::vector<int>::const_iterator iter2 = mapping.GetMappingVector().begin();iter2 != mapping.GetMappingVector().end();++iter2){
+		for(std::vector<unsigned int>::const_iterator iter2 = mapping.GetMappingVector().begin();iter2 != mapping.GetMappingVector().end();++iter2){
 			out << i << ":" << (*iter2) << "\n";
 			i++;
 		}
 		out << "\nDBM:\n";
 		out << dbm << "\n\n";
+	}
+
+	// returns true if the specified token is not of appropriate age
+	// Note that if the result is false, then the token is potentially of appropriate age.
+	// cannot be sure until constraints are applied.
+	bool SymMarking::IsTokenOfInappropriateAge(const int tokenIndex, const TAPN::TimeInterval& ti) const
+	{
+		// check lower bound
+		bool isLowerBoundSat = dbm.satisfies(0,mapping.GetMapping(tokenIndex),ti.LowerBoundToDBMRaw());
+
+		// check upper bound
+		bool isUpperBoundSat = dbm.satisfies(mapping.GetMapping(tokenIndex),0, ti.UpperBoundToDBMRaw());
+
+		return !isLowerBoundSat || !isUpperBoundSat;
 	}
 }
 

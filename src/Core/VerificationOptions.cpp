@@ -4,21 +4,6 @@
 
 namespace VerifyTAPN {
 
-	const std::string VerificationOptions::GetInputFile() const
-	{
-		return inputFile;
-	}
-
-	const std::string VerificationOptions::QueryFile() const
-	{
-		return queryFile;
-	}
-
-	const int VerificationOptions::GetKBound() const
-	{
-		return k_bound;
-	}
-
 	VerificationOptions VerificationOptions::ParseVerificationOptions(int argc, char* argv[])
 	{
 		bool error = false;
@@ -27,6 +12,7 @@ namespace VerifyTAPN {
 		desc.add_options()
 				("help,h", "Produce help message")
 				("k-bound,k", boost::program_options::value<int>(), "Specify the bound of the TAPN model")
+				("symmetry,s", "Use symmetry reduction")
 				("model-file", boost::program_options::value<std::string>(), "model file")
 				("query-file", boost::program_options::value<std::string>(), "query file")
 		;
@@ -52,6 +38,16 @@ namespace VerifyTAPN {
 			error = true;
 
 		}
+		bool symmetry = true;
+		if(vm.count("symmetry")) {
+			std::cout << "Symmetry Reduction is ON\n";
+			symmetry = true;
+		}
+		else
+		{
+			std::cout << "Symmetry Reduction is OFF\n";
+			symmetry = false;
+		}
 
 		if(vm.count("model-file")) {
 			std::cout << "model file is: " << vm["model-file"].as<std::string>() << "\n";
@@ -74,7 +70,7 @@ namespace VerifyTAPN {
 			exit(0);
 		}
 
-		return VerificationOptions(vm["model-file"].as<std::string>(), vm["query-file"].as<std::string>(), vm["k-bound"].as<int>());
+		return VerificationOptions(vm["model-file"].as<std::string>(), vm["query-file"].as<std::string>(), vm["k-bound"].as<int>(), symmetry);
 	}
 
 }

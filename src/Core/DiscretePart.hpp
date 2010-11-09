@@ -26,18 +26,16 @@ namespace VerifyTAPN {
 
 	public: // inspectors
 		inline int GetTokenPlacement(unsigned int tokenIndex) const { return placement[tokenIndex]; }
-		int IsTokenPresentInPlace(int placeIndex) const;
 		int NumberOfTokensInPlace(int placeIndex) const;
-		const std::vector<int>& GetTokenPlacementVector() const;
+		const std::vector<int>& GetTokenPlacementVector() const { return placement; }
 		inline const unsigned int size() const { return placement.size(); }
 
 
 	public: // modifiers
 		void MoveToken(unsigned int tokenIndex, int newPlaceIndex);
-		int MoveFirstTokenAtBottomTo(int newPlaceIndex);
 		void RemoveToken(int index) { placement.erase(placement.begin() + index); }
 		void AddTokenInPlace(int placeIndex) { placement.push_back(placeIndex); }
-		void MakeKBound(unsigned int kBound);
+		void Swap(int tokenI, int tokenJ);
 
 	private: // data
 		std::vector<int> placement;

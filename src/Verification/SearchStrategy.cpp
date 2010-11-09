@@ -7,13 +7,13 @@ namespace VerifyTAPN
 		const VerifyTAPN::TAPN::TimedArcPetriNet& tapn,
 		SymMarking* initialMarking,
 		const AST::Query* query,
-		int kBound
-	) : tapn(tapn), initialMarking(initialMarking), checker(query), kBound(kBound)
+		const VerificationOptions& options
+	) : tapn(tapn), initialMarking(initialMarking), checker(query), options(options)
 	{
 		pwList = new PWList(new StackWaitingList);
 
-		maxConstantsArray = new int[kBound+1];
-		for(int i = 0; i < kBound+1; ++i)
+		maxConstantsArray = new int[options.GetKBound()+1];
+		for(int i = 0; i < options.GetKBound()+1; ++i)
 		{
 			maxConstantsArray[i] = tapn.MaxConstant();
 		}
@@ -22,6 +22,10 @@ namespace VerifyTAPN
 	bool DFS::Verify()
 	{
 		initialMarking->Delay();
+
+		if(options.GetSymmetry())
+			initialMarking->Canonicalize();
+
 		pwList->Add(*initialMarking);
 		if(CheckQuery(*initialMarking)) return checker.IsEF(); // return true if EF query (proof found), or false if AG query (counter example found)
 
@@ -31,13 +35,16 @@ namespace VerifyTAPN
 			typedef std::vector<SymMarking*> SuccessorVector;
 			SuccessorVector successors;
 
-			next.GenerateDiscreteTransitionSuccessors(tapn, kBound, successors);
+			next.GenerateDiscreteTransitionSuccessors(tapn, options.GetKBound(), successors);
 
 			for(SuccessorVector::iterator iter = successors.begin(); iter != successors.end(); ++iter)
 			{
 				SymMarking& succ = **iter;
 				succ.Delay();
 				succ.Extrapolate(maxConstantsArray);
+
+				if(options.GetSymmetry())
+					succ.Canonicalize();
 
 				bool added = pwList->Add(succ);
 				if(!added) delete *iter;

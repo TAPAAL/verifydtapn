@@ -13,8 +13,9 @@ using namespace VerifyTAPN;
 using namespace VerifyTAPN::TAPN;
 using namespace boost;
 
-int main(int argc, char* argv[]) {
 
+
+int main(int argc, char* argv[]) {
 	VerificationOptions options = VerificationOptions::ParseVerificationOptions(argc, argv);
 
 	TAPNXmlParser modelParser;
@@ -29,7 +30,7 @@ int main(int argc, char* argv[]) {
 
 	SearchStrategy* strategy = NULL;
 
-	strategy = new DFS(*tapn, initialMarking, query, options.GetKBound());
+	strategy = new DFS(*tapn, initialMarking, query, options);
 
 	bool result = strategy->Verify();
 

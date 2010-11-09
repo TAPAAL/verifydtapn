@@ -10,20 +10,20 @@ namespace VerifyTAPN {
 	class TokenMapping {
 		public: // Constructors
 			TokenMapping() : mapping() {};
-			TokenMapping(const std::vector<int>& mapping) : mapping(mapping) {};
+			TokenMapping(const std::vector<unsigned int>& mapping) : mapping(mapping) {};
 			virtual ~TokenMapping() {};
 
 		public: // inspectors
-			inline const int GetMapping(int index) const { return mapping[index]; }
-			const std::vector<int>& GetMappingVector() const { return mapping; }
+			inline const unsigned int GetMapping(unsigned int index) const { return mapping[index]; }
+			const std::vector<unsigned int>& GetMappingVector() const { return mapping; }
 			const unsigned int size() const { return mapping.size(); }
 
 		public: // modifiers
-			void AddTokenToMapping(int tokenIndex);
-			void SetMapping(int index, int dbmIndex) { mapping[index] = dbmIndex; }
-			void RemoveToken(int index) { mapping.erase(mapping.begin() + index); }
+			void AddTokenToMapping(unsigned int tokenIndex);
+			void SetMapping(unsigned int index, unsigned int dbmIndex) { mapping[index] = dbmIndex; }
+			void RemoveToken(unsigned int index) { mapping.erase(mapping.begin() + index); }
 		private:
-			std::vector<int> mapping;
+			std::vector<unsigned int> mapping;
 	};
 
 }

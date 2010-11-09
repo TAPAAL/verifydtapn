@@ -2,6 +2,7 @@
 #define SYMMARKING_HPP_
 
 #include <vector>
+#include <list>
 #include "DiscretePart.hpp"
 #include "TokenMapping.hpp"
 #include "boost/smart_ptr.hpp"
@@ -31,30 +32,36 @@ namespace VerifyTAPN {
 			inline const int GetTokenPlacement(int tokenIndex) const { return dp.GetTokenPlacement(tokenIndex); }
 			inline const unsigned int GetNumberOfTokens() const { return dp.size(); }
 			inline const dbm::dbm_t& Zone() const { return dbm; }
-			inline const TokenMapping& GetTokenMapping() const { return mapping; }
 			void GenerateDiscreteTransitionSuccessors(const VerifyTAPN::TAPN::TimedArcPetriNet & tapn, std::vector<SymMarking*>& succ) const;
 			void Print(std::ostream& out) const;
+			bool IsTokenOfInappropriateAge(const int tokenIndex, const TAPN::TimeInterval& ti) const;
 
 		public: // Modifiers
 			inline void Delay() { dbm.up(); };
 			inline void Extrapolate(const int* maxConstants) { dbm.extrapolateMaxBounds(maxConstants); };
 			void MoveToken(int tokenIndex, int newPlaceIndex);
-			int MoveFirstTokenAtBottomTo(int newPlaceIndex);
 			void ResetClock(int tokenIndex);
-			void AddTokens(const std::vector<int>& outputPlacesOfTokensToAdd);
+			void AddTokens(const std::list<int>& outputPlacesOfTokensToAdd);
 			void RemoveTokens(const std::vector<int>& tokensToRemove);
 			void Constrain(const int tokenIndex, const TAPN::TimeInterval& ti);
-			void AddTokenToMapping(int tokenIndex);
-			void MakeKBound(int kBound) { dp.MakeKBound(kBound); }
 			inline void DBMIntern() { dbm.intern(); }
 			void Canonicalize();
+			void SetInit() { dbm.setInit(); }
 
 		private: // Initializers
 			void initMapping();
 
+		private: // helper functions
+			void quickSort(int lo, int hi);
+			void Swap(int token1, int token2);
+			bool ShouldSwap(int i, int j);
+			bool IsLowerPositionLessThanPivot(int lower, int pivotIndex) const;
+			bool IsUpperPositionGreaterThanPivot(int upper, int pivotIndex) const;
+
 
 		public: // Helper functions
 			void GenerateDiscreteTransitionSuccessors(const TAPN::TimedArcPetriNet& tapn, unsigned int kbound, std::vector<SymMarking*>& succ) const;
+
 
 		private:
 			DiscretePart dp;

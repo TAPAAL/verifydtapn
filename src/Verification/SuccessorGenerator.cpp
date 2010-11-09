@@ -32,25 +32,19 @@ namespace VerifyTAPN {
 			{
 				boost::shared_ptr<TAPN::TimedInputArc> ia = (*presetIter).lock();
 				const TAPN::TimeInterval& ti = ia->Interval();
-				const TokenMapping& map = marking->GetTokenMapping();
 				unsigned int nTokensFromCurrInputPlace = 0;
+				int currInputPlaceIndex = tapn.GetPlaceIndex(ia->InputPlace());
 
 				for(unsigned int i = 0; i < marking->GetNumberOfTokens(); i++)
 				{
 					int placeIndex = marking->GetTokenPlacement(i);
-					int currInputPlaceIndex = tapn.GetPlaceIndex(ia->InputPlace());
+
 
 					if(placeIndex == currInputPlaceIndex)
 					{
-						// check lower bound
-						bool isLowerBoundSat = marking->Zone().satisfies(0,map.GetMapping(i),ti.LowerBoundToDBMRaw());
+						bool inappropriateAge = marking->IsTokenOfInappropriateAge(i, ti);
 
-						// check upper bound
-						bool isUpperBoundSat = marking->Zone().satisfies(map.GetMapping(i),0, ti.UpperBoundToDBMRaw());
-
-						bool notAppropriateAge = !isLowerBoundSat || !isUpperBoundSat;
-
-						if(!notAppropriateAge) // token potentially satisfies guard
+						if(!inappropriateAge) // token potentially satisfies guard
 						{
 							assert(currInputArcIdx <= nInputArcs);
 							assert(nTokensFromCurrInputPlace <= kBound);
@@ -138,7 +132,6 @@ namespace VerifyTAPN {
 		{
 			boost::shared_ptr<TAPN::TimedInputArc> ia = preset[i].lock();
 			int inputPlace = tapn.GetPlaceIndex(ia->InputPlace());
-			const TokenMapping& map = marking->GetTokenMapping();
 			const TAPN::TimeInterval& ti = ia->Interval();
 			const std::list<int>& outputPlaces = pairing.GetOutputPlacesFor(inputPlace);
 
@@ -148,7 +141,6 @@ namespace VerifyTAPN {
 			{
 				// change placement
 				int tokenIndex = tokenIndices->at_element(currTransitionIndex+i, currPermutationindices[i]);
-				int tokenMappingIdx = map.GetMapping(tokenIndex);
 				int outputPlaceIndex = *opIter;
 
 
@@ -158,7 +150,7 @@ namespace VerifyTAPN {
 					next->MoveToken(tokenIndex, outputPlaceIndex);
 
 				// constrain dbm with lower bound and upper bound in guard
-				next->Constrain(tokenMappingIdx, ti);
+				next->Constrain(tokenIndex, ti);
 
 //				std::cout << "-------------------------------\n";
 //				std::cout << "Next DBM constrained on mapping index: " << tokenMappingIdx << " with time interval: " << ti << "\n";
@@ -200,16 +192,16 @@ namespace VerifyTAPN {
 		else if(diff < 0) // postset bigger than preset, i.e. more tokens produced than consumed
 		{
 			const std::list<int>& outputPlaces = pairing.GetOutputPlacesFor(TAPN::TimedPlace::BottomIndex());
-			std::vector<int> outputPlacesIndices;
+//			std::vector<int> outputPlacesIndices;
+//
+//			// TODO: Fix this - currently it is just to get it to compile
+//			// shouldn't have to convert list to vector
+//			for(std::list<int>::const_iterator iter = outputPlaces.begin(); iter != outputPlaces.end(); ++iter)
+//			{
+//				outputPlacesIndices.push_back(*iter);
+//			}
 
-			// TODO: Fix this - currently it is just to get it to compile
-			// shouldn't have to convert list to vector
-			for(std::list<int>::const_iterator iter = outputPlaces.begin(); iter != outputPlaces.end(); ++iter)
-			{
-				outputPlacesIndices.push_back(*iter);
-			}
-
-			next->AddTokens(outputPlacesIndices);
+			next->AddTokens(outputPlaces);
 		}
 		next->DBMIntern();
 		succ.push_back(next);

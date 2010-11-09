@@ -36,7 +36,7 @@ namespace VerifyTAPN
 			const VerifyTAPN::TAPN::TimedArcPetriNet& tapn,
 			SymMarking* initialMarking,
 			const AST::Query* query,
-			int kBound
+			const VerificationOptions& options
 		);
 		virtual ~DFS() { delete pwList; delete[] maxConstantsArray; };
 		virtual bool Verify();
@@ -49,7 +49,7 @@ namespace VerifyTAPN
 		const VerifyTAPN::TAPN::TimedArcPetriNet& tapn;
 		SymMarking* initialMarking;
 		const QueryChecker checker;
-		int kBound;
+		VerificationOptions options;
 		int* maxConstantsArray;
 	};
 }
