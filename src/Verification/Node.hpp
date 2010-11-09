@@ -14,7 +14,7 @@ namespace VerifyTAPN
 		inline Color GetColor() const { return color; };
 		inline SymMarking& GetMarking() const { return *marking; };
 	public:
-		inline void Recolor(Color newColor) { color = newColor; }
+		inline void Recolor(Color newColor) { color = newColor; };
 	private:
 		SymMarking* marking;
 		Color color;

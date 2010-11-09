@@ -17,27 +17,45 @@ namespace VerifyTAPN {
 	bool PWList::Add(const SymMarking& symMarking)
 	{
 		stats.discoveredStates++;
-		const DiscretePart* dp = symMarking.GetDiscretePart();
+		const DiscretePart& dp = symMarking.GetDiscretePart();
 		NodeList& markings = map[dp];
 		const dbm::dbm_t& newDBM = symMarking.Zone();
-		for(NodeList::iterator iter = markings.begin(); iter != markings.end(); ++iter){
-			Node* currentNode = *iter;
-			const dbm::dbm_t& other = currentNode->GetMarking().Zone();
-			relation_t relation = newDBM.relation(other);
-			if((relation & base_SUBSET) != 0){ // check subseteq
-				return false;
-			}else if(relation == base_SUPERSET){
-				if(currentNode->GetColor() == WAITING){
-					waitingList->DecrementActualSize();
-				}
+		NodeList::iterator iter = markings.begin();
 
-				currentNode->Recolor(COVERED);
+		while(iter != markings.end())
+		{
+			Node* currentNode 		= *iter;
+			const dbm::dbm_t& other = currentNode->GetMarking().Zone();
+			relation_t relation 	= newDBM.relation(other);
+			assert(eqdp()(currentNode->GetMarking().GetDiscretePart(), dp));
+			if((relation & base_SUBSET) != 0)
+			{ // check subseteq
+				return false;
 			}
+			else if(relation == base_SUPERSET)
+			{
+				assert(currentNode->GetColor() != COVERED);
+				if(currentNode->GetColor() == WAITING)
+				{
+					waitingList->DecrementActualSize();
+					currentNode->Recolor(COVERED);
+				}
+				else
+				{
+					delete currentNode;
+				}
+				iter = markings.erase(iter);
+				stats.storedStates--;
+				continue;
+			}
+			iter++;
 		}
+
 		stats.storedStates++;
 		Node* node = new Node(const_cast<SymMarking*>(&symMarking), WAITING);
 		markings.push_back(node);
 		waitingList->Add(node);
+
 		return true;
 	}
 

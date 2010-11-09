@@ -15,7 +15,7 @@ namespace VerifyTAPN {
 	class PWList : public PassedWaitingList {
 	private:
 		typedef std::list<Node*> NodeList;
-		typedef google::sparse_hash_map<const DiscretePart*, NodeList, VerifyTAPN::hash, VerifyTAPN::eqdp > HashMap;
+		typedef google::sparse_hash_map<const DiscretePart, NodeList, VerifyTAPN::hash, VerifyTAPN::eqdp > HashMap;
 	public:
 		explicit PWList(WaitingList* waitingList) : map(256000), stats(), waitingList(waitingList) {};
 		virtual ~PWList();
@@ -29,7 +29,7 @@ namespace VerifyTAPN {
 
 	public: // modifiers
 		virtual bool Add(const SymMarking& symMarking);
-		virtual  SymMarking& GetNextUnexplored();
+		virtual SymMarking& GetNextUnexplored();
 	private:
 		HashMap map;
 		Stats stats;

@@ -10,6 +10,7 @@ namespace VerifyTAPN{
 	class WaitingList {
 	public:
 		WaitingList() { };
+		virtual ~WaitingList() { };
 		virtual void Add(Node* node) = 0;
 		virtual Node* Next() = 0;
 		virtual long long Size() const = 0;
@@ -37,6 +38,7 @@ namespace VerifyTAPN{
 	class StackWaitingList : public WaitingList{
 		public:
 		StackWaitingList() : stack(), actualSize(0) { };
+		virtual ~StackWaitingList();
 		public:
 			virtual void Add(Node* node);
 			virtual Node* Next();

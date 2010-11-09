@@ -31,8 +31,10 @@ namespace VerifyTAPN
 
 	inline std::ostream& operator<<(std::ostream& out, const Stats& stats)
 	{
-		out << "stored states: " << stats.storedStates << "/" << stats.discoveredStates;
-		out << ", explored states: " << stats.exploredStates << "/" << stats.storedStates;
+		out << std::endl << "STATS" << std::endl;
+		out << "  discovered states:\t" << stats.discoveredStates << std::endl;
+		out << "  explored states:\t" << stats.exploredStates << std::endl;
+		out << "  stored states:\t" << stats.storedStates << std::endl;
 		return out;
 	}
 }

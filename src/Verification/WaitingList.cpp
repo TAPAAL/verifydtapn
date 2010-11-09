@@ -64,6 +64,7 @@ namespace VerifyTAPN
 		assert(node->GetColor() == WAITING || node->GetColor() == COVERED);
 		while(node->GetColor() == COVERED){
 			Pop();
+			delete node;
 			node = stack.back();
 			if(node == NULL) return NULL;
 		}
@@ -77,5 +78,15 @@ namespace VerifyTAPN
 	long long StackWaitingList::Size() const
 	{
 		return actualSize;
+	}
+
+	StackWaitingList::~StackWaitingList()
+	{
+		for(std::deque<Node*>::iterator it = stack.begin(); it != stack.end(); it++)
+		{
+			if((*it)->GetColor() == COVERED){
+				delete *it;
+			}
+		}
 	}
 }

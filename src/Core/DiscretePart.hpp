@@ -14,9 +14,14 @@ namespace VerifyTAPN {
 		friend struct VerifyTAPN::hash;
 		friend struct VerifyTAPN::eqdp;
 	public: // construction
-		DiscretePart(const std::vector<int>& placement) : placement(placement) { };
-		explicit DiscretePart(const DiscretePart& dp) : placement(dp.placement) { };
-
+		DiscretePart() : placement() { };
+		explicit DiscretePart(const std::vector<int>& placement) : placement(placement) { };
+		DiscretePart(const DiscretePart& dp) : placement(dp.placement) { };
+		DiscretePart& operator=(const DiscretePart& dp)
+		{
+			placement = dp.placement;
+			return *this;
+		}
 		virtual ~DiscretePart() { };
 
 	public: // inspectors
@@ -38,20 +43,20 @@ namespace VerifyTAPN {
 		std::vector<int> placement;
 	};
 
-	struct hash : public std::unary_function<const VerifyTAPN::DiscretePart*, size_t>
+	struct hash : public std::unary_function<const VerifyTAPN::DiscretePart, size_t>
 	{
-		size_t operator()(const VerifyTAPN::DiscretePart* const& dp) const
+		size_t operator()(const VerifyTAPN::DiscretePart& dp) const
 		{
-			size_t hash = MurmurHashNeutral2(dp->placement, 0xdeadbeef);//boost::hash_range(dp->placement.begin(), dp->placement.end());
+			size_t hash = boost::hash_range(dp.placement.begin(), dp.placement.end());
 			return hash;
 		}
 	};
 
-	struct eqdp : public std::binary_function<const VerifyTAPN::DiscretePart*, const VerifyTAPN::DiscretePart*, bool>
+	struct eqdp : public std::binary_function<const VerifyTAPN::DiscretePart, const VerifyTAPN::DiscretePart, bool>
 	{
-		bool operator()(const VerifyTAPN::DiscretePart* const& dp1, const VerifyTAPN::DiscretePart* const& dp2) const
+		bool operator()(const VerifyTAPN::DiscretePart& dp1, const VerifyTAPN::DiscretePart& dp2) const
 		{
-			return dp1->placement == dp2->placement;
+			return dp1.placement == dp2.placement;
 		}
 	};
 

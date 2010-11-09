@@ -27,7 +27,7 @@ namespace VerifyTAPN {
 			SymMarking* clone() const { return new SymMarking(*this); }
 
 		public: // Inspectors
-			inline const DiscretePart* GetDiscretePart() const { return &dp; };
+			inline const DiscretePart& GetDiscretePart() const { return dp; };
 			inline const int GetTokenPlacement(int tokenIndex) const { return dp.GetTokenPlacement(tokenIndex); }
 			inline const unsigned int GetNumberOfTokens() const { return dp.size(); }
 			inline const dbm::dbm_t& Zone() const { return dbm; }

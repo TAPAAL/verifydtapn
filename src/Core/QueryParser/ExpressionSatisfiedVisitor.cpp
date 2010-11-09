@@ -32,8 +32,8 @@ namespace VerifyTAPN
 
 		void ExpressionSatisfiedVisitor::Visit(const AtomicProposition& expr, boost::any& context)
 		{
-			const DiscretePart* dp = marking.GetDiscretePart();
-			int numberOfTokens = dp->NumberOfTokensInPlace(expr.Place());
+			const DiscretePart& dp = marking.GetDiscretePart();
+			int numberOfTokens = dp.NumberOfTokensInPlace(expr.Place());
 			context = Compare(numberOfTokens, expr.Operator(), expr.N());
 		}
 
