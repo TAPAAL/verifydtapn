@@ -12,6 +12,7 @@ namespace VerifyTAPN {
 		desc.add_options()
 				("help,h", "Produce help message")
 				("k-bound,k", boost::program_options::value<int>(), "Specify the bound of the TAPN model")
+				("infinity-places,i", "Use the infinity place optimization")
 				("symmetry,s", "Use symmetry reduction")
 				("model-file", boost::program_options::value<std::string>(), "model file")
 				("query-file", boost::program_options::value<std::string>(), "query file")
@@ -49,6 +50,17 @@ namespace VerifyTAPN {
 			symmetry = false;
 		}
 
+		bool infPlaces = true;
+		if(vm.count("infinity-places")) {
+			std::cout << "Infinity place optimization is ON\n";
+			infPlaces = true;
+		}
+		else
+		{
+			std::cout << "Infinity place optimization is OFF\n";
+			infPlaces = false;
+		}
+
 		if(vm.count("model-file")) {
 			std::cout << "model file is: " << vm["model-file"].as<std::string>() << "\n";
 		}
@@ -70,7 +82,7 @@ namespace VerifyTAPN {
 			exit(0);
 		}
 
-		return VerificationOptions(vm["model-file"].as<std::string>(), vm["query-file"].as<std::string>(), vm["k-bound"].as<int>(), symmetry);
+		return VerificationOptions(vm["model-file"].as<std::string>(), vm["query-file"].as<std::string>(), vm["k-bound"].as<int>(), symmetry, infPlaces);
 	}
 
 }

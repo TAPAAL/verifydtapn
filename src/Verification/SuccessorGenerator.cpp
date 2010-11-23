@@ -16,15 +16,12 @@ namespace VerifyTAPN {
 	}
 
 	// Collects the number of tokens of potentially appropriate age for each input into arcsArray.
-	// Further, if a token is potentially of appropriate age we add the mapping index (i.e. the index of that token in the dbm)
-	// into the tokenIndices matrix for use when generating successors.
+	// Note that arcs array should be sorted by transition. Further, if a token is potentially of
+	// appropriate age we add the token index to the tokenIndices matrix for use when generating successors.
 	void SuccessorGenerator::CollectArcsAndAppropriateTokens(const TAPN::TimedTransition::Vector& transitions, const SymMarking* marking)
 	{
 		unsigned int currInputArcIdx = 0;
 
-		// for all input arcs
-		//		collect Arcs - should be sorted by transition in arcsArray
-		//		mark transitions
 		for(TAPN::TimedTransition::Vector::const_iterator iter = transitions.begin(); iter != transitions.end(); ++iter)
 		{
 			const TAPN::TimedInputArc::WeakPtrVector& preset = (*iter)->GetPreset();
@@ -42,7 +39,11 @@ namespace VerifyTAPN {
 
 					if(placeIndex == currInputPlaceIndex)
 					{
-						bool inappropriateAge = marking->IsTokenOfInappropriateAge(i, ti);
+//						bool inappropriateAge = true;
+//						if(useInfinityPlaces && tapn.IsPlaceInfinityPlace(placeIndex))
+//							inappropriateAge = false;
+//						else
+							bool inappropriateAge = marking->IsTokenOfInappropriateAge(i, ti);
 
 						if(!inappropriateAge) // token potentially satisfies guard
 						{
@@ -63,8 +64,6 @@ namespace VerifyTAPN {
 
 	void SuccessorGenerator::GenerateSuccessors(const TAPN::TimedTransition::Vector& transitions, const SymMarking* marking, std::vector<SymMarking*>& succ)
 	{
-		// for all marked transitions
-		// 		try to take them
 		int currTransitionIdx = 0;
 		for(TAPN::TimedTransition::Vector::const_iterator iter = transitions.begin(); iter != transitions.end(); ++iter)
 		{
@@ -128,6 +127,7 @@ namespace VerifyTAPN {
 		std::vector<int> tokensToRemove;
 		SymMarking* next = marking->clone();
 
+		// move all tokens that are currently in the net
 		for(unsigned int i = 0; i < presetSize; ++i)
 		{
 			boost::shared_ptr<TAPN::TimedInputArc> ia = preset[i].lock();
@@ -142,41 +142,29 @@ namespace VerifyTAPN {
 				// change placement
 				int tokenIndex = tokenIndices->at_element(currTransitionIndex+i, currPermutationindices[i]);
 				int outputPlaceIndex = *opIter;
+				int originalPlaceIndex = next->GetTokenPlacement(tokenIndex);
 
+				// constrain dbm with lower bound and upper bound in guard
+				//if(!(useInfinityPlaces && tapn.IsPlaceInfinityPlace(originalPlaceIndex)))
+					next->Constrain(tokenIndex, ti);
 
 				if(outputPlaceIndex == TAPN::TimedPlace::BottomIndex())
 					tokensToRemove.push_back(tokenIndex);
 				else
 					next->MoveToken(tokenIndex, outputPlaceIndex);
 
-				// constrain dbm with lower bound and upper bound in guard
-				next->Constrain(tokenIndex, ti);
-
-//				std::cout << "-------------------------------\n";
-//				std::cout << "Next DBM constrained on mapping index: " << tokenMappingIdx << " with time interval: " << ti << "\n";
-//				std::cout << "\n------------------------------------\n";
-//				std::cout << next->Zone() << "\n-----------------------------------------\n\n";
-
 				if(next->Zone().isEmpty())
 				{
 					delete next;
 					return;
 				}
-
-
-
 			}
 		}
 
-//		std::cout << "-------------------------------\n";
-//		std::cout << "Next DBM with clocks reset:\n";
-//		std::cout << "\n------------------------------------\n";
-//		std::cout << next->Zone() << "\n-----------------------------------------\n\n";
-
+		// reset clocks of moved tokens
 		for (unsigned int i = 0; i < presetSize; ++i) {
 			int tokenIndex = tokenIndices->at_element(currTransitionIndex+i, currPermutationindices[i]);
 
-			// reset age to 0
 			next->ResetClock(tokenIndex);
 		}
 
@@ -198,8 +186,9 @@ namespace VerifyTAPN {
 				return;
 			}
 
-			next->AddTokens(outputPlaces);
+			next->AddTokens(outputPlaces,tapn);
 		}
+
 		next->DBMIntern();
 		succ.push_back(next);
 		tokensToRemove.clear();

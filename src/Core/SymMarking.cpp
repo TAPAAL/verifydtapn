@@ -30,15 +30,10 @@ using namespace VerifyTAPN::TAPN;
 	}
 
 
-	void SymMarking::GenerateDiscreteTransitionSuccessors(const VerifyTAPN::TAPN::TimedArcPetriNet& tapn, unsigned int kbound, std::vector<SymMarking*>& succ) const
+	void SymMarking::GenerateDiscreteTransitionSuccessors(const VerifyTAPN::TAPN::TimedArcPetriNet& tapn, unsigned int kbound, bool useInfinityPlaces, std::vector<SymMarking*>& succ) const
 	{
-		SuccessorGenerator succGen(tapn, kbound);
+		SuccessorGenerator succGen(tapn, kbound, useInfinityPlaces);
 		succGen.GenerateDiscreteTransitionsSuccessors(this, succ);
-	}
-
-	void SymMarking::ResetClock(int tokenIndex)
-	{
-		dbm(mapping.GetMapping(tokenIndex)) = 0;
 	}
 
 	void SymMarking::MoveToken(int tokenIndex, int newPlaceIndex)
@@ -46,7 +41,7 @@ using namespace VerifyTAPN::TAPN;
 		dp.MoveToken(tokenIndex, newPlaceIndex);
 	}
 
-	void SymMarking::AddTokens(const std::list<int>& placesOfTokensToAdd)
+	void SymMarking::AddTokens(const std::list<int>& placesOfTokensToAdd, const TimedArcPetriNet& tapn)
 	{
 		unsigned int nAdditionalTokens = placesOfTokensToAdd.size();
 		unsigned int oldDimension = dbm.getDimension();

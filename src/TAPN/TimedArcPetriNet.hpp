@@ -31,6 +31,7 @@ namespace VerifyTAPN {
 			void Print(std::ostream& out) const;
 			inline int GetPlaceIndex(const TimedPlace& p) const { return p.GetIndex(); };
 			int GetPlaceIndex(const std::string& placeName) const;
+			const TimedPlace& GetPlace(const int placeIndex) const { return *places[placeIndex]; }
 			const TimedTransition::Vector& GetTransitions() const { return transitions; }
 			const TimedInputArc::Vector& GetInputArcs() const { return inputArcs; }
 			const int GetNumberOfInputArcs() const { return inputArcs.size(); }
@@ -38,14 +39,17 @@ namespace VerifyTAPN {
 			const int GetNumberOfOutputArcs() const { return outputArcs.size(); }
 			const Pairing& GetPairing(const TimedTransition& t) const { return pairings.find(t)->second; }
 			inline int MaxConstant() const { return maxConstant; };
+			inline const bool IsPlaceInfinityPlace(int index) const { return places[index]->IsInfinityPlace(); }
 		public: // modifiers
-			void Initialize();
+			void Initialize(bool useInfinityPlaces);
 
 
 		private: // modifiers
 			void MakeTAPNConservative();
 			void GeneratePairings();
 			void UpdateMaxConstant(const TimeInterval& interval);
+			void MarkInfinityPlaces();
+			void FindMaxConstants();
 
 		private: // data
 			const TimedPlace::Vector places;

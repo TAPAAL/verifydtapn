@@ -28,20 +28,24 @@ namespace VerifyTAPN{
 
 		public: // construction / destruction
 			TimedPlace(const std::string& name, const std::string& id, const TimeInvariant timeInvariant)
-			: name(name), id(id), timeInvariant(timeInvariant), postset(), preset(), index(-2) { };
-			TimedPlace() : name("*BOTTOM*"), timeInvariant(), postset(), preset(), index(-1) { };
+			: name(name), id(id), timeInvariant(timeInvariant), postset(), preset(), index(-2), isInfinityPlace(false) { };
+			TimedPlace() : name("*BOTTOM*"), timeInvariant(), postset(), preset(), index(-1), isInfinityPlace(false) { };
 			virtual ~TimedPlace() { /* empty */ };
 
 		public: // modifiers
 			void AddToPreset(const boost::shared_ptr<OutputArc>& arc);
 			void AddToPostset(const boost::shared_ptr<TimedInputArc>& arc);
-
+			inline void MarkInfinityPlace(bool isInfPlace) { isInfinityPlace = isInfPlace; }
 			inline void SetIndex(int i) { index = i; };
+			inline void SetMaxConstant(int max) { maxConstant = max; }
 		public: // inspection
 			const std::string& GetName() const;
 			const std::string& GetId() const;
 			void Print(std::ostream& out) const;
 			inline int GetIndex() const { return index; };
+			inline const TimedInputArc::WeakPtrVector& GetPostset() const { return postset; }
+			inline const bool IsInfinityPlace() const { return isInfinityPlace; }
+			inline const int GetMaxConstant() const { return maxConstant; }
 
 		private: // data
 			std::string	name;
@@ -50,6 +54,8 @@ namespace VerifyTAPN{
 			TimedInputArc::WeakPtrVector postset;
 			OutputArc::WeakPtrVector preset;
 			int index;
+			bool isInfinityPlace;
+			int maxConstant;
 		};
 
 		inline std::ostream& operator<<(std::ostream& out, const TimedPlace& place)

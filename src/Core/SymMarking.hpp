@@ -32,21 +32,21 @@ namespace VerifyTAPN {
 			inline const int GetTokenPlacement(int tokenIndex) const { return dp.GetTokenPlacement(tokenIndex); }
 			inline const unsigned int GetNumberOfTokens() const { return dp.size(); }
 			inline const dbm::dbm_t& Zone() const { return dbm; }
-			void GenerateDiscreteTransitionSuccessors(const VerifyTAPN::TAPN::TimedArcPetriNet & tapn, std::vector<SymMarking*>& succ) const;
 			void Print(std::ostream& out) const;
 			bool IsTokenOfInappropriateAge(const int tokenIndex, const TAPN::TimeInterval& ti) const;
+			inline const unsigned int GetDBMIndex(const unsigned int tokenIndex) const { return mapping.GetMapping(tokenIndex); }
 
 		public: // Modifiers
 			inline void Delay() { dbm.up(); };
 			inline void Extrapolate(const int* maxConstants) { dbm.extrapolateMaxBounds(maxConstants); };
 			void MoveToken(int tokenIndex, int newPlaceIndex);
-			void ResetClock(int tokenIndex);
-			void AddTokens(const std::list<int>& outputPlacesOfTokensToAdd);
+			inline void ResetClock(int tokenIndex) { dbm(mapping.GetMapping(tokenIndex)) = 0; }
+			void AddTokens(const std::list<int>& outputPlacesOfTokensToAdd, const TAPN::TimedArcPetriNet& tapn);
 			void RemoveTokens(const std::vector<int>& tokensToRemove);
 			void Constrain(const int tokenIndex, const TAPN::TimeInterval& ti);
 			inline void DBMIntern() { dbm.intern(); }
 			void Canonicalize();
-			void SetInit() { dbm.setInit(); }
+			inline void SetInit() { dbm.setInit(); }
 
 		private: // Initializers
 			void initMapping();
@@ -60,7 +60,7 @@ namespace VerifyTAPN {
 
 
 		public: // Helper functions
-			void GenerateDiscreteTransitionSuccessors(const TAPN::TimedArcPetriNet& tapn, unsigned int kbound, std::vector<SymMarking*>& succ) const;
+			void GenerateDiscreteTransitionSuccessors(const TAPN::TimedArcPetriNet& tapn, unsigned int kbound, bool useInfinityPlaces, std::vector<SymMarking*>& succ) const;
 
 
 		private:

@@ -5,7 +5,7 @@
 
 namespace VerifyTAPN {
 	namespace TAPN {
-		void TimedArcPetriNet::Initialize()
+		void TimedArcPetriNet::Initialize(bool useInfinityPlaces)
 		{
 			for(unsigned int i = 0; i < places.size(); i++){
 				places[i]->SetIndex(i);
@@ -34,6 +34,49 @@ namespace VerifyTAPN {
 			}
 
 			GeneratePairings();
+			FindMaxConstants();
+
+			if(useInfinityPlaces)
+				MarkInfinityPlaces();
+		}
+
+		void TimedArcPetriNet::MarkInfinityPlaces()
+		{
+			for(TimedPlace::Vector::const_iterator iter = places.begin(); iter != places.end(); ++iter)
+			{
+				bool isInfinityPlace = true;
+				for(TimedInputArc::WeakPtrVector::const_iterator arcIter = (*iter)->GetPostset().begin(); arcIter != (*iter)->GetPostset().end(); ++arcIter)
+				{
+					boost::shared_ptr<TimedInputArc> arc = arcIter->lock();
+
+					if(!arc->Interval().IsZeroInfinity())
+						isInfinityPlace = false;
+				}
+
+				(*iter)->MarkInfinityPlace(isInfinityPlace);
+			}
+		}
+
+		void TimedArcPetriNet::FindMaxConstants()
+		{
+			for(TimedPlace::Vector::const_iterator iter = places.begin(); iter != places.end(); ++iter)
+			{
+				int maxConstant = 0;
+				for(TimedInputArc::WeakPtrVector::const_iterator arcIter = (*iter)->GetPostset().begin(); arcIter != (*iter)->GetPostset().end(); ++arcIter)
+				{
+					boost::shared_ptr<TimedInputArc> ia = arcIter->lock();
+					const TAPN::TimeInterval& interval = ia->Interval();
+
+					const int lowerBound = interval.GetLowerBound();
+					const int upperBound = interval.GetUpperBound();
+
+					if(upperBound == std::numeric_limits<int>().max())
+						maxConstant = (maxConstant < lowerBound ? lowerBound : maxConstant);
+					else
+						maxConstant = (maxConstant < upperBound ? upperBound : maxConstant);
+				}
+				(*iter)->SetMaxConstant(maxConstant);
+			}
 		}
 
 		void TimedArcPetriNet::UpdateMaxConstant(const TimeInterval& interval)

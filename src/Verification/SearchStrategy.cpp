@@ -23,7 +23,11 @@ namespace VerifyTAPN
 	{
 		initialMarking->Delay();
 
-		if(options.GetSymmetry())
+		UpdateMaxConstantsArray(*initialMarking);
+
+		initialMarking->Extrapolate(maxConstantsArray);
+
+		if(options.GetSymmetryEnabled())
 			initialMarking->Canonicalize();
 
 		pwList->Add(*initialMarking);
@@ -35,21 +39,27 @@ namespace VerifyTAPN
 			typedef std::vector<SymMarking*> SuccessorVector;
 			SuccessorVector successors;
 
-			next.GenerateDiscreteTransitionSuccessors(tapn, options.GetKBound(), successors);
+			next.GenerateDiscreteTransitionSuccessors(tapn, options.GetKBound(), options.GetInfinityPlacesEnabled(), successors);
 
 			for(SuccessorVector::iterator iter = successors.begin(); iter != successors.end(); ++iter)
 			{
 				SymMarking& succ = **iter;
 				succ.Delay();
+
+				UpdateMaxConstantsArray(succ);
+
 				succ.Extrapolate(maxConstantsArray);
 
-				if(options.GetSymmetry())
+				if(options.GetSymmetryEnabled())
 					succ.Canonicalize();
 
 				bool added = pwList->Add(succ);
 				if(!added) delete *iter;
 				else {
-					if(CheckQuery(succ)) return checker.IsEF();
+					if(CheckQuery(succ))
+					{
+						return checker.IsEF();
+					}
 				}
 			}
 
@@ -57,6 +67,25 @@ namespace VerifyTAPN
 		}
 
 		return checker.IsAG(); // return true if AG query (no counter example found), false if EF query (no proof found)
+	}
+
+	// Finds the local max constants for each token to be used for extrapolation.
+	// If infinity place optimization is enabled, tokens in such a place are "marked"
+	// as inactive by supplying a max constant of -dbm_INFINITY.
+	void DFS::UpdateMaxConstantsArray(const SymMarking& marking)
+	{
+		for(unsigned int tokenIndex = 0; tokenIndex < marking.GetNumberOfTokens(); ++tokenIndex)
+		{
+			int placeIndex = marking.GetTokenPlacement(tokenIndex);
+
+			if(options.GetInfinityPlacesEnabled() && tapn.IsPlaceInfinityPlace(placeIndex))
+				maxConstantsArray[marking.GetDBMIndex(tokenIndex)] = -dbm_INFINITY;
+			else
+			{
+				const TAPN::TimedPlace& p = tapn.GetPlace(placeIndex);
+				maxConstantsArray[marking.GetDBMIndex(tokenIndex)] = p.GetMaxConstant();
+			}
+		}
 	}
 
 	bool DFS::CheckQuery(const SymMarking& marking) const
