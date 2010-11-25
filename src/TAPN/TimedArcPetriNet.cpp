@@ -10,6 +10,10 @@ namespace VerifyTAPN {
 			for(unsigned int i = 0; i < places.size(); i++){
 				places[i]->SetIndex(i);
 			}
+
+			for(unsigned int i = 0; i < transitions.size(); i++){
+				transitions[i]->SetIndex(i);
+			}
 //			placeIndices.set_empty_key(""); // assume place always have a name
 //			IndexMap::value_type bottom(TimedPlace::Bottom().GetName(), TimedPlace::BottomIndex());
 //			placeIndices.insert(bottom);

@@ -9,6 +9,8 @@
 #include "dbm/fed.h"
 
 namespace VerifyTAPN {
+	class VerificationOptions;
+	class Successor;
 	namespace TAPN {
 		class TimedArcPetriNet;
 		class TimedTransition;
@@ -19,10 +21,12 @@ namespace VerifyTAPN {
 	class SymMarking {
 		public: // typedefs
 			typedef std::vector<boost::shared_ptr<SymMarking> > Vector;
+			typedef long long id_type;
+			static id_type nextId;
 
 		public: // construction
 			SymMarking(const DiscretePart & dp, const dbm::dbm_t & dbm);
-			SymMarking(const SymMarking& marking) : dp(marking.dp), dbm(marking.dbm), mapping(marking.mapping) { };
+			SymMarking(const SymMarking& marking) : dp(marking.dp), dbm(marking.dbm), mapping(marking.mapping), stateId(marking.stateId) { };
 			virtual ~SymMarking() { };
 
 			SymMarking* clone() const { return new SymMarking(*this); }
@@ -47,6 +51,7 @@ namespace VerifyTAPN {
 			inline void DBMIntern() { dbm.intern(); }
 			void Canonicalize();
 			inline void SetInit() { dbm.setInit(); }
+			inline id_type Id() const { return stateId; };
 
 		private: // Initializers
 			void initMapping();
@@ -58,15 +63,14 @@ namespace VerifyTAPN {
 			bool IsLowerPositionLessThanPivot(int lower, int pivotIndex) const;
 			bool IsUpperPositionGreaterThanPivot(int upper, int pivotIndex) const;
 
-
 		public: // Helper functions
-			void GenerateDiscreteTransitionSuccessors(const TAPN::TimedArcPetriNet& tapn, unsigned int kbound, bool useInfinityPlaces, std::vector<SymMarking*>& succ) const;
-
+			void GenerateDiscreteTransitionSuccessors(const TAPN::TimedArcPetriNet& tapn, const VerificationOptions& options, std::vector<VerifyTAPN::Successor>& succ) const;
 
 		private:
 			DiscretePart dp;
 			dbm::dbm_t dbm;
 			TokenMapping mapping;
+			id_type stateId;
 	};
 
 
@@ -75,7 +79,6 @@ namespace VerifyTAPN {
 		marking.Print( out );
 		return out;
 	}
-
 }
 
 #endif /* SYMMARKING_HPP_ */

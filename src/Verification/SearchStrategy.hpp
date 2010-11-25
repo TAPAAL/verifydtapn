@@ -5,6 +5,7 @@
 #include "PWList.hpp"
 #include "../Core/QueryChecker.hpp"
 #include "../Core/VerificationOptions.hpp"
+#include "TraceStore.hpp"
 
 namespace VerifyTAPN
 {
@@ -51,6 +52,7 @@ namespace VerifyTAPN
 		SymMarking* initialMarking;
 		const QueryChecker checker;
 		VerificationOptions options;
+		TraceStore traceStore;
 		int* maxConstantsArray;
 	};
 }

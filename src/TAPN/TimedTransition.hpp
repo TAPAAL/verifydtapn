@@ -19,14 +19,15 @@ class SymMarking;
 		public: // typedefs
 			typedef std::vector< boost::shared_ptr<TimedTransition> > Vector;
 		public:
-			TimedTransition(const std::string& name, const std::string& id) : name(name), id(id) { };
-			TimedTransition() : name("*EMPTY*"), id("-1") { };
+			TimedTransition(const std::string& name, const std::string& id) : name(name), id(id), preset(), postset(), index(-1) { };
+			TimedTransition() : name("*EMPTY*"), id("-1"), preset(), postset(), index(-1) { };
 			virtual ~TimedTransition() { /* empty */ }
 
 		public: // modifiers
 			void AddToPreset(const boost::shared_ptr<TimedInputArc>& arc);
 			void AddToPostset(const boost::shared_ptr<OutputArc>& arc);
 
+			inline void SetIndex(int i) { index = i; };
 		public: // inspectors
 			inline const std::string& GetName() const { return name; };
 			inline const std::string& GetId() const { return id; };
@@ -37,12 +38,14 @@ class SymMarking;
 			inline const unsigned int GetPostsetSize() const { return postset.size(); }
 		//	bool isEnabledBy(const TimedArcPetriNet& tapn, const VerifyTAPN::SymMarking& marking) const;
 			inline const bool isConservative() const { return preset.size() == postset.size(); }
+			inline unsigned int GetIndex() const { return index; };
 
 		private: // data
 			std::string name;
 			std::string id;
 			TimedInputArc::WeakPtrVector preset;
 			OutputArc::WeakPtrVector postset;
+			unsigned int index;
 		};
 
 		inline std::ostream& operator<<(std::ostream& out, const TimedTransition& transition)

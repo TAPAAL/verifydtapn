@@ -7,9 +7,10 @@
 namespace VerifyTAPN {
 
 using namespace VerifyTAPN::TAPN;
+	SymMarking::id_type SymMarking::nextId = 0;
 
-
-	SymMarking::SymMarking(const DiscretePart& dp, const dbm::dbm_t& dbm) : dp(dp), dbm(dbm)
+	SymMarking::SymMarking(const DiscretePart& dp, const dbm::dbm_t& dbm)
+	: dp(dp), dbm(dbm), stateId(nextId++)
 	{
 		initMapping();
 	}
@@ -29,10 +30,9 @@ using namespace VerifyTAPN::TAPN;
 		mapping = map;
 	}
 
-
-	void SymMarking::GenerateDiscreteTransitionSuccessors(const VerifyTAPN::TAPN::TimedArcPetriNet& tapn, unsigned int kbound, bool useInfinityPlaces, std::vector<SymMarking*>& succ) const
+	void SymMarking::GenerateDiscreteTransitionSuccessors(const VerifyTAPN::TAPN::TimedArcPetriNet& tapn, const VerifyTAPN::VerificationOptions& options, std::vector<VerifyTAPN::Successor>& succ) const
 	{
-		SuccessorGenerator succGen(tapn, kbound, useInfinityPlaces);
+		SuccessorGenerator succGen(tapn, options);
 		succGen.GenerateDiscreteTransitionsSuccessors(this, succ);
 	}
 
@@ -199,7 +199,9 @@ using namespace VerifyTAPN::TAPN;
 		unsigned int mapLower = mapping.GetMapping(lower);
 		unsigned int mapPivot = mapping.GetMapping(pivotIndex);
 
-		return placeLower < pivot || (placeLower == pivot && dbm(0,mapLower) < dbm(0,mapPivot)) || (placeLower == pivot && dbm(0,mapLower) == dbm(0,mapPivot) && dbm(mapLower,0) < dbm(mapPivot,0));
+		return placeLower < pivot
+				|| (placeLower == pivot && dbm(0,mapLower) <  dbm(0,mapPivot))
+				|| (placeLower == pivot && dbm(0,mapLower) == dbm(0,mapPivot) && dbm(mapLower,0) < dbm(mapPivot,0));
 	}
 
 	bool SymMarking::IsUpperPositionGreaterThanPivot(int upper, int pivotIndex) const
@@ -209,8 +211,9 @@ using namespace VerifyTAPN::TAPN;
 		unsigned int mapUpper = mapping.GetMapping(upper);
 		unsigned int mapPivot = mapping.GetMapping(pivotIndex);
 
-		return placeUpper > pivot || (placeUpper == pivot && dbm(0,mapUpper) > dbm(0,mapPivot)) || (placeUpper == pivot && dbm(0,mapUpper) == dbm(0,mapPivot) && dbm(mapUpper,0) > dbm(mapPivot,0));
-
+		return placeUpper > pivot
+				|| (placeUpper == pivot && dbm(0,mapUpper) >  dbm(0,mapPivot))
+				|| (placeUpper == pivot && dbm(0,mapUpper) == dbm(0,mapPivot) && dbm(mapUpper,0) > dbm(mapPivot,0));
 	}
 
 	void SymMarking::Swap(int i, int j)

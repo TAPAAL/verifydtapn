@@ -14,13 +14,13 @@ using namespace VerifyTAPN;
 using namespace VerifyTAPN::TAPN;
 using namespace boost;
 
-
 int main(int argc, char* argv[]) {
 	VerificationOptions options = VerificationOptions::ParseVerificationOptions(argc, argv);
 
 	TAPNXmlParser modelParser;
 	boost::shared_ptr<TAPN::TimedArcPetriNet> tapn = modelParser.Parse(options.GetInputFile());
 	tapn->Initialize(options.GetInfinityPlacesEnabled());
+	//std::cout << *tapn << std::endl;
 	SymMarking* initialMarking = modelParser.ParseMarking(options.GetInputFile(), *tapn);
 
 	TAPNQueryParser queryParser(*tapn);

@@ -6,17 +6,19 @@
 #include "boost/numeric/ublas/matrix.hpp"
 #include "boost/numeric/ublas/io.hpp"
 #include "../TAPN/TimedArcPetriNet.hpp"
+#include "Successor.hpp"
+#include "../Core/VerificationOptions.hpp"
 
 namespace VerifyTAPN {
 	class SymMarking;
 
 	class SuccessorGenerator {
 	public: // construction
-		SuccessorGenerator(const TAPN::TimedArcPetriNet& tapn, unsigned int kBound, bool useInfinityPlaces) : tapn(tapn), kBound(kBound), useInfinityPlaces(useInfinityPlaces)
+		SuccessorGenerator(const TAPN::TimedArcPetriNet& tapn, const VerificationOptions& options) : tapn(tapn), options(options)
 		{
 			nInputArcs = tapn.GetNumberOfInputArcs();
 			arcsArray = new unsigned[nInputArcs];
-			tokenIndices = new boost::numeric::ublas::matrix<int>(nInputArcs,kBound);
+			tokenIndices = new boost::numeric::ublas::matrix<int>(nInputArcs,options.GetKBound());
 		};
 
 		virtual ~SuccessorGenerator()
@@ -27,7 +29,7 @@ namespace VerifyTAPN {
 
 
 	public:
-		void GenerateDiscreteTransitionsSuccessors(const SymMarking* marking, std::vector<SymMarking*>& succ);
+		void GenerateDiscreteTransitionsSuccessors(const SymMarking* marking, std::vector<VerifyTAPN::Successor>& succ);
 
 	public: // inspectors
 		void Print(std::ostream& out) const;
@@ -39,8 +41,8 @@ namespace VerifyTAPN {
 
 	private: // modifiers
 		void CollectArcsAndAppropriateTokens(const TAPN::TimedTransition::Vector& transitions, const SymMarking* marking);
-		void GenerateSuccessors(const TAPN::TimedTransition::Vector& transitions, const SymMarking* marking, std::vector<SymMarking*>& succ);
-		void GenerateSuccessorForCurrentPermutation(const TAPN::TimedTransition& currTransition, const unsigned int* indices, const unsigned int currTransitionIndex, const unsigned int presetSize, const SymMarking* marking, std::vector<SymMarking*>& succ);
+		void GenerateSuccessors(const TAPN::TimedTransition::Vector& transitions, const SymMarking* marking, std::vector<Successor>& succ);
+		void GenerateSuccessorForCurrentPermutation(const TAPN::TimedTransition& currTransition, const unsigned int* indices, const unsigned int currTransitionIndex, const unsigned int presetSize, const SymMarking* marking, std::vector<Successor>& succ);
 
 	private: // inspectors
 		bool IsTransitionEnabled(unsigned int currTransitionIndex, unsigned int presetSize) const;
@@ -50,8 +52,7 @@ namespace VerifyTAPN {
 		const TAPN::TimedArcPetriNet& tapn;
 		unsigned int* arcsArray;
 		unsigned int nInputArcs;
-		unsigned int kBound;
-		bool useInfinityPlaces;
+		const VerificationOptions& options;
 		boost::numeric::ublas::matrix<int>* tokenIndices;
 	};
 

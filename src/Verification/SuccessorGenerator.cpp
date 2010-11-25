@@ -5,7 +5,7 @@
 #include "dbm/print.h"
 
 namespace VerifyTAPN {
-	void SuccessorGenerator::GenerateDiscreteTransitionsSuccessors(const SymMarking* marking, std::vector<SymMarking*>& succ)
+	void SuccessorGenerator::GenerateDiscreteTransitionsSuccessors(const SymMarking* marking, std::vector<Successor>& succ)
 	{
 		ClearAll();
 
@@ -20,6 +20,7 @@ namespace VerifyTAPN {
 	// appropriate age we add the token index to the tokenIndices matrix for use when generating successors.
 	void SuccessorGenerator::CollectArcsAndAppropriateTokens(const TAPN::TimedTransition::Vector& transitions, const SymMarking* marking)
 	{
+		unsigned int kBound = options.GetKBound();
 		unsigned int currInputArcIdx = 0;
 
 		for(TAPN::TimedTransition::Vector::const_iterator iter = transitions.begin(); iter != transitions.end(); ++iter)
@@ -62,7 +63,7 @@ namespace VerifyTAPN {
 		}
 	}
 
-	void SuccessorGenerator::GenerateSuccessors(const TAPN::TimedTransition::Vector& transitions, const SymMarking* marking, std::vector<SymMarking*>& succ)
+	void SuccessorGenerator::GenerateSuccessors(const TAPN::TimedTransition::Vector& transitions, const SymMarking* marking, std::vector<Successor>& succ)
 	{
 		int currTransitionIdx = 0;
 		for(TAPN::TimedTransition::Vector::const_iterator iter = transitions.begin(); iter != transitions.end(); ++iter)
@@ -120,8 +121,11 @@ namespace VerifyTAPN {
 	}
 
 	// Generates a successor node for the current permutation of input tokens
-	void SuccessorGenerator::GenerateSuccessorForCurrentPermutation(const TAPN::TimedTransition& transition, const unsigned int* currPermutationindices, const unsigned int currTransitionIndex, const unsigned int presetSize, const SymMarking* marking, std::vector<SymMarking*>& succ)
+	void SuccessorGenerator::GenerateSuccessorForCurrentPermutation(const TAPN::TimedTransition& transition, const unsigned int* currPermutationindices, const unsigned int currTransitionIndex, const unsigned int presetSize, const SymMarking* marking, std::vector<Successor>& succ)
 	{
+		unsigned int kBound = options.GetKBound();
+		bool trace = options.GetTrace() != NONE;
+
 		const Pairing& pairing = tapn.GetPairing(transition);
 		const TAPN::TimedInputArc::WeakPtrVector& preset = transition.GetPreset();
 		std::vector<int> tokensToRemove;
@@ -142,7 +146,7 @@ namespace VerifyTAPN {
 				// change placement
 				int tokenIndex = tokenIndices->at_element(currTransitionIndex+i, currPermutationindices[i]);
 				int outputPlaceIndex = *opIter;
-				int originalPlaceIndex = next->GetTokenPlacement(tokenIndex);
+				//int originalPlaceIndex = next->GetTokenPlacement(tokenIndex);
 
 				// constrain dbm with lower bound and upper bound in guard
 				//if(!(useInfinityPlaces && tapn.IsPlaceInfinityPlace(originalPlaceIndex)))
@@ -190,7 +194,40 @@ namespace VerifyTAPN {
 		}
 
 		next->DBMIntern();
-		succ.push_back(next);
+		if(trace){
+			TraceInfo traceInfo(marking->Id(), transition.GetIndex(), next->Id());
+
+			for(unsigned int i = 0; i < presetSize; ++i)
+			{
+				int tokenIndex = tokenIndices->at_element(currTransitionIndex+i, currPermutationindices[i]);
+				boost::shared_ptr<TAPN::TimedInputArc> ia = preset[i].lock();
+				const TAPN::TimeInterval& ti = ia->Interval();
+				int indexAfterFiring = tokenIndex;
+				for(std::vector<int>::iterator iter = tokensToRemove.begin(); iter != tokensToRemove.end(); ++iter){
+					if(*iter < tokenIndex) indexAfterFiring--;
+					else if(*iter == tokenIndex){
+						indexAfterFiring = -1;
+						break;
+					}
+				}
+
+				Participant participant(tokenIndex, ti, indexAfterFiring);
+				traceInfo.AddParticipant(participant);
+			}
+
+			if(diff < 0){
+				TAPN::TimeInterval inf;
+				for(int i = diff; i < 0; i++){
+					Participant participant(-1, inf, (marking->GetNumberOfTokens() - diff + i));
+					traceInfo.AddParticipant(participant);
+				}
+			}
+			traceInfo.setMarking(next);
+			succ.push_back(Successor(next, traceInfo));
+		}else{
+			succ.push_back(Successor(next));
+		}
+
 		tokensToRemove.clear();
 	}
 

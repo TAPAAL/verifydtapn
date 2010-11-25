@@ -1,5 +1,6 @@
 #include "SearchStrategy.hpp"
 #include "../TAPN/TimedArcPetriNet.hpp"
+#include "Successor.hpp"
 
 namespace VerifyTAPN
 {
@@ -8,7 +9,7 @@ namespace VerifyTAPN
 		SymMarking* initialMarking,
 		const AST::Query* query,
 		const VerificationOptions& options
-	) : tapn(tapn), initialMarking(initialMarking), checker(query), options(options)
+	) : tapn(tapn), initialMarking(initialMarking), checker(query), options(options), traceStore(options.GetKBound())
 	{
 		pwList = new PWList(new StackWaitingList);
 
@@ -22,9 +23,7 @@ namespace VerifyTAPN
 	bool DFS::Verify()
 	{
 		initialMarking->Delay();
-
 		UpdateMaxConstantsArray(*initialMarking);
-
 		initialMarking->Extrapolate(maxConstantsArray);
 
 		if(options.GetSymmetryEnabled())
@@ -36,30 +35,31 @@ namespace VerifyTAPN
 		while(pwList->HasWaitingStates()){
 			SymMarking& next = pwList->GetNextUnexplored();
 
-			typedef std::vector<SymMarking*> SuccessorVector;
+			typedef std::vector<Successor> SuccessorVector;
 			SuccessorVector successors;
+			std::vector<TraceInfo> traceInfos;
 
-			next.GenerateDiscreteTransitionSuccessors(tapn, options.GetKBound(), options.GetInfinityPlacesEnabled(), successors);
+			next.GenerateDiscreteTransitionSuccessors(tapn, options, successors);
 
 			for(SuccessorVector::iterator iter = successors.begin(); iter != successors.end(); ++iter)
 			{
-				SymMarking& succ = **iter;
+				SymMarking& succ = *(*iter).Marking();
 				succ.Delay();
 
 				UpdateMaxConstantsArray(succ);
 
 				succ.Extrapolate(maxConstantsArray);
 
-				if(options.GetSymmetryEnabled())
-					succ.Canonicalize();
+				if(options.GetSymmetryEnabled()) succ.Canonicalize();
+				if(options.GetTrace() != NONE) traceStore.Save(succ.Id(), iter->GetTraceInfo());
 
 				bool added = pwList->Add(succ);
-				if(!added) delete *iter;
-				else {
-					if(CheckQuery(succ))
-					{
-						return checker.IsEF();
-					}
+
+
+				if(!added) delete (*iter).Marking();
+				else if(CheckQuery(succ)){
+					if(options.GetTrace() != NONE) traceStore.OutputTraceTo(succ.Id(), tapn);
+					return checker.IsEF();
 				}
 			}
 
@@ -84,6 +84,8 @@ namespace VerifyTAPN
 			{
 				const TAPN::TimedPlace& p = tapn.GetPlace(placeIndex);
 				maxConstantsArray[marking.GetDBMIndex(tokenIndex)] = p.GetMaxConstant();
+			}else{
+				maxConstantsArray[marking.GetDBMIndex(tokenIndex)] = tapn.MaxConstant();
 			}
 		}
 	}

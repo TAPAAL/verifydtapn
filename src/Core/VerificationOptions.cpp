@@ -3,15 +3,34 @@
 #include "boost/program_options.hpp"
 
 namespace VerifyTAPN {
+	std::string enumToString(Trace trace){
+		switch(trace)
+		{
+		case SOME:
+			return "some";
+		default:
+			return "no";
+		}
+	}
+
+	Trace intToEnum(int i){
+		switch(i){
+		case 1:
+			return SOME;
+		default:
+			return NONE;
+		}
+	}
 
 	VerificationOptions VerificationOptions::ParseVerificationOptions(int argc, char* argv[])
 	{
 		bool error = false;
 
-		boost::program_options::options_description desc("Usage: verifytapn -k <number> model-file query-file \nAllowed Options:");
+		boost::program_options::options_description desc("Usage: verifytapn -k <number> [-t <number>] model-file query-file \nAllowed Options:");
 		desc.add_options()
 				("help,h", "Produce help message")
 				("k-bound,k", boost::program_options::value<int>(), "Specify the bound of the TAPN model")
+				("trace,t", boost::program_options::value<int>()->default_value(0), "Specify the desired trace option. \n - 0: none\n - 1: Some")
 				("global-max-constant,g", "Use a global max constant for extrapolation (as opposed to local constants)")
 				("infinity-places,i", "Use the infinity place optimization")
 				("symmetry,s", "Use symmetry reduction")
@@ -27,7 +46,7 @@ namespace VerifyTAPN {
 		boost::program_options::store(boost::program_options::command_line_parser(argc,argv).options(desc).positional(p).run(), vm);
 		boost::program_options::notify(vm);
 
-		if(vm.count("help")) {
+		if(argc == 1 || vm.count("help")) {
 			std::cout << desc << "\n";
 			exit(0);
 		}
@@ -38,8 +57,11 @@ namespace VerifyTAPN {
 		else {
 			std::cout << "Error! You must specify a bound k on the TAPN model" << "\n\n";
 			error = true;
-
 		}
+
+		Trace trace = intToEnum(vm["trace"].as<int>());
+		std::cout << "Generating " << enumToString(trace) << " trace \n";
+
 		bool symmetry = true;
 		if(vm.count("symmetry")) {
 			std::cout << "Symmetry Reduction is ON\n";
@@ -96,7 +118,6 @@ namespace VerifyTAPN {
 			exit(0);
 		}
 
-		return VerificationOptions(vm["model-file"].as<std::string>(), vm["query-file"].as<std::string>(), vm["k-bound"].as<int>(), symmetry, infPlaces, globalConstants);
+		return VerificationOptions(vm["model-file"].as<std::string>(), vm["query-file"].as<std::string>(), vm["k-bound"].as<int>(), symmetry, trace, infPlaces, globalConstants);
 	}
-
 }
