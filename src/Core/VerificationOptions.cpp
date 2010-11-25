@@ -12,6 +12,7 @@ namespace VerifyTAPN {
 		desc.add_options()
 				("help,h", "Produce help message")
 				("k-bound,k", boost::program_options::value<int>(), "Specify the bound of the TAPN model")
+				("global-max-constant,g", "Use a global max constant for extrapolation (as opposed to local constants)")
 				("infinity-places,i", "Use the infinity place optimization")
 				("symmetry,s", "Use symmetry reduction")
 				("model-file", boost::program_options::value<std::string>(), "model file")
@@ -61,6 +62,19 @@ namespace VerifyTAPN {
 			infPlaces = false;
 		}
 
+		bool globalConstants = false;
+		if(vm.count("global-max-constant"))
+		{
+			std::cout << "Using global maximum constant for extrapolation\n";
+			globalConstants = true;
+		}
+		else
+		{
+			std::cout << "Using local maximum constants for extrapolation\n";
+			globalConstants = false;
+		}
+
+
 		if(vm.count("model-file")) {
 			std::cout << "model file is: " << vm["model-file"].as<std::string>() << "\n";
 		}
@@ -82,7 +96,7 @@ namespace VerifyTAPN {
 			exit(0);
 		}
 
-		return VerificationOptions(vm["model-file"].as<std::string>(), vm["query-file"].as<std::string>(), vm["k-bound"].as<int>(), symmetry, infPlaces);
+		return VerificationOptions(vm["model-file"].as<std::string>(), vm["query-file"].as<std::string>(), vm["k-bound"].as<int>(), symmetry, infPlaces, globalConstants);
 	}
 
 }

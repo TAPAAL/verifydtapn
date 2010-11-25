@@ -80,7 +80,7 @@ namespace VerifyTAPN
 
 			if(options.GetInfinityPlacesEnabled() && tapn.IsPlaceInfinityPlace(placeIndex))
 				maxConstantsArray[marking.GetDBMIndex(tokenIndex)] = -dbm_INFINITY;
-			else
+			else if(!options.GetGlobalMaxConstantsEnabled())
 			{
 				const TAPN::TimedPlace& p = tapn.GetPlace(placeIndex);
 				maxConstantsArray[marking.GetDBMIndex(tokenIndex)] = p.GetMaxConstant();
