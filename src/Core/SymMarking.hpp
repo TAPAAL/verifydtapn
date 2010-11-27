@@ -26,7 +26,7 @@ namespace VerifyTAPN {
 
 		public: // construction
 			SymMarking(const DiscretePart & dp, const dbm::dbm_t & dbm);
-			SymMarking(const SymMarking& marking) : dp(marking.dp), dbm(marking.dbm), mapping(marking.mapping), stateId(marking.stateId) { };
+			SymMarking(const SymMarking& marking) : dp(marking.dp), dbm(marking.dbm), mapping(marking.mapping), stateId(nextId++) { };
 			virtual ~SymMarking() { };
 
 			SymMarking* clone() const { return new SymMarking(*this); }

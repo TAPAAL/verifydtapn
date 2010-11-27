@@ -9,7 +9,7 @@ namespace VerifyTAPN
 		SymMarking* initialMarking,
 		const AST::Query* query,
 		const VerificationOptions& options
-	) : tapn(tapn), initialMarking(initialMarking), checker(query), options(options), traceStore(options.GetKBound())
+	) : tapn(tapn), initialMarking(initialMarking), checker(query), options(options), traceStore(options, initialMarking)
 	{
 		pwList = new PWList(new StackWaitingList);
 
@@ -30,7 +30,10 @@ namespace VerifyTAPN
 			initialMarking->Canonicalize();
 
 		pwList->Add(*initialMarking);
-		if(CheckQuery(*initialMarking)) return checker.IsEF(); // return true if EF query (proof found), or false if AG query (counter example found)
+		if(CheckQuery(*initialMarking)){
+			if(options.GetTrace() != NONE) traceStore.SetFinalMarking(initialMarking);
+			return checker.IsEF(); // return true if EF query (proof found), or false if AG query (counter example found)
+		}
 
 		while(pwList->HasWaitingStates()){
 			SymMarking& next = pwList->GetNextUnexplored();
@@ -58,7 +61,7 @@ namespace VerifyTAPN
 
 				if(!added) delete (*iter).Marking();
 				else if(CheckQuery(succ)){
-					if(options.GetTrace() != NONE) traceStore.OutputTraceTo(succ.Id(), tapn);
+					if(options.GetTrace() != NONE) traceStore.SetFinalMarking(iter->Marking());
 					return checker.IsEF();
 				}
 			}
@@ -106,5 +109,12 @@ namespace VerifyTAPN
 		pwList->Print();
 		std::cout << ", successors: " << successors;
 		std::cout << std::endl;
+	}
+
+	void DFS::PrintTraceIfAny() const
+	{
+		if(options.GetTrace() != NONE){
+			traceStore.OutputTraceTo(tapn);
+		}
 	}
 }

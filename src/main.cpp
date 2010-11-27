@@ -35,7 +35,7 @@ int main(int argc, char* argv[]) {
 
 	std::cout << strategy->GetStats() << std::endl;
 	std::cout << "Query is " << (result ? "satisfied" : "NOT satisfied") << "." << std::endl;
-
+	strategy->PrintTraceIfAny();
 	delete strategy;
 
 	return 0;
