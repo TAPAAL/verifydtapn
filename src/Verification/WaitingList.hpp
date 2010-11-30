@@ -29,8 +29,6 @@ namespace VerifyTAPN{
 		inline virtual void DecrementActualSize() { actualSize--; };
 		inline virtual long long SizeIncludingCovered() const { return queue.size(); };
 	private:
-		inline void Pop() { queue.pop(); actualSize--; };
-	private:
 		std::queue<Node*> queue;
 		long long actualSize;
 	};
@@ -45,8 +43,6 @@ namespace VerifyTAPN{
 			virtual long long Size() const;
 			inline virtual long long SizeIncludingCovered() const { return stack.size(); };
 			inline virtual void DecrementActualSize() { actualSize--; };
-		private:
-			inline void Pop() { stack.pop_back(); actualSize--; };
 		private:
 			std::deque<Node*> stack;
 			long long actualSize;
