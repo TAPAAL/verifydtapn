@@ -15,6 +15,7 @@ using namespace VerifyTAPN::TAPN;
 using namespace boost;
 
 int main(int argc, char* argv[]) {
+
 	VerificationOptions options = VerificationOptions::ParseVerificationOptions(argc, argv);
 
 	TAPNXmlParser modelParser;

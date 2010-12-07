@@ -201,7 +201,8 @@ using namespace VerifyTAPN::TAPN;
 
 		return placeLower < pivot
 				|| (placeLower == pivot && dbm(0,mapLower) <  dbm(0,mapPivot))
-				|| (placeLower == pivot && dbm(0,mapLower) == dbm(0,mapPivot) && dbm(mapLower,0) < dbm(mapPivot,0));
+				|| (placeLower == pivot && dbm(0,mapLower) == dbm(0,mapPivot) && dbm(mapLower,0) < dbm(mapPivot,0))
+				|| (placeLower == pivot && dbm(0,mapLower) == dbm(0,mapPivot) && dbm(mapLower,0) == dbm(mapPivot,0) && (mapPivot < mapLower ? dbm(mapPivot,mapLower) < dbm(mapLower,mapPivot) : dbm(mapLower,mapPivot) < dbm(mapPivot,mapLower)));
 	}
 
 	bool SymMarking::IsUpperPositionGreaterThanPivot(int upper, int pivotIndex) const
@@ -213,7 +214,8 @@ using namespace VerifyTAPN::TAPN;
 
 		return placeUpper > pivot
 				|| (placeUpper == pivot && dbm(0,mapUpper) >  dbm(0,mapPivot))
-				|| (placeUpper == pivot && dbm(0,mapUpper) == dbm(0,mapPivot) && dbm(mapUpper,0) > dbm(mapPivot,0));
+				|| (placeUpper == pivot && dbm(0,mapUpper) == dbm(0,mapPivot) && dbm(mapUpper,0) > dbm(mapPivot,0))
+				|| (placeUpper == pivot && dbm(0,mapUpper) == dbm(0,mapPivot) && dbm(mapUpper,0) == dbm(mapPivot,0) && (mapPivot < mapUpper ? dbm(mapPivot,mapUpper) > dbm(mapUpper,mapPivot) : dbm(mapUpper,mapPivot) > dbm(mapPivot,mapUpper)));
 	}
 
 	void SymMarking::Swap(int i, int j)
