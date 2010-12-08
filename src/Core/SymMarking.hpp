@@ -53,6 +53,7 @@ namespace VerifyTAPN {
 			inline void SetInit() { dbm.setInit(); }
 			inline id_type Id() const { return stateId; };
 
+			void Swap(int token1, int token2);
 		private: // Initializers
 			void initMapping();
 
@@ -63,6 +64,8 @@ namespace VerifyTAPN {
 			bool ShouldSwap(int i, int j);
 			bool IsLowerPositionLessThanPivot(int lower, int pivotIndex) const;
 			bool IsUpperPositionGreaterThanPivot(int upper, int pivotIndex) const;
+			void BubbleSort();
+			bool TokenIGreaterThanTokenJ(int i, int j);
 
 		public: // Helper functions
 			void GenerateDiscreteTransitionSuccessors(const TAPN::TimedArcPetriNet& tapn, const VerificationOptions& options, std::vector<VerifyTAPN::Successor>& succ) const;

@@ -84,6 +84,5 @@ namespace VerifyTAPN {
 	{
 		std::cout << stats;
 		std::cout << ", waitingList: " << waitingList->Size() << "/" << waitingList->SizeIncludingCovered();
-
 	}
 }

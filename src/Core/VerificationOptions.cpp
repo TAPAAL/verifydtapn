@@ -23,6 +23,24 @@ namespace VerifyTAPN {
 		}
 	}
 
+	std::string SearchTypeEnumToString(SearchType s){
+		switch(s){
+		case DEPTHFIRST:
+			return "Depth-First Search";
+		default:
+			return "Breadth-First Search";
+		}
+	}
+
+	SearchType intToSearchTypeEnum(int i) {
+		switch(i){
+		case 1:
+			return DEPTHFIRST;
+		default:
+			return BREADTHFIRST;
+		}
+	}
+
 	VerificationOptions VerificationOptions::ParseVerificationOptions(int argc, char* argv[])
 	{
 		std::string workingdir = boost::filesystem::initial_path().string();
@@ -32,6 +50,7 @@ namespace VerifyTAPN {
 		desc.add_options()
 				("help,h", "Produce help message")
 				("k-bound,k", boost::program_options::value<int>(), "Specify the bound of the TAPN model")
+				("search-type,o", boost::program_options::value<int>()->default_value(0), "Specify the desired search strategy. \n - 0: BFS\n - 1: DFS" )
 				("trace,t", boost::program_options::value<int>()->default_value(0), "Specify the desired trace option. \n - 0: none\n - 1: Some")
 				("global-max-constant,g", "Use a global max constant for extrapolation (as opposed to local constants)")
 				("infinity-places,i", "Use the infinity place optimization")
@@ -53,6 +72,9 @@ namespace VerifyTAPN {
 			exit(0);
 		}
 
+		SearchType search = intToSearchTypeEnum(vm["search-type"].as<int>());
+		std::cout << "Using " << SearchTypeEnumToString(search) << "\n";
+
 		if(vm.count("k-bound")) {
 			std::cout << "k-bound is: " << vm["k-bound"].as<int>() << "\n";
 		}
@@ -63,6 +85,8 @@ namespace VerifyTAPN {
 
 		Trace trace = intToEnum(vm["trace"].as<int>());
 		std::cout << "Generating " << enumToString(trace) << " trace \n";
+
+
 
 		bool symmetry = true;
 		if(vm.count("symmetry")) {
@@ -120,6 +144,6 @@ namespace VerifyTAPN {
 			exit(0);
 		}
 
-		return VerificationOptions(vm["model-file"].as<std::string>(), vm["query-file"].as<std::string>(), vm["k-bound"].as<int>(), symmetry, trace, infPlaces, globalConstants, workingdir);
+		return VerificationOptions(vm["model-file"].as<std::string>(), vm["query-file"].as<std::string>(), search, vm["k-bound"].as<int>(), symmetry, trace, infPlaces, globalConstants, workingdir);
 	}
 }

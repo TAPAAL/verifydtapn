@@ -11,7 +11,10 @@ namespace VerifyTAPN
 		const VerificationOptions& options
 	) : tapn(tapn), initialMarking(initialMarking), checker(query), options(options), traceStore(options, initialMarking)
 	{
-		pwList = new PWList(new StackWaitingList);
+		if(options.GetSearchType() == DEPTHFIRST)
+			pwList = new PWList(new StackWaitingList);
+		else
+			pwList = new PWList(new QueueWaitingList);
 
 		maxConstantsArray = new int[options.GetKBound()+1];
 		for(int i = 0; i < options.GetKBound()+1; ++i)
@@ -68,7 +71,6 @@ namespace VerifyTAPN
 
 			//PrintDiagnostics(successors.size());
 		}
-
 		return checker.IsAG(); // return true if AG query (no counter example found), false if EF query (no proof found)
 	}
 

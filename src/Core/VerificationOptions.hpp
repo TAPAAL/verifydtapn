@@ -8,11 +8,14 @@
 
 namespace VerifyTAPN {
 	enum Trace { NONE, SOME };
+	enum SearchType { BREADTHFIRST, DEPTHFIRST };
+
 	class VerificationOptions {
 		private:
 			VerificationOptions(
 				const std::string& inputFile,
 				const std::string& queryFile,
+				SearchType searchType,
 				int k_bound,
 				bool symmetry,
 				Trace trace,
@@ -22,6 +25,7 @@ namespace VerifyTAPN {
 			) :
 				inputFile(inputFile),
 				queryFile(queryFile),
+				searchType(searchType),
 				k_bound(k_bound),
 				symmetry(symmetry),
 				trace(trace),
@@ -42,9 +46,11 @@ namespace VerifyTAPN {
 			inline const bool GetInfinityPlacesEnabled() const { return useInfinityPlaces; }
 			inline const bool GetGlobalMaxConstantsEnabled() const { return useGlobalMaxConstants; }
 			inline const std::string& GetWorkingDirPath() const { return workingdir; }
+			inline const SearchType GetSearchType() const { return searchType; }
 		private:
 			std::string inputFile;
 			std::string queryFile;
+			SearchType searchType;
 			int k_bound;
 			bool symmetry;
 			Trace trace;

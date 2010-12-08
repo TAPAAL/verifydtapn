@@ -168,8 +168,35 @@ using namespace VerifyTAPN::TAPN;
 	// subsequently on their upper bound if necessary.
 	void SymMarking::Canonicalize()
 	{
-		quickSort(0, dp.size()-1);
+		//quickSort(0, dp.size()-1);
+		BubbleSort();
+	}
 
+	void SymMarking::BubbleSort()
+	{
+		for(int i = 0; i < dp.size(); ++i)
+		{
+			for(int j = dp.size()-1; j > i; --j)
+			{
+				if(TokenIGreaterThanTokenJ(j-1,j))
+				{
+					Swap(j-1,j);
+				}
+			}
+		}
+	}
+
+	bool SymMarking::TokenIGreaterThanTokenJ(int i, int j)
+	{
+		int placeI = dp.GetTokenPlacement(i);
+		int placeJ = dp.GetTokenPlacement(j);
+		unsigned int mapI = mapping.GetMapping(i);
+		unsigned int mapJ = mapping.GetMapping(j);
+
+		return placeI > placeJ
+				|| (placeI == placeJ && dbm(0,mapI) >  dbm(0,mapJ))
+				|| (placeI == placeJ && dbm(0,mapI) == dbm(0,mapJ) && dbm(mapI,0) > dbm(mapJ,0))
+				|| (placeI == placeJ && dbm(0,mapI) == dbm(0,mapJ) && dbm(mapI,0) == dbm(mapJ,0) && (mapJ > mapI ? dbm(mapJ,mapI) > dbm(mapI,mapJ) : dbm(mapI,mapJ) > dbm(mapJ,mapI)));
 	}
 
 	void SymMarking::quickSort(int left, int right)
@@ -228,9 +255,9 @@ using namespace VerifyTAPN::TAPN;
 
 	void SymMarking::Swap(int i, int j)
 	{
+
 		dp.Swap(i,j);
 		dbm.swapClocks(mapping.GetMapping(i), mapping.GetMapping(j));
-
 	}
 
 	// returns true if the specified token is not of appropriate age
