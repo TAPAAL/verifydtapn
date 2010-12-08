@@ -58,6 +58,7 @@ namespace VerifyTAPN {
 
 		private: // helper functions
 			void quickSort(int lo, int hi);
+			int  Partition(int left, int right, int pivot);
 			void Swap(int token1, int token2);
 			bool ShouldSwap(int i, int j);
 			bool IsLowerPositionLessThanPivot(int lower, int pivotIndex) const;

@@ -172,24 +172,32 @@ using namespace VerifyTAPN::TAPN;
 
 	}
 
-	void SymMarking::quickSort(int lo, int hi)
+	void SymMarking::quickSort(int left, int right)
 	{
-		if (lo >= hi)
-			return;
-		int pivot = hi;
-		int i = lo - 1;
-		int j = hi;
-
-		while (i < j)
+		if(right > left)
 		{
-			while (IsLowerPositionLessThanPivot(++i, pivot));
-			while (j > lo && IsUpperPositionGreaterThanPivot(--j,pivot));
-			if (i < j)
-				Swap(i,j);
+			int pivot = left + (right - left)/2;
+			int newPivot = Partition(left, right, pivot);
+			quickSort(left, newPivot - 1);
+			quickSort(newPivot + 1, right);
 		}
-		Swap(i, hi);
-		quickSort(lo, i-1);
-		quickSort(i+1, hi);
+	}
+
+	int SymMarking::Partition(int left, int right, int pivot)
+	{
+		Swap(pivot, right);
+		int indexToReturn = left;
+		for(int i = left; i < right; ++i)
+		{
+			//if(IsLowerPositionLessThanPivot(i, right)) // Does not give optimal stored states unless its changed to mapPivot > mapLower in function
+			if(!IsUpperPositionGreaterThanPivot(i, right))
+			{
+				Swap(i, indexToReturn);
+				indexToReturn++;
+			}
+		}
+		Swap(indexToReturn, right);
+		return indexToReturn;
 	}
 
 	bool SymMarking::IsLowerPositionLessThanPivot(int lower, int pivotIndex) const
@@ -215,7 +223,7 @@ using namespace VerifyTAPN::TAPN;
 		return placeUpper > pivot
 				|| (placeUpper == pivot && dbm(0,mapUpper) >  dbm(0,mapPivot))
 				|| (placeUpper == pivot && dbm(0,mapUpper) == dbm(0,mapPivot) && dbm(mapUpper,0) > dbm(mapPivot,0))
-				|| (placeUpper == pivot && dbm(0,mapUpper) == dbm(0,mapPivot) && dbm(mapUpper,0) == dbm(mapPivot,0) && (mapPivot < mapUpper ? dbm(mapPivot,mapUpper) > dbm(mapUpper,mapPivot) : dbm(mapUpper,mapPivot) > dbm(mapPivot,mapUpper)));
+				|| (placeUpper == pivot && dbm(0,mapUpper) == dbm(0,mapPivot) && dbm(mapUpper,0) == dbm(mapPivot,0) && (mapPivot > mapUpper ? dbm(mapPivot,mapUpper) > dbm(mapUpper,mapPivot) : dbm(mapUpper,mapPivot) > dbm(mapPivot,mapUpper)));
 	}
 
 	void SymMarking::Swap(int i, int j)
@@ -243,20 +251,22 @@ using namespace VerifyTAPN::TAPN;
 	{
 		out << "Symbolic Marking:\n";
 		out << "-------------------------\n";
-		out << "Placement Vector:\n";
+		out << "Placement Vector: <";
 
 		int i = 0;
 		for(std::vector<int>::const_iterator iter = dp.GetTokenPlacementVector().begin();iter != dp.GetTokenPlacementVector().end();++iter){
-			out << i << ":" << (*iter) << "\n";
+			if(i > 0) out << ", ";
+			out << (*iter);
 			i++;
 		}
-		out << "\n\nMapping Vector:\n";
-		i = 0;
-		for(std::vector<unsigned int>::const_iterator iter2 = mapping.GetMappingVector().begin();iter2 != mapping.GetMappingVector().end();++iter2){
-			out << i << ":" << (*iter2) << "\n";
-			i++;
-		}
-		out << "\nDBM:\n";
+		out << ">\n";
+//		\n\nMapping Vector:\n";
+//		i = 0;
+//		for(std::vector<unsigned int>::const_iterator iter2 = mapping.GetMappingVector().begin();iter2 != mapping.GetMappingVector().end();++iter2){
+//			out << i << ":" << (*iter2) << "\n";
+//			i++;
+//		}
+		out << "DBM:\n";
 		out << dbm << "\n\n";
 	}
 }
