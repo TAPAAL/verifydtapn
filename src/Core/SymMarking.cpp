@@ -168,15 +168,15 @@ using namespace VerifyTAPN::TAPN;
 	// subsequently on their upper bound if necessary.
 	void SymMarking::Canonicalize()
 	{
-		//quickSort(0, dp.size()-1);
-		BubbleSort();
+		quickSort(0, dp.size()-1);
+		//BubbleSort();
 	}
 
 	void SymMarking::BubbleSort()
 	{
-		for(int i = 0; i < dp.size(); ++i)
+		for(unsigned int i = 0; i < dp.size(); ++i)
 		{
-			for(int j = dp.size()-1; j > i; --j)
+			for(unsigned int j = dp.size()-1; j > i; --j)
 			{
 				if(TokenIGreaterThanTokenJ(j-1,j))
 				{

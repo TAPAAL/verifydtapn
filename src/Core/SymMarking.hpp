@@ -52,8 +52,6 @@ namespace VerifyTAPN {
 			void Canonicalize();
 			inline void SetInit() { dbm.setInit(); }
 			inline id_type Id() const { return stateId; };
-
-			void Swap(int token1, int token2);
 		private: // Initializers
 			void initMapping();
 
