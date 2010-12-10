@@ -196,7 +196,7 @@ using namespace VerifyTAPN::TAPN;
 		return placeI > placeJ
 				|| (placeI == placeJ && dbm(0,mapI) >  dbm(0,mapJ))
 				|| (placeI == placeJ && dbm(0,mapI) == dbm(0,mapJ) && dbm(mapI,0) > dbm(mapJ,0))
-				|| (placeI == placeJ && dbm(0,mapI) == dbm(0,mapJ) && dbm(mapI,0) == dbm(mapJ,0) && (mapJ > mapI ? dbm(mapJ,mapI) > dbm(mapI,mapJ) : dbm(mapI,mapJ) > dbm(mapJ,mapI)));
+				|| (placeI == placeJ && dbm(0,mapI) == dbm(0,mapJ) && dbm(mapI,0) == dbm(mapJ,0) && dbm(mapJ,mapI) > dbm(mapI,mapJ));
 	}
 
 	void SymMarking::quickSort(int left, int right)
