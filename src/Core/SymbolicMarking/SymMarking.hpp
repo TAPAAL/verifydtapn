@@ -45,7 +45,7 @@ namespace VerifyTAPN {
 			inline void Extrapolate(const int* maxConstants) { dbm.extrapolateMaxBounds(maxConstants); };
 			void MoveToken(int tokenIndex, int newPlaceIndex);
 			inline void ResetClock(int tokenIndex) { dbm(mapping.GetMapping(tokenIndex)) = 0; }
-			void AddTokens(const std::list<int>& outputPlacesOfTokensToAdd, const TAPN::TimedArcPetriNet& tapn);
+			void AddTokens(const std::list<int>& outputPlacesOfTokensToAdd);
 			void RemoveTokens(const std::vector<int>& tokensToRemove);
 			void Constrain(const int tokenIndex, const TAPN::TimeInterval& ti);
 			inline void DBMIntern() { dbm.intern(); }

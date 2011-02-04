@@ -1,9 +1,9 @@
 #ifndef TRACEINFO_HPP_
 #define TRACEINFO_HPP_
 
-#include "../TAPN/TimeInterval.hpp"
+#include "../../Core/TAPN/TimeInterval.hpp"
 #include <vector>
-#include "../Core/SymMarking.hpp"
+#include "../../Core/SymbolicMarking/SymMarking.hpp"
 
 namespace VerifyTAPN
 {

@@ -1,7 +1,7 @@
 #ifndef NODE_HPP_
 #define NODE_HPP_
 
-#include "../Core/SymMarking.hpp"
+#include "../../Core/SymbolicMarking/SymMarking.hpp"
 
 namespace VerifyTAPN
 {

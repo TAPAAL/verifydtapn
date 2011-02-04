@@ -1,8 +1,8 @@
 #include "SymMarking.hpp"
 #include "../TAPN/TimedArcPetriNet.hpp"
-#include "Pairing.hpp"
+#include "../TAPN/Pairing.hpp"
 #include "dbm/print.h"
-#include "../Verification/SuccessorGenerator.hpp"
+#include "../../ReachabilityChecker/SuccessorGenerator.hpp"
 
 namespace VerifyTAPN {
 
@@ -41,7 +41,11 @@ using namespace VerifyTAPN::TAPN;
 		dp.MoveToken(tokenIndex, newPlaceIndex);
 	}
 
-	void SymMarking::AddTokens(const std::list<int>& placesOfTokensToAdd, const TimedArcPetriNet& tapn)
+	// Add a token in each output place of placesOfTokensToAdd
+	// and add placesOfTokensToAdd.size() clocks to the DBM.
+	// The DBM library requires arrays of bitvectors indicating
+	// which tokens are in the original dbm (bitSrc) and which are in the resulting DBM (bitDst).
+	void SymMarking::AddTokens(const std::list<int>& placesOfTokensToAdd)
 	{
 		unsigned int nAdditionalTokens = placesOfTokensToAdd.size();
 		unsigned int oldDimension = dbm.getDimension();
@@ -53,6 +57,7 @@ using namespace VerifyTAPN::TAPN;
 		unsigned int bitDst[bitArraySize];
 		unsigned int table[newDimension];
 
+		// setup the bitvectors
 		for(unsigned int i = 0; i < bitArraySize; ++i)
 		{
 			if(oldDimension >= i*32 && oldDimension < (i+1)*32)
@@ -83,6 +88,11 @@ using namespace VerifyTAPN::TAPN;
 
 	}
 
+
+	// Remove each token in tokensToRemove from the placement vector and from the DBM.
+	// These tokens represent tokens that are moving to BOTTOM.
+	// The DBM library requires arrays of bitvectors indicating which tokens are in
+	// the original dbm (bitSrc) and which are in the resulting DBM (bitDst).
 	void SymMarking::RemoveTokens(const std::vector<int>& tokensToRemove)
 	{
 		std::vector<int> dbmTokensToRemove;
@@ -92,9 +102,8 @@ using namespace VerifyTAPN::TAPN;
 		}
 
 		unsigned int oldDimension = dbm.getDimension();
-		unsigned int newDimension = oldDimension-dbmTokensToRemove.size();
 
-		assert(newDimension > 0); // should at least be the zero clock left in the DBM
+		assert(oldDimension-dbmTokensToRemove.size() > 0); // should at least be the zero clock left in the DBM
 
 		unsigned int bitArraySize = (oldDimension % 32 == 0 ? oldDimension/32 : oldDimension/32+1);
 
@@ -103,7 +112,7 @@ using namespace VerifyTAPN::TAPN;
 		unsigned int bitDst[bitArraySize];
 		unsigned int table[oldDimension];
 
-		// init to zero
+		// setup the bitvectors
 		for(unsigned int i = 0; i < bitArraySize; ++i)
 		{
 			bitSrc[i] = ~(bitSrc[i] & 0);
@@ -164,12 +173,11 @@ using namespace VerifyTAPN::TAPN;
 
 	// Sort the state internally to obtain a canonical form.
 	// Used for symmetry reduction: if two states are symmetric they will have the same canonical form.
-	// The placement vector is sorted in ascending order, tokens in the same place are sorted on their lower bound and
-	// subsequently on their upper bound if necessary.
+	// The placement vector is sorted in ascending order, tokens in the same place are sorted on their lower bound,
+	// subsequently on their upper bound and finally by diagonal constraints if necessary.
 	void SymMarking::Canonicalize()
 	{
 		quickSort(0, dp.size()-1);
-		//BubbleSort();
 	}
 
 	void SymMarking::BubbleSort()

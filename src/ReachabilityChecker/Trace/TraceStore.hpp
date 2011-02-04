@@ -2,12 +2,12 @@
 #define TRACESTORE_HPP_
 
 #include "TraceInfo.hpp"
-#include "../Core/SymMarking.hpp"
+#include "../../Core/SymbolicMarking/SymMarking.hpp"
 #include "boost/functional/hash.hpp"
 #include "google/sparse_hash_map"
-#include "../../lib/rapidxml-1.13/rapidxml.hpp"
+#include "../../../lib/rapidxml-1.13/rapidxml.hpp"
 #include <deque>
-#include "../Core/VerificationOptions.hpp"
+#include "../../Core/VerificationOptions.hpp"
 
 namespace VerifyTAPN
 {

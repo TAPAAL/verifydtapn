@@ -1,7 +1,7 @@
 #include "TraceStore.hpp"
-#include "../TAPN/TAPN.hpp"
+#include "../../Core/TAPN/TAPN.hpp"
 #include "dbm/print.h"
-#include "../../lib/rapidxml-1.13/rapidxml_print.hpp"
+#include "../../../lib/rapidxml-1.13/rapidxml_print.hpp"
 #include "boost/lexical_cast.hpp"
 #include <stdio.h>
 #include <fstream>

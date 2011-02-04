@@ -3,8 +3,8 @@
 
 #include "../TAPN/TAPN.hpp"
 #include "boost/smart_ptr.hpp"
-#include "SymMarking.hpp"
-#include "../../lib/rapidxml-1.13/rapidxml.hpp"
+#include "../SymbolicMarking/SymMarking.hpp"
+#include "../../../lib/rapidxml-1.13/rapidxml.hpp"
 
 namespace VerifyTAPN {
 	using namespace VerifyTAPN::TAPN;

@@ -5,7 +5,7 @@
 #include <list>
 #include "PassedWaitingList.hpp"
 #include "Node.hpp"
-#include "../Core/DiscretePart.hpp"
+#include "../../Core/SymbolicMarking/DiscretePart.hpp"
 #include "WaitingList.hpp"
 
 namespace VerifyTAPN {

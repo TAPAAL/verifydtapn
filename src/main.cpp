@@ -1,12 +1,12 @@
 #include <iostream>
-#include "TAPN/TAPN.hpp"
+#include "Core/TAPN/TAPN.hpp"
 #include "boost/smart_ptr.hpp"
-#include "Core/TAPNXmlParser.hpp"
+#include "Core/TAPNParser/TAPNXmlParser.hpp"
 #include "Core/VerificationOptions.hpp"
-#include "Core/SymMarking.hpp"
+#include "Core/SymbolicMarking/SymMarking.hpp"
 #include "Core/QueryParser/AST.hpp"
 #include "Core/QueryParser/TAPNQueryParser.hpp"
-#include "Verification/SearchStrategy.hpp"
+#include "ReachabilityChecker/SearchStrategy.hpp"
 #include "dbm/print.h"
 
 using namespace std;
@@ -20,7 +20,6 @@ int main(int argc, char* argv[]) {
 	TAPNXmlParser modelParser;
 	boost::shared_ptr<TAPN::TimedArcPetriNet> tapn = modelParser.Parse(options.GetInputFile());
 	tapn->Initialize(options.GetInfinityPlacesEnabled());
-	//std::cout << *tapn << std::endl;
 	SymMarking* initialMarking = modelParser.ParseMarking(options.GetInputFile(), *tapn);
 
 	TAPNQueryParser queryParser(*tapn);

@@ -3,7 +3,7 @@
 
 #include "Generated/parser.hpp"
 #include <string>
-#include "../../TAPN/TimedArcPetriNet.hpp"
+#include "../TAPN/TimedArcPetriNet.hpp"
 
 # define YY_DECL                                        \
   VerifyTAPN::Parser::token_type                         \

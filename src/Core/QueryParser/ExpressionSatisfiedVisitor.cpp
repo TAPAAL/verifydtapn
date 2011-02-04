@@ -1,6 +1,6 @@
 #include "ExpressionSatisfiedVisitor.hpp"
 #include "AST.hpp"
-#include "../SymMarking.hpp"
+#include "../SymbolicMarking/SymMarking.hpp"
 #include <exception>
 
 namespace VerifyTAPN
