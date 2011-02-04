@@ -1,0 +1,74 @@
+--------------------------------------------------------------------------------
+1. Setup project in Eclipse
+--------------------------------------------------------------------------------
+This will detail how to setup a project in Eclipse CDT 
+(http://www.eclipse.org/cdt/) or Eclipse IDE for C/C++ developers.
+
+Preliminaries:
+a. Install gcc/g++ (we use version 4.4.5)
+b. Install boost libraries (we used 1.40 but any version that is backward 
+   compatible with 1.40 should work)
+	- On ubuntu you can install it through the software center
+	- Otherwise, there is a guide here: 
+	  http://www.boost.org/doc/libs/1_40_0/more/getting_started/unix-variants.html
+	- You need to build the libraries Boost.ProgramOptions, Boost.Filesystem 
+	  and Boost.Regex separately if you download it manually
+c. Download UPPAAL DBM library (we use version 2.0.7)
+	- unpack the downloaded file
+	- go to the "modules" folder
+	- run "./setup.sh"
+		1. press enter when it asks for "Build directory"
+		2. Change install path to e.g. "/usr/local/uppaal_debug"
+		3. choose g++ as compiler (if it says "choose compiler [g++]" 
+		   just press enter)
+		4. Choose compilation options: write 1 and press enter
+		5. Choose configuration options: write 5 and press enter
+	- run "sudo make install"
+	- To build a release version of the DBM library, rerun ./setup.sh and 
+	  follow the same steps as before except in step 2, change install path 
+	  to e.g. /usr/local/uppaal_release/ and in step 4, choose option 2 
+	  instead and afterwards rerun "sudo make install"
+
+1. Create a branch of the code, e.g. "bzr branch lp:verifytapn" (replace with 
+   the branch you want to checkout)
+2. Open Eclipse and create a new "empty C++ project", choose "linux GCC" as 
+   toolchain, uncheck "use default location" and point eclipse to the folder in 
+   which you checked out the branch.
+3. Press finish
+4. Right-click on your new project and choose properties
+5. go to "C/C++ Build" -> "Settings"
+6. Setup configuration "Debug":
+	1. Choose "Debug" in the "Configuration" dropdown list
+	2. under "GCC C++ compiler" -> "Directories" add the path to the UPPAAL 
+	   DBM library debug build's "include" folder, e.g. 
+	   /usr/local/uppaal_debug/include
+		- If boost is not installed in the default folders (/usr/include
+		  or /usr/local/include) you must also add a path to the the 
+		  folder containing the boost include files (.h files)
+	3. under "GCC C++ compiler" -> "Optimization" set "Optimization level" 
+	   to "None (-O0)"
+	4. under "GCC C++ compiler" -> "Debugging" set "Debug level" to 
+	   "Maximum (-g3)"
+	5. under "GCC C++ linker" -> "Libraries":
+		- add the following library names: "boost_program_options", 
+		  "boost_regex", "boost_filesystem", "udbm"
+		- add a path to the DBM library debug build's "lib" folder (e.g.
+		  /usr/local/uppaal_debug/lib) to the "Library search path"
+		- If boost is not installed in the default folders (/usr/lib or 
+		  /usr/local/lib) you must also add a path to the the folder 
+		  containing the boost "lib" files (.so or .a files)
+7. Setup configuration "Release": Same as "Debug", just add paths to UPPAAL DBM 
+   library release build in step 2 and 5 instead, set "optimization level" to 
+   "Optimize most (O3)" and set "Debug level" to "None".
+8. The project should now be compilable in both debug and release versions.
+
+--------------------------------------------------------------------------------
+1. Generating Query parser
+--------------------------------------------------------------------------------
+If you need to change the Query parser, you'll need to modify the flex.ll and
+grammar.yy files.
+
+To recompile the query parser follow these steps:
+1. make sure you have flex and bison installed
+2. run flex -o Generated/lexer.cpp flex.ll
+3. run bison -o Generated/parser.cpp grammar.yy
