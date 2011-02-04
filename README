@@ -66,9 +66,9 @@ c. Download UPPAAL DBM library (we use version 2.0.7)
 1. Generating Query parser
 --------------------------------------------------------------------------------
 If you need to change the Query parser, you'll need to modify the flex.ll and
-grammar.yy files.
+grammar.yy files. Make sure you have flex and bison installed.
 
 To recompile the query parser follow these steps:
-1. make sure you have flex and bison installed
+1. go to src/Core/QueryParser/
 2. run flex -o Generated/lexer.cpp flex.ll
 3. run bison -o Generated/parser.cpp grammar.yy
