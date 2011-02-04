@@ -90,24 +90,22 @@ namespace VerifyTAPN {
 
 		bool symmetry = true;
 		if(vm.count("symmetry")) {
-			std::cout << "Symmetry Reduction is ON\n";
-			symmetry = true;
+			std::cout << "Symmetry Reduction is OFF\n";
+			symmetry = false;
 		}
 		else
 		{
-			std::cout << "Symmetry Reduction is OFF\n";
-			symmetry = false;
+			std::cout << "Symmetry Reduction is ON\n";
 		}
 
 		bool untimedPlaces = true;
 		if(vm.count("untimed-places")) {
-			std::cout << "untimed place optimization is ON\n";
-			untimedPlaces = true;
+			std::cout << "untimed place optimization is OFF\n";
+			untimedPlaces = false;
 		}
 		else
 		{
-			std::cout << "untimed place optimization is OFF\n";
-			untimedPlaces = false;
+			std::cout << "untimed place optimization is ON\n";
 		}
 
 		bool globalConstants = false;

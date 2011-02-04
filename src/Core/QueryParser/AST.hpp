@@ -19,7 +19,7 @@ namespace VerifyTAPN{
 		{
 		public:
 			virtual ~Expression() { };
-			virtual void Accept(Visitor& visitor, boost::any& context) const = 0;
+			//virtual void Accept(Visitor& visitor, boost::any& context) const = 0;
 			virtual Expression* clone() const = 0;
 		};
 
@@ -128,7 +128,6 @@ namespace VerifyTAPN{
 			{
 				if(&other != this){
 					delete expr;
-
 					expr = other.expr->clone();
 				}
 
@@ -158,7 +157,6 @@ namespace VerifyTAPN{
 			{
 				if(&other != this){
 					delete expr;
-
 					expr = other.expr->clone();
 				}
 				return *this;
