@@ -19,7 +19,7 @@ namespace VerifyTAPN {
 				int k_bound,
 				bool symmetry,
 				Trace trace,
-				bool useInfinityPlaces,
+				bool useUntimedPlaces,
 				bool useGlobalMaxConstants,
 				const std::string& workingdir
 			) :
@@ -29,7 +29,7 @@ namespace VerifyTAPN {
 				k_bound(k_bound),
 				symmetry(symmetry),
 				trace(trace),
-				useInfinityPlaces(useInfinityPlaces),
+				useUntimedPlaces(useUntimedPlaces),
 				useGlobalMaxConstants(useGlobalMaxConstants),
 				workingdir(workingdir)
 			{};
@@ -43,7 +43,7 @@ namespace VerifyTAPN {
 			inline const int GetKBound() const { return k_bound; }
 			inline const Trace GetTrace() const { return trace; };
 			inline const bool GetSymmetryEnabled() const { return symmetry; }
-			inline const bool GetInfinityPlacesEnabled() const { return useInfinityPlaces; }
+			inline const bool GetUntimedPlacesEnabled() const { return useUntimedPlaces; }
 			inline const bool GetGlobalMaxConstantsEnabled() const { return useGlobalMaxConstants; }
 			inline const std::string& GetWorkingDirPath() const { return workingdir; }
 			inline const SearchType GetSearchType() const { return searchType; }
@@ -54,7 +54,7 @@ namespace VerifyTAPN {
 			int k_bound;
 			bool symmetry;
 			Trace trace;
-			bool useInfinityPlaces;
+			bool useUntimedPlaces;
 			bool useGlobalMaxConstants;
 			std::string workingdir;
 	};

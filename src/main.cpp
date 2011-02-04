@@ -19,7 +19,7 @@ int main(int argc, char* argv[]) {
 
 	TAPNXmlParser modelParser;
 	boost::shared_ptr<TAPN::TimedArcPetriNet> tapn = modelParser.Parse(options.GetInputFile());
-	tapn->Initialize(options.GetInfinityPlacesEnabled());
+	tapn->Initialize(options.GetUntimedPlacesEnabled());
 	SymMarking* initialMarking = modelParser.ParseMarking(options.GetInputFile(), *tapn);
 
 	TAPNQueryParser queryParser(*tapn);

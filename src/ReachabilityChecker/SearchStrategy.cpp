@@ -83,7 +83,7 @@ namespace VerifyTAPN
 		{
 			int placeIndex = marking.GetTokenPlacement(tokenIndex);
 
-			if(options.GetInfinityPlacesEnabled() && tapn.IsPlaceInfinityPlace(placeIndex))
+			if(options.GetUntimedPlacesEnabled() && tapn.IsPlaceInfinityPlace(placeIndex))
 				maxConstantsArray[marking.GetDBMIndex(tokenIndex)] = -dbm_INFINITY;
 			else if(!options.GetGlobalMaxConstantsEnabled())
 			{

@@ -53,7 +53,7 @@ namespace VerifyTAPN {
 				("search-type,o", boost::program_options::value<int>()->default_value(0), "Specify the desired search strategy. \n - 0: BFS\n - 1: DFS" )
 				("trace,t", boost::program_options::value<int>()->default_value(0), "Specify the desired trace option. \n - 0: none\n - 1: Some")
 				("global-max-constant,g", "Use a global max constant for extrapolation (as opposed to local constants)")
-				("infinity-places,i", "Use the infinity place optimization")
+				("untimed-places,u", "Use the untimed place optimization")
 				("symmetry,s", "Use symmetry reduction")
 				("model-file", boost::program_options::value<std::string>(), "model file")
 				("query-file", boost::program_options::value<std::string>(), "query file")
@@ -99,15 +99,15 @@ namespace VerifyTAPN {
 			symmetry = false;
 		}
 
-		bool infPlaces = true;
-		if(vm.count("infinity-places")) {
-			std::cout << "Infinity place optimization is ON\n";
-			infPlaces = true;
+		bool untimedPlaces = true;
+		if(vm.count("untimed-places")) {
+			std::cout << "untimed place optimization is ON\n";
+			untimedPlaces = true;
 		}
 		else
 		{
-			std::cout << "Infinity place optimization is OFF\n";
-			infPlaces = false;
+			std::cout << "untimed place optimization is OFF\n";
+			untimedPlaces = false;
 		}
 
 		bool globalConstants = false;
@@ -144,6 +144,6 @@ namespace VerifyTAPN {
 			exit(0);
 		}
 
-		return VerificationOptions(vm["model-file"].as<std::string>(), vm["query-file"].as<std::string>(), search, vm["k-bound"].as<int>(), symmetry, trace, infPlaces, globalConstants, workingdir);
+		return VerificationOptions(vm["model-file"].as<std::string>(), vm["query-file"].as<std::string>(), search, vm["k-bound"].as<int>(), symmetry, trace, untimedPlaces, globalConstants, workingdir);
 	}
 }
