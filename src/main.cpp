@@ -28,7 +28,7 @@ int main(int argc, char* argv[]) {
 
 	SearchStrategy* strategy = NULL;
 
-	strategy = new DFS(*tapn, initialMarking, query, options);
+	strategy = new DefaultSearchStrategy(*tapn, initialMarking, query, options);
 
 	bool result = strategy->Verify();
 

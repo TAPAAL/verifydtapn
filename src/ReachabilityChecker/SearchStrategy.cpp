@@ -4,7 +4,7 @@
 
 namespace VerifyTAPN
 {
-	DFS::DFS(
+	DefaultSearchStrategy::DefaultSearchStrategy(
 		const VerifyTAPN::TAPN::TimedArcPetriNet& tapn,
 		SymMarking* initialMarking,
 		const AST::Query* query,
@@ -23,7 +23,7 @@ namespace VerifyTAPN
 		}
 	};
 
-	bool DFS::Verify()
+	bool DefaultSearchStrategy::Verify()
 	{
 		initialMarking->Delay();
 		UpdateMaxConstantsArray(*initialMarking);
@@ -77,7 +77,7 @@ namespace VerifyTAPN
 	// Finds the local max constants for each token to be used for extrapolation.
 	// If infinity place optimization is enabled, tokens in such a place are "marked"
 	// as inactive by supplying a max constant of -dbm_INFINITY.
-	void DFS::UpdateMaxConstantsArray(const SymMarking& marking)
+	void DefaultSearchStrategy::UpdateMaxConstantsArray(const SymMarking& marking)
 	{
 		for(unsigned int tokenIndex = 0; tokenIndex < marking.GetNumberOfTokens(); ++tokenIndex)
 		{
@@ -95,25 +95,25 @@ namespace VerifyTAPN
 		}
 	}
 
-	bool DFS::CheckQuery(const SymMarking& marking) const
+	bool DefaultSearchStrategy::CheckQuery(const SymMarking& marking) const
 	{
 		bool satisfied = checker.IsExpressionSatisfied(marking);
 		return (satisfied && checker.IsEF()) || (!satisfied && checker.IsAG());
 	}
 
-	Stats DFS::GetStats() const
+	Stats DefaultSearchStrategy::GetStats() const
 	{
 		return pwList->GetStats();
 	}
 
-	void DFS::PrintDiagnostics(size_t successors) const
+	void DefaultSearchStrategy::PrintDiagnostics(size_t successors) const
 	{
 		pwList->Print();
 		std::cout << ", successors: " << successors;
 		std::cout << std::endl;
 	}
 
-	void DFS::PrintTraceIfAny() const
+	void DefaultSearchStrategy::PrintTraceIfAny() const
 	{
 		if(options.GetTrace() != NONE){
 			traceStore.OutputTraceTo(tapn);

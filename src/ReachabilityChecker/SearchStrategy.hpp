@@ -31,16 +31,16 @@ namespace VerifyTAPN
 
 
 
-	class DFS : public SearchStrategy
+	class DefaultSearchStrategy : public SearchStrategy
 	{
 	public:
-		DFS(
+		DefaultSearchStrategy(
 			const VerifyTAPN::TAPN::TimedArcPetriNet& tapn,
 			SymMarking* initialMarking,
 			const AST::Query* query,
 			const VerificationOptions& options
 		);
-		virtual ~DFS() { delete pwList; delete[] maxConstantsArray; };
+		virtual ~DefaultSearchStrategy() { delete pwList; delete[] maxConstantsArray; };
 		virtual bool Verify();
 		virtual Stats GetStats() const;
 		virtual void PrintTraceIfAny() const;
