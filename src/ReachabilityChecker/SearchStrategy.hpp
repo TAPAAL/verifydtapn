@@ -26,7 +26,7 @@ namespace VerifyTAPN
 		virtual ~SearchStrategy() { };
 		virtual bool Verify() = 0;
 		virtual Stats GetStats() const = 0;
-		virtual void PrintTraceIfAny() const = 0;
+		virtual void PrintTraceIfAny(bool result) const = 0;
 	};
 
 
@@ -43,7 +43,7 @@ namespace VerifyTAPN
 		virtual ~DefaultSearchStrategy() { delete pwList; delete[] maxConstantsArray; };
 		virtual bool Verify();
 		virtual Stats GetStats() const;
-		virtual void PrintTraceIfAny() const;
+		virtual void PrintTraceIfAny(bool result) const;
 	private:
 		virtual bool CheckQuery(const SymMarking& marking) const;
 		void PrintDiagnostics(size_t successors) const;

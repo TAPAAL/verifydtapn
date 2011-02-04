@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <pnml>
 <net id="Net-One" type="P/T net">
-<labels x="560" y="52" width="343" height="737" border="true">
+<labels x="561" y="53" width="344" height="738" border="true">
 <text>This is an example net to introduce the modelling, verification and simulation features of TAPAAL.
 
 The circles are called places and rectangles transitions. They are connected either by standard arcs from place to transition or transition to place, or they can be connected by transport arcs (these arcs always come in pairs) like from P1 to T3 and T3 to P6.
@@ -31,7 +31,7 @@ One may observe that two extra tokens are needed in the intermediate markings in
 </graphics>
 </name>
 <initialMarking>
-<value>4</value>
+<value>1</value>
 <graphics>
 <offset x="0.0" y="0.0"/>
 </graphics>
@@ -334,32 +334,6 @@ One may observe that two extra tokens are needed in the intermediate markings in
 <value>1</value>
 </priority>
 </transition>
-<transition id="T5">
-<graphics>
-<position x="450.0" y="240.0"/>
-</graphics>
-<name>
-<value>T5</value>
-<graphics>
-<offset x="-5.0" y="35.0"/>
-</graphics>
-</name>
-<orientation>
-<value>0</value>
-</orientation>
-<rate>
-<value>1.0</value>
-</rate>
-<timed>
-<value>false</value>
-</timed>
-<infiniteServer>
-<value>false</value>
-</infiniteServer>
-<priority>
-<value>1</value>
-</priority>
-</transition>
 <arc id="P0 to T0" source="P0" target="T0">
 <graphics/>
 <inscription>
@@ -451,20 +425,6 @@ One may observe that two extra tokens are needed in the intermediate markings in
 <arcpath id="001" x="216" y="642" curvePoint="false"/>
 <type value="timed"/>
 </arc>
-<arc id="P7 to T5" source="P7" target="T5">
-<graphics/>
-<inscription>
-<value>[0,inf)</value>
-<graphics/>
-</inscription>
-<tagged>
-<value>false</value>
-</tagged>
-<arcpath id="000" x="236" y="746" curvePoint="false"/>
-<arcpath id="001" x="462" y="732" curvePoint="false"/>
-<arcpath id="002" x="462" y="267" curvePoint="false"/>
-<type value="timed"/>
-</arc>
 <arc id="T0 to P1" source="T0" target="P1">
 <graphics/>
 <inscription>
@@ -554,20 +514,6 @@ One may observe that two extra tokens are needed in the intermediate markings in
 </tagged>
 <arcpath id="000" x="222" y="657" curvePoint="false"/>
 <arcpath id="001" x="222" y="732" curvePoint="false"/>
-<type value="normal"/>
-</arc>
-<arc id="T5 to P0" source="T5" target="P0">
-<graphics/>
-<inscription>
-<value>1</value>
-<graphics/>
-</inscription>
-<tagged>
-<value>false</value>
-</tagged>
-<arcpath id="000" x="462" y="237" curvePoint="false"/>
-<arcpath id="001" x="462" y="57" curvePoint="false"/>
-<arcpath id="002" x="161" y="42" curvePoint="false"/>
 <type value="normal"/>
 </arc>
 <queries name="Target Reachable" traceOption="FASTEST" searchOption="BFS" hashTableSize="MB_16" extrapolationOption="AUTOMATIC" reductionOption="NAIVE">

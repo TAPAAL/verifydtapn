@@ -113,10 +113,14 @@ namespace VerifyTAPN
 		std::cout << std::endl;
 	}
 
-	void DefaultSearchStrategy::PrintTraceIfAny() const
+	void DefaultSearchStrategy::PrintTraceIfAny(bool result) const
 	{
 		if(options.GetTrace() != NONE){
-			traceStore.OutputTraceTo(tapn);
+			if((checker.IsAG() && result) || (checker.IsEF() && !result))
+				std::cout << "A trace could not be generated due to the query result." << std::endl;
+			else{
+				traceStore.OutputTraceTo(tapn);
+			}
 		}
 	}
 }
