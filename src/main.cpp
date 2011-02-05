@@ -8,13 +8,21 @@
 #include "Core/QueryParser/TAPNQueryParser.hpp"
 #include "ReachabilityChecker/SearchStrategy.hpp"
 #include "dbm/print.h"
+#include "Core/SymbolicMarking/DBMMarking.hpp"
 
 using namespace std;
 using namespace VerifyTAPN;
 using namespace VerifyTAPN::TAPN;
 using namespace boost;
 
+void test(){
+	DiscretePart dp;
+	dbm::dbm_t dbm;
+	DBMMarking marking(dp, dbm);
+}
+
 int main(int argc, char* argv[]) {
+	//test();
 	VerificationOptions options = VerificationOptions::ParseVerificationOptions(argc, argv);
 
 	TAPNXmlParser modelParser;

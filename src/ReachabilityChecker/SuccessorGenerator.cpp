@@ -40,7 +40,7 @@ namespace VerifyTAPN {
 
 					if(placeIndex == currInputPlaceIndex)
 					{
-						bool inappropriateAge = marking->IsTokenOfInappropriateAge(i, ti);
+						bool inappropriateAge = marking->Satisfies(i, ti);
 
 						if(!inappropriateAge) // token potentially satisfies guard
 						{
@@ -129,7 +129,7 @@ namespace VerifyTAPN {
 		const Pairing& pairing = tapn.GetPairing(transition);
 		const TAPN::TimedInputArc::WeakPtrVector& preset = transition.GetPreset();
 		std::vector<int> tokensToRemove;
-		SymMarking* next = marking->clone();
+		SymMarking* next = marking->Clone();
 
 		// move all tokens that are currently in the net
 		for(unsigned int i = 0; i < presetSize; ++i)

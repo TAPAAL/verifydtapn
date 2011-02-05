@@ -3,7 +3,8 @@
 
 #include <vector>
 #include <list>
-#include "DiscretePart.hpp"
+#include "DiscreteMarking.hpp"
+//#include "DiscretePart.hpp"
 #include "TokenMapping.hpp"
 #include "boost/smart_ptr.hpp"
 #include "dbm/fed.h"
@@ -25,11 +26,11 @@ namespace VerifyTAPN {
 			static id_type nextId;
 
 		public: // construction
-			SymMarking(const DiscretePart & dp, const dbm::dbm_t & dbm);
+			SymMarking(const DiscretePart & dp, const dbm::dbm_t & dbm): dp(dp), dbm(dbm), stateId(nextId++) { initMapping(); };
 			SymMarking(const SymMarking& marking) : dp(marking.dp), dbm(marking.dbm), mapping(marking.mapping), stateId(nextId++) { };
 			virtual ~SymMarking() { };
 
-			SymMarking* clone() const { return new SymMarking(*this); }
+			virtual SymMarking* Clone() const { return new SymMarking(*this); }
 
 		public: // Inspectors
 			inline const DiscretePart& GetDiscretePart() const { return dp; };
@@ -37,17 +38,18 @@ namespace VerifyTAPN {
 			inline const unsigned int GetNumberOfTokens() const { return dp.size(); }
 			inline const dbm::dbm_t& Zone() const { return dbm; }
 			void Print(std::ostream& out) const;
-			bool IsTokenOfInappropriateAge(const int tokenIndex, const TAPN::TimeInterval& ti) const;
+			virtual bool Satisfies(int tokenIndex, const TAPN::TimeInterval& ti) const;
 			inline const unsigned int GetDBMIndex(const unsigned int tokenIndex) const { return mapping.GetMapping(tokenIndex); }
 
 		public: // Modifiers
-			inline void Delay() { dbm.up(); };
-			inline void Extrapolate(const int* maxConstants) { dbm.extrapolateMaxBounds(maxConstants); };
-			void MoveToken(int tokenIndex, int newPlaceIndex);
-			inline void ResetClock(int tokenIndex) { dbm(mapping.GetMapping(tokenIndex)) = 0; }
+			virtual void Delay() { dbm.up(); };
+			virtual bool IsEmpty() { return dbm.isEmpty(); };
+			virtual void Extrapolate(const int* maxConstants) { dbm.extrapolateMaxBounds(maxConstants); };
+			virtual void MoveToken(int tokenIndex, int newPlaceIndex);
+			virtual void ResetClock(int tokenIndex) { dbm(mapping.GetMapping(tokenIndex)) = 0; }
 			void AddTokens(const std::list<int>& outputPlacesOfTokensToAdd);
 			void RemoveTokens(const std::vector<int>& tokensToRemove);
-			void Constrain(const int tokenIndex, const TAPN::TimeInterval& ti);
+			virtual void Constrain(int tokenIndex, const TAPN::TimeInterval& ti);
 			inline void DBMIntern() { dbm.intern(); }
 			void Canonicalize();
 			inline void SetInit() { dbm.setInit(); }

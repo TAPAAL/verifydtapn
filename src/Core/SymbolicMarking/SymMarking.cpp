@@ -9,12 +9,6 @@ namespace VerifyTAPN {
 using namespace VerifyTAPN::TAPN;
 	SymMarking::id_type SymMarking::nextId = 0;
 
-	SymMarking::SymMarking(const DiscretePart& dp, const dbm::dbm_t& dbm)
-	: dp(dp), dbm(dbm), stateId(nextId++)
-	{
-		initMapping();
-	}
-
 	void SymMarking::initMapping()
 	{
 		std::vector<int> pVector = dp.GetTokenPlacementVector();
@@ -165,7 +159,7 @@ using namespace VerifyTAPN::TAPN;
 		}
 	}
 
-	void SymMarking::Constrain(const int tokenIndex, const TAPN::TimeInterval& ti)
+	void SymMarking::Constrain(int tokenIndex, const TAPN::TimeInterval& ti)
 	{
 		dbm.constrain(0, mapping.GetMapping(tokenIndex), ti.LowerBoundToDBMRaw());
 		dbm.constrain(mapping.GetMapping(tokenIndex), 0, ti.UpperBoundToDBMRaw());
@@ -271,7 +265,7 @@ using namespace VerifyTAPN::TAPN;
 	// returns true if the specified token is not of appropriate age
 	// Note that if the result is false, then the token is potentially of appropriate age.
 	// cannot be sure until constraints are applied.
-	bool SymMarking::IsTokenOfInappropriateAge(const int tokenIndex, const TAPN::TimeInterval& ti) const
+	bool SymMarking::Satisfies(int tokenIndex, const TAPN::TimeInterval& ti) const
 	{
 		// check lower bound
 		bool isLowerBoundSat = dbm.satisfies(0,mapping.GetMapping(tokenIndex),ti.LowerBoundToDBMRaw());
