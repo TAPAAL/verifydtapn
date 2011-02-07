@@ -40,7 +40,7 @@ namespace VerifyTAPN {
 
 					if(placeIndex == currInputPlaceIndex)
 					{
-						bool inappropriateAge = marking->Satisfies(i, ti);
+						bool inappropriateAge = marking->IsTokenOfInappropriateAge(i, ti);
 
 						if(!inappropriateAge) // token potentially satisfies guard
 						{

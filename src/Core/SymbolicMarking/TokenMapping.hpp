@@ -10,7 +10,7 @@ namespace VerifyTAPN {
 	class TokenMapping {
 		public: // Constructors
 			TokenMapping() : mapping() {};
-			TokenMapping(const std::vector<unsigned int>& mapping) : mapping(mapping) {};
+			explicit TokenMapping(const std::vector<unsigned int>& mapping) : mapping(mapping) {};
 			virtual ~TokenMapping() {};
 
 		public: // inspectors

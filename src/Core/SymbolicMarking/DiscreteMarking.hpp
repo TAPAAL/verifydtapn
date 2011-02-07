@@ -14,7 +14,8 @@ namespace VerifyTAPN {
 
 	public:
 		virtual void MoveToken(int token, int targetPlace) { dp.MoveToken(token, targetPlace); };
-		virtual int NumberOfTokens() const { return dp.size(); };
+		virtual unsigned int NumberOfTokens() const { return dp.size(); };
+		virtual int GetTokenPlacement(int token) const { return dp.GetTokenPlacement(token); };
 
 		virtual void AddTokens(const std::vector<int>& placeIndices)
 		{
@@ -31,8 +32,7 @@ namespace VerifyTAPN {
 				dp.RemoveToken(*i);
 			}
 		};
-
-	private: // data
+	protected: // data
 		DiscretePart dp;
 	};
 

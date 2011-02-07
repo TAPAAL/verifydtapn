@@ -38,7 +38,7 @@ namespace VerifyTAPN {
 			inline const unsigned int GetNumberOfTokens() const { return dp.size(); }
 			inline const dbm::dbm_t& Zone() const { return dbm; }
 			void Print(std::ostream& out) const;
-			virtual bool Satisfies(int tokenIndex, const TAPN::TimeInterval& ti) const;
+			virtual bool IsTokenOfInappropriateAge(int tokenIndex, const TAPN::TimeInterval& ti) const;
 			inline const unsigned int GetDBMIndex(const unsigned int tokenIndex) const { return mapping.GetMapping(tokenIndex); }
 
 		public: // Modifiers

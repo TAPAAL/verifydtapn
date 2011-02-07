@@ -21,7 +21,7 @@ using namespace VerifyTAPN::TAPN;
 			i++;
 		}
 
-		mapping = map;
+		mapping = TokenMapping(map);
 	}
 
 	void SymMarking::GenerateDiscreteTransitionSuccessors(const VerifyTAPN::TAPN::TimedArcPetriNet& tapn, const VerifyTAPN::VerificationOptions& options, std::vector<VerifyTAPN::Successor>& succ) const
@@ -265,7 +265,7 @@ using namespace VerifyTAPN::TAPN;
 	// returns true if the specified token is not of appropriate age
 	// Note that if the result is false, then the token is potentially of appropriate age.
 	// cannot be sure until constraints are applied.
-	bool SymMarking::Satisfies(int tokenIndex, const TAPN::TimeInterval& ti) const
+	bool SymMarking::IsTokenOfInappropriateAge(int tokenIndex, const TAPN::TimeInterval& ti) const
 	{
 		// check lower bound
 		bool isLowerBoundSat = dbm.satisfies(0,mapping.GetMapping(tokenIndex),ti.LowerBoundToDBMRaw());
