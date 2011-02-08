@@ -1,24 +1,24 @@
 #include "SuccessorGenerator.hpp"
 #include "../Core/TAPN/TimedInputArc.hpp"
-#include "../Core/SymbolicMarking/SymMarking.hpp"
+#include "../Core/SymbolicMarking/SymbolicMarking.hpp"
 #include "../Core/TAPN/Pairing.hpp"
 #include "dbm/print.h"
 
 namespace VerifyTAPN {
-	void SuccessorGenerator::GenerateDiscreteTransitionsSuccessors(const SymMarking* marking, std::vector<Successor>& succ)
+	void SuccessorGenerator::GenerateDiscreteTransitionsSuccessors(const SymbolicMarking& marking, std::vector<Successor>& succ)
 	{
 		ClearAll();
 
 		const TAPN::TimedTransition::Vector& transitions = tapn.GetTransitions();
 
-		CollectArcsAndAppropriateTokens(transitions, marking);
-		GenerateSuccessors(transitions, marking, succ);
+		CollectArcsAndAppropriateTokens(transitions, &marking);
+		GenerateSuccessors(transitions, &marking, succ);
 	}
 
 	// Collects the number of tokens of potentially appropriate age for each input into arcsArray.
 	// Note that arcs array should be sorted by transition. Further, if a token is potentially of
 	// appropriate age we add the token index to the tokenIndices matrix for use when generating successors.
-	void SuccessorGenerator::CollectArcsAndAppropriateTokens(const TAPN::TimedTransition::Vector& transitions, const SymMarking* marking)
+	void SuccessorGenerator::CollectArcsAndAppropriateTokens(const TAPN::TimedTransition::Vector& transitions, const SymbolicMarking* marking)
 	{
 		unsigned int kBound = options.GetKBound();
 		unsigned int currInputArcIdx = 0;
@@ -33,16 +33,19 @@ namespace VerifyTAPN {
 				unsigned int nTokensFromCurrInputPlace = 0;
 				int currInputPlaceIndex = tapn.GetPlaceIndex(ia->InputPlace());
 
-				for(unsigned int i = 0; i < marking->GetNumberOfTokens(); i++)
+				for(unsigned int i = 0; i < marking->NumberOfTokens(); i++)
 				{
 					int placeIndex = marking->GetTokenPlacement(i);
 
 
 					if(placeIndex == currInputPlaceIndex)
 					{
-						bool inappropriateAge = marking->IsTokenOfInappropriateAge(i, ti);
+//						bool inappropriateAge = marking->IsTokenOfInappropriateAge(i, ti);
+//
+//						if(!inappropriateAge) // token potentially satisfies guard
+						bool potentiallyUsable = marking->PotentiallySatisfies(i, ti);
 
-						if(!inappropriateAge) // token potentially satisfies guard
+						if(potentiallyUsable)
 						{
 							assert(currInputArcIdx <= nInputArcs);
 							assert(nTokensFromCurrInputPlace <= kBound);
@@ -61,7 +64,7 @@ namespace VerifyTAPN {
 
 	// Generate for each enabled transition a successor for each
 	// permutation of tokens of appropriate age from the token matrix.
-	void SuccessorGenerator::GenerateSuccessors(const TAPN::TimedTransition::Vector& transitions, const SymMarking* marking, std::vector<Successor>& succ)
+	void SuccessorGenerator::GenerateSuccessors(const TAPN::TimedTransition::Vector& transitions, const SymbolicMarking* marking, std::vector<Successor>& succ)
 	{
 		int currentTransitionIndex = 0;
 		for(TAPN::TimedTransition::Vector::const_iterator iter = transitions.begin(); iter != transitions.end(); ++iter)
@@ -121,7 +124,7 @@ namespace VerifyTAPN {
 	}
 
 	// Generates a successor node for the current permutation of input tokens
-	void SuccessorGenerator::GenerateSuccessorForCurrentPermutation(const TAPN::TimedTransition& transition, const unsigned int* currentPermutationindices, const unsigned int currentTransitionIndex, const unsigned int presetSize, const SymMarking* marking, std::vector<Successor>& succ)
+	void SuccessorGenerator::GenerateSuccessorForCurrentPermutation(const TAPN::TimedTransition& transition, const unsigned int* currentPermutationindices, const unsigned int currentTransitionIndex, const unsigned int presetSize, const SymbolicMarking* marking, std::vector<Successor>& succ)
 	{
 		unsigned int kBound = options.GetKBound();
 		bool trace = options.GetTrace() != NONE;
@@ -129,7 +132,7 @@ namespace VerifyTAPN {
 		const Pairing& pairing = tapn.GetPairing(transition);
 		const TAPN::TimedInputArc::WeakPtrVector& preset = transition.GetPreset();
 		std::vector<int> tokensToRemove;
-		SymMarking* next = marking->Clone();
+		SymbolicMarking* next = marking->Clone();
 
 		// move all tokens that are currently in the net
 		for(unsigned int i = 0; i < presetSize; ++i)
@@ -156,7 +159,7 @@ namespace VerifyTAPN {
 				else
 					next->MoveToken(tokenIndex, outputPlaceIndex);
 
-				if(next->Zone().isEmpty())
+				if(next->IsEmpty())
 				{
 					delete next;
 					return;
@@ -168,7 +171,7 @@ namespace VerifyTAPN {
 		for (unsigned int i = 0; i < presetSize; ++i) {
 			int tokenIndex = tokenIndices->at_element(currentTransitionIndex+i, currentPermutationindices[i]);
 
-			next->ResetClock(tokenIndex);
+			next->Reset(tokenIndex);
 		}
 
 		// check if we need to add or remove tokens in the successor marking
@@ -186,7 +189,7 @@ namespace VerifyTAPN {
 
 			// Perform under-approximation in case the net is not k-bounded.
 			// I.e. only allow up to k tokens in a given marking.
-			if(next->GetNumberOfTokens() + outputPlaces.size() > kBound) {
+			if(next->NumberOfTokens() + outputPlaces.size() > kBound) {
 				delete next;
 				return;
 			}
@@ -194,42 +197,42 @@ namespace VerifyTAPN {
 			next->AddTokens(outputPlaces);
 		}
 
-		next->DBMIntern();
+		//next->DBMIntern(); // TODO: Handle interning internally in the marking
 
 		// Store trace information
-		if(trace){
-			TraceInfo traceInfo(marking->Id(), transition.GetIndex(), next->Id());
-
-			for(unsigned int i = 0; i < presetSize; ++i)
-			{
-				int tokenIndex = tokenIndices->at_element(currentTransitionIndex+i, currentPermutationindices[i]);
-				boost::shared_ptr<TAPN::TimedInputArc> ia = preset[i].lock();
-				const TAPN::TimeInterval& ti = ia->Interval();
-				int indexAfterFiring = tokenIndex;
-				for(std::vector<int>::iterator iter = tokensToRemove.begin(); iter != tokensToRemove.end(); ++iter){
-					if(*iter < tokenIndex) indexAfterFiring--;
-					else if(*iter == tokenIndex){
-						indexAfterFiring = -1;
-						break;
-					}
-				}
-
-				Participant participant(tokenIndex, ti, indexAfterFiring);
-				traceInfo.AddParticipant(participant);
-			}
-
-			if(diff < 0){
-				TAPN::TimeInterval inf;
-				for(int i = diff; i < 0; i++){
-					Participant participant(-1, inf, (marking->GetNumberOfTokens() - diff + i));
-					traceInfo.AddParticipant(participant);
-				}
-			}
-			traceInfo.setMarking(next);
-			succ.push_back(Successor(next, traceInfo));
-		}else{
+//		if(trace){
+//			TraceInfo traceInfo(marking->Id(), transition.GetIndex(), next->Id());
+//
+//			for(unsigned int i = 0; i < presetSize; ++i)
+//			{
+//				int tokenIndex = tokenIndices->at_element(currentTransitionIndex+i, currentPermutationindices[i]);
+//				boost::shared_ptr<TAPN::TimedInputArc> ia = preset[i].lock();
+//				const TAPN::TimeInterval& ti = ia->Interval();
+//				int indexAfterFiring = tokenIndex;
+//				for(std::vector<int>::iterator iter = tokensToRemove.begin(); iter != tokensToRemove.end(); ++iter){
+//					if(*iter < tokenIndex) indexAfterFiring--;
+//					else if(*iter == tokenIndex){
+//						indexAfterFiring = -1;
+//						break;
+//					}
+//				}
+//
+//				Participant participant(tokenIndex, ti, indexAfterFiring);
+//				traceInfo.AddParticipant(participant);
+//			}
+//
+//			if(diff < 0){
+//				TAPN::TimeInterval inf;
+//				for(int i = diff; i < 0; i++){
+//					Participant participant(-1, inf, (marking->GetNumberOfTokens() - diff + i));
+//					traceInfo.AddParticipant(participant);
+//				}
+//			}
+//			traceInfo.setMarking(next);
+//			succ.push_back(Successor(next, traceInfo));
+//		}else{
 			succ.push_back(Successor(next));
-		}
+//		}
 
 		tokensToRemove.clear();
 	}

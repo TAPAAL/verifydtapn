@@ -1,5 +1,5 @@
 #include "QueryChecker.hpp"
-#include "../../Core/SymbolicMarking/SymMarking.hpp"
+#include "../../Core/SymbolicMarking/SymbolicMarking.hpp"
 #include "../../Core/QueryParser/ExpressionSatisfiedVisitor.hpp"
 #include "boost/any.hpp"
 #include "../../Core/QueryParser/AST.hpp"
@@ -15,7 +15,7 @@ namespace VerifyTAPN
 		if( query ) delete query;
 	}
 
-	bool QueryChecker::IsExpressionSatisfied(const SymMarking& marking) const
+	bool QueryChecker::IsExpressionSatisfied(const SymbolicMarking& marking) const
 	{
 		AST::ExpressionSatisfiedVisitor visitor(marking);
 		boost::any any;

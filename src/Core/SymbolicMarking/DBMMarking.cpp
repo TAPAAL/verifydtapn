@@ -138,4 +138,15 @@ namespace VerifyTAPN
 
 		mapping = TokenMapping(map);
 	}
+
+	relation DBMMarking::ConvertToRelation(relation_t relation) const
+	{
+		switch(relation)
+		{
+		case base_SUPERSET: return SUPERSET;
+		case base_SUBSET: return SUBSET;
+		case base_EQUAL: return EQUAL;
+		default: return DIFFERENT;
+		}
+	}
 }

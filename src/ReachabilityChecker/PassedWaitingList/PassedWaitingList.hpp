@@ -5,7 +5,7 @@
 
 namespace VerifyTAPN
 {
-	class SymMarking;
+	class SymbolicMarking;
 
 	struct Stats{
 		long long exploredStates;
@@ -23,8 +23,8 @@ namespace VerifyTAPN
 		virtual long long Size() const = 0;
 		virtual bool HasWaitingStates() const = 0;
 
-		virtual bool Add(const SymMarking& marking) = 0;
-		virtual SymMarking& GetNextUnexplored() = 0;
+		virtual bool Add(const SymbolicMarking& marking) = 0;
+		virtual SymbolicMarking* GetNextUnexplored() = 0;
 		virtual Stats GetStats() const = 0;
 		virtual void Print() const = 0;
 	};

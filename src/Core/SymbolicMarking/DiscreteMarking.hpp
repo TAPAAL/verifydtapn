@@ -15,8 +15,8 @@ namespace VerifyTAPN {
 	public:
 		virtual void MoveToken(int token, int targetPlace) { dp.MoveToken(token, targetPlace); };
 		virtual unsigned int NumberOfTokens() const { return dp.size(); };
+		virtual unsigned int NumberOfTokensInPlace(int placeIndex) const { return dp.NumberOfTokensInPlace(placeIndex); };
 		virtual int GetTokenPlacement(int token) const { return dp.GetTokenPlacement(token); };
-
 		virtual void AddTokens(const std::vector<int>& placeIndices)
 		{
 			for(std::vector<int>::const_iterator i = placeIndices.begin(); i != placeIndices.end(); i++)

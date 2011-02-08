@@ -1,7 +1,7 @@
 #ifndef NODE_HPP_
 #define NODE_HPP_
 
-#include "../../Core/SymbolicMarking/SymMarking.hpp"
+#include "../../Core/SymbolicMarking/StoredMarking.hpp"
 
 namespace VerifyTAPN
 {
@@ -9,14 +9,14 @@ namespace VerifyTAPN
 
 	class Node{
 	public:
-		Node(SymMarking* marking, Color color) : marking(marking), color(color) {};
+		Node(StoredMarking* marking, Color color) : marking(marking), color(color) {};
 		virtual ~Node() { delete marking; };
 		inline Color GetColor() const { return color; };
-		inline SymMarking& GetMarking() const { return *marking; };
+		inline StoredMarking* GetMarking() const { return marking; };
 	public:
 		inline void Recolor(Color newColor) { color = newColor; };
 	private:
-		SymMarking* marking;
+		StoredMarking* marking;
 		Color color;
 	};
 }

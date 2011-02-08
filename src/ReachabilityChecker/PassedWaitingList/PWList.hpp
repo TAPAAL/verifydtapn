@@ -9,15 +9,17 @@
 #include "WaitingList.hpp"
 
 namespace VerifyTAPN {
-	class SymMarking;
+	class SymbolicMarking;
 	class Node;
+	class MarkingFactory;
 
 	class PWList : public PassedWaitingList {
 	private:
 		typedef std::list<Node*> NodeList;
-		typedef google::sparse_hash_map<const DiscretePart, NodeList, VerifyTAPN::hash, VerifyTAPN::eqdp > HashMap;
+		//typedef google::sparse_hash_map<const DiscretePart, NodeList, VerifyTAPN::hash, VerifyTAPN::eqdp > HashMap;
+		typedef google::sparse_hash_map<size_t, NodeList> HashMap; // TODO: Check if we need to explicitly change hash function to identity?
 	public:
-		explicit PWList(WaitingList* waitingList) : map(256000), stats(), waitingList(waitingList) {};
+		PWList(WaitingList* waitingList, MarkingFactory* factory) : map(256000), stats(), waitingList(waitingList), factory(factory) {};
 		virtual ~PWList();
 
 	public: // inspectors
@@ -28,12 +30,13 @@ namespace VerifyTAPN {
 		virtual void Print() const;
 
 	public: // modifiers
-		virtual bool Add(const SymMarking& symMarking);
-		virtual SymMarking& GetNextUnexplored();
+		virtual bool Add(const SymbolicMarking& symMarking);
+		virtual SymbolicMarking* GetNextUnexplored();
 	private:
 		HashMap map;
 		Stats stats;
 		WaitingList* waitingList;
+		MarkingFactory* factory;
 	};
 }
 

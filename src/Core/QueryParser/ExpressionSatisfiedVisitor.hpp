@@ -7,7 +7,7 @@
 
 namespace VerifyTAPN
 {
-	class SymMarking;
+	class SymbolicMarking;
 	namespace AST
 	{
 		class ParExpression;
@@ -19,7 +19,7 @@ namespace VerifyTAPN
 		class ExpressionSatisfiedVisitor : public Visitor
 		{
 		public:
-			ExpressionSatisfiedVisitor(const SymMarking& marking) : marking(marking) { };
+			ExpressionSatisfiedVisitor(const SymbolicMarking& marking) : marking(marking) { };
 			virtual ~ExpressionSatisfiedVisitor() {}
 		public: // visitor methods
 			virtual void Visit(const ParExpression& expr, boost::any& context);
@@ -31,7 +31,7 @@ namespace VerifyTAPN
 			bool Compare(int numberOfTokensInPlace, const std::string& op, int n) const;
 
 		private:
-			const SymMarking& marking;
+			const SymbolicMarking& marking;
 		};
 	}
 }

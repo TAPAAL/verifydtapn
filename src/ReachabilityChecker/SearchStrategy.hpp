@@ -6,11 +6,12 @@
 #include "QueryChecker/QueryChecker.hpp"
 #include "../Core/VerificationOptions.hpp"
 #include "Trace/TraceStore.hpp"
+#include "SuccessorGenerator.hpp"
 
 namespace VerifyTAPN
 {
 	class PassedWaitingList;
-	class SymMarking;
+	class SymbolicMarking;
 
 	namespace TAPN{
 		class TimedArcPetriNet;
@@ -36,25 +37,27 @@ namespace VerifyTAPN
 	public:
 		DefaultSearchStrategy(
 			const VerifyTAPN::TAPN::TimedArcPetriNet& tapn,
-			SymMarking* initialMarking,
+			SymbolicMarking* initialMarking,
 			const AST::Query* query,
-			const VerificationOptions& options
+			const VerificationOptions& options,
+			MarkingFactory* factory
 		);
 		virtual ~DefaultSearchStrategy() { delete pwList; delete[] maxConstantsArray; };
 		virtual bool Verify();
 		virtual Stats GetStats() const;
 		virtual void PrintTraceIfAny(bool result) const;
 	private:
-		virtual bool CheckQuery(const SymMarking& marking) const;
+		virtual bool CheckQuery(const SymbolicMarking& marking) const;
 		void PrintDiagnostics(size_t successors) const;
 		void UpdateMaxConstantsArray(const SymMarking& marking);
 	private:
 		PassedWaitingList* pwList;
 		const VerifyTAPN::TAPN::TimedArcPetriNet& tapn;
-		SymMarking* initialMarking;
+		SymbolicMarking* initialMarking;
 		const QueryChecker checker;
 		VerificationOptions options;
-		TraceStore traceStore;
+		SuccessorGenerator succGen;
+		//TraceStore traceStore;
 		int* maxConstantsArray;
 	};
 }

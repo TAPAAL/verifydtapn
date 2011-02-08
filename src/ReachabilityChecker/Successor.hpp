@@ -8,13 +8,13 @@ namespace VerifyTAPN
 	class Successor
 	{
 	public:
-		Successor(SymMarking* marking) : marking(marking), traceInfo(-1, -1, -1) { };
-		Successor(SymMarking* marking, const TraceInfo& traceInfo) : marking(marking), traceInfo(traceInfo) { };
+		Successor(SymbolicMarking* marking) : marking(marking), traceInfo(-1, -1, -1) { };
+		Successor(SymbolicMarking* marking, const TraceInfo& traceInfo) : marking(marking), traceInfo(traceInfo) { };
 	public:
-		SymMarking* Marking() const { return marking; };
+		SymbolicMarking* Marking() const { return marking; };
 		TraceInfo GetTraceInfo() const { return traceInfo; };
 	private:
-		SymMarking* marking;
+		SymbolicMarking* marking;
 		TraceInfo traceInfo;
 	};
 }

@@ -2,12 +2,13 @@
 #define DBMMARKING_HPP_
 
 #include "DiscreteMarking.hpp"
+#include "StoredMarking.hpp"
 #include "TokenMapping.hpp"
 #include "dbm/fed.h"
 
 namespace VerifyTAPN {
 
-	class DBMMarking: public DiscreteMarking {
+	class DBMMarking: public DiscreteMarking, public StoredMarking {
 	public:
 		DBMMarking(const DiscretePart& dp, const dbm::dbm_t& dbm) : DiscreteMarking(dp), dbm(dbm), mapping() { InitMapping(); };
 		DBMMarking(const DBMMarking& dm) : DiscreteMarking(dm), dbm(dm.dbm), mapping(dm.mapping) { };
@@ -34,12 +35,21 @@ namespace VerifyTAPN {
 			return !inappropriateAge;
 		};
 
-		virtual void Extrapolate(const int* maxConstants) { };
+		virtual relation Relation(const StoredMarking& other) const
+		{
+			relation_t relation = dbm.relation(static_cast<const DBMMarking&>(other).dbm);
+			return ConvertToRelation(relation);
+		}
+
+		virtual void Extrapolate(const int* maxConstants) { dbm.extrapolateMaxBounds(maxConstants); };
 
 		virtual void AddTokens(const std::list<int>& placeIndices);
 		virtual void RemoveTokens(const std::vector<int>& tokenIndices);
+		virtual void Canonicalize() { };
+		virtual size_t HashKey() const { return VerifyTAPN::hash()(dp); };
 	private:
 		void InitMapping();
+		relation ConvertToRelation(relation_t relation) const;
 
 	private: // data
 		dbm::dbm_t dbm;

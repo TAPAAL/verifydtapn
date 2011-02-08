@@ -6,15 +6,16 @@ namespace VerifyTAPN
 {
 	DefaultSearchStrategy::DefaultSearchStrategy(
 		const VerifyTAPN::TAPN::TimedArcPetriNet& tapn,
-		SymMarking* initialMarking,
+		SymbolicMarking* initialMarking,
 		const AST::Query* query,
-		const VerificationOptions& options
-	) : tapn(tapn), initialMarking(initialMarking), checker(query), options(options), traceStore(options, initialMarking)
+		const VerificationOptions& options,
+		MarkingFactory* factory
+	) : tapn(tapn), initialMarking(initialMarking), checker(query), options(options), succGen(tapn, options)//, traceStore(options, initialMarking)
 	{
 		if(options.GetSearchType() == DEPTHFIRST)
-			pwList = new PWList(new StackWaitingList);
+			pwList = new PWList(new StackWaitingList, factory);
 		else
-			pwList = new PWList(new QueueWaitingList);
+			pwList = new PWList(new QueueWaitingList, factory);
 
 		maxConstantsArray = new int[options.GetKBound()+1];
 		for(int i = 0; i < options.GetKBound()+1; ++i)
@@ -26,7 +27,7 @@ namespace VerifyTAPN
 	bool DefaultSearchStrategy::Verify()
 	{
 		initialMarking->Delay();
-		UpdateMaxConstantsArray(*initialMarking);
+		//UpdateMaxConstantsArray(*initialMarking);
 		initialMarking->Extrapolate(maxConstantsArray);
 
 		if(options.GetSymmetryEnabled())
@@ -34,37 +35,38 @@ namespace VerifyTAPN
 
 		pwList->Add(*initialMarking);
 		if(CheckQuery(*initialMarking)){
-			if(options.GetTrace() != NONE) traceStore.SetFinalMarking(initialMarking);
+			//if(options.GetTrace() != NONE) traceStore.SetFinalMarking(initialMarking);
 			return checker.IsEF(); // return true if EF query (proof found), or false if AG query (counter example found)
 		}
 
 		while(pwList->HasWaitingStates()){
-			SymMarking& next = pwList->GetNextUnexplored();
+			SymbolicMarking* next = pwList->GetNextUnexplored();
 
 			typedef std::vector<Successor> SuccessorVector;
 			SuccessorVector successors;
 			std::vector<TraceInfo> traceInfos;
 
-			next.GenerateDiscreteTransitionSuccessors(tapn, options, successors);
+			succGen.GenerateDiscreteTransitionsSuccessors(*next, successors);
+			//next.GenerateDiscreteTransitionSuccessors(tapn, options, successors);
 
 			for(SuccessorVector::iterator iter = successors.begin(); iter != successors.end(); ++iter)
 			{
-				SymMarking& succ = *(*iter).Marking();
+				SymbolicMarking& succ = *(*iter).Marking();
 				succ.Delay();
 
-				UpdateMaxConstantsArray(succ);
+				//UpdateMaxConstantsArray(succ);
 
 				succ.Extrapolate(maxConstantsArray);
 
 				if(options.GetSymmetryEnabled()) succ.Canonicalize();
-				if(options.GetTrace() != NONE) traceStore.Save(succ.Id(), iter->GetTraceInfo());
+				//if(options.GetTrace() != NONE) traceStore.Save(succ.Id(), iter->GetTraceInfo());
 
 				bool added = pwList->Add(succ);
 
 
 				if(!added) delete (*iter).Marking();
 				else if(CheckQuery(succ)){
-					if(options.GetTrace() != NONE) traceStore.SetFinalMarking(iter->Marking());
+					//if(options.GetTrace() != NONE) traceStore.SetFinalMarking(iter->Marking());
 					return checker.IsEF();
 				}
 			}
@@ -95,7 +97,7 @@ namespace VerifyTAPN
 		}
 	}
 
-	bool DefaultSearchStrategy::CheckQuery(const SymMarking& marking) const
+	bool DefaultSearchStrategy::CheckQuery(const SymbolicMarking& marking) const
 	{
 		bool satisfied = checker.IsExpressionSatisfied(marking);
 		return (satisfied && checker.IsEF()) || (!satisfied && checker.IsAG());
@@ -119,7 +121,7 @@ namespace VerifyTAPN
 			if((checker.IsAG() && result) || (checker.IsEF() && !result))
 				std::cout << "A trace could not be generated due to the query result." << std::endl;
 			else{
-				traceStore.OutputTraceTo(tapn);
+				//traceStore.OutputTraceTo(tapn);
 			}
 		}
 	}

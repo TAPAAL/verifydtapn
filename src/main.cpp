@@ -24,6 +24,7 @@ void test(){
 int main(int argc, char* argv[]) {
 	//test();
 	VerificationOptions options = VerificationOptions::ParseVerificationOptions(argc, argv);
+	MarkingFactory* factory = NULL;
 
 	TAPNXmlParser modelParser;
 	boost::shared_ptr<TAPN::TimedArcPetriNet> tapn = modelParser.Parse(options.GetInputFile());
@@ -34,9 +35,7 @@ int main(int argc, char* argv[]) {
 	queryParser.parse(options.QueryFile());
 	AST::Query* query = queryParser.GetAST();
 
-	SearchStrategy* strategy = NULL;
-
-	strategy = new DefaultSearchStrategy(*tapn, initialMarking, query, options);
+	SearchStrategy* strategy = new DefaultSearchStrategy(*tapn, NULL, query, options, factory);
 
 	bool result = strategy->Verify();
 

@@ -1,4 +1,5 @@
 #include "PWList.hpp"
+#include "../../Core/SymbolicMarking/MarkingFactory.hpp"
 
 namespace VerifyTAPN {
 	PWList::~PWList()
@@ -14,25 +15,24 @@ namespace VerifyTAPN {
 		 }
 	}
 
-	bool PWList::Add(const SymMarking& symMarking)
+	bool PWList::Add(const SymbolicMarking& symMarking)
 	{
+		StoredMarking* storedMarking = factory->Convert(symMarking);
 		stats.discoveredStates++;
-		const DiscretePart& dp = symMarking.GetDiscretePart();
-		NodeList& markings = map[dp];
-		const dbm::dbm_t& newDBM = symMarking.Zone();
+		//const DiscretePart& dp = symMarking.GetDiscretePart();
+		NodeList& markings = map[storedMarking->HashKey()];
 		NodeList::iterator iter = markings.begin();
 
 		while(iter != markings.end())
 		{
 			Node* currentNode 		= *iter;
-			const dbm::dbm_t& other = currentNode->GetMarking().Zone();
-			relation_t relation 	= newDBM.relation(other);
-			assert(eqdp()(currentNode->GetMarking().GetDiscretePart(), dp));
-			if((relation & base_SUBSET) != 0)
+			relation relation 	= storedMarking->Relation(*currentNode->GetMarking());
+			//assert(eqdp()(currentNode->GetMarking().GetDiscretePart(), dp));
+			if((relation & SUBSET) != 0)
 			{ // check subseteq
 				return false;
 			}
-			else if(relation == base_SUPERSET)
+			else if(relation == SUPERSET)
 			{
 				assert(currentNode->GetColor() != COVERED);
 				if(currentNode->GetColor() == WAITING)
@@ -52,7 +52,7 @@ namespace VerifyTAPN {
 		}
 
 		stats.storedStates++;
-		Node* node = new Node(const_cast<SymMarking*>(&symMarking), WAITING);
+		Node* node = new Node(storedMarking, WAITING);
 		markings.push_back(node);
 		waitingList->Add(node);
 
@@ -69,10 +69,11 @@ namespace VerifyTAPN {
 		return waitingList->Size() > 0;
 	}
 
-	SymMarking& PWList::GetNextUnexplored()
+	SymbolicMarking* PWList::GetNextUnexplored()
 	{
 		stats.exploredStates++;
-		return waitingList->Next()->GetMarking();
+		StoredMarking* next = waitingList->Next()->GetMarking();
+		return factory->Convert(*next);
 	}
 
 	Stats PWList::GetStats() const

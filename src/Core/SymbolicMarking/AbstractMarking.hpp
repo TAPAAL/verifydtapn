@@ -12,7 +12,7 @@ namespace VerifyTAPN {
 		virtual ~AbstractMarking() { };
 
 		virtual AbstractMarking* Clone() const = 0;
-		//virtual void Canonicalize() = 0;
+		virtual void Canonicalize() = 0; // Not sure this is the right place
 
 		// Continuous part
 		virtual void Reset(int token) = 0;
@@ -25,6 +25,7 @@ namespace VerifyTAPN {
 		virtual void RemoveTokens(const std::vector<int>& tokenIndices) = 0;
 		virtual int GetTokenPlacement(int token) const = 0;
 		virtual unsigned int NumberOfTokens() const = 0;
+		virtual unsigned int NumberOfTokensInPlace(int placeIndex) const = 0;
 	};
 
 }

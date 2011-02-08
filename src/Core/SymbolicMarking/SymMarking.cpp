@@ -26,8 +26,8 @@ using namespace VerifyTAPN::TAPN;
 
 	void SymMarking::GenerateDiscreteTransitionSuccessors(const VerifyTAPN::TAPN::TimedArcPetriNet& tapn, const VerifyTAPN::VerificationOptions& options, std::vector<VerifyTAPN::Successor>& succ) const
 	{
-		SuccessorGenerator succGen(tapn, options);
-		succGen.GenerateDiscreteTransitionsSuccessors(this, succ);
+//		SuccessorGenerator succGen(tapn, options);
+//		succGen.GenerateDiscreteTransitionsSuccessors(this, succ);
 	}
 
 	void SymMarking::MoveToken(int tokenIndex, int newPlaceIndex)

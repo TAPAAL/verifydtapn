@@ -10,7 +10,7 @@
 #include "../Core/VerificationOptions.hpp"
 
 namespace VerifyTAPN {
-	class SymMarking;
+	class SymbolicMarking;
 
 	class SuccessorGenerator {
 	public: // construction
@@ -29,7 +29,7 @@ namespace VerifyTAPN {
 
 
 	public:
-		void GenerateDiscreteTransitionsSuccessors(const SymMarking* marking, std::vector<VerifyTAPN::Successor>& succ);
+		void GenerateDiscreteTransitionsSuccessors(const SymbolicMarking& marking, std::vector<VerifyTAPN::Successor>& succ);
 
 	public: // inspectors
 		void Print(std::ostream& out) const;
@@ -40,9 +40,9 @@ namespace VerifyTAPN {
 		inline void ClearTokenIndices() { tokenIndices->clear(); }
 
 	private: // modifiers
-		void CollectArcsAndAppropriateTokens(const TAPN::TimedTransition::Vector& transitions, const SymMarking* marking);
-		void GenerateSuccessors(const TAPN::TimedTransition::Vector& transitions, const SymMarking* marking, std::vector<Successor>& succ);
-		void GenerateSuccessorForCurrentPermutation(const TAPN::TimedTransition& currTransition, const unsigned int* indices, const unsigned int currTransitionIndex, const unsigned int presetSize, const SymMarking* marking, std::vector<Successor>& succ);
+		void CollectArcsAndAppropriateTokens(const TAPN::TimedTransition::Vector& transitions, const SymbolicMarking* marking);
+		void GenerateSuccessors(const TAPN::TimedTransition::Vector& transitions, const SymbolicMarking* marking, std::vector<Successor>& succ);
+		void GenerateSuccessorForCurrentPermutation(const TAPN::TimedTransition& currTransition, const unsigned int* indices, const unsigned int currTransitionIndex, const unsigned int presetSize, const SymbolicMarking* marking, std::vector<Successor>& succ);
 
 	private: // inspectors
 		bool IsTransitionEnabled(unsigned int currTransitionIndex, unsigned int presetSize) const;

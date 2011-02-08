@@ -5,7 +5,7 @@
 
 namespace VerifyTAPN
 {
-	class SymMarking;
+	class SymbolicMarking;
 
 	class QueryChecker
 	{
@@ -13,7 +13,7 @@ namespace VerifyTAPN
 		QueryChecker(const AST::Query* query);
 		virtual ~QueryChecker();
 
-		bool IsExpressionSatisfied(const SymMarking& marking) const;
+		bool IsExpressionSatisfied(const SymbolicMarking& marking) const;
 		inline bool IsEF() const { return query->GetQuantifier() == VerifyTAPN::AST::EF; };
 		inline bool IsAG() const { return query->GetQuantifier() == VerifyTAPN::AST::AG; };
 
