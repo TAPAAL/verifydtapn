@@ -27,7 +27,7 @@ namespace VerifyTAPN
 	bool DefaultSearchStrategy::Verify()
 	{
 		initialMarking->Delay();
-		//UpdateMaxConstantsArray(*initialMarking);
+		UpdateMaxConstantsArray(*initialMarking);
 		initialMarking->Extrapolate(maxConstantsArray);
 
 		if(options.GetSymmetryEnabled())
@@ -53,7 +53,7 @@ namespace VerifyTAPN
 				SymbolicMarking& succ = *(*iter).Marking();
 				succ.Delay();
 
-				//UpdateMaxConstantsArray(succ);
+				UpdateMaxConstantsArray(succ);
 
 				succ.Extrapolate(maxConstantsArray);
 
@@ -78,20 +78,20 @@ namespace VerifyTAPN
 	// Finds the local max constants for each token to be used for extrapolation.
 	// If infinity place optimization is enabled, tokens in such a place are "marked"
 	// as inactive by supplying a max constant of -dbm_INFINITY.
-	void DefaultSearchStrategy::UpdateMaxConstantsArray(const SymMarking& marking)
+	void DefaultSearchStrategy::UpdateMaxConstantsArray(const SymbolicMarking& marking)
 	{
-		for(unsigned int tokenIndex = 0; tokenIndex < marking.GetNumberOfTokens(); ++tokenIndex)
+		for(unsigned int tokenIndex = 0; tokenIndex < marking.NumberOfTokens(); ++tokenIndex)
 		{
 			int placeIndex = marking.GetTokenPlacement(tokenIndex);
 
 			if(options.GetUntimedPlacesEnabled() && tapn.IsPlaceInfinityPlace(placeIndex))
-				maxConstantsArray[marking.GetDBMIndex(tokenIndex)] = -dbm_INFINITY;
+				maxConstantsArray[marking.GetClockIndex(tokenIndex)] = -INF;
 			else if(!options.GetGlobalMaxConstantsEnabled())
 			{
 				const TAPN::TimedPlace& p = tapn.GetPlace(placeIndex);
-				maxConstantsArray[marking.GetDBMIndex(tokenIndex)] = p.GetMaxConstant();
+				maxConstantsArray[marking.GetClockIndex(tokenIndex)] = p.GetMaxConstant();
 			}else{
-				maxConstantsArray[marking.GetDBMIndex(tokenIndex)] = tapn.MaxConstant();
+				maxConstantsArray[marking.GetClockIndex(tokenIndex)] = tapn.MaxConstant();
 			}
 		}
 	}

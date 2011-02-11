@@ -49,7 +49,7 @@ namespace VerifyTAPN
 	private:
 		virtual bool CheckQuery(const SymbolicMarking& marking) const;
 		void PrintDiagnostics(size_t successors) const;
-		void UpdateMaxConstantsArray(const SymMarking& marking);
+		void UpdateMaxConstantsArray(const SymbolicMarking& marking);
 	private:
 		PassedWaitingList* pwList;
 		const VerifyTAPN::TAPN::TimedArcPetriNet& tapn;

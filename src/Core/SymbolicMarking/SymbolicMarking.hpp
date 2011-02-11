@@ -5,6 +5,7 @@
 
 
 namespace VerifyTAPN {
+	enum { INF = INT_MAX >> 1 }; // INT_MAX is defined in limits.h.. This definition matches what the UPPAAL DBM library expects
 
 	class SymbolicMarking : public AbstractMarking
 	{
@@ -17,6 +18,7 @@ namespace VerifyTAPN {
 		//	virtual void Down() = 0;
 		virtual bool IsEmpty() const = 0;
 		virtual void Extrapolate(const int* maxConstants) = 0;
+		virtual unsigned int GetClockIndex(unsigned int token) const = 0;
 	};
 
 }

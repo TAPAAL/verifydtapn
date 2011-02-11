@@ -150,100 +150,22 @@ namespace VerifyTAPN
 		}
 	}
 
-//		// Sort the state internally to obtain a canonical form.
-//		// Used for symmetry reduction: if two states are symmetric they will have the same canonical form.
-//		// The placement vector is sorted in ascending order, tokens in the same place are sorted on their lower bound,
-//		// subsequently on their upper bound and finally by diagonal constraints if necessary.
-//		void SymMarking::Canonicalize()
-//		{
-//			quickSort(0, dp.size()-1);
-//		}
-//
-//		void SymMarking::BubbleSort()
-//		{
-//			for(unsigned int i = 0; i < dp.size(); ++i)
-//			{
-//				for(unsigned int j = dp.size()-1; j > i; --j)
-//				{
-//					if(TokenIGreaterThanTokenJ(j-1,j))
-//					{
-//						Swap(j-1,j);
-//					}
-//				}
-//			}
-//		}
-//
-//		bool SymMarking::TokenIGreaterThanTokenJ(int i, int j)
-//		{
-//			int placeI = dp.GetTokenPlacement(i);
-//			int placeJ = dp.GetTokenPlacement(j);
-//			unsigned int mapI = mapping.GetMapping(i);
-//			unsigned int mapJ = mapping.GetMapping(j);
-//
-//			return placeI > placeJ
-//					|| (placeI == placeJ && dbm(0,mapI) >  dbm(0,mapJ))
-//					|| (placeI == placeJ && dbm(0,mapI) == dbm(0,mapJ) && dbm(mapI,0) > dbm(mapJ,0))
-//					|| (placeI == placeJ && dbm(0,mapI) == dbm(0,mapJ) && dbm(mapI,0) == dbm(mapJ,0) && dbm(mapJ,mapI) > dbm(mapI,mapJ));
-//		}
-//
-//		void SymMarking::quickSort(int left, int right)
-//		{
-//			if(right > left)
-//			{
-//				int pivot = left + (right - left)/2;
-//				int newPivot = Partition(left, right, pivot);
-//				quickSort(left, newPivot - 1);
-//				quickSort(newPivot + 1, right);
-//			}
-//		}
-//
-//		int SymMarking::Partition(int left, int right, int pivot)
-//		{
-//			Swap(pivot, right);
-//			int indexToReturn = left;
-//			for(int i = left; i < right; ++i)
-//			{
-//				//if(IsLowerPositionLessThanPivot(i, right)) // Does not give optimal stored states unless its changed to mapPivot > mapLower in function
-//				if(!IsUpperPositionGreaterThanPivot(i, right))
-//				{
-//					Swap(i, indexToReturn);
-//					indexToReturn++;
-//				}
-//			}
-//			Swap(indexToReturn, right);
-//			return indexToReturn;
-//		}
-//
-//		bool SymMarking::IsLowerPositionLessThanPivot(int lower, int pivotIndex) const
-//		{
-//			int placeLower = dp.GetTokenPlacement(lower);
-//			int pivot = dp.GetTokenPlacement(pivotIndex);
-//			unsigned int mapLower = mapping.GetMapping(lower);
-//			unsigned int mapPivot = mapping.GetMapping(pivotIndex);
-//
-//			return placeLower < pivot
-//					|| (placeLower == pivot && dbm(0,mapLower) <  dbm(0,mapPivot))
-//					|| (placeLower == pivot && dbm(0,mapLower) == dbm(0,mapPivot) && dbm(mapLower,0) < dbm(mapPivot,0))
-//					|| (placeLower == pivot && dbm(0,mapLower) == dbm(0,mapPivot) && dbm(mapLower,0) == dbm(mapPivot,0) && (mapPivot < mapLower ? dbm(mapPivot,mapLower) < dbm(mapLower,mapPivot) : dbm(mapLower,mapPivot) < dbm(mapPivot,mapLower)));
-//		}
-//
-//		bool SymMarking::IsUpperPositionGreaterThanPivot(int upper, int pivotIndex) const
-//		{
-//			int placeUpper = dp.GetTokenPlacement(upper);
-//			int pivot = dp.GetTokenPlacement(pivotIndex);
-//			unsigned int mapUpper = mapping.GetMapping(upper);
-//			unsigned int mapPivot = mapping.GetMapping(pivotIndex);
-//
-//			return placeUpper > pivot
-//					|| (placeUpper == pivot && dbm(0,mapUpper) >  dbm(0,mapPivot))
-//					|| (placeUpper == pivot && dbm(0,mapUpper) == dbm(0,mapPivot) && dbm(mapUpper,0) > dbm(mapPivot,0))
-//					|| (placeUpper == pivot && dbm(0,mapUpper) == dbm(0,mapPivot) && dbm(mapUpper,0) == dbm(mapPivot,0) && (mapPivot > mapUpper ? dbm(mapPivot,mapUpper) > dbm(mapUpper,mapPivot) : dbm(mapUpper,mapPivot) > dbm(mapPivot,mapUpper)));
-//		}
-//
-//		void SymMarking::Swap(int i, int j)
-//		{
-//
-//			dp.Swap(i,j);
-//			dbm.swapClocks(mapping.GetMapping(i), mapping.GetMapping(j));
-//		}
+	bool DBMMarking::IsUpperPositionGreaterThanPivot(int upper, int pivotIndex) const
+	{
+		int placeUpper = dp.GetTokenPlacement(upper);
+		int pivot = dp.GetTokenPlacement(pivotIndex);
+		unsigned int mapUpper = mapping.GetMapping(upper);
+		unsigned int mapPivot = mapping.GetMapping(pivotIndex);
+
+		return DiscreteMarking::IsUpperPositionGreaterThanPivot(upper, pivotIndex)
+				|| (placeUpper == pivot && dbm(0,mapUpper) >  dbm(0,mapPivot))
+				|| (placeUpper == pivot && dbm(0,mapUpper) == dbm(0,mapPivot) && dbm(mapUpper,0) > dbm(mapPivot,0))
+				|| (placeUpper == pivot && dbm(0,mapUpper) == dbm(0,mapPivot) && dbm(mapUpper,0) == dbm(mapPivot,0) && (mapPivot > mapUpper ? dbm(mapPivot,mapUpper) > dbm(mapUpper,mapPivot) : dbm(mapUpper,mapPivot) > dbm(mapPivot,mapUpper)));
+	}
+
+	void DBMMarking::Swap(int i, int j)
+	{
+		DiscreteMarking::Swap(i,j);
+		dbm.swapClocks(mapping.GetMapping(i), mapping.GetMapping(j));
+	}
 }

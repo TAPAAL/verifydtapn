@@ -15,6 +15,7 @@ namespace VerifyTAPN {
 		virtual ~DBMMarking() { };
 
 		virtual DBMMarking* Clone() const { return new DBMMarking(*this); };
+		virtual size_t HashKey() const { return VerifyTAPN::hash()(dp); };
 
 		virtual void Reset(int token) { dbm(mapping.GetMapping(token)) = 0; };
 		virtual bool IsEmpty() const { return dbm.isEmpty(); };
@@ -42,14 +43,17 @@ namespace VerifyTAPN {
 		}
 
 		virtual void Extrapolate(const int* maxConstants) { dbm.extrapolateMaxBounds(maxConstants); };
+		virtual unsigned int GetClockIndex(unsigned int token) const { return mapping.GetMapping(token); };
 
 		virtual void AddTokens(const std::list<int>& placeIndices);
 		virtual void RemoveTokens(const std::vector<int>& tokenIndices);
-		virtual void Canonicalize();
-		virtual size_t HashKey() const { return VerifyTAPN::hash()(dp); };
 	private:
 		void InitMapping();
 		relation ConvertToRelation(relation_t relation) const;
+
+	protected:
+		virtual void Swap(int i, int j);
+		virtual bool IsUpperPositionGreaterThanPivot(int upper, int pivotIndex) const;
 
 	private: // data
 		dbm::dbm_t dbm;
