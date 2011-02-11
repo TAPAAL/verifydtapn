@@ -5,16 +5,21 @@
 #include "StoredMarking.hpp"
 #include "TokenMapping.hpp"
 #include "dbm/fed.h"
+#include "MarkingFactory.hpp"
 
 namespace VerifyTAPN {
 
 	class DBMMarking: public DiscreteMarking, public StoredMarking {
+		friend class UppaalDBMMarkingFactory;
+	private:
+		static MarkingFactory* factory;
 	public:
 		DBMMarking(const DiscretePart& dp, const dbm::dbm_t& dbm) : DiscreteMarking(dp), dbm(dbm), mapping() { InitMapping(); };
 		DBMMarking(const DBMMarking& dm) : DiscreteMarking(dm), dbm(dm.dbm), mapping(dm.mapping) { };
 		virtual ~DBMMarking() { };
 
-		virtual DBMMarking* Clone() const { return new DBMMarking(*this); };
+		virtual SymbolicMarking* Clone() const { return factory->Clone(*this); }; // TODO: this should somehow use the factory
+		virtual id_type UniqueId() const { return id; };
 		virtual size_t HashKey() const { return VerifyTAPN::hash()(dp); };
 
 		virtual void Reset(int token) { dbm(mapping.GetMapping(token)) = 0; };
@@ -58,6 +63,7 @@ namespace VerifyTAPN {
 	private: // data
 		dbm::dbm_t dbm;
 		TokenMapping mapping;
+		id_type id;
 	};
 
 }

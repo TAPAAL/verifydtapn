@@ -39,16 +39,16 @@ namespace VerifyTAPN {
 			const int GetNumberOfOutputArcs() const { return outputArcs.size(); }
 			const Pairing& GetPairing(const TimedTransition& t) const { return pairings.find(t)->second; }
 			inline int MaxConstant() const { return maxConstant; };
-			inline const bool IsPlaceInfinityPlace(int index) const { return places[index]->IsInfinityPlace(); }
+			inline const bool IsPlaceUntimed(int index) const { return places[index]->IsUntimed(); }
 		public: // modifiers
-			void Initialize(bool useInfinityPlaces);
+			void Initialize(bool useUntimedPlaces);
 
 
 		private: // modifiers
 			void MakeTAPNConservative();
 			void GeneratePairings();
 			void UpdateMaxConstant(const TimeInterval& interval);
-			void MarkInfinityPlaces();
+			void MarkUntimedPlaces();
 			void FindMaxConstants();
 
 		private: // data

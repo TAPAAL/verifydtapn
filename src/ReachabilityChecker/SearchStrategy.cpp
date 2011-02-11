@@ -84,7 +84,7 @@ namespace VerifyTAPN
 		{
 			int placeIndex = marking.GetTokenPlacement(tokenIndex);
 
-			if(options.GetUntimedPlacesEnabled() && tapn.IsPlaceInfinityPlace(placeIndex))
+			if(options.GetUntimedPlacesEnabled() && tapn.IsPlaceUntimed(placeIndex))
 				maxConstantsArray[marking.GetClockIndex(tokenIndex)] = -INF;
 			else if(!options.GetGlobalMaxConstantsEnabled())
 			{

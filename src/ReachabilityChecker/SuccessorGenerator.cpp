@@ -40,9 +40,6 @@ namespace VerifyTAPN {
 
 					if(placeIndex == currInputPlaceIndex)
 					{
-//						bool inappropriateAge = marking->IsTokenOfInappropriateAge(i, ti);
-//
-//						if(!inappropriateAge) // token potentially satisfies guard
 						bool potentiallyUsable = marking->PotentiallySatisfies(i, ti);
 
 						if(potentiallyUsable)
@@ -178,7 +175,7 @@ namespace VerifyTAPN {
 		int diff = presetSize - transition.GetPostsetSize();
 		if(diff > 0) // preset bigger than postset, i.e. more tokens consumed than produced
 		{
-			assert(tokensToRemove.size() == std::abs(diff));
+			assert(tokensToRemove.size() == static_cast<unsigned int>(std::abs(diff)));
 
 			// remove tokens in placement and dbm
 			next->RemoveTokens(tokensToRemove);
@@ -200,7 +197,7 @@ namespace VerifyTAPN {
 		//next->DBMIntern(); // TODO: Handle interning internally in the marking
 
 		// Store trace information
-//		if(trace){
+		if(trace){
 //			TraceInfo traceInfo(marking->Id(), transition.GetIndex(), next->Id());
 //
 //			for(unsigned int i = 0; i < presetSize; ++i)
@@ -230,9 +227,9 @@ namespace VerifyTAPN {
 //			}
 //			traceInfo.setMarking(next);
 //			succ.push_back(Successor(next, traceInfo));
-//		}else{
+		}else{
 			succ.push_back(Successor(next));
-//		}
+		}
 
 		tokensToRemove.clear();
 	}

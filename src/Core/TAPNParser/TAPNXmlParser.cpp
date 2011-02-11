@@ -165,7 +165,6 @@ namespace VerifyTAPN {
 		}
 
 		DiscretePart dp(markedPlaces);
-		assert(dp.size() == totalInitTokens);
 
 		return markingFactory->InitialMarking(dp);
 	}

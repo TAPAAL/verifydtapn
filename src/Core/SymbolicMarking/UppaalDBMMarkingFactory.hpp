@@ -7,6 +7,8 @@
 namespace VerifyTAPN {
 
 	class UppaalDBMMarkingFactory : public MarkingFactory {
+	private:
+		static id_type nextId;
 	public:
 		UppaalDBMMarkingFactory() { };
 		virtual ~UppaalDBMMarkingFactory() {};
@@ -15,9 +17,17 @@ namespace VerifyTAPN {
 		{
 			dbm::dbm_t dbm(dp.size()+1);
 			dbm.setZero();
-			return new DBMMarking(dp, dbm);
+			DBMMarking* marking = new DBMMarking(dp, dbm);
+			marking->id = nextId++;
+			return marking;
 		};
 
+		virtual SymbolicMarking* Clone(const SymbolicMarking& marking) const
+		{
+			DBMMarking* clone = new DBMMarking(static_cast<const DBMMarking&>(marking));
+			clone->id = nextId++;
+			return clone;
+		};
 		virtual StoredMarking* Convert(SymbolicMarking* marking) const { return static_cast<DBMMarking*>(marking); };
 		virtual SymbolicMarking* Convert(StoredMarking* marking) const { return static_cast<DBMMarking*>(marking); };
 	};
