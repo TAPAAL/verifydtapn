@@ -17,7 +17,7 @@ namespace VerifyTAPN {
 
 	bool PWList::Add(const SymbolicMarking& symMarking)
 	{
-		StoredMarking* storedMarking = factory->Convert(symMarking);
+		StoredMarking* storedMarking = factory->Convert(const_cast<SymbolicMarking*>(&symMarking));
 		stats.discoveredStates++;
 		//const DiscretePart& dp = symMarking.GetDiscretePart();
 		NodeList& markings = map[storedMarking->HashKey()];
@@ -73,7 +73,7 @@ namespace VerifyTAPN {
 	{
 		stats.exploredStates++;
 		StoredMarking* next = waitingList->Next()->GetMarking();
-		return factory->Convert(*next);
+		return factory->Convert(next);
 	}
 
 	Stats PWList::GetStats() const

@@ -5,6 +5,8 @@
 #include "boost/algorithm/string.hpp"
 #include "boost/lexical_cast.hpp"
 #include "util.hpp"
+#include "../SymbolicMarking/MarkingFactory.hpp"
+#include "../SymbolicMarking/DiscretePart.hpp"
 
 namespace VerifyTAPN {
 	using namespace rapidxml;
@@ -21,7 +23,7 @@ namespace VerifyTAPN {
 		return ParseTAPN(*xmldoc.first_node()->first_node());
 	}
 
-	SymMarking* TAPNXmlParser::ParseMarking(const std::string & filename, const TimedArcPetriNet& tapn) const
+	SymbolicMarking* TAPNXmlParser::ParseMarking(const std::string & filename, const TimedArcPetriNet& tapn) const
 	{
 		const std::string contents = VerifyTAPN::ReadFile(filename); // not sure if this is a good idea, because it copies to string? Maybe the compiler is smart enough not to make a copy
 		std::vector<char> charArray(contents.begin(), contents.end());
@@ -136,7 +138,7 @@ namespace VerifyTAPN {
 
 	}
 
-	SymMarking* TAPNXmlParser::ParseInitialMarking(const rapidxml::xml_node<>& root, const TimedArcPetriNet& tapn) const
+	SymbolicMarking* TAPNXmlParser::ParseInitialMarking(const rapidxml::xml_node<>& root, const TimedArcPetriNet& tapn) const
 	{
 		std::vector<int> markedPlaces;
 		xml_node<>* placeNode = root.first_node("place");
@@ -163,10 +165,9 @@ namespace VerifyTAPN {
 		}
 
 		DiscretePart dp(markedPlaces);
-		dbm::dbm_t dbm(totalInitTokens+1);
-		dbm.setZero();
+		assert(dp.size() == totalInitTokens);
 
-		return new SymMarking(dp,dbm);
+		return markingFactory->InitialMarking(dp);
 	}
 
 

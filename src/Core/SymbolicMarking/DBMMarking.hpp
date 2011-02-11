@@ -45,7 +45,7 @@ namespace VerifyTAPN {
 
 		virtual void AddTokens(const std::list<int>& placeIndices);
 		virtual void RemoveTokens(const std::vector<int>& tokenIndices);
-		virtual void Canonicalize() { };
+		virtual void Canonicalize();
 		virtual size_t HashKey() const { return VerifyTAPN::hash()(dp); };
 	private:
 		void InitMapping();

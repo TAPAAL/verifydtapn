@@ -47,7 +47,6 @@ namespace VerifyTAPN
 			std::vector<TraceInfo> traceInfos;
 
 			succGen.GenerateDiscreteTransitionsSuccessors(*next, successors);
-			//next.GenerateDiscreteTransitionSuccessors(tapn, options, successors);
 
 			for(SuccessorVector::iterator iter = successors.begin(); iter != successors.end(); ++iter)
 			{
