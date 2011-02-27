@@ -12,13 +12,6 @@ namespace VerifyTAPN
 
 		std::string storage((std::istreambuf_iterator<char>(file)),
 							 std::istreambuf_iterator<char>());
-
-
-//		std::string contents;
-//		std::string line;
-//		while(std::getline(file, line)){
-//			contents += line;
-//		}
 		return storage;
 	};
 }
