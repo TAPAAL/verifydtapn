@@ -129,7 +129,7 @@ namespace VerifyTAPN {
 		const Pairing& pairing = tapn.GetPairing(transition);
 		const TAPN::TimedInputArc::WeakPtrVector& preset = transition.GetPreset();
 		std::vector<int> tokensToRemove;
-		SymbolicMarking* next = marking->Clone();
+		SymbolicMarking* next = factory.Clone(*marking);
 
 		// move all tokens that are currently in the net
 		for(unsigned int i = 0; i < presetSize; ++i)

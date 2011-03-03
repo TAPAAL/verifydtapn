@@ -10,7 +10,7 @@ namespace VerifyTAPN
 		const AST::Query* query,
 		const VerificationOptions& options,
 		MarkingFactory* factory
-	) : tapn(tapn), initialMarking(initialMarking), checker(query), options(options), succGen(tapn, options)//, traceStore(options, initialMarking)
+	) : tapn(tapn), initialMarking(initialMarking), checker(query), options(options), succGen(tapn, *factory, options)//, traceStore(options, initialMarking)
 	{
 		if(options.GetSearchType() == DEPTHFIRST)
 			pwList = new PWList(new StackWaitingList, factory);
@@ -34,12 +34,14 @@ namespace VerifyTAPN
 			initialMarking->Canonicalize();
 
 		pwList->Add(*initialMarking);
-		if(CheckQuery(*initialMarking)){
+		if(CheckQuery(*initialMarking))
+		{
 			//if(options.GetTrace() != NONE) traceStore.SetFinalMarking(initialMarking);
 			return checker.IsEF(); // return true if EF query (proof found), or false if AG query (counter example found)
 		}
 
-		while(pwList->HasWaitingStates()){
+		while(pwList->HasWaitingStates())
+		{
 			SymbolicMarking* next = pwList->GetNextUnexplored();
 
 			typedef std::vector<Successor> SuccessorVector;

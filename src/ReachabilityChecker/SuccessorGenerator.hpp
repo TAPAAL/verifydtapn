@@ -8,13 +8,14 @@
 #include "../Core/TAPN/TimedArcPetriNet.hpp"
 #include "Successor.hpp"
 #include "../Core/VerificationOptions.hpp"
+#include "../Core/SymbolicMarking/MarkingFactory.hpp"
 
 namespace VerifyTAPN {
 	class SymbolicMarking;
 
 	class SuccessorGenerator {
 	public: // construction
-		SuccessorGenerator(const TAPN::TimedArcPetriNet& tapn, const VerificationOptions& options) : tapn(tapn), options(options)
+		SuccessorGenerator(const TAPN::TimedArcPetriNet& tapn, const MarkingFactory& factory, const VerificationOptions& options) : tapn(tapn), factory(factory), options(options)
 		{
 			nInputArcs = tapn.GetNumberOfInputArcs();
 			arcsArray = new unsigned[nInputArcs];
@@ -50,6 +51,7 @@ namespace VerifyTAPN {
 
 	private: // data
 		const TAPN::TimedArcPetriNet& tapn;
+		const MarkingFactory& factory;
 		unsigned int* arcsArray;
 		unsigned int nInputArcs;
 		const VerificationOptions& options;

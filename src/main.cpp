@@ -9,6 +9,7 @@
 #include "dbm/print.h"
 
 #include "Core/SymbolicMarking/UppaalDBMMarkingFactory.hpp"
+#include "Core/SymbolicMarking/DiscreteInclusionMarkingFactory.hpp"
 
 using namespace std;
 using namespace VerifyTAPN;
@@ -19,10 +20,10 @@ namespace VerifyTAPN{
 	class MarkingFactory;
 	class SymbolicMarking;
 }
-
+TAPN::TimedArcPetriNet* DiscretePartInclusionMarking::tapn = 0;
 int main(int argc, char* argv[]) {
 	VerificationOptions options = VerificationOptions::ParseVerificationOptions(argc, argv);
-	MarkingFactory* factory = new UppaalDBMMarkingFactory();
+	MarkingFactory* factory = new DiscreteInclusionMarkingFactory();
 
 	TAPNXmlParser modelParser(factory);
 	boost::shared_ptr<TAPN::TimedArcPetriNet> tapn = modelParser.Parse(options.GetInputFile());
@@ -32,7 +33,7 @@ int main(int argc, char* argv[]) {
 	TAPNQueryParser queryParser(*tapn);
 	queryParser.parse(options.QueryFile());
 	AST::Query* query = queryParser.GetAST();
-
+	DiscretePartInclusionMarking::set(&(*tapn));
 	SearchStrategy* strategy = new DefaultSearchStrategy(*tapn, initialMarking, query, options, factory);
 
 	bool result = strategy->Verify();
@@ -40,6 +41,7 @@ int main(int argc, char* argv[]) {
 	std::cout << strategy->GetStats() << std::endl;
 	std::cout << "Query is " << (result ? "satisfied" : "NOT satisfied") << "." << std::endl;
 	strategy->PrintTraceIfAny(result);
+
 	delete strategy;
 	delete factory;
 

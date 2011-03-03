@@ -1,5 +1,6 @@
 #include "PWList.hpp"
 #include "../../Core/SymbolicMarking/MarkingFactory.hpp"
+#include "../../Core/SymbolicMarking/DiscreteMarking.hpp"
 
 namespace VerifyTAPN {
 	PWList::~PWList()

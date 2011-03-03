@@ -18,7 +18,7 @@ namespace VerifyTAPN {
 		DBMMarking(const DBMMarking& dm) : DiscreteMarking(dm), dbm(dm.dbm), mapping(dm.mapping) { };
 		virtual ~DBMMarking() { };
 
-		virtual SymbolicMarking* Clone() const { return factory->Clone(*this); }; // TODO: this should somehow use the factory
+		//virtual SymbolicMarking* Clone() const { return factory->Clone(*this); }; // TODO: this should somehow use the factory
 		virtual id_type UniqueId() const { return id; };
 		virtual size_t HashKey() const { return VerifyTAPN::hash()(dp); };
 
@@ -54,13 +54,13 @@ namespace VerifyTAPN {
 		virtual void RemoveTokens(const std::vector<int>& tokenIndices);
 	private:
 		void InitMapping();
-		relation ConvertToRelation(relation_t relation) const;
 
 	protected:
 		virtual void Swap(int i, int j);
 		virtual bool IsUpperPositionGreaterThanPivot(int upper, int pivotIndex) const;
+		relation ConvertToRelation(relation_t relation) const;
 
-	private: // data
+	protected: // data
 		dbm::dbm_t dbm;
 		TokenMapping mapping;
 		id_type id;

@@ -12,7 +12,7 @@ namespace VerifyTAPN {
 	public:
 		virtual ~AbstractMarking() { };
 
-		virtual AbstractMarking* Clone() const = 0;
+		//virtual AbstractMarking* Clone() const = 0;
 		virtual id_type UniqueId() const = 0;
 		virtual void Canonicalize() = 0; // Not sure this is the right place
 

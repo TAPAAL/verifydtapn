@@ -7,7 +7,7 @@
 namespace VerifyTAPN {
 
 	class UppaalDBMMarkingFactory : public MarkingFactory {
-	private:
+	protected:
 		static id_type nextId;
 	public:
 		UppaalDBMMarkingFactory() { };
