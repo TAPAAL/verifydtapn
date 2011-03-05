@@ -10,7 +10,7 @@ namespace VerifyTAPN
 		const AST::Query* query,
 		const VerificationOptions& options,
 		MarkingFactory* factory
-	) : tapn(tapn), initialMarking(initialMarking), checker(query), options(options), succGen(tapn, options)//, traceStore(options, initialMarking)
+	) : tapn(tapn), initialMarking(initialMarking), checker(query), options(options), succGen(tapn, options), traceStore(options, initialMarking)
 	{
 		if(options.GetSearchType() == DEPTHFIRST)
 			pwList = new PWList(new StackWaitingList, factory);
@@ -35,7 +35,7 @@ namespace VerifyTAPN
 
 		pwList->Add(*initialMarking);
 		if(CheckQuery(*initialMarking)){
-			//if(options.GetTrace() != NONE) traceStore.SetFinalMarking(initialMarking);
+			if(options.GetTrace() != NONE) traceStore.SetFinalMarking(initialMarking);
 			return checker.IsEF(); // return true if EF query (proof found), or false if AG query (counter example found)
 		}
 
@@ -58,14 +58,14 @@ namespace VerifyTAPN
 				succ.Extrapolate(maxConstantsArray);
 
 				if(options.GetSymmetryEnabled()) succ.Canonicalize();
-				//if(options.GetTrace() != NONE) traceStore.Save(succ.Id(), iter->GetTraceInfo());
+				if(options.GetTrace() != NONE) traceStore.Save(succ.UniqueId(), iter->GetTraceInfo());
 
 				bool added = pwList->Add(succ);
 
 
 				if(!added) delete (*iter).Marking();
 				else if(CheckQuery(succ)){
-					//if(options.GetTrace() != NONE) traceStore.SetFinalMarking(iter->Marking());
+					if(options.GetTrace() != NONE) traceStore.SetFinalMarking(iter->Marking());
 					return checker.IsEF();
 				}
 			}

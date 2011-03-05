@@ -198,35 +198,35 @@ namespace VerifyTAPN {
 
 		// Store trace information
 		if(trace){
-//			TraceInfo traceInfo(marking->Id(), transition.GetIndex(), next->Id());
-//
-//			for(unsigned int i = 0; i < presetSize; ++i)
-//			{
-//				int tokenIndex = tokenIndices->at_element(currentTransitionIndex+i, currentPermutationindices[i]);
-//				boost::shared_ptr<TAPN::TimedInputArc> ia = preset[i].lock();
-//				const TAPN::TimeInterval& ti = ia->Interval();
-//				int indexAfterFiring = tokenIndex;
-//				for(std::vector<int>::iterator iter = tokensToRemove.begin(); iter != tokensToRemove.end(); ++iter){
-//					if(*iter < tokenIndex) indexAfterFiring--;
-//					else if(*iter == tokenIndex){
-//						indexAfterFiring = -1;
-//						break;
-//					}
-//				}
-//
-//				Participant participant(tokenIndex, ti, indexAfterFiring);
-//				traceInfo.AddParticipant(participant);
-//			}
-//
-//			if(diff < 0){
-//				TAPN::TimeInterval inf;
-//				for(int i = diff; i < 0; i++){
-//					Participant participant(-1, inf, (marking->GetNumberOfTokens() - diff + i));
-//					traceInfo.AddParticipant(participant);
-//				}
-//			}
-//			traceInfo.setMarking(next);
-//			succ.push_back(Successor(next, traceInfo));
+			TraceInfo traceInfo(marking->UniqueId(), transition.GetIndex(), next->UniqueId());
+
+			for(unsigned int i = 0; i < presetSize; ++i)
+			{
+				int tokenIndex = tokenIndices->at_element(currentTransitionIndex+i, currentPermutationindices[i]);
+				boost::shared_ptr<TAPN::TimedInputArc> ia = preset[i].lock();
+				const TAPN::TimeInterval& ti = ia->Interval();
+				int indexAfterFiring = tokenIndex;
+				for(std::vector<int>::iterator iter = tokensToRemove.begin(); iter != tokensToRemove.end(); ++iter){
+					if(*iter < tokenIndex) indexAfterFiring--;
+					else if(*iter == tokenIndex){
+						indexAfterFiring = -1;
+						break;
+					}
+				}
+
+				Participant participant(tokenIndex, ti, indexAfterFiring);
+				traceInfo.AddParticipant(participant);
+			}
+
+			if(diff < 0){
+				TAPN::TimeInterval inf;
+				for(int i = diff; i < 0; i++){
+					Participant participant(-1, inf, (marking->NumberOfTokens() - diff + i));
+					traceInfo.AddParticipant(participant);
+				}
+			}
+			traceInfo.setMarking(next);
+			succ.push_back(Successor(next, traceInfo));
 		}else{
 			succ.push_back(Successor(next));
 		}

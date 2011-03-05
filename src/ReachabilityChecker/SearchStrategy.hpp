@@ -57,7 +57,7 @@ namespace VerifyTAPN
 		const QueryChecker checker;
 		VerificationOptions options;
 		SuccessorGenerator succGen;
-		//TraceStore traceStore;
+		TraceStore traceStore;
 		int* maxConstantsArray;
 	};
 }

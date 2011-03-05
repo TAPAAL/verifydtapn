@@ -3,23 +3,25 @@
 
 #include "../../Core/TAPN/TimeInterval.hpp"
 #include <vector>
-#include "../../Core/SymbolicMarking/SymMarking.hpp"
+#include "../../Core/SymbolicMarking/SymbolicMarking.hpp"
 
 namespace VerifyTAPN
 {
 	class Participant
 	{
 	public:
-		Participant(int tokenIndex, const TAPN::TimeInterval& ti, int indexAfterFiring)
-			: tokenIndex(tokenIndex), ti(ti), indexAfterFiring(indexAfterFiring) { };
+		Participant(unsigned int tokenIndex, const TAPN::TimeInterval& ti, unsigned int indexAfterFiring)
+			: tokenIndex(tokenIndex), clockIndex(tokenIndex), ti(ti), indexAfterFiring(indexAfterFiring) { };
 	public:
-		inline int TokenIndex() const { return tokenIndex; };
+		inline unsigned int ClockIndex() const { return clockIndex; }
+		inline unsigned int TokenIndex() const { return tokenIndex; };
 		inline const TAPN::TimeInterval& GetTimeInterval() const { return ti; };
-		inline int IndexAfterFiring() const { return indexAfterFiring; };
+		inline unsigned int IndexAfterFiring() const { return indexAfterFiring; };
 	private:
-		int tokenIndex;
+		unsigned int tokenIndex;
+		unsigned int clockIndex;
 		TAPN::TimeInterval ti;
-		int indexAfterFiring;
+		unsigned int indexAfterFiring;
 	};
 
 	class TraceInfo
@@ -36,14 +38,14 @@ namespace VerifyTAPN
 		inline const std::vector<Participant>& Participants() const { return participants; };
 	public:
 		inline void AddParticipant(const Participant& participant) { participants.push_back(participant); };
-		inline void setMarking(const SymMarking* marking) { this->marking = marking; };
-		inline const SymMarking& Marking() const { return *marking; };
+		inline void setMarking(const SymbolicMarking* marking) { this->marking = marking; };
+		inline const SymbolicMarking& Marking() const { return *marking; };
 	private: // data
 		id_type stateId;
 		id_type prevState;
 		int transitionIndex;
 		std::vector<Participant> participants;
-		const SymMarking* marking;
+		const SymbolicMarking* marking;
 	};
 }
 
