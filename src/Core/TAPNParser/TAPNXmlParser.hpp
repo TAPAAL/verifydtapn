@@ -22,12 +22,12 @@ namespace VerifyTAPN {
 			ArcCollections(const TimedInputArc::Vector& inputArcs, const OutputArc::Vector& outputArcs) : inputArcs(inputArcs), outputArcs(outputArcs) {};
 		};
 	public: // construction
-		explicit TAPNXmlParser(MarkingFactory* markingFactory) : markingFactory(markingFactory) {};
+		TAPNXmlParser() {};
 		virtual ~TAPNXmlParser() { /* empty */ };
 
 	public:
 		boost::shared_ptr<TimedArcPetriNet> Parse(const std::string & filename) const;
-		SymbolicMarking* ParseMarking(const std::string & filename, const TimedArcPetriNet& tapn) const;
+		SymbolicMarking* ParseMarking(const std::string & filename, const TimedArcPetriNet& tapn, const MarkingFactory& factory) const;
 	private:
 		boost::shared_ptr<TimedArcPetriNet> ParseTAPN(const rapidxml::xml_node<> & root) const;
 
@@ -42,10 +42,7 @@ namespace VerifyTAPN {
 		OutputArc::Vector ParseOutputArcs(const rapidxml::xml_node<>& root, const TimedPlace::Vector& places, const TimedTransition::Vector& transitions) const;
 		boost::shared_ptr<TimedInputArc> ParseInputArc(const rapidxml::xml_node<>& arcNode, const TimedPlace::Vector& places, const TimedTransition::Vector& transitions) const;
 		boost::shared_ptr<OutputArc> ParseOutputArc(const rapidxml::xml_node<>& arcNode, const TimedPlace::Vector& places, const TimedTransition::Vector& transitions) const;
-		SymbolicMarking* ParseInitialMarking(const rapidxml::xml_node<>& root, const TimedArcPetriNet& tapn) const;
-
-	private:
-		MarkingFactory* markingFactory;
+		SymbolicMarking* ParseInitialMarking(const rapidxml::xml_node<>& root, const TimedArcPetriNet& tapn, const MarkingFactory& factory) const;
 	};
 }
 

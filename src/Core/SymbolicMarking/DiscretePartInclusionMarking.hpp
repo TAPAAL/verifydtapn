@@ -1,144 +1,101 @@
 #ifndef DISCRETEPARTINCLUSIONMARKING_HPP_
 #define DISCRETEPARTINCLUSIONMARKING_HPP_
 
-#include "DBMMarking.hpp"
-#include <map>
-#include <iostream>
+#include "StoredMarking.hpp"
+#include "dbm/fed.h"
+#include <vector>
+#include "boost/functional/hash.hpp"
 #include <algorithm>
-#include "google/dense_hash_set"
 
 namespace VerifyTAPN {
 
-class DiscretePartInclusionMarking : public DBMMarking {
-	struct Count{
-		int one;
-		int two;
-	};
-
+class DiscretePartInclusionMarking : public StoredMarking {
+	friend class DiscreteInclusionMarkingFactory;
 public:
-	static TAPN::TimedArcPetriNet* tapn;
-	static void set(TAPN::TimedArcPetriNet* tapn){ DiscretePartInclusionMarking::tapn = tapn; };
-
-	DiscretePartInclusionMarking(const DiscretePart& dp, const dbm::dbm_t& dbm) : DBMMarking(dp, dbm) { };
-	DiscretePartInclusionMarking(const DiscretePartInclusionMarking& dm) : DBMMarking(dm) { };
+	DiscretePartInclusionMarking(const std::vector<int>& eq, const std::vector<int>& inc, const dbm::dbm_t& dbm) : eq(eq), inc(inc), dbm(dbm) { };
+	DiscretePartInclusionMarking(const DiscretePartInclusionMarking& dm) : eq(dm.eq), inc(dm.inc), dbm(dm.dbm) { };
 	virtual ~DiscretePartInclusionMarking() { };
 
-	virtual size_t HashKey() const { return 0; }; // TODO: hash correctly
+	virtual size_t HashKey() const { return boost::hash_range(eq.begin(), eq.end()); };
 
-	virtual relation Relation(const StoredMarking& other) const
+	virtual relation Relation(const StoredMarking& stored) const
 	{
-		bool sameDP = eqdp()(this->dp, static_cast<const DiscretePartInclusionMarking&>(other).dp);
-		if(sameDP)
-			return DBMMarking::Relation(other);
+		const DiscretePartInclusionMarking& other = static_cast<const DiscretePartInclusionMarking&>(stored);
+
+		if(eq != other.eq) return DIFFERENT; // Not sure we need to check this, the hashing ensures that we get a list with the same eq part?
+
+		int place = 0;
+		bool checkSuperset = false;
+		relation result = EQUAL;
+
+		assert(inc.size() == other.inc.size());
+		for(unsigned int i = 0; i < inc.size(); i++)
+		{
+			if(inc[i] != other.inc[i])
+			{
+				if(inc[i] > other.inc[i]) checkSuperset = true;
+				place = i;
+				break;
+			}
+		}
+
+		if(checkSuperset)
+		{
+			for(unsigned int i = place+1; i < inc.size(); i++)
+			{
+				if(inc[i] < other.inc[i]) return DIFFERENT;
+			}
+			result = SUPERSET;
+		}
 		else
 		{
-			const DiscretePartInclusionMarking& b = static_cast<const DiscretePartInclusionMarking&>(other);
-			typedef google::dense_hash_set<int> hashset;
-
-			std::map<int, Count> counts;
-			hashset incA;
-			hashset incB;
-			for(int i = 0; i < dp.size(); i++)
+			for(unsigned int i = place+1; i < inc.size(); i++)
 			{
-				int placement = dp.GetTokenPlacement(i);
-				if(dbm(0,i) >= dbm_bound2raw(-tapn->GetPlace(placement).GetMaxConstant(), dbm_STRICT)){
-					incA.insert(i);
-				}
-				if(placement != TimedPlace::BottomIndex())
-				{
-					if(counts.count(placement) > 0)
-					{
-						Count& count = counts[placement];
-						count.one++;
-					}
-					else
-					{
-						Count c;
-						c.one = 1;
-						c.two = 0;
-						counts[placement] = c;
-					}
-				}
+				if(inc[i] > other.inc[i]) return DIFFERENT;
 			}
-
-			for(int i = 0; i < b.dp.size(); i++)
-			{
-				int placement = b.dp.GetTokenPlacement(i);
-				if(b.dbm(0,i) >= dbm_bound2raw(-tapn->GetPlace(placement).GetMaxConstant(), dbm_STRICT)){
-					incB.insert(i);
-				}
-				if(placement != TimedPlace::BottomIndex())
-				{
-					if(counts.count(placement) > 0)
-					{
-						Count& c = counts[placement];
-						c.two++;
-					}
-					else
-					{
-						Count c;
-						c.one = 0;
-						c.two = 1;
-						counts[placement] = c;
-					}
-				}
-			}
-
-			if(incA != incB) return DIFFERENT;
-
-			for(std::map<int,Count>::iterator iter = counts.begin(); iter != counts.end(); iter++)
-			{
-				bool included = (*iter).second.one <= (*iter).second.two;
-				if(!included){
-					return DIFFERENT;
-				}
-			}
-
-		//		if(strictly){
-		//			std::cout << "*";
-		//		}
-
-			//return SUBSET;
-			relation_t relation = resize(dp,mapping,dbm).relation(resize(b.dp, b.mapping, b.dbm));
-			//relation_t relation = dbm.relation(b.dbm);
-			return ConvertToRelation(relation);
+			result = SUBSET;
 		}
+
+		relation dbm_rel = ConvertToRelation(dbm.relation(other.dbm));
+
+		if(result == dbm_rel) return result;
+		if(result == EQUAL) return dbm_rel;
+		if(result == SUBSET && dbm_rel == EQUAL) return SUBSET;
+		if(result == SUPERSET && dbm_rel == EQUAL) return SUPERSET;
+
+		return DIFFERENT;
 	}
 
 	virtual void Extrapolate(const int* maxConstants) { dbm.diagonalExtrapolateMaxBounds(maxConstants); };
-private:
-	dbm::dbm_t resize(const DiscretePart& dp, const TokenMapping& mapping, const dbm::dbm_t& dbm) const
+
+
+	unsigned int size() const
 	{
-		std::vector<int> inc;
-		for(int i = 0; i < dp.size(); i++)
-		{
-			const TAPN::TimedPlace& place = tapn->GetPlace(dp.GetTokenPlacement(i));
-			int maxConstant = place.GetMaxConstant();
-			if(dbm(0,i) == dbm_bound2raw(-maxConstant, dbm_STRICT)){
-				inc.push_back(i);
-			}
-		}
-		int dim = dbm.getDimension();
-		unsigned int bitSrc = 0;
-		unsigned int bitDst = 0;
-		unsigned int table[dim];
-
-		bitSrc = bitDst = (1 << dim)-1;
-
+		int size = eq.size();
 		for(int i = 0; i < inc.size(); i++)
 		{
-			unsigned int mask = ~(1 << mapping.GetMapping(inc[i]));
-			bitDst &= mask;
+			size += inc[i];
 		}
 
-		dbm::dbm_t copy(dbm);
-		copy.resize(&bitSrc, &bitDst, 1, table);
+		return size;
+	};
 
-		assert(dbm.getDimension() == dim);
-
-
-		return copy;
+private:
+	relation ConvertToRelation(relation_t relation) const
+	{
+		switch(relation)
+		{
+		case base_SUPERSET: return SUPERSET;
+		case base_SUBSET: return SUBSET;
+		case base_EQUAL: return EQUAL;
+		default: return DIFFERENT;
+		}
 	}
+
+private:
+	std::vector<int> eq;
+	std::vector<int> inc;
+	dbm::dbm_t dbm;
 };
 
 }

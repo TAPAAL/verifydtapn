@@ -23,7 +23,7 @@ namespace VerifyTAPN {
 		return ParseTAPN(*xmldoc.first_node()->first_node());
 	}
 
-	SymbolicMarking* TAPNXmlParser::ParseMarking(const std::string & filename, const TimedArcPetriNet& tapn) const
+	SymbolicMarking* TAPNXmlParser::ParseMarking(const std::string & filename, const TimedArcPetriNet& tapn, const MarkingFactory& factory) const
 	{
 		const std::string contents = VerifyTAPN::ReadFile(filename); // not sure if this is a good idea, because it copies to string? Maybe the compiler is smart enough not to make a copy
 		std::vector<char> charArray(contents.begin(), contents.end());
@@ -32,7 +32,7 @@ namespace VerifyTAPN {
 		xml_document<> xmldoc;
 		xmldoc.parse<0>(&charArray[0]); // we need a char* to the string, and contents.c_str() returns const char*
 
-		return ParseInitialMarking(*xmldoc.first_node()->first_node(),tapn);
+		return ParseInitialMarking(*xmldoc.first_node()->first_node(),tapn, factory);
 	}
 
 	boost::shared_ptr<TimedArcPetriNet> TAPNXmlParser::ParseTAPN(const xml_node<>& root) const
@@ -149,7 +149,7 @@ namespace VerifyTAPN {
 
 	}
 
-	SymbolicMarking* TAPNXmlParser::ParseInitialMarking(const rapidxml::xml_node<>& root, const TimedArcPetriNet& tapn) const
+	SymbolicMarking* TAPNXmlParser::ParseInitialMarking(const rapidxml::xml_node<>& root, const TimedArcPetriNet& tapn, const MarkingFactory& factory) const
 	{
 		std::vector<int> markedPlaces;
 		xml_node<>* placeNode = root.first_node("place");
@@ -176,7 +176,7 @@ namespace VerifyTAPN {
 
 		DiscretePart dp(markedPlaces);
 
-		return markingFactory->InitialMarking(dp);
+		return factory.InitialMarking(dp);
 	}
 
 

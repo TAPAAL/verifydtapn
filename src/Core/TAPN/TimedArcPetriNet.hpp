@@ -37,6 +37,7 @@ namespace VerifyTAPN {
 			const int GetNumberOfInputArcs() const { return inputArcs.size(); }
 			const OutputArc::Vector& GetOutputArcs() const { return outputArcs; }
 			const int GetNumberOfOutputArcs() const { return outputArcs.size(); }
+			int NumberOfPlaces() const { return places.size(); };
 			const Pairing& GetPairing(const TimedTransition& t) const { return pairings.find(t)->second; }
 			inline int MaxConstant() const { return maxConstant; };
 			inline const bool IsPlaceUntimed(int index) const { return places[index]->IsUntimed(); }

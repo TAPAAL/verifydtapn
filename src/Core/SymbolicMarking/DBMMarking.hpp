@@ -15,6 +15,7 @@ namespace VerifyTAPN {
 		static MarkingFactory* factory;
 	public:
 		DBMMarking(const DiscretePart& dp, const dbm::dbm_t& dbm) : DiscreteMarking(dp), dbm(dbm), mapping() { InitMapping(); };
+		DBMMarking(const DiscretePart& dp, const TokenMapping& mapping, const dbm::dbm_t& dbm) : DiscreteMarking(dp), dbm(dbm), mapping(mapping) { };
 		DBMMarking(const DBMMarking& dm) : DiscreteMarking(dm), dbm(dm.dbm), mapping(dm.mapping) { };
 		virtual ~DBMMarking() { };
 
@@ -52,6 +53,9 @@ namespace VerifyTAPN {
 
 		virtual void AddTokens(const std::list<int>& placeIndices);
 		virtual void RemoveTokens(const std::vector<int>& tokenIndices);
+
+		raw_t GetLowerBound(int clock) const { return dbm(0,clock); };
+		const dbm::dbm_t& GetDBM() const { return dbm; };
 	private:
 		void InitMapping();
 

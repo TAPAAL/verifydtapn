@@ -20,20 +20,21 @@ namespace VerifyTAPN{
 	class MarkingFactory;
 	class SymbolicMarking;
 }
-TAPN::TimedArcPetriNet* DiscretePartInclusionMarking::tapn = 0;
+
 int main(int argc, char* argv[]) {
 	VerificationOptions options = VerificationOptions::ParseVerificationOptions(argc, argv);
-	MarkingFactory* factory = new DiscreteInclusionMarkingFactory();
 
-	TAPNXmlParser modelParser(factory);
+	TAPNXmlParser modelParser;
 	boost::shared_ptr<TAPN::TimedArcPetriNet> tapn = modelParser.Parse(options.GetInputFile());
 	tapn->Initialize(options.GetUntimedPlacesEnabled());
-	SymbolicMarking* initialMarking = modelParser.ParseMarking(options.GetInputFile(), *tapn);
+
+	MarkingFactory* factory = new DiscreteInclusionMarkingFactory(tapn);
+	SymbolicMarking* initialMarking = modelParser.ParseMarking(options.GetInputFile(), *tapn, *factory);
 
 	TAPNQueryParser queryParser(*tapn);
 	queryParser.parse(options.QueryFile());
 	AST::Query* query = queryParser.GetAST();
-	DiscretePartInclusionMarking::set(&(*tapn));
+
 	SearchStrategy* strategy = new DefaultSearchStrategy(*tapn, initialMarking, query, options, factory);
 
 	bool result = strategy->Verify();

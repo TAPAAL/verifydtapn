@@ -158,7 +158,9 @@ namespace VerifyTAPN
 		int pivot = dp.GetTokenPlacement(pivotIndex);
 		unsigned int mapUpper = mapping.GetMapping(upper);
 		unsigned int mapPivot = mapping.GetMapping(pivotIndex);
-
+		if(mapPivot > dp.size()+1){
+			std::cout << "*";
+		}
 		return DiscreteMarking::IsUpperPositionGreaterThanPivot(upper, pivotIndex)
 				|| (placeUpper == pivot && dbm(0,mapUpper) >  dbm(0,mapPivot))
 				|| (placeUpper == pivot && dbm(0,mapUpper) == dbm(0,mapPivot) && dbm(mapUpper,0) > dbm(mapPivot,0))
