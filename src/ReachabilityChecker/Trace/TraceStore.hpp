@@ -8,6 +8,7 @@
 #include "../../../lib/rapidxml-1.13/rapidxml.hpp"
 #include <deque>
 #include "../../Core/VerificationOptions.hpp"
+#include "EntrySolver.hpp"
 
 namespace VerifyTAPN
 {
@@ -17,7 +18,6 @@ namespace VerifyTAPN
 	{
 	private:
 		typedef google::sparse_hash_map<id_type, TraceInfo, boost::hash<id_type> > HashMap;
-		typedef double decimal;
 	public: // constructors / destructors
 		TraceStore(const VerificationOptions& options, SymbolicMarking* initialMarking) : store(), initialMarking(initialMarking), options(options) { };
 		~TraceStore() {};

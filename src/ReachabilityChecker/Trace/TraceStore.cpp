@@ -8,7 +8,6 @@
 #include "boost/algorithm/string.hpp"
 #include <sstream>
 #include "boost/regex.hpp"
-#include "EntrySolver.hpp"
 
 
 namespace VerifyTAPN{
