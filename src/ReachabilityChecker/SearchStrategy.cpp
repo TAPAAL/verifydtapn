@@ -120,7 +120,7 @@ namespace VerifyTAPN
 			if((checker.IsAG() && result) || (checker.IsEF() && !result))
 				std::cout << "A trace could not be generated due to the query result." << std::endl;
 			else{
-				//traceStore.OutputTraceTo(tapn);
+				traceStore.OutputTraceTo(tapn);
 			}
 		}
 	}

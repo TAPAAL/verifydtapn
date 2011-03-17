@@ -11,10 +11,14 @@ namespace VerifyTAPN {
 
 	class DBMMarking: public DiscreteMarking, public StoredMarking {
 		friend class UppaalDBMMarkingFactory;
-	private:
+	public:
 		static MarkingFactory* factory;
 	public:
-		DBMMarking(const DiscretePart& dp, const dbm::dbm_t& dbm) : DiscreteMarking(dp), dbm(dbm), mapping() { InitMapping(); };
+		DBMMarking(const DiscretePart& dp, const dbm::dbm_t& dbm) : DiscreteMarking(dp), dbm(dbm), mapping()
+		{
+			InitMapping();
+			assert(IsConsistent());
+		};
 		DBMMarking(const DBMMarking& dm) : DiscreteMarking(dm), dbm(dm.dbm), mapping(dm.mapping) { };
 		virtual ~DBMMarking() { };
 
@@ -55,6 +59,22 @@ namespace VerifyTAPN {
 	private:
 		void InitMapping();
 		relation ConvertToRelation(relation_t relation) const;
+
+		bool IsConsistent() const
+		{
+			if(dp.size() != dbm.getDimension()-1)
+			{
+				return false;
+			}
+
+			for(unsigned int i = 0; i < dp.size(); i++)
+			{
+				unsigned int mappedIndex = mapping.GetMapping(i);
+				if(mappedIndex == 0 || mappedIndex >= dbm.getDimension())
+					return false;
+			}
+			return true;
+		};
 
 	protected:
 		virtual void Swap(int i, int j);

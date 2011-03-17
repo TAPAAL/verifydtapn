@@ -41,7 +41,7 @@ namespace VerifyTAPN
 		const std::vector<Participant>& participants = traceInfo.Participants();
 		for(std::vector<Participant>::const_iterator it = participants.begin(); it != participants.end(); it++)
 		{
-			if((*it).ClockIndex() == clock) return true;
+			if(it->TokenIndex() != -1 && static_cast<unsigned int>(it->ClockIndex()) == clock) return true;
 		}
 		return false;
 	}
@@ -82,6 +82,10 @@ namespace VerifyTAPN
 				entryTimeDBM.constrain(entryLower);
 				constraint_t entryUpper(AfterDelay(i, upper));
 				entryTimeDBM.constrain(entryUpper);
+				if(entryTimeDBM.isEmpty())
+				{
+					std::cout << "*";
+				}
 			}
 		}
 
@@ -92,7 +96,7 @@ namespace VerifyTAPN
 		}
 	}
 
-	// AfterAction(Trace, index, guard/invariant)
+	// Theory: AfterAction(Trace, index, guard/invariant)
 	constraint_t EntrySolver::AfterAction(unsigned int locationIndex, const constraint_t& constraint) const
 	{
 		if(constraint.j == 0 && constraint.i != 0)
@@ -103,6 +107,7 @@ namespace VerifyTAPN
 			return constraint_t(LastResetAt(locationIndex, constraint.j), LastResetAt(locationIndex, constraint.i), constraint.value);
 	}
 
+	// Theory: AfterDelay(Trace, index, guard/invariant)
 	constraint_t EntrySolver::AfterDelay(unsigned int locationIndex, const constraint_t& constraint) const
 	{
 		if(constraint.j == 0 && constraint.i != 0)
@@ -177,10 +182,30 @@ namespace VerifyTAPN
 
 	decimal EntrySolver::FindValueInRange(bool lowerStrict, decimal lower, decimal upper, bool upperStrict, decimal lastEntryTime) const
 	{
-		decimal diff = lower - upper; // These are actually integers from the DBM, so we treat them as such
+		decimal diff = upper - lower;
 
-		decimal increase = decimal(1) / EPSILON;
-		return 0; // TODO: FIX THIS!
+		assert(lower <= upper);
+		assert((!lowerStrict && !upperStrict) || diff > 0); // ensures range is not (a,a], [a,a) or (a,a)
+
+		if(!lowerStrict)
+		{
+			return lower; // Safe due to assert above
+		}
+		else if(lowerStrict && diff > 1)
+		{
+			return lower + decimal(1);
+		}
+		else // diff <= 1 && lowerStrict
+		{
+			if(!upperStrict)
+			{
+				return upper;
+			}
+			else
+			{
+				return (lower + upper) / 2; // return mean
+			}
+		}
 	}
 
 	void EntrySolver::ConvertEntryTimesToDelays(const std::vector<decimal>& entry_times, std::vector<decimal>& delays) const

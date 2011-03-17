@@ -214,14 +214,17 @@ namespace VerifyTAPN {
 					}
 				}
 
-				Participant participant(tokenIndex, ti, indexAfterFiring);
+				assert(tokenIndex < static_cast<int>(marking->NumberOfTokens()));
+				assert(indexAfterFiring < static_cast<int>(next->NumberOfTokens()));
+
+				Participant participant(tokenIndex, marking->GetClockIndex(tokenIndex), ti, indexAfterFiring);
 				traceInfo.AddParticipant(participant);
 			}
 
 			if(diff < 0){
 				TAPN::TimeInterval inf;
 				for(int i = diff; i < 0; i++){
-					Participant participant(-1, inf, (marking->NumberOfTokens() - diff + i));
+					Participant participant(-1, -1, inf, (marking->NumberOfTokens() - diff + i));
 					traceInfo.AddParticipant(participant);
 				}
 			}

@@ -48,6 +48,8 @@ namespace VerifyTAPN
 			dp.AddTokenInPlace(*iter);
 			i++;
 		}
+
+		assert(IsConsistent());
 	}
 
 	// Remove each token in tokensToRemove from the placement vector and from the DBM.
@@ -128,14 +130,11 @@ namespace VerifyTAPN
 
 	void DBMMarking::InitMapping()
 	{
-		std::vector<int> pVector = dp.GetTokenPlacementVector();
 		std::vector<unsigned int> map;
-		int i = 0;
 
-		for(std::vector<int>::const_iterator iter = pVector.begin(); iter != pVector.end(); ++iter)
+		for(unsigned int i = 0; i < NumberOfTokens(); i++)
 		{
 			map.push_back(i+1);
-			i++;
 		}
 
 		mapping = TokenMapping(map);

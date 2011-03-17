@@ -23,7 +23,7 @@ namespace VerifyTAPN{
 int main(int argc, char* argv[]) {
 	VerificationOptions options = VerificationOptions::ParseVerificationOptions(argc, argv);
 	MarkingFactory* factory = new UppaalDBMMarkingFactory();
-
+	DBMMarking::factory = factory;
 	TAPNXmlParser modelParser(factory);
 	boost::shared_ptr<TAPN::TimedArcPetriNet> tapn = modelParser.Parse(options.GetInputFile());
 	tapn->Initialize(options.GetUntimedPlacesEnabled());
@@ -40,6 +40,7 @@ int main(int argc, char* argv[]) {
 	std::cout << strategy->GetStats() << std::endl;
 	std::cout << "Query is " << (result ? "satisfied" : "NOT satisfied") << "." << std::endl;
 	strategy->PrintTraceIfAny(result);
+
 	delete strategy;
 	delete factory;
 
