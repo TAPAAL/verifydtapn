@@ -19,7 +19,7 @@ public:
 		DBMMarking* dbmMarking = static_cast<DBMMarking*>(marking);
 		std::vector<int> eq;
 		std::vector<int> inc(tapn->NumberOfPlaces(), 0);
-		TokenMapping mapping(marking->NumberOfTokens());
+		TokenMapping mapping;
 
 		for(unsigned int i = 0; i < marking->NumberOfTokens(); i++)
 		{
@@ -33,8 +33,9 @@ public:
 				mapping.SetMapping(newIndex, marking->GetClockIndex(i));
 			}
 		}
+		dbm::dbm_t dbm = resize(eq, mapping, dbmMarking->GetDBM());
 
-		return new DiscretePartInclusionMarking(eq, inc, resize(eq, mapping, dbmMarking->GetDBM()));
+		return new DiscretePartInclusionMarking(eq, inc, dbm);
 	};
 
 	virtual SymbolicMarking* Convert(StoredMarking* marking) const
@@ -42,7 +43,7 @@ public:
 		DiscretePartInclusionMarking* dpiMarking = static_cast<DiscretePartInclusionMarking*>(marking);
 
 		unsigned int tokens = dpiMarking->size();
-		TokenMapping mapping(tokens);
+		TokenMapping mapping;
 		std::vector<int> dpVec;
 
 		int nextEqIndex = 1;
@@ -51,7 +52,7 @@ public:
 		unsigned int i = 0, place_j = 0;
 		while(i < dpiMarking->eq.size() || place_j < dpiMarking->inc.size())
 		{
-			unsigned int place_i = dpiMarking->eq[i];
+			int place_i = i < dpiMarking->eq.size() ? dpiMarking->eq[i] : -1;
 
 			if(i < dpiMarking->eq.size() && place_i <= place_j)
 			{
@@ -85,8 +86,9 @@ public:
 
 
 		DiscretePart dp(dpVec);
-
-		return new DBMMarking(dp, mapping, scaleUp(dp, mapping, dpiMarking->dbm));
+		dbm::dbm_t dbm = scaleUp(dp, mapping, dpiMarking->dbm);
+		assert(dp.size()+1 == dbm.getDimension());
+		return new DBMMarking(dp, mapping, dbm);
 	};
 
 private:
@@ -106,7 +108,7 @@ private:
 
 	dbm::dbm_t resize(const std::vector<int>& eq, const TokenMapping& mapping, const dbm::dbm_t& dbm) const
 	{ // TODO: This should work for more than 32 clocks!
-		int dim = dbm.getDimension();
+		unsigned int dim = dbm.getDimension();
 		unsigned int bitSrc = (1 << dim)-1;
 		unsigned int bitDst = 1; // clock 0 should always be there
 		unsigned int table[dim];
@@ -127,9 +129,9 @@ private:
 
 	dbm::dbm_t scaleUp(const DiscretePart& dp, const TokenMapping& mapping, const dbm::dbm_t& dbm) const
 	{
-		std::cout << "eq-dbm: \n" << dbm << std::endl;
-		int dim = dbm.getDimension();
-		int totalTokens = dp.size();
+		//std::cout << "eq-dbm: \n" << dbm << std::endl;
+		unsigned int dim = dbm.getDimension();
+		unsigned int totalTokens = dp.size();
 		if(dim == totalTokens+1) return dbm::dbm_t(dbm);
 
 		unsigned int bitSrc = (1 << dim)-1;
@@ -140,16 +142,15 @@ private:
 		copy.resize(&bitSrc, &bitDst, 1, table);
 
 		assert(dbm.getDimension() == dim);
-
 		for(int i = 0; i < dp.size(); i++)
 		{
 			if(mapping.GetMapping(i) >= dim)
 			{
 				const TimedPlace& place = tapn->GetPlace(dp.GetTokenPlacement(i));
-				copy.constrain(0,i, dbm_bound2raw(-place.GetMaxConstant(), dbm_STRICT));
+				copy.constrain(0, mapping.GetMapping(i), dbm_bound2raw(-place.GetMaxConstant(), dbm_STRICT));
 			}
 		}
-		std::cout << "computed-dbm: \n" << copy << std::endl;
+		//std::cout << "computed-dbm: \n" << copy << std::endl;
 		return copy;
 	};
 private:

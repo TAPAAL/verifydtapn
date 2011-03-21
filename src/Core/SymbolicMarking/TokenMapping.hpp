@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <limits>
+#include "assert.h"
 
 namespace VerifyTAPN {
 	// A token mapping maps a token index 0 <= i <= dbm dimension in the DBM to
@@ -15,13 +16,21 @@ namespace VerifyTAPN {
 			virtual ~TokenMapping() {};
 
 		public: // inspectors
-			inline const unsigned int GetMapping(unsigned int index) const { return mapping[index]; }
-			const std::vector<unsigned int>& GetMappingVector() const { return mapping; }
-			const unsigned int size() const { return mapping.size(); }
+			inline const unsigned int GetMapping(unsigned int index) const
+			{
+				assert(index < mapping.size());
+				return mapping[index];
+			};
+
+			const unsigned int size() const { return mapping.size(); };
 
 		public: // modifiers
-			void AddTokenToMapping(unsigned int tokenIndex);
-			void SetMapping(unsigned int index, unsigned int dbmIndex) { mapping[index] = dbmIndex; }
+			void SetMapping(unsigned int index, unsigned int dbmIndex)
+			{
+				if(index >= mapping.size())	mapping.resize(index+1, -1);
+
+				mapping[index] = dbmIndex;
+			};
 			void RemoveToken(unsigned int index) { mapping.erase(mapping.begin() + index); }
 		private:
 			std::vector<unsigned int> mapping;

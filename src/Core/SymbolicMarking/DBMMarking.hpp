@@ -48,7 +48,7 @@ namespace VerifyTAPN {
 			return ConvertToRelation(relation);
 		}
 
-		virtual void Extrapolate(const int* maxConstants) { dbm.extrapolateMaxBounds(maxConstants); };
+		virtual void Extrapolate(const int* maxConstants) { dbm.diagonalExtrapolateMaxBounds(maxConstants); };
 		virtual unsigned int GetClockIndex(unsigned int token) const { return mapping.GetMapping(token); };
 
 		virtual void AddTokens(const std::list<int>& placeIndices);

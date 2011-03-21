@@ -21,14 +21,19 @@ namespace VerifyTAPN{
 	class SymbolicMarking;
 }
 
+
 int main(int argc, char* argv[]) {
+	//test(); return 0;
 	VerificationOptions options = VerificationOptions::ParseVerificationOptions(argc, argv);
 
 	TAPNXmlParser modelParser;
 	boost::shared_ptr<TAPN::TimedArcPetriNet> tapn = modelParser.Parse(options.GetInputFile());
 	tapn->Initialize(options.GetUntimedPlacesEnabled());
+	std::cout << *tapn << "\n\n";
 
-	MarkingFactory* factory = new DiscreteInclusionMarkingFactory(tapn);
+	MarkingFactory* factory = new UppaalDBMMarkingFactory();//new DiscreteInclusionMarkingFactory(tapn);
+	//MarkingFactory* factory = new DiscreteInclusionMarkingFactory(tapn);
+
 	SymbolicMarking* initialMarking = modelParser.ParseMarking(options.GetInputFile(), *tapn, *factory);
 
 	TAPNQueryParser queryParser(*tapn);

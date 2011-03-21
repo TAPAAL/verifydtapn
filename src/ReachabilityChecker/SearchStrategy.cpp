@@ -2,6 +2,9 @@
 #include "../Core/TAPN/TimedArcPetriNet.hpp"
 #include "Successor.hpp"
 
+#include "../Core/SymbolicMarking/DBMMarking.hpp"
+#include "dbm/print.h"
+
 namespace VerifyTAPN
 {
 	DefaultSearchStrategy::DefaultSearchStrategy(
@@ -24,6 +27,23 @@ namespace VerifyTAPN
 		}
 	};
 
+	void print(const SymbolicMarking& marking){
+		const DBMMarking& dbmMarking = static_cast<const DBMMarking&>(marking);
+		std::cout << "dp: ";
+		for(int i = 0; i < dbmMarking.NumberOfTokens(); i++){
+			if(i != 0) std::cout << ", ";
+			std::cout << dbmMarking.GetTokenPlacement(i);
+		}
+		std::cout << "\nmapping: ";
+		for(int i = 0; i < dbmMarking.NumberOfTokens(); i++){
+			if(i != 0) std::cout << ", ";
+			std::cout << i << ":" << dbmMarking.GetClockIndex(i);
+		}
+		std::cout << "\ndbm:\n";
+		std::cout << dbmMarking.GetDBM();
+		std::cout << "\n";
+	}
+
 	bool DefaultSearchStrategy::Verify()
 	{
 		initialMarking->Delay();
@@ -39,11 +59,11 @@ namespace VerifyTAPN
 			//if(options.GetTrace() != NONE) traceStore.SetFinalMarking(initialMarking);
 			return checker.IsEF(); // return true if EF query (proof found), or false if AG query (counter example found)
 		}
-
 		while(pwList->HasWaitingStates())
 		{
 			SymbolicMarking* next = pwList->GetNextUnexplored();
 
+			//print(*next);
 			typedef std::vector<Successor> SuccessorVector;
 			SuccessorVector successors;
 			std::vector<TraceInfo> traceInfos;
@@ -53,6 +73,7 @@ namespace VerifyTAPN
 			for(SuccessorVector::iterator iter = successors.begin(); iter != successors.end(); ++iter)
 			{
 				SymbolicMarking& succ = *(*iter).Marking();
+				//if(pwList->Size() == 10) print(succ);
 				succ.Delay();
 
 				UpdateMaxConstantsArray(succ);

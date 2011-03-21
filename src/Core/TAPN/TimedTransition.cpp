@@ -1,7 +1,4 @@
 #include "TimedTransition.hpp"
-#include "../SymbolicMarking/SymMarking.hpp"
-#include "../SymbolicMarking/DiscretePart.hpp"
-#include "TimedArcPetriNet.hpp"
 
 namespace VerifyTAPN {
 	namespace TAPN {

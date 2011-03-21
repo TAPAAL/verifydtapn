@@ -10,6 +10,7 @@ namespace VerifyTAPN
 	// which tokens are in the original dbm (bitSrc) and which are in the resulting DBM (bitDst).
 	void DBMMarking::AddTokens(const std::list<int>& placeIndices)
 	{
+		unsigned int tokens = NumberOfTokens();
 		unsigned int nAdditionalTokens = placeIndices.size();
 		unsigned int oldDimension = dbm.getDimension();
 		unsigned int newDimension = oldDimension + nAdditionalTokens;
@@ -41,12 +42,13 @@ namespace VerifyTAPN
 		dbm.resize(bitSrc, bitDst, bitArraySize, table);
 
 		unsigned int i = 0;
+		unsigned int newTokenIndex = tokens;
 		for(std::list<int>::const_iterator iter = placeIndices.begin(); iter != placeIndices.end(); ++iter)
 		{
 			dbm(oldDimension+i) = 0; // reset new clocks to zero
-			mapping.AddTokenToMapping(oldDimension+i);
+			mapping.SetMapping(newTokenIndex, oldDimension+i);
 			dp.AddTokenInPlace(*iter);
-			i++;
+			i++;newTokenIndex++;
 		}
 	}
 
@@ -128,17 +130,10 @@ namespace VerifyTAPN
 
 	void DBMMarking::InitMapping()
 	{
-		std::vector<int> pVector = dp.GetTokenPlacementVector();
-		std::vector<unsigned int> map;
-		int i = 0;
-
-		for(std::vector<int>::const_iterator iter = pVector.begin(); iter != pVector.end(); ++iter)
+		for(unsigned int i = 0; i < dp.size(); i++)
 		{
-			map.push_back(i+1);
-			i++;
+			mapping.SetMapping(i, i+1);
 		}
-
-		mapping = TokenMapping(map);
 	}
 
 	relation DBMMarking::ConvertToRelation(relation_t relation) const
