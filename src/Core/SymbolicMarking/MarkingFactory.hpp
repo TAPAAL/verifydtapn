@@ -15,6 +15,9 @@ namespace VerifyTAPN {
 		//virtual SymbolicMarking* Create() const = 0;
 		virtual StoredMarking* Convert(SymbolicMarking* marking) const = 0;
 		virtual SymbolicMarking* Convert(StoredMarking* marking) const = 0;
+
+		virtual void Release(SymbolicMarking* marking) = 0;
+		virtual void Release(StoredMarking* marking) = 0;
 	};
 
 }

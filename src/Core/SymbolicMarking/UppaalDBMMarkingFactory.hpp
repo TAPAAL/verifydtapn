@@ -30,6 +30,16 @@ namespace VerifyTAPN {
 		};
 		virtual StoredMarking* Convert(SymbolicMarking* marking) const { return static_cast<DBMMarking*>(marking); };
 		virtual SymbolicMarking* Convert(StoredMarking* marking) const { return static_cast<DBMMarking*>(marking); };
+
+		virtual void Release(SymbolicMarking* marking)
+		{
+			if(marking != 0) delete marking;
+		};
+
+		virtual void Release(StoredMarking* marking)
+		{
+			if(marking != 0) delete marking;
+		};
 	};
 
 }

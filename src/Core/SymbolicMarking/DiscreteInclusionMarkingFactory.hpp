@@ -35,8 +35,7 @@ public:
 		}
 		dbm::dbm_t dbm = projectToEQPart(eq, mapping, dbmMarking->GetDBM());
 
-		DiscretePartInclusionMarking* result = new DiscretePartInclusionMarking(dbmMarking->id, eq, inc, mapping, dbm);
-		return result;
+		return new DiscretePartInclusionMarking(dbmMarking->id, eq, inc, mapping, dbm);
 	};
 
 	virtual SymbolicMarking* Convert(StoredMarking* marking) const

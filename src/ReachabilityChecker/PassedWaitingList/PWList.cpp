@@ -31,6 +31,7 @@ namespace VerifyTAPN {
 			//assert(eqdp()(currentNode->GetMarking().GetDiscretePart(), dp));
 			if((relation & SUBSET) != 0)
 			{ // check subseteq
+				factory->Release(storedMarking);
 				return false;
 			}
 			else if(relation == SUPERSET)

@@ -13,7 +13,7 @@ namespace VerifyTAPN
 		const AST::Query* query,
 		const VerificationOptions& options,
 		MarkingFactory* factory
-	) : tapn(tapn), initialMarking(initialMarking), checker(query), options(options), succGen(tapn, *factory, options)//, traceStore(options, initialMarking)
+	) : tapn(tapn), initialMarking(initialMarking), checker(query), options(options), succGen(tapn, *factory, options), factory(factory)//, traceStore(options, initialMarking)
 	{
 		if(options.GetSearchType() == DEPTHFIRST)
 			pwList = new PWList(new StackWaitingList, factory);
@@ -73,7 +73,6 @@ namespace VerifyTAPN
 			for(SuccessorVector::iterator iter = successors.begin(); iter != successors.end(); ++iter)
 			{
 				SymbolicMarking& succ = *(*iter).Marking();
-				//if(pwList->Size() == 10) print(succ);
 				succ.Delay();
 
 				UpdateMaxConstantsArray(succ);
@@ -85,13 +84,14 @@ namespace VerifyTAPN
 
 				bool added = pwList->Add(succ);
 
-
-				if(!added) delete (*iter).Marking();
-				else if(CheckQuery(succ)){
+				if(added && CheckQuery(succ)){
+					factory->Release(iter->Marking());
 					//if(options.GetTrace() != NONE) traceStore.SetFinalMarking(iter->Marking());
 					return checker.IsEF();
 				}
+				factory->Release(iter->Marking());
 			}
+			factory->Release(next);
 
 			//PrintDiagnostics(successors.size());
 		}

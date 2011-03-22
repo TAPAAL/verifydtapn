@@ -29,7 +29,7 @@ int main(int argc, char* argv[]) {
 	TAPNXmlParser modelParser;
 	boost::shared_ptr<TAPN::TimedArcPetriNet> tapn = modelParser.Parse(options.GetInputFile());
 	tapn->Initialize(options.GetUntimedPlacesEnabled());
-	std::cout << *tapn << "\n\n";
+	//std::cout << *tapn << "\n\n";
 
 	//MarkingFactory* factory = new UppaalDBMMarkingFactory();
 	MarkingFactory* factory = new DiscreteInclusionMarkingFactory(tapn);
@@ -50,6 +50,7 @@ int main(int argc, char* argv[]) {
 
 	delete strategy;
 	delete factory;
+	delete initialMarking;
 
 	return 0;
 }
