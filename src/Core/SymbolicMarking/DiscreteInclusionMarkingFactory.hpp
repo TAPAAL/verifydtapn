@@ -47,8 +47,7 @@ public:
 		TokenMapping mapping;
 		std::vector<int> dpVec;
 
-		int nextEqIndex = 1;
-		int nextIncIndex = dpiMarking->eq.size()+1;
+		unsigned int nextIncIndex = dpiMarking->eq.size()+1;
 
 		unsigned int i = 0, place_j = 0;
 		while(i < dpiMarking->eq.size() || place_j < dpiMarking->inc.size())
@@ -60,7 +59,7 @@ public:
 				int newIndex = dpVec.size();
 				dpVec.push_back(place_i);
 				mapping.SetMapping(newIndex, dpiMarking->GetClockIndex(i));
-				i++; nextEqIndex++;
+				i++;
 				continue;
 			}
 			else if(place_j < place_i && dpiMarking->inc[place_j] > 0)
@@ -77,10 +76,8 @@ public:
 			place_j++;
 		}
 
-		assert(nextEqIndex == dpiMarking->eq.size()+1);
-		for(int i = 0; i < dpVec.size(); i++)
+		for(unsigned int i = 0; i < dpVec.size(); i++)
 		{
-			assert(mapping.GetMapping(i) != -1);
 			assert(mapping.GetMapping(i) <= tokens+1);
 		}
 
@@ -109,24 +106,39 @@ private:
 	};
 
 	dbm::dbm_t projectToEQPart(const std::vector<int>& eq, TokenMapping& mapping, const dbm::dbm_t& dbm) const
-	{ // TODO: This should work for more than 32 clocks!
+	{
 		unsigned int dim = dbm.getDimension();
-		unsigned int bitSrc = (1 << dim)-1;
-		unsigned int bitDst = 1; // clock 0 should always be there
+		unsigned int bitArraySize = (dim % 32 == 0 ? dim/32 : dim/32+1);
+		unsigned int bitSrc[bitArraySize];
+		unsigned int bitDst[bitArraySize];
 		unsigned int table[dim];
+
+		for(unsigned int i = 0; i < bitArraySize; i++)
+		{
+			if(i == 0){
+				bitSrc[i] = 1;
+				bitDst[i] = 1;
+			}else{
+				bitSrc[i] = 0;
+				bitDst[i] = 0;
+			}
+		}
 
 		for(unsigned int i = 0; i < dim; i++)
 		{
 			table[i] = std::numeric_limits<unsigned int>::max();
+			bitSrc[i/32] |= (1 << (i % 32));
 		}
 
 		for(unsigned int i = 0; i < eq.size(); i++)
 		{
-			bitDst |= (1 << mapping.GetMapping(i));
+			unsigned int arrayIndex = mapping.GetMapping(i)/32;
+			unsigned int offset = mapping.GetMapping(i) % 32;
+			bitDst[arrayIndex] |= (1 << offset);
 		}
 
 		dbm::dbm_t copy(dbm);
-		copy.resize(&bitSrc, &bitDst, 1, table);
+		copy.resize(bitSrc, bitDst, bitArraySize, table);
 
 		assert(dbm.getDimension() == dim);
 		assert(eq.size()+1 == copy.getDimension());
@@ -150,15 +162,34 @@ private:
 	{
 		//std::cout << "eq-dbm: \n" << dbm << std::endl;
 		unsigned int dim = dbm.getDimension();
-		unsigned int totalTokens = dp.size();
-		if(dim == totalTokens+1) return dbm::dbm_t(dbm);
+		unsigned int totalClocks = dp.size()+1;
+		if(dim == totalClocks) return dbm::dbm_t(dbm);
 
-		unsigned int bitSrc = (1 << dim)-1;
-		unsigned int bitDst = (1 << (totalTokens+1))-1;
-		unsigned int table[dim];
+		unsigned int bitArraySize = (totalClocks % 32 == 0 ? totalClocks/32 : totalClocks/32+1);
+		unsigned int bitSrc[bitArraySize];
+		unsigned int bitDst[bitArraySize];
+		unsigned int table[totalClocks];
+
+		for(unsigned int i = 0; i < bitArraySize; ++i)
+		{
+			if(dim >= i*32 && dim < (i+1)*32)
+				bitSrc[i] = 0 | ((1 << dim%32)-1);
+			else if(dim >= i*32 && dim >= (i+1)*32)
+				bitSrc[i] = ~(bitSrc[i] & 0);
+			else
+				bitSrc[i] = 0;
+
+			bitDst[i] = ~(bitDst[i] & 0);
+		}
+
+		if(totalClocks % 32 != 0)
+		{
+			bitDst[bitArraySize-1] ^= ~((1 << totalClocks % 32)-1);
+		}
+
 
 		dbm::dbm_t copy(dbm);
-		copy.resize(&bitSrc, &bitDst, 1, table);
+		copy.resize(bitSrc, bitDst, bitArraySize, table);
 
 		assert(dbm.getDimension() == dim);
 		for(unsigned int i = 0; i < dp.size(); i++)

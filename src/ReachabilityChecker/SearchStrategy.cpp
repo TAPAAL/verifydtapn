@@ -29,14 +29,14 @@ namespace VerifyTAPN
 
 	void print(const SymbolicMarking& marking){
 		const DBMMarking& dbmMarking = static_cast<const DBMMarking&>(marking);
-		std::cout << "id: " << dbmMarking.UniqueId() << ", previous: " << dbmMarking.previous << "\n";
+		std::cout << "id: " << dbmMarking.UniqueId() << "\n";
 		std::cout << "dp: ";
-		for(int i = 0; i < dbmMarking.NumberOfTokens(); i++){
+		for(unsigned int i = 0; i < dbmMarking.NumberOfTokens(); i++){
 			if(i != 0) std::cout << ", ";
 			std::cout << dbmMarking.GetTokenPlacement(i);
 		}
 		std::cout << "\nmapping: ";
-		for(int i = 0; i < dbmMarking.NumberOfTokens(); i++){
+		for(unsigned int i = 0; i < dbmMarking.NumberOfTokens(); i++){
 			if(i != 0) std::cout << ", ";
 			std::cout << i << ":" << dbmMarking.GetClockIndex(i);
 		}

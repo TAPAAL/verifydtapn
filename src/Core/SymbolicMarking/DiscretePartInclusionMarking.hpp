@@ -100,7 +100,6 @@ private:
 	TokenMapping mapping;
 	dbm::dbm_t dbm;
 	id_type id;
-	id_type previous;
 };
 
 }

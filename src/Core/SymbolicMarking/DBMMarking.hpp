@@ -58,8 +58,6 @@ namespace VerifyTAPN {
 		raw_t GetLowerBound(int clock) const { return dbm(0,clock); };
 		const dbm::dbm_t& GetDBM() const { return dbm; };
 
-		void SetPrevious(id_type prev) { previous = prev; };
-		id_type previous;
 	private:
 		void InitMapping();
 
