@@ -3,6 +3,7 @@
 #include "../Core/SymbolicMarking/SymbolicMarking.hpp"
 #include "../Core/TAPN/Pairing.hpp"
 #include "dbm/print.h"
+#include "../Core/SymbolicMarking/DBMMarking.hpp"
 
 namespace VerifyTAPN {
 	void SuccessorGenerator::GenerateDiscreteTransitionsSuccessors(const SymbolicMarking& marking, std::vector<Successor>& succ)
@@ -230,7 +231,7 @@ namespace VerifyTAPN {
 		}else{
 			succ.push_back(Successor(next));
 		}
-
+		static_cast<DBMMarking*>(next)->SetPrevious(marking->UniqueId());
 		tokensToRemove.clear();
 	}
 

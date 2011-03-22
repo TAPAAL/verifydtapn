@@ -29,6 +29,7 @@ namespace VerifyTAPN
 
 	void print(const SymbolicMarking& marking){
 		const DBMMarking& dbmMarking = static_cast<const DBMMarking&>(marking);
+		std::cout << "id: " << dbmMarking.UniqueId() << ", previous: " << dbmMarking.previous << "\n";
 		std::cout << "dp: ";
 		for(int i = 0; i < dbmMarking.NumberOfTokens(); i++){
 			if(i != 0) std::cout << ", ";
@@ -63,7 +64,6 @@ namespace VerifyTAPN
 		{
 			SymbolicMarking* next = pwList->GetNextUnexplored();
 
-			//print(*next);
 			typedef std::vector<Successor> SuccessorVector;
 			SuccessorVector successors;
 			std::vector<TraceInfo> traceInfos;

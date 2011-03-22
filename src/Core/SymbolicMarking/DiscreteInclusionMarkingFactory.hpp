@@ -33,9 +33,10 @@ public:
 				mapping.SetMapping(newIndex, marking->GetClockIndex(i));
 			}
 		}
-		dbm::dbm_t dbm = resize(eq, mapping, dbmMarking->GetDBM());
+		dbm::dbm_t dbm = projectToEQPart(eq, mapping, dbmMarking->GetDBM());
 
-		return new DiscretePartInclusionMarking(eq, inc, dbm);
+		DiscretePartInclusionMarking* result = new DiscretePartInclusionMarking(dbmMarking->id, eq, inc, mapping, dbm);
+		return result;
 	};
 
 	virtual SymbolicMarking* Convert(StoredMarking* marking) const
@@ -52,14 +53,13 @@ public:
 		unsigned int i = 0, place_j = 0;
 		while(i < dpiMarking->eq.size() || place_j < dpiMarking->inc.size())
 		{
-			int place_i = i < dpiMarking->eq.size() ? dpiMarking->eq[i] : -1;
+			unsigned int place_i = i < dpiMarking->eq.size() ? dpiMarking->eq[i] : std::numeric_limits<int>::max();
 
 			if(i < dpiMarking->eq.size() && place_i <= place_j)
 			{
 				int newIndex = dpVec.size();
 				dpVec.push_back(place_i);
-				mapping.SetMapping(newIndex, nextEqIndex);
-				assert(mapping.GetMapping(newIndex) == nextEqIndex);
+				mapping.SetMapping(newIndex, dpiMarking->GetClockIndex(i));
 				i++; nextEqIndex++;
 				continue;
 			}
@@ -86,9 +86,11 @@ public:
 
 
 		DiscretePart dp(dpVec);
-		dbm::dbm_t dbm = scaleUp(dp, mapping, dpiMarking->dbm);
+		dbm::dbm_t dbm = ProjectToAllClocks(dp, mapping, dpiMarking->dbm);
 		assert(dp.size()+1 == dbm.getDimension());
-		return new DBMMarking(dp, mapping, dbm);
+		DBMMarking* result =  new DBMMarking(dp, mapping, dbm);
+		result->id = dpiMarking->id;
+		return result;
 	};
 
 private:
@@ -106,12 +108,17 @@ private:
 		return false;
 	};
 
-	dbm::dbm_t resize(const std::vector<int>& eq, const TokenMapping& mapping, const dbm::dbm_t& dbm) const
+	dbm::dbm_t projectToEQPart(const std::vector<int>& eq, TokenMapping& mapping, const dbm::dbm_t& dbm) const
 	{ // TODO: This should work for more than 32 clocks!
 		unsigned int dim = dbm.getDimension();
 		unsigned int bitSrc = (1 << dim)-1;
 		unsigned int bitDst = 1; // clock 0 should always be there
 		unsigned int table[dim];
+
+		for(unsigned int i = 0; i < dim; i++)
+		{
+			table[i] = std::numeric_limits<unsigned int>::max();
+		}
 
 		for(unsigned int i = 0; i < eq.size(); i++)
 		{
@@ -124,10 +131,22 @@ private:
 		assert(dbm.getDimension() == dim);
 		assert(eq.size()+1 == copy.getDimension());
 
+		for(unsigned int i = 0; i < dim; ++i)
+		{
+			if(table[i] != std::numeric_limits<unsigned int>().max())
+			{
+				for(unsigned int j = 0; j < mapping.size(); ++j)
+				{
+					if(mapping.GetMapping(j) == i)
+						mapping.SetMapping(j, table[i]);
+				}
+			}
+		}
+
 		return copy;
 	};
 
-	dbm::dbm_t scaleUp(const DiscretePart& dp, const TokenMapping& mapping, const dbm::dbm_t& dbm) const
+	dbm::dbm_t ProjectToAllClocks(const DiscretePart& dp, const TokenMapping& mapping, const dbm::dbm_t& dbm) const
 	{
 		//std::cout << "eq-dbm: \n" << dbm << std::endl;
 		unsigned int dim = dbm.getDimension();
@@ -142,7 +161,7 @@ private:
 		copy.resize(&bitSrc, &bitDst, 1, table);
 
 		assert(dbm.getDimension() == dim);
-		for(int i = 0; i < dp.size(); i++)
+		for(unsigned int i = 0; i < dp.size(); i++)
 		{
 			if(mapping.GetMapping(i) >= dim)
 			{

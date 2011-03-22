@@ -6,14 +6,15 @@
 #include <vector>
 #include "boost/functional/hash.hpp"
 #include <algorithm>
+#include "TokenMapping.hpp"
 
 namespace VerifyTAPN {
 
 class DiscretePartInclusionMarking : public StoredMarking {
 	friend class DiscreteInclusionMarkingFactory;
 public:
-	DiscretePartInclusionMarking(const std::vector<int>& eq, const std::vector<int>& inc, const dbm::dbm_t& dbm) : eq(eq), inc(inc), dbm(dbm) { };
-	DiscretePartInclusionMarking(const DiscretePartInclusionMarking& dm) : eq(dm.eq), inc(dm.inc), dbm(dm.dbm) { };
+	DiscretePartInclusionMarking(id_type id, const std::vector<int>& eq, const std::vector<int>& inc, const TokenMapping& mapping, const dbm::dbm_t& dbm) : eq(eq), inc(inc), mapping(mapping), dbm(dbm), id(id) { };
+	DiscretePartInclusionMarking(const DiscretePartInclusionMarking& dm) : eq(dm.eq), inc(dm.inc), mapping(dm.mapping), dbm(dm.dbm), id(dm.id) { };
 	virtual ~DiscretePartInclusionMarking() { };
 
 	virtual size_t HashKey() const { return boost::hash_range(eq.begin(), eq.end()); };
@@ -68,11 +69,12 @@ public:
 
 	virtual void Extrapolate(const int* maxConstants) { dbm.diagonalExtrapolateMaxBounds(maxConstants); };
 
+	unsigned int GetClockIndex(unsigned int index) { return mapping.GetMapping(index); };
 
 	unsigned int size() const
 	{
 		int size = eq.size();
-		for(int i = 0; i < inc.size(); i++)
+		for(unsigned int i = 0; i < inc.size(); i++)
 		{
 			size += inc[i];
 		}
@@ -95,7 +97,10 @@ private:
 private:
 	std::vector<int> eq;
 	std::vector<int> inc;
+	TokenMapping mapping;
 	dbm::dbm_t dbm;
+	id_type id;
+	id_type previous;
 };
 
 }

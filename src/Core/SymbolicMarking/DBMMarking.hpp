@@ -11,6 +11,7 @@ namespace VerifyTAPN {
 
 	class DBMMarking: public DiscreteMarking, public StoredMarking {
 		friend class UppaalDBMMarkingFactory;
+		friend class DiscreteInclusionMarkingFactory;
 	private:
 		static MarkingFactory* factory;
 	public:
@@ -56,6 +57,9 @@ namespace VerifyTAPN {
 
 		raw_t GetLowerBound(int clock) const { return dbm(0,clock); };
 		const dbm::dbm_t& GetDBM() const { return dbm; };
+
+		void SetPrevious(id_type prev) { previous = prev; };
+		id_type previous;
 	private:
 		void InitMapping();
 
@@ -68,6 +72,7 @@ namespace VerifyTAPN {
 		dbm::dbm_t dbm;
 		TokenMapping mapping;
 		id_type id;
+
 	};
 
 }
