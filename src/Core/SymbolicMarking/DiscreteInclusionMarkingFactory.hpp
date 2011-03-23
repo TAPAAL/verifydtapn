@@ -11,7 +11,7 @@ namespace VerifyTAPN {
 
 class DiscreteInclusionMarkingFactory : public UppaalDBMMarkingFactory {
 public:
-	DiscreteInclusionMarkingFactory(const boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn) : UppaalDBMMarkingFactory(), tapn(tapn) {};
+	DiscreteInclusionMarkingFactory(const boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn) : UppaalDBMMarkingFactory(tapn), tapn(tapn) {};
 	virtual ~DiscreteInclusionMarkingFactory() {};
 
 	virtual StoredMarking* Convert(SymbolicMarking* marking) const // TODO: who should clean up marking?
@@ -87,6 +87,16 @@ public:
 		DBMMarking* result =  new DBMMarking(dp, mapping, dbm);
 		result->id = dpiMarking->id;
 		return result;
+	};
+
+	virtual void Release(SymbolicMarking* marking)
+	{
+		if(marking != 0) delete marking;
+	};
+
+	virtual void Release(StoredMarking* marking)
+	{
+		if(marking != 0) delete marking;
 	};
 
 private:

@@ -54,12 +54,13 @@ namespace VerifyTAPN
 		if(options.GetSymmetryEnabled())
 			initialMarking->Canonicalize();
 
-		pwList->Add(*initialMarking);
+		pwList->Add(*initialMarking); // TODO: initialMarking not cleaned up anywhere
 		if(CheckQuery(*initialMarking))
 		{
 			//if(options.GetTrace() != NONE) traceStore.SetFinalMarking(initialMarking);
 			return checker.IsEF(); // return true if EF query (proof found), or false if AG query (counter example found)
 		}
+
 		while(pwList->HasWaitingStates())
 		{
 			SymbolicMarking* next = pwList->GetNextUnexplored();

@@ -31,8 +31,8 @@ int main(int argc, char* argv[]) {
 	tapn->Initialize(options.GetUntimedPlacesEnabled());
 	//std::cout << *tapn << "\n\n";
 
-	//MarkingFactory* factory = new UppaalDBMMarkingFactory();
-	MarkingFactory* factory = new DiscreteInclusionMarkingFactory(tapn);
+	MarkingFactory* factory = new UppaalDBMMarkingFactory(tapn);
+	//MarkingFactory* factory = new DiscreteInclusionMarkingFactory(tapn);
 
 	SymbolicMarking* initialMarking = modelParser.ParseMarking(options.GetInputFile(), *tapn, *factory);
 
@@ -50,7 +50,6 @@ int main(int argc, char* argv[]) {
 
 	delete strategy;
 	delete factory;
-	delete initialMarking;
 
 	return 0;
 }

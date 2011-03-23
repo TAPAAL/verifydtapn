@@ -6,12 +6,15 @@
 #include "TokenMapping.hpp"
 #include "dbm/fed.h"
 #include "MarkingFactory.hpp"
+#include "../TAPN/TimedArcPetriNet.hpp"
 
 namespace VerifyTAPN {
 
 	class DBMMarking: public DiscreteMarking, public StoredMarking {
 		friend class UppaalDBMMarkingFactory;
 		friend class DiscreteInclusionMarkingFactory;
+	public:
+		static boost::shared_ptr<TAPN::TimedArcPetriNet> tapn;
 	public:
 		DBMMarking(const DiscretePart& dp, const dbm::dbm_t& dbm) : DiscreteMarking(dp), dbm(dbm), mapping() { InitMapping(); };
 		DBMMarking(const DiscretePart& dp, const TokenMapping& mapping, const dbm::dbm_t& dbm) : DiscreteMarking(dp), dbm(dbm), mapping(mapping) { };
@@ -24,12 +27,29 @@ namespace VerifyTAPN {
 
 		virtual void Reset(int token) { dbm(mapping.GetMapping(token)) = 0; };
 		virtual bool IsEmpty() const { return dbm.isEmpty(); };
-		virtual void Delay() { dbm.up(); };
+		virtual void Delay()
+		{
+			dbm.up();
+			for(unsigned int i = 0; i < NumberOfTokens(); i++)
+			{
+				const TAPN::TimeInvariant& invariant = tapn->GetPlace(GetTokenPlacement(i)).GetInvariant();
+				Constrain(i, invariant);
+				assert(!IsEmpty()); // this should not be possible
+			}
+		};
 		virtual void Constrain(int token, const TAPN::TimeInterval& interval)
 		{
 			int clock = mapping.GetMapping(token);
 			dbm.constrain(0,clock, interval.LowerBoundToDBMRaw());
 			dbm.constrain(clock, 0, interval.UpperBoundToDBMRaw());
+		};
+
+		virtual void Constrain(int token, const TAPN::TimeInvariant& invariant)
+		{
+			if(invariant.GetBound() != std::numeric_limits<int>::max())
+			{
+				dbm.constrain(mapping.GetMapping(token), 0, dbm_boundbool2raw(invariant.GetBound(), invariant.IsBoundStrict()));
+			}
 		};
 
 		virtual bool PotentiallySatisfies(int token, const TAPN::TimeInterval& interval) const

@@ -2,6 +2,8 @@
 
 namespace VerifyTAPN
 {
+	boost::shared_ptr<TAPN::TimedArcPetriNet> DBMMarking::tapn;
+
 	// Add a token in each output place of placesOfTokensToAdd
 	// and add placesOfTokensToAdd.size() clocks to the DBM.
 	// The DBM library requires arrays of bitvectors indicating

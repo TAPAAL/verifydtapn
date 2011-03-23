@@ -193,6 +193,18 @@ namespace VerifyTAPN {
 			next->AddTokens(outputPlaces);
 		}
 
+		for(unsigned int i = 0; i < next->NumberOfTokens(); i++)
+		{
+			const TAPN::TimeInvariant& invariant = tapn.GetPlace(next->GetTokenPlacement(i)).GetInvariant();
+			next->Constrain(i, invariant);
+
+			if(next->IsEmpty())
+			{
+				delete next;
+				return;
+			}
+		}
+
 		//next->DBMIntern(); // TODO: Handle interning internally in the marking
 
 		// Store trace information

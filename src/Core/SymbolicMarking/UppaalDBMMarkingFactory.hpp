@@ -10,7 +10,10 @@ namespace VerifyTAPN {
 	protected:
 		static id_type nextId;
 	public:
-		UppaalDBMMarkingFactory() { };
+		UppaalDBMMarkingFactory(const boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn)
+		{
+			DBMMarking::tapn = tapn;
+		};
 		virtual ~UppaalDBMMarkingFactory() {};
 
 		virtual SymbolicMarking* InitialMarking(const DiscretePart& dp) const
@@ -33,12 +36,12 @@ namespace VerifyTAPN {
 
 		virtual void Release(SymbolicMarking* marking)
 		{
-			if(marking != 0) delete marking;
+
 		};
 
 		virtual void Release(StoredMarking* marking)
 		{
-			if(marking != 0) delete marking;
+
 		};
 	};
 

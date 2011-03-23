@@ -46,7 +46,7 @@ namespace VerifyTAPN{
 			inline const TimedInputArc::WeakPtrVector& GetPostset() const { return postset; }
 			inline const bool IsUntimed() const { return isUntimed; }
 			inline const int GetMaxConstant() const { return maxConstant; }
-
+			inline const TAPN::TimeInvariant& GetInvariant() const { return timeInvariant; };
 		private: // data
 			std::string	name;
 			std::string id;
