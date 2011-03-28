@@ -17,9 +17,10 @@ namespace VerifyTAPN {
 		struct ArcCollections{
 			TimedInputArc::Vector inputArcs;
 			OutputArc::Vector outputArcs;
+			TransportArc::Vector transportArcs;
 
 		public:
-			ArcCollections(const TimedInputArc::Vector& inputArcs, const OutputArc::Vector& outputArcs) : inputArcs(inputArcs), outputArcs(outputArcs) {};
+			ArcCollections(const TimedInputArc::Vector& inputArcs, const OutputArc::Vector& outputArcs, const TransportArc::Vector& transportArcs) : inputArcs(inputArcs), outputArcs(outputArcs), transportArcs(transportArcs) {};
 		};
 	public: // construction
 		TAPNXmlParser() {};
@@ -38,9 +39,11 @@ namespace VerifyTAPN {
 		boost::shared_ptr<TimedTransition> ParseTransition(const rapidxml::xml_node<>& transitionNode) const;
 
 		ArcCollections ParseArcs(const rapidxml::xml_node<>& root, const TimedPlace::Vector& places, const TimedTransition::Vector& transitions) const;
+		TransportArc::Vector ParseTransportArcs(const rapidxml::xml_node<>& root, const TimedPlace::Vector& places, const TimedTransition::Vector& transitions) const;
 		TimedInputArc::Vector ParseInputArcs(const rapidxml::xml_node<>& root, const TimedPlace::Vector& places, const TimedTransition::Vector& transitions) const;
 		OutputArc::Vector ParseOutputArcs(const rapidxml::xml_node<>& root, const TimedPlace::Vector& places, const TimedTransition::Vector& transitions) const;
 		boost::shared_ptr<TimedInputArc> ParseInputArc(const rapidxml::xml_node<>& arcNode, const TimedPlace::Vector& places, const TimedTransition::Vector& transitions) const;
+		boost::shared_ptr<TransportArc> ParseTransportArc(const rapidxml::xml_node<>& arcNode, const TimedPlace::Vector& places, const TimedTransition::Vector& transitions) const;
 		boost::shared_ptr<OutputArc> ParseOutputArc(const rapidxml::xml_node<>& arcNode, const TimedPlace::Vector& places, const TimedTransition::Vector& transitions) const;
 		SymbolicMarking* ParseInitialMarking(const rapidxml::xml_node<>& root, const TimedArcPetriNet& tapn, const MarkingFactory& factory) const;
 	};

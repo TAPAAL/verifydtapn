@@ -16,21 +16,5 @@ namespace VerifyTAPN{
 		{
 			out << "(" << name << " (index: " << index << "), " << timeInvariant << ", Max Constant: " << maxConstant << ", Infinity Place: " << (isUntimed ? "true" : "false") << ")";
 		}
-
-		void TimedPlace::AddToPostset(const boost::shared_ptr<TimedInputArc>& arc)
-		{
-			if(arc)
-			{
-				postset.push_back(arc);
-			}
-		}
-
-		void TimedPlace::AddToPreset(const boost::shared_ptr<OutputArc>& arc)
-		{
-			if(arc)
-			{
-				preset.push_back(arc);
-			}
-		}
 	}
 }

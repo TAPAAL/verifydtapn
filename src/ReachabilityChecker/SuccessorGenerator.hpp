@@ -14,43 +14,53 @@ namespace VerifyTAPN {
 	class SymbolicMarking;
 
 	class SuccessorGenerator {
-	public: // construction
-		SuccessorGenerator(const TAPN::TimedArcPetriNet& tapn, const MarkingFactory& factory, const VerificationOptions& options) : tapn(tapn), factory(factory), options(options)
-		{
-			nInputArcs = tapn.GetNumberOfInputArcs();
-			arcsArray = new unsigned[nInputArcs];
-			tokenIndices = new boost::numeric::ublas::matrix<int>(nInputArcs,options.GetKBound());
-		};
-
-		virtual ~SuccessorGenerator()
-		{
-			delete [] arcsArray;
-			delete tokenIndices;
-		};
-
-
 	public:
-		void GenerateDiscreteTransitionsSuccessors(const SymbolicMarking& marking, std::vector<VerifyTAPN::Successor>& succ);
+	    SuccessorGenerator(const TAPN::TimedArcPetriNet & tapn, const MarkingFactory & factory, const VerificationOptions & options)
+	    :tapn(tapn), factory(factory), options(options)
+	    {
+	        nInputArcs = tapn.GetNumberOfConsumingArcs();
+	        arcsArray = new unsigned [nInputArcs];
+	        tokenIndices = new boost::numeric::ublas::matrix<int>(nInputArcs, options.GetKBound());
+	    }
 
-	public: // inspectors
-		void Print(std::ostream& out) const;
+	    ;
+	    virtual ~SuccessorGenerator()
+	    {
+	        delete [] arcsArray;
+	        delete tokenIndices;
+	    }
 
-	public: // modifiers
-		inline void ClearAll() { ClearArcsArray(); ClearTokenIndices(); }
-		inline void ClearArcsArray() { memset(arcsArray,0,nInputArcs*sizeof(arcsArray[0])); }
-		inline void ClearTokenIndices() { tokenIndices->clear(); }
+	    ;
+	public:
+	    void GenerateDiscreteTransitionsSuccessors(const SymbolicMarking & marking, std::vector<VerifyTAPN::Successor> & succ);
+	public:
+	    void Print(std::ostream & out) const;
+	public:
+	    inline void ClearAll()
+	    {
+	        ClearArcsArray();
+	        ClearTokenIndices();
+	    }
 
-	private: // modifiers
-		void CollectArcsAndAppropriateTokens(const TAPN::TimedTransition::Vector& transitions, const SymbolicMarking* marking);
-		void GenerateSuccessors(const TAPN::TimedTransition::Vector& transitions, const SymbolicMarking* marking, std::vector<Successor>& succ);
-		void GenerateSuccessorForCurrentPermutation(const TAPN::TimedTransition& currTransition, const unsigned int* indices, const unsigned int currTransitionIndex, const unsigned int presetSize, const SymbolicMarking* marking, std::vector<Successor>& succ);
+	    inline void ClearArcsArray()
+	    {
+	        memset(arcsArray, 0, nInputArcs * sizeof (arcsArray[0]));
+	    }
 
-	private: // inspectors
-		bool IsTransitionEnabled(unsigned int currTransitionIndex, unsigned int presetSize) const;
+	    inline void ClearTokenIndices()
+	    {
+	        tokenIndices->clear();
+	    }
 
-
-	private: // data
-		const TAPN::TimedArcPetriNet& tapn;
+	private:
+	    void CollectArcsAndAppropriateTokens(const TAPN::TimedTransition::Vector & transitions, const SymbolicMarking *marking);
+	    void GenerateSuccessors(const TAPN::TimedTransition::Vector & transitions, const SymbolicMarking *marking, std::vector<Successor> & succ);
+	    void GenerateSuccessorForCurrentPermutation(const TAPN::TimedTransition & currTransition, const unsigned int *indices, const unsigned int currTransitionIndex, const unsigned int presetSize, const SymbolicMarking *marking, std::vector<Successor> & succ);
+	private:
+	    bool IsTransitionEnabled(unsigned int currTransitionIndex, unsigned int presetSize) const;
+	    void UpdateArcInfo(const SymbolicMarking *marking, int currInputPlaceIndex, const TAPN::TimeInterval & ti, unsigned int & currInputArcIdx);
+	private:
+	    const TAPN::TimedArcPetriNet& tapn;
 		const MarkingFactory& factory;
 		unsigned int* arcsArray;
 		unsigned int nInputArcs;

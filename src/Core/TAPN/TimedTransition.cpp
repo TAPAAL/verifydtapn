@@ -15,6 +15,14 @@ namespace VerifyTAPN {
 			}
 		}
 
+		void TimedTransition::AddTransportArcGoingThrough(const boost::shared_ptr<TransportArc>& arc)
+		{
+			if(arc)
+			{
+				transportArcs.push_back(arc);
+			}
+		}
+
 		void TimedTransition::AddToPostset(const boost::shared_ptr<OutputArc>& arc)
 		{
 			if(arc)

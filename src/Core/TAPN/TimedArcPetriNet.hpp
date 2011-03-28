@@ -5,6 +5,7 @@
 #include "TimedPlace.hpp"
 #include "TimedTransition.hpp"
 #include "TimedInputArc.hpp"
+#include "TransportArc.hpp"
 #include "OutputArc.hpp"
 #include "boost/make_shared.hpp"
 #include "google/sparse_hash_map"
@@ -23,8 +24,9 @@ namespace VerifyTAPN {
 			TimedArcPetriNet(const TimedPlace::Vector& places,
 				const TimedTransition::Vector& transitions,
 				const TimedInputArc::Vector& inputArcs,
-				const OutputArc::Vector& outputArcs)
-				: places(places), transitions(transitions), inputArcs(inputArcs), outputArcs(outputArcs), maxConstant(0) { };
+				const OutputArc::Vector& outputArcs,
+				const TransportArc::Vector& transportArcs)
+				: places(places), transitions(transitions), inputArcs(inputArcs), outputArcs(outputArcs), transportArcs(transportArcs), maxConstant(0) { };
 			virtual ~TimedArcPetriNet() { /* empty */ }
 
 		public: // inspectors
@@ -34,7 +36,8 @@ namespace VerifyTAPN {
 			const TimedPlace& GetPlace(const int placeIndex) const { return *places[placeIndex]; }
 			const TimedTransition::Vector& GetTransitions() const { return transitions; }
 			const TimedInputArc::Vector& GetInputArcs() const { return inputArcs; }
-			const int GetNumberOfInputArcs() const { return inputArcs.size(); }
+			const TransportArc::Vector& GetTransportArcs() const { return transportArcs; }
+			const int GetNumberOfConsumingArcs() const { return inputArcs.size() + transportArcs.size(); }
 			const OutputArc::Vector& GetOutputArcs() const { return outputArcs; }
 			const int GetNumberOfOutputArcs() const { return outputArcs.size(); }
 			int NumberOfPlaces() const { return places.size(); };
@@ -49,6 +52,7 @@ namespace VerifyTAPN {
 			void MakeTAPNConservative();
 			void GeneratePairings();
 			void UpdateMaxConstant(const TimeInterval& interval);
+			void UpdateMaxConstant(const TimeInvariant& invariant);
 			void MarkUntimedPlaces();
 			void FindMaxConstants();
 
@@ -57,6 +61,7 @@ namespace VerifyTAPN {
 			const TimedTransition::Vector transitions;
 			const TimedInputArc::Vector inputArcs;
 			const OutputArc::Vector outputArcs;
+			const TransportArc::Vector transportArcs;
 			mutable HashMap pairings;
 			int maxConstant;
 		};

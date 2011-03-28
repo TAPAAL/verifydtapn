@@ -9,6 +9,7 @@ namespace VerifyTAPN {
 		{
 			for(unsigned int i = 0; i < places.size(); i++){
 				places[i]->SetIndex(i);
+				UpdateMaxConstant(places[i]->GetInvariant());
 			}
 
 			for(unsigned int i = 0; i < transitions.size(); i++){
@@ -25,15 +26,20 @@ namespace VerifyTAPN {
 			for(TimedInputArc::Vector::const_iterator iter = inputArcs.begin(); iter != inputArcs.end(); ++iter)
 			{
 				const boost::shared_ptr<TimedInputArc>& arc = *iter;
-				arc->InputPlace().AddToPostset(arc);
 				arc->OutputTransition().AddToPreset(arc);
+				UpdateMaxConstant(arc->Interval());
+			}
+
+			for(TransportArc::Vector::const_iterator iter = transportArcs.begin(); iter != transportArcs.end(); ++iter)
+			{
+				const boost::shared_ptr<TransportArc>& arc = *iter;
+				arc->Transition().AddTransportArcGoingThrough(arc);
 				UpdateMaxConstant(arc->Interval());
 			}
 
 			for(OutputArc::Vector::const_iterator iter = outputArcs.begin(); iter != outputArcs.end(); ++iter)
 			{
 				const boost::shared_ptr<OutputArc>& arc = *iter;
-				arc->OutputPlace().AddToPreset(arc);
 				arc->InputTransition().AddToPostset(arc);
 			}
 
@@ -49,12 +55,21 @@ namespace VerifyTAPN {
 			for(TimedPlace::Vector::const_iterator iter = places.begin(); iter != places.end(); ++iter)
 			{
 				bool isUntimedPlace = true;
-				for(TimedInputArc::WeakPtrVector::const_iterator arcIter = (*iter)->GetPostset().begin(); arcIter != (*iter)->GetPostset().end(); ++arcIter)
-				{
-					boost::shared_ptr<TimedInputArc> arc = arcIter->lock();
 
-					if(!arc->Interval().IsZeroInfinity())
-						isUntimedPlace = false;
+				for(TransportArc::Vector::const_iterator arcIter = transportArcs.begin(); arcIter != transportArcs.end(); ++arcIter)
+				{
+					isUntimedPlace = isUntimedPlace && (*arcIter)->Source() != **iter;
+				}
+
+				if(isUntimedPlace)
+				{
+					for(TimedInputArc::Vector::const_iterator arcIter = inputArcs.begin(); arcIter != inputArcs.end(); ++arcIter)
+					{
+						if((*arcIter)->InputPlace() == **iter)
+						{
+							isUntimedPlace = isUntimedPlace && (*arcIter)->Interval().IsZeroInfinity();
+						}
+					}
 				}
 
 				if(isUntimedPlace) (*iter)->MarkPlaceAsUntimed();
@@ -66,20 +81,28 @@ namespace VerifyTAPN {
 			for(TimedPlace::Vector::const_iterator iter = places.begin(); iter != places.end(); ++iter)
 			{
 				int maxConstant = 0;
-				for(TimedInputArc::WeakPtrVector::const_iterator arcIter = (*iter)->GetPostset().begin(); arcIter != (*iter)->GetPostset().end(); ++arcIter)
+				for(TimedInputArc::Vector::const_iterator arcIter = inputArcs.begin(); arcIter != inputArcs.end(); ++arcIter)
 				{
-					boost::shared_ptr<TimedInputArc> ia = arcIter->lock();
-					const TAPN::TimeInterval& interval = ia->Interval();
+					if((*arcIter)->InputPlace() == **iter)
+					{
+						boost::shared_ptr<TimedInputArc> ia = *arcIter;
+						const TAPN::TimeInterval& interval = ia->Interval();
 
-					const int lowerBound = interval.GetLowerBound();
-					const int upperBound = interval.GetUpperBound();
+						const int lowerBound = interval.GetLowerBound();
+						const int upperBound = interval.GetUpperBound();
 
-					if(upperBound == std::numeric_limits<int>().max())
-						maxConstant = (maxConstant < lowerBound ? lowerBound : maxConstant);
-					else
-						maxConstant = (maxConstant < upperBound ? upperBound : maxConstant);
+						if(upperBound == std::numeric_limits<int>().max())
+							maxConstant = (maxConstant < lowerBound ? lowerBound : maxConstant);
+						else
+							maxConstant = (maxConstant < upperBound ? upperBound : maxConstant);
+					}
 				}
 				(*iter)->SetMaxConstant(maxConstant);
+			}
+
+			for(TransportArc::Vector::const_iterator iter = transportArcs.begin(); iter != transportArcs.end(); iter++)
+			{
+				(*iter)->Source().SetMaxConstant(this->maxConstant);
 			}
 		}
 
@@ -94,6 +117,15 @@ namespace VerifyTAPN {
 			if(upperBound < std::numeric_limits<int>().max() && upperBound > maxConstant)
 			{
 				maxConstant = upperBound;
+			}
+		}
+
+		void TimedArcPetriNet::UpdateMaxConstant(const TimeInvariant& invariant)
+		{
+			int bound = invariant.GetBound();
+			if(bound < std::numeric_limits<int>().max() && bound > maxConstant)
+			{
+				maxConstant = bound;
 			}
 		}
 

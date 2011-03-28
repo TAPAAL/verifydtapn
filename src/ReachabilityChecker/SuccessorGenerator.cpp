@@ -14,45 +14,59 @@ namespace VerifyTAPN {
 		GenerateSuccessors(transitions, &marking, succ);
 	}
 
+    void SuccessorGenerator::UpdateArcInfo(const SymbolicMarking *marking, int currInputPlaceIndex, const TAPN::TimeInterval & ti, unsigned int & currInputArcIdx)
+    {
+        unsigned int nTokensFromCurrInputPlace = 0;
+        for(unsigned int i = 0; i < marking->NumberOfTokens(); i++)
+		{
+			int placeIndex = marking->GetTokenPlacement(i);
+
+
+			if(placeIndex == currInputPlaceIndex)
+			{
+				bool potentiallyUsable = marking->PotentiallySatisfies(i, ti);
+
+				if(potentiallyUsable)
+				{
+					assert(currInputArcIdx <= nInputArcs);
+					assert(nTokensFromCurrInputPlace <= static_cast<unsigned int>(options.GetKBound()));
+
+					arcsArray[currInputArcIdx] = arcsArray[currInputArcIdx] + 1;
+					tokenIndices->insert_element(currInputArcIdx,nTokensFromCurrInputPlace, i);
+					nTokensFromCurrInputPlace++;
+				}
+			}
+		}
+    }
+
 	// Collects the number of tokens of potentially appropriate age for each input into arcsArray.
 	// Note that arcs array should be sorted by transition. Further, if a token is potentially of
 	// appropriate age we add the token index to the tokenIndices matrix for use when generating successors.
 	void SuccessorGenerator::CollectArcsAndAppropriateTokens(const TAPN::TimedTransition::Vector& transitions, const SymbolicMarking* marking)
 	{
-		unsigned int kBound = options.GetKBound();
 		unsigned int currInputArcIdx = 0;
 
 		for(TAPN::TimedTransition::Vector::const_iterator iter = transitions.begin(); iter != transitions.end(); ++iter)
 		{
+			const TAPN::TransportArc::WeakPtrVector& transportArcs = (*iter)->GetTransportArcs();
+			for(TAPN::TransportArc::WeakPtrVector::const_iterator presetIter = transportArcs.begin(); presetIter != transportArcs.end(); ++presetIter)
+			{
+				boost::shared_ptr<TAPN::TransportArc> ta = (*presetIter).lock();
+				const TAPN::TimeInterval& ti = ta->Interval();
+				int currInputPlaceIndex = tapn.GetPlaceIndex(ta->Source());
+
+				UpdateArcInfo(marking, currInputPlaceIndex, ti, currInputArcIdx);
+				currInputArcIdx++;
+			}
+
 			const TAPN::TimedInputArc::WeakPtrVector& preset = (*iter)->GetPreset();
 			for(TAPN::TimedInputArc::WeakPtrVector::const_iterator presetIter = preset.begin(); presetIter != preset.end(); ++presetIter)
 			{
 				boost::shared_ptr<TAPN::TimedInputArc> ia = (*presetIter).lock();
 				const TAPN::TimeInterval& ti = ia->Interval();
-				unsigned int nTokensFromCurrInputPlace = 0;
 				int currInputPlaceIndex = tapn.GetPlaceIndex(ia->InputPlace());
 
-				for(unsigned int i = 0; i < marking->NumberOfTokens(); i++)
-				{
-					int placeIndex = marking->GetTokenPlacement(i);
-
-
-					if(placeIndex == currInputPlaceIndex)
-					{
-						bool potentiallyUsable = marking->PotentiallySatisfies(i, ti);
-
-						if(potentiallyUsable)
-						{
-							assert(currInputArcIdx <= nInputArcs);
-							assert(nTokensFromCurrInputPlace <= kBound);
-
-							arcsArray[currInputArcIdx] = arcsArray[currInputArcIdx] + 1;
-							tokenIndices->insert_element(currInputArcIdx,nTokensFromCurrInputPlace, i);
-							nTokensFromCurrInputPlace++;
-						}
-					}
-				}
-
+				UpdateArcInfo(marking, currInputPlaceIndex, ti, currInputArcIdx);
 				currInputArcIdx++;
 			}
 		}
@@ -130,8 +144,29 @@ namespace VerifyTAPN {
 		std::vector<int> tokensToRemove;
 		SymbolicMarking* next = factory.Clone(*marking);
 
+		for(unsigned int i = 0; i < transition.NumberOfTransportArcs(); ++i)
+		{
+			boost::shared_ptr<TAPN::TransportArc> ta = transition.GetTransportArcs()[i].lock();
+			const TAPN::TimeInterval& ti = ta->Interval();
+
+			int tokenIndex = tokenIndices->at_element(currentTransitionIndex+i, currentPermutationindices[i]);
+			int outputPlaceIndex = tapn.GetPlaceIndex(ta->Destination());
+
+			// constrain dbm with the guard of the input arc
+			next->Constrain(tokenIndex, ti);
+			next->MoveToken(tokenIndex, outputPlaceIndex);
+
+			if(next->IsEmpty())
+			{
+				delete next;
+				return;
+			}
+
+		}
+
+		int offset = transition.NumberOfTransportArcs();
 		// move all tokens that are currently in the net
-		for(unsigned int i = 0; i < presetSize; ++i)
+		for(unsigned int i = 0; i < transition.NumberOfInputArcs(); ++i)
 		{
 			boost::shared_ptr<TAPN::TimedInputArc> inputArc = preset[i].lock();
 			int inputPlace = tapn.GetPlaceIndex(inputArc->InputPlace());
@@ -144,7 +179,7 @@ namespace VerifyTAPN {
 			for(std::list<int>::const_iterator opIter = outputPlaces.begin(); opIter != outputPlaces.end(); ++opIter)
 			{
 				// change placement
-				int tokenIndex = tokenIndices->at_element(currentTransitionIndex+i, currentPermutationindices[i]);
+				int tokenIndex = tokenIndices->at_element(currentTransitionIndex+offset+i, currentPermutationindices[offset+i]);
 				int outputPlaceIndex = *opIter;
 
 				// constrain dbm with the guard of the input arc
@@ -164,7 +199,7 @@ namespace VerifyTAPN {
 		}
 
 		// reset clocks of moved tokens
-		for (unsigned int i = 0; i < presetSize; ++i) {
+		for (unsigned int i = transition.NumberOfTransportArcs(); i < presetSize; ++i) {
 			int tokenIndex = tokenIndices->at_element(currentTransitionIndex+i, currentPermutationindices[i]);
 
 			next->Reset(tokenIndex);
@@ -204,6 +239,7 @@ namespace VerifyTAPN {
 				return;
 			}
 		}
+
 
 		//next->DBMIntern(); // TODO: Handle interning internally in the marking
 

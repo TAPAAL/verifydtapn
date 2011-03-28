@@ -28,13 +28,11 @@ namespace VerifyTAPN{
 
 		public: // construction / destruction
 			TimedPlace(const std::string& name, const std::string& id, const TimeInvariant timeInvariant)
-			: name(name), id(id), timeInvariant(timeInvariant), postset(), preset(), index(-2), isUntimed(false) { };
-			TimedPlace() : name("*BOTTOM*"), timeInvariant(), postset(), preset(), index(-1), isUntimed(false) { };
+			: name(name), id(id), timeInvariant(timeInvariant), index(-2), isUntimed(false) { };
+			TimedPlace() : name("*BOTTOM*"), timeInvariant(), index(-1), isUntimed(false) { };
 			virtual ~TimedPlace() { /* empty */ };
 
 		public: // modifiers
-			void AddToPreset(const boost::shared_ptr<OutputArc>& arc);
-			void AddToPostset(const boost::shared_ptr<TimedInputArc>& arc);
 			inline void MarkPlaceAsUntimed() { isUntimed = true; }
 			inline void SetIndex(int i) { index = i; };
 			inline void SetMaxConstant(int max) { maxConstant = max; }
@@ -43,7 +41,6 @@ namespace VerifyTAPN{
 			const std::string& GetId() const;
 			void Print(std::ostream& out) const;
 			inline int GetIndex() const { return index; };
-			inline const TimedInputArc::WeakPtrVector& GetPostset() const { return postset; }
 			inline const bool IsUntimed() const { return isUntimed; }
 			inline const int GetMaxConstant() const { return maxConstant; }
 			inline const TAPN::TimeInvariant& GetInvariant() const { return timeInvariant; };
@@ -51,8 +48,6 @@ namespace VerifyTAPN{
 			std::string	name;
 			std::string id;
 			TimeInvariant timeInvariant;
-			TimedInputArc::WeakPtrVector postset;
-			OutputArc::WeakPtrVector preset;
 			int index;
 			bool isUntimed;
 			int maxConstant;
@@ -69,6 +64,11 @@ namespace VerifyTAPN{
 		inline bool operator==(TimedPlace const& a, TimedPlace const& b)
 		{
 			return a.GetName() == b.GetName();
+		}
+
+		inline bool operator!=(TimedPlace const& a, TimedPlace const& b)
+		{
+			return !(a.GetName() == b.GetName());
 		}
 	}
 }

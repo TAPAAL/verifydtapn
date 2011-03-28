@@ -1,0 +1,9 @@
+<pnml>
+<net id="TAPN1" type="P/T net">
+<place id="P0" name="P0" invariant="&lt; inf" initialMarking="0" />
+<place id="P1" name="P1" invariant="&lt;= 3" initialMarking="0" />
+<place id="P3" name="P3" invariant="&lt; inf" initialMarking="1" />
+<transition id="T0" name="T0"/><transition id="T2" name="T2"/><transportArc inscription="[1,5]" source="P0" transition="T0" target="P1"/>
+<transportArc inscription="[4,inf)" source="P3" transition="T2" target="P0"/>
+</net>
+</pnml>
