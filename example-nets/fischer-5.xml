@@ -1,0 +1,70 @@
+<pnml>
+<net id="TAPN1" type="P/T net">
+<place id="A_" name="A_" invariant="&lt; inf" initialMarking="0" />
+<place id="A" name="A" invariant="&lt; inf" initialMarking="5" />
+<place id="B" name="B" invariant="&lt; inf" initialMarking="0" />
+<place id="B_" name="B_" invariant="&lt; inf" initialMarking="0" />
+<place id="udf" name="udf" invariant="&lt; inf" initialMarking="1" />
+<place id="C" name="C" invariant="&lt; inf" initialMarking="0" />
+<place id="CS" name="CS" invariant="&lt; inf" initialMarking="0" />
+<place id="CS_" name="CS_" invariant="&lt; inf" initialMarking="0" />
+<place id="C_" name="C_" invariant="&lt; inf" initialMarking="0" />
+<transition id="Initiate" name="Initiate"/><transition id="Choose2B" name="Choose2B"/><transition id="Choose2CS" name="Choose2CS"/><transition id="Exit2B" name="Exit2B"/><transition id="Exit2C" name="Exit2C"/><transition id="Exit2CS" name="Exit2CS"/><transition id="Fail1" name="Fail1"/><transition id="Fail2" name="Fail2"/><transition id="Choose1" name="Choose1"/><transition id="Choose2C" name="Choose2C"/><transition id="Choose3" name="Choose3"/><transition id="Exit3" name="Exit3"/><transition id="Exit1" name="Exit1"/><transition id="Enter" name="Enter"/><transition id="Choose2A" name="Choose2A"/><inputArc inscription="[0,inf)" source="A_" target="Choose2A"/>
+<inputArc inscription="[0,inf)" source="A" target="Initiate"/>
+<inputArc inscription="[0,2]" source="B" target="Choose2B"/>
+<inputArc inscription="[0,2]" source="B" target="Choose2CS"/>
+<inputArc inscription="[0,2]" source="B" target="Choose1"/>
+<inputArc inscription="[0,2]" source="B" target="Choose2C"/>
+<inputArc inscription="[0,2]" source="B" target="Choose2A"/>
+<inputArc inscription="[0,inf)" source="B_" target="Choose2B"/>
+<inputArc inscription="[0,inf)" source="B_" target="Exit2B"/>
+<inputArc inscription="[0,2]" source="B_" target="Choose3"/>
+<inputArc inscription="[0,inf)" source="udf" target="Initiate"/>
+<inputArc inscription="[0,inf)" source="udf" target="Fail1"/>
+<inputArc inscription="[0,inf)" source="udf" target="Fail2"/>
+<inputArc inscription="[0,inf)" source="udf" target="Choose1"/>
+<inputArc inscription="[0,inf)" source="udf" target="Exit3"/>
+<inputArc inscription="[0,inf)" source="C" target="Fail2"/>
+<inputArc inscription="[0,inf)" source="CS" target="Exit2B"/>
+<inputArc inscription="[0,inf)" source="CS" target="Exit2C"/>
+<inputArc inscription="[0,inf)" source="CS" target="Exit2CS"/>
+<inputArc inscription="[0,inf)" source="CS" target="Exit3"/>
+<inputArc inscription="[0,inf)" source="CS_" target="Choose2CS"/>
+<inputArc inscription="[0,inf)" source="CS_" target="Exit2CS"/>
+<inputArc inscription="[0,inf)" source="CS_" target="Exit1"/>
+<inputArc inscription="[0,inf)" source="C_" target="Exit2C"/>
+<inputArc inscription="[0,inf)" source="C_" target="Fail1"/>
+<inputArc inscription="[0,inf)" source="C_" target="Choose2C"/>
+<inputArc inscription="(2,inf)" source="C_" target="Enter"/>
+<outputArc inscription="1" source="Initiate" target="B"/>
+<outputArc inscription="1" source="Initiate" target="udf"/>
+<outputArc inscription="1" source="Choose2B" target="B"/>
+<outputArc inscription="1" source="Choose2B" target="C_"/>
+<outputArc inscription="1" source="Choose2CS" target="CS"/>
+<outputArc inscription="1" source="Choose2CS" target="C_"/>
+<outputArc inscription="1" source="Exit2B" target="A"/>
+<outputArc inscription="1" source="Exit2B" target="B"/>
+<outputArc inscription="1" source="Exit2B" target="udf"/>
+<outputArc inscription="1" source="Exit2C" target="A"/>
+<outputArc inscription="1" source="Exit2C" target="udf"/>
+<outputArc inscription="1" source="Exit2C" target="C"/>
+<outputArc inscription="1" source="Exit2CS" target="A"/>
+<outputArc inscription="1" source="Exit2CS" target="udf"/>
+<outputArc inscription="1" source="Exit2CS" target="CS"/>
+<outputArc inscription="1" source="Fail1" target="B_"/>
+<outputArc inscription="1" source="Fail1" target="udf"/>
+<outputArc inscription="1" source="Fail2" target="B"/>
+<outputArc inscription="1" source="Fail2" target="udf"/>
+<outputArc inscription="1" source="Choose1" target="C_"/>
+<outputArc inscription="1" source="Choose2C" target="C"/>
+<outputArc inscription="1" source="Choose2C" target="C_"/>
+<outputArc inscription="1" source="Choose3" target="C_"/>
+<outputArc inscription="1" source="Exit3" target="A"/>
+<outputArc inscription="1" source="Exit3" target="udf"/>
+<outputArc inscription="1" source="Exit1" target="A"/>
+<outputArc inscription="1" source="Exit1" target="udf"/>
+<outputArc inscription="1" source="Enter" target="CS_"/>
+<outputArc inscription="1" source="Choose2A" target="A"/>
+<outputArc inscription="1" source="Choose2A" target="C_"/>
+</net>
+</pnml>

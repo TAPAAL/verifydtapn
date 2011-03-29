@@ -1,0 +1,24 @@
+<pnml>
+<net id="TAPN1" type="P/T net">
+<place id="Ready_to_produce" name="Ready_to_produce" invariant="&lt;= 2" initialMarking="1" />
+<place id="Recover" name="Recover" invariant="&lt;= 5" initialMarking="0" />
+<place id="In_transit" name="In_transit" invariant="&lt;= 3" initialMarking="0" />
+<place id="Ready_to_consume" name="Ready_to_consume" invariant="&lt;= 7" initialMarking="1" />
+<place id="Get_ready" name="Get_ready" invariant="&lt;= 6" initialMarking="0" />
+<place id="Ready" name="Ready" invariant="&lt;= 3" initialMarking="0" />
+<place id="Garbage" name="Garbage" invariant="&lt; inf" initialMarking="0" />
+<transition id="Produce" name="Produce"/><transition id="Recovering" name="Recovering"/><transition id="Consume" name="Consume"/><transition id="Done" name="Done"/><transition id="Transport" name="Transport"/><transition id="Collect" name="Collect"/><inputArc inscription="[0,2]" source="Ready_to_produce" target="Produce"/>
+<inputArc inscription="[3,5]" source="Recover" target="Recovering"/>
+<inputArc inscription="[4,7]" source="Ready_to_consume" target="Consume"/>
+<inputArc inscription="[3,6]" source="Get_ready" target="Done"/>
+<inputArc inscription="[0,3)" source="Ready" target="Consume"/>
+<inputArc inscription="[3,inf)" source="Ready" target="Collect"/>
+<outputArc inscription="1" source="Produce" target="Recover"/>
+<outputArc inscription="1" source="Produce" target="In_transit"/>
+<outputArc inscription="1" source="Recovering" target="Ready_to_produce"/>
+<outputArc inscription="1" source="Consume" target="Get_ready"/>
+<outputArc inscription="1" source="Done" target="Ready_to_consume"/>
+<outputArc inscription="1" source="Collect" target="Garbage"/>
+<transportArc inscription="[1,3]" source="In_transit" transition="Transport" target="Ready"/>
+</net>
+</pnml>
