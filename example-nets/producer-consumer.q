@@ -1,1 +1,0 @@
-EF Garbage < 0
