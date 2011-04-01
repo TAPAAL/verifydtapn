@@ -7,12 +7,13 @@
 <place id="Get_ready" name="Get_ready" invariant="&lt;= 6" initialMarking="0" />
 <place id="Ready" name="Ready" invariant="&lt;= 3" initialMarking="0" />
 <place id="Garbage" name="Garbage" invariant="&lt; inf" initialMarking="0" />
-<transition id="Produce" name="Produce"/><transition id="Recovering" name="Recovering"/><transition id="Consume" name="Consume"/><transition id="Done" name="Done"/><transition id="Transport" name="Transport"/><transition id="Collect" name="Collect"/><inputArc inscription="[0,2]" source="Ready_to_produce" target="Produce"/>
+<transition id="Produce" name="Produce"/><transition id="Recovering" name="Recovering"/><transition id="Consume" name="Consume"/><transition id="Done" name="Done"/><transition id="Transport" name="Transport"/><transition id="Collect" name="Collect"/><transition id="T0" name="T0"/><inputArc inscription="[0,2]" source="Ready_to_produce" target="Produce"/>
 <inputArc inscription="[3,5]" source="Recover" target="Recovering"/>
 <inputArc inscription="[4,7]" source="Ready_to_consume" target="Consume"/>
 <inputArc inscription="[3,6]" source="Get_ready" target="Done"/>
 <inputArc inscription="[0,3)" source="Ready" target="Consume"/>
 <inputArc inscription="[3,inf)" source="Ready" target="Collect"/>
+<inputArc inscription="[0,inf)" source="Garbage" target="T0"/>
 <outputArc inscription="1" source="Produce" target="Recover"/>
 <outputArc inscription="1" source="Produce" target="In_transit"/>
 <outputArc inscription="1" source="Recovering" target="Ready_to_produce"/>

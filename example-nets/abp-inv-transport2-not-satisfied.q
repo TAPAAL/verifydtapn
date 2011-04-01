@@ -1,0 +1,1 @@
+EF ((Sender_0_A=1 and (Receiver_0_B=1 or Receiver_1_A=1)) or (Sender_1_A=1 and (Receiver_0_A=1 or Receiver_1_B=1)))

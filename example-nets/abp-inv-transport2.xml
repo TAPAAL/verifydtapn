@@ -1,0 +1,50 @@
+<pnml>
+<net id="TAPN1" type="P/T net">
+<place id="Medium_A" name="Medium_A" invariant="&lt; inf" initialMarking="0" />
+<place id="Sender_0_A" name="Sender_0_A" invariant="&lt; inf" initialMarking="1" />
+<place id="Receiver_1_B" name="Receiver_1_B" invariant="&lt;= 2" initialMarking="0" />
+<place id="Receiver_0_A" name="Receiver_0_A" invariant="&lt; inf" initialMarking="1" />
+<place id="Sender_0_B" name="Sender_0_B" invariant="&lt;= 6" initialMarking="0" />
+<place id="Sender_1_A" name="Sender_1_A" invariant="&lt; inf" initialMarking="0" />
+<place id="Sender_1_B" name="Sender_1_B" invariant="&lt;= 6" initialMarking="0" />
+<place id="Medium_B" name="Medium_B" invariant="&lt; inf" initialMarking="0" />
+<place id="Medium_C" name="Medium_C" invariant="&lt; inf" initialMarking="0" />
+<place id="Medium_D" name="Medium_D" invariant="&lt; inf" initialMarking="0" />
+<place id="Receiver_0_B" name="Receiver_0_B" invariant="&lt;= 2" initialMarking="0" />
+<place id="Receiver_1_A" name="Receiver_1_A" invariant="&lt; inf" initialMarking="0" />
+<transition id="Ack_rec_0" name="Ack_rec_0"/><transition id="Send_1" name="Send_1"/><transition id="Ack_send_0" name="Ack_send_0"/><transition id="Loss_C" name="Loss_C"/><transition id="Loss_D" name="Loss_D"/><transition id="ReSend_1" name="ReSend_1"/><transition id="Receive_old_1" name="Receive_old_1"/><transition id="Ack_send_1" name="Ack_send_1"/><transition id="Ack_rec_1" name="Ack_rec_1"/><transition id="Send_0" name="Send_0"/><transition id="Receive_0" name="Receive_0"/><transition id="ReSend_0" name="ReSend_0"/><transition id="Receive_old_0" name="Receive_old_0"/><transition id="Loss_A" name="Loss_A"/><transition id="Loss_B" name="Loss_B"/><transition id="Receive_1" name="Receive_1"/><inputArc inscription="[0,inf)" source="Medium_A" target="Loss_A"/>
+<inputArc inscription="[0,inf)" source="Receiver_0_A" target="Receive_old_1"/>
+<inputArc inscription="[0,inf)" source="Receiver_0_A" target="Receive_0"/>
+<inputArc inscription="[0,inf)" source="Sender_0_A" target="Send_0"/>
+<inputArc inscription="[0,inf)" source="Sender_0_B" target="Ack_rec_0"/>
+<inputArc inscription="[5,6]" source="Sender_0_B" target="ReSend_0"/>
+<inputArc inscription="[0,inf)" source="Sender_1_A" target="Send_1"/>
+<inputArc inscription="[5,6]" source="Sender_1_B" target="ReSend_1"/>
+<inputArc inscription="[0,inf)" source="Sender_1_B" target="Ack_rec_1"/>
+<inputArc inscription="[0,3]" source="Medium_B" target="Ack_rec_0"/>
+<inputArc inscription="[0,inf)" source="Medium_B" target="Loss_B"/>
+<inputArc inscription="[0,inf)" source="Medium_C" target="Loss_C"/>
+<inputArc inscription="[0,inf)" source="Medium_D" target="Loss_D"/>
+<inputArc inscription="[0,3]" source="Medium_D" target="Ack_rec_1"/>
+<inputArc inscription="[0,inf)" source="Receiver_1_A" target="Receive_old_0"/>
+<inputArc inscription="[0,inf)" source="Receiver_1_A" target="Receive_1"/>
+<outputArc inscription="1" source="Ack_rec_0" target="Sender_1_A"/>
+<outputArc inscription="1" source="Ack_send_0" target="Receiver_1_A"/>
+<outputArc inscription="1" source="ReSend_1" target="Sender_1_B"/>
+<outputArc inscription="1" source="ReSend_1" target="Medium_C"/>
+<outputArc inscription="1" source="Ack_send_1" target="Receiver_0_A"/>
+<outputArc inscription="1" source="Send_1" target="Sender_1_B"/>
+<outputArc inscription="1" source="Send_1" target="Medium_C"/>
+<outputArc inscription="1" source="Ack_rec_1" target="Sender_0_A"/>
+<outputArc inscription="1" source="Send_0" target="Medium_A"/>
+<outputArc inscription="1" source="Send_0" target="Sender_0_B"/>
+<outputArc inscription="1" source="ReSend_0" target="Medium_A"/>
+<outputArc inscription="1" source="ReSend_0" target="Sender_0_B"/>
+<transportArc inscription="[1,2]" source="Receiver_0_B" transition="Ack_send_0" target="Medium_B"/>
+<transportArc inscription="[0,1]" source="Medium_C" transition="Receive_old_1" target="Receiver_1_B"/>
+<transportArc inscription="[1,2]" source="Receiver_1_B" transition="Ack_send_1" target="Medium_D"/>
+<transportArc inscription="[0,10]" source="Medium_A" transition="Receive_0" target="Receiver_0_B"/>
+<transportArc inscription="[0,1]" source="Medium_A" transition="Receive_old_0" target="Receiver_0_B"/>
+<transportArc inscription="[0,1]" source="Medium_C" transition="Receive_1" target="Receiver_1_B"/>
+</net>
+</pnml>
