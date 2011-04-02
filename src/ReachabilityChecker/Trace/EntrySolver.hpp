@@ -13,12 +13,12 @@ namespace VerifyTAPN
 	class EntrySolver
 	{
 	public:
-		EntrySolver(unsigned int tokens, const std::deque<TraceInfo>& traceInfos) : lraTable(0), entryTimeDBM(traceInfos.size()+1), tokens(tokens), traceInfos(traceInfos), EPSILON(0.1) { };
+		EntrySolver(unsigned int tokens, const std::deque<TraceInfo>& traceInfos) : lraTable(0), entryTimeDBM(traceInfos.size()+1), clocks(tokens+1), traceInfos(traceInfos), EPSILON(0.1) { };
 		virtual ~EntrySolver() { delete[] lraTable; };
 
-		void CalculateDelays();
+		std::vector<decimal> CalculateDelays();
 	private:
-		inline unsigned int LastResetAt(unsigned int location, unsigned int clock) const { return lraTable[location*tokens+clock]; };
+		inline unsigned int LastResetAt(unsigned int location, unsigned int clock) const { return lraTable[location*clocks+clock]; };
 
 		void CreateLastResetAtLookupTable();
 		void CreateEntryTimeDBM();
@@ -35,7 +35,7 @@ namespace VerifyTAPN
 		unsigned int* lraTable;
 		dbm::dbm_t entryTimeDBM;
 
-		unsigned int tokens;
+		unsigned int clocks;
 		const std::deque<TraceInfo>& traceInfos;
 
 		const decimal EPSILON;

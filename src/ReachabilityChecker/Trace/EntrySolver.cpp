@@ -1,13 +1,13 @@
 #include "EntrySolver.hpp"
-
+#include "dbm/print.h"
 
 namespace VerifyTAPN
 {
-	void EntrySolver::CalculateDelays()
+	std::vector<decimal> EntrySolver::CalculateDelays()
 	{
 		CreateLastResetAtLookupTable();
 		CreateEntryTimeDBM();
-		std::vector<decimal> delays = FindSolution();
+		return FindSolution();
 	}
 
 	// See CTU - DCCreator.cpp for details!
@@ -16,22 +16,23 @@ namespace VerifyTAPN
 		unsigned int locations = traceInfos.size()+1;
 
 		if(lraTable != 0) delete[] lraTable;
-		lraTable = new unsigned int[tokens*locations]; // TODO: check that this gives correct number of places
+		lraTable = new unsigned int[locations*clocks]; // TODO: check that this gives correct number of places
 
-		for(unsigned int i = 0; i < tokens; i++)
+		for(unsigned int i = 0; i < clocks; i++)
 		{
 			lraTable[i] = 0;
 		}
 
 		for(unsigned int loc = 1; loc < locations; loc++)
 		{
-			for(unsigned int clock = 0; clock < tokens; clock++)
+			unsigned int index = loc-1;
+			for(unsigned int clock = 0; clock < clocks; clock++)
 			{
-				bool isClockUsed = IsClockResetInStep(clock, traceInfos[loc]);
+				bool isClockUsed = IsClockResetInStep(clock, traceInfos[index]);
 				if(isClockUsed)
-					lraTable[loc*tokens+clock] = loc;
+					lraTable[loc*clocks+clock] = loc;
 				else
-					lraTable[loc*tokens+clock] = lraTable[(loc-1)*tokens+clock];
+					lraTable[loc*clocks+clock] = lraTable[(loc-1)*clocks+clock];
 			}
 		}
 	}
@@ -41,7 +42,16 @@ namespace VerifyTAPN
 		const std::vector<Participant>& participants = traceInfo.Participants();
 		for(std::vector<Participant>::const_iterator it = participants.begin(); it != participants.end(); it++)
 		{
-			if(it->TokenIndex() != -1 && static_cast<unsigned int>(it->ClockIndex()) == clock) return true;
+			const Participant& participant = *it;
+
+			if(participant.TokenIndex() != -1 && static_cast<unsigned int>(participant.ClockIndex()) == clock)
+			{
+				return true;
+			}
+			else if(participant.TokenIndex() == -1 && static_cast<unsigned int>(participant.ClockIndexAfterFiring()) == clock)
+			{
+				return true;
+			}
 		}
 		return false;
 	}
@@ -52,9 +62,6 @@ namespace VerifyTAPN
 		unsigned int dim = traceInfos.size();
 		entryTimeDBM.setInit();
 
-		// TODO: may directly write to underlying dbm to avoid O(n^2) close for each constrain?
-		entryTimeDBM.constrain(0, 1, dbm_bound2raw(0, dbm_WEAK));
-		entryTimeDBM.constrain(1, 0, dbm_bound2raw(0, dbm_WEAK));
 
 		// preliminary invariants using AfterAction here!
 
@@ -74,17 +81,20 @@ namespace VerifyTAPN
 			const_iterator end = traceInfo.Participants().end();
 			for(const_iterator it = begin; it != end; it++)
 			{
-				const TAPN::TimeInterval& interval = it->GetTimeInterval();
-				constraint_t lower(0, it->ClockIndex(), interval.LowerBoundToDBMRaw());
-				constraint_t upper(it->ClockIndex(), 0, interval.UpperBoundToDBMRaw());
-
-				constraint_t entryLower(AfterDelay(i, lower));
-				entryTimeDBM.constrain(entryLower);
-				constraint_t entryUpper(AfterDelay(i, upper));
-				entryTimeDBM.constrain(entryUpper);
-				if(entryTimeDBM.isEmpty())
+				if(it->TokenIndex() != -1)
 				{
-					std::cout << "*";
+					const TAPN::TimeInterval& interval = it->GetTimeInterval();
+
+					constraint_t lower(0, it->ClockIndex(), interval.LowerBoundToDBMRaw());
+					constraint_t upper(it->ClockIndex(), 0, interval.UpperBoundToDBMRaw());
+
+					constraint_t entryLower(AfterDelay(i, lower));
+					entryTimeDBM.constrain(entryLower);
+					if(interval.UpperBoundToDBMRaw() != dbm_LS_INFINITY)
+					{
+						constraint_t entryUpper(AfterDelay(i, upper));
+						entryTimeDBM.constrain(entryUpper);
+					}
 				}
 			}
 		}
@@ -92,7 +102,7 @@ namespace VerifyTAPN
 		// add constraints e_i - e_i+1 <= 0
 		for(unsigned int i = 0; i < dim; i++)
 		{
-			entryTimeDBM.constrain(i, i+1, dbm_bound2raw(0, dbm_WEAK));
+			entryTimeDBM.constrain(i, i+1, 0, false);
 		}
 	}
 
@@ -110,10 +120,10 @@ namespace VerifyTAPN
 	// Theory: AfterDelay(Trace, index, guard/invariant)
 	constraint_t EntrySolver::AfterDelay(unsigned int locationIndex, const constraint_t& constraint) const
 	{
-		if(constraint.j == 0 && constraint.i != 0)
+		if(constraint.i != 0 && constraint.j == 0)
 			return constraint_t(locationIndex+1, LastResetAt(locationIndex, constraint.i), constraint.value);
 		else if(constraint.i == 0 && constraint.j != 0)
-			return constraint_t(LastResetAt(locationIndex, constraint.i), locationIndex+1, constraint.value);
+			return constraint_t(LastResetAt(locationIndex, constraint.j), locationIndex+1, constraint.value);
 		else
 			return constraint_t(LastResetAt(locationIndex, constraint.j), LastResetAt(locationIndex, constraint.i), constraint.value);
 	}
@@ -122,7 +132,6 @@ namespace VerifyTAPN
 	std::vector<decimal> EntrySolver::FindSolution() const
 	{
 		unsigned int dim = entryTimeDBM.getDimension();
-
 		std::vector<decimal> entry_times(dim);
 		bool restricted[dim];
 
@@ -140,7 +149,7 @@ namespace VerifyTAPN
 			if(!restricted[i])
 			{
 				bool lowerStrict = dbm_rawIsStrict(entryTimeDBM(0,i));
-				decimal lower = decimal(dbm_raw2bound(entryTimeDBM(0,i)));
+				decimal lower = decimal(-dbm_raw2bound(entryTimeDBM(0,i)));
 
 				bool upperStrict = dbm_rawIsStrict(entryTimeDBM(i,0));
 				decimal upper = decimal(dbm_raw2bound(entryTimeDBM(i,0)));
@@ -151,7 +160,7 @@ namespace VerifyTAPN
 					if(restricted[j] && i != j)
 					{
 						bool strict = dbm_rawIsStrict(entryTimeDBM(i,j));
-						decimal bound = decimal(-dbm_raw2bound(entryTimeDBM(i,j))) + entry_times[j];
+						decimal bound = decimal(dbm_raw2bound(entryTimeDBM(i,j))) + entry_times[j];
 						if(bound < upper || (bound == upper && strict))
 						{
 							upperStrict = strict;
@@ -159,7 +168,7 @@ namespace VerifyTAPN
 						}
 
 						strict = dbm_rawIsStrict(entryTimeDBM(j,i));
-						bound = decimal(dbm_raw2bound(entryTimeDBM(j,i))) + entry_times[j];
+						bound = decimal(-dbm_raw2bound(entryTimeDBM(j,i))) + entry_times[j];
 						if(bound > lower || (bound == lower && strict))
 						{
 							lowerStrict = strict;

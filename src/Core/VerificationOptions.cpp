@@ -1,7 +1,7 @@
 #include "VerificationOptions.hpp"
 #include <iostream>
 #include "boost/program_options.hpp"
-#include "boost/filesystem.hpp"
+//#include "boost/filesystem.hpp"
 
 namespace VerifyTAPN {
 	std::string enumToString(Trace trace){
@@ -43,7 +43,6 @@ namespace VerifyTAPN {
 
 	VerificationOptions VerificationOptions::ParseVerificationOptions(int argc, char* argv[])
 	{
-		std::string workingdir = boost::filesystem::initial_path().string();
 		bool error = false;
 
 		boost::program_options::options_description desc("Usage: verifytapn -k <number> [-t <number>] model-file query-file \nAllowed Options:");
@@ -142,6 +141,6 @@ namespace VerifyTAPN {
 			exit(0);
 		}
 
-		return VerificationOptions(vm["model-file"].as<std::string>(), vm["query-file"].as<std::string>(), search, vm["k-bound"].as<int>(), symmetry, trace, untimedPlaces, globalConstants, workingdir);
+		return VerificationOptions(vm["model-file"].as<std::string>(), vm["query-file"].as<std::string>(), search, vm["k-bound"].as<int>(), symmetry, trace, untimedPlaces, globalConstants);
 	}
 }

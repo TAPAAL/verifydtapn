@@ -7,7 +7,7 @@ namespace VerifyTAPN {
 	namespace TAPN {
 		void TimedTransition::Print(std::ostream& out) const
 		{
-			out << GetName();
+			out << GetName() << "(" << index << ")";
 		}
 
 		void TimedTransition::AddToPreset(const boost::shared_ptr<TimedInputArc>& arc)

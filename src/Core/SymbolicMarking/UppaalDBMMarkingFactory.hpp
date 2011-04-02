@@ -13,12 +13,12 @@ namespace VerifyTAPN {
 		UppaalDBMMarkingFactory() { };
 		virtual ~UppaalDBMMarkingFactory() {};
 
-		virtual SymbolicMarking* InitialMarking(const DiscretePart& dp) const
+		virtual SymbolicMarking* InitialMarking(const std::vector<int>& tokenPlacement) const
 		{
-			dbm::dbm_t dbm(dp.size()+1);
+			dbm::dbm_t dbm(tokenPlacement.size()+1);
 			dbm.setZero();
-			DBMMarking* marking = new DBMMarking(dp, dbm);
-			marking->id = nextId++;
+			DBMMarking* marking = new DBMMarking(DiscretePart(tokenPlacement), dbm);
+			marking->id = 0;
 			return marking;
 		};
 

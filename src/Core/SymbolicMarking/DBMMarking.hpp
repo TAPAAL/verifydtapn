@@ -14,12 +14,12 @@ namespace VerifyTAPN {
 	public:
 		static MarkingFactory* factory;
 	public:
-		DBMMarking(const DiscretePart& dp, const dbm::dbm_t& dbm) : DiscreteMarking(dp), dbm(dbm), mapping()
+		DBMMarking(const DiscretePart& dp, const dbm::dbm_t& dbm) : DiscreteMarking(dp), dbm(dbm), mapping(), id()
 		{
 			InitMapping();
 			assert(IsConsistent());
 		};
-		DBMMarking(const DBMMarking& dm) : DiscreteMarking(dm), dbm(dm.dbm), mapping(dm.mapping) { };
+		DBMMarking(const DBMMarking& dm) : DiscreteMarking(dm), dbm(dm.dbm), mapping(dm.mapping), id(dm.id) { };
 		virtual ~DBMMarking() { };
 
 		virtual SymbolicMarking* Clone() const { return factory->Clone(*this); }; // TODO: this should somehow use the factory
@@ -56,6 +56,7 @@ namespace VerifyTAPN {
 
 		virtual void AddTokens(const std::list<int>& placeIndices);
 		virtual void RemoveTokens(const std::vector<int>& tokenIndices);
+		const dbm::dbm_t& GetDBM() const { return dbm; };
 	private:
 		void InitMapping();
 		relation ConvertToRelation(relation_t relation) const;

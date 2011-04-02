@@ -20,18 +20,15 @@ namespace VerifyTAPN {
 				bool symmetry,
 				Trace trace,
 				bool useUntimedPlaces,
-				bool useGlobalMaxConstants,
-				const std::string& workingdir
-			) :
-				inputFile(inputFile),
+				bool useGlobalMaxConstants
+			) :	inputFile(inputFile),
 				queryFile(queryFile),
 				searchType(searchType),
 				k_bound(k_bound),
 				symmetry(symmetry),
 				trace(trace),
 				useUntimedPlaces(useUntimedPlaces),
-				useGlobalMaxConstants(useGlobalMaxConstants),
-				workingdir(workingdir)
+				useGlobalMaxConstants(useGlobalMaxConstants)
 			{};
 
 		public: // static
@@ -45,7 +42,6 @@ namespace VerifyTAPN {
 			inline const bool GetSymmetryEnabled() const { return symmetry; }
 			inline const bool GetUntimedPlacesEnabled() const { return useUntimedPlaces; }
 			inline const bool GetGlobalMaxConstantsEnabled() const { return useGlobalMaxConstants; }
-			inline const std::string& GetWorkingDirPath() const { return workingdir; }
 			inline const SearchType GetSearchType() const { return searchType; }
 		private:
 			std::string inputFile;
@@ -56,7 +52,6 @@ namespace VerifyTAPN {
 			Trace trace;
 			bool useUntimedPlaces;
 			bool useGlobalMaxConstants;
-			std::string workingdir;
 	};
 
 }

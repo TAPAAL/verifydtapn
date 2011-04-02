@@ -32,19 +32,7 @@ namespace VerifyTAPN
 
 	private:
 		void CalculateDelays(const std::deque<TraceInfo>& traceInfos, std::vector<decimal>& delays) const;
-//		rapidxml::xml_document<>* CreateInputDocForCTU(const std::deque<TraceInfo>& traceInfos) const;
-//		void GenerateSystemDescription(rapidxml::xml_document<>& doc, rapidxml::xml_node<>& root, const std::deque<TraceInfo>& traceInfos) const;
-//		std::string GenerateGuardFromTraceInfo(const TraceInfo& traceInfo) const;
-//		std::string GenerateUpdateFromTraceInfo(const TraceInfo& traceInfo) const;
-//		void GenerateLocationVectors(rapidxml::xml_document<>& doc, rapidxml::xml_node<>& root, const std::deque<TraceInfo>& traceInfos) const;
-//		void GenerateNodeDescriptions(rapidxml::xml_document<>& doc, rapidxml::xml_node<>& root, const std::deque<TraceInfo>& traceInfos) const;
-//		void GenerateDBMS(rapidxml::xml_document<>& doc, rapidxml::xml_node<>& root, const std::deque<TraceInfo>& traceInfos) const;
-//		void GenerateDBMDescription(rapidxml::xml_document<>& doc, rapidxml::xml_node<>& dbmNode, const dbm::dbm_t& info) const;
-//		void GenerateStates(rapidxml::xml_document<>& doc, rapidxml::xml_node<>& root, const std::deque<TraceInfo>& traceInfos) const;
-//
-//		void RunCTUToObtainDelays(rapidxml::xml_document<>& doc, std::vector<double>& delays) const;
-//		void RunCTU(const std::string& tempFile, std::string& output) const;
-//		void ParseDelays(const std::string& input, std::vector<double>& delays) const;
+
 	private: // data
 		HashMap store;
 		SymbolicMarking* initialMarking;

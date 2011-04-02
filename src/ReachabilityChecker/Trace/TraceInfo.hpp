@@ -10,18 +10,20 @@ namespace VerifyTAPN
 	class Participant
 	{
 	public:
-		Participant(int tokenIndex, int clockIndex, const TAPN::TimeInterval& ti, int indexAfterFiring)
-			: tokenIndex(tokenIndex), clockIndex(clockIndex), ti(ti), indexAfterFiring(indexAfterFiring) { };
+		Participant(int tokenIndex, int clockIndex, const TAPN::TimeInterval& ti, int indexAfterFiring, int clockIndexAfterFiring)
+			: tokenIndex(tokenIndex), clockIndex(clockIndex), ti(ti), indexAfterFiring(indexAfterFiring), clockIndexAfterFiring(clockIndexAfterFiring) { };
 	public:
 		inline int ClockIndex() const { return clockIndex; }
 		inline int TokenIndex() const { return tokenIndex; };
 		inline const TAPN::TimeInterval& GetTimeInterval() const { return ti; };
 		inline int IndexAfterFiring() const { return indexAfterFiring; };
+		inline int ClockIndexAfterFiring() const { return clockIndexAfterFiring; };
 	private:
 		int tokenIndex;
 		int clockIndex;
 		TAPN::TimeInterval ti;
 		int indexAfterFiring;
+		int clockIndexAfterFiring;
 	};
 
 	class TraceInfo

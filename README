@@ -11,8 +11,7 @@ b. Install boost libraries (we used 1.40 but any version that is backward
 	- On ubuntu you can install it through the software center
 	- Otherwise, there is a guide here: 
 	  http://www.boost.org/doc/libs/1_40_0/more/getting_started/unix-variants.html
-	- You need to build the libraries Boost.ProgramOptions, Boost.Filesystem 
-	  and Boost.Regex separately if you download it manually
+	- You need to build the library Boost.ProgramOptions separately if you download it manually
 c. Download UPPAAL DBM library (we use version 2.0.7)
 	- unpack the downloaded file
 	- go to the "modules" folder

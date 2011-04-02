@@ -8,6 +8,7 @@
 #include "boost/algorithm/string.hpp"
 #include <sstream>
 #include "boost/regex.hpp"
+#include "../../Core/SymbolicMarking/DBMMarking.hpp"
 
 
 namespace VerifyTAPN{
@@ -76,12 +77,12 @@ namespace VerifyTAPN{
 		return out;
 	}
 
-	ConcreteMarking CreateConcreteInitialMarking(const std::vector<int>& placement, const VerifyTAPN::TAPN::TimedArcPetriNet& tapn)
+	ConcreteMarking CreateConcreteInitialMarking(SymbolicMarking* initialMarking, const VerifyTAPN::TAPN::TimedArcPetriNet& tapn)
 	{
 		ConcreteMarking marking;
-		for(std::vector<int>::const_iterator iter = placement.begin(); iter != placement.end(); ++iter)
+		for(unsigned int i = 0; i < initialMarking->NumberOfTokens(); i++)
 		{
-			Token token(tapn.GetPlace(*iter).GetName());
+			Token token(tapn.GetPlace(initialMarking->GetTokenPlacement(i)).GetName());
 			marking.Add(token);
 		}
 		return marking;
@@ -121,36 +122,36 @@ namespace VerifyTAPN{
 			traceInfos.push_front(info);
 			currentId = info.PreviousStateId();
 		}
-		//xml_document<>* doc = CreateInputDocForCTU(traceInfos);
+
 		std::vector<decimal> delays;
 		CalculateDelays(traceInfos, delays);
-		//RunCTUToObtainDelays(*doc, delays);
 
-		if(delays.size() > 0)
+
+		TAPN::TimedTransition::Vector transitions = tapn.GetTransitions();
+		std::cerr << std::endl << "Trace: " << std::endl;
+		ConcreteMarking marking = CreateConcreteInitialMarking(this->initialMarking, tapn);
+		std::cerr << "\t" << marking;
+		for(unsigned int i = 0; i < traceInfos.size(); ++i)
 		{
-//			TAPN::TimedTransition::Vector transitions = tapn.GetTransitions();
-//			std::cerr << std::endl << "Trace: " << std::endl;
-//			ConcreteMarking marking = CreateConcreteInitialMarking(initialMarking->GetDiscretePart().GetTokenPlacementVector(), tapn);
-//			std::cerr << "\t" << marking;
-//			for(unsigned int i = 0; i < traceInfos.size(); ++i)
-//			{
-//				const TraceInfo& traceInfo = traceInfos[i];
-//				int index = traceInfo.TransitionIndex();
-//				const TAPN::TimedTransition& transition = *transitions[index];
-//				std::cerr << "\tDelay: " << delays[i] << std::endl;
-//				marking.Delay(delays[i]);
-//				std::cerr << "\t" << marking;
-//				std::cerr << "\tTransition: " << transition.GetName()  << std::endl;
-//				UpdateMarking(marking, traceInfo, tapn);
-//				std::cerr << "\t" << marking;
-//			}
+			const TraceInfo& traceInfo = traceInfos[i];
+			int index = traceInfo.TransitionIndex();
+			const TAPN::TimedTransition& transition = *transitions[index];
+			if(delays[i] > decimal(0)){
+				std::cerr << "\tDelay: " << delays[i] << std::endl;
+				marking.Delay(delays[i]);
+				std::cerr << "\t" << marking;
+			}
+			std::cerr << "\tTransition: " << transition.GetName()  << std::endl;
+			UpdateMarking(marking, traceInfo, tapn);
+			std::cerr << "\t" << marking;
 		}
 	}
 
 	void TraceStore::CalculateDelays(const std::deque<TraceInfo>& traceInfos, std::vector<decimal>& delays) const
 	{
 		EntrySolver solver(options.GetKBound(), traceInfos);
-		solver.CalculateDelays(); // TODO: Get delays somehow
+		std::vector<decimal> calculatedDelays = solver.CalculateDelays(); // TODO: Get delays somehow
+		delays.swap(calculatedDelays);
 	}
 
 
