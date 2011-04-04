@@ -44,14 +44,11 @@ namespace VerifyTAPN
 		{
 			const Participant& participant = *it;
 
-			if(participant.TokenIndex() != -1 && static_cast<unsigned int>(participant.ClockIndex()) == clock)
+			if(static_cast<unsigned int>(participant.ClockIndexAfterDiscreteUpdate()) == clock)
 			{
 				return true;
 			}
-			else if(participant.TokenIndex() == -1 && static_cast<unsigned int>(participant.ClockIndexAfterFiring()) == clock)
-			{
-				return true;
-			}
+
 		}
 		return false;
 	}

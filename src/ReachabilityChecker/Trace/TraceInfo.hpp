@@ -17,7 +17,7 @@ namespace VerifyTAPN
 		inline int TokenIndex() const { return tokenIndex; };
 		inline const TAPN::TimeInterval& GetTimeInterval() const { return ti; };
 		inline int IndexAfterFiring() const { return indexAfterFiring; };
-		inline int ClockIndexAfterFiring() const { return clockIndexAfterFiring; };
+		inline int ClockIndexAfterDiscreteUpdate() const { return clockIndexAfterFiring; };
 	private:
 		int tokenIndex;
 		int clockIndex;
