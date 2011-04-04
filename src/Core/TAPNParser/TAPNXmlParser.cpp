@@ -42,7 +42,7 @@ namespace VerifyTAPN {
 
 		TAPNXmlParser::ArcCollections arcs = ParseArcs(root, places, transitions);
 
-		boost::shared_ptr<TimedArcPetriNet> tapn = boost::make_shared<TimedArcPetriNet>(places, transitions, arcs.inputArcs, arcs.outputArcs, arcs.transportArcs);
+		boost::shared_ptr<TimedArcPetriNet> tapn = boost::make_shared<TimedArcPetriNet>(places, transitions, arcs.inputArcs, arcs.outputArcs, arcs.transportArcs, arcs.inhibitorArcs);
 
 		return tapn;
 	}
@@ -97,9 +97,10 @@ namespace VerifyTAPN {
 
 		TimedInputArc::Vector inputArcs = ParseInputArcs(root, places, transitions);
 		TransportArc::Vector transportArcs = ParseTransportArcs(root, places, transitions);
+		InhibitorArc::Vector inhibitorArcs = ParseInhibitorArcs(root,places,transitions);
 		OutputArc::Vector outputArcs = ParseOutputArcs(root, places, transitions);
 
-		return ArcCollections(inputArcs, outputArcs, transportArcs);
+		return ArcCollections(inputArcs, outputArcs, transportArcs, inhibitorArcs);
 	}
 
 	TransportArc::Vector TAPNXmlParser::ParseTransportArcs(const rapidxml::xml_node<>& root, const TimedPlace::Vector& places, const TimedTransition::Vector& transitions) const
@@ -111,6 +112,17 @@ namespace VerifyTAPN {
 			arcNode = arcNode->next_sibling("transportArc");
 		}
 		return transportArcs;
+	}
+
+	InhibitorArc::Vector TAPNXmlParser::ParseInhibitorArcs(const rapidxml::xml_node<>& root, const TimedPlace::Vector& places, const TimedTransition::Vector& transitions) const
+	{
+		InhibitorArc::Vector inhibitorArcs;
+		xml_node<>* arcNode = root.first_node("inhibitorArc");
+		while(arcNode != NULL){
+			inhibitorArcs.push_back(ParseInhibitorArc(*arcNode, places, transitions));
+			arcNode = arcNode->next_sibling("inhibitorArc");
+		}
+		return inhibitorArcs;
 	}
 
 	TimedInputArc::Vector TAPNXmlParser::ParseInputArcs(const xml_node<>& root, const TimedPlace::Vector& places, const TimedTransition::Vector& transitions) const
@@ -160,6 +172,17 @@ namespace VerifyTAPN {
 		TimedTransition::Vector::const_iterator transition = find_if(transitions.begin(), transitions.end(), boost::bind(boost::mem_fn(&TimedTransition::GetId), _1) == transitionName);
 		TimedPlace::Vector::const_iterator target = find_if(places.begin(), places.end(), boost::bind(boost::mem_fn(&TimedPlace::GetId), _1) == targetName);
 		return boost::make_shared<TransportArc>(*source, *transition, *target, TimeInterval::CreateFor(interval));
+	}
+
+	boost::shared_ptr<InhibitorArc> TAPNXmlParser::ParseInhibitorArc(const rapidxml::xml_node<>& arcNode, const TimedPlace::Vector& places, const TimedTransition::Vector& transitions) const
+	{
+		std::string source = arcNode.first_attribute("source")->value();
+		std::string target = arcNode.first_attribute("target")->value();
+
+		TimedPlace::Vector::const_iterator place = find_if(places.begin(), places.end(), boost::bind(boost::mem_fn(&TimedPlace::GetId), _1) == source);
+		TimedTransition::Vector::const_iterator transition = find_if(transitions.begin(), transitions.end(), boost::bind(boost::mem_fn(&TimedTransition::GetId), _1) == target);
+
+		return boost::make_shared<InhibitorArc>(*place, *transition);
 	}
 
 	boost::shared_ptr<OutputArc> TAPNXmlParser::ParseOutputArc(const rapidxml::xml_node<>& arcNode, const TimedPlace::Vector& places, const TimedTransition::Vector& transitions) const

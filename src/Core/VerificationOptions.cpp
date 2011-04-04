@@ -100,12 +100,12 @@ namespace VerifyTAPN {
 
 		bool untimedPlaces = true;
 		if(vm.count("untimed-places")) {
-			std::cout << "untimed place optimization is OFF\n";
+			std::cout << "Untimed place optimization is OFF\n";
 			untimedPlaces = false;
 		}
 		else
 		{
-			std::cout << "untimed place optimization is ON\n";
+			std::cout << "Untimed place optimization is ON\n";
 		}
 
 		bool globalConstants = false;

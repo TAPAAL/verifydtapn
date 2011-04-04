@@ -1,0 +1,11 @@
+<pnml>
+<net id="ComposedModel" type="P/T net">
+<place id="P0" name="P0" invariant="&lt; inf" initialMarking="1" />
+<place id="P1" name="P1" invariant="&lt; inf" initialMarking="1" />
+<place id="P2" name="P2" invariant="&lt; inf" initialMarking="0" />
+<transition id="T0" name="T0"/>
+<inputArc inscription="[3,7)" source="P0" target="T0"/>
+<outputArc inscription="1" source="T0" target="P2"/>
+<inhibitorArc inscription="[0,inf)" source="P1" target="T0"/>
+</net>
+</pnml>

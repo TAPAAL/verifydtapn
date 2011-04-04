@@ -23,6 +23,14 @@ namespace VerifyTAPN {
 			}
 		}
 
+		void TimedTransition::AddIncomingInhibitorArc(const boost::shared_ptr<InhibitorArc>& arc)
+		{
+			if(arc)
+			{
+				inhibitorArcs.push_back(arc);
+			}
+		}
+
 		void TimedTransition::AddToPostset(const boost::shared_ptr<OutputArc>& arc)
 		{
 			if(arc)

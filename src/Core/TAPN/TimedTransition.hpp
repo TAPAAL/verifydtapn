@@ -5,6 +5,7 @@
 #include <vector>
 #include "TimedInputArc.hpp"
 #include "TransportArc.hpp"
+#include "InhibitorArc.hpp"
 #include "OutputArc.hpp"
 #include "boost/shared_ptr.hpp"
 
@@ -28,6 +29,7 @@ class SymMarking;
 			void AddToPreset(const boost::shared_ptr<TimedInputArc>& arc);
 			void AddToPostset(const boost::shared_ptr<OutputArc>& arc);
 			void AddTransportArcGoingThrough(const boost::shared_ptr<TransportArc>& arc);
+			void AddIncomingInhibitorArc(const boost::shared_ptr<InhibitorArc>& arc);
 
 			inline void SetIndex(int i) { index = i; };
 		public: // inspectors
@@ -36,6 +38,7 @@ class SymMarking;
 			void Print(std::ostream&) const;
 			inline const TimedInputArc::WeakPtrVector& GetPreset() const { return preset; }
 			inline const TransportArc::WeakPtrVector& GetTransportArcs() const { return transportArcs; }
+			inline const InhibitorArc::WeakPtrVector& GetInhibitorArcs() const { return inhibitorArcs; }
 			inline const unsigned int GetPresetSize() const { return NumberOfInputArcs() + NumberOfTransportArcs(); }
 			inline const OutputArc::WeakPtrVector& GetPostset() const { return postset; }
 			inline const unsigned int GetPostsetSize() const { return postset.size() + transportArcs.size(); }
@@ -51,6 +54,7 @@ class SymMarking;
 			TimedInputArc::WeakPtrVector preset;
 			OutputArc::WeakPtrVector postset;
 			TransportArc::WeakPtrVector transportArcs;
+			InhibitorArc::WeakPtrVector inhibitorArcs;
 			unsigned int index;
 		};
 

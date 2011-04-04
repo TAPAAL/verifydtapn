@@ -80,8 +80,7 @@ namespace VerifyTAPN {
 		for(TAPN::TimedTransition::Vector::const_iterator iter = transitions.begin(); iter != transitions.end(); ++iter)
 		{
 			unsigned int presetSize = (*iter)->GetPresetSize();
-
-			if(IsTransitionEnabled(currentTransitionIndex, presetSize))
+			if(IsTransitionEnabled(*(*iter),marking,currentTransitionIndex, presetSize))
 			{
 				// The indicesOfCurrentPermutation array stores the column indices
 				// into the token matrix for the current permutation of input tokens.
@@ -123,8 +122,21 @@ namespace VerifyTAPN {
 	// you can check the enabledness of a transition by specifying
 	// the index of the first input arc of the transition
 	// along with the size of the preset of the transition
-	bool SuccessorGenerator::IsTransitionEnabled(unsigned int currTransitionIndex, unsigned int presetSize) const
+	bool SuccessorGenerator::IsTransitionEnabled(const TAPN::TimedTransition& transition, const SymbolicMarking* marking, unsigned int currTransitionIndex, unsigned int presetSize) const
 	{
+		const TAPN::InhibitorArc::WeakPtrVector& inhibitorArcs = transition.GetInhibitorArcs();
+		for(TAPN::InhibitorArc::WeakPtrVector::const_iterator iter = inhibitorArcs.begin(); iter != inhibitorArcs.end(); ++iter)
+		{
+			boost::shared_ptr<TAPN::InhibitorArc> ia = iter->lock();
+			int sourcePlaceIndex = ia->InputPlace().GetIndex();
+
+			for(unsigned int i = 0; i < marking->NumberOfTokens(); i++)
+			{
+				if(marking->GetTokenPlacement(i) == sourcePlaceIndex)
+					return false;
+			}
+		}
+
 		for(unsigned int i = currTransitionIndex; i < currTransitionIndex + presetSize; ++i)
 		{
 			if(arcsArray[i] <= 0)

@@ -57,7 +57,7 @@ namespace VerifyTAPN {
 	    void GenerateSuccessors(const TAPN::TimedTransition::Vector & transitions, const SymbolicMarking *marking, std::vector<Successor> & succ);
 	    void GenerateSuccessorForCurrentPermutation(const TAPN::TimedTransition & currTransition, const unsigned int *indices, const unsigned int currTransitionIndex, const unsigned int presetSize, const SymbolicMarking *marking, std::vector<Successor> & succ);
 	private:
-	    bool IsTransitionEnabled(unsigned int currTransitionIndex, unsigned int presetSize) const;
+	    bool IsTransitionEnabled(const TAPN::TimedTransition& transition, const SymbolicMarking* marking, unsigned int currTransitionIndex, unsigned int presetSize) const;
 	    void UpdateArcInfo(const SymbolicMarking *marking, int currInputPlaceIndex, const TAPN::TimeInterval & ti, unsigned int & currInputArcIdx);
 	private:
 	    const TAPN::TimedArcPetriNet& tapn;

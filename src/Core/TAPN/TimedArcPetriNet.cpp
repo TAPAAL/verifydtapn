@@ -37,6 +37,11 @@ namespace VerifyTAPN {
 				UpdateMaxConstant(arc->Interval());
 			}
 
+			for(InhibitorArc::Vector::const_iterator iter = inhibitorArcs.begin(); iter != inhibitorArcs.end(); ++iter) {
+				const boost::shared_ptr<InhibitorArc>& arc = *iter;
+				arc->OutputTransition().AddIncomingInhibitorArc(arc);
+			}
+
 			for(OutputArc::Vector::const_iterator iter = outputArcs.begin(); iter != outputArcs.end(); ++iter)
 			{
 				const boost::shared_ptr<OutputArc>& arc = *iter;
@@ -166,6 +171,25 @@ namespace VerifyTAPN {
 				out << *(*iter);
 				out << ", ";
 			}
+
+			if(transportArcs.size() > 0) {
+				out << std::endl << "  Transport Arcs: ";
+				for(TransportArc::Vector::const_iterator iter = transportArcs.begin(); iter != transportArcs.end(); iter++)
+				{
+					out << *(*iter);
+					out << ", ";
+				}
+			}
+
+			if(inhibitorArcs.size() > 0) {
+				out << std::endl << "  Inhibitor Arcs: ";
+				for(InhibitorArc::Vector::const_iterator iter = inhibitorArcs.begin(); iter != inhibitorArcs.end(); iter++)
+				{
+					out << *(*iter);
+					out << ", ";
+				}
+			}
+
 
 			out << std::endl << "  Output Arcs: ";
 			for(OutputArc::Vector::const_iterator iter = outputArcs.begin(); iter != outputArcs.end(); iter++)
