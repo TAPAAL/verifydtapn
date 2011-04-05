@@ -21,7 +21,6 @@ namespace VerifyTAPN
 	public: // constructors / destructors
 		TraceStore(const VerificationOptions& options, SymbolicMarking* initialMarking) : store(), initialMarking(initialMarking), options(options) { };
 		~TraceStore() {};
-
 	public:
 		inline void Save(const id_type& id, const TraceInfo& traceInfo){
 			store.insert(std::pair<id_type, TraceInfo>(id, traceInfo));

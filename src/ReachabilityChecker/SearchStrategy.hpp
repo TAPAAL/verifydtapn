@@ -57,6 +57,7 @@ namespace VerifyTAPN
 		const QueryChecker checker;
 		VerificationOptions options;
 		SuccessorGenerator succGen;
+		MarkingFactory* factory;
 		TraceStore traceStore;
 		int* maxConstantsArray;
 	};

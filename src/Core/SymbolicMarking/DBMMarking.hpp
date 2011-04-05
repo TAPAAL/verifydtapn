@@ -6,34 +6,49 @@
 #include "TokenMapping.hpp"
 #include "dbm/fed.h"
 #include "MarkingFactory.hpp"
+#include "../TAPN/TimedArcPetriNet.hpp"
 
 namespace VerifyTAPN {
 
 	class DBMMarking: public DiscreteMarking, public StoredMarking {
 		friend class UppaalDBMMarkingFactory;
+		friend class DiscreteInclusionMarkingFactory;
 	public:
-		static MarkingFactory* factory;
+		static boost::shared_ptr<TAPN::TimedArcPetriNet> tapn;
 	public:
-		DBMMarking(const DiscretePart& dp, const dbm::dbm_t& dbm) : DiscreteMarking(dp), dbm(dbm), mapping(), id()
-		{
-			InitMapping();
-			assert(IsConsistent());
-		};
-		DBMMarking(const DBMMarking& dm) : DiscreteMarking(dm), dbm(dm.dbm), mapping(dm.mapping), id(dm.id) { };
+		DBMMarking(const DiscretePart& dp, const dbm::dbm_t& dbm) : DiscreteMarking(dp), dbm(dbm), mapping() { InitMapping(); assert(IsConsistent()); };
+		DBMMarking(const DiscretePart& dp, const TokenMapping& mapping, const dbm::dbm_t& dbm) : DiscreteMarking(dp), dbm(dbm), mapping(mapping) { assert(IsConsistent()); };
+		DBMMarking(const DBMMarking& dm) : DiscreteMarking(dm), dbm(dm.dbm), mapping(dm.mapping) { };
 		virtual ~DBMMarking() { };
 
-		virtual SymbolicMarking* Clone() const { return factory->Clone(*this); }; // TODO: this should somehow use the factory
 		virtual id_type UniqueId() const { return id; };
 		virtual size_t HashKey() const { return VerifyTAPN::hash()(dp); };
 
 		virtual void Reset(int token) { dbm(mapping.GetMapping(token)) = 0; };
 		virtual bool IsEmpty() const { return dbm.isEmpty(); };
-		virtual void Delay() { dbm.up(); };
+		virtual void Delay()
+		{
+			dbm.up();
+			for(unsigned int i = 0; i < NumberOfTokens(); i++)
+			{
+				const TAPN::TimeInvariant& invariant = tapn->GetPlace(GetTokenPlacement(i)).GetInvariant();
+				Constrain(i, invariant);
+				assert(!IsEmpty()); // this should not be possible
+			}
+		};
 		virtual void Constrain(int token, const TAPN::TimeInterval& interval)
 		{
 			int clock = mapping.GetMapping(token);
 			dbm.constrain(0,clock, interval.LowerBoundToDBMRaw());
 			dbm.constrain(clock, 0, interval.UpperBoundToDBMRaw());
+		};
+
+		virtual void Constrain(int token, const TAPN::TimeInvariant& invariant)
+		{
+			if(invariant.GetBound() != std::numeric_limits<int>::max())
+			{
+				dbm.constrain(mapping.GetMapping(token), 0, dbm_boundbool2raw(invariant.GetBound(), invariant.IsBoundStrict()));
+			}
 		};
 
 		virtual bool PotentiallySatisfies(int token, const TAPN::TimeInterval& interval) const
@@ -51,15 +66,17 @@ namespace VerifyTAPN {
 			return ConvertToRelation(relation);
 		}
 
-		virtual void Extrapolate(const int* maxConstants) { dbm.extrapolateMaxBounds(maxConstants); };
+		virtual void Extrapolate(const int* maxConstants) { dbm.diagonalExtrapolateMaxBounds(maxConstants); };
 		virtual unsigned int GetClockIndex(unsigned int token) const { return mapping.GetMapping(token); };
 
 		virtual void AddTokens(const std::list<int>& placeIndices);
 		virtual void RemoveTokens(const std::vector<int>& tokenIndices);
+
+		raw_t GetLowerBound(int clock) const { return dbm(0,clock); };
 		const dbm::dbm_t& GetDBM() const { return dbm; };
+
 	private:
 		void InitMapping();
-		relation ConvertToRelation(relation_t relation) const;
 
 		bool IsConsistent() const
 		{
@@ -67,6 +84,8 @@ namespace VerifyTAPN {
 			{
 				return false;
 			}
+
+			if(mapping.size() != dp.size()) return false;
 
 			for(unsigned int i = 0; i < dp.size(); i++)
 			{
@@ -80,11 +99,13 @@ namespace VerifyTAPN {
 	protected:
 		virtual void Swap(int i, int j);
 		virtual bool IsUpperPositionGreaterThanPivot(int upper, int pivotIndex) const;
+		relation ConvertToRelation(relation_t relation) const;
 
-	private: // data
+	protected: // data
 		dbm::dbm_t dbm;
 		TokenMapping mapping;
 		id_type id;
+
 	};
 
 }

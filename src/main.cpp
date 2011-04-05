@@ -9,6 +9,7 @@
 #include "dbm/print.h"
 
 #include "Core/SymbolicMarking/UppaalDBMMarkingFactory.hpp"
+#include "Core/SymbolicMarking/DiscreteInclusionMarkingFactory.hpp"
 
 using namespace std;
 using namespace VerifyTAPN;
@@ -20,16 +21,16 @@ namespace VerifyTAPN{
 	class SymbolicMarking;
 }
 
+
 int main(int argc, char* argv[]) {
 	VerificationOptions options = VerificationOptions::ParseVerificationOptions(argc, argv);
 
-	MarkingFactory* factory = new UppaalDBMMarkingFactory();
-	DBMMarking::factory = factory;
-
 	TAPNXmlParser modelParser;
-
 	boost::shared_ptr<TAPN::TimedArcPetriNet> tapn = modelParser.Parse(options.GetInputFile());
 	tapn->Initialize(options.GetUntimedPlacesEnabled());
+
+	MarkingFactory* factory = new UppaalDBMMarkingFactory(tapn);
+	//MarkingFactory* factory = new DiscreteInclusionMarkingFactory(tapn);
 
 	std::vector<int> initialPlacement(modelParser.ParseMarking(options.GetInputFile(), *tapn));
 	SymbolicMarking* initialMarking(factory->InitialMarking(initialPlacement));

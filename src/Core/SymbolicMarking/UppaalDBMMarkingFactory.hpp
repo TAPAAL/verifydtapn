@@ -7,10 +7,13 @@
 namespace VerifyTAPN {
 
 	class UppaalDBMMarkingFactory : public MarkingFactory {
-	private:
+	protected:
 		static id_type nextId;
 	public:
-		UppaalDBMMarkingFactory() { };
+		UppaalDBMMarkingFactory(const boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn)
+		{
+			DBMMarking::tapn = tapn;
+		};
 		virtual ~UppaalDBMMarkingFactory() {};
 
 		virtual SymbolicMarking* InitialMarking(const std::vector<int>& tokenPlacement) const
@@ -30,6 +33,16 @@ namespace VerifyTAPN {
 		};
 		virtual StoredMarking* Convert(SymbolicMarking* marking) const { return static_cast<DBMMarking*>(marking); };
 		virtual SymbolicMarking* Convert(StoredMarking* marking) const { return static_cast<DBMMarking*>(marking); };
+
+		virtual void Release(SymbolicMarking* marking)
+		{
+
+		};
+
+		virtual void Release(StoredMarking* marking)
+		{
+
+		};
 	};
 
 }

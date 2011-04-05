@@ -2,7 +2,7 @@
 
 namespace VerifyTAPN
 {
-	MarkingFactory* DBMMarking::factory = NULL;
+	boost::shared_ptr<TAPN::TimedArcPetriNet> DBMMarking::tapn;
 
 	// Add a token in each output place of placesOfTokensToAdd
 	// and add placesOfTokensToAdd.size() clocks to the DBM.
@@ -10,6 +10,7 @@ namespace VerifyTAPN
 	// which tokens are in the original dbm (bitSrc) and which are in the resulting DBM (bitDst).
 	void DBMMarking::AddTokens(const std::list<int>& placeIndices)
 	{
+		unsigned int tokens = NumberOfTokens();
 		unsigned int nAdditionalTokens = placeIndices.size();
 		unsigned int oldDimension = dbm.getDimension();
 		unsigned int newDimension = oldDimension + nAdditionalTokens;
@@ -41,12 +42,13 @@ namespace VerifyTAPN
 		dbm.resize(bitSrc, bitDst, bitArraySize, table);
 
 		unsigned int i = 0;
+		unsigned int newTokenIndex = tokens;
 		for(std::list<int>::const_iterator iter = placeIndices.begin(); iter != placeIndices.end(); ++iter)
 		{
 			dbm(oldDimension+i) = 0; // reset new clocks to zero
-			mapping.AddTokenToMapping(oldDimension+i);
+			mapping.SetMapping(newTokenIndex, oldDimension+i);
 			dp.AddTokenInPlace(*iter);
-			i++;
+			i++;newTokenIndex++;
 		}
 
 		assert(IsConsistent());
@@ -126,18 +128,16 @@ namespace VerifyTAPN
 			mapping.RemoveToken(tokenIndices[i]);
 			dp.RemoveToken(tokenIndices[i]);
 		}
+
+		assert(IsConsistent());
 	}
 
 	void DBMMarking::InitMapping()
 	{
-		std::vector<unsigned int> map;
-
-		for(unsigned int i = 0; i < NumberOfTokens(); i++)
+		for(unsigned int i = 0; i < dp.size(); i++)
 		{
-			map.push_back(i+1);
+			mapping.SetMapping(i, i+1);
 		}
-
-		mapping = TokenMapping(map);
 	}
 
 	relation DBMMarking::ConvertToRelation(relation_t relation) const
@@ -157,7 +157,9 @@ namespace VerifyTAPN
 		int pivot = dp.GetTokenPlacement(pivotIndex);
 		unsigned int mapUpper = mapping.GetMapping(upper);
 		unsigned int mapPivot = mapping.GetMapping(pivotIndex);
-
+		if(mapPivot > dp.size()+1){
+			std::cout << "*";
+		}
 		return DiscreteMarking::IsUpperPositionGreaterThanPivot(upper, pivotIndex)
 				|| (placeUpper == pivot && dbm(0,mapUpper) >  dbm(0,mapPivot))
 				|| (placeUpper == pivot && dbm(0,mapUpper) == dbm(0,mapPivot) && dbm(mapUpper,0) > dbm(mapPivot,0))

@@ -1,7 +1,4 @@
 #include "TimedTransition.hpp"
-#include "../SymbolicMarking/SymMarking.hpp"
-#include "../SymbolicMarking/DiscretePart.hpp"
-#include "TimedArcPetriNet.hpp"
 
 namespace VerifyTAPN {
 	namespace TAPN {
@@ -15,6 +12,22 @@ namespace VerifyTAPN {
 			if(arc)
 			{
 				preset.push_back(arc);
+			}
+		}
+
+		void TimedTransition::AddTransportArcGoingThrough(const boost::shared_ptr<TransportArc>& arc)
+		{
+			if(arc)
+			{
+				transportArcs.push_back(arc);
+			}
+		}
+
+		void TimedTransition::AddIncomingInhibitorArc(const boost::shared_ptr<InhibitorArc>& arc)
+		{
+			if(arc)
+			{
+				inhibitorArcs.push_back(arc);
 			}
 		}
 

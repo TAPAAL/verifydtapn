@@ -1,5 +1,6 @@
 #include "PWList.hpp"
 #include "../../Core/SymbolicMarking/MarkingFactory.hpp"
+#include "../../Core/SymbolicMarking/DiscreteMarking.hpp"
 
 namespace VerifyTAPN {
 	PWList::~PWList()
@@ -30,6 +31,7 @@ namespace VerifyTAPN {
 			//assert(eqdp()(currentNode->GetMarking().GetDiscretePart(), dp));
 			if((relation & SUBSET) != 0)
 			{ // check subseteq
+				factory->Release(storedMarking);
 				return false;
 			}
 			else if(relation == SUPERSET)

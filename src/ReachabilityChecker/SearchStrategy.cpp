@@ -2,6 +2,9 @@
 #include "../Core/TAPN/TimedArcPetriNet.hpp"
 #include "Successor.hpp"
 
+#include "../Core/SymbolicMarking/DBMMarking.hpp"
+#include "dbm/print.h"
+
 namespace VerifyTAPN
 {
 	DefaultSearchStrategy::DefaultSearchStrategy(
@@ -10,7 +13,7 @@ namespace VerifyTAPN
 		const AST::Query* query,
 		const VerificationOptions& options,
 		MarkingFactory* factory
-	) : tapn(tapn), initialMarking(initialMarking), checker(query), options(options), succGen(tapn, options), traceStore(options, initialMarking)
+	) : tapn(tapn), initialMarking(initialMarking), checker(query), options(options), succGen(tapn, *factory, options), factory(factory), traceStore(options, initialMarking)
 	{
 		if(options.GetSearchType() == DEPTHFIRST)
 			pwList = new PWList(new StackWaitingList, factory);
@@ -23,6 +26,24 @@ namespace VerifyTAPN
 			maxConstantsArray[i] = tapn.MaxConstant();
 		}
 	};
+
+	void print(const SymbolicMarking& marking){
+		const DBMMarking& dbmMarking = static_cast<const DBMMarking&>(marking);
+		std::cout << "id: " << dbmMarking.UniqueId() << "\n";
+		std::cout << "dp: ";
+		for(unsigned int i = 0; i < dbmMarking.NumberOfTokens(); i++){
+			if(i != 0) std::cout << ", ";
+			std::cout << dbmMarking.GetTokenPlacement(i);
+		}
+		std::cout << "\nmapping: ";
+		for(unsigned int i = 0; i < dbmMarking.NumberOfTokens(); i++){
+			if(i != 0) std::cout << ", ";
+			std::cout << i << ":" << dbmMarking.GetClockIndex(i);
+		}
+		std::cout << "\ndbm:\n";
+		std::cout << dbmMarking.GetDBM();
+		std::cout << "\n";
+	}
 
 	bool DefaultSearchStrategy::Verify()
 	{
@@ -39,7 +60,8 @@ namespace VerifyTAPN
 			return checker.IsEF(); // return true if EF query (proof found), or false if AG query (counter example found)
 		}
 
-		while(pwList->HasWaitingStates()){
+		while(pwList->HasWaitingStates())
+		{
 			SymbolicMarking* next = pwList->GetNextUnexplored();
 
 			typedef std::vector<Successor> SuccessorVector;
@@ -62,13 +84,15 @@ namespace VerifyTAPN
 
 				bool added = pwList->Add(succ);
 
-
-				if(!added) delete (*iter).Marking();
-				else if(CheckQuery(succ)){
+				if(added && CheckQuery(succ)){
+					factory->Release(iter->Marking());
 					if(options.GetTrace() != NONE) traceStore.SetFinalMarking(iter->Marking());
+
 					return checker.IsEF();
 				}
+				factory->Release(iter->Marking());
 			}
+			factory->Release(next);
 
 			//PrintDiagnostics(successors.size());
 		}

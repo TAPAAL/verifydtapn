@@ -1,0 +1,38 @@
+<pnml>
+<net id="ComposedModel" type="P/T net">
+<place id="P0" name="P0" invariant="&lt; inf" initialMarking="50" />
+<place id="P1" name="P1" invariant="&lt;= 5" initialMarking="0" />
+<place id="P2" name="P2" invariant="&lt;= 10" initialMarking="0" />
+<place id="P3" name="P3" invariant="&lt;= 20" initialMarking="0" />
+<place id="P4" name="P4" invariant="&lt; inf" initialMarking="0" />
+<place id="P5" name="P5" invariant="&lt;= 15" initialMarking="0" />
+<place id="P6" name="P6" invariant="&lt; inf" initialMarking="0" />
+<place id="P7" name="P7" invariant="&lt; inf" initialMarking="0" />
+<transition id="T0" name="T0"/><transition id="T1" name="T1"/><transition id="T2" name="T2"/><transition id="T3" name="T3"/><transition id="T4" name="T4"/><transition id="T5" name="T5"/><transition id="T6" name="T6"/><transition id="T7" name="T7"/><inputArc inscription="[0,inf)" source="P0" target="T6"/>
+<inputArc inscription="[0,inf)" source="P0" target="T7"/>
+<inputArc inscription="[10,inf)" source="P3" target="T1"/>
+<inputArc inscription="[0,inf)" source="P4" target="T3"/>
+<inputArc inscription="[7,inf)" source="P5" target="T2"/>
+<inputArc inscription="[0,inf)" source="P6" target="T0"/>
+<inputArc inscription="[0,inf)" source="P6" target="T6"/>
+<inputArc inscription="[0,inf)" source="P7" target="T4"/>
+<outputArc inscription="1" source="T1" target="P1"/>
+<outputArc inscription="1" source="T2" target="P1"/>
+<outputArc inscription="1" source="T3" target="P5"/>
+<outputArc inscription="1" source="T3" target="P6"/>
+<outputArc inscription="1" source="T6" target="P2"/>
+<outputArc inscription="1" source="T6" target="P6"/>
+<outputArc inscription="1" source="T6" target="P7"/>
+<outputArc inscription="1" source="T7" target="P2"/>
+<outputArc inscription="1" source="T7" target="P6"/>
+<transportArc inscription="[3,inf)" source="P1" transition="T0" target="P0"/>
+<transportArc inscription="[0,10]" source="P2" transition="T4" target="P4"/>
+<transportArc inscription="[0,inf)" source="P2" transition="T5" target="P3"/>
+<inhibitorArc inscription="[0,inf)" source="P1" target="T3"/>
+<inhibitorArc inscription="[0,inf)" source="P4" target="T7"/>
+<inhibitorArc inscription="[0,inf)" source="P6" target="T3"/>
+<inhibitorArc inscription="[0,inf)" source="P6" target="T7"/>
+<inhibitorArc inscription="[0,inf)" source="P7" target="T5"/>
+<inhibitorArc inscription="[0,inf)" source="P7" target="T6"/>
+</net>
+</pnml>
