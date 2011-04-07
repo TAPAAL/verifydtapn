@@ -4,6 +4,7 @@
 #include "../../Core/TAPN/TimeInterval.hpp"
 #include <vector>
 #include "../../Core/SymbolicMarking/SymbolicMarking.hpp"
+#include "../../Core/IndirectionTable.hpp"
 
 namespace VerifyTAPN
 {
@@ -32,21 +33,24 @@ namespace VerifyTAPN
 		typedef long long id_type;
 	public:
 		TraceInfo(id_type prevState, int transitionIndex, id_type stateId)
-			: stateId(stateId), prevState(prevState), transitionIndex(transitionIndex) {};
+			: stateId(stateId), prevState(prevState), transitionIndex(transitionIndex), indirectionTable() {};
 	public:
 		inline id_type StateId() const { return stateId; };
 		inline id_type PreviousStateId() const { return prevState; };
 		inline int	TransitionIndex() const { return transitionIndex; };
 		inline const std::vector<Participant>& Participants() const { return participants; };
+		inline const IndirectionTable& GetIndirectionTable() const { return indirectionTable; };
 	public:
 		inline void AddParticipant(const Participant& participant) { participants.push_back(participant); };
 		inline void setMarking(const SymbolicMarking* marking) { this->marking = marking; };
+		inline void SetSymmetryMapping(const IndirectionTable& indirectionTable) { this->indirectionTable = indirectionTable; };
 		inline const SymbolicMarking& Marking() const { return *marking; };
 	private: // data
 		id_type stateId;
 		id_type prevState;
 		int transitionIndex;
 		std::vector<Participant> participants;
+		IndirectionTable indirectionTable;
 		const SymbolicMarking* marking;
 	};
 }

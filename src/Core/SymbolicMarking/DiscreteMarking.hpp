@@ -37,23 +37,33 @@ namespace VerifyTAPN {
 		// Used for symmetry reduction: if two states are symmetric they will have the same canonical form.
 		// The placement vector is sorted in ascending order, tokens in the same place are sorted on their lower bound,
 		// subsequently on their upper bound and finally by diagonal constraints if necessary.
-		virtual void Canonicalize() { quickSort(0, dp.size()-1); };
+		virtual void MakeSymmetric(BiMap& indirectionTable)
+		{
+			typedef boost::bimap<unsigned int, unsigned int>::value_type element;
+			for(unsigned int i = 0; i < dp.size(); i++)
+			{
+				indirectionTable.insert( element(i,i) );
+			}
+
+			quickSort(0, dp.size()-1, indirectionTable);
+		};
 
 	private:
-		void quickSort(int left, int right)
+		void quickSort(int left, int right, BiMap& indirectionTable)
 		{
 			if(right > left)
 			{
 				int pivot = left + (right - left)/2;
-				int newPivot = Partition(left, right, pivot);
-				quickSort(left, newPivot - 1);
-				quickSort(newPivot + 1, right);
+				int newPivot = Partition(left, right, pivot, indirectionTable);
+				quickSort(left, newPivot - 1, indirectionTable);
+				quickSort(newPivot + 1, right, indirectionTable);
 			}
 		};
 
-		int Partition(int left, int right, int pivot)
+		int Partition(int left, int right, int pivot, BiMap& indirectionTable)
 		{
 			Swap(pivot, right);
+			UpdateIndirectionTable(indirectionTable, pivot, right);
 			int indexToReturn = left;
 			for(int i = left; i < right; ++i)
 			{
@@ -61,10 +71,12 @@ namespace VerifyTAPN {
 				if(!IsUpperPositionGreaterThanPivot(i, right))
 				{
 					Swap(i, indexToReturn);
+					UpdateIndirectionTable(indirectionTable, i, indexToReturn);
 					indexToReturn++;
 				}
 			}
 			Swap(indexToReturn, right);
+			UpdateIndirectionTable(indirectionTable, indexToReturn, right);
 			return indexToReturn;
 		};
 
@@ -80,10 +92,26 @@ namespace VerifyTAPN {
 		{
 			dp.Swap(i,j);
 		};
+
+		virtual void UpdateIndirectionTable(BiMap& indirectionTable, unsigned int i, unsigned int j)
+		{
+			if(i != j)
+			{
+				BiMap::right_iterator i_iterator = indirectionTable.right.find(i);
+				BiMap::value_type new_i(i_iterator->second, j);
+				indirectionTable.right.erase(i_iterator);
+
+				BiMap::right_iterator j_iterator = indirectionTable.right.find(j);
+				BiMap::value_type new_j(j_iterator->second, i);
+				indirectionTable.right.erase(j_iterator);
+
+				indirectionTable.insert(new_i);
+				indirectionTable.insert(new_j);
+			}
+		}
 	protected: // data
 		DiscretePart dp;
 	};
-
 }
 
 #endif /* DISCRETEMARKING_HPP_ */

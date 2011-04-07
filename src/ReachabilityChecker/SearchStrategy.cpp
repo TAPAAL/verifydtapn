@@ -1,9 +1,7 @@
 #include "SearchStrategy.hpp"
 #include "../Core/TAPN/TimedArcPetriNet.hpp"
 #include "Successor.hpp"
-
-#include "../Core/SymbolicMarking/DBMMarking.hpp"
-#include "dbm/print.h"
+#include "../typedefs.hpp"
 
 namespace VerifyTAPN
 {
@@ -27,32 +25,16 @@ namespace VerifyTAPN
 		}
 	};
 
-	void print(const SymbolicMarking& marking){
-		const DBMMarking& dbmMarking = static_cast<const DBMMarking&>(marking);
-		std::cout << "id: " << dbmMarking.UniqueId() << "\n";
-		std::cout << "dp: ";
-		for(unsigned int i = 0; i < dbmMarking.NumberOfTokens(); i++){
-			if(i != 0) std::cout << ", ";
-			std::cout << dbmMarking.GetTokenPlacement(i);
-		}
-		std::cout << "\nmapping: ";
-		for(unsigned int i = 0; i < dbmMarking.NumberOfTokens(); i++){
-			if(i != 0) std::cout << ", ";
-			std::cout << i << ":" << dbmMarking.GetClockIndex(i);
-		}
-		std::cout << "\ndbm:\n";
-		std::cout << dbmMarking.GetDBM();
-		std::cout << "\n";
-	}
-
 	bool DefaultSearchStrategy::Verify()
 	{
 		initialMarking->Delay();
 		UpdateMaxConstantsArray(*initialMarking);
 		initialMarking->Extrapolate(maxConstantsArray);
 
-		if(options.GetSymmetryEnabled())
-			initialMarking->Canonicalize();
+		if(options.GetSymmetryEnabled()){
+			BiMap bimap;
+			initialMarking->MakeSymmetric(bimap);
+		}
 
 		pwList->Add(*initialMarking);
 		if(CheckQuery(*initialMarking)){
@@ -79,8 +61,17 @@ namespace VerifyTAPN
 
 				succ.Extrapolate(maxConstantsArray);
 
-				if(options.GetSymmetryEnabled()) succ.Canonicalize();
-				if(options.GetTrace() != NONE) traceStore.Save(succ.UniqueId(), iter->GetTraceInfo());
+				BiMap bimap;
+				if(options.GetSymmetryEnabled())
+				{
+					succ.MakeSymmetric(bimap);
+				}
+				if(options.GetTrace() != NONE){
+
+					TraceInfo traceInfo = iter->GetTraceInfo();
+					traceInfo.SetSymmetryMapping(IndirectionTable(bimap));
+					traceStore.Save(succ.UniqueId(), traceInfo);
+				}
 
 				bool added = pwList->Add(succ);
 
