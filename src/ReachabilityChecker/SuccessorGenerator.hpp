@@ -59,6 +59,9 @@ namespace VerifyTAPN {
 	private:
 	    bool IsTransitionEnabled(const TAPN::TimedTransition& transition, const SymbolicMarking* marking, unsigned int currTransitionIndex, unsigned int presetSize) const;
 	    void UpdateArcInfo(const SymbolicMarking *marking, int currInputPlaceIndex, const TAPN::TimeInterval & ti, unsigned int & currInputArcIdx);
+
+	    void MakeIdentity(IndirectionTable& mapping, unsigned int size) const;
+	    void UpdateTraceMapping(IndirectionTable& mapping, unsigned int tokenToRemove) const;
 	private:
 	    const TAPN::TimedArcPetriNet& tapn;
 		const MarkingFactory& factory;

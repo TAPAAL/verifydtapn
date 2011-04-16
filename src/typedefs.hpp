@@ -4,5 +4,5 @@
 #include "boost/bimap.hpp"
 
 typedef boost::bimap<unsigned int, unsigned int> BiMap;
-
+typedef double decimal;
 #endif /* TYPEDEFS_HPP_ */

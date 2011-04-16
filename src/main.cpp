@@ -41,24 +41,20 @@ void print(const SymbolicMarking& marking){
 
 void test(){
 	std::vector<int> vec;
-	vec.push_back(4);
-	vec.push_back(2);
-	vec.push_back(1);
+	vec.push_back(6);
 	vec.push_back(3);
+	vec.push_back(4);
 
 	DiscretePart dp(vec);
 
-	dbm::dbm_t dbm(5);
+	dbm::dbm_t dbm(4);
 	dbm.setInit();
-	dbm.constrain(0,1, -4, false);
-	dbm.constrain(1,0, 8, false);
-	dbm.constrain(0,2, -2, false);
-	dbm.constrain(2,0, 4, false);
-	dbm.constrain(0,3, -1, false);
-	dbm.constrain(3,0, 2, false);
-	dbm.constrain(0,4, -3, false);
-	dbm.constrain(4,0, 6, false);
-
+	dbm.constrain(1,2, 0, false);
+	dbm.constrain(1,3, 5, false);
+	dbm.constrain(2,1, 0, false);
+	dbm.constrain(2,3, 5, false);
+	dbm.constrain(3,1, 0, false);
+	dbm.constrain(3,2, 0, false);
 	DBMMarking marking(dp,dbm);
 
 	print(marking);
@@ -82,7 +78,7 @@ int main(int argc, char* argv[]) {
 	TAPNXmlParser modelParser;
 	boost::shared_ptr<TAPN::TimedArcPetriNet> tapn = modelParser.Parse(options.GetInputFile());
 	tapn->Initialize(options.GetUntimedPlacesEnabled());
-
+	std::cout << *tapn << "\n";
 	MarkingFactory* factory = new UppaalDBMMarkingFactory(tapn);
 	//MarkingFactory* factory = new DiscreteInclusionMarkingFactory(tapn);
 

@@ -5,11 +5,10 @@
 #include <deque>
 #include <vector>
 #include "dbm/fed.h"
+#include "../../typedefs.hpp"
 
 namespace VerifyTAPN
 {
-	typedef double decimal;
-
 	class EntrySolver
 	{
 	public:
@@ -31,6 +30,7 @@ namespace VerifyTAPN
 
 		decimal FindValueInRange(bool lowerStrict, decimal lower, decimal upper, bool upperStrict, decimal lastEntryTime) const;
 		void ConvertEntryTimesToDelays(const std::vector<decimal>& entry_times, std::vector<decimal>& delays) const;
+	    unsigned int RemapTokenIndex(const TraceInfo & traceInfo, unsigned int index) const;
 	private:
 		unsigned int* lraTable;
 		dbm::dbm_t entryTimeDBM;

@@ -3,6 +3,10 @@
 #include "Successor.hpp"
 #include "../typedefs.hpp"
 
+//TODO: delete
+#include "../Core/SymbolicMarking/DBMMarking.hpp"
+#include "dbm/print.h"
+
 namespace VerifyTAPN
 {
 	DefaultSearchStrategy::DefaultSearchStrategy(
@@ -24,6 +28,7 @@ namespace VerifyTAPN
 			maxConstantsArray[i] = tapn.MaxConstant();
 		}
 	};
+
 
 	bool DefaultSearchStrategy::Verify()
 	{
@@ -69,7 +74,7 @@ namespace VerifyTAPN
 				if(options.GetTrace() != NONE){
 
 					TraceInfo traceInfo = iter->GetTraceInfo();
-					traceInfo.SetSymmetryMapping(IndirectionTable(bimap));
+					traceInfo.SetSymmetricMapping(IndirectionTable(bimap));
 					traceStore.Save(succ.UniqueId(), traceInfo);
 				}
 

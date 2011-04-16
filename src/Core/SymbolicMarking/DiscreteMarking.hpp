@@ -39,10 +39,11 @@ namespace VerifyTAPN {
 		// subsequently on their upper bound and finally by diagonal constraints if necessary.
 		virtual void MakeSymmetric(BiMap& indirectionTable)
 		{
-			typedef boost::bimap<unsigned int, unsigned int>::value_type element;
+			typedef BiMap::value_type element;
 			for(unsigned int i = 0; i < dp.size(); i++)
 			{
-				indirectionTable.insert( element(i,i) );
+				std::pair<BiMap::const_iterator, bool> success = indirectionTable.insert( element(i,i) );
+				assert(success.second);
 			}
 
 			quickSort(0, dp.size()-1, indirectionTable);
@@ -97,16 +98,23 @@ namespace VerifyTAPN {
 		{
 			if(i != j)
 			{
-				BiMap::right_iterator i_iterator = indirectionTable.right.find(i);
-				BiMap::value_type new_i(i_iterator->second, j);
-				indirectionTable.right.erase(i_iterator);
+				BiMap::right_map& right_map = indirectionTable.right;
+				BiMap::right_iterator i_iterator = right_map.find(i);
+				assert(i_iterator != right_map.end());
 
-				BiMap::right_iterator j_iterator = indirectionTable.right.find(j);
+				BiMap::value_type new_i(i_iterator->second, j); // iterator is invalidated when we delete, so we create the new one to insert first
+				right_map.erase(i_iterator);
+
+				BiMap::right_iterator j_iterator = right_map.find(j);
+				assert(j_iterator != right_map.end());
+
 				BiMap::value_type new_j(j_iterator->second, i);
-				indirectionTable.right.erase(j_iterator);
+				right_map.erase(j_iterator);
 
-				indirectionTable.insert(new_i);
-				indirectionTable.insert(new_j);
+				std::pair<BiMap::const_iterator, bool> success = indirectionTable.insert(new_i);
+				assert(success.second);
+				success = indirectionTable.insert(new_j);
+				assert(success.second);
 			}
 		}
 	protected: // data

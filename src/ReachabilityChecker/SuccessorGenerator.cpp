@@ -2,6 +2,7 @@
 #include "../Core/TAPN/TimedInputArc.hpp"
 #include "../Core/SymbolicMarking/SymbolicMarking.hpp"
 #include "../Core/TAPN/Pairing.hpp"
+#include <algorithm>
 
 namespace VerifyTAPN {
 	void SuccessorGenerator::GenerateDiscreteTransitionsSuccessors(const SymbolicMarking& marking, std::vector<Successor>& succ)
@@ -258,6 +259,8 @@ namespace VerifyTAPN {
 		// Store trace information
 		if(trace){
 			TraceInfo traceInfo(marking->UniqueId(), transition.GetIndex(), next->UniqueId());
+			IndirectionTable mapping;
+			MakeIdentity(mapping, options.GetKBound());
 
 			for(unsigned int i = 0; i < presetSize; ++i)
 			{
@@ -270,6 +273,7 @@ namespace VerifyTAPN {
 					if(*iter < tokenIndex) indexAfterFiring--;
 					else if(*iter == tokenIndex){
 						indexAfterFiring = -1;
+						UpdateTraceMapping(mapping, tokenIndex);
 						break;
 					}
 				}
@@ -277,7 +281,7 @@ namespace VerifyTAPN {
 				assert(tokenIndex < static_cast<int>(marking->NumberOfTokens()));
 				assert(indexAfterFiring < static_cast<int>(next->NumberOfTokens()));
 
-				int clockIndexAfterFiring = indexAfterFiring == -1 ? indexAfterFiring : next->GetClockIndex(indexAfterFiring);
+				int clockIndexAfterFiring = indexAfterFiring == -1 ? -1 : next->GetClockIndex(indexAfterFiring);
 				Participant participant(tokenIndex, marking->GetClockIndex(tokenIndex), ti, indexAfterFiring, clockIndexAfterFiring);
 				traceInfo.AddParticipant(participant);
 			}
@@ -286,10 +290,12 @@ namespace VerifyTAPN {
 				TAPN::TimeInterval inf;
 				for(int i = diff; i < 0; i++){
 					int indexAfterFiring = (marking->NumberOfTokens() - diff + i);
-					Participant participant(-1, -1, inf, indexAfterFiring, next->GetClockIndex(indexAfterFiring));
+					Participant participant(indexAfterFiring, indexAfterFiring+1, inf, indexAfterFiring, next->GetClockIndex(indexAfterFiring));
 					traceInfo.AddParticipant(participant);
 				}
 			}
+
+			traceInfo.SetTransitionFiringMapping(mapping);
 			traceInfo.setMarking(next);
 			succ.push_back(Successor(next, traceInfo));
 		}else{
@@ -297,6 +303,46 @@ namespace VerifyTAPN {
 		}
 		tokensToRemove.clear();
 	}
+
+	void SuccessorGenerator::MakeIdentity(IndirectionTable& mapping, unsigned int size) const
+	{
+		for(unsigned int i = 0; i < size; ++i)
+		{
+			mapping.AddMapping(i,i);
+		}
+	}
+
+    void SuccessorGenerator::UpdateTraceMapping(IndirectionTable& mapping, unsigned int tokenToRemove) const
+    {
+    	IndirectionTable table;
+    	for(unsigned int i = 0; i < tokenToRemove; i++)
+    	{
+    		table.AddMapping(i, mapping.MapForward(i));
+    	}
+    	table.AddMapping(tokenToRemove, mapping.Size() - 1);
+    	for(unsigned int i = tokenToRemove+1; i < mapping.Size(); ++i)
+    	{
+    		table.AddMapping(i, mapping.MapForward(i)-1);
+    	}
+    	mapping.Swap(table);
+    }
+
+//    void SuccessorGenerator::InvertMapping(std::vector<int>& mapping) const
+//    {
+//    	std::vector<int> inverted(mapping.size(),-1);
+//    	unsigned int count = 0;
+//    	for(unsigned int i = 0; i < mapping.size(); ++i)
+//    	{
+//    		int index = mapping[i];
+//    		if(index >= 0)
+//    		{
+//    			inverted[index] = i;
+//    			count++;
+//    		}
+//    	}
+//    	inverted.resize(count);
+//    	mapping.swap(inverted);
+//    }
 
 
 	void SuccessorGenerator::Print(std::ostream& out) const
