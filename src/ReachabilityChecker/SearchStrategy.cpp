@@ -15,7 +15,7 @@ namespace VerifyTAPN
 		const AST::Query* query,
 		const VerificationOptions& options,
 		MarkingFactory* factory
-	) : tapn(tapn), initialMarking(initialMarking), checker(query), options(options), succGen(tapn, *factory, options), factory(factory), traceStore(options, initialMarking)
+	) : tapn(tapn), initialMarking(initialMarking), checker(query), options(options), succGen(tapn, *factory, options), factory(factory), traceStore(options, initialMarking, tapn)
 	{
 		if(options.GetSearchType() == DEPTHFIRST)
 			pwList = new PWList(new StackWaitingList, factory);
@@ -43,7 +43,7 @@ namespace VerifyTAPN
 
 		pwList->Add(*initialMarking);
 		if(CheckQuery(*initialMarking)){
-			if(options.GetTrace() != NONE) traceStore.SetFinalMarking(initialMarking);
+			if(options.GetTrace() != NONE) traceStore.SetFinalMarkingId(initialMarking->UniqueId());
 			return checker.IsEF(); // return true if EF query (proof found), or false if AG query (counter example found)
 		}
 
@@ -82,7 +82,7 @@ namespace VerifyTAPN
 
 				if(added && CheckQuery(succ)){
 					factory->Release(iter->Marking());
-					if(options.GetTrace() != NONE) traceStore.SetFinalMarking(iter->Marking());
+					if(options.GetTrace() != NONE) traceStore.SetFinalMarkingId(iter->Marking()->UniqueId());
 
 					return checker.IsEF();
 				}

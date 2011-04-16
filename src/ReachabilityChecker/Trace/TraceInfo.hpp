@@ -40,11 +40,9 @@ namespace VerifyTAPN
 		inline const IndirectionTable& GetTransitionFiringMapping() const { return transitionFiringMapping; };
 	public:
 		inline void AddParticipant(const Participant& participant) { participants.push_back(participant); };
-		inline void setMarking(const SymbolicMarking* marking) { this->marking = marking; };
 		inline void SetSymmetricMapping(const IndirectionTable& indirectionTable) { this->indirectionTable = indirectionTable; };
 		inline void SetOriginalMapping(const std::vector<unsigned int>& mapping) { symmetric_trace_mapping = mapping; };
 		inline void SetTransitionFiringMapping(const IndirectionTable& mapping) { transitionFiringMapping = mapping; };
-		inline const SymbolicMarking& Marking() const { return *marking; }; // TODO: get rid of
 	private: // data
 		id_type stateId;
 		id_type prevState;
@@ -52,7 +50,6 @@ namespace VerifyTAPN
 		std::vector<Participant> participants;
 		IndirectionTable indirectionTable;
 		std::vector<unsigned int> symmetric_trace_mapping;
-		const SymbolicMarking* marking;
 		IndirectionTable transitionFiringMapping;
 	};
 }

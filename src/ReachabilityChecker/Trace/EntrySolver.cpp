@@ -1,5 +1,4 @@
 #include "EntrySolver.hpp"
-#include "dbm/print.h"
 
 namespace VerifyTAPN
 {
@@ -10,28 +9,10 @@ namespace VerifyTAPN
 		return FindSolution();
 	}
 
-	void dumpTraceInfo(const TraceInfo& traceInfo)
-	{
-		std::cout << traceInfo.TransitionIndex() << " (table size: " << traceInfo.GetSymmetricMapping().Size() << ")\n";
-		std::cout << "  Participants:\n";
-		for(std::vector<Participant>::const_iterator it = traceInfo.Participants().begin(); it != traceInfo.Participants().end(); it++)
-		{
-			std::cout << "  " << it->TokenIndex() << "\n";
-		}
-		std::cout << "\n  OriginalMapping:\n";
-		for(unsigned int i = 0; i < traceInfo.GetOriginalMapping().size(); i++)
-		{
-			std::cout << "  " << i << ":" << traceInfo.GetOriginalMapping()[i] << "\n";
-		}
-		std::cout << "\n\n";
-	}
-
-
 	// See CTU - DCCreator.cpp for details!
 	void EntrySolver::CreateLastResetAtLookupTable()
 	{
 
-		std::cout << "\n\n-----------------------------\n\nGENERATING LRA TABLE..." << std::endl;
 		unsigned int locations = traceInfos.size()+1;
 
 		if(lraTable != 0) delete[] lraTable;
@@ -41,16 +22,9 @@ namespace VerifyTAPN
 		{
 			lraTable[i] = 0;
 		}
-		std::cout << std::endl;
 		for(unsigned int loc = 1; loc < locations; loc++)
 		{
 			unsigned int index = loc-1;
-			std::cout << "location " << loc << " previousTable: ";
-			for(int x = 0; x < traceInfos[index].GetOriginalMapping().size(); x++)
-			{
-				std::cout << x << ":" << traceInfos[index].GetOriginalMapping()[x] << ", ";
-			}
-			std::cout << std::endl;
 			for(unsigned int clock = 0; clock < clocks; clock++)
 			{
 				bool isClockUsed = IsClockResetInStep(clock, traceInfos[index]);
@@ -58,16 +32,8 @@ namespace VerifyTAPN
 					lraTable[loc*clocks+clock] = loc;
 				else
 					lraTable[loc*clocks+clock] = lraTable[(loc-1)*clocks+clock];
-
-			//std::cout << lraTable[loc*clocks+clock] << ", ";
 			}
 		}
-		std::cout << "lraTable: ";
-		for(unsigned int i = 0; i < locations*clocks; i++)
-		{
-			std::cout << lraTable[i] << ", ";
-		}
-		std::cout << std::endl;
 	}
 
 
@@ -85,20 +51,10 @@ namespace VerifyTAPN
 			unsigned int symmetric_index = traceInfo.GetSymmetricMapping().MapForward(indexAfterFiring);
 			unsigned int mapped_token_index = traceInfo.GetOriginalMapping()[symmetric_index];
 			assert(mapped_token_index >= 0);
-			if((mapped_token_index+1) == clock){
-				std::cout << "\tToken " << mapped_token_index << ", clock " << clock << " (mapping: " << index << " --> " << indexAfterFiring << " --> " << symmetric_index << " --> " << mapped_token_index << ") was reset here\n";
+			if((mapped_token_index+1) == clock)
+			{
 				return true;
 			}
-//			if(participant.TokenIndex() != -1 && static_cast<unsigned int>(participant.ClockIndex()) == clock)
-//			{
-//				return true;
-//			}
-//			// From bottom
-//			else if(participant.TokenIndex() == -1 && static_cast<unsigned int>(participant.ClockIndexAfterDiscreteUpdate()) == clock)
-//			{
-//				return true;
-//			}
-
 		}
 		return false;
 	}
@@ -124,28 +80,26 @@ namespace VerifyTAPN
         //			let ti_up be constraint representing upper bound
         //			compute AfterDelay(i, ti_low), add to DBM
         // 			compute AfterDelay(i, ti_up), add to DBM
-        for(unsigned int i = 0;i < dim;i++){
+        for(unsigned int i = 0;i < dim;i++)
+        {
             const TraceInfo & traceInfo = traceInfos[i];
             typedef std::vector<Participant>::const_iterator const_iterator;
             const_iterator begin = traceInfo.Participants().begin();
             const_iterator end = traceInfo.Participants().end();
             for(const_iterator it = begin;it != end;it++){
-                //if(it->TokenIndex() != -1)
-                {
-                    const TAPN::TimeInterval & interval = it->GetTimeInterval();
-                    unsigned int mapped_token_index = RemapTokenIndex(traceInfo, it->TokenIndex());
+               const TAPN::TimeInterval & interval = it->GetTimeInterval();
+               unsigned int mapped_token_index = RemapTokenIndex(traceInfo, it->TokenIndex());
 
-                    constraint_t lower(0, mapped_token_index + 1, interval.LowerBoundToDBMRaw());
-                    constraint_t entryLower(AfterDelay(i, lower));
-                    entryTimeDBM.constrain(entryLower);
-                    if(interval.UpperBoundToDBMRaw() != dbm_LS_INFINITY){
-                        constraint_t upper(mapped_token_index + 1, 0, interval.UpperBoundToDBMRaw());
-                        constraint_t entryUpper(AfterDelay(i, upper));
-                        entryTimeDBM.constrain(entryUpper);
-                    }
-                }
+               constraint_t lower(0, mapped_token_index + 1, interval.LowerBoundToDBMRaw());
+               constraint_t entryLower(AfterDelay(i, lower));
+               entryTimeDBM.constrain(entryLower);
+               if(interval.UpperBoundToDBMRaw() != dbm_LS_INFINITY)
+               {
+            	   constraint_t upper(mapped_token_index + 1, 0, interval.UpperBoundToDBMRaw());
+                   constraint_t entryUpper(AfterDelay(i, upper));
+                   entryTimeDBM.constrain(entryUpper);
+               }
             }
-
         }
 
         // add constraints e_i - e_i+1 <= 0

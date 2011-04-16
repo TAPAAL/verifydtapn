@@ -295,7 +295,6 @@ namespace VerifyTAPN {
 			}
 
 			traceInfo.SetTransitionFiringMapping(mapping);
-			traceInfo.setMarking(next);
 			succ.push_back(Successor(next, traceInfo));
 		}else{
 			succ.push_back(Successor(next));
