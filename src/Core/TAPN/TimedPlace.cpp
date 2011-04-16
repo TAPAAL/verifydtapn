@@ -2,6 +2,8 @@
 
 namespace VerifyTAPN{
 	namespace TAPN{
+		const std::string TimedPlace::BOTTOM_NAME = "*BOTTOM*";
+
 		const std::string& TimedPlace::GetName() const
 		{
 			return name;

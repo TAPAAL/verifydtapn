@@ -4,15 +4,13 @@
 
 #include "boost/functional/hash.hpp"
 #include "google/sparse_hash_map"
-#include "../../../lib/rapidxml-1.13/rapidxml.hpp"
 #include <deque>
 #include "../../Core/VerificationOptions.hpp"
-#include "EntrySolver.hpp"
-
+#include "../../typedefs.hpp"
+#include "TraceInfo.hpp"
 namespace VerifyTAPN
 {
 	namespace TAPN { class TimedArcPetriNet; }
-	class TraceInfo;
 	class SymbolicMarking;
 
 	class TraceStore

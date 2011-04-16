@@ -280,9 +280,8 @@ namespace VerifyTAPN {
 
 				assert(tokenIndex < static_cast<int>(marking->NumberOfTokens()));
 				assert(indexAfterFiring < static_cast<int>(next->NumberOfTokens()));
-
-				int clockIndexAfterFiring = indexAfterFiring == -1 ? -1 : next->GetClockIndex(indexAfterFiring);
-				Participant participant(tokenIndex, marking->GetClockIndex(tokenIndex), ti, indexAfterFiring, clockIndexAfterFiring);
+				int placement =  indexAfterFiring == -1 ? -1 : next->GetTokenPlacement(indexAfterFiring);
+				Participant participant(tokenIndex, ti,placement);
 				traceInfo.AddParticipant(participant);
 			}
 
@@ -290,7 +289,7 @@ namespace VerifyTAPN {
 				TAPN::TimeInterval inf;
 				for(int i = diff; i < 0; i++){
 					int indexAfterFiring = (marking->NumberOfTokens() - diff + i);
-					Participant participant(indexAfterFiring, indexAfterFiring+1, inf, indexAfterFiring, next->GetClockIndex(indexAfterFiring));
+					Participant participant(indexAfterFiring,inf, next->GetTokenPlacement(indexAfterFiring));
 					traceInfo.AddParticipant(participant);
 				}
 			}

@@ -23,13 +23,15 @@ namespace VerifyTAPN{
 				return -1;
 			}
 
+			static const std::string BOTTOM_NAME;
+
 		public: // typedefs
 			typedef std::vector< boost::shared_ptr<TimedPlace> > Vector;
 
 		public: // construction / destruction
 			TimedPlace(const std::string& name, const std::string& id, const TimeInvariant timeInvariant)
 			: name(name), id(id), timeInvariant(timeInvariant), index(-2), isUntimed(false) { };
-			TimedPlace() : name("*BOTTOM*"), timeInvariant(), index(-1), isUntimed(false) { };
+			TimedPlace() : name(BOTTOM_NAME), timeInvariant(), index(BottomIndex()), isUntimed(false) { };
 			virtual ~TimedPlace() { /* empty */ };
 
 		public: // modifiers

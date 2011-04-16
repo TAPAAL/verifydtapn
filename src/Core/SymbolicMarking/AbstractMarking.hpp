@@ -8,8 +8,6 @@
 #include "../../typedefs.hpp"
 
 namespace VerifyTAPN {
-	typedef long long id_type;
-
 	class AbstractMarking {
 	public:
 		virtual ~AbstractMarking() { };

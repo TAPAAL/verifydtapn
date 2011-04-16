@@ -11,27 +11,20 @@ namespace VerifyTAPN
 	class Participant
 	{
 	public:
-		Participant(int tokenIndex, int clockIndex, const TAPN::TimeInterval& ti, int indexAfterFiring, int clockIndexAfterFiring)
-			: tokenIndex(tokenIndex), clockIndex(clockIndex), ti(ti), indexAfterFiring(indexAfterFiring), clockIndexAfterFiring(clockIndexAfterFiring) { };
+		Participant(int tokenIndex, const TAPN::TimeInterval& ti, int placementAfterFiring)
+			: tokenIndex(tokenIndex), ti(ti), placementAfterFiring(placementAfterFiring) { };
 	public:
-		inline int ClockIndex() const { return clockIndex; }
 		int TokenIndex() const { return tokenIndex; };
+		int PlacementAfterFiring() const { return placementAfterFiring; };
 		inline const TAPN::TimeInterval& GetTimeInterval() const { return ti; };
-		inline int IndexAfterFiring() const { return indexAfterFiring; };
-		inline int ClockIndexAfterDiscreteUpdate() const { return clockIndexAfterFiring; };
-		inline void SetTokenIndex(unsigned int tokenIndex) { this->tokenIndex = tokenIndex; };
 	private:
 		int tokenIndex;
-		int clockIndex;
 		TAPN::TimeInterval ti;
-		int indexAfterFiring;
-		int clockIndexAfterFiring;
+		int placementAfterFiring;
 	};
 
 	class TraceInfo
 	{
-	public:
-		typedef long long id_type;
 	public:
 		TraceInfo(id_type prevState, int transitionIndex, id_type stateId)
 			: stateId(stateId), prevState(prevState), transitionIndex(transitionIndex), indirectionTable(), symmetric_trace_mapping(), transitionFiringMapping() {};

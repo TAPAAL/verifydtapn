@@ -16,7 +16,7 @@ namespace VerifyTAPN
 		std::cout << "  Participants:\n";
 		for(std::vector<Participant>::const_iterator it = traceInfo.Participants().begin(); it != traceInfo.Participants().end(); it++)
 		{
-			std::cout << "  " << it->TokenIndex() << ":" << it->ClockIndex() << ":" << it->IndexAfterFiring() << ":" << it->ClockIndexAfterDiscreteUpdate() << "\n";
+			std::cout << "  " << it->TokenIndex() << "\n";
 		}
 		std::cout << "\n  OriginalMapping:\n";
 		for(unsigned int i = 0; i < traceInfo.GetOriginalMapping().size(); i++)
