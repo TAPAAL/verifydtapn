@@ -17,16 +17,14 @@ c. Download UPPAAL DBM library (we use version 2.0.7)
 	- go to the "modules" folder
 	- run "./setup.sh"
 		1. press enter when it asks for "Build directory"
-		2. Change install path to e.g. "/usr/local/uppaal_debug"
-		3. choose g++ as compiler (if it says "choose compiler [g++]" 
-		   just press enter)
-		4. Choose compilation options: write 1 and press enter
+		2. press enter when it asks for install path
+		3. choose g++ as compiler
+		4. Choose compilation options: write 2 and press enter
 		5. Choose configuration options: write 5 and press enter
 	- run "sudo make install"
-	- To build a release version of the DBM library, rerun ./setup.sh and 
-	  follow the same steps as before except in step 2, change install path 
-	  to e.g. /usr/local/uppaal_release/ and in step 4, choose option 2 
-	  instead and afterwards rerun "sudo make install"
+d. Install google-sparsehash library.
+	- On Ubuntu you can install this from the software center, otherwise you have
+	  to get it from http://code.google.com/p/google-sparsehash/
 
 1. Create a branch of the code, e.g. "bzr branch lp:verifytapn" (replace with 
    the branch you want to checkout)
@@ -36,33 +34,29 @@ c. Download UPPAAL DBM library (we use version 2.0.7)
 3. Press finish
 4. Right-click on your new project and choose properties
 5. go to "C/C++ Build" -> "Settings"
-6. Setup configuration "Debug":
+2. Setup configuration "Debug":
 	1. Choose "Debug" in the "Configuration" dropdown list
 	2. under "GCC C++ compiler" -> "Directories" add the path to the UPPAAL 
-	   DBM library debug build's "include" folder, e.g. 
-	   /usr/local/uppaal_debug/include
+	   DBM library's "include" folder. If you followed the instructions above
+	   then you need to add the path "/usr/local/uppaal/include"
 		- If boost is not installed in the default folders (/usr/include
 		  or /usr/local/include) you must also add a path to the the 
 		  folder containing the boost include files (.h files)
-	3. under "GCC C++ compiler" -> "Optimization" set "Optimization level" 
-	   to "None (-O0)"
-	4. under "GCC C++ compiler" -> "Debugging" set "Debug level" to 
-	   "Maximum (-g3)"
-	5. under "GCC C++ linker" -> "Libraries":
-		- add the following library names: "boost_program_options", 
-		  "boost_regex", "boost_filesystem", "udbm"
-		- add a path to the DBM library debug build's "lib" folder (e.g.
-		  /usr/local/uppaal_debug/lib) to the "Library search path"
+		- The same applies to the google-sparsehash header files.
+	3. under "GCC C++ linker" -> "Libraries":
+		- add a path to the DBM library's "lib" folder (per the instructions
+		  above, you need to add the path "/usr/local/uppaal/lib") to the 
+		  "Library search path"
 		- If boost is not installed in the default folders (/usr/lib or 
 		  /usr/local/lib) you must also add a path to the the folder 
 		  containing the boost "lib" files (.so or .a files)
-7. Setup configuration "Release": Same as "Debug", just add paths to UPPAAL DBM 
-   library release build in step 2 and 5 instead, set "optimization level" to 
-   "Optimize most (O3)" and set "Debug level" to "None".
-8. The project should now be compilable in both debug and release versions.
+		- The same MAY apply to the google-sparsehash code, depending on whether
+		  it compiles to a library or its a header-only library.
+4. Setup configuration "Release": Same as "Debug".
+6. The project should now be compilable in both debug and release versions.
 
 --------------------------------------------------------------------------------
-1. Generating Query parser
+2. Generating Query parser
 --------------------------------------------------------------------------------
 If you need to change the Query parser, you'll need to modify the flex.ll and
 grammar.yy files. Make sure you have flex and bison installed.
