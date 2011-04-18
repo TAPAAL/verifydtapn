@@ -10,36 +10,66 @@
 #include "Core/SymbolicMarking/UppaalDBMMarkingFactory.hpp"
 #include "Core/SymbolicMarking/DiscreteInclusionMarkingFactory.hpp"
 
+#include "ReachabilityChecker/Trace/trace_exception.hpp"
+
 using namespace std;
 using namespace VerifyTAPN;
 using namespace VerifyTAPN::TAPN;
 using namespace boost;
 
+MarkingFactory* CreateFactory(const VerificationOptions& options, const boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn)
+{
+	switch(options.GetFactory())
+	{
+	case DISCRETE_INCLUSION:
+		return new DiscreteInclusionMarkingFactory(tapn);
+	default:
+		return new UppaalDBMMarkingFactory(tapn);
+	}
+}
 
 int main(int argc, char* argv[])
 {
 	VerificationOptions options = VerificationOptions::ParseVerificationOptions(argc, argv);
 
 	TAPNXmlParser modelParser;
-	boost::shared_ptr<TAPN::TimedArcPetriNet> tapn = modelParser.Parse(options.GetInputFile());
+	boost::shared_ptr<TAPN::TimedArcPetriNet> tapn;
+
+	try{
+		tapn = modelParser.Parse(options.GetInputFile());
+	}catch(const std::string& e){
+		std::cout << "There was an error parsing the model file: " << e << std::endl;
+		return 1;
+	}
+
 	tapn->Initialize(options.GetUntimedPlacesEnabled());
-	MarkingFactory* factory = new UppaalDBMMarkingFactory(tapn);
-	//MarkingFactory* factory = new DiscreteInclusionMarkingFactory(tapn);
+	MarkingFactory* factory = CreateFactory(options, tapn);
 
 	std::vector<int> initialPlacement(modelParser.ParseMarking(options.GetInputFile(), *tapn));
 	SymbolicMarking* initialMarking(factory->InitialMarking(initialPlacement));
 
-	TAPNQueryParser queryParser(*tapn);
-	queryParser.parse(options.QueryFile());
-	AST::Query* query = queryParser.GetAST();
-
+	AST::Query* query;
+	try{
+		TAPNQueryParser queryParser(*tapn);
+		queryParser.parse(options.QueryFile());
+		query = queryParser.GetAST();
+	}catch(...){
+		std::cout << "There was an error parsing the query file." << std::endl;
+		return 1;
+	}
 	SearchStrategy* strategy = new DefaultSearchStrategy(*tapn, initialMarking, query, options, factory);
-	bool result = strategy->Verify();
 
+	bool result = strategy->Verify();
 	std::cout << strategy->GetStats() << std::endl;
 	std::cout << "Query is " << (result ? "satisfied" : "NOT satisfied") << "." << std::endl;
-	strategy->PrintTraceIfAny(result);
 
+	try{
+		strategy->PrintTraceIfAny(result);
+	}catch(const trace_exception& e){
+		std::cout << "There was an error generating a trace. This is a bug. Please report this on launchpad and attach the your TAPN model and this error message: ";
+		std::cout << e.what() << std::endl;
+		return 1;
+	}
 	delete strategy;
 	delete factory;
 

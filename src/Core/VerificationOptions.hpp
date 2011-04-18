@@ -9,6 +9,7 @@
 namespace VerifyTAPN {
 	enum Trace { NONE, SOME };
 	enum SearchType { BREADTHFIRST, DEPTHFIRST };
+	enum Factory { DEFAULT, DISCRETE_INCLUSION };
 
 	class VerificationOptions {
 		private:
@@ -16,11 +17,12 @@ namespace VerifyTAPN {
 				const std::string& inputFile,
 				const std::string& queryFile,
 				SearchType searchType,
-				int k_bound,
+				unsigned int k_bound,
 				bool symmetry,
 				Trace trace,
 				bool useUntimedPlaces,
-				bool useGlobalMaxConstants
+				bool useGlobalMaxConstants,
+				Factory factory
 			) :	inputFile(inputFile),
 				queryFile(queryFile),
 				searchType(searchType),
@@ -28,7 +30,8 @@ namespace VerifyTAPN {
 				symmetry(symmetry),
 				trace(trace),
 				useUntimedPlaces(useUntimedPlaces),
-				useGlobalMaxConstants(useGlobalMaxConstants)
+				useGlobalMaxConstants(useGlobalMaxConstants),
+				factory(factory)
 			{};
 
 		public: // static
@@ -37,21 +40,23 @@ namespace VerifyTAPN {
 		public: // inspectors
 			const std::string GetInputFile() const { return inputFile; }
 			const std::string QueryFile() const {return queryFile; }
-			inline const int GetKBound() const { return k_bound; }
+			inline const unsigned int GetKBound() const { return k_bound; }
 			inline const Trace GetTrace() const { return trace; };
 			inline const bool GetSymmetryEnabled() const { return symmetry; }
 			inline const bool GetUntimedPlacesEnabled() const { return useUntimedPlaces; }
 			inline const bool GetGlobalMaxConstantsEnabled() const { return useGlobalMaxConstants; }
 			inline const SearchType GetSearchType() const { return searchType; }
+			inline Factory GetFactory() const { return factory; };
 		private:
 			std::string inputFile;
 			std::string queryFile;
 			SearchType searchType;
-			int k_bound;
+			unsigned int k_bound;
 			bool symmetry;
 			Trace trace;
 			bool useUntimedPlaces;
 			bool useGlobalMaxConstants;
+			Factory factory;
 	};
 
 }

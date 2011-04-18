@@ -1,4 +1,5 @@
 #include "EntrySolver.hpp"
+#include "trace_exception.hpp"
 
 namespace VerifyTAPN
 {
@@ -106,7 +107,8 @@ namespace VerifyTAPN
         for(unsigned int i = 0;i < dim;i++){
             entryTimeDBM.constrain(i, i + 1, 0, false);
         }
-        assert(!entryTimeDBM.isEmpty());
+
+        if(entryTimeDBM.isEmpty()) throw VerifyTAPN::trace_exception("entry time dbm empty");
     }
 
     // Theory: AfterAction(Trace, index, guard/invariant)

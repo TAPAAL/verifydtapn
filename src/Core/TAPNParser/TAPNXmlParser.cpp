@@ -20,7 +20,13 @@ namespace VerifyTAPN {
 		xml_document<> xmldoc;
 		xmldoc.parse<0>(&charArray[0]); // we need a char* to the string, and contents.c_str() returns const char*
 
-		return ParseTAPN(*xmldoc.first_node()->first_node());
+		xml_node<>* pnml = xmldoc.first_node("pnml");
+		if(pnml == 0) throw std::string("invalid file.");
+
+		xml_node<>* root = pnml->first_node("net");
+		if(root == 0) throw std::string("invalid file.");
+
+		return ParseTAPN(*root);
 	}
 
 	std::vector<int> TAPNXmlParser::ParseMarking(const std::string & filename, const TimedArcPetriNet& tapn) const
@@ -32,7 +38,9 @@ namespace VerifyTAPN {
 		xml_document<> xmldoc;
 		xmldoc.parse<0>(&charArray[0]); // we need a char* to the string, and contents.c_str() returns const char*
 
-		return ParseInitialMarking(*xmldoc.first_node()->first_node(),tapn);
+		xml_node<>* pnml = xmldoc.first_node("pnml"); // we don't need error handling here, since we are parsing the same file as above
+		xml_node<>* root = pnml->first_node("net");
+		return ParseInitialMarking(*root, tapn);
 	}
 
 	boost::shared_ptr<TimedArcPetriNet> TAPNXmlParser::ParseTAPN(const xml_node<>& root) const

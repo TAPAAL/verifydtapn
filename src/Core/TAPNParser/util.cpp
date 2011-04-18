@@ -7,7 +7,7 @@ namespace VerifyTAPN
 	{
 		std::ifstream file (filename.c_str());
 		if(!file){
-			throw new std::exception();
+			throw std::string("file not found.");
 		}
 
 		std::string storage((std::istreambuf_iterator<char>(file)),

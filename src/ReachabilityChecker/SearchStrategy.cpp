@@ -15,7 +15,7 @@ namespace VerifyTAPN
 		const AST::Query* query,
 		const VerificationOptions& options,
 		MarkingFactory* factory
-	) : tapn(tapn), initialMarking(initialMarking), checker(query), options(options), succGen(tapn, *factory, options), factory(factory), traceStore(options, initialMarking, tapn)
+	) : tapn(tapn), initialMarking(initialMarking), checker(query), options(options), succGen(tapn, *factory, options), factory(factory), traceStore(options, initialMarking, tapn), identity_map()
 	{
 		if(options.GetSearchType() == DEPTHFIRST)
 			pwList = new PWList(new StackWaitingList, factory);
@@ -26,6 +26,11 @@ namespace VerifyTAPN
 		for(int i = 0; i < options.GetKBound()+1; ++i)
 		{
 			maxConstantsArray[i] = tapn.MaxConstant();
+		}
+
+		for(unsigned int i = 0; i < options.GetKBound(); i++)
+		{
+			identity_map.insert(BiMap::value_type(i,i));
 		}
 	};
 
