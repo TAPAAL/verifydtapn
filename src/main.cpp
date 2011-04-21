@@ -66,7 +66,7 @@ int main(int argc, char* argv[])
 	try{
 		strategy->PrintTraceIfAny(result);
 	}catch(const trace_exception& e){
-		std::cout << "There was an error generating a trace. This is a bug. Please report this on launchpad and attach the your TAPN model and this error message: ";
+		std::cout << "There was an error generating a trace. This is a bug. Please report this on launchpad and attach your TAPN model and this error message: ";
 		std::cout << e.what() << std::endl;
 		return 1;
 	}
