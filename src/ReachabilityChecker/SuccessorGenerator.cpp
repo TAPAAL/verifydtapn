@@ -262,9 +262,29 @@ namespace VerifyTAPN {
 			IndirectionTable mapping;
 			MakeIdentity(mapping, options.GetKBound());
 
-			for(unsigned int i = 0; i < presetSize; ++i)
+			// handle transport arcs
+			for(unsigned int i = 0; i < transition.NumberOfTransportArcs(); i++)
 			{
 				int tokenIndex = tokenIndices->at_element(currentTransitionIndex+i, currentPermutationindices[i]);
+				boost::shared_ptr<TAPN::TransportArc> ia = transition.GetTransportArcs()[i].lock();
+				const TAPN::TimeInterval& ti = ia->Interval();
+				int indexAfterFiring = tokenIndex;
+				for(std::vector<int>::iterator iter = tokensToRemove.begin(); iter != tokensToRemove.end(); ++iter)
+				{
+					if(*iter < tokenIndex) indexAfterFiring--;
+					assert(*iter != tokenIndex);
+				}
+				assert(tokenIndex < static_cast<int>(marking->NumberOfTokens())); assert(indexAfterFiring < static_cast<int>(next->NumberOfTokens()));
+
+				int placement = next->GetTokenPlacement(indexAfterFiring);
+				Participant participant(tokenIndex, ti, placement, TRANSPORT_ARC);
+				traceInfo.AddParticipant(participant);
+			}
+
+			// handle normal arcs
+			for(unsigned int i = 0; i < transition.NumberOfInputArcs(); ++i)
+			{
+				int tokenIndex = tokenIndices->at_element(currentTransitionIndex+offset+i, currentPermutationindices[offset+i]);
 				boost::shared_ptr<TAPN::TimedInputArc> ia = preset[i].lock();
 				const TAPN::TimeInterval& ti = ia->Interval();
 				int indexAfterFiring = tokenIndex;
@@ -281,15 +301,16 @@ namespace VerifyTAPN {
 				assert(tokenIndex < static_cast<int>(marking->NumberOfTokens()));
 				assert(indexAfterFiring < static_cast<int>(next->NumberOfTokens()));
 				int placement =  indexAfterFiring == -1 ? -1 : next->GetTokenPlacement(indexAfterFiring);
-				Participant participant(tokenIndex, ti,placement);
+				Participant participant(tokenIndex, ti, placement, NORMAL_ARC);
 				traceInfo.AddParticipant(participant);
 			}
 
+			// Check if we added tokens from bottom
 			if(diff < 0){
 				TAPN::TimeInterval inf;
 				for(int i = diff; i < 0; i++){
 					int indexAfterFiring = (marking->NumberOfTokens() - diff + i);
-					Participant participant(indexAfterFiring,inf, next->GetTokenPlacement(indexAfterFiring));
+					Participant participant(indexAfterFiring,inf, next->GetTokenPlacement(indexAfterFiring), NORMAL_ARC);
 					traceInfo.AddParticipant(participant);
 				}
 			}

@@ -8,19 +8,23 @@
 
 namespace VerifyTAPN
 {
+	enum ArcType { NORMAL_ARC, TRANSPORT_ARC };
+
 	class Participant
 	{
 	public:
-		Participant(int tokenIndex, const TAPN::TimeInterval& ti, int placementAfterFiring)
-			: tokenIndex(tokenIndex), ti(ti), placementAfterFiring(placementAfterFiring) { };
+		Participant(int tokenIndex, const TAPN::TimeInterval& ti, int placementAfterFiring, ArcType arcType)
+			: tokenIndex(tokenIndex), ti(ti), placementAfterFiring(placementAfterFiring), arcType(arcType) { };
 	public:
 		int TokenIndex() const { return tokenIndex; };
 		int PlacementAfterFiring() const { return placementAfterFiring; };
 		inline const TAPN::TimeInterval& GetTimeInterval() const { return ti; };
+		inline ArcType GetArcType() const { return arcType; };
 	private:
 		int tokenIndex;
 		TAPN::TimeInterval ti;
 		int placementAfterFiring;
+		ArcType arcType;
 	};
 
 	class TraceInfo

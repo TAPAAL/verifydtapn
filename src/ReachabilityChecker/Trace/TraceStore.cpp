@@ -17,7 +17,7 @@ namespace VerifyTAPN
 			const std::string& place = iter->PlacementAfterFiring() == -1 ? TAPN::TimedPlace::BOTTOM_NAME : tapn.GetPlace(iter->PlacementAfterFiring()).GetName();
 			Token& token = marking[mapped_token_index];
 			token.SetPlace(place);
-			token.Reset();
+			if(iter->GetArcType() == NORMAL_ARC) token.Reset();
 		}
 	}
 
@@ -27,7 +27,7 @@ namespace VerifyTAPN
 		std::cout << "  Participants:\n";
 		for(std::vector<Participant>::const_iterator it = traceInfo.Participants().begin(); it != traceInfo.Participants().end(); it++)
 		{
-			std::cout << "  " << it->TokenIndex() << "\n";
+			std::cout << "  " << it->TokenIndex() <<  ", (" << (it->GetArcType() == NORMAL_ARC ? "normal" : "transport") << ")\n";
 		}
 		std::cout << "\n";
 		std::cout << "\n  Transition firing indirection table:\n";

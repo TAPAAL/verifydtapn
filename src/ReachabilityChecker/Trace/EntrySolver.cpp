@@ -48,13 +48,11 @@ namespace VerifyTAPN
 			assert(participant.TokenIndex() != -1);
 
 			unsigned int index = participant.TokenIndex();
-			unsigned int indexAfterFiring = traceInfo.GetTransitionFiringMapping().MapForward(index);
-			unsigned int symmetric_index = traceInfo.GetSymmetricMapping().MapForward(indexAfterFiring);
-			unsigned int mapped_token_index = traceInfo.GetOriginalMapping()[symmetric_index];
+			unsigned int mapped_token_index = RemapTokenIndex(traceInfo, index);
 			assert(mapped_token_index >= 0);
 			if((mapped_token_index+1) == clock)
 			{
-				return true;
+				return participant.GetArcType() == NORMAL_ARC;
 			}
 		}
 		return false;
