@@ -15,7 +15,7 @@ namespace VerifyTAPN
 		const AST::Query* query,
 		const VerificationOptions& options,
 		MarkingFactory* factory
-	) : tapn(tapn), initialMarking(initialMarking), checker(query), options(options), succGen(tapn, *factory, options), factory(factory), traceStore(options, initialMarking, tapn), identity_map()
+	) : tapn(tapn), initialMarking(initialMarking), checker(query), options(options), succGen(tapn, *factory, options), factory(factory), traceStore(options, initialMarking, tapn)
 	{
 		if(options.GetSearchType() == DEPTHFIRST)
 			pwList = new PWList(new StackWaitingList, factory);
@@ -23,14 +23,9 @@ namespace VerifyTAPN
 			pwList = new PWList(new QueueWaitingList, factory);
 
 		maxConstantsArray = new int[options.GetKBound()+1];
-		for(int i = 0; i < options.GetKBound()+1; ++i)
+		for(unsigned int i = 0; i < options.GetKBound()+1; ++i)
 		{
 			maxConstantsArray[i] = tapn.MaxConstant();
-		}
-
-		for(unsigned int i = 0; i < options.GetKBound(); i++)
-		{
-			identity_map.insert(BiMap::value_type(i,i));
 		}
 	};
 
@@ -71,7 +66,7 @@ namespace VerifyTAPN
 
 				succ.Extrapolate(maxConstantsArray);
 
-				BiMap bimap;
+				BiMap bimap; // If symmetry is not enabled but trace is requested, TraceStore will provide an identity mapping
 				if(options.GetSymmetryEnabled())
 				{
 					succ.MakeSymmetric(bimap);

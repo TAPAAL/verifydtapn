@@ -60,7 +60,6 @@ namespace VerifyTAPN
 		MarkingFactory* factory;
 		TraceStore traceStore;
 		int* maxConstantsArray;
-		BiMap identity_map;
 	};
 }
 

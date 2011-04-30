@@ -315,6 +315,19 @@ namespace VerifyTAPN {
 				}
 			}
 
+			std::vector<TraceInfo::Invariant> invariants;
+			for(unsigned int i = 0; i < marking->NumberOfTokens(); i++)
+			{
+				unsigned int place_index = marking->GetTokenPlacement(i);
+				const TAPN::TimeInvariant& inv = tapn.GetPlace(place_index).GetInvariant();
+
+				if(inv != TAPN::TimeInvariant::LS_INF)
+				{
+					invariants.push_back(TraceInfo::Invariant(i, inv));
+				}
+			}
+
+			traceInfo.SetInvariants(invariants);
 			traceInfo.SetTransitionFiringMapping(mapping);
 			succ.push_back(Successor(next, traceInfo));
 		}else{

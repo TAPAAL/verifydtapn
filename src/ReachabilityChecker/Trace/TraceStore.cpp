@@ -30,6 +30,12 @@ namespace VerifyTAPN
 			std::cout << "  " << it->TokenIndex() <<  ", (" << (it->GetArcType() == NORMAL_ARC ? "normal" : "transport") << ")\n";
 		}
 		std::cout << "\n";
+		std::cout << "  Invariants:\n";
+		for(std::vector<TraceInfo::Invariant>::const_iterator it = traceInfo.GetInvariants().begin(); it != traceInfo.GetInvariants().end(); it++)
+		{
+			std::cout << "  c" << it->first << it->second << "\n";
+		}
+		std::cout << "\n";
 		std::cout << "\n  Transition firing indirection table:\n";
 		for(unsigned int i = 0; i < traceInfo.GetTransitionFiringMapping().Size(); i++)
 		{
@@ -63,6 +69,9 @@ namespace VerifyTAPN
 		}
 	}
 
+	// This function trasitively applies the symmetric and transition firing mappings, to aid
+	// in the construction of an equivalent non-symmetric trace.
+	// See TraceInfo.hpp for more info.
 	void TraceStore::ComputeIndexMappings(std::deque<TraceInfo>& traceInfos) const
 	{
 		std::vector<unsigned int> map(identity_map);
@@ -70,7 +79,8 @@ namespace VerifyTAPN
 		const IndirectionTable& table = first.GetSymmetricMapping();
 		for(unsigned int symmetric_index = 0; symmetric_index < static_cast<unsigned int>(options.GetKBound()); symmetric_index++)
 		{
-			map[symmetric_index] = symmetric_index >= table.Size() ? symmetric_index : table.MapBackwards(symmetric_index);
+			assert(symmetric_index < table.Size());
+			map[symmetric_index] = table.MapBackwards(symmetric_index);
 		}
 		first.SetOriginalMapping(map);
 
@@ -86,7 +96,9 @@ namespace VerifyTAPN
 			std::vector<unsigned int> mapping(identity_map);
 			for(unsigned int token = 0; token < static_cast<unsigned int>(options.GetKBound()); token++)
 			{
-				unsigned int remapped_index = token >= currentTable.Size() ? token : currentTable.MapBackwards(token);
+				assert(token < currentTable.Size());
+
+				unsigned int remapped_index = currentTable.MapBackwards(token);
 				int indexBeforeTransitionFiring = transitionMapping.MapBackwards(remapped_index);
 				assert(indexBeforeTransitionFiring != -1);
 				int originalIndex = previousTable[indexBeforeTransitionFiring];
