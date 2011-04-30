@@ -129,7 +129,8 @@ namespace VerifyTAPN
 
 		TAPN::TimedTransition::Vector transitions = tapn.GetTransitions();
 
-		std::cerr << std::endl << "Trace: " << std::endl;
+		std::cout << std::endl;
+		std::cerr << "Trace: " << std::endl;
 		ConcreteMarking marking(initialMarking);
 		std::cerr << "\t" << marking;
 		for(unsigned int i = 0; i < traceInfos.size(); ++i)

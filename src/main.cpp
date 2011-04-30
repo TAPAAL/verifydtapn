@@ -47,6 +47,11 @@ int main(int argc, char* argv[])
 
 	std::vector<int> initialPlacement(modelParser.ParseMarking(options.GetInputFile(), *tapn));
 	SymbolicMarking* initialMarking(factory->InitialMarking(initialPlacement));
+	if(initialMarking->NumberOfTokens() > options.GetKBound())
+	{
+		std::cout << "The specified k-bound is less than the number of tokens in the initial markings.";
+		return 1;
+	}
 
 	AST::Query* query;
 	try{
