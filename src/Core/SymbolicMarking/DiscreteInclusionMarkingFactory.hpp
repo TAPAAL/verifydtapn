@@ -207,7 +207,7 @@ private:
 			if(mapping.GetMapping(i) >= dim)
 			{
 				const TimedPlace& place = tapn->GetPlace(dp.GetTokenPlacement(i));
-				copy.constrain(0, mapping.GetMapping(i), dbm_bound2raw(-place.GetMaxConstant(), dbm_STRICT));
+				if(!place.IsUntimed()) copy.constrain(0, mapping.GetMapping(i), dbm_bound2raw(-place.GetMaxConstant(), dbm_STRICT));
 			}
 		}
 		//std::cout << "computed-dbm: \n" << copy << std::endl;

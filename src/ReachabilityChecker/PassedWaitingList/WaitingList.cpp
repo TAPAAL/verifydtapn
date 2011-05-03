@@ -86,7 +86,7 @@ namespace VerifyTAPN
 
 		stack.pop_back(); actualSize--;
 		node->Recolor(PASSED);
-		assert(AllElementsAreWatingOrCovered(stack.begin(), stack.end()));
+//		assert(AllElementsAreWatingOrCovered(stack.begin(), stack.end()));
 		return node;
 	}
 

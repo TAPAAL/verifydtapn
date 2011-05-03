@@ -25,7 +25,7 @@ public:
 
 		if(eq != other.eq) return DIFFERENT; // Not sure we need to check this, the hashing ensures that we get a list with the same eq part?
 
-		int place = 0;
+		unsigned int place = inc.size();
 		bool checkSuperset = false;
 		relation result = EQUAL;
 
@@ -40,21 +40,24 @@ public:
 			}
 		}
 
-		if(checkSuperset)
+		if(place != inc.size())
 		{
-			for(unsigned int i = place+1; i < inc.size(); i++)
+			if(checkSuperset)
 			{
-				if(inc[i] < other.inc[i]) return DIFFERENT;
+				for(unsigned int i = place+1; i < inc.size(); i++)
+				{
+					if(inc[i] < other.inc[i]) return DIFFERENT;
+				}
+				result = SUPERSET;
 			}
-			result = SUPERSET;
-		}
-		else
-		{
-			for(unsigned int i = place+1; i < inc.size(); i++)
+			else
 			{
-				if(inc[i] > other.inc[i]) return DIFFERENT;
+				for(unsigned int i = place+1; i < inc.size(); i++)
+				{
+					if(inc[i] > other.inc[i]) return DIFFERENT;
+				}
+				result = SUBSET;
 			}
-			result = SUBSET;
 		}
 
 		relation dbm_rel = ConvertToRelation(dbm.relation(other.dbm));
@@ -82,6 +85,7 @@ public:
 		return size;
 	};
 
+	virtual unsigned int UniqueId() const { return id; };
 private:
 	relation ConvertToRelation(relation_t relation) const
 	{

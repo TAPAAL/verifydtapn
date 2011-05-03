@@ -3,6 +3,7 @@
 
 #include "MarkingFactory.hpp"
 #include "DBMMarking.hpp"
+#include "dbm/print.h"
 
 namespace VerifyTAPN {
 
@@ -31,6 +32,7 @@ namespace VerifyTAPN {
 			clone->id = nextId++;
 			return clone;
 		};
+
 		virtual StoredMarking* Convert(SymbolicMarking* marking) const { return static_cast<DBMMarking*>(marking); };
 		virtual SymbolicMarking* Convert(StoredMarking* marking) const { return static_cast<DBMMarking*>(marking); };
 

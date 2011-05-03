@@ -3,10 +3,6 @@
 #include "Successor.hpp"
 #include "../typedefs.hpp"
 
-//TODO: delete
-#include "../Core/SymbolicMarking/DBMMarking.hpp"
-#include "dbm/print.h"
-
 namespace VerifyTAPN
 {
 	DefaultSearchStrategy::DefaultSearchStrategy(
