@@ -41,7 +41,7 @@ namespace VerifyTAPN {
 
 		virtual void Release(StoredMarking* marking)
 		{
-
+			delete marking;
 		};
 	};
 
