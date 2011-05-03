@@ -105,9 +105,10 @@ private:
 		int placeIndex = marking.GetTokenPlacement(token);
 		const TimedPlace& place = tapn->GetPlace(placeIndex);
 
-		// TODO: check invariant
-		// TODO: check inhibitor arcs
-		// TODO: check transport arcs
+		assert(placeIndex != TAPN::TimedPlace::BottomIndex());
+		if(place.GetInvariant() != TAPN::TimeInvariant::LS_INF) return false;
+		if(place.HasInhibitorArcs()) return false;
+		if(place.IsUntimed()) return true;
 
 		raw_t lowerBound = marking.GetLowerBound(marking.GetClockIndex(token));
 		if(lowerBound == dbm_bound2raw(-place.GetMaxConstant(), dbm_STRICT)) return true; // TODO: check that == is correct

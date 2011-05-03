@@ -30,14 +30,15 @@ namespace VerifyTAPN{
 
 		public: // construction / destruction
 			TimedPlace(const std::string& name, const std::string& id, const TimeInvariant timeInvariant)
-			: name(name), id(id), timeInvariant(timeInvariant), index(-2), isUntimed(false) { };
-			TimedPlace() : name(BOTTOM_NAME), timeInvariant(), index(BottomIndex()), isUntimed(false) { };
+			: name(name), id(id), timeInvariant(timeInvariant), index(-2), isUntimed(false), maxConstant(0), hasInhibitorArcs(false) { };
+			TimedPlace() : name(BOTTOM_NAME), timeInvariant(), index(BottomIndex()), isUntimed(false), maxConstant(0), hasInhibitorArcs(false) { };
 			virtual ~TimedPlace() { /* empty */ };
 
 		public: // modifiers
 			inline void MarkPlaceAsUntimed() { isUntimed = true; }
 			inline void SetIndex(int i) { index = i; };
 			inline void SetMaxConstant(int max) { maxConstant = max; }
+			inline void SetHasInhibitorArcs(bool inhibitorArcs) { hasInhibitorArcs = inhibitorArcs; }
 		public: // inspection
 			const std::string& GetName() const;
 			const std::string& GetId() const;
@@ -46,6 +47,7 @@ namespace VerifyTAPN{
 			inline const bool IsUntimed() const { return isUntimed; }
 			inline const int GetMaxConstant() const { return maxConstant; }
 			inline const TAPN::TimeInvariant& GetInvariant() const { return timeInvariant; };
+			inline bool HasInhibitorArcs() const { return hasInhibitorArcs; };
 		private: // data
 			std::string	name;
 			std::string id;
@@ -53,6 +55,7 @@ namespace VerifyTAPN{
 			int index;
 			bool isUntimed;
 			int maxConstant;
+			bool hasInhibitorArcs;
 		};
 
 		inline std::ostream& operator<<(std::ostream& out, const TimedPlace& place)

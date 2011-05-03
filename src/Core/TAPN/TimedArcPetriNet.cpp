@@ -40,6 +40,7 @@ namespace VerifyTAPN {
 			for(InhibitorArc::Vector::const_iterator iter = inhibitorArcs.begin(); iter != inhibitorArcs.end(); ++iter) {
 				const boost::shared_ptr<InhibitorArc>& arc = *iter;
 				arc->OutputTransition().AddIncomingInhibitorArc(arc);
+				arc->InputPlace().SetHasInhibitorArcs(true);
 			}
 
 			for(OutputArc::Vector::const_iterator iter = outputArcs.begin(); iter != outputArcs.end(); ++iter)
