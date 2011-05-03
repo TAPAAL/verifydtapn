@@ -15,12 +15,12 @@ namespace VerifyTAPN
 		EntrySolver(unsigned int tokens, const std::deque<TraceInfo>& traceInfos) : lraTable(0), entryTimeDBM(traceInfos.size()+1), clocks(tokens+1), traceInfos(traceInfos), EPSILON(0.1) { };
 		virtual ~EntrySolver() { delete[] lraTable; };
 
-		std::vector<decimal> CalculateDelays();
+		std::vector<decimal> CalculateDelays(const std::vector<TraceInfo::Invariant>& lastInvariant);
 	private:
 		inline unsigned int LastResetAt(unsigned int location, unsigned int clock) const { return lraTable[location*clocks+clock]; };
 
 		void CreateLastResetAtLookupTable();
-		void CreateEntryTimeDBM();
+		void CreateEntryTimeDBM(const std::vector<TraceInfo::Invariant>& lastInvariant);
 		std::vector<decimal> FindSolution() const;
 
 		bool IsClockResetInStep(unsigned int clock, const TraceInfo& traceInfo) const;

@@ -32,6 +32,8 @@ namespace VerifyTAPN
 
 	bool DefaultSearchStrategy::Verify()
 	{
+		std::vector<TraceInfo::Invariant> lastInvariant;
+
 		initialMarking->Delay();
 		UpdateMaxConstantsArray(*initialMarking);
 		initialMarking->Extrapolate(maxConstantsArray);
@@ -43,7 +45,11 @@ namespace VerifyTAPN
 
 		pwList->Add(*initialMarking);
 		if(CheckQuery(*initialMarking)){
-			if(options.GetTrace() != NONE) traceStore.SetFinalMarkingId(initialMarking->UniqueId());
+			if(options.GetTrace() != NONE){
+				CreateLastInvariant(*initialMarking, lastInvariant);
+				traceStore.SetFinalMarkingIdAndInvariant(initialMarking->UniqueId(), lastInvariant);
+			}
+			factory->Release(initialMarking);
 			return checker.IsEF(); // return true if EF query (proof found), or false if AG query (counter example found)
 		}
 
@@ -53,7 +59,6 @@ namespace VerifyTAPN
 
 			typedef std::vector<Successor> SuccessorVector;
 			SuccessorVector successors;
-			std::vector<TraceInfo> traceInfos;
 
 			succGen.GenerateDiscreteTransitionsSuccessors(*next, successors);
 
@@ -80,9 +85,13 @@ namespace VerifyTAPN
 				bool added = pwList->Add(succ);
 
 				if(added && CheckQuery(succ)){
-					factory->Release(iter->Marking());
-					if(options.GetTrace() != NONE) traceStore.SetFinalMarkingId(iter->Marking()->UniqueId());
+					if(options.GetTrace() != NONE)
+					{
+						CreateLastInvariant(succ, lastInvariant);
+						traceStore.SetFinalMarkingIdAndInvariant(succ.UniqueId(), lastInvariant);
+					}
 
+					factory->Release(iter->Marking());
 					return checker.IsEF();
 				}
 				factory->Release(iter->Marking());
@@ -119,6 +128,20 @@ namespace VerifyTAPN
 	{
 		bool satisfied = checker.IsExpressionSatisfied(marking);
 		return (satisfied && checker.IsEF()) || (!satisfied && checker.IsAG());
+	}
+
+	void DefaultSearchStrategy::CreateLastInvariant(const SymbolicMarking& marking, std::vector<TraceInfo::Invariant>& invariants) const
+	{
+		for(unsigned int i = 0; i < marking.NumberOfTokens(); i++)
+		{
+			unsigned int place_index = marking.GetTokenPlacement(i);
+			const TAPN::TimeInvariant& inv = tapn.GetPlace(place_index).GetInvariant();
+
+			if(inv != TAPN::TimeInvariant::LS_INF)
+			{
+				invariants.push_back(TraceInfo::Invariant(i, inv));
+			}
+		}
 	}
 
 	Stats DefaultSearchStrategy::GetStats() const

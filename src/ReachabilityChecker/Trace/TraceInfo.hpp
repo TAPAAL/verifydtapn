@@ -53,7 +53,7 @@
  * *NOTICE* When one wants to obtain the non-symmetric index from the index associated with
  * i in the pair above, one cannot use the original_indices mapping from the same TraceInfo
  * since this maps from M'' to original_indices. One must use the original_indices mapping
- * from the previous TraceInfo.
+ * from the previous TraceInfo or map the index forward as seen in EntrySolver::RemapTokenIndex.
  */
 
 namespace VerifyTAPN

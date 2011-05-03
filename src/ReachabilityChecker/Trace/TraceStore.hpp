@@ -38,7 +38,7 @@ namespace VerifyTAPN
 	private:
 		typedef google::sparse_hash_map<id_type, TraceInfo, boost::hash<id_type> > HashMap;
 	public: // constructors / destructors
-		TraceStore(const VerificationOptions& options, SymbolicMarking* initialMarking, const TAPN::TimedArcPetriNet& tapn) : store(), initialMarking(CreateConcreteInitialMarking(initialMarking, options.GetKBound(), tapn)), finalMarkingId(-1), options(options), identity_map(options.GetKBound(), -1)
+		TraceStore(const VerificationOptions& options, SymbolicMarking* initialMarking, const TAPN::TimedArcPetriNet& tapn) : store(), initialMarking(CreateConcreteInitialMarking(initialMarking, options.GetKBound(), tapn)), finalMarkingId(-1), lastInvariants(), options(options), identity_map(options.GetKBound(), -1)
 		{
 			for(unsigned int i = 0; i < static_cast<unsigned int>(options.GetKBound()); ++i)
 			{
@@ -50,7 +50,7 @@ namespace VerifyTAPN
 		inline void Save(const id_type& id, const TraceInfo& traceInfo){
 			store.insert(std::pair<id_type, TraceInfo>(id, traceInfo));
 		};
-		inline void SetFinalMarkingId(id_type id) { finalMarkingId = id; };
+		inline void SetFinalMarkingIdAndInvariant(id_type id, std::vector<TraceInfo::Invariant>& inv) { finalMarkingId = id; lastInvariants.swap(inv); };
 
 		void OutputTraceTo(const TAPN::TimedArcPetriNet& tapn) const;
 
@@ -63,6 +63,7 @@ namespace VerifyTAPN
 		HashMap store;
 		ConcreteMarking initialMarking;
 		id_type finalMarkingId;
+		std::vector<TraceInfo::Invariant> lastInvariants;
 		const VerificationOptions& options;
 
 		std::vector<unsigned int> identity_map;

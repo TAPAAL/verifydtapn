@@ -48,6 +48,7 @@ namespace VerifyTAPN
 		virtual void PrintTraceIfAny(bool result) const;
 	private:
 		virtual bool CheckQuery(const SymbolicMarking& marking) const;
+		virtual void CreateLastInvariant(const SymbolicMarking& marking, std::vector<TraceInfo::Invariant>& invariants) const;
 		void PrintDiagnostics(size_t successors) const;
 		void UpdateMaxConstantsArray(const SymbolicMarking& marking);
 	private:

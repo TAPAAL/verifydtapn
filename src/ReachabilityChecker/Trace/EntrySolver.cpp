@@ -3,10 +3,10 @@
 
 namespace VerifyTAPN
 {
-	std::vector<decimal> EntrySolver::CalculateDelays()
+	std::vector<decimal> EntrySolver::CalculateDelays(const std::vector<TraceInfo::Invariant>& lastInvariant)
 	{
 		CreateLastResetAtLookupTable();
-		CreateEntryTimeDBM();
+		CreateEntryTimeDBM(lastInvariant);
 		return FindSolution();
 	}
 
@@ -83,7 +83,7 @@ namespace VerifyTAPN
 	//
 	// For each step i in the trace do
 	// 		add e_i - e_{i+1} <= 0 to DBM
-	void EntrySolver::CreateEntryTimeDBM()
+	void EntrySolver::CreateEntryTimeDBM(const std::vector<TraceInfo::Invariant>& lastInvariant)
 	{
 		unsigned int dim = traceInfos.size();
 		entryTimeDBM.setInit();
@@ -97,11 +97,23 @@ namespace VerifyTAPN
 				const TraceInfo::Invariant& inv = *it;
 				assert(inv.second != TAPN::TimeInvariant::LS_INF);
 
-				unsigned mapped_index = i == 0 ? inv.first : traceInfos[i-1].GetOriginalMapping()[inv.first];
+				unsigned int mapped_index = RemapTokenIndex(traceInfo, inv.first);
 				constraint_t bound(mapped_index+1, 0, dbm_boundbool2raw(inv.second.GetBound(), inv.second.IsBoundStrict()));
 				entryTimeDBM.constrain(AfterAction(i, bound));
 			}
 		}
+
+		// Apply invariants from final marking
+		for(std::vector<TraceInfo::Invariant>::const_iterator it = lastInvariant.begin(); it != lastInvariant.end(); it++)
+		{
+			const TraceInfo::Invariant& inv = *it;
+			assert(inv.second != TAPN::TimeInvariant::LS_INF);
+
+			unsigned int mapped_index = traceInfos[traceInfos.size()-1].GetOriginalMapping()[inv.first];
+			constraint_t bound(mapped_index+1, 0, dbm_boundbool2raw(inv.second.GetBound(), inv.second.IsBoundStrict()));
+			entryTimeDBM.constrain(AfterAction(dim, bound));
+		}
+
 
 		for(unsigned int i = 0; i < dim; i++)
 		{
@@ -130,7 +142,7 @@ namespace VerifyTAPN
 				const TraceInfo::Invariant& inv = *it;
 				assert(inv.second != TAPN::TimeInvariant::LS_INF);
 
-				unsigned mapped_index = i == 0 ? inv.first : traceInfos[i-1].GetOriginalMapping()[inv.first];
+				unsigned int mapped_index = RemapTokenIndex(traceInfo, inv.first);
 				constraint_t bound(mapped_index+1, 0, dbm_boundbool2raw(inv.second.GetBound(), inv.second.IsBoundStrict()));
 				entryTimeDBM.constrain(AfterDelay(i, bound));
 			}
