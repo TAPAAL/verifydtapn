@@ -65,15 +65,15 @@ namespace VerifyTAPN {
 	{
 		bool error = false;
 
-		boost::program_options::options_description desc("Usage: verifytapn -k <number> [-t <number>] model-file query-file \nAllowed Options:");
+		boost::program_options::options_description desc("Usage: verifytapn -k <number> [-t <number>] model-file query-file \nAllowed Options");
 		desc.add_options()
-				("help,h", "Produce help message")
-				("k-bound,k", boost::program_options::value<unsigned int>(), "Specify the bound of the TAPN model")
+				("help,h", "Show this help message")
+				("k-bound,k", boost::program_options::value<unsigned int>(), "Maximum number of tokens to use during exploration")
 				("search-type,o", boost::program_options::value<unsigned int>()->default_value(0), "Specify the desired search strategy. \n - 0: BFS\n - 1: DFS" )
 				("trace,t", boost::program_options::value<unsigned int>()->default_value(0), "Specify the desired trace option. \n - 0: none\n - 1: Some")
 				("global-max-constant,g", "Use a global max constant for extrapolation (as opposed to local constants)")
-				("untimed-places,u", "Use the untimed place optimization")
-				("symmetry,s", "Use symmetry reduction")
+				("disable-untimed-places,u", "Disable the untimed place optimization")
+				("disable-symmetry,s", "Disable symmetry reduction")
 				("factory,f", boost::program_options::value<unsigned int>()->default_value(0), "Specify marking factory.\n - 0: default\n - 1: discrete-inclusion")
 				("model-file", boost::program_options::value<std::string>(), "model file")
 				("query-file", boost::program_options::value<std::string>(), "query file")
