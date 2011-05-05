@@ -46,6 +46,7 @@ and|&&						{ return token::AND; }
 "<"							{ yylval->string = new std::string(yytext); return token::LESS; }
 "<="						{ yylval->string = new std::string(yytext); return token::LESSEQUAL; }
 "="							{ yylval->string = new std::string(yytext); return token::EQUAL; }
+"=="						{ yylval->string = new std::string(yytext); return token::EQUAL; }
 ">="						{ yylval->string = new std::string(yytext); return token::GREATEREQUAL; }
 ">"							{ yylval->string = new std::string(yytext); return token::GREATER; }
 [a-zA-Z_][a-zA-Z_0-9]*      { yylval->string = new std::string(yytext); return token::IDENTIFIER; }

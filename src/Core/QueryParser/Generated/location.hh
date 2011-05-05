@@ -1,9 +1,9 @@
-/* A Bison parser, made by GNU Bison 2.4.3.  */
+
+/* A Bison parser, made by GNU Bison 2.4.1.  */
 
 /* Locations for Bison parsers in C++
    
-      Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007, 2009, 2010 Free Software
-   Foundation, Inc.
+      Copyright (C) 2002, 2003, 2004, 2005, 2006 Free Software Foundation, Inc.
    
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -44,11 +44,11 @@
 # include "position.hh"
 
 
-/* Line 163 of location.cc  */
+/* Line 162 of location.cc  */
 #line 5 "grammar.yy"
 namespace VerifyTAPN {
 
-/* Line 163 of location.cc  */
+/* Line 162 of location.cc  */
 #line 53 "Generated/location.hh"
 
   /// Abstract a location.
@@ -159,11 +159,11 @@ namespace VerifyTAPN {
   }
 
 
-/* Line 272 of location.cc  */
+/* Line 271 of location.cc  */
 #line 5 "grammar.yy"
 } // VerifyTAPN
 
-/* Line 272 of location.cc  */
+/* Line 271 of location.cc  */
 #line 168 "Generated/location.hh"
 
 #endif // not BISON_LOCATION_HH

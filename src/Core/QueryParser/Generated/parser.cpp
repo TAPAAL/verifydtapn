@@ -1,9 +1,10 @@
-/* A Bison parser, made by GNU Bison 2.4.3.  */
+
+/* A Bison parser, made by GNU Bison 2.4.1.  */
 
 /* Skeleton implementation for Bison LALR(1) parsers in C++
    
-      Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010 Free
-   Software Foundation, Inc.
+      Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007, 2008 Free Software
+   Foundation, Inc.
    
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -36,7 +37,7 @@
 
 
 /* Line 311 of lalr1.cc  */
-#line 40 "Generated/parser.cpp"
+#line 41 "Generated/parser.cpp"
 
 
 #include "parser.hpp"
@@ -45,7 +46,7 @@
 
 
 /* Line 317 of lalr1.cc  */
-#line 49 "Generated/parser.cpp"
+#line 50 "Generated/parser.cpp"
 /* Unqualified %code blocks.  */
 
 /* Line 318 of lalr1.cc  */
@@ -56,10 +57,10 @@
 
 
 /* Line 318 of lalr1.cc  */
-#line 60 "Generated/parser.cpp"
+#line 61 "Generated/parser.cpp"
 
 #ifndef YY_
-# if defined YYENABLE_NLS && YYENABLE_NLS
+# if YYENABLE_NLS
 #  if ENABLE_NLS
 #   include <libintl.h> /* FIXME: INFRINGES ON USER NAME SPACE */
 #   define YY_(msgid) dgettext ("bison-runtime", msgid)
@@ -124,7 +125,7 @@ do {					\
 namespace VerifyTAPN {
 
 /* Line 380 of lalr1.cc  */
-#line 128 "Generated/parser.cpp"
+#line 129 "Generated/parser.cpp"
 #if YYERROR_VERBOSE
 
   /* Return YYSTR after stripping away unnecessary quotes and
@@ -231,7 +232,7 @@ namespace VerifyTAPN {
 	{ delete (yyvaluep->string); };
 
 /* Line 480 of lalr1.cc  */
-#line 235 "Generated/parser.cpp"
+#line 236 "Generated/parser.cpp"
 	break;
       case 4: /* "LESS" */
 
@@ -240,7 +241,7 @@ namespace VerifyTAPN {
 	{ delete (yyvaluep->string); };
 
 /* Line 480 of lalr1.cc  */
-#line 244 "Generated/parser.cpp"
+#line 245 "Generated/parser.cpp"
 	break;
       case 5: /* "LESSEQUAL" */
 
@@ -249,7 +250,7 @@ namespace VerifyTAPN {
 	{ delete (yyvaluep->string); };
 
 /* Line 480 of lalr1.cc  */
-#line 253 "Generated/parser.cpp"
+#line 254 "Generated/parser.cpp"
 	break;
       case 6: /* "EQUAL" */
 
@@ -258,7 +259,7 @@ namespace VerifyTAPN {
 	{ delete (yyvaluep->string); };
 
 /* Line 480 of lalr1.cc  */
-#line 262 "Generated/parser.cpp"
+#line 263 "Generated/parser.cpp"
 	break;
       case 7: /* "GREATEREQUAL" */
 
@@ -267,7 +268,7 @@ namespace VerifyTAPN {
 	{ delete (yyvaluep->string); };
 
 /* Line 480 of lalr1.cc  */
-#line 271 "Generated/parser.cpp"
+#line 272 "Generated/parser.cpp"
 	break;
       case 8: /* "GREATER" */
 
@@ -276,7 +277,7 @@ namespace VerifyTAPN {
 	{ delete (yyvaluep->string); };
 
 /* Line 480 of lalr1.cc  */
-#line 280 "Generated/parser.cpp"
+#line 281 "Generated/parser.cpp"
 	break;
       case 17: /* "query" */
 
@@ -285,7 +286,7 @@ namespace VerifyTAPN {
 	{ delete (yyvaluep->query); };
 
 /* Line 480 of lalr1.cc  */
-#line 289 "Generated/parser.cpp"
+#line 290 "Generated/parser.cpp"
 	break;
       case 18: /* "expression" */
 
@@ -294,7 +295,7 @@ namespace VerifyTAPN {
 	{ delete (yyvaluep->expr); };
 
 /* Line 480 of lalr1.cc  */
-#line 298 "Generated/parser.cpp"
+#line 299 "Generated/parser.cpp"
 	break;
       case 19: /* "parExpression" */
 
@@ -303,7 +304,7 @@ namespace VerifyTAPN {
 	{ delete (yyvaluep->expr); };
 
 /* Line 480 of lalr1.cc  */
-#line 307 "Generated/parser.cpp"
+#line 308 "Generated/parser.cpp"
 	break;
       case 20: /* "orExpression" */
 
@@ -312,7 +313,7 @@ namespace VerifyTAPN {
 	{ delete (yyvaluep->expr); };
 
 /* Line 480 of lalr1.cc  */
-#line 316 "Generated/parser.cpp"
+#line 317 "Generated/parser.cpp"
 	break;
       case 21: /* "andExpression" */
 
@@ -321,7 +322,7 @@ namespace VerifyTAPN {
 	{ delete (yyvaluep->expr); };
 
 /* Line 480 of lalr1.cc  */
-#line 325 "Generated/parser.cpp"
+#line 326 "Generated/parser.cpp"
 	break;
       case 22: /* "atomicProposition" */
 
@@ -330,7 +331,7 @@ namespace VerifyTAPN {
 	{ delete (yyvaluep->expr); };
 
 /* Line 480 of lalr1.cc  */
-#line 334 "Generated/parser.cpp"
+#line 335 "Generated/parser.cpp"
 	break;
       case 23: /* "compareOp" */
 
@@ -339,7 +340,7 @@ namespace VerifyTAPN {
 	{ delete (yyvaluep->string); };
 
 /* Line 480 of lalr1.cc  */
-#line 343 "Generated/parser.cpp"
+#line 344 "Generated/parser.cpp"
 	break;
 
 	default:
@@ -403,7 +404,7 @@ namespace VerifyTAPN {
     /// Location of the lookahead.
     location_type yylloc;
     /// The locations where the error started and ended.
-    location_type yyerror_range[3];
+    location_type yyerror_range[2];
 
     /// $$.
     semantic_type yyval;
@@ -425,7 +426,7 @@ namespace VerifyTAPN {
 }
 
 /* Line 553 of lalr1.cc  */
-#line 429 "Generated/parser.cpp"
+#line 430 "Generated/parser.cpp"
 
     /* Initialize the stacks.  The initial state will be pushed in
        yynewstate, since the latter expects the semantical and the
@@ -618,7 +619,7 @@ namespace VerifyTAPN {
 
 
 /* Line 678 of lalr1.cc  */
-#line 622 "Generated/parser.cpp"
+#line 623 "Generated/parser.cpp"
 	default:
           break;
       }
@@ -652,7 +653,7 @@ namespace VerifyTAPN {
 	error (yylloc, yysyntax_error_ (yystate, yytoken));
       }
 
-    yyerror_range[1] = yylloc;
+    yyerror_range[0] = yylloc;
     if (yyerrstatus_ == 3)
       {
 	/* If just tried and failed to reuse lookahead token after an
@@ -687,7 +688,7 @@ namespace VerifyTAPN {
     if (false)
       goto yyerrorlab;
 
-    yyerror_range[1] = yylocation_stack_[yylen - 1];
+    yyerror_range[0] = yylocation_stack_[yylen - 1];
     /* Do not reclaim the symbols of the rule which action triggered
        this YYERROR.  */
     yypop_ (yylen);
@@ -719,7 +720,7 @@ namespace VerifyTAPN {
 	if (yystate_stack_.height () == 1)
 	YYABORT;
 
-	yyerror_range[1] = yylocation_stack_[0];
+	yyerror_range[0] = yylocation_stack_[0];
 	yydestruct_ ("Error: popping",
 		     yystos_[yystate],
 		     &yysemantic_stack_[0], &yylocation_stack_[0]);
@@ -728,10 +729,10 @@ namespace VerifyTAPN {
 	YY_STACK_PRINT ();
       }
 
-    yyerror_range[2] = yylloc;
+    yyerror_range[1] = yylloc;
     // Using YYLLOC is tempting, but would change the location of
     // the lookahead.  YYLOC is available though.
-    YYLLOC_DEFAULT (yyloc, yyerror_range, 2);
+    YYLLOC_DEFAULT (yyloc, (yyerror_range - 1), 2);
     yysemantic_stack_.push (yylval);
     yylocation_stack_.push (yyloc);
 
@@ -1047,7 +1048,7 @@ namespace VerifyTAPN {
 } // VerifyTAPN
 
 /* Line 1054 of lalr1.cc  */
-#line 1051 "Generated/parser.cpp"
+#line 1052 "Generated/parser.cpp"
 
 
 /* Line 1056 of lalr1.cc  */
