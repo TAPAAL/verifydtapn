@@ -37,30 +37,44 @@ namespace VerifyTAPN
 	{
 	private:
 		typedef google::sparse_hash_map<id_type, TraceInfo, boost::hash<id_type> > HashMap;
-	public: // constructors / destructors
-		TraceStore(const VerificationOptions& options, SymbolicMarking* initialMarking, const TAPN::TimedArcPetriNet& tapn) : store(), initialMarking(CreateConcreteInitialMarking(initialMarking, options.GetKBound(), tapn)), finalMarkingId(-1), lastInvariants(), options(options), identity_map(options.GetKBound(), -1)
-		{
-			for(unsigned int i = 0; i < static_cast<unsigned int>(options.GetKBound()); ++i)
-			{
-				identity_map[i] = i;
-			}
-		};
-		~TraceStore() {};
 	public:
-		inline void Save(const id_type& id, const TraceInfo& traceInfo){
-			store.insert(std::pair<id_type, TraceInfo>(id, traceInfo));
-		};
-		inline void SetFinalMarkingIdAndInvariant(id_type id, std::vector<TraceInfo::Invariant>& inv) { finalMarkingId = id; lastInvariants.swap(inv); };
+	    TraceStore(const VerificationOptions & options, SymbolicMarking *initialMarking, const TAPN::TimedArcPetriNet & tapn)
+	    :store(), initialMarking(CreateConcreteInitialMarking(initialMarking, options.GetKBound(), tapn)), finalMarkingId(-1), lastInvariants(), options(options), identity_map(options.GetKBound(), -1)
+	    {
+	        for(unsigned int i = 0;i < static_cast<unsigned int>(options.GetKBound());++i){
+	            identity_map[i] = i;
+	        }
+	    }
 
-		void OutputTraceTo(const TAPN::TimedArcPetriNet& tapn) const;
+	    ;
+	    ~TraceStore()
+	    {
+	    }
 
+	    ;
+	public:
+	    inline void Save(const id_type & id, const TraceInfo & traceInfo)
+	    {
+	        store.insert(std::pair<id_type,TraceInfo>(id, traceInfo));
+	    }
+
+	    ;
+	    inline void SetFinalMarkingIdAndInvariant(id_type id, std::vector<TraceInfo::Invariant> & inv)
+	    {
+	        finalMarkingId = id;
+	        lastInvariants.swap(inv);
+	    }
+
+	    ;
+	    void OutputTraceTo(const TAPN::TimedArcPetriNet & tapn) const;
 	private:
-		void CalculateDelays(const std::deque<TraceInfo>& traceInfos, std::vector<decimal>& delays) const;
-
-		void ComputeIndexMappings(std::deque<TraceInfo>& traceInfos) const;
-		void AugmentSymmetricMappings(std::deque<TraceInfo>& traceInfos) const;
-	private: // data
-		HashMap store;
+	    void CalculateDelays(const std::deque<TraceInfo> & traceInfos, std::vector<decimal> & delays) const;
+	    void ComputeIndexMappings(std::deque<TraceInfo> & traceInfos) const;
+	    void AugmentSymmetricMappings(std::deque<TraceInfo> & traceInfos) const;
+	    void OutputTraceInNormalFormat(ConcreteMarking& marking, const TAPN::TimedArcPetriNet& tapn, const std::deque<TraceInfo>& traceInfos, const std::vector<decimal>& delays) const;
+	    void OutputTraceInXmlFormat(ConcreteMarking& marking, const TAPN::TimedArcPetriNet& tapn, const std::deque<TraceInfo>& traceInfos, const std::vector<decimal>& delays) const;
+	private:
+	    HashMap store;
 		ConcreteMarking initialMarking;
 		id_type finalMarkingId;
 		std::vector<TraceInfo::Invariant> lastInvariants;

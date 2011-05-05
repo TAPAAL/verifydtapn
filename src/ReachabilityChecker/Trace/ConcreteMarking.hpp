@@ -7,6 +7,7 @@
 #include <string>
 #include <algorithm>
 #include "assert.h"
+#include "../../typedefs.hpp"
 
 namespace VerifyTAPN
 {
@@ -14,15 +15,16 @@ namespace VerifyTAPN
 		friend bool operator==(const Token&, const Token&);
 	public:
 		Token(const std::string& place) : place(place), age(0) {};
-		Token(const std::string& place, double age) : place(place), age(age) {};
-		inline void Reset() { age = 0; }
-		inline void Delay(double amount) { age += amount; }
+		Token(const std::string& place, decimal age) : place(place), age(age) {};
+		inline void Reset() { age = decimal(0); }
+		inline void Delay(decimal amount) { age += amount; }
 		inline void SetPlace(const std::string& place) { this->place = place; }
-
+		inline const std::string& Place() const { return place; };
+		inline decimal Age() const { return age; };
 		std::ostream& Print(std::ostream& out) const;
 	private:
 		std::string place;
-		double age;
+		decimal age;
 	};
 
 	inline std::ostream& operator<<( std::ostream& out, const Token& token )
@@ -46,7 +48,7 @@ namespace VerifyTAPN
 	public:
 		ConcreteMarking(const std::deque<Token>& tokens) : tokens(tokens) { };
 
-		inline void Delay(double amount)
+		inline void Delay(decimal amount)
 		{
 			for(std::deque<Token>::iterator iter = tokens.begin(); iter != tokens.end(); ++iter)
 				iter->Delay(amount);

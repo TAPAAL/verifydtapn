@@ -75,6 +75,7 @@ namespace VerifyTAPN {
 				("disable-untimed-places,u", "Disable the untimed place optimization")
 				("disable-symmetry,s", "Disable symmetry reduction")
 				("factory,f", boost::program_options::value<unsigned int>()->default_value(0), "Specify marking factory.\n - 0: default\n - 1: discrete-inclusion")
+				("xml-trace,x","Output trace in xml format for reconstruction")
 				("model-file", boost::program_options::value<std::string>(), "model file")
 				("query-file", boost::program_options::value<std::string>(), "query file")
 		;
@@ -104,9 +105,15 @@ namespace VerifyTAPN {
 		}
 
 		Trace trace = intToEnum(vm["trace"].as<unsigned int>());
-		std::cout << "Generating " << enumToString(trace) << " trace \n";
+		bool xml_trace = false;
+		if(vm.count("xml-trace") && trace != NONE)
+		{
+			xml_trace = true;
+		}
 
-
+		std::cout << "Generating " << enumToString(trace) << " trace";
+		if(trace != NONE) std::cout << " in " << (xml_trace ? "xml format" : "human readable format");
+		std::cout << std::endl;
 
 		bool symmetry = true;
 		if(vm.count("symmetry")) {
@@ -164,6 +171,6 @@ namespace VerifyTAPN {
 			exit(0);
 		}
 
-		return VerificationOptions(vm["model-file"].as<std::string>(), vm["query-file"].as<std::string>(), search, vm["k-bound"].as<unsigned int>(), symmetry, trace, untimedPlaces, globalConstants, factory);
+		return VerificationOptions(vm["model-file"].as<std::string>(), vm["query-file"].as<std::string>(), search, vm["k-bound"].as<unsigned int>(), symmetry, trace, xml_trace, untimedPlaces, globalConstants, factory);
 	}
 }

@@ -1,6 +1,9 @@
 #include "TraceStore.hpp"
 #include "EntrySolver.hpp"
 #include "../../Core/SymbolicMarking/SymbolicMarking.hpp"
+#include "../../../lib/rapidxml-1.13/rapidxml.hpp"
+#include "../../../lib/rapidxml-1.13/rapidxml_print.hpp"
+#include "../../Core/TAPNParser/util.hpp"
 
 namespace VerifyTAPN
 {
@@ -110,51 +113,105 @@ namespace VerifyTAPN
 		}
 	}
 
-	void TraceStore::OutputTraceTo(const TAPN::TimedArcPetriNet& tapn) const
-	{
-		id_type currentId = finalMarkingId;
-		std::deque<TraceInfo> traceInfos;
-		while(currentId != 0){
-			const TraceInfo& info = store.find(currentId)->second;
-			traceInfos.push_front(info);
-			currentId = info.PreviousStateId();
-		}
+    void TraceStore::OutputTraceTo(const TAPN::TimedArcPetriNet & tapn) const
+    {
+        id_type currentId = finalMarkingId;
+        std::deque<TraceInfo> traceInfos;
+        while(currentId != 0){
+            const TraceInfo & info = store.find(currentId)->second;
+            traceInfos.push_front(info);
+            currentId = info.PreviousStateId();
+        }
+        AugmentSymmetricMappings(traceInfos);
+        ComputeIndexMappings(traceInfos);
+        std::vector<decimal> delays;
+        CalculateDelays(traceInfos, delays);
 
-		AugmentSymmetricMappings(traceInfos);
-		ComputeIndexMappings(traceInfos);
+        std::cout << std::endl;
+        std::cerr << "Trace: " << std::endl;
+       	ConcreteMarking marking(initialMarking);
 
-		std::vector<decimal> delays;
-		CalculateDelays(traceInfos, delays);
-
-
-		TAPN::TimedTransition::Vector transitions = tapn.GetTransitions();
-
-		std::cout << std::endl;
-		std::cerr << "Trace: " << std::endl;
-		ConcreteMarking marking(initialMarking);
-		std::cerr << "\t" << marking;
-		for(unsigned int i = 0; i < traceInfos.size(); ++i)
-		{
-			const TraceInfo& traceInfo = traceInfos[i];
-
-			int index = traceInfo.TransitionIndex();
-			const TAPN::TimedTransition& transition = *transitions[index];
-
-			if(delays[i] > decimal(0)){
-				std::cerr << "\tDelay: " << delays[i] << std::endl;
-				marking.Delay(delays[i]);
-				std::cerr << "\t" << marking;
-			}
-			std::cerr << "\tTransition: " << transition.GetName()  << std::endl;
-			UpdateMarking(marking, traceInfo, tapn);
-			std::cerr << "\t" << marking;
-		}
-	}
+        if(options.XmlTrace())
+        {
+        	OutputTraceInXmlFormat(marking, tapn, traceInfos, delays);
+        }
+        else
+        {
+        	OutputTraceInNormalFormat(marking, tapn, traceInfos, delays);
+        }
+    }
 
 	void TraceStore::CalculateDelays(const std::deque<TraceInfo>& traceInfos, std::vector<decimal>& delays) const
 	{
 		EntrySolver solver(options.GetKBound(), traceInfos);
 		std::vector<decimal> calculatedDelays = solver.CalculateDelays(lastInvariants);
 		delays.swap(calculatedDelays);
+	}
+
+	void TraceStore::OutputTraceInNormalFormat(ConcreteMarking& marking, const TAPN::TimedArcPetriNet& tapn, const std::deque<TraceInfo>& traceInfos, const std::vector<decimal>& delays) const
+	{
+		std::cerr << "\t" << marking;
+		TAPN::TimedTransition::Vector transitions = tapn.GetTransitions();
+		for(unsigned int i = 0;i < traceInfos.size();++i){
+			const TraceInfo & traceInfo = traceInfos[i];
+			int index = traceInfo.TransitionIndex();
+			const TAPN::TimedTransition & transition = *transitions[index];
+			if(delays[i] > decimal(0)){
+				std::cerr << "\tDelay: " << delays[i] << std::endl;
+				marking.Delay(delays[i]);
+				std::cerr << "\t" << marking;
+			}
+			std::cerr << "\tTransition: " << transition.GetName() << std::endl;
+			UpdateMarking(marking, traceInfo, tapn);
+			std::cerr << "\t" << marking;
+		}
+
+	}
+
+	void TraceStore::OutputTraceInXmlFormat(ConcreteMarking& marking, const TAPN::TimedArcPetriNet& tapn, const std::deque<TraceInfo>& traceInfos, const std::vector<decimal>& delays) const
+	{
+		using namespace rapidxml;
+		xml_document<> doc;
+		xml_node<>* root = doc.allocate_node(node_element, "trace");
+		doc.append_node(root);
+
+		const TAPN::TimedTransition::Vector& transitions = tapn.GetTransitions();
+		for(unsigned int i = 0; i < traceInfos.size(); ++i)
+		{
+			const TraceInfo& traceInfo = traceInfos[i];
+
+			decimal delay = delays[i];
+			if(delay > decimal(0)){
+				xml_node<>* node = doc.allocate_node(node_element, "delay", doc.allocate_string(ToString(delay).c_str()));
+				root->append_node(node);
+				marking.Delay(delay);
+			}
+
+			xml_node<>* transition_node = doc.allocate_node(node_element, "transition");
+			xml_attribute<>* id = doc.allocate_attribute("id", doc.allocate_string(transitions[traceInfo.TransitionIndex()]->GetName().c_str()));
+			transition_node->append_attribute(id);
+
+			for(std::vector<Participant>::const_iterator it = traceInfo.Participants().begin(); it != traceInfo.Participants().end(); it++)
+			{
+				unsigned int index = it->TokenIndex();
+				unsigned int indexAfterFiring = traceInfo.GetTransitionFiringMapping().MapForward(index);
+				unsigned int symmetric_index = traceInfo.GetSymmetricMapping().MapForward(indexAfterFiring);
+				unsigned int mapped_token_index = traceInfo.GetOriginalMapping()[symmetric_index];
+				const Token& token = marking[mapped_token_index];
+				if(token.Place() != TAPN::TimedPlace::BOTTOM_NAME)
+				{
+					xml_node<>* token_node = doc.allocate_node(node_element, "token");
+					xml_attribute<>* place_attr = doc.allocate_attribute("place", doc.allocate_string(token.Place().c_str()));
+					xml_attribute<>* age_attr = doc.allocate_attribute("age", doc.allocate_string(ToString(token.Age()).c_str()));
+					token_node->append_attribute(place_attr);
+					token_node->append_attribute(age_attr);
+					transition_node->append_node(token_node);
+				}
+			}
+			root->append_node(transition_node);
+			UpdateMarking(marking, traceInfo, tapn);
+		}
+
+		std::cerr << doc;
 	}
 }
