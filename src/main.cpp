@@ -3,6 +3,7 @@
 #include "boost/smart_ptr.hpp"
 #include "Core/TAPNParser/TAPNXmlParser.hpp"
 #include "Core/VerificationOptions.hpp"
+#include "Core/ArgsParser.hpp"
 #include "Core/QueryParser/AST.hpp"
 #include "Core/QueryParser/TAPNQueryParser.hpp"
 #include "ReachabilityChecker/SearchStrategy.hpp"
@@ -30,7 +31,10 @@ MarkingFactory* CreateFactory(const VerificationOptions& options, const boost::s
 
 int main(int argc, char* argv[])
 {
-	VerificationOptions options = VerificationOptions::ParseVerificationOptions(argc, argv);
+	ArgsParser parser;
+	VerificationOptions options = parser.Parse(argc, argv);
+	std::cout << options;
+	exit(0);
 
 	TAPNXmlParser modelParser;
 	boost::shared_ptr<TAPN::TimedArcPetriNet> tapn;

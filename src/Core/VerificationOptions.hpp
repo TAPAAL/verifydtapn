@@ -1,10 +1,8 @@
 #ifndef VERIFICATIONOPTIONS_HPP_
-
 #define VERIFICATIONOPTIONS_HPP_
 
-
 #include <string>
-
+#include <iosfwd>
 
 namespace VerifyTAPN {
 	enum Trace { NONE, SOME };
@@ -12,7 +10,7 @@ namespace VerifyTAPN {
 	enum Factory { DEFAULT, DISCRETE_INCLUSION };
 
 	class VerificationOptions {
-		private:
+		public:
 			VerificationOptions(
 				const std::string& inputFile,
 				const std::string& queryFile,
@@ -35,9 +33,6 @@ namespace VerifyTAPN {
 				useGlobalMaxConstants(useGlobalMaxConstants),
 				factory(factory)
 			{};
-
-		public: // static
-			static VerificationOptions ParseVerificationOptions(int argc, char* argv[]);
 
 		public: // inspectors
 			const std::string GetInputFile() const { return inputFile; }
@@ -63,6 +58,7 @@ namespace VerifyTAPN {
 			Factory factory;
 	};
 
+	std::ostream& operator<<(std::ostream& out, const VerificationOptions& options);
 }
 
 #endif /* VERIFICATIONOPTIONS_HPP_ */
