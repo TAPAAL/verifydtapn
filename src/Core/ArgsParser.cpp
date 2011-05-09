@@ -141,6 +141,34 @@ namespace VerifyTAPN {
 			exit(0);
 		}
 
+		if(argc < 3)
+		{
+			std::cout << "too few parameters." << std::endl;
+			std::cout << "Use '-h' for help on correct usage." << std::endl;
+			exit(1);
+		}
+
+		std::string model_file(argv[argc-2]);
+		std::string query_file(argv[argc-1]);
+
+		if(boost::iends_with(query_file,".xml"))
+		{
+			std::cout << "Missing query file." << std::endl;
+			exit(1);
+		}
+
+		if(!boost::iends_with(model_file,".xml"))
+		{
+			std::cout << "Invalid model file specified." << std::endl;
+			exit(1);
+		}
+
+		if(!boost::iends_with(query_file, ".q"))
+		{
+			std::cout << "Invalid query file specified." << std::endl;
+			exit(1);
+		}
+
 		std::vector<std::string> flags;
 		unsigned int i = 1;
 		unsigned int size = static_cast<unsigned int>(argc);
@@ -189,7 +217,7 @@ namespace VerifyTAPN {
 			}
 		}
 
-		return CreateVerificationOptions(options, std::string(argv[argc-2]), std::string(argv[argc-1]));
+		return CreateVerificationOptions(options, model_file, query_file);
 	}
 
 	SearchType intToSearchTypeEnum(int i) {
@@ -232,13 +260,13 @@ namespace VerifyTAPN {
 		Trace trace = intToEnum(map.find(TRACE_OPTION)->second);
 
 		assert(map.find(SYMMETRY_OPTION) != map.end());
-		bool symmetry = boost::lexical_cast<bool>(map.find(SYMMETRY_OPTION)->second);
+		bool disable_symmetry = boost::lexical_cast<bool>(map.find(SYMMETRY_OPTION)->second);
 
 		assert(map.find(MAX_CONSTANT_OPTION) != map.end());
 		bool max_constant = boost::lexical_cast<bool>(map.find(MAX_CONSTANT_OPTION)->second);
 
 		assert(map.find(UNTIMED_PLACES_OPTION) != map.end());
-		bool untimed_places = boost::lexical_cast<bool>(map.find(UNTIMED_PLACES_OPTION)->second);
+		bool disable_untimed_places = boost::lexical_cast<bool>(map.find(UNTIMED_PLACES_OPTION)->second);
 
 		assert(map.find(FACTORY_OPTION) != map.end());
 		Factory factory = intToFactory(map.find(FACTORY_OPTION)->second);
@@ -246,6 +274,6 @@ namespace VerifyTAPN {
 		assert(map.find(XML_TRACE_OPTION) != map.end());
 		bool xml_trace = boost::lexical_cast<bool>(map.find(XML_TRACE_OPTION)->second);
 
-		return VerificationOptions(modelFile, queryFile, search, kbound, symmetry, trace, xml_trace, untimed_places, max_constant, factory);
+		return VerificationOptions(modelFile, queryFile, search, kbound, !disable_symmetry, trace, xml_trace, !disable_untimed_places, max_constant, factory);
 	}
 }

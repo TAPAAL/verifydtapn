@@ -33,8 +33,6 @@ int main(int argc, char* argv[])
 {
 	ArgsParser parser;
 	VerificationOptions options = parser.Parse(argc, argv);
-	std::cout << options;
-	exit(0);
 
 	TAPNXmlParser modelParser;
 	boost::shared_ptr<TAPN::TimedArcPetriNet> tapn;
@@ -68,6 +66,7 @@ int main(int argc, char* argv[])
 	}
 	SearchStrategy* strategy = new DefaultSearchStrategy(*tapn, initialMarking, query, options, factory);
 
+	std::cout << options << std::endl;
 	bool result = strategy->Verify();
 	std::cout << strategy->GetStats() << std::endl;
 	std::cout << "Query is " << (result ? "satisfied" : "NOT satisfied") << "." << std::endl;
