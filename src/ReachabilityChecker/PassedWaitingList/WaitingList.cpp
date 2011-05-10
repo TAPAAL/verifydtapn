@@ -36,7 +36,7 @@ namespace VerifyTAPN
 	void QueueWaitingList::Add(Node* node)
 	{
 		if(node){
-			queue.push(node);
+			queue.push_back(node);
 			actualSize++;
 		}
 	}
@@ -47,13 +47,13 @@ namespace VerifyTAPN
 		Node* node = queue.front();
 		assert(node->GetColor() == WAITING || node->GetColor() == COVERED);
 		while(node->GetColor() == COVERED){
-			queue.pop();
+			queue.pop_front();
 			delete node;
 			node = queue.front();
 			if(node == NULL) return NULL;
 		}
 
-		queue.pop(); actualSize--;
+		queue.pop_front(); actualSize--;
 		node->Recolor(PASSED);
 		return node;
 	}
@@ -93,6 +93,16 @@ namespace VerifyTAPN
 	long long StackWaitingList::Size() const
 	{
 		return actualSize;
+	}
+
+	QueueWaitingList::~QueueWaitingList()
+	{
+		for(std::deque<Node*>::iterator it = queue.begin(); it != queue.end(); it++)
+		{
+			if((*it)->GetColor() == COVERED){
+				delete *it;
+			}
+		}
 	}
 
 	StackWaitingList::~StackWaitingList()

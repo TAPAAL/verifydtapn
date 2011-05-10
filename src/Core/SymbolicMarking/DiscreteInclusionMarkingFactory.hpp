@@ -7,11 +7,13 @@
 #include "dbm/print.h"
 #include <iostream>
 
+#include "../VerificationOptions.hpp"
+
 namespace VerifyTAPN {
 
 class DiscreteInclusionMarkingFactory : public UppaalDBMMarkingFactory {
 public:
-	DiscreteInclusionMarkingFactory(const boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn) : UppaalDBMMarkingFactory(tapn), tapn(tapn) {};
+	DiscreteInclusionMarkingFactory(const boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, const VerificationOptions& options) : UppaalDBMMarkingFactory(tapn), tapn(tapn), empty_inc(options.GetFactory() == DEFAULT) {};
 	virtual ~DiscreteInclusionMarkingFactory() {};
 
 	virtual StoredMarking* Convert(SymbolicMarking* marking) const // TODO: who should clean up marking?
@@ -42,7 +44,6 @@ public:
 	{
 		DiscretePartInclusionMarking* dpiMarking = static_cast<DiscretePartInclusionMarking*>(marking);
 
-		unsigned int tokens = dpiMarking->size();
 		TokenMapping mapping;
 		std::vector<int> dpVec;
 
@@ -77,7 +78,7 @@ public:
 
 		for(unsigned int i = 0; i < dpVec.size(); i++)
 		{
-			assert(mapping.GetMapping(i) <= tokens+1);
+			assert(mapping.GetMapping(i) <= dpiMarking->size()+1);
 		}
 
 
@@ -102,6 +103,7 @@ public:
 private:
 	bool BelongsToINC(int token, const DBMMarking& marking) const
 	{
+		if(empty_inc) return false;
 		int placeIndex = marking.GetTokenPlacement(token);
 		const TimedPlace& place = tapn->GetPlace(placeIndex);
 
@@ -118,6 +120,8 @@ private:
 	dbm::dbm_t projectToEQPart(const std::vector<int>& eq, TokenMapping& mapping, const dbm::dbm_t& dbm) const
 	{
 		unsigned int dim = dbm.getDimension();
+		if(eq.size()+1 == dim) return dbm::dbm_t(dbm);
+
 		unsigned int bitArraySize = (dim % 32 == 0 ? dim/32 : dim/32+1);
 		unsigned int bitSrc[bitArraySize];
 		unsigned int bitDst[bitArraySize];
@@ -149,7 +153,6 @@ private:
 
 		dbm::dbm_t copy(dbm);
 		copy.resize(bitSrc, bitDst, bitArraySize, table);
-
 		assert(dbm.getDimension() == dim);
 		assert(eq.size()+1 == copy.getDimension());
 
@@ -215,6 +218,7 @@ private:
 	};
 private:
 	boost::shared_ptr<TAPN::TimedArcPetriNet> tapn;
+	bool empty_inc;
 };
 
 }

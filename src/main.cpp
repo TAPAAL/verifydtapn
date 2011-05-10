@@ -20,13 +20,13 @@ using namespace boost;
 
 MarkingFactory* CreateFactory(const VerificationOptions& options, const boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn)
 {
-	switch(options.GetFactory())
-	{
-	case DISCRETE_INCLUSION:
-		return new DiscreteInclusionMarkingFactory(tapn);
-	default:
-		return new UppaalDBMMarkingFactory(tapn);
-	}
+	//switch(options.GetFactory())
+	//{
+	//case DISCRETE_INCLUSION:
+		return new DiscreteInclusionMarkingFactory(tapn, options);
+	//default:
+	//	return new UppaalDBMMarkingFactory(tapn);
+	//}
 }
 
 int main(int argc, char* argv[])

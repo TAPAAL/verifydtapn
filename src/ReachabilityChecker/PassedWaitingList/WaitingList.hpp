@@ -21,6 +21,7 @@ namespace VerifyTAPN{
 	class QueueWaitingList : public WaitingList{
 	public:
 		QueueWaitingList() : queue(), actualSize(0) { };
+		virtual ~QueueWaitingList();
 	public:
 		virtual void Add(Node* node);
 		virtual Node* Next();
@@ -29,7 +30,7 @@ namespace VerifyTAPN{
 		inline virtual void DecrementActualSize() { actualSize--; };
 		inline virtual long long SizeIncludingCovered() const { return queue.size(); };
 	private:
-		std::queue<Node*> queue;
+		std::deque<Node*> queue;
 		long long actualSize;
 	};
 
