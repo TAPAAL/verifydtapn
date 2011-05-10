@@ -45,6 +45,7 @@ namespace VerifyTAPN {
 			inline const bool GetGlobalMaxConstantsEnabled() const { return useGlobalMaxConstants; }
 			inline const SearchType GetSearchType() const { return searchType; }
 			inline Factory GetFactory() const { return factory; };
+			inline void SetFactory(Factory f) { factory = f; };
 		private:
 			std::string inputFile;
 			std::string queryFile;

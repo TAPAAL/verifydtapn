@@ -5,6 +5,7 @@
 #include "Core/VerificationOptions.hpp"
 #include "Core/ArgsParser.hpp"
 #include "Core/QueryParser/AST.hpp"
+#include "Core/QueryParser/UpwardClosedVisitor.hpp"
 #include "Core/QueryParser/TAPNQueryParser.hpp"
 #include "ReachabilityChecker/SearchStrategy.hpp"
 
@@ -43,17 +44,8 @@ int main(int argc, char* argv[])
 		std::cout << "There was an error parsing the model file: " << e << std::endl;
 		return 1;
 	}
-
 	tapn->Initialize(options.GetUntimedPlacesEnabled());
-	MarkingFactory* factory = CreateFactory(options, tapn);
-
 	std::vector<int> initialPlacement(modelParser.ParseMarking(options.GetInputFile(), *tapn));
-	SymbolicMarking* initialMarking(factory->InitialMarking(initialPlacement));
-	if(initialMarking->NumberOfTokens() > options.GetKBound())
-	{
-		std::cout << "The specified k-bound is less than the number of tokens in the initial markings.";
-		return 1;
-	}
 
 	AST::Query* query;
 	try{
@@ -64,6 +56,26 @@ int main(int argc, char* argv[])
 		std::cout << "There was an error parsing the query file." << std::endl;
 		return 1;
 	}
+
+	if(options.GetFactory() == DISCRETE_INCLUSION)
+	{
+		AST::UpwardClosedVisitor visitor;
+		bool upward_closed = visitor.IsUpwardClosed(*query);
+		if(!upward_closed)
+		{
+			options.SetFactory(DEFAULT);
+			std::cout << "** The specified query is not upward closed. Disabling discrete inclusion optimization." << std::endl;
+		}
+	}
+
+	MarkingFactory* factory = CreateFactory(options, tapn);
+	SymbolicMarking* initialMarking(factory->InitialMarking(initialPlacement));
+	if(initialMarking->NumberOfTokens() > options.GetKBound())
+	{
+		std::cout << "The specified k-bound is less than the number of tokens in the initial markings.";
+		return 1;
+	}
+
 	SearchStrategy* strategy = new DefaultSearchStrategy(*tapn, initialMarking, query, options, factory);
 
 	std::cout << options << std::endl;
