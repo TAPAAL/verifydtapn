@@ -122,11 +122,14 @@ namespace VerifyTAPN
             traceInfos.push_front(*info);
             currentId = info->PreviousStateId();
         }
-        AugmentSymmetricMappings(traceInfos);
-        ComputeIndexMappings(traceInfos);
-        std::vector<decimal> delays;
-        CalculateDelays(traceInfos, delays);
 
+        std::vector<decimal> delays;
+        if(traceInfos.size() > 0)
+        {
+        	AugmentSymmetricMappings(traceInfos);
+        	ComputeIndexMappings(traceInfos);
+        	CalculateDelays(traceInfos, delays);
+        }
         std::cout << std::endl;
         std::cerr << "Trace: " << std::endl;
        	ConcreteMarking marking(initialMarking);

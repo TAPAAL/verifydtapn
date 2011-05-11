@@ -11,7 +11,6 @@ b. Install boost libraries (we used 1.40 but any version that is backward
 	- On ubuntu you can install it through the software center
 	- Otherwise, there is a guide here: 
 	  http://www.boost.org/doc/libs/1_40_0/more/getting_started/unix-variants.html
-	- You need to build the library Boost.ProgramOptions separately if you download it manually
 c. Download UPPAAL DBM library (we use version 2.0.7)
 	- unpack the downloaded file
 	- go to the "modules" folder
@@ -47,9 +46,6 @@ d. Install google-sparsehash library.
 		- add a path to the DBM library's "lib" folder (per the instructions
 		  above, you need to add the path "/usr/local/uppaal/lib") to the 
 		  "Library search path"
-		- If boost is not installed in the default folders (/usr/lib or 
-		  /usr/local/lib) you must also add a path to the the folder 
-		  containing the boost "lib" files (.so or .a files)
 		- The same MAY apply to the google-sparsehash code, depending on whether
 		  it compiles to a library or its a header-only library.
 4. Setup configuration "Release": Same as "Debug".
