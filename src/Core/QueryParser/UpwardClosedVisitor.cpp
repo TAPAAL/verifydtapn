@@ -35,6 +35,13 @@ namespace AST {
 		}
 	};
 
+	void UpwardClosedVisitor::Visit(const BoolExpression& expr, boost::any& context)
+	{
+		if(propShouldBeUpward && !expr.GetValue()) context = true;
+		else if(!propShouldBeUpward && expr.GetValue()) context = true;
+		else context = false;
+	}
+
 	void UpwardClosedVisitor::Visit(const Query& query, boost::any& context)
 	{
 		if(query.GetQuantifier() == EF)

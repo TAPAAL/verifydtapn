@@ -31,6 +31,11 @@ namespace VerifyTAPN
 			std::cout << expr.Place() << " " << expr.Operator() << " " << expr.N();
 		}
 
+		void Visit(const BoolExpression& expr, boost::any& context)
+		{
+			std::cout << (expr.GetValue() ? "true" : "false");
+		}
+
 		void ToStringVisitor::Visit(const Query& query, boost::any& context)
 		{
 			if(query.GetQuantifier() == EF)

@@ -61,13 +61,14 @@ int main(int argc, char* argv[])
 	{
 		AST::UpwardClosedVisitor visitor;
 		bool upward_closed = visitor.IsUpwardClosed(*query);
+		std::cout << (upward_closed ? "upward closed" : "not") << std::endl;
 		if(!upward_closed)
 		{
 			options.SetFactory(DEFAULT);
 			std::cout << "** The specified query is not upward closed. Disabling discrete inclusion optimization." << std::endl;
 		}
 	}
-
+	exit(0);
 	MarkingFactory* factory = CreateFactory(options, tapn);
 	SymbolicMarking* initialMarking(factory->InitialMarking(initialPlacement));
 	if(initialMarking->NumberOfTokens() > options.GetKBound())

@@ -44,12 +44,13 @@ namespace VerifyTAPN{
 %token EF AG
 %token LPARAN RPARAN
 %token OR AND
-%type  <expr> expression parExpression orExpression andExpression atomicProposition
+%token TRUE FALSE
+%type  <expr> expression parExpression orExpression andExpression atomicProposition boolExpression
 %type <query> query
 %type <string> compareOp
 
 %destructor { delete $$; } IDENTIFIER LESS LESSEQUAL EQUAL GREATEREQUAL GREATER compareOp
-%destructor { delete $$; } expression parExpression orExpression andExpression atomicProposition
+%destructor { delete $$; } expression parExpression orExpression andExpression atomicProposition boolExpression
 %destructor { delete $$; } query
 
 %%
@@ -62,6 +63,7 @@ expression			: parExpression { $$ = $1; }
 					| orExpression { $$ = $1; }
 					| andExpression { $$ = $1; }
 					| atomicProposition { $$ = $1; }
+					| boolExpression { $$ = $1; }
 ;
 
 %left OR;
@@ -78,6 +80,7 @@ atomicProposition	: IDENTIFIER compareOp NUMBER
 	};
 compareOp			: LESS | LESSEQUAL | EQUAL | GREATEREQUAL | GREATER; 
      
+boolExpression	: TRUE { $$ = new VerifyTAPN::AST::BoolExpression(true); } | FALSE { $$ = new VerifyTAPN::AST::BoolExpression(false); };
 %%
 
 void 

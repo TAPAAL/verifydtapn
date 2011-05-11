@@ -3,6 +3,16 @@ namespace VerifyTAPN
 {
 	namespace AST
 	{
+		void BoolExpression::Accept(Visitor& visitor, boost::any& context) const
+		{
+			visitor.Visit(*this, context);
+		}
+
+		BoolExpression* BoolExpression::clone() const
+		{
+			return new BoolExpression(*this);
+		}
+
 		void AtomicProposition::Accept(Visitor& visitor, boost::any& context) const
 		{
 			visitor.Visit(*this, context);

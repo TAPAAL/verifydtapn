@@ -36,6 +36,11 @@ namespace VerifyTAPN
 			context = Compare(numberOfTokens, expr.Operator(), expr.N());
 		}
 
+		void ExpressionSatisfiedVisitor::Visit(const BoolExpression& expr, boost::any& context)
+		{
+			context = expr.GetValue();
+		}
+
 		void ExpressionSatisfiedVisitor::Visit(const Query& query, boost::any& context)
 		{
 			query.Child().Accept(*this, context);

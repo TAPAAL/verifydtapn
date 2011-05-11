@@ -23,6 +23,20 @@ namespace VerifyTAPN{
 			virtual Expression* clone() const = 0;
 		};
 
+		class BoolExpression : public Expression
+		{
+		public:
+			explicit BoolExpression(bool value) : value(value) {};
+			virtual ~BoolExpression() { };
+
+			virtual BoolExpression* clone() const;
+			virtual void Accept(Visitor& visitor, boost::any& context) const;
+
+			bool GetValue() const { return value; };
+		private:
+			bool value;
+		};
+
 		class AtomicProposition : public Expression
 		{
 		public:

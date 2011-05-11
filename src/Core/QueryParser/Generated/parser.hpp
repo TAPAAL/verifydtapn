@@ -167,7 +167,9 @@ namespace VerifyTAPN {
      LPARAN = 267,
      RPARAN = 268,
      OR = 269,
-     AND = 270
+     AND = 270,
+     TRUE = 271,
+     FALSE = 272
    };
 
     };
@@ -264,7 +266,7 @@ namespace VerifyTAPN {
     static const unsigned char yytable_[];
     static const signed char yytable_ninf_;
 
-    static const unsigned char yycheck_[];
+    static const signed char yycheck_[];
 
     /// For a state, its accessing symbol.
     static const unsigned char yystos_[];
@@ -343,7 +345,7 @@ namespace VerifyTAPN {
 } // VerifyTAPN
 
 /* Line 35 of lalr1.cc  */
-#line 347 "Generated/parser.hpp"
+#line 349 "Generated/parser.hpp"
 
 
 
