@@ -8,8 +8,6 @@ namespace VerifyTAPN
 	class IndirectionTable
 	{
 	public:
-
-	public:
 		IndirectionTable() : map() { };
 		explicit IndirectionTable(const BiMap& map) : map(map) { };
 		virtual ~IndirectionTable() { };

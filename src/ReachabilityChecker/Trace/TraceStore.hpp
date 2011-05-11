@@ -36,10 +36,10 @@ namespace VerifyTAPN
 	class TraceStore
 	{
 	private:
-		typedef google::sparse_hash_map<id_type, TraceInfo, boost::hash<id_type> > HashMap;
+		typedef google::sparse_hash_map<id_type, TraceInfo*, boost::hash<id_type> > HashMap;
 	public:
 	    TraceStore(const VerificationOptions & options, SymbolicMarking *initialMarking, const TAPN::TimedArcPetriNet & tapn)
-	    :store(), initialMarking(CreateConcreteInitialMarking(initialMarking, options.GetKBound(), tapn)), finalMarkingId(-1), lastInvariants(), options(options), identity_map(options.GetKBound(), -1)
+	    : store(), initialMarking(CreateConcreteInitialMarking(initialMarking, options.GetKBound(), tapn)), finalMarkingId(-1), lastInvariants(), options(options), identity_map(options.GetKBound(), -1)
 	    {
 	        for(unsigned int i = 0;i < static_cast<unsigned int>(options.GetKBound());++i){
 	            identity_map[i] = i;
@@ -53,9 +53,9 @@ namespace VerifyTAPN
 
 	    ;
 	public:
-	    inline void Save(const id_type & id, const TraceInfo & traceInfo)
+	    inline void Save(const id_type & id, TraceInfo* traceInfo)
 	    {
-	        store.insert(std::pair<id_type,TraceInfo>(id, traceInfo));
+	        store.insert(std::pair<id_type,TraceInfo*>(id, traceInfo));
 	    }
 
 	    ;

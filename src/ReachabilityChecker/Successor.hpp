@@ -8,14 +8,15 @@ namespace VerifyTAPN
 	class Successor
 	{
 	public:
-		Successor(SymbolicMarking* marking) : marking(marking), traceInfo(-1, -1, -1) { };
-		Successor(SymbolicMarking* marking, const TraceInfo& traceInfo) : marking(marking), traceInfo(traceInfo) { };
+		Successor(SymbolicMarking* marking) : marking(marking), traceInfo(0) { };
+		Successor(SymbolicMarking* marking, TraceInfo* traceInfo) : marking(marking), traceInfo(traceInfo) { };
+
 	public:
 		SymbolicMarking* Marking() const { return marking; };
-		TraceInfo GetTraceInfo() const { return traceInfo; };
+		TraceInfo* GetTraceInfo() { return traceInfo; };
 	private:
 		SymbolicMarking* marking;
-		TraceInfo traceInfo;
+		TraceInfo* traceInfo;
 	};
 }
 

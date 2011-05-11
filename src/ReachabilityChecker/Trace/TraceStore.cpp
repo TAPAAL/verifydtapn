@@ -118,9 +118,9 @@ namespace VerifyTAPN
         id_type currentId = finalMarkingId;
         std::deque<TraceInfo> traceInfos;
         while(currentId != 0){
-            const TraceInfo & info = store.find(currentId)->second;
-            traceInfos.push_front(info);
-            currentId = info.PreviousStateId();
+            TraceInfo* info = store.find(currentId)->second;
+            traceInfos.push_front(*info);
+            currentId = info->PreviousStateId();
         }
         AugmentSymmetricMappings(traceInfos);
         ComputeIndexMappings(traceInfos);

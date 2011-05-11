@@ -83,7 +83,7 @@ namespace VerifyTAPN
 		typedef std::pair<unsigned int, TAPN::TimeInvariant> Invariant;
 	public:
 		TraceInfo(id_type prevState, int transitionIndex, id_type stateId)
-			: stateId(stateId), prevState(prevState), transitionIndex(transitionIndex), symmetric_mapping(), original_indices(), transitionFiringMapping(), invariants() {};
+			: stateId(stateId), prevState(prevState), transitionIndex(transitionIndex), symmetric_mapping(), original_indices(), transitionFiringMapping(), invariants() { };
 	public:
 		inline id_type StateId() const { return stateId; };
 		inline id_type PreviousStateId() const { return prevState; };
@@ -99,9 +99,9 @@ namespace VerifyTAPN
 		inline const IndirectionTable& GetTransitionFiringMapping() const { return transitionFiringMapping; };
 	public:
 		inline void AddParticipant(const Participant& participant) { participants.push_back(participant); };
-		inline void SetSymmetricMapping(const IndirectionTable& indirectionTable) { this->symmetric_mapping = indirectionTable; };
-		inline void SetOriginalMapping(const std::vector<unsigned int>& mapping) { original_indices = mapping; };
-		inline void SetTransitionFiringMapping(const IndirectionTable& mapping) { transitionFiringMapping = mapping; };
+		inline void SetSymmetricMapping(IndirectionTable& indirectionTable) { symmetric_mapping.Swap(indirectionTable); };
+		inline void SetOriginalMapping(std::vector<unsigned int>& mapping) { original_indices.swap(mapping); };
+		inline void SetTransitionFiringMapping(IndirectionTable& mapping) { transitionFiringMapping.Swap(mapping); };
 		inline void SetInvariants(std::vector<Invariant>& invs) { invariants.swap(invs); };
 	private: // data
 		id_type stateId;

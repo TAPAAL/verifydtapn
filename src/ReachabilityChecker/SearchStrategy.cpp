@@ -73,8 +73,9 @@ namespace VerifyTAPN
 					succ.MakeSymmetric(bimap);
 				}
 				if(options.GetTrace() != NONE){
-					TraceInfo traceInfo = iter->GetTraceInfo();
-					traceInfo.SetSymmetricMapping(IndirectionTable(bimap));
+					TraceInfo* traceInfo = iter->GetTraceInfo();
+					IndirectionTable table(bimap);
+					traceInfo->SetSymmetricMapping(table);
 					traceStore.Save(succ.UniqueId(), traceInfo);
 				}
 

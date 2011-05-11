@@ -258,7 +258,7 @@ namespace VerifyTAPN {
 
 		// Store trace information
 		if(trace){
-			TraceInfo traceInfo(marking->UniqueId(), transition.GetIndex(), next->UniqueId());
+			TraceInfo* traceInfo = new TraceInfo(marking->UniqueId(), transition.GetIndex(), next->UniqueId());
 			IndirectionTable mapping;
 			MakeIdentity(mapping, options.GetKBound());
 
@@ -278,7 +278,7 @@ namespace VerifyTAPN {
 
 				int placement = next->GetTokenPlacement(indexAfterFiring);
 				Participant participant(tokenIndex, ti, placement, TRANSPORT_ARC);
-				traceInfo.AddParticipant(participant);
+				traceInfo->AddParticipant(participant);
 			}
 
 			// handle normal arcs
@@ -302,7 +302,7 @@ namespace VerifyTAPN {
 				assert(indexAfterFiring < static_cast<int>(next->NumberOfTokens()));
 				int placement =  indexAfterFiring == -1 ? -1 : next->GetTokenPlacement(indexAfterFiring);
 				Participant participant(tokenIndex, ti, placement, NORMAL_ARC);
-				traceInfo.AddParticipant(participant);
+				traceInfo->AddParticipant(participant);
 			}
 
 			// Check if we added tokens from bottom
@@ -311,7 +311,7 @@ namespace VerifyTAPN {
 				for(int i = diff; i < 0; i++){
 					int indexAfterFiring = (marking->NumberOfTokens() - diff + i);
 					Participant participant(indexAfterFiring,inf, next->GetTokenPlacement(indexAfterFiring), NORMAL_ARC);
-					traceInfo.AddParticipant(participant);
+					traceInfo->AddParticipant(participant);
 				}
 			}
 
@@ -327,8 +327,8 @@ namespace VerifyTAPN {
 				}
 			}
 
-			traceInfo.SetInvariants(invariants);
-			traceInfo.SetTransitionFiringMapping(mapping);
+			traceInfo->SetInvariants(invariants);
+			traceInfo->SetTransitionFiringMapping(mapping);
 			succ.push_back(Successor(next, traceInfo));
 		}else{
 			succ.push_back(Successor(next));
