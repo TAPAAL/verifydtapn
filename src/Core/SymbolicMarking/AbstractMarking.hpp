@@ -6,6 +6,7 @@
 #include <vector>
 #include <list>
 #include "../../typedefs.hpp"
+#include <iosfwd>
 
 namespace VerifyTAPN {
 	class AbstractMarking {
@@ -29,7 +30,11 @@ namespace VerifyTAPN {
 		virtual int GetTokenPlacement(int token) const = 0;
 		virtual unsigned int NumberOfTokens() const = 0;
 		virtual unsigned int NumberOfTokensInPlace(int placeIndex) const = 0;
+
+		virtual void Print(std::ostream& out) const = 0;
 	};
+
+	std::ostream& operator<<(std::ostream& out, const AbstractMarking& m);
 
 }
 

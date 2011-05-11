@@ -7,6 +7,8 @@
 #include "boost/functional/hash.hpp"
 #include <algorithm>
 #include "TokenMapping.hpp"
+#include "../../typedefs.hpp"
+#include <iosfwd>
 
 namespace VerifyTAPN {
 
@@ -86,6 +88,7 @@ public:
 	};
 
 	virtual unsigned int UniqueId() const { return id; };
+	virtual void Print(std::ostream& out) const;
 private:
 	relation ConvertToRelation(relation_t relation) const
 	{

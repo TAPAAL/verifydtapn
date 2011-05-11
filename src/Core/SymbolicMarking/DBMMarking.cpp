@@ -1,4 +1,6 @@
 #include "DBMMarking.hpp"
+#include <iostream>
+#include "dbm/print.h"
 
 namespace VerifyTAPN
 {
@@ -171,4 +173,22 @@ namespace VerifyTAPN
 		DiscreteMarking::Swap(i,j);
 		dbm.swapClocks(mapping.GetMapping(i), mapping.GetMapping(j));
 	}
+
+	void DBMMarking::Print(std::ostream& out) const
+	{
+		out << "Placement: ";
+		for(unsigned int i = 0; i < NumberOfTokens(); i++)
+		{
+			out << GetTokenPlacement(i) << ", ";
+		}
+		out << std::endl;
+		out << "Mapping (token:clock): ";
+		for(unsigned int i = 0; i < NumberOfTokens(); i++)
+		{
+			out << i << ":" << GetClockIndex(i) << ", ";
+		}
+		out << std::endl;
+		out << "DBM:" << std::endl;
+		out << dbm;
+	};
 }

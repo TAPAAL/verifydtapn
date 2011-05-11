@@ -2,6 +2,7 @@
 #define STOREDMARKING_HPP_
 
 #include "DiscretePart.hpp"
+#include <iosfwd>
 
 namespace VerifyTAPN
 {
@@ -16,7 +17,11 @@ namespace VerifyTAPN
 		virtual size_t HashKey() const = 0;
 		// virtual Save() // see below
 		// virtual Load() // not sure what these should do exactly
+
+		virtual void Print(std::ostream& out) const = 0;
 	};
+
+	std::ostream& operator<<(std::ostream& out, const StoredMarking& m);
 }
 
 #endif /* STOREDMARKING_HPP_ */

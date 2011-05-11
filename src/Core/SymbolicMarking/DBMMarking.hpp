@@ -7,6 +7,7 @@
 #include "dbm/fed.h"
 #include "MarkingFactory.hpp"
 #include "../TAPN/TimedArcPetriNet.hpp"
+#include <iosfwd>
 
 namespace VerifyTAPN {
 
@@ -75,6 +76,7 @@ namespace VerifyTAPN {
 		raw_t GetLowerBound(int clock) const { return dbm(0,clock); };
 		const dbm::dbm_t& GetDBM() const { return dbm; };
 
+		virtual void Print(std::ostream& out) const;
 	private:
 		void InitMapping();
 
