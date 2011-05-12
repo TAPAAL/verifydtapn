@@ -2,7 +2,6 @@
 #define INDIRECTIONTABLE_HPP_
 
 #include "../typedefs.hpp"
-#include <iosfwd>
 
 namespace VerifyTAPN
 {
@@ -26,7 +25,6 @@ namespace VerifyTAPN
 		{
 			BiMap::value_type val(i,j);
 			std::pair<BiMap::const_iterator, bool> success = map.insert(val);
-
 			assert(success.second);
 		};
 
@@ -46,12 +44,9 @@ namespace VerifyTAPN
 		}
 
 		unsigned int Size() const { return map.size(); };
-		void Print(std::ostream& out) const;
 	private:
 		BiMap map;
 	};
-
-	std::ostream& operator<<(std::ostream& out, const IndirectionTable& t);
 }
 
 #endif /* INDIRECTIONTABLE_HPP_ */
