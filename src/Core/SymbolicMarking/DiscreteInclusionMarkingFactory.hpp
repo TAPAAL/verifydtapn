@@ -83,9 +83,17 @@ public:
 
 
 		DiscretePart dp(dpVec);
-		dbm::dbm_t dbm = ProjectToAllClocks(dp, mapping, dpiMarking->dbm);
+		dbm::dbm_t dbm = ProjectToAllClocks2(dp,mapping, dpiMarking->dbm); // improved speed
+		//dbm::dbm_t dbm = ProjectToAllClocks(dp, mapping, dpiMarking->dbm); // old correct for comparison
+
+		TokenMapping identity_mapping;
+		for(unsigned int i = 0; i < dp.size(); i++)
+		{
+			identity_mapping.SetMapping(i,i+1);
+		}
+
 		assert(dp.size()+1 == dbm.getDimension());
-		DBMMarking* result =  new DBMMarking(dp, mapping, dbm);
+		DBMMarking* result =  new DBMMarking(dp, identity_mapping, dbm);
 		result->id = dpiMarking->id;
 		return result;
 	};
@@ -171,7 +179,11 @@ private:
 		return copy;
 	};
 
-	dbm::dbm_t ProjectToAllClocks(const DiscretePart& dp, const TokenMapping& mapping, const dbm::dbm_t& dbm) const
+	/*
+	 * Old version for comparison. This correctly projects DBM to all clocks
+	 * and subsequently reorders clocks such that token i has clock i+1
+	 */
+	dbm::dbm_t ProjectToAllClocks(const DiscretePart& dp, TokenMapping& mapping, const dbm::dbm_t& dbm) const
 	{
 		//std::cout << "eq-dbm: \n" << dbm << std::endl;
 		unsigned int dim = dbm.getDimension();
@@ -213,7 +225,58 @@ private:
 				if(!place.IsUntimed()) copy.constrain(0, mapping.GetMapping(i), dbm_bound2raw(-place.GetMaxConstant(), dbm_STRICT));
 			}
 		}
+
+		unsigned int map[copy.getDimension()];
+		map[0] = 0;
+		for(unsigned int i = 1; i < copy.getDimension(); i++)
+		{
+			map[i] = mapping.GetMapping(i-1);
+		}
+		copy.changeClocks(map, copy.getDimension());
+
 		//std::cout << "computed-dbm: \n" << copy << std::endl;
+		return copy;
+	};
+
+	/*
+	 * Improved version of above, that should be a little faster.
+	 */
+	dbm::dbm_t ProjectToAllClocks2(const DiscretePart& dp, const TokenMapping& mapping, const dbm::dbm_t& dbm) const
+	{
+		unsigned int dim = dbm.getDimension();
+		unsigned int totalClocks = dp.size()+1;
+		unsigned int map[totalClocks];
+		map[0] = 0;
+
+		bool fromInc[totalClocks];
+		fromInc[0] = false;
+		for(unsigned int i = 1; i < totalClocks; i++)
+		{
+			unsigned int target = mapping.GetMapping(i-1);
+			if(target >= dim)
+			{
+				map[i] = ~0;
+				fromInc[i] = true;
+			}
+			else
+			{
+				map[i] = target;
+				fromInc[i] = false;
+			}
+		}
+
+		dbm::dbm_t copy(dbm);
+		copy.changeClocks(map, totalClocks);
+
+		for(unsigned int i = 0; i < dp.size(); i++)
+		{
+			if(fromInc[i+1])
+			{
+				const TimedPlace& place = tapn->GetPlace(dp.GetTokenPlacement(i));
+				if(!place.IsUntimed()) copy.constrain(0, i+1, dbm_bound2raw(-place.GetMaxConstant(), dbm_STRICT));
+			}
+		}
+
 		return copy;
 	};
 private:

@@ -49,6 +49,10 @@ namespace VerifyTAPN
 	    ;
 	    ~TraceStore()
 	    {
+	    	for(HashMap::iterator it = store.begin(); it != store.end(); it++)
+	    	{
+	    		delete it->second;
+	    	}
 	    }
 
 	    ;
