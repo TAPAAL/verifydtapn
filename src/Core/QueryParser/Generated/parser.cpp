@@ -342,15 +342,6 @@ namespace VerifyTAPN {
 /* Line 480 of lalr1.cc  */
 #line 344 "Generated/parser.cpp"
 	break;
-      case 26: /* "boolExpression" */
-
-/* Line 480 of lalr1.cc  */
-#line 53 "grammar.yy"
-	{ delete (yyvaluep->expr); };
-
-/* Line 480 of lalr1.cc  */
-#line 353 "Generated/parser.cpp"
-	break;
 
 	default:
 	  break;
@@ -435,7 +426,7 @@ namespace VerifyTAPN {
 }
 
 /* Line 553 of lalr1.cc  */
-#line 439 "Generated/parser.cpp"
+#line 430 "Generated/parser.cpp"
 
     /* Initialize the stacks.  The initial state will be pushed in
        yynewstate, since the latter expects the semantical and the
@@ -597,34 +588,41 @@ namespace VerifyTAPN {
 
 /* Line 678 of lalr1.cc  */
 #line 66 "grammar.yy"
-    { (yyval.expr) = (yysemantic_stack_[(1) - (1)].expr); }
+    { (yyval.expr) = new VerifyTAPN::AST::BoolExpression(true); }
     break;
 
   case 9:
 
 /* Line 678 of lalr1.cc  */
-#line 72 "grammar.yy"
-    { (yyval.expr) = new VerifyTAPN::AST::ParExpression((yysemantic_stack_[(3) - (2)].expr)); }
+#line 67 "grammar.yy"
+    { (yyval.expr) = new VerifyTAPN::AST::BoolExpression(false); }
     break;
 
   case 10:
 
 /* Line 678 of lalr1.cc  */
 #line 73 "grammar.yy"
-    { (yyval.expr) = new VerifyTAPN::AST::OrExpression((yysemantic_stack_[(3) - (1)].expr), (yysemantic_stack_[(3) - (3)].expr)); }
+    { (yyval.expr) = new VerifyTAPN::AST::ParExpression((yysemantic_stack_[(3) - (2)].expr)); }
     break;
 
   case 11:
 
 /* Line 678 of lalr1.cc  */
 #line 74 "grammar.yy"
-    { (yyval.expr) = new VerifyTAPN::AST::AndExpression((yysemantic_stack_[(3) - (1)].expr), (yysemantic_stack_[(3) - (3)].expr)); }
+    { (yyval.expr) = new VerifyTAPN::AST::OrExpression((yysemantic_stack_[(3) - (1)].expr), (yysemantic_stack_[(3) - (3)].expr)); }
     break;
 
   case 12:
 
 /* Line 678 of lalr1.cc  */
-#line 76 "grammar.yy"
+#line 75 "grammar.yy"
+    { (yyval.expr) = new VerifyTAPN::AST::AndExpression((yysemantic_stack_[(3) - (1)].expr), (yysemantic_stack_[(3) - (3)].expr)); }
+    break;
+
+  case 13:
+
+/* Line 678 of lalr1.cc  */
+#line 77 "grammar.yy"
     { 
 		int placeIndex = driver.tapn().GetPlaceIndex(*(yysemantic_stack_[(3) - (1)].string));
 		if(placeIndex == -1) error((yylocation_stack_[(3) - (1)]), "unknown place"); 
@@ -632,24 +630,10 @@ namespace VerifyTAPN {
 	}
     break;
 
-  case 18:
-
-/* Line 678 of lalr1.cc  */
-#line 83 "grammar.yy"
-    { (yyval.expr) = new VerifyTAPN::AST::BoolExpression(true); }
-    break;
-
-  case 19:
-
-/* Line 678 of lalr1.cc  */
-#line 83 "grammar.yy"
-    { (yyval.expr) = new VerifyTAPN::AST::BoolExpression(false); }
-    break;
-
 
 
 /* Line 678 of lalr1.cc  */
-#line 653 "Generated/parser.cpp"
+#line 637 "Generated/parser.cpp"
 	default:
           break;
       }
@@ -859,8 +843,8 @@ namespace VerifyTAPN {
   Parser::yypact_[] =
   {
          2,    -1,    -1,     1,     0,    -1,    -6,    -6,    -5,    -6,
-      -6,    -6,    -6,    -6,    -5,    -6,    -6,    -6,    -6,    -6,
-      -6,     5,     4,    -1,    -1,    -6,    -6,     8,    -6
+      -6,    -6,    -6,    -5,    -6,    -6,    -6,    -6,    -6,    -6,
+       5,     4,    -1,    -1,    -6,    -6,     7,    -6
   };
 
   /* YYDEFACT[S] -- default rule to reduce with in state S when YYTABLE
@@ -869,23 +853,23 @@ namespace VerifyTAPN {
   const unsigned char
   Parser::yydefact_[] =
   {
-         0,     0,     0,     0,     0,     0,    18,    19,     2,     4,
-       5,     6,     7,     8,     3,     1,    13,    14,    15,    16,
-      17,     0,     0,     0,     0,    12,     9,    10,    11
+         0,     0,     0,     0,     0,     0,     8,     9,     2,     4,
+       5,     6,     7,     3,     1,    14,    15,    16,    17,    18,
+       0,     0,     0,     0,    13,    10,    11,    12
   };
 
   /* YYPGOTO[NTERM-NUM].  */
   const signed char
   Parser::yypgoto_[] =
   {
-        -6,    -6,    -2,    -6,    -6,    -6,    -6,    -6,    -6
+        -6,    -6,    -2,    -6,    -6,    -6,    -6,    -6
   };
 
   /* YYDEFGOTO[NTERM-NUM].  */
   const signed char
   Parser::yydefgoto_[] =
   {
-        -1,     3,     8,     9,    10,    11,    12,    21,    13
+        -1,     3,     8,     9,    10,    11,    12,    20
   };
 
   /* YYTABLE[YYPACT[STATE-NUM]].  What to do in state STATE-NUM.  If
@@ -895,18 +879,18 @@ namespace VerifyTAPN {
   const unsigned char
   Parser::yytable_[] =
   {
-        14,    15,     4,    22,    16,    17,    18,    19,    20,    23,
-      24,     5,     1,     2,    25,     6,     7,    26,    23,    24,
-       0,    27,    28,    24
+        13,    14,     4,    21,    15,    16,    17,    18,    19,    22,
+      23,     5,     1,     2,    24,     6,     7,    25,    22,    23,
+      26,    27,    23
   };
 
   /* YYCHECK.  */
-  const signed char
+  const unsigned char
   Parser::yycheck_[] =
   {
          2,     0,     3,     5,     4,     5,     6,     7,     8,    14,
       15,    12,    10,    11,     9,    16,    17,    13,    14,    15,
-      -1,    23,    24,    15
+      22,    23,    15
   };
 
   /* STOS_[STATE-NUM] -- The (internal number of the) accessing
@@ -915,8 +899,8 @@ namespace VerifyTAPN {
   Parser::yystos_[] =
   {
          0,    10,    11,    19,     3,    12,    16,    17,    20,    21,
-      22,    23,    24,    26,    20,     0,     4,     5,     6,     7,
-       8,    25,    20,    14,    15,     9,    13,    20,    20
+      22,    23,    24,    20,     0,     4,     5,     6,     7,     8,
+      25,    20,    14,    15,     9,    13,    20,    20
   };
 
 #if YYDEBUG
@@ -934,16 +918,16 @@ namespace VerifyTAPN {
   const unsigned char
   Parser::yyr1_[] =
   {
-         0,    18,    19,    19,    20,    20,    20,    20,    20,    21,
-      22,    23,    24,    25,    25,    25,    25,    25,    26,    26
+         0,    18,    19,    19,    20,    20,    20,    20,    20,    20,
+      21,    22,    23,    24,    25,    25,    25,    25,    25
   };
 
   /* YYR2[YYN] -- Number of symbols composing right hand side of rule YYN.  */
   const unsigned char
   Parser::yyr2_[] =
   {
-         0,     2,     2,     2,     1,     1,     1,     1,     1,     3,
-       3,     3,     3,     1,     1,     1,     1,     1,     1,     1
+         0,     2,     2,     2,     1,     1,     1,     1,     1,     1,
+       3,     3,     3,     3,     1,     1,     1,     1,     1
   };
 
 #if YYDEBUG || YYERROR_VERBOSE || YYTOKEN_TABLE
@@ -956,7 +940,7 @@ namespace VerifyTAPN {
   "EQUAL", "GREATEREQUAL", "GREATER", "NUMBER", "EF", "AG", "LPARAN",
   "RPARAN", "OR", "AND", "TRUE", "FALSE", "$accept", "query", "expression",
   "parExpression", "orExpression", "andExpression", "atomicProposition",
-  "compareOp", "boolExpression", 0
+  "compareOp", 0
   };
 #endif
 
@@ -966,10 +950,10 @@ namespace VerifyTAPN {
   Parser::yyrhs_[] =
   {
         19,     0,    -1,    10,    20,    -1,    11,    20,    -1,    21,
-      -1,    22,    -1,    23,    -1,    24,    -1,    26,    -1,    12,
-      20,    13,    -1,    20,    14,    20,    -1,    20,    15,    20,
-      -1,     3,    25,     9,    -1,     4,    -1,     5,    -1,     6,
-      -1,     7,    -1,     8,    -1,    16,    -1,    17,    -1
+      -1,    22,    -1,    23,    -1,    24,    -1,    16,    -1,    17,
+      -1,    12,    20,    13,    -1,    20,    14,    20,    -1,    20,
+      15,    20,    -1,     3,    25,     9,    -1,     4,    -1,     5,
+      -1,     6,    -1,     7,    -1,     8,    -1
   };
 
   /* YYPRHS[YYN] -- Index of the first RHS symbol of rule number YYN in
@@ -978,15 +962,15 @@ namespace VerifyTAPN {
   Parser::yyprhs_[] =
   {
          0,     0,     3,     6,     9,    11,    13,    15,    17,    19,
-      23,    27,    31,    35,    37,    39,    41,    43,    45,    47
+      21,    25,    29,    33,    37,    39,    41,    43,    45
   };
 
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
   const unsigned char
   Parser::yyrline_[] =
   {
-         0,    58,    58,    59,    62,    63,    64,    65,    66,    72,
-      73,    74,    75,    81,    81,    81,    81,    81,    83,    83
+         0,    58,    58,    59,    62,    63,    64,    65,    66,    67,
+      73,    74,    75,    76,    82,    82,    82,    82,    82
   };
 
   // Print the state stack on the debug stream.
@@ -1062,10 +1046,10 @@ namespace VerifyTAPN {
   }
 
   const int Parser::yyeof_ = 0;
-  const int Parser::yylast_ = 23;
-  const int Parser::yynnts_ = 9;
+  const int Parser::yylast_ = 22;
+  const int Parser::yynnts_ = 8;
   const int Parser::yyempty_ = -2;
-  const int Parser::yyfinal_ = 15;
+  const int Parser::yyfinal_ = 14;
   const int Parser::yyterror_ = 1;
   const int Parser::yyerrcode_ = 256;
   const int Parser::yyntokens_ = 18;
@@ -1079,7 +1063,7 @@ namespace VerifyTAPN {
 } // VerifyTAPN
 
 /* Line 1054 of lalr1.cc  */
-#line 1083 "Generated/parser.cpp"
+#line 1067 "Generated/parser.cpp"
 
 
 /* Line 1056 of lalr1.cc  */
