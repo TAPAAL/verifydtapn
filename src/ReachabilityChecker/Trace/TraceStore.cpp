@@ -77,22 +77,12 @@ namespace VerifyTAPN
 	// See TraceInfo.hpp for more info.
 	void TraceStore::ComputeIndexMappings(std::deque<TraceInfo>& traceInfos) const
 	{
-		std::vector<unsigned int> map(identity_map);
-		TraceInfo& first = traceInfos[0];
-		const IndirectionTable& table = first.GetSymmetricMapping();
-		for(unsigned int symmetric_index = 0; symmetric_index < static_cast<unsigned int>(options.GetKBound()); symmetric_index++)
+		for(unsigned int i = 0; i < traceInfos.size(); i++)
 		{
-			assert(symmetric_index < table.Size());
-			map[symmetric_index] = table.MapBackwards(symmetric_index);
-		}
-		first.SetOriginalMapping(map);
-
-		for(unsigned int i = 1; i < traceInfos.size(); i++)
-		{
-			const TraceInfo& previous = traceInfos[i-1];
+			//const TraceInfo& previous = traceInfos[i-1];
 			TraceInfo& current = traceInfos[i];
 
-			const std::vector<unsigned int>& previousTable = previous.GetOriginalMapping();
+			const std::vector<unsigned int>& previousTable = i > 0 ? traceInfos[i-1].GetOriginalMapping() : identity_map;
 			const IndirectionTable& currentTable = current.GetSymmetricMapping();
 			const IndirectionTable& transitionMapping = current.GetTransitionFiringMapping();
 
@@ -177,13 +167,12 @@ namespace VerifyTAPN
 		xml_document<> doc;
 		xml_node<>* root = doc.allocate_node(node_element, "trace");
 		doc.append_node(root);
-
 		const TAPN::TimedTransition::Vector& transitions = tapn.GetTransitions();
 		for(unsigned int i = 0; i < traceInfos.size(); ++i)
 		{
 			const TraceInfo& traceInfo = traceInfos[i];
-
 			decimal delay = delays[i];
+
 			if(delay > decimal(0)){
 				xml_node<>* node = doc.allocate_node(node_element, "delay", doc.allocate_string(ToString(delay).c_str()));
 				root->append_node(node);

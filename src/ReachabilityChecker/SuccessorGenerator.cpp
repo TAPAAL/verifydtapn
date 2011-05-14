@@ -347,15 +347,15 @@ namespace VerifyTAPN {
     void SuccessorGenerator::UpdateTraceMapping(IndirectionTable& mapping, unsigned int tokenToRemove) const
     {
     	IndirectionTable table;
-    	for(unsigned int i = 0; i < tokenToRemove; i++)
-    	{
-    		table.AddMapping(i, mapping.MapForward(i));
-    	}
-    	table.AddMapping(tokenToRemove, mapping.Size() - 1);
-    	for(unsigned int i = tokenToRemove+1; i < mapping.Size(); ++i)
-    	{
-    		table.AddMapping(i, mapping.MapForward(i)-1);
-    	}
+    	unsigned int mapped_toRemove = mapping.MapForward(tokenToRemove);
+		for(unsigned int i = 0; i < mapping.Size(); i++)
+		{
+			unsigned int mapped = mapping.MapForward(i);
+
+			if(i == tokenToRemove) table.AddMapping(i, mapping.Size()-1);
+			else if(mapped > mapped_toRemove) table.AddMapping(i, mapped-1);
+			else table.AddMapping(i, mapped);
+		}
     	mapping.Swap(table);
     }
 
