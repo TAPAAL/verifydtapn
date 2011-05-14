@@ -118,7 +118,7 @@ namespace VerifyTAPN {
 		parsers.push_back(boost::make_shared<Switch>("u",UNTIMED_PLACES_OPTION, "Disables the untimed place optimization."));
 		parsers.push_back(boost::make_shared<Switch>("s",SYMMETRY_OPTION, "Disables symmetry reduction."));
 
-		parsers.push_back(boost::make_shared<SwitchWithArg>("f", FACTORY_OPTION, "Specify the desired marking factory.\n - 0: Default\n - 1: Discrete-inclusion",0));
+		parsers.push_back(boost::make_shared<SwitchWithArg>("f", FACTORY_OPTION, "Specify the desired marking factory.\n - 0: Default\n - 1: Discrete-inclusion\n - 2: Old factory",0));
 		parsers.push_back(boost::make_shared<Switch>("x",XML_TRACE_OPTION, "Output trace in xml format for TAPAAL."));
 	};
 
@@ -243,6 +243,8 @@ namespace VerifyTAPN {
 			{
 			case 1:
 				return DISCRETE_INCLUSION;
+			case 2:
+				return OLD_FACTORY;
 			default:
 				return DEFAULT;
 			}

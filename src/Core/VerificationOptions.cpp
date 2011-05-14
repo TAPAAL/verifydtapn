@@ -24,9 +24,11 @@ namespace VerifyTAPN {
 	std::string FactoryEnumToString(Factory factory){
 		switch(factory)
 		{
+		case OLD_FACTORY:
+			return "old DBM";
 		case DISCRETE_INCLUSION:
 			return "discrete inclusion";
-		case DEFAULT:
+		default:
 			return "default";
 		}
 	}
