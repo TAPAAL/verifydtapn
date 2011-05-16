@@ -41,8 +41,8 @@ blank [ \t]
 ^AG							{ return token::AG; }
 or|\|\|						{ return token::OR; }
 and|&&						{ return token::AND; }
-true						{ return token::TRUE; }
-false						{ return token::FALSE; }
+true						{ return token::BOOL_TRUE; }
+false						{ return token::BOOL_FALSE; }
 "("							{ return token::LPARAN; }
 ")"							{ return token::RPARAN; }
 "<"							{ yylval->string = new std::string(yytext); return token::LESS; }

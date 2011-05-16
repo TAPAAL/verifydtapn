@@ -821,12 +821,12 @@ YY_RULE_SETUP
 case 8:
 YY_RULE_SETUP
 #line 44 "flex.ll"
-{ return token::TRUE; }
+{ return token::BOOL_TRUE; }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
 #line 45 "flex.ll"
-{ return token::FALSE; }
+{ return token::BOOL_FALSE; }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP

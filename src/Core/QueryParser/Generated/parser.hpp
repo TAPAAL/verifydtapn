@@ -168,8 +168,8 @@ namespace VerifyTAPN {
      RPARAN = 268,
      OR = 269,
      AND = 270,
-     TRUE = 271,
-     FALSE = 272
+     BOOL_TRUE = 271,
+     BOOL_FALSE = 272
    };
 
     };

@@ -938,9 +938,9 @@ namespace VerifyTAPN {
   {
     "END", "error", "$undefined", "IDENTIFIER", "LESS", "LESSEQUAL",
   "EQUAL", "GREATEREQUAL", "GREATER", "NUMBER", "EF", "AG", "LPARAN",
-  "RPARAN", "OR", "AND", "TRUE", "FALSE", "$accept", "query", "expression",
-  "parExpression", "orExpression", "andExpression", "atomicProposition",
-  "compareOp", 0
+  "RPARAN", "OR", "AND", "BOOL_TRUE", "BOOL_FALSE", "$accept", "query",
+  "expression", "parExpression", "orExpression", "andExpression",
+  "atomicProposition", "compareOp", 0
   };
 #endif
 
