@@ -1,10 +1,8 @@
 #include <iostream>
-#include "Core/TAPN/TAPN.hpp"
 #include "boost/smart_ptr.hpp"
 #include "Core/TAPNParser/TAPNXmlParser.hpp"
 #include "Core/VerificationOptions.hpp"
 #include "Core/ArgsParser.hpp"
-#include "Core/QueryParser/AST.hpp"
 #include "Core/QueryParser/UpwardClosedVisitor.hpp"
 #include "Core/QueryParser/TAPNQueryParser.hpp"
 #include "ReachabilityChecker/SearchStrategy.hpp"

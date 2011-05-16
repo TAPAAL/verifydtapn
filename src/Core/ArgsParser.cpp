@@ -23,6 +23,12 @@ namespace VerifyTAPN {
 		return out;
 	}
 
+	std::ostream& operator <<(std::ostream& out, const Version& version)
+	{
+		out << version.maj << "." << version.min << "." << version.build;
+		return out;
+	}
+
 	void PrintIndentedDescription(std::ostream& out, const std::string& description)
 	{
 		typedef boost::tokenizer<boost::char_separator<char> > tokens;
@@ -127,17 +133,30 @@ namespace VerifyTAPN {
 		std::cout << "Usage: verifytapn -k <number> [optional arguments] model-file query-file" << std::endl;
 		std::cout << "Allowed Options:" << std::endl;
 		std::cout << std::setw(WIDTH) << std::left << "-h [ --help ]" << "Displays this help message." << std::endl;
+		std::cout << std::setw(WIDTH) << std::left << "-v [ --version ]" << "Displays version information." << std::endl;
 		for(parser_vec::const_iterator arg = parsers.begin(); arg != parsers.end(); arg++)
 		{
 			std::cout << **arg;
 		}
 	};
 
+	void ArgsParser::Version() const
+	{
+		std::cout << "VerifyTAPN " << version << std::endl;
+		std::cout << "Licensed under GPL." << std::endl;
+	}
+
 	VerificationOptions ArgsParser::Parse(int argc, char* argv[]) const
 	{
 		if(argc == 1 || std::string(argv[1]) == "-h" || std::string(argv[1]) == "--help")
 		{
 			Help();
+			exit(0);
+		}
+
+		if(std::string(argv[1]) == "-v" || std::string(argv[1]) == "--version")
+		{
+			Version();
 			exit(0);
 		}
 
