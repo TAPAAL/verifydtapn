@@ -7,6 +7,7 @@ namespace VerifyTAPN
 {
 	namespace AST
 	{
+		class NotExpression;
 		class ParExpression;
 		class OrExpression;
 		class AndExpression;
@@ -18,6 +19,7 @@ namespace VerifyTAPN
 		{
 		public:
 			virtual ~Visitor() { };
+			virtual void Visit(const NotExpression& expr, boost::any& context) = 0;
 			virtual void Visit(const ParExpression& expr, boost::any& context) = 0;
 			virtual void Visit(const OrExpression& expr, boost::any& context) = 0;
 			virtual void Visit(const AndExpression& expr, boost::any& context) = 0;

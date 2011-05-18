@@ -5,6 +5,12 @@ namespace VerifyTAPN
 {
 	namespace AST
 	{
+		void ToStringVisitor::Visit(const NotExpression& expr, boost::any& context)
+		{
+			std::cout << "!";
+			expr.Child().Accept(*this, context);
+		}
+
 		void ToStringVisitor::Visit(const ParExpression& expr, boost::any& context)
 		{
 			std::cout << "(";
@@ -31,7 +37,7 @@ namespace VerifyTAPN
 			std::cout << expr.Place() << " " << expr.Operator() << " " << expr.N();
 		}
 
-		void Visit(const BoolExpression& expr, boost::any& context)
+		void ToStringVisitor::Visit(const BoolExpression& expr, boost::any& context)
 		{
 			std::cout << (expr.GetValue() ? "true" : "false");
 		}

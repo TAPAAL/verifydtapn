@@ -43,6 +43,7 @@ or|\|\|						{ return token::OR; }
 and|&&						{ return token::AND; }
 true						{ return token::BOOL_TRUE; }
 false						{ return token::BOOL_FALSE; }
+"!"|not						{ return token::NOT; }
 "("							{ return token::LPARAN; }
 ")"							{ return token::RPARAN; }
 "<"							{ yylval->string = new std::string(yytext); return token::LESS; }

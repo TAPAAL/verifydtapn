@@ -23,6 +23,33 @@ namespace VerifyTAPN{
 			virtual Expression* clone() const = 0;
 		};
 
+		class NotExpression : public Expression
+		{
+		public:
+			explicit NotExpression(Expression* expr) : expr(expr) { };
+			NotExpression(const NotExpression& other) : expr(other.expr->clone()) { };
+			NotExpression& operator=(const NotExpression& other)
+			{
+				if(&other != this){
+					delete expr;
+					expr = other.expr->clone();
+				}
+
+				return *this;
+			}
+
+			virtual ~NotExpression(){
+				if( expr ) delete expr;
+			};
+
+			virtual NotExpression* clone() const;
+			virtual void Accept(Visitor& visitor, boost::any& context) const;
+
+			const Expression& Child() const { return *expr; }
+		private:
+			Expression* expr;
+		};
+
 		class BoolExpression : public Expression
 		{
 		public:

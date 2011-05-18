@@ -3,6 +3,12 @@
 
 namespace VerifyTAPN {
 namespace AST {
+		void UpwardClosedVisitor::Visit(const NotExpression& expr, boost::any& context)
+		{
+			context = false;
+			//expr.Child().Accept(*this, context);
+		}
+
 		void UpwardClosedVisitor::Visit(const ParExpression& expr, boost::any& context)
 		{
 			expr.Child().Accept(*this, context);

@@ -3,6 +3,16 @@ namespace VerifyTAPN
 {
 	namespace AST
 	{
+		NotExpression* NotExpression::clone() const
+		{
+			return new NotExpression(*this);
+		}
+
+		void NotExpression::Accept(Visitor& visitor, boost::any& context) const
+		{
+			visitor.Visit(*this, context);
+		}
+
 		void BoolExpression::Accept(Visitor& visitor, boost::any& context) const
 		{
 			visitor.Visit(*this, context);

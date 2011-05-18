@@ -43,14 +43,14 @@ namespace VerifyTAPN{
 %token END      0
 %token EF AG
 %token LPARAN RPARAN
-%token OR AND
+%token OR AND NOT
 %token BOOL_TRUE BOOL_FALSE
-%type  <expr> expression parExpression orExpression andExpression atomicProposition
+%type  <expr> expression notExpression parExpression orExpression andExpression boolExpression atomicProposition
 %type <query> query
 %type <string> compareOp
 
 %destructor { delete $$; } IDENTIFIER LESS LESSEQUAL EQUAL GREATEREQUAL GREATER compareOp
-%destructor { delete $$; } expression parExpression orExpression andExpression atomicProposition
+%destructor { delete $$; } expression notExpression parExpression orExpression andExpression boolExpression atomicProposition
 %destructor { delete $$; } query
 
 %%
@@ -60,19 +60,22 @@ query				: EF expression { $$ = new VerifyTAPN::AST::Query(VerifyTAPN::AST::EF, 
 ;
 
 expression			: parExpression { $$ = $1; }
+					| notExpression { $$ = $1; }
 					| orExpression { $$ = $1; }
 					| andExpression { $$ = $1; }
 					| atomicProposition { $$ = $1; }
-					| BOOL_TRUE { $$ = new VerifyTAPN::AST::BoolExpression(true); } 
-					| BOOL_FALSE { $$ = new VerifyTAPN::AST::BoolExpression(false); }
+					| boolExpression { $$ = $1; }
 ;
 
 %left OR;
 %left AND;
 
 parExpression		: LPARAN expression RPARAN { $$ = new VerifyTAPN::AST::ParExpression($2); };
+notExpression		: NOT parExpression { $$ = new VerifyTAPN::AST::NotExpression($2); };
 orExpression		: expression OR expression { $$ = new VerifyTAPN::AST::OrExpression($1, $3); };
 andExpression		: expression AND expression { $$ = new VerifyTAPN::AST::AndExpression($1, $3); };
+boolExpression		: BOOL_TRUE { $$ = new VerifyTAPN::AST::BoolExpression(true); } 
+					| BOOL_FALSE { $$ = new VerifyTAPN::AST::BoolExpression(false); };
 atomicProposition	: IDENTIFIER compareOp NUMBER 
 	{ 
 		int placeIndex = driver.tapn().GetPlaceIndex(*$1);

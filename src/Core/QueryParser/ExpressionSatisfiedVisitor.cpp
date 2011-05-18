@@ -7,6 +7,14 @@ namespace VerifyTAPN
 {
 	namespace AST
 	{
+
+		void ExpressionSatisfiedVisitor::Visit(const NotExpression& expr, boost::any& context)
+		{
+			boost::any c;
+			expr.Child().Accept(*this, c);
+			context = !boost::any_cast<bool>(c);
+		}
+
 		void ExpressionSatisfiedVisitor::Visit(const ParExpression& expr, boost::any& context)
 		{
 			expr.Child().Accept(*this, context);

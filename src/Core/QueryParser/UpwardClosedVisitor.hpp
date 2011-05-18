@@ -9,6 +9,7 @@ namespace AST {
 	public:
 		UpwardClosedVisitor() : propShouldBeUpward(true) { };
 		virtual ~UpwardClosedVisitor() {};
+		virtual void Visit(const NotExpression& expr, boost::any& context);
 		virtual void Visit(const ParExpression& expr, boost::any& context);
 		virtual void Visit(const OrExpression& expr, boost::any& context);
 		virtual void Visit(const AndExpression& expr, boost::any& context);
