@@ -232,10 +232,11 @@ namespace VerifyTAPN {
 		else if(diff < 0) // postset bigger than preset, i.e. more tokens produced than consumed
 		{
 			const std::list<int>& outputPlaces = pairing.GetOutputPlacesFor(TAPN::TimedPlace::BottomIndex());
-			maxUsedTokens = std::max(maxUsedTokens, next->NumberOfTokens() + outputPlaces.size());
+			unsigned int tokensInSuccessor = next->NumberOfTokens() + outputPlaces.size();
+			maxUsedTokens = std::max(maxUsedTokens, tokensInSuccessor);
 			// Perform under-approximation in case the net is not k-bounded.
 			// I.e. only allow up to k tokens in a given marking.
-			if(next->NumberOfTokens() + outputPlaces.size() > kBound) {
+			if(tokensInSuccessor > kBound) {
 				delete next;
 				return;
 			}
