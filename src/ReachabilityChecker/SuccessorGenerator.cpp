@@ -218,6 +218,8 @@ namespace VerifyTAPN {
 			next->Reset(tokenIndex);
 		}
 
+		unsigned int prevMaxTokens = maxUsedTokens; // We record this in case the invariants makes next an invalid marking
+
 		// check if we need to add or remove tokens in the successor marking
 		int diff = presetSize - transition.GetPostsetSize();
 		if(diff > 0) // preset bigger than postset, i.e. more tokens consumed than produced
@@ -230,7 +232,7 @@ namespace VerifyTAPN {
 		else if(diff < 0) // postset bigger than preset, i.e. more tokens produced than consumed
 		{
 			const std::list<int>& outputPlaces = pairing.GetOutputPlacesFor(TAPN::TimedPlace::BottomIndex());
-
+			maxUsedTokens = std::max(maxUsedTokens, next->NumberOfTokens() + outputPlaces.size());
 			// Perform under-approximation in case the net is not k-bounded.
 			// I.e. only allow up to k tokens in a given marking.
 			if(next->NumberOfTokens() + outputPlaces.size() > kBound) {
@@ -248,6 +250,7 @@ namespace VerifyTAPN {
 
 			if(next->IsEmpty())
 			{
+				maxUsedTokens = prevMaxTokens; // This wasn't really a valid successor, so we "roll back" any potential update to the max used tokens counter.
 				delete next;
 				return;
 			}

@@ -81,6 +81,7 @@ int main(int argc, char* argv[])
 	bool result = strategy->Verify();
 	std::cout << strategy->GetStats() << std::endl;
 	std::cout << "Query is " << (result ? "satisfied" : "NOT satisfied") << "." << std::endl;
+	std::cout << "Max used tokens: " << strategy->MaxUsedTokens() << std::endl;
 
 	try{
 		strategy->PrintTraceIfAny(result);

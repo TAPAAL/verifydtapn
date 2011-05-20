@@ -15,10 +15,9 @@ namespace VerifyTAPN {
 
 	class SuccessorGenerator {
 	public:
-	    SuccessorGenerator(const TAPN::TimedArcPetriNet & tapn, const MarkingFactory & factory, const VerificationOptions & options)
-	    :tapn(tapn), factory(factory), options(options)
+	    SuccessorGenerator(const TAPN::TimedArcPetriNet & tapn, const MarkingFactory & factory, const VerificationOptions & options, unsigned int tokensInInitialMarking)
+	    :tapn(tapn), factory(factory), arcsArray(), nInputArcs(tapn.GetNumberOfConsumingArcs()), options(options), tokenIndices(), maxUsedTokens(tokensInInitialMarking)
 	    {
-	        nInputArcs = tapn.GetNumberOfConsumingArcs();
 	        arcsArray = new unsigned [nInputArcs];
 	        tokenIndices = new boost::numeric::ublas::matrix<int>(nInputArcs, options.GetKBound());
 	    }
@@ -52,6 +51,11 @@ namespace VerifyTAPN {
 	        tokenIndices->clear();
 	    }
 
+	    unsigned int MaxUsedTokens() const
+	    {
+	    	return maxUsedTokens;
+	    }
+
 	private:
 	    void CollectArcsAndAppropriateTokens(const TAPN::TimedTransition::Vector & transitions, const SymbolicMarking *marking);
 	    void GenerateSuccessors(const TAPN::TimedTransition::Vector & transitions, const SymbolicMarking *marking, std::vector<Successor> & succ);
@@ -69,6 +73,7 @@ namespace VerifyTAPN {
 		unsigned int nInputArcs;
 		const VerificationOptions& options;
 		boost::numeric::ublas::matrix<int>* tokenIndices;
+		unsigned int maxUsedTokens;
 	};
 
 	inline std::ostream& operator<<(std::ostream& out, const VerifyTAPN::SuccessorGenerator& succGen)

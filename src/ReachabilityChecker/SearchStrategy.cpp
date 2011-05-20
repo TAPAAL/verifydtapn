@@ -11,7 +11,7 @@ namespace VerifyTAPN
 		const AST::Query* query,
 		const VerificationOptions& options,
 		MarkingFactory* factory
-	) : tapn(tapn), initialMarking(initialMarking), checker(query), options(options), succGen(tapn, *factory, options), factory(factory), traceStore(options, initialMarking, tapn)
+	) : tapn(tapn), initialMarking(initialMarking), checker(query), options(options), succGen(tapn, *factory, options, initialMarking->NumberOfTokens()), factory(factory), traceStore(options, initialMarking, tapn)
 	{
 		if(options.GetSearchType() == DEPTHFIRST)
 			pwList = new PWList(new StackWaitingList, factory);
