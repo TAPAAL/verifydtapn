@@ -7,10 +7,11 @@
 #include <iosfwd>
 #include "boost/smart_ptr.hpp"
 #include "VerificationOptions.hpp"
+#include "boost/lexical_cast.hpp"
 
 namespace VerifyTAPN
 {
-	const int WIDTH = 32; // TODO: determine this based on registered switches
+	const int WIDTH = 40; // TODO: determine this based on registered switches
 
 	struct Version
 	{
@@ -25,7 +26,7 @@ namespace VerifyTAPN
 	std::ostream& operator <<(std::ostream& out, const Version& version);
 
 
-	typedef std::map<std::string, unsigned int> option_map;
+	typedef std::map<std::string, std::string> option_map;
 	typedef option_map::value_type option;
 
 	class Switch
@@ -41,7 +42,7 @@ namespace VerifyTAPN
 			virtual option Parse(const std::string& flag);
 			virtual void Print(std::ostream& out) const;
 			inline bool HandledOption() const { return handled_option; };
-			virtual option DefaultOption() const { return option(long_name, 0); };
+			virtual option DefaultOption() const { return option(long_name, "0"); };
 		private:
 			std::string name;
 			std::string long_name;
@@ -52,6 +53,18 @@ namespace VerifyTAPN
 
 	std::ostream& operator<<(std::ostream& out, const Switch& flag);
 
+	class SwitchWithStringArg : public Switch
+	{
+	public:
+		SwitchWithStringArg(const std::string& name, const std::string& long_name, const std::string& description, const std::string& default_value) : Switch(name, long_name, description), default_value(default_value) { };
+		virtual ~SwitchWithStringArg() { };
+		virtual option Parse(const std::string& flag);
+		virtual void Print(std::ostream& out) const;
+		virtual option DefaultOption() const { return option(LongName(), default_value); };
+	private:
+		std::string default_value;
+	};
+
 	class SwitchWithArg : public Switch
 	{
 	public:
@@ -59,7 +72,7 @@ namespace VerifyTAPN
 		virtual ~SwitchWithArg() { };
 		virtual option Parse(const std::string& flag);
 		virtual void Print(std::ostream& out) const;
-		virtual option DefaultOption() const { return option(LongName(), default_value); };
+		virtual option DefaultOption() const { return option(LongName(), boost::lexical_cast<std::string>(default_value)); };
 	private:
 		unsigned int default_value;
 	};
@@ -73,7 +86,8 @@ namespace VerifyTAPN
 		VerificationOptions Parse(int argc, char* argv[]) const;
 	private:
 		VerificationOptions CreateVerificationOptions(const option_map& map,const std::string& modelFile, const std::string& queryFile) const;
-
+		unsigned int TryParseInt(const option& option) const;
+		std::vector<std::string> ParseIncPlaces(const std::string& string) const;
 		void Initialize();
 		void Help() const;
 		void Version() const;

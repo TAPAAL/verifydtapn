@@ -16,6 +16,7 @@ namespace VerifyTAPN {
 	static const std::string SYMMETRY_OPTION = "disable-symmetry";
 	static const std::string FACTORY_OPTION = "factory";
 	static const std::string XML_TRACE_OPTION = "xml-trace";
+	static const std::string INCLUSION_PLACES = "inc-places";
 
 	std::ostream& operator<<(std::ostream& out, const Switch& flag)
 	{
@@ -63,6 +64,16 @@ namespace VerifyTAPN {
 		PrintIndentedDescription(out, Description());
 	};
 
+	void SwitchWithStringArg::Print(std::ostream& out) const
+	{
+		std::stringstream s;
+		s << "-" << ShortName();
+		s << " [ --" << LongName() << " ] ";
+		s << " a1,a2,.. (=" << default_value << ")";
+		out << std::setw(WIDTH) << std::left << s.str();
+		PrintIndentedDescription(out, Description());
+	};
+
 	bool Switch::Handles(const std::string& flag) const
 	{
 		std::stringstream stream;
@@ -76,7 +87,7 @@ namespace VerifyTAPN {
 	{
 		assert(Handles(flag));
 		handled_option = true;
-		return option(LongName(), 1);
+		return option(LongName(), "1");
 	};
 
 
@@ -98,17 +109,28 @@ namespace VerifyTAPN {
 			boost::erase_all(copy, long_name_stream.str());
 		}
 		boost::trim(copy);
-		unsigned int result = 0;
-		try
+		return option(LongName(), copy);
+	};
+
+	option SwitchWithStringArg::Parse(const std::string& flag)
+	{
+		assert(Handles(flag));
+		handled_option = true;
+		std::string copy(flag);
+		std::stringstream stream;
+		stream << "-" << ShortName() << " ";
+		if(flag.find(stream.str()) != std::string::npos)
 		{
-			result = boost::lexical_cast<unsigned int>(copy);
+			boost::erase_all(copy, stream.str());
 		}
-		catch(boost::bad_lexical_cast & e)
+		else
 		{
-			std::cout << "Invalid value '" << copy << "' for option '-" << ShortName() << "'" << std::endl;
-			exit(1);
+			std::stringstream long_name_stream;
+			long_name_stream << "--" << LongName() << " ";
+			boost::erase_all(copy, long_name_stream.str());
 		}
-		return option(LongName(), result);
+		boost::trim(copy);
+		return option(LongName(), copy);
 	};
 
 	void ArgsParser::Initialize()
@@ -120,12 +142,14 @@ namespace VerifyTAPN {
 		parsers.push_back(boost::make_shared<SwitchWithArg>("o", SEARCH_OPTION, "Specify the desired search strategy.\n - 0: BFS\n - 1: DFS",0));
 		parsers.push_back(boost::make_shared<SwitchWithArg>("t", TRACE_OPTION, "Specify the desired trace option.\n - 0: none\n - 1: some",0));
 
-		parsers.push_back(boost::make_shared<Switch>("g",MAX_CONSTANT_OPTION, "Use global maximum constant for extrapolation\n(as opposed to local constants)."));
+		parsers.push_back(boost::make_shared<Switch>("g",MAX_CONSTANT_OPTION, "Use global maximum constant for \nextrapolation (as opposed to local \nconstants)."));
 		parsers.push_back(boost::make_shared<Switch>("u",UNTIMED_PLACES_OPTION, "Disables the untimed place optimization."));
 		parsers.push_back(boost::make_shared<Switch>("s",SYMMETRY_OPTION, "Disables symmetry reduction."));
 
-		parsers.push_back(boost::make_shared<SwitchWithArg>("f", FACTORY_OPTION, "Specify the desired marking factory.\n - 0: Default\n - 1: Discrete-inclusion\n - 2: Old factory",0));
 		parsers.push_back(boost::make_shared<Switch>("x",XML_TRACE_OPTION, "Output trace in xml format for TAPAAL."));
+
+		parsers.push_back(boost::make_shared<SwitchWithArg>("f", FACTORY_OPTION, "Specify the desired marking factory.\n - 0: Default\n - 1: Discrete-inclusion\n - 2: Old factory",0));
+		parsers.push_back(boost::make_shared<SwitchWithStringArg>("i", INCLUSION_PLACES, "Specify a list of places to consider \nfor discrete inclusion. No spaces after\nthe commas!", "*ALL*"));
 	};
 
 	void ArgsParser::Help() const
@@ -224,6 +248,7 @@ namespace VerifyTAPN {
 			{
 				std::cout << "Unknown option flag '" << *flag << "'" << std::endl;
 				std::cout << "Use '-h' to see a list of valid options." << std::endl;
+				exit(1);
 			}
 		}
 
@@ -240,45 +265,67 @@ namespace VerifyTAPN {
 	}
 
 	SearchType intToSearchTypeEnum(int i) {
-			switch(i){
-			case 1:
-				return DEPTHFIRST;
-			default:
-				return BREADTHFIRST;
-			}
+		switch(i){
+		case 1:
+			return DEPTHFIRST;
+		default:
+			return BREADTHFIRST;
 		}
+	}
 
-		Trace intToEnum(int i){
-				switch(i){
-				case 1:
-					return SOME;
-				default:
-					return NONE;
-				}
-			}
-
-		Factory intToFactory(unsigned int i) {
-			switch(i)
-			{
-			case 1:
-				return DISCRETE_INCLUSION;
-			case 2:
-				return OLD_FACTORY;
-			default:
-				return DEFAULT;
-			}
+	Trace intToEnum(int i){
+		switch(i){
+		case 1:
+			return SOME;
+		default:
+			return NONE;
 		}
+	}
+
+	Factory intToFactory(unsigned int i) {
+		switch(i)
+		{
+		case 1:
+			return DISCRETE_INCLUSION;
+		case 2:
+			return OLD_FACTORY;
+		default:
+			return DEFAULT;
+		}
+	}
+
+	unsigned int ArgsParser::TryParseInt(const option& option) const
+	{
+		unsigned int result = 0;
+		try
+		{
+			result = boost::lexical_cast<unsigned int>(option.second);
+		}
+		catch(boost::bad_lexical_cast & e)
+		{
+			std::cout << "Invalid value '" << option.second << "' for option '--" << option.first << "'" << std::endl;
+			exit(1);
+		}
+		return result;
+	}
+
+	std::vector<std::string> ArgsParser::ParseIncPlaces(const std::string& string) const
+	{
+		std::vector<std::string> vec;
+		boost::split( vec, string, boost::is_any_of(",") );
+		return vec;
+	}
 
 	VerificationOptions ArgsParser::CreateVerificationOptions(const option_map& map, const std::string& modelFile, const std::string& queryFile) const
 	{
 		assert(map.find(KBOUND_OPTION) != map.end());
-		unsigned int kbound = map.find(KBOUND_OPTION)->second;
+		unsigned int kbound = TryParseInt(*map.find(KBOUND_OPTION));
 
 		assert(map.find(SEARCH_OPTION) != map.end());
-		SearchType search = intToSearchTypeEnum(map.find(SEARCH_OPTION)->second);
+		SearchType search = intToSearchTypeEnum(TryParseInt(*map.find(SEARCH_OPTION)));
 
 		assert(map.find(TRACE_OPTION) != map.end());
-		Trace trace = intToEnum(map.find(TRACE_OPTION)->second);
+		Trace trace = intToEnum(TryParseInt(*map.find(TRACE_OPTION)));
 
 		assert(map.find(SYMMETRY_OPTION) != map.end());
 		bool disable_symmetry = boost::lexical_cast<bool>(map.find(SYMMETRY_OPTION)->second);
@@ -290,11 +337,13 @@ namespace VerifyTAPN {
 		bool disable_untimed_places = boost::lexical_cast<bool>(map.find(UNTIMED_PLACES_OPTION)->second);
 
 		assert(map.find(FACTORY_OPTION) != map.end());
-		Factory factory = intToFactory(map.find(FACTORY_OPTION)->second);
+		Factory factory = intToFactory(TryParseInt(*map.find(FACTORY_OPTION)));
 
 		assert(map.find(XML_TRACE_OPTION) != map.end());
 		bool xml_trace = boost::lexical_cast<bool>(map.find(XML_TRACE_OPTION)->second);
 
-		return VerificationOptions(modelFile, queryFile, search, kbound, !disable_symmetry, trace, xml_trace, !disable_untimed_places, max_constant, factory);
+		assert(map.find(INCLUSION_PLACES) != map.end());
+		std::vector<std::string> inc_places = ParseIncPlaces(map.find(INCLUSION_PLACES)->second);
+		return VerificationOptions(modelFile, queryFile, search, kbound, !disable_symmetry, trace, xml_trace, !disable_untimed_places, max_constant, factory, inc_places);
 	}
 }

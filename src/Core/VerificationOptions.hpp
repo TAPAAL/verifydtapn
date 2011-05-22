@@ -3,6 +3,7 @@
 
 #include <string>
 #include <iosfwd>
+#include <vector>
 
 namespace VerifyTAPN {
 	enum Trace { NONE, SOME };
@@ -21,7 +22,8 @@ namespace VerifyTAPN {
 				bool xml_trace,
 				bool useUntimedPlaces,
 				bool useGlobalMaxConstants,
-				Factory factory
+				Factory factory,
+				const std::vector<std::string>& inc_places
 			) :	inputFile(inputFile),
 				queryFile(queryFile),
 				searchType(searchType),
@@ -31,8 +33,9 @@ namespace VerifyTAPN {
 				xml_trace(xml_trace),
 				useUntimedPlaces(useUntimedPlaces),
 				useGlobalMaxConstants(useGlobalMaxConstants),
-				factory(factory)
-			{};
+				factory(factory),
+				inc_places(inc_places)
+			{ };
 
 		public: // inspectors
 			const std::string GetInputFile() const { return inputFile; }
@@ -46,6 +49,7 @@ namespace VerifyTAPN {
 			inline const SearchType GetSearchType() const { return searchType; }
 			inline Factory GetFactory() const { return factory; };
 			inline void SetFactory(Factory f) { factory = f; };
+			inline const std::vector<std::string>& GetIncPlaces() const { return inc_places; };
 		private:
 			std::string inputFile;
 			std::string queryFile;
@@ -57,6 +61,7 @@ namespace VerifyTAPN {
 			bool useUntimedPlaces;
 			bool useGlobalMaxConstants;
 			Factory factory;
+			std::vector<std::string> inc_places;
 	};
 
 	std::ostream& operator<<(std::ostream& out, const VerificationOptions& options);

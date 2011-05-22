@@ -45,7 +45,17 @@ namespace VerifyTAPN {
 		out << "Untimed place optimization is " << (options.GetUntimedPlacesEnabled() ? "ON" : "OFF") << std::endl;
 		out << "Using " << (options.GetGlobalMaxConstantsEnabled() ? "global maximum constant" : "local maximum constants") << " for extrapolation" << std::endl;
 		out << "Using " << FactoryEnumToString(options.GetFactory()) << " marking factory" << std::endl;
-
+		if(options.GetFactory() == DISCRETE_INCLUSION){
+			out << "Considering the places ";
+			bool first = true;
+			for(std::vector<std::string>::const_iterator it = options.GetIncPlaces().begin(); it != options.GetIncPlaces().end(); it++)
+			{
+				if(!first) out << ", ";
+				out << *it;
+				first = false;
+			}
+			out << " for discrete inclusion." << std::endl;
+		}
 		out << "Model file is: " << options.GetInputFile() << std::endl;
 		out << "Query file is: " << options.QueryFile() << std::endl;
 		return out;
