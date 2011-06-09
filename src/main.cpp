@@ -63,7 +63,8 @@ int main(int argc, char* argv[])
 		if(!upward_closed)
 		{
 			options.SetFactory(DEFAULT);
-			std::cout << "** The specified query is not upward closed. Disabling discrete inclusion optimization." << std::endl;
+			std::cout << "The specified query is not upward closed and is therefore not supported by the discrete inclusion optimization." << std::endl;
+			return 1;
 		}
 	}
 

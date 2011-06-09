@@ -13,7 +13,8 @@ namespace VerifyTAPN {
 
 class DiscreteInclusionMarkingFactory : public UppaalDBMMarkingFactory {
 public:
-	DiscreteInclusionMarkingFactory(const boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, const VerificationOptions& options) : UppaalDBMMarkingFactory(tapn), tapn(tapn), empty_inc(options.GetFactory() == DEFAULT) {};
+	DiscreteInclusionMarkingFactory(const boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, const VerificationOptions& options)
+		: UppaalDBMMarkingFactory(tapn), tapn(tapn), inc_places(tapn->NumberOfPlaces(), false), empty_inc(options.GetFactory() == DEFAULT) { MarkPlacesForInclusion(options.GetIncPlaces()); };
 	virtual ~DiscreteInclusionMarkingFactory() {};
 
 	virtual StoredMarking* Convert(SymbolicMarking* marking) const // TODO: who should clean up marking?
@@ -112,7 +113,10 @@ private:
 	bool BelongsToINC(int token, const DBMMarking& marking) const
 	{
 		if(empty_inc) return false;
+
 		int placeIndex = marking.GetTokenPlacement(token);
+		if(!inc_places[placeIndex]) return false;
+
 		const TimedPlace& place = tapn->GetPlace(placeIndex);
 
 		assert(placeIndex != TAPN::TimedPlace::BottomIndex());
@@ -279,8 +283,31 @@ private:
 
 		return copy;
 	};
+
+	void MarkPlacesForInclusion(const std::vector<std::string>& places)
+	{
+		if(places.size() == 1 && places[0] == "*ALL*")
+		{
+			for(unsigned int i = 0; i < inc_places.size(); i++)
+			{
+				inc_places[i] = true;
+			}
+		}
+		else
+		{
+			for(std::vector<std::string>::const_iterator it = places.begin(); it != places.end(); it++)
+			{
+				int index = tapn->GetPlaceIndex(*it);
+				if(index != TimedPlace::BottomIndex())
+				{
+					inc_places[index] = true;
+				}
+			}
+		}
+	};
 private:
 	boost::shared_ptr<TAPN::TimedArcPetriNet> tapn;
+	std::vector<bool> inc_places;
 	bool empty_inc;
 };
 
