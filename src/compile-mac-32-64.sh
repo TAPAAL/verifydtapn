@@ -15,11 +15,11 @@ src=`find . -name "*.cpp"`
 #flex -o $parser/Generated/lexer.cpp $parser/flex.ll
 bison -o $parser/Generated/parser.cpp $parser/grammar.yy
 
-g++ -O3 -Wall -mtune=core2 \
+g++ -DBOOST_DISABLE_THREADS -DNDEBUG -DDISABLE_ASSERTX -O3 -Wall -mtune=core2 \
     $src $inc64 $lib64 -o verifytapn64 && \
 echo "64-bit OK" &
 
-g++ -O3 -Wall -mtune=core2 -m32 \
+g++ -DBOOST_DISABLE_THREADS -DNDEBUG -DDISABLE_ASSERTX -O3 -Wall -mtune=core2 -m32 \
     $src $inc32 $lib32 -o verifytapn32 && \
 echo "32-bit OK"  &
 
