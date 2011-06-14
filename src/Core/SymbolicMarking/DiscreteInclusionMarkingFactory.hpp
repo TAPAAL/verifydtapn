@@ -286,7 +286,11 @@ private:
 
 	void MarkPlacesForInclusion(const std::vector<std::string>& places)
 	{
-		if(places.size() == 1 && places[0] == "*ALL*")
+		if(places.size() == 1 && places[0] == "*NONE*")
+		{
+			return;
+		}
+		else if(places.size() == 1 && places[0] == "*ALL*")
 		{
 			for(unsigned int i = 0; i < inc_places.size(); i++)
 			{
