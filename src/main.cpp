@@ -5,7 +5,12 @@
 #include "Core/ArgsParser.hpp"
 #include "Core/QueryParser/UpwardClosedVisitor.hpp"
 #include "Core/QueryParser/TAPNQueryParser.hpp"
-#include "ReachabilityChecker/SearchStrategy.hpp"
+
+#include "ReachabilityChecker/Search/SearchStrategy.hpp"
+#include "ReachabilityChecker/Search/BFS.hpp"
+#include "ReachabilityChecker/Search/DFS.hpp"
+#include "ReachabilityChecker/Search/CoverMostSearch.hpp"
+#include "ReachabilityChecker/Search/RandomSearch.hpp"
 
 #include "Core/SymbolicMarking/UppaalDBMMarkingFactory.hpp"
 #include "Core/SymbolicMarking/DiscreteInclusionMarkingFactory.hpp"
@@ -29,8 +34,36 @@ MarkingFactory* CreateFactory(const VerificationOptions& options, const boost::s
 	};
 }
 
+SearchStrategy* CreateSearchStrategy(const boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, SymbolicMarking* initialMarking, AST::Query* query, const VerificationOptions& options, MarkingFactory* factory)
+{
+	SearchStrategy* strategy;
+
+	switch(options.GetSearchType())
+	{
+	case DEPTHFIRST:
+		strategy = new DFS(*tapn, initialMarking, query, options, factory);
+		break;
+	case COVERMOST:
+		if(options.GetFactory() == DISCRETE_INCLUSION)
+			strategy = new CoverMostSearch(*tapn, initialMarking, query, options, factory);
+		else
+			strategy = new BFS(*tapn, initialMarking, query, options, factory);
+		break;
+	case RANDOM:
+		strategy = new RandomSearch(*tapn, initialMarking, query, options, factory);
+		break;
+	default:
+		strategy = new BFS(*tapn, initialMarking, query, options, factory);
+		break;
+	}
+	strategy->Init();
+	return strategy;
+}
+
 int main(int argc, char* argv[])
 {
+	srand ( time(NULL) );
+
 	ArgsParser parser;
 	VerificationOptions options = parser.Parse(argc, argv);
 
@@ -76,7 +109,7 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
-	SearchStrategy* strategy = new DefaultSearchStrategy(*tapn, initialMarking, query, options, factory);
+	SearchStrategy* strategy = CreateSearchStrategy(tapn, initialMarking, query, options, factory);
 
 	std::cout << options << std::endl;
 	bool result = strategy->Verify();

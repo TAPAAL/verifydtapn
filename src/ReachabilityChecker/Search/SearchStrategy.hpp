@@ -1,12 +1,12 @@
 #ifndef SEARCHSTRATEGY_HPP_
 #define SEARCHSTRATEGY_HPP_
 
-#include "PassedWaitingList/WaitingList.hpp"
-#include "PassedWaitingList/PWList.hpp"
-#include "QueryChecker/QueryChecker.hpp"
-#include "../Core/VerificationOptions.hpp"
-#include "Trace/TraceStore.hpp"
-#include "SuccessorGenerator.hpp"
+#include "../PassedWaitingList/WaitingList.hpp"
+#include "../PassedWaitingList/PWList.hpp"
+#include "../QueryChecker/QueryChecker.hpp"
+#include "../../Core/VerificationOptions.hpp"
+#include "../Trace/TraceStore.hpp"
+#include "../SuccessorGenerator.hpp"
 
 namespace VerifyTAPN
 {
@@ -25,6 +25,7 @@ namespace VerifyTAPN
 	{
 	public:
 		virtual ~SearchStrategy() { };
+		virtual void Init() = 0;
 		virtual bool Verify() = 0;
 		virtual unsigned int MaxUsedTokens() const = 0;
 		virtual Stats GetStats() const = 0;
@@ -44,10 +45,17 @@ namespace VerifyTAPN
 			MarkingFactory* factory
 		);
 		virtual ~DefaultSearchStrategy() { delete pwList; delete[] maxConstantsArray; };
+		virtual void Init()
+		{
+			pwList = new PWList(CreateWaitingList(), factory);
+		}
+
 		virtual bool Verify();
 		virtual unsigned int MaxUsedTokens() const { return succGen.MaxUsedTokens(); };
 		virtual Stats GetStats() const;
 		virtual void PrintTraceIfAny(bool result) const;
+	protected:
+		virtual WaitingList* CreateWaitingList() const = 0;
 	private:
 		virtual bool CheckQuery(const SymbolicMarking& marking) const;
 		virtual void CreateLastInvariant(const SymbolicMarking& marking, std::vector<TraceInfo::Invariant>& invariants) const;

@@ -139,7 +139,7 @@ namespace VerifyTAPN {
 		//       Each line in the description is assumed to fit within the remaining width
 		//       of the console, so keep descriptions short, or implement manual word-wrapping :).
 		parsers.push_back(boost::make_shared<SwitchWithArg>("k", KBOUND_OPTION, "Max tokens to use during exploration.",0));
-		parsers.push_back(boost::make_shared<SwitchWithArg>("o", SEARCH_OPTION, "Specify the desired search strategy.\n - 0: BFS\n - 1: DFS",0));
+		parsers.push_back(boost::make_shared<SwitchWithArg>("o", SEARCH_OPTION, "Specify the desired search strategy.\n - 0: BFS\n - 1: DFS\n - 2: Random\n - 3: Cover most",0));
 		parsers.push_back(boost::make_shared<SwitchWithArg>("t", TRACE_OPTION, "Specify the desired trace option.\n - 0: none\n - 1: some",0));
 
 		parsers.push_back(boost::make_shared<Switch>("g",MAX_CONSTANT_OPTION, "Use global maximum constant for \nextrapolation (as opposed to local \nconstants)."));
@@ -266,31 +266,36 @@ namespace VerifyTAPN {
 
 	SearchType intToSearchTypeEnum(int i) {
 		switch(i){
-		case 1:
-			return DEPTHFIRST;
+		case 0:	return BREADTHFIRST;
+		case 1:	return DEPTHFIRST;
+		case 2: return RANDOM;
+		case 3: return COVERMOST;
 		default:
-			return BREADTHFIRST;
+			std::cout << "Unknown search strategy specified." << std::endl;
+			exit(1);
 		}
 	}
 
 	Trace intToEnum(int i){
-		switch(i){
-		case 1:
-			return SOME;
+		switch(i)
+		{
+		case 0: return NONE;
+		case 1:	return SOME;
 		default:
-			return NONE;
+			std::cout << "Unknown trace option specified." << std::endl;
+			exit(1);
 		}
 	}
 
 	Factory intToFactory(unsigned int i) {
 		switch(i)
 		{
-		case 1:
-			return DISCRETE_INCLUSION;
-		case 2:
-			return OLD_FACTORY;
+		case 0: return DEFAULT;
+		case 1:	return DISCRETE_INCLUSION;
+		case 2:	return OLD_FACTORY;
 		default:
-			return DEFAULT;
+			std::cout << "Unkown factory specified." << std::endl;
+			exit(1);
 		}
 	}
 

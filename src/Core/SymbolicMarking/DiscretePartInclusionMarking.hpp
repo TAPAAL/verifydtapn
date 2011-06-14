@@ -72,8 +72,6 @@ public:
 		return DIFFERENT;
 	}
 
-	virtual void Extrapolate(const int* maxConstants) { dbm.diagonalExtrapolateMaxBounds(maxConstants); };
-
 	unsigned int GetClockIndex(unsigned int index) { return mapping.GetMapping(index); };
 
 	unsigned int size() const
@@ -89,6 +87,8 @@ public:
 
 	virtual unsigned int UniqueId() const { return id; };
 	virtual void Print(std::ostream& out) const;
+
+	virtual const std::vector<int>& inclusionTokens() const { return inc; };
 private:
 	relation ConvertToRelation(relation_t relation) const
 	{

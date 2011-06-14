@@ -1,7 +1,7 @@
 #include "SearchStrategy.hpp"
-#include "../Core/TAPN/TimedArcPetriNet.hpp"
-#include "Successor.hpp"
-#include "../typedefs.hpp"
+#include "../../Core/TAPN/TimedArcPetriNet.hpp"
+#include "../Successor.hpp"
+#include "../../typedefs.hpp"
 
 namespace VerifyTAPN
 {
@@ -13,18 +13,12 @@ namespace VerifyTAPN
 		MarkingFactory* factory
 	) : tapn(tapn), initialMarking(initialMarking), checker(query), options(options), succGen(tapn, *factory, options, initialMarking->NumberOfTokens()), factory(factory), traceStore(options, initialMarking, tapn)
 	{
-		if(options.GetSearchType() == DEPTHFIRST)
-			pwList = new PWList(new StackWaitingList, factory);
-		else
-			pwList = new PWList(new QueueWaitingList, factory);
-
 		maxConstantsArray = new int[options.GetKBound()+1];
 		for(unsigned int i = 0; i < options.GetKBound()+1; ++i)
 		{
 			maxConstantsArray[i] = tapn.MaxConstant();
 		}
 	};
-
 
 	bool DefaultSearchStrategy::Verify()
 	{

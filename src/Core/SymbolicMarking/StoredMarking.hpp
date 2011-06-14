@@ -15,8 +15,6 @@ namespace VerifyTAPN
 
 		virtual relation Relation(const StoredMarking& other) const = 0;
 		virtual size_t HashKey() const = 0;
-		// virtual Save() // see below
-		// virtual Load() // not sure what these should do exactly
 
 		virtual void Print(std::ostream& out) const = 0;
 	};
