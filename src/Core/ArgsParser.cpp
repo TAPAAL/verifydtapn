@@ -139,7 +139,7 @@ namespace VerifyTAPN {
 		//       Each line in the description is assumed to fit within the remaining width
 		//       of the console, so keep descriptions short, or implement manual word-wrapping :).
 		parsers.push_back(boost::make_shared<SwitchWithArg>("k", KBOUND_OPTION, "Max tokens to use during exploration.",0));
-		parsers.push_back(boost::make_shared<SwitchWithArg>("o", SEARCH_OPTION, "Specify the desired search strategy.\n - 0: BFS\n - 1: DFS\n - 2: Random\n - 3: Cover most",0));
+		parsers.push_back(boost::make_shared<SwitchWithArg>("o", SEARCH_OPTION, "Specify the desired search strategy.\n - 0: Breadth-First Search\n - 1: Depth-First Search\n - 2: Random Search\n - 3: Maximum Cover Search",3));
 		parsers.push_back(boost::make_shared<SwitchWithArg>("t", TRACE_OPTION, "Specify the desired trace option.\n - 0: none\n - 1: some",0));
 
 		parsers.push_back(boost::make_shared<Switch>("g",MAX_CONSTANT_OPTION, "Use global maximum constant for \nextrapolation (as opposed to local \nconstants)."));
