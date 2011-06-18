@@ -13,7 +13,7 @@ libw32="-L$HOME/dev/iaw32/uppaal/lib -ludbm"
 
 src=`find . -name "*.cpp"`
 
-#flex -o $parser/Generated/lexer.cpp $parser/flex.ll
+flex -o $parser/Generated/lexer.cpp $parser/flex.ll
 bison -o $parser/Generated/parser.cpp $parser/grammar.yy
 
 g++-4.4  -DBOOST_DISABLE_THREADS -DNDEBUG -DDISABLE_ASSERTX -static -O3 -Wall -mtune=core2 \
