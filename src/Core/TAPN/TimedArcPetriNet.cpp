@@ -60,7 +60,7 @@ namespace VerifyTAPN {
 		{
 			for(TimedPlace::Vector::const_iterator iter = places.begin(); iter != places.end(); ++iter)
 			{
-				bool isUntimedPlace = true;
+				bool isUntimedPlace = (*iter)->GetInvariant() == TimeInvariant::LS_INF;
 
 				for(TransportArc::Vector::const_iterator arcIter = transportArcs.begin(); arcIter != transportArcs.end(); ++arcIter)
 				{
@@ -87,6 +87,9 @@ namespace VerifyTAPN {
 			for(TimedPlace::Vector::const_iterator iter = places.begin(); iter != places.end(); ++iter)
 			{
 				int maxConstant = 0;
+				if((*iter)->GetInvariant() != TimeInvariant::LS_INF){
+					maxConstant = (*iter)->GetInvariant().GetBound();
+				}
 				for(TimedInputArc::Vector::const_iterator arcIter = inputArcs.begin(); arcIter != inputArcs.end(); ++arcIter)
 				{
 					if((*arcIter)->InputPlace() == **iter)
