@@ -25,11 +25,11 @@ namespace VerifyTAPN {
 			}
 		};
 
-		virtual void RemoveTokens(const std::vector<int>& tokenIndices)
+		virtual void RemoveTokens(const std::set<int>& tokenIndices)
 		{
-			for(std::vector<int>::const_iterator i = tokenIndices.begin(); i != tokenIndices.end(); i++)
+			for(std::set<int>::const_reverse_iterator it = tokenIndices.rbegin(); it != tokenIndices.rend(); it++)
 			{
-				dp.RemoveToken(*i);
+				dp.RemoveToken(*it);
 			}
 		};
 

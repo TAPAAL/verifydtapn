@@ -3,6 +3,7 @@
 #include "../Core/SymbolicMarking/SymbolicMarking.hpp"
 #include "../Core/TAPN/Pairing.hpp"
 #include <algorithm>
+#include <set>
 
 namespace VerifyTAPN {
 	void SuccessorGenerator::GenerateDiscreteTransitionsSuccessors(const SymbolicMarking& marking, std::vector<Successor>& succ)
@@ -154,7 +155,7 @@ namespace VerifyTAPN {
 
 		const Pairing& pairing = tapn.GetPairing(transition);
 		const TAPN::TimedInputArc::WeakPtrVector& preset = transition.GetPreset();
-		std::vector<int> tokensToRemove;
+		std::set<int> tokensToRemove; // sets are sorted internally in ascending order. THIS MUST BE THE CASE OR THE CODE WONT WORK!
 		SymbolicMarking* next = factory.Clone(*marking);
 
 		for(unsigned int i = 0; i < transition.NumberOfTransportArcs(); ++i)
@@ -199,7 +200,7 @@ namespace VerifyTAPN {
 				next->Constrain(tokenIndex, ti);
 
 				if(outputPlaceIndex == TAPN::TimedPlace::BottomIndex())
-					tokensToRemove.push_back(tokenIndex);
+					tokensToRemove.insert(tokenIndex);
 				else
 					next->MoveToken(tokenIndex, outputPlaceIndex);
 
@@ -273,7 +274,7 @@ namespace VerifyTAPN {
 				boost::shared_ptr<TAPN::TransportArc> ia = transition.GetTransportArcs()[i].lock();
 				const TAPN::TimeInterval& ti = ia->Interval();
 				int indexAfterFiring = tokenIndex;
-				for(std::vector<int>::iterator iter = tokensToRemove.begin(); iter != tokensToRemove.end(); ++iter)
+				for(std::set<int>::iterator iter = tokensToRemove.begin(); iter != tokensToRemove.end(); ++iter)
 				{
 					if(*iter < tokenIndex) indexAfterFiring--;
 					assert(*iter != tokenIndex);
@@ -292,7 +293,7 @@ namespace VerifyTAPN {
 				boost::shared_ptr<TAPN::TimedInputArc> ia = preset[i].lock();
 				const TAPN::TimeInterval& ti = ia->Interval();
 				int indexAfterFiring = tokenIndex;
-				for(std::vector<int>::iterator iter = tokensToRemove.begin(); iter != tokensToRemove.end(); ++iter)
+				for(std::set<int>::iterator iter = tokensToRemove.begin(); iter != tokensToRemove.end(); ++iter)
 				{
 					if(*iter < tokenIndex) indexAfterFiring--;
 					else if(*iter == tokenIndex){

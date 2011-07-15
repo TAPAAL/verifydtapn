@@ -60,12 +60,12 @@ namespace VerifyTAPN
 	// These tokens represent tokens that are moving to BOTTOM.
 	// The DBM library requires arrays of bitvectors indicating which tokens are in
 	// the original dbm (bitSrc) and which are in the resulting DBM (bitDst).
-	void DBMMarking::RemoveTokens(const std::vector<int>& tokenIndices)
+	void DBMMarking::RemoveTokens(const std::set<int>& tokenIndices)
 	{
 		std::vector<int> dbmTokensToRemove;
-		for(unsigned int i = 0; i < tokenIndices.size(); ++i)
+		for(std::set<int>::const_iterator it = tokenIndices.begin(); it != tokenIndices.end(); it++)
 		{
-			dbmTokensToRemove.push_back(mapping.GetMapping(tokenIndices[i]));
+			dbmTokensToRemove.push_back(mapping.GetMapping(*it));
 		}
 
 		unsigned int oldDimension = dbm.getDimension();
@@ -125,10 +125,10 @@ namespace VerifyTAPN
 		}
 
 		// remove tokens from mapping and placement
-		for(int i = tokenIndices.size()-1; i >= 0; --i)
+		for(std::set<int>::const_reverse_iterator it = tokenIndices.rbegin(); it != tokenIndices.rend(); it++)
 		{
-			mapping.RemoveToken(tokenIndices[i]);
-			dp.RemoveToken(tokenIndices[i]);
+			mapping.RemoveToken(*it);
+			dp.RemoveToken(*it);
 		}
 
 		assert(IsConsistent());

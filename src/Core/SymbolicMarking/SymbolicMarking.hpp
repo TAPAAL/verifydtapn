@@ -20,6 +20,5 @@ namespace VerifyTAPN {
 		virtual void Extrapolate(const int* maxConstants) = 0;
 		virtual unsigned int GetClockIndex(unsigned int token) const = 0;
 	};
-
 }
 #endif /* SYMBOLICMARKING_HPP_ */

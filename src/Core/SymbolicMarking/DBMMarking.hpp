@@ -71,7 +71,7 @@ namespace VerifyTAPN {
 		virtual unsigned int GetClockIndex(unsigned int token) const { return mapping.GetMapping(token); };
 
 		virtual void AddTokens(const std::list<int>& placeIndices);
-		virtual void RemoveTokens(const std::vector<int>& tokenIndices);
+		virtual void RemoveTokens(const std::set<int>& tokenIndices);
 
 		raw_t GetLowerBound(int clock) const { return dbm(0,clock); };
 		const dbm::dbm_t& GetDBM() const { return dbm; };

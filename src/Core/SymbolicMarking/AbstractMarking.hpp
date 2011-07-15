@@ -3,10 +3,10 @@
 
 #include "../TAPN/TimeInterval.hpp"
 #include "../TAPN/TimeInvariant.hpp"
-#include <vector>
 #include <list>
 #include "../../typedefs.hpp"
 #include <iosfwd>
+#include <set>
 
 namespace VerifyTAPN {
 	class AbstractMarking {
@@ -25,8 +25,8 @@ namespace VerifyTAPN {
 
 		// discrete part
 		virtual void MoveToken(int tokenIndex, int newPlaceIndex) = 0;
-		virtual void AddTokens(const std::list<int>& placeIndices) = 0; // TODO: make this more generic wrt. container
-		virtual void RemoveTokens(const std::vector<int>& tokenIndices) = 0;
+		virtual void AddTokens(const std::list<int>& placeIndices) = 0;
+		virtual void RemoveTokens(const std::set<int>& tokenIndices) = 0; // sets are sorted internally in ascending order. THIS MUST BE THE CASE FOR THE CODE TO WORK!
 		virtual int GetTokenPlacement(int token) const = 0;
 		virtual unsigned int NumberOfTokens() const = 0;
 		virtual unsigned int NumberOfTokensInPlace(int placeIndex) const = 0;
