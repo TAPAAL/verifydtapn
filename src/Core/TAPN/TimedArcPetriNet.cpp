@@ -54,11 +54,16 @@ namespace VerifyTAPN {
 			//			support for such queries are added later.
 			if(transitions.size() > 0)
 			{
+				bool hasShownMessage = false;
 				TimedTransition::Vector::iterator iter = transitions.begin();
 				while(iter != transitions.end())
 				{
 					if((*iter)->GetPresetSize() == 0 && (*iter)->GetPostsetSize() == 0){
 						iter = transitions.erase(iter);
+						if(!hasShownMessage){
+							std::cout << "NOTE: Orphaned transitions (no incoming or outgoing arcs) have been removed from the model." << std::endl << std::endl;
+							hasShownMessage = true;
+						}
 					}else{
 						iter++;
 					}
