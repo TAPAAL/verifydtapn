@@ -49,6 +49,22 @@ namespace VerifyTAPN {
 				arc->InputTransition().AddToPostset(arc);
 			}
 
+			// CAUTION: This if statement removes orphan transitions.
+			//			This changes answers for e.g. DEADLOCK queries if
+			//			support for such queries are added later.
+			if(transitions.size() > 0)
+			{
+				TimedTransition::Vector::iterator iter = transitions.begin();
+				while(iter != transitions.end())
+				{
+					if((*iter)->GetPresetSize() == 0 && (*iter)->GetPostsetSize() == 0){
+						iter = transitions.erase(iter);
+					}else{
+						iter++;
+					}
+				}
+			}
+
 			GeneratePairings();
 			FindMaxConstants();
 

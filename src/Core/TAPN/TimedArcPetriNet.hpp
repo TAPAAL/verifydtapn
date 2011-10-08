@@ -61,7 +61,7 @@ namespace VerifyTAPN {
 
 		private: // data
 			const TimedPlace::Vector places;
-			const TimedTransition::Vector transitions;
+			TimedTransition::Vector transitions;
 			const TimedInputArc::Vector inputArcs;
 			const OutputArc::Vector outputArcs;
 			const TransportArc::Vector transportArcs;
