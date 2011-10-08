@@ -61,7 +61,7 @@ namespace VerifyTAPN {
 					if((*iter)->GetPresetSize() == 0 && (*iter)->GetPostsetSize() == 0){
 						iter = transitions.erase(iter);
 						if(!hasShownMessage){
-							std::cout << "NOTE: Orphaned transitions (no incoming or outgoing arcs) have been removed from the model." << std::endl << std::endl;
+							std::cout << "Orphaned transitions have been removed." << std::endl << std::endl;
 							hasShownMessage = true;
 						}
 					}else{
