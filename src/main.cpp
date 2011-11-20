@@ -5,6 +5,8 @@
 #include "Core/ArgsParser.hpp"
 #include "Core/QueryParser/UpwardClosedVisitor.hpp"
 #include "Core/QueryParser/TAPNQueryParser.hpp"
+#include "Core/QueryParser/NormalizationVisitor.hpp"
+#include "Core/QueryParser/ToStringVisitor.hpp"
 
 #include "ReachabilityChecker/Search/SearchStrategy.hpp"
 #include "ReachabilityChecker/Search/BFS.hpp"
@@ -91,14 +93,26 @@ int main(int argc, char* argv[])
 
 	if(options.GetFactory() == DISCRETE_INCLUSION)
 	{
-		AST::UpwardClosedVisitor visitor;
+		AST::NormalizationVisitor visitor;
+		AST::Query* normalized = visitor.Normalize(*query);
+
+		AST::ToStringVisitor toStringVisitor(tapn);
+		std::cout << std::endl << "Input Query: ";
+		toStringVisitor.Print(*query);
+		std::cout << std::endl << "Normalized Query: ";
+		toStringVisitor.Print(*normalized);
+		std::cout << std::endl;
+
+		return 0;
+
+		/*AST::UpwardClosedVisitor visitor;
 		bool upward_closed = visitor.IsUpwardClosed(*query);
 		if(!upward_closed)
 		{
 			options.SetFactory(DEFAULT);
 			std::cout << "The specified query is not upward closed and is therefore not supported by the discrete inclusion optimization." << std::endl;
 			return 1;
-		}
+		}*/
 	}
 
 	MarkingFactory* factory = CreateFactory(options, tapn);
