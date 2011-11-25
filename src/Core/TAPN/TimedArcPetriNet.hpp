@@ -40,6 +40,7 @@ namespace VerifyTAPN {
 			const TimedInputArc::Vector& GetInputArcs() const { return inputArcs; }
 			const TransportArc::Vector& GetTransportArcs() const { return transportArcs; }
 			const InhibitorArc::Vector& GetInhibitorArcs() const { return inhibitorArcs; }
+			const TimedPlace::Vector& GetPlaces() const { return places; };
 			const int GetNumberOfConsumingArcs() const { return inputArcs.size() + transportArcs.size(); }
 			const OutputArc::Vector& GetOutputArcs() const { return outputArcs; }
 			const int GetNumberOfOutputArcs() const { return outputArcs.size(); }

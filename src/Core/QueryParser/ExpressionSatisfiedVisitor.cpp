@@ -61,6 +61,7 @@ namespace VerifyTAPN
 			else if(op == "=" || op == "==") return numberOfTokensInPlace == n;
 			else if(op == ">=") return numberOfTokensInPlace >= n;
 			else if(op == ">") return numberOfTokensInPlace > n;
+			else if(op == "!=") return numberOfTokensInPlace != n;
 			else
 				throw std::exception();
 		}

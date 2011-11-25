@@ -51,12 +51,16 @@ namespace VerifyTAPN {
 		out << "Using " << FactoryEnumToString(options.GetFactory()) << " marking factory" << std::endl;
 		if(options.GetFactory() == DISCRETE_INCLUSION){
 			out << "Considering the places ";
-			bool first = true;
-			for(std::vector<std::string>::const_iterator it = options.GetIncPlaces().begin(); it != options.GetIncPlaces().end(); it++)
-			{
-				if(!first) out << ", ";
-				out << *it;
-				first = false;
+			if(options.GetIncPlaces().size() == 0){
+				out << "*NONE*";
+			}else{
+				bool first = true;
+				for(std::vector<std::string>::const_iterator it = options.GetIncPlaces().begin(); it != options.GetIncPlaces().end(); it++)
+				{
+					if(!first) out << ", ";
+					out << *it;
+					first = false;
+				}
 			}
 			out << " for discrete inclusion." << std::endl;
 		}
