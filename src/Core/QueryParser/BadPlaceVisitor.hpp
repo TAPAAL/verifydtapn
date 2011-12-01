@@ -1,20 +1,18 @@
-#ifndef TOSTRINGVISITOR_HPP_
-#define TOSTRINGVISITOR_HPP_
+#ifndef BADPLACEVISITOR_HPP_
+#define BADPLACEVISITOR_HPP_
 
+#include <vector>
 #include "Visitor.hpp"
 #include "AST.hpp"
-#include "../TAPN/TAPN.hpp"
 
-namespace VerifyTAPN
-{
-	namespace AST
-	{
+namespace VerifyTAPN {
+	namespace AST {
 
-		class ToStringVisitor : public Visitor
+		class BadPlaceVisitor : public Visitor
 		{
 		public:
-			ToStringVisitor(const boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn) : tapn(tapn) { };
-			virtual ~ToStringVisitor() {}
+			BadPlaceVisitor() : badPlaces() { };
+			virtual ~BadPlaceVisitor() {};
 			virtual void Visit(const NotExpression& expr, boost::any& context);
 			virtual void Visit(const ParExpression& expr, boost::any& context);
 			virtual void Visit(const OrExpression& expr, boost::any& context);
@@ -23,10 +21,13 @@ namespace VerifyTAPN
 			virtual void Visit(const BoolExpression& expr, boost::any& context);
 			virtual void Visit(const Query& query, boost::any& context);
 
-			void Print(const Query& query) { boost::any any; query.Accept(*this, any); };
+			void FindBadPlaces(const Query& query){ boost::any any; query.Accept(*this, any); };
+			inline std::vector<int>& GetBadPlaces(){ return badPlaces; };
 		private:
-			const boost::shared_ptr<TAPN::TimedArcPetriNet> tapn;
+			std::vector<int> badPlaces;
 		};
+
 	}
 }
-#endif /* TOSTRINGVISITOR_HPP_ */
+
+#endif /* BADPLACEVISITOR_HPP_ */

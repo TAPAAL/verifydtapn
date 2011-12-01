@@ -34,7 +34,7 @@ namespace VerifyTAPN
 
 		void ToStringVisitor::Visit(const AtomicProposition& expr, boost::any& context)
 		{
-			std::cout << expr.Place() << " " << expr.Operator() << " " << expr.N();
+			std::cout << tapn->GetPlace(expr.Place()).GetName() << " " << expr.Operator() << " " << expr.N();
 		}
 
 		void ToStringVisitor::Visit(const BoolExpression& expr, boost::any& context)

@@ -286,7 +286,7 @@ private:
 
 	void MarkPlacesForInclusion(const std::vector<std::string>& places)
 	{
-		if(places.size() == 1 && places[0] == "*NONE*")
+		if((places.size() == 1 && places[0] == "*NONE*") || places.size() == 0)
 		{
 			return;
 		}

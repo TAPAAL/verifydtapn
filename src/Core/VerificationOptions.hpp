@@ -50,6 +50,7 @@ namespace VerifyTAPN {
 			inline Factory GetFactory() const { return factory; };
 			inline void SetFactory(Factory f) { factory = f; };
 			inline const std::vector<std::string>& GetIncPlaces() const { return inc_places; };
+			inline std::vector<std::string>& GetIncPlaces(){ return inc_places; };
 		private:
 			std::string inputFile;
 			std::string queryFile;
