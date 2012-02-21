@@ -19,7 +19,7 @@ namespace VerifyTAPN {
 	public:
 		NonStrictMarking(const DiscretePart& dp, const dbm::dbm_t& dbm) : DiscreteMarking(dp), dbm(dbm), mapping() { InitMapping(); assert(IsConsistent()); };
 		NonStrictMarking(const DiscretePart& dp, const TokenMapping& mapping, const dbm::dbm_t& dbm) : DiscreteMarking(dp), dbm(dbm), mapping(mapping) { assert(IsConsistent()); };
-		NonStrictMarking(const DBMMarking& dm) : DiscreteMarking(dm), dbm(dm.dbm), mapping(dm.mapping) { };
+		NonStrictMarking(const NonStrictMarking& dm) : DiscreteMarking(dm), dbm(dm.dbm), mapping(dm.mapping) { };
 		virtual ~NonStrictMarking() { };
 
 		virtual id_type UniqueId() const { return id; };
@@ -63,7 +63,7 @@ namespace VerifyTAPN {
 
 		virtual relation Relation(const StoredMarking& other) const
 		{
-			relation_t relation = dbm.relation(static_cast<const DBMMarking&>(other).dbm);
+			relation_t relation = dbm.relation(static_cast<const NonStrictMarking&>(other).dbm);
 			return ConvertToRelation(relation);
 		}
 
