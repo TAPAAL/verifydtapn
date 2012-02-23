@@ -18,6 +18,7 @@ namespace VerifyTAPN {
 				SearchType searchType,
 				unsigned int k_bound,
 				bool symmetry,
+				bool discrete,
 				Trace trace,
 				bool xml_trace,
 				bool useUntimedPlaces,
@@ -29,6 +30,7 @@ namespace VerifyTAPN {
 				searchType(searchType),
 				k_bound(k_bound),
 				symmetry(symmetry),
+				discrete(discrete),
 				trace(trace),
 				xml_trace(xml_trace),
 				useUntimedPlaces(useUntimedPlaces),
@@ -44,6 +46,7 @@ namespace VerifyTAPN {
 			inline const Trace GetTrace() const { return trace; };
 			inline const bool XmlTrace() const { return xml_trace; };
 			inline const bool GetSymmetryEnabled() const { return symmetry; }
+			inline const bool GetDiscreteEnabled() const { return discrete; }
 			inline const bool GetUntimedPlacesEnabled() const { return useUntimedPlaces; }
 			inline const bool GetGlobalMaxConstantsEnabled() const { return useGlobalMaxConstants; }
 			inline const SearchType GetSearchType() const { return searchType; }
@@ -57,6 +60,7 @@ namespace VerifyTAPN {
 			SearchType searchType;
 			unsigned int k_bound;
 			bool symmetry;
+			bool discrete;
 			Trace trace;
 			bool xml_trace;
 			bool useUntimedPlaces;

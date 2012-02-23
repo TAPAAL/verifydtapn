@@ -96,6 +96,8 @@ int main(int argc, char* argv[])
 
 	ArgsParser parser;
 	VerificationOptions options = parser.Parse(argc, argv);
+	std::cout << options.GetDiscreteEnabled() << std::endl;
+	return 0;
 
 	TAPNXmlParser modelParser;
 	boost::shared_ptr<TAPN::TimedArcPetriNet> tapn;

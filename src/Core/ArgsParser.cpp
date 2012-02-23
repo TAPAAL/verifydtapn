@@ -14,6 +14,7 @@ namespace VerifyTAPN {
 	static const std::string MAX_CONSTANT_OPTION = "global-max-constants";
 	static const std::string UNTIMED_PLACES_OPTION = "disable-untimed-places";
 	static const std::string SYMMETRY_OPTION = "disable-symmetry";
+	static const std::string DISCRETE_OPTION = "discrete-verification";
 	static const std::string FACTORY_OPTION = "factory";
 	static const std::string XML_TRACE_OPTION = "xml-trace";
 	static const std::string INCLUSION_PLACES = "inc-places";
@@ -145,6 +146,7 @@ namespace VerifyTAPN {
 		parsers.push_back(boost::make_shared<Switch>("g",MAX_CONSTANT_OPTION, "Use global maximum constant for \nextrapolation (as opposed to local \nconstants)."));
 		parsers.push_back(boost::make_shared<Switch>("u",UNTIMED_PLACES_OPTION, "Disables the untimed place optimization."));
 		parsers.push_back(boost::make_shared<Switch>("s",SYMMETRY_OPTION, "Disables symmetry reduction."));
+		parsers.push_back(boost::make_shared<Switch>("d",DISCRETE_OPTION, "Uses the discrete verification method"));
 
 		parsers.push_back(boost::make_shared<Switch>("x",XML_TRACE_OPTION, "Output trace in xml format for TAPAAL."));
 
@@ -335,6 +337,9 @@ namespace VerifyTAPN {
 		assert(map.find(SYMMETRY_OPTION) != map.end());
 		bool disable_symmetry = boost::lexical_cast<bool>(map.find(SYMMETRY_OPTION)->second);
 
+		assert(map.find(DISCRETE_OPTION) != map.end());
+		bool discrete_option = boost::lexical_cast<bool>(map.find(DISCRETE_OPTION)->second);
+
 		assert(map.find(MAX_CONSTANT_OPTION) != map.end());
 		bool max_constant = boost::lexical_cast<bool>(map.find(MAX_CONSTANT_OPTION)->second);
 
@@ -349,6 +354,6 @@ namespace VerifyTAPN {
 
 		assert(map.find(INCLUSION_PLACES) != map.end());
 		std::vector<std::string> inc_places = ParseIncPlaces(map.find(INCLUSION_PLACES)->second);
-		return VerificationOptions(modelFile, queryFile, search, kbound, !disable_symmetry, trace, xml_trace, !disable_untimed_places, max_constant, factory, inc_places);
+		return VerificationOptions(modelFile, queryFile, search, kbound, !disable_symmetry, discrete_option, trace, xml_trace, !disable_untimed_places, max_constant, factory, inc_places);
 	}
 }
