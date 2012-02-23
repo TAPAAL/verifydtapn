@@ -19,6 +19,8 @@
 #include "Core/SymbolicMarking/DiscreteInclusionMarkingFactory.hpp"
 
 #include "ReachabilityChecker/Trace/trace_exception.hpp"
+
+#include "DiscreteVerification/DiscreteVerification.hpp"
 //#include "Core/QueryParser/ToStringVisitor.hpp"
 using namespace std;
 using namespace VerifyTAPN;
@@ -96,8 +98,6 @@ int main(int argc, char* argv[])
 
 	ArgsParser parser;
 	VerificationOptions options = parser.Parse(argc, argv);
-	std::cout << options.GetDiscreteEnabled() << std::endl;
-	return 0;
 
 	TAPNXmlParser modelParser;
 	boost::shared_ptr<TAPN::TimedArcPetriNet> tapn;
@@ -108,8 +108,16 @@ int main(int argc, char* argv[])
 		std::cout << "There was an error parsing the model file: " << e << std::endl;
 		return 1;
 	}
+
 	tapn->Initialize(options.GetUntimedPlacesEnabled());
+
+
+
 	std::vector<int> initialPlacement(modelParser.ParseMarking(options.GetInputFile(), *tapn));
+
+	if(options.GetDiscreteEnabled()){
+		return DiscreteVerification::DiscreteVerification::run(tapn);
+	}
 
 	AST::Query* query;
 	try{

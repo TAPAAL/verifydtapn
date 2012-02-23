@@ -236,6 +236,33 @@ namespace VerifyTAPN {
 				pairings.insert(std::pair<TimedTransition, Pairing>(t, p));
 			}
 		}
+
+		bool TimedArcPetriNet::IsNonStrict() const{
+
+			for(TimedInputArc::Vector::const_iterator iter = inputArcs.begin(); iter != inputArcs.end(); iter++){
+				TimedInputArc& ia = *(*iter);
+				if(ia.Interval().IsLowerBoundStrict() || (ia.Interval().IsUpperBoundStrict() && ia.Interval().GetUpperBound() != std::numeric_limits<int>().max())){
+					return false;
+				}
+			}
+
+
+			for(TransportArc::Vector::const_iterator iter = transportArcs.begin(); iter != transportArcs.end(); iter++){
+				TransportArc& ta = *(*iter);
+				if(ta.Interval().IsLowerBoundStrict() || (ta.Interval().IsUpperBoundStrict() && ta.Interval().GetUpperBound() != std::numeric_limits<int>().max())){
+					return false;
+				}
+			}
+
+			for(TimedPlace::Vector::const_iterator iter = places.begin(); iter != places.end(); iter++){
+				const TimedPlace& p = *(*iter);
+				if(p.GetInvariant().IsBoundStrict() && p.GetInvariant().GetBound() != std::numeric_limits<int>().max()){
+					return false;
+				}
+			}
+
+			return true;
+		}
 	}
 
 

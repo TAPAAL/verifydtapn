@@ -48,6 +48,7 @@ namespace VerifyTAPN {
 			const Pairing& GetPairing(const TimedTransition& t) const { return pairings.find(t)->second; }
 			inline int MaxConstant() const { return maxConstant; };
 			inline const bool IsPlaceUntimed(int index) const { return places[index]->IsUntimed(); }
+			bool IsNonStrict() const;
 		public: // modifiers
 			void Initialize(bool useUntimedPlaces);
 
