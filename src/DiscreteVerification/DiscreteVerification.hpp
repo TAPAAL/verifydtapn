@@ -10,6 +10,7 @@
 
 #include "boost/smart_ptr.hpp"
 #include "../Core/TAPN/TAPN.hpp"
+#include "../Core/QueryParser/AST.hpp"
 
 namespace VerifyTAPN {
 
@@ -19,7 +20,7 @@ class DiscreteVerification {
 public:
 	DiscreteVerification();
 	virtual ~DiscreteVerification();
-	static int run(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn);
+	static int run(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, std::vector<int> initialPlacement, AST::Query* query);
 };
 
 }

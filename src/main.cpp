@@ -115,10 +115,6 @@ int main(int argc, char* argv[])
 
 	std::vector<int> initialPlacement(modelParser.ParseMarking(options.GetInputFile(), *tapn));
 
-	if(options.GetDiscreteEnabled()){
-		return DiscreteVerification::DiscreteVerification::run(tapn);
-	}
-
 	AST::Query* query;
 	try{
 		TAPNQueryParser queryParser(*tapn);
@@ -127,6 +123,10 @@ int main(int argc, char* argv[])
 	}catch(...){
 		std::cout << "There was an error parsing the query file." << std::endl;
 		return 1;
+	}
+
+	if(options.GetDiscreteEnabled()){
+		return DiscreteVerification::DiscreteVerification::run(tapn, initialPlacement, query);
 	}
 
 	if(options.GetFactory() == DISCRETE_INCLUSION)
