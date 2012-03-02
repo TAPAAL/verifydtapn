@@ -16,11 +16,11 @@ namespace DiscreteVerification {
 
 class WaitingList {
 public:
-	WaitingList() { };
-	virtual ~WaitingList() { };
-	virtual void Add(const NonStrictMarking& node);
-	virtual const NonStrictMarking* Next();
-	virtual long long Size() const;
+	WaitingList() {};
+	virtual ~WaitingList() {};
+	virtual void Add(const NonStrictMarking& marking) = 0;
+	virtual const NonStrictMarking* Next() = 0;
+	virtual long long Size() const = 0;
 };
 
 class StackWaitingList : public WaitingList{
@@ -28,11 +28,11 @@ public:
 	StackWaitingList() : stack() { };
 	virtual ~StackWaitingList();
 public:
-	virtual void Add(NonStrictMarking& marking);
+	virtual void Add(const NonStrictMarking& marking);
 	virtual const NonStrictMarking* Next();
 	virtual long long Size() const { return stack.size(); };
 private:
-	std::deque<NonStrictMarking*> stack;
+	std::deque<const NonStrictMarking*> stack;
 };
 
 } /* namespace DiscreteVerification */

@@ -1,12 +1,13 @@
-#include "InhibitorArc.hpp"
+#include "TimedInputArc.hpp"
 #include "TimedTransition.hpp"
 #include "TimedPlace.hpp"
 
 namespace VerifyTAPN {
 	namespace TAPN {
-		void InhibitorArc::Print(std::ostream& out) const
+		void TimedInputArc::Print(std::ostream& out) const
 		{
 			out << "From " << place->GetName() << " to " << transition->GetName();
+			out << " with interval " << interval;
 		}
 	}
 }

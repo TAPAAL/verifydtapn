@@ -8,7 +8,7 @@
 #ifndef PWLIST_HPP_
 #define PWLIST_HPP_
 
-#import "WaitingList.hpp"
+#include "WaitingList.hpp"
 
 #include "google/sparse_hash_map"
 
@@ -23,10 +23,10 @@ public:
 	virtual ~PWList();
 
 public: // inspectors
-	virtual bool HasWaitingStates() const;
-	virtual long long Size() const;
+	virtual bool HasWaitingStates() const {//TODO: implement!};
+	virtual long long Size() const {//TODO: implement!};
 
-	virtual void Print() const;
+	virtual void Print() const {//TODO: implement!};
 
 public: // modifiers
 	virtual void Add(const NonStrictMarking& marking);
@@ -34,7 +34,7 @@ public: // modifiers
 
 private:
 	HashMap markings_storage;
-	WaitingList waiting_list;
+	StackWaitingList waiting_list;
 };
 
 } /* namespace DiscreteVerification */
