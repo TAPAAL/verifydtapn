@@ -13,17 +13,15 @@
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
-void StackWaitingList::Add(const NonStrictMarking& marking)
+void StackWaitingList::Add(NonStrictMarking& marking)
 	{
-		if(marking){
-			stack.push_front(marking);
-		}
+		stack.push_front(&marking);
 	}
 
-const NonStrictMarking& StackWaitingList::Next()
+const NonStrictMarking* StackWaitingList::Next()
 	{
 		if(Size() == 0) return NULL;
-		NonStrictMarking& marking = stack.front();
+		NonStrictMarking* marking = stack.front();
 		stack.pop_front();
 		return marking;
 	}

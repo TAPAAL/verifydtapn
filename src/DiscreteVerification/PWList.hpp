@@ -10,6 +10,8 @@
 
 #import "WaitingList.hpp"
 
+#include "google/sparse_hash_map"
+
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
@@ -23,12 +25,11 @@ public:
 public: // inspectors
 	virtual bool HasWaitingStates() const;
 	virtual long long Size() const;
-	virtual Stats GetStats() const;
 
 	virtual void Print() const;
 
 public: // modifiers
-	virtual bool Add(const NonStrictMarking& marking);
+	virtual void Add(const NonStrictMarking& marking);
 	virtual const NonStrictMarking& GetNextUnexplored();
 
 private:

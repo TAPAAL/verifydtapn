@@ -6,6 +6,7 @@
  */
 
 #include "PWList.hpp"
+#include "NonStrictMarking.hpp"
 
 namespace VerifyTAPN {
 namespace DiscreteVerification {
@@ -15,8 +16,8 @@ PWList::PWList() {
 
 }
 
-bool PWList::Add(const NonStrictMarking& marking){
-	if(!markings_storage[marking.HashKey()]){
+void PWList::Add(const NonStrictMarking& marking){
+	if(markings_storage[marking.HashKey()].equals(marking)){
 		markings_storage[marking.HashKey()] = marking;
 		waiting_list.Add(marking);
 	}

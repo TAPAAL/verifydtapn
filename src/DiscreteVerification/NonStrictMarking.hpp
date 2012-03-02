@@ -59,6 +59,9 @@ public:
 		void RemoveToken(int index) { placement.erase(placement.begin() + index); }
 		void AddTokenInPlace(Token placeIndex) { placement.push_back(placeIndex); }
 
+	public:
+		bool equals(const NonStrictMarking &m1){ return false; }
+
 private:
 	Vector placement;
 };

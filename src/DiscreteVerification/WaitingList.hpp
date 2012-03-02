@@ -8,6 +8,9 @@
 #ifndef WAITINGLIST_HPP_
 #define WAITINGLIST_HPP_
 
+#include "NonStrictMarking.hpp"
+#include <deque>
+
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
@@ -16,7 +19,7 @@ public:
 	WaitingList() { };
 	virtual ~WaitingList() { };
 	virtual void Add(const NonStrictMarking& node);
-	virtual NonStrictMarking& Next();
+	virtual const NonStrictMarking* Next();
 	virtual long long Size() const;
 };
 
@@ -25,11 +28,11 @@ public:
 	StackWaitingList() : stack() { };
 	virtual ~StackWaitingList();
 public:
-	virtual void Add(const NonStrictMarking& marking);
-	virtual const NonStrictMarking& Next();
-	virtual long long Size() const { stack.size(); };
+	virtual void Add(NonStrictMarking& marking);
+	virtual const NonStrictMarking* Next();
+	virtual long long Size() const { return stack.size(); };
 private:
-	std::deque<const NonStrictMarking&> stack;
+	std::deque<NonStrictMarking*> stack;
 };
 
 } /* namespace DiscreteVerification */
