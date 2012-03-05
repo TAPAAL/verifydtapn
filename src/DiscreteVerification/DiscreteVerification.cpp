@@ -34,7 +34,7 @@ int DiscreteVerification::run(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, s
 
 	NonStrictMarking* initialMarking = new NonStrictMarking(initialPlacement);
 
-	std::cout << initialMarking << std::endl;
+	std::cout << "initialMarking: " << *initialMarking << std::endl;
 
 	if(initialMarking->size() > options.GetKBound())
 	{
