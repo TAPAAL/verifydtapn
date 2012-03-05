@@ -25,10 +25,12 @@ public:
 public: // inspectors
 	virtual bool HasWaitingStates() const {
 		//TODO: implement!
+		return false;
 	};
 
 	virtual long long Size() const {
 		//TODO: implement!
+		return 0;
 	};
 
 	virtual void Print() const {
