@@ -33,6 +33,9 @@ int DiscreteVerification::run(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, s
 	}
 
 	NonStrictMarking* initialMarking = new NonStrictMarking(initialPlacement);
+
+	std::cout << initialMarking << std::endl;
+
 	if(initialMarking->size() > options.GetKBound())
 	{
 		std::cout << "The specified k-bound is less than the number of tokens in the initial markings.";

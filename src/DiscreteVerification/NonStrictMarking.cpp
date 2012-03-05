@@ -6,6 +6,7 @@
  */
 
 #include "NonStrictMarking.hpp"
+#include <iostream>
 
 namespace VerifyTAPN {
 namespace DiscreteVerification {
@@ -40,6 +41,14 @@ void NonStrictMarking::MoveToken(unsigned int tokenIndex, int newPlaceIndex){
 
 NonStrictMarking::~NonStrictMarking() {
 	// TODO: Should we destruct something here? (placement)
+}
+
+std::ostream& operator<<(std::ostream& out, NonStrictMarking& x ) {
+	for(NonStrictMarking::Vector::const_iterator iter = x.placement.begin(); iter != x.placement.end(); iter++){
+		out << "(" << iter->age << ", " << iter->place << "), ";
+	}
+
+	return out;
 }
 
 } /* namespace DiscreteVerification */

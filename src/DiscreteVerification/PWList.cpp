@@ -25,6 +25,9 @@ void PWList::Add(const NonStrictMarking& marking){
 }
 
 const NonStrictMarking& PWList::GetNextUnexplored(){
+	//const NonStrictMarking& next = waiting_list.Next();
+	//return next;
+
 	return waiting_list.Next();
 }
 

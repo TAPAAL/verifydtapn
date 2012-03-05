@@ -11,6 +11,7 @@
 #include <assert.h>
 #include <vector>
 #include "boost/functional/hash.hpp"
+#include <iostream>
 
 namespace VerifyTAPN {
 namespace DiscreteVerification {
@@ -36,6 +37,8 @@ public:
 	NonStrictMarking();
 	NonStrictMarking(const std::vector<int>& v);
 	NonStrictMarking(const NonStrictMarking* nsm) : placement(nsm->placement) { };
+
+	friend std::ostream& operator<<(std::ostream& out, NonStrictMarking& x );
 
 	virtual ~NonStrictMarking();
 
@@ -65,6 +68,8 @@ public:
 private:
 	Vector placement;
 };
+
+std::ostream& operator<<(std::ostream& out, NonStrictMarking& x );
 
 } /* namespace DiscreteVerification */
 } /* namespace VerifyTAPN */
