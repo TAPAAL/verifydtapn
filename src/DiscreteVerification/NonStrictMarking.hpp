@@ -63,7 +63,7 @@ public:
 		void AddTokenInPlace(Token placeIndex) { placement.push_back(placeIndex); }
 
 	public:
-		bool equals(const NonStrictMarking &m1){ return false; }
+		bool equals(const NonStrictMarking &m1);
 
 private:
 	Vector placement;

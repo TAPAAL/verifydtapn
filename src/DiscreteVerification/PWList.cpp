@@ -18,9 +18,12 @@ PWList::PWList() {
 }
 
 void PWList::Add(const NonStrictMarking& marking){
-	if(markings_storage[marking.HashKey()].equals(marking)){
+	if(!markings_storage[marking.HashKey()].equals(marking)){
 		markings_storage[marking.HashKey()] = marking;
 		waiting_list.Add(marking);
+	}else{
+		std::cout << marking.HashKey() << " exists in PWList and is " << markings_storage[marking.HashKey()] << std::endl;
+		std::cout << "Marking is " << marking.size() << " fetch is " << markings_storage[marking.HashKey()].size() << std::endl;
 	}
 }
 

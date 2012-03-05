@@ -43,6 +43,15 @@ NonStrictMarking::~NonStrictMarking() {
 	// TODO: Should we destruct something here? (placement)
 }
 
+bool NonStrictMarking::equals(const NonStrictMarking &m1){
+	if(m1.size() == 0) return false;
+	if(m1.size() != size())	return false;
+
+	// TODO: extensive equals - should we test more?
+
+	return true;
+}
+
 std::ostream& operator<<(std::ostream& out, NonStrictMarking& x ) {
 	for(NonStrictMarking::Vector::const_iterator iter = x.placement.begin(); iter != x.placement.end(); iter++){
 		out << "(" << iter->age << ", " << iter->place << "), ";

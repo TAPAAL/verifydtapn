@@ -14,7 +14,7 @@ NonStrictDFS::NonStrictDFS(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonS
 	: tapn(tapn), initialMarking(initialMarking), query(query), options(options){
 
 	pwList.Add(initialMarking);
-	std::cout << pwList;
+	std::cout << "PWList: " << pwList;
 }
 
 NonStrictDFS::~NonStrictDFS() {
