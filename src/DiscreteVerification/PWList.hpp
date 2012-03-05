@@ -23,10 +23,17 @@ public:
 	virtual ~PWList();
 
 public: // inspectors
-	virtual bool HasWaitingStates() const {//TODO: implement!};
-	virtual long long Size() const {//TODO: implement!};
+	virtual bool HasWaitingStates() const {
+		//TODO: implement!
+	};
 
-	virtual void Print() const {//TODO: implement!};
+	virtual long long Size() const {
+		//TODO: implement!
+	};
+
+	virtual void Print() const {
+		//TODO: implement!
+	};
 
 public: // modifiers
 	virtual void Add(const NonStrictMarking& marking);
