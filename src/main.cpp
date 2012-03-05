@@ -126,7 +126,7 @@ int main(int argc, char* argv[])
 	}
 
 	if(options.GetDiscreteEnabled()){
-		return DiscreteVerification::DiscreteVerification::run(tapn, initialPlacement, query);
+		return DiscreteVerification::DiscreteVerification::run(tapn, initialPlacement, query, options);
 	}
 
 	if(options.GetFactory() == DISCRETE_INCLUSION)
