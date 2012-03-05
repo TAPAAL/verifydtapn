@@ -35,5 +35,12 @@ PWList::~PWList() {
 	// TODO Auto-generated destructor stub
 }
 
+std::ostream& operator<<(std::ostream& out, PWList& x){
+	for(PWList::HashMap::iterator iter = x.markings_storage.begin(); iter != x.markings_storage.end(); iter++){
+		out << iter->second << " ";
+	}
+	return out;
+}
+
 } /* namespace DiscreteVerification */
 } /* namespace VerifyTAPN */

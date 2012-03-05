@@ -11,6 +11,7 @@
 #include "WaitingList.hpp"
 #include <iostream>
 #include "google/sparse_hash_map"
+#include  "NonStrictMarking.hpp"
 
 namespace VerifyTAPN {
 namespace DiscreteVerification {
@@ -21,6 +22,7 @@ public:
 public:
 	PWList();
 	virtual ~PWList();
+	friend std::ostream& operator<<(std::ostream& out, PWList& x);
 
 public: // inspectors
 	virtual bool HasWaitingStates() const {
@@ -41,19 +43,12 @@ public: // modifiers
 	virtual void Add(const NonStrictMarking& marking);
 	virtual const NonStrictMarking& GetNextUnexplored();
 
-	friend std::ostream& operator<<(std::ostream& out, PWList& x);
-
 private:
 	HashMap markings_storage;
 	StackWaitingList waiting_list;
 };
 
-std::ostream& operator<<(std::ostream& out, PWList& x){
-	for(google::sparse_hash_map::const_iterator iter = x.markings_storage.begin(); iter != x.markings_storage.end(); iter++){
-		out << *iter << std::endl;
-	}
-	return out;
-}
+std::ostream& operator<<(std::ostream& out, PWList& x);
 
 } /* namespace DiscreteVerification */
 } /* namespace VerifyTAPN */
