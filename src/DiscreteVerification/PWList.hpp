@@ -20,7 +20,7 @@ class PWList {
 public:
 	typedef google::sparse_hash_map<size_t, NonStrictMarking> HashMap;
 public:
-	PWList();
+	PWList() : markings_storage(256000) {};
 	virtual ~PWList();
 	friend std::ostream& operator<<(std::ostream& out, PWList& x);
 
@@ -40,8 +40,8 @@ public: // inspectors
 	};
 
 public: // modifiers
-	virtual void Add(const NonStrictMarking& marking);
-	virtual const NonStrictMarking& GetNextUnexplored();
+	virtual void Add(NonStrictMarking& marking);
+	virtual const NonStrictMarking* GetNextUnexplored();
 
 private:
 	HashMap markings_storage;

@@ -19,12 +19,13 @@ namespace DiscreteVerification {
 
 class NonStrictDFS {
 public:
-	NonStrictDFS(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking initialMarking, AST::Query* query, VerificationOptions options);
+	NonStrictDFS(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options);
 	virtual ~NonStrictDFS();
+	bool Verify();
 private:
 	PWList pwList;
 	boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn;
-	NonStrictMarking initialMarking;
+	NonStrictMarking& initialMarking;
 	AST::Query* query;
 	VerificationOptions options;
 };

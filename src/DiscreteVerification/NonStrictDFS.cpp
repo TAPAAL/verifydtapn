@@ -10,11 +10,16 @@
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
-NonStrictDFS::NonStrictDFS(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking initialMarking, AST::Query* query, VerificationOptions options)
+NonStrictDFS::NonStrictDFS(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options)
 	: tapn(tapn), initialMarking(initialMarking), query(query), options(options){
 
 	pwList.Add(initialMarking);
 	std::cout << "PWList: " << pwList;
+}
+
+bool NonStrictDFS::Verify(){
+	//TODO: Implement!
+	return false;
 }
 
 NonStrictDFS::~NonStrictDFS() {

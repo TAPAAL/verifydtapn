@@ -36,6 +36,7 @@ int DiscreteVerification::run(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, s
 	NonStrictMarking* initialMarking = new NonStrictMarking(initialPlacement);
 
 	std::cout << "initialMarking: " << *initialMarking << std::endl;
+	std::cout << "size: " << initialMarking->size() << std::endl;
 
 	if(initialMarking->size() > options.GetKBound())
 	{
@@ -43,11 +44,11 @@ int DiscreteVerification::run(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, s
 		return 1;
 	}
 
-	NonStrictDFS* strategy = new NonStrictDFS(tapn, initialMarking, query, options);
+	NonStrictDFS* strategy = new NonStrictDFS(tapn, *initialMarking, query, options);
 
-	/*std::cout << options << std::endl;
+	std::cout << options << std::endl;
 	bool result = strategy->Verify();
-	std::cout << strategy->GetStats() << std::endl;
+	/*std::cout << strategy->GetStats() << std::endl;
 	std::cout << "Query is " << (result ? "satisfied" : "NOT satisfied") << "." << std::endl;
 	std::cout << "Max number of tokens found in any reachable marking: ";
 	if(strategy->MaxUsedTokens() == options.GetKBound() + 1)
@@ -61,8 +62,8 @@ int DiscreteVerification::run(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, s
 		std::cout << "There was an error generating a trace. This is a bug. Please report this on launchpad and attach your TAPN model and this error message: ";
 		std::cout << e.what() << std::endl;
 		return 1;
-	}
-	delete strategy;*/
+	}*/
+	delete strategy;
 
 	return 0;
 }

@@ -8,9 +8,10 @@
 #include "NonStrictMarking.hpp"
 #include <iostream>
 
+using namespace std;
+
 namespace VerifyTAPN {
 namespace DiscreteVerification {
-
 
 NonStrictMarking::NonStrictMarking() {
 	// TODO Auto-generated constructor stub
@@ -18,34 +19,77 @@ NonStrictMarking::NonStrictMarking() {
 }
 
 NonStrictMarking::NonStrictMarking(const std::vector<int>& v){
+	int prevPlaceId = -1;
 	for(std::vector<int>::const_iterator iter = v.begin(); iter != v.end(); iter++){
-		Token t;
-		t.age = 0;
-		t.place = *iter;
-		placement.push_back(t);
+		if(*iter == prevPlaceId){
+			Place& p = places.back();
+			if(p.tokens.size() == 0){
+				Token t(0,1);
+				p.tokens.push_back(t);
+			}else{
+				p.tokens.begin()->add(1);
+			}
+		}else{
+			Place p(*iter);
+			Token t(0,1);
+			p.tokens.push_back(t);
+			places.push_back(p);
+		}
+		prevPlaceId = *iter;
 	}
 }
 
-int NonStrictMarking::NumberOfTokensInPlace(int placeIndex) const{
-	int c = 0;
-	for(std::vector<Token>::const_iterator iter = placement.begin(); iter != placement.end(); iter++){
-		if(iter->place == placeIndex) c++;
+unsigned int NonStrictMarking::size(){
+	int count = 0;
+	for(PlaceList::iterator iter = places.begin(); iter != places.end(); iter++){
+		for(TokenList::iterator it = iter->tokens.begin(); it != iter->tokens.end(); it++){
+			count += it->getCount();
+		}
 	}
-	return c;
+	return count;
 }
 
-void NonStrictMarking::MoveToken(unsigned int tokenIndex, int newPlaceIndex){
-	assert(tokenIndex >= 0 && tokenIndex < placement.size());
-	placement[tokenIndex].place = newPlaceIndex;
+int NonStrictMarking::NumberOfTokensInPlace(Place& place) const{
+	int count = 0;
+	for(TokenList::iterator it = place.tokens.begin(); it != place.tokens.end(); it++){
+		count = count + it->getCount();
+	}
+	return count;
+}
+
+bool NonStrictMarking::RemoveToken(Place& place, Token& token){
+	assert(token.getCount() > 0);
+	if(token.getCount() > 1){
+		token.remove(1);
+		return true;
+	}else{
+		for(TokenList::iterator iter = place.tokens.begin(); iter != place.tokens.end(); iter++){
+			if(iter->getAge() == token.getAge()){
+				place.tokens.erase(iter);
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+void NonStrictMarking::AddTokenInPlace(Place& place, Token& token){
+	for(TokenList::iterator iter = place.tokens.begin(); iter != place.tokens.end(); iter++){
+		if(iter->getAge() == token.getAge()){
+			iter->add(token.getCount());
+			return;
+		}
+	}
+	place.tokens.push_back(token);
 }
 
 NonStrictMarking::~NonStrictMarking() {
-	// TODO: Should we destruct something here? (placement)
+	// TODO: Should we destruct something here? (places)
 }
 
 bool NonStrictMarking::equals(const NonStrictMarking &m1){
-	if(m1.size() == 0) return false;
-	if(m1.size() != size())	return false;
+	if(m1.places.size() == 0) return false;
+	if(m1.places.size() != places.size())	return false;
 
 	// TODO: extensive equals - should we test more?
 
@@ -53,8 +97,12 @@ bool NonStrictMarking::equals(const NonStrictMarking &m1){
 }
 
 std::ostream& operator<<(std::ostream& out, NonStrictMarking& x ) {
-	for(NonStrictMarking::Vector::const_iterator iter = x.placement.begin(); iter != x.placement.end(); iter++){
-		out << "(" << iter->age << ", " << iter->place << "), ";
+	for(PlaceList::iterator iter = x.places.begin(); iter != x.places.end(); iter++){
+		out << "Place: " << iter->id << " - has tokens (age, count): ";
+		for(TokenList::iterator it = iter->tokens.begin(); it != iter->tokens.end(); it++){
+			out << "(" << it->getAge() << ", " << it->getCount() << ") ";
+		}
+		out << endl;
 	}
 
 	return out;

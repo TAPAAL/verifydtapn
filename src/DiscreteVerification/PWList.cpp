@@ -12,22 +12,17 @@
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
-PWList::PWList() {
-	// TODO Auto-generated constructor stub
-
-}
-
-void PWList::Add(const NonStrictMarking& marking){
+void PWList::Add(NonStrictMarking& marking){
 	if(!markings_storage[marking.HashKey()].equals(marking)){
-		markings_storage[marking.HashKey()] = marking;
+		//markings_storage.insert(marking.HashKey(), marking);
 		waiting_list.Add(marking);
 	}
 }
 
-const NonStrictMarking& PWList::GetNextUnexplored(){
+const NonStrictMarking* PWList::GetNextUnexplored(){
 	//const NonStrictMarking& next = waiting_list.Next();
 	//return next;
-
+	// TODO: ?
 	return waiting_list.Next();
 }
 
