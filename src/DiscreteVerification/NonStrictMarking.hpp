@@ -28,10 +28,18 @@ public:
 	bool equals(const Token &t){ return (this->age == t.age && this->count == t.count); };
 
 	void add(int num){ count = count + num; };
-	int getCount(){ return count; };
-	int getAge(){ return age; };
+	int getCount() const { return count; };
+	int getAge() const { return age; };
 	void remove(int num){ count = count - num; };
 	void clear(){ age = 0; count = 0; };
+
+	friend std::size_t hash_value(Token const& t)
+		{
+			size_t seed = 0;
+			boost::hash_combine(seed, t.getAge());
+			boost::hash_combine(seed, t.getCount());
+			return seed;
+		}
 };
 
 typedef vector<Token> TokenList;
@@ -45,9 +53,8 @@ class Place {
 
 	friend std::size_t hash_value(Place const& p)
 	{
-		std::size_t seed = 0;
-		//TODO: fix hashing
-		//boost::hash_combine(seed, p.tokens);
+		std::size_t seed = boost::hash_range(p.tokens.begin(), p.tokens.end());
+		boost::hash_combine(seed, p.id);
 
 		return seed;
 	}
