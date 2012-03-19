@@ -31,7 +31,11 @@ public:
 	int getCount() const { return count; };
 	int getAge() const { return age; };
 	void remove(int num){ count = count - num; };
-	void clear(){ age = 0; count = 0; };
+
+	// Ages all tokens by 1
+	void incrementAge(){
+		age++;
+	}
 
 	friend std::size_t hash_value(Token const& t)
 		{
@@ -58,6 +62,13 @@ class Place {
 
 		return seed;
 	}
+
+	// Ages all tokens by 1
+	void incrementAge(){
+		for(TokenList::iterator iter = tokens.begin(); iter != tokens.end(); iter++){
+			iter->incrementAge();
+		}
+	}
 };
 
 typedef vector<Place> PlaceList;
@@ -66,7 +77,7 @@ class NonStrictMarking {
 public:
 	NonStrictMarking();
 	NonStrictMarking(const std::vector<int>& v);
-	NonStrictMarking(const NonStrictMarking& nsm) {  };
+	NonStrictMarking(const NonStrictMarking& nsm) { places = nsm.places; };
 
 public:
 	friend std::ostream& operator<<(std::ostream& out, NonStrictMarking& x );
@@ -91,6 +102,7 @@ public:
 	public: // modifiers
 		bool RemoveToken(Place& place, Token& token);
 		void AddTokenInPlace(Place& place, Token& token);
+		void incrementAge();	// increment
 
 	public:
 		bool equals(const NonStrictMarking &m1);

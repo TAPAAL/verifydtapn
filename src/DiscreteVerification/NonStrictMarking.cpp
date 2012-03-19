@@ -41,8 +41,8 @@ NonStrictMarking::NonStrictMarking(const std::vector<int>& v){
 
 unsigned int NonStrictMarking::size(){
 	int count = 0;
-	for(PlaceList::iterator iter = places.begin(); iter != places.end(); iter++){
-		for(TokenList::iterator it = iter->tokens.begin(); it != iter->tokens.end(); it++){
+	for(PlaceList::const_iterator iter = places.begin(); iter != places.end(); iter++){
+		for(TokenList::const_iterator it = iter->tokens.begin(); it != iter->tokens.end(); it++){
 			count += it->getCount();
 		}
 	}
@@ -51,14 +51,13 @@ unsigned int NonStrictMarking::size(){
 
 int NonStrictMarking::NumberOfTokensInPlace(Place& place) const{
 	int count = 0;
-	for(TokenList::iterator it = place.tokens.begin(); it != place.tokens.end(); it++){
+	for(TokenList::const_iterator it = place.tokens.begin(); it != place.tokens.end(); it++){
 		count = count + it->getCount();
 	}
 	return count;
 }
 
 bool NonStrictMarking::RemoveToken(Place& place, Token& token){
-	assert(token.getCount() > 0);
 	if(token.getCount() > 1){
 		token.remove(1);
 		return true;
@@ -81,6 +80,12 @@ void NonStrictMarking::AddTokenInPlace(Place& place, Token& token){
 		}
 	}
 	place.tokens.push_back(token);
+}
+
+void NonStrictMarking::incrementAge(){
+	for(PlaceList::iterator iter = places.begin(); iter != places.end(); iter++){
+		iter->incrementAge();
+	}
 }
 
 NonStrictMarking::~NonStrictMarking() {

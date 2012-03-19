@@ -37,6 +37,7 @@ int DiscreteVerification::run(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, s
 
 	std::cout << "initialMarking: " << *initialMarking << std::endl;
 	std::cout << "size: " << initialMarking->size() << std::endl;
+	std::cout << "hash: " << boost::hash_value(initialMarking) << std::endl;
 
 	if(initialMarking->size() > options.GetKBound())
 	{

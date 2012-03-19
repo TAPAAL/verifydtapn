@@ -14,7 +14,15 @@
 #include "../Core/QueryParser/AST.hpp"
 #include "../Core/VerificationOptions.hpp"
 
+#include "../Core/TAPN/TimedPlace.hpp"
+#include "../Core/TAPN/TimedTransition.hpp"
+#include "../Core/TAPN/TimedInputArc.hpp"
+#include "../Core/TAPN/TransportArc.hpp"
+#include "../Core/TAPN/InhibitorArc.hpp"
+#include "../Core/TAPN/OutputArc.hpp"
+
 namespace VerifyTAPN {
+
 namespace DiscreteVerification {
 
 class NonStrictDFS {
@@ -22,6 +30,9 @@ public:
 	NonStrictDFS(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options);
 	virtual ~NonStrictDFS();
 	bool Verify();
+
+private:
+	void addPossibleNextMarkings(NonStrictMarking& marking);
 private:
 	PWList pwList;
 	boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn;

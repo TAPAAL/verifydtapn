@@ -10,6 +10,7 @@
 
 #include "NonStrictMarking.hpp"
 #include <deque>
+#include "boost/optional.hpp"
 
 namespace VerifyTAPN {
 namespace DiscreteVerification {
@@ -18,9 +19,9 @@ class WaitingList {
 public:
 	WaitingList() {};
 	virtual ~WaitingList() {};
-	virtual void Add(const NonStrictMarking& marking) = 0;
-	virtual const NonStrictMarking* Next() = 0;
-	virtual long long Size() const = 0;
+	virtual void Add(NonStrictMarking& marking) = 0;
+	virtual NonStrictMarking& Next() = 0;
+	virtual size_t Size() = 0;
 };
 
 class StackWaitingList : public WaitingList{
@@ -28,11 +29,11 @@ public:
 	StackWaitingList() : stack() { };
 	virtual ~StackWaitingList();
 public:
-	virtual void Add(const NonStrictMarking& marking);
-	virtual const NonStrictMarking* Next();
-	virtual long long Size() const { return stack.size(); };
+	virtual void Add(NonStrictMarking& marking);
+	virtual NonStrictMarking& Next();
+	virtual size_t Size() { return stack.size(); };
 private:
-	std::deque<const NonStrictMarking*> stack;
+	std::deque<NonStrictMarking> stack;
 };
 
 } /* namespace DiscreteVerification */

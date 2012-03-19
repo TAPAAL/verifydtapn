@@ -25,9 +25,8 @@ public:
 	friend std::ostream& operator<<(std::ostream& out, PWList& x);
 
 public: // inspectors
-	virtual bool HasWaitingStates() const {
-		//TODO: implement!
-		return false;
+	virtual bool HasWaitingStates() {
+		return (waiting_list.Size() > 0);
 	};
 
 	virtual long long Size() const {
@@ -40,8 +39,8 @@ public: // inspectors
 	};
 
 public: // modifiers
-	virtual void Add(NonStrictMarking& marking);
-	virtual const NonStrictMarking* GetNextUnexplored();
+	virtual bool Add(NonStrictMarking& marking);
+	virtual NonStrictMarking& GetNextUnexplored();
 
 private:
 	HashMap markings_storage;
