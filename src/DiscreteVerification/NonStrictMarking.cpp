@@ -57,6 +57,13 @@ int NonStrictMarking::NumberOfTokensInPlace(Place& place) const{
 	return count;
 }
 
+const TokenList& NonStrictMarking::GetTokenList(int placeId){
+	for(PlaceList::const_iterator iter = places.begin(); iter != places.end(); iter++){
+		if(iter->id == placeId) return iter->tokens;
+	}
+	return emptyTokenList;
+}
+
 bool NonStrictMarking::RemoveToken(Place& place, Token& token){
 	if(token.getCount() > 1){
 		token.remove(1);

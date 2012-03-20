@@ -30,6 +30,7 @@ public:
 	void add(int num){ count = count + num; };
 	int getCount() const { return count; };
 	int getAge() const { return age; };
+	void setCount(int i) { count = i; };
 	void remove(int num){ count = count - num; };
 
 	// Ages all tokens by 1
@@ -61,6 +62,14 @@ class Place {
 		boost::hash_combine(seed, p.id);
 
 		return seed;
+	}
+
+	int NumberOfTokens() const{
+		int count = 0;
+		for(TokenList::const_iterator iter = tokens.begin(); iter != tokens.end(); iter++){
+			count += iter->getCount();
+		}
+		return count;
 	}
 
 	// Ages all tokens by 1
@@ -95,7 +104,8 @@ public:
 
 	public: // inspectors
 		int NumberOfTokensInPlace(Place& palce) const;
-		const PlaceList& GetTokenPlacementVector() { return places; }
+		const TokenList& GetTokenList(int placeId);
+		const PlaceList& GetPlaceList() { return places; }
 		unsigned int size();
 
 
@@ -109,6 +119,7 @@ public:
 
 	public:
 		PlaceList places;
+		TokenList emptyTokenList;
 };
 
 std::ostream& operator<<(std::ostream& out, NonStrictMarking& x);
