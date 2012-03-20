@@ -32,7 +32,7 @@ public:
 	bool Verify();
 
 private:
-	void addPossibleNextMarkings(NonStrictMarking& marking);
+	vector<NonStrictMarking> getPossibleNextMarkings(NonStrictMarking& marking);
 	bool addToPW(NonStrictMarking& marking);
 	bool isKBound(NonStrictMarking& marking);
 	bool isDelayPossible(NonStrictMarking& marking);
