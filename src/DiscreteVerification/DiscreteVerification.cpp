@@ -64,6 +64,7 @@ int DiscreteVerification::run(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, s
 		std::cout << e.what() << std::endl;
 		return 1;
 	}*/
+
 	delete strategy;
 
 	return 0;
