@@ -49,12 +49,19 @@ unsigned int NonStrictMarking::size(){
 	return count;
 }
 
-int NonStrictMarking::NumberOfTokensInPlace(Place& place) const{
+int NonStrictMarking::NumberOfTokensInPlace(const Place& place) const{
 	int count = 0;
 	for(TokenList::const_iterator it = place.tokens.begin(); it != place.tokens.end(); it++){
 		count = count + it->getCount();
 	}
 	return count;
+}
+
+int NonStrictMarking::NumberOfTokensInPlace(int placeId){
+	for(PlaceList::iterator iter = places.begin(); iter != places.end(); iter++){
+		if(iter->id == placeId)	return NumberOfTokensInPlace(*iter);
+	}
+	return 0;
 }
 
 const TokenList& NonStrictMarking::GetTokenList(int placeId){
@@ -110,11 +117,13 @@ bool NonStrictMarking::equals(const NonStrictMarking &m1){
 
 std::ostream& operator<<(std::ostream& out, NonStrictMarking& x ) {
 	for(PlaceList::iterator iter = x.places.begin(); iter != x.places.end(); iter++){
-		out << "Place: " << iter->id << " - has tokens (age, count): ";
+		out << "place " << iter->id << " has tokens (age, count): ";
 		for(TokenList::iterator it = iter->tokens.begin(); it != iter->tokens.end(); it++){
 			out << "(" << it->getAge() << ", " << it->getCount() << ") ";
 		}
-		out << endl;
+		if(iter != x.places.end()-1){
+			out << endl;
+		}
 	}
 
 	return out;

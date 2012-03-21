@@ -103,7 +103,8 @@ public:
 		};
 
 	public: // inspectors
-		int NumberOfTokensInPlace(Place& palce) const;
+		int NumberOfTokensInPlace(const Place& palce) const;
+		int NumberOfTokensInPlace(int placeId);
 		const TokenList& GetTokenList(int placeId);
 		const PlaceList& GetPlaceList() { return places; }
 		unsigned int size();
