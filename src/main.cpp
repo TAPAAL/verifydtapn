@@ -125,7 +125,8 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
-	if(options.GetDiscreteEnabled()){
+	if(true){
+	//if(options.GetDiscreteEnabled()){	// Enable this to require -d flag
 		return DiscreteVerification::DiscreteVerification::run(tapn, initialPlacement, query, options);
 	}
 
