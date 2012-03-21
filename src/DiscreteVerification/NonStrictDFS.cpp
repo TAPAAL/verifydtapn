@@ -46,7 +46,7 @@ bool NonStrictDFS::Verify(){
 vector<NonStrictMarking> NonStrictDFS::getPossibleNextMarkings(NonStrictMarking& marking){
 	vector<NonStrictMarking> out;
 	for(TAPN::TimedPlace::Vector::const_iterator place_iter = tapn->GetPlaces().begin(); place_iter != tapn->GetPlaces().end(); place_iter++){
-		std::cout << place_iter->get()->GetIndex() << std::endl;
+		//std::cout << place_iter->get()->GetIndex() << std::endl;
 		//Todo: Implement!
 	}
 	return out;
