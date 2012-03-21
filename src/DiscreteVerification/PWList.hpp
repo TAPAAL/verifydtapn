@@ -39,8 +39,8 @@ public: // inspectors
 	};
 
 public: // modifiers
-	virtual bool Add(NonStrictMarking& marking);
-	virtual NonStrictMarking& GetNextUnexplored();
+	virtual bool Add(NonStrictMarking* marking);
+	virtual NonStrictMarking* GetNextUnexplored();
 
 private:
 	HashMap markings_storage;

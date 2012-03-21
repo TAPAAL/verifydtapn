@@ -13,7 +13,7 @@ namespace DiscreteVerification {
 NonStrictDFS::NonStrictDFS(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options)
 	: tapn(tapn), initialMarking(initialMarking), query(query), options(options){
 
-	pwList.Add(initialMarking);
+	pwList.Add(&initialMarking);
 	std::cout << "PWList: " << pwList << std::endl;
 }
 
@@ -22,22 +22,21 @@ bool NonStrictDFS::Verify(){
 
 	//Main loop
 	while(pwList.HasWaitingStates()){
-		NonStrictMarking& marking = pwList.GetNextUnexplored();
+		NonStrictMarking& marking = *pwList.GetNextUnexplored();
+		std::cout << "Algo: " << marking << std::endl;
 
 		// Do the forall
 		vector<NonStrictMarking> next = getPossibleNextMarkings(marking);
 		for(vector<NonStrictMarking>::iterator it = next.begin(); it != next.end(); it++){
-			if(addToPW(*it)){
+			if(addToPW(&(*it))){
 				return true;
 			}
 		}
 
 		if(isDelayPossible(marking)){
-			NonStrictMarking m = cut(marking);
-			addToPW(m);
+			marking.incrementAge();
+			addToPW(&marking);
 		}
-
-
 	}
 
 	return false;
@@ -52,10 +51,10 @@ vector<NonStrictMarking> NonStrictDFS::getPossibleNextMarkings(NonStrictMarking&
 	return out;
 }
 
-bool NonStrictDFS::addToPW(NonStrictMarking& marking){
-	NonStrictMarking m = cut(marking);
+bool NonStrictDFS::addToPW(NonStrictMarking* marking){
+	NonStrictMarking* m = cut(*marking);
 
-	if(!isKBound(m)) return false;
+	if(!isKBound(*m)) return false;
 
 	if(pwList.Add(m)){
 		// TODO: Test if query is fulfilled
@@ -64,10 +63,9 @@ bool NonStrictDFS::addToPW(NonStrictMarking& marking){
 	return false;
 }
 
-NonStrictMarking NonStrictDFS::cut(NonStrictMarking& marking){
-	NonStrictMarking m = marking;
-	m.incrementAge();
-	for(PlaceList::iterator place_iter = m.places.begin(); place_iter != m.places.end(); place_iter++){
+NonStrictMarking* NonStrictDFS::cut(NonStrictMarking& marking){
+	NonStrictMarking* m = new NonStrictMarking(marking);
+	for(PlaceList::iterator place_iter = m->places.begin(); place_iter != m->places.end(); place_iter++){
 		for(TokenList::iterator token_iter = place_iter->tokens.begin(); token_iter != place_iter->tokens.end(); token_iter++){
 			if(token_iter->getAge() > tapn->MaxConstant()+1){
 				token_iter->setCount(tapn->MaxConstant()+1);

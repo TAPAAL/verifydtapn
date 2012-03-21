@@ -11,6 +11,7 @@
 #include "NonStrictMarking.hpp"
 #include <deque>
 #include "boost/optional.hpp"
+#include "boost/shared_ptr.hpp"
 
 namespace VerifyTAPN {
 namespace DiscreteVerification {
@@ -19,8 +20,8 @@ class WaitingList {
 public:
 	WaitingList() {};
 	virtual ~WaitingList() {};
-	virtual void Add(NonStrictMarking& marking) = 0;
-	virtual NonStrictMarking& Next() = 0;
+	virtual void Add(NonStrictMarking* marking) = 0;
+	virtual NonStrictMarking* Next() = 0;
 	virtual size_t Size() = 0;
 };
 
@@ -29,11 +30,11 @@ public:
 	StackWaitingList() : stack() { };
 	virtual ~StackWaitingList();
 public:
-	virtual void Add(NonStrictMarking& marking);
-	virtual NonStrictMarking& Next();
+	virtual void Add(NonStrictMarking* marking);
+	virtual NonStrictMarking* Next();
 	virtual size_t Size() { return stack.size(); };
 private:
-	std::deque<NonStrictMarking> stack;
+	std::deque< NonStrictMarking* > stack;
 };
 
 } /* namespace DiscreteVerification */

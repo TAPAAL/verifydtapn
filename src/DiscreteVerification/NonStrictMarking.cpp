@@ -100,6 +100,7 @@ void NonStrictMarking::incrementAge(){
 	for(PlaceList::iterator iter = places.begin(); iter != places.end(); iter++){
 		iter->incrementAge();
 	}
+	std::cout << "inc age" << std::endl;
 }
 
 NonStrictMarking::~NonStrictMarking() {

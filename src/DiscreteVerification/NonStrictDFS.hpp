@@ -33,10 +33,10 @@ public:
 
 private:
 	vector<NonStrictMarking> getPossibleNextMarkings(NonStrictMarking& marking);
-	bool addToPW(NonStrictMarking& marking);
+	bool addToPW(NonStrictMarking* marking);
 	bool isKBound(NonStrictMarking& marking);
 	bool isDelayPossible(NonStrictMarking& marking);
-	NonStrictMarking cut(NonStrictMarking& marking);
+	NonStrictMarking* cut(NonStrictMarking& marking);
 private:
 	PWList pwList;
 	boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn;
