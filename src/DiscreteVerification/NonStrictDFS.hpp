@@ -21,6 +21,8 @@
 #include "../Core/TAPN/InhibitorArc.hpp"
 #include "../Core/TAPN/OutputArc.hpp"
 
+#include "SuccessorGenerator.hpp"
+
 #include "QueryVisitor.hpp"
 #include "boost/any.hpp"
 
@@ -46,6 +48,7 @@ private:
 	NonStrictMarking& initialMarking;
 	AST::Query* query;
 	VerificationOptions options;
+	SuccessorGenerator successorGenerator;
 };
 
 }

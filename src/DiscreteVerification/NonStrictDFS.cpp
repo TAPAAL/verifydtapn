@@ -11,7 +11,7 @@ namespace VerifyTAPN {
 namespace DiscreteVerification {
 
 NonStrictDFS::NonStrictDFS(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options)
-	: tapn(tapn), initialMarking(initialMarking), query(query), options(options){
+	: tapn(tapn), initialMarking(initialMarking), query(query), options(options), successorGenerator( *tapn.get() ){
 }
 
 bool NonStrictDFS::Verify(){
@@ -47,12 +47,7 @@ bool NonStrictDFS::Verify(){
 }
 
 vector<NonStrictMarking> NonStrictDFS::getPossibleNextMarkings(NonStrictMarking& marking){
-	vector<NonStrictMarking> out;
-	for(TAPN::TimedPlace::Vector::const_iterator place_iter = tapn->GetPlaces().begin(); place_iter != tapn->GetPlaces().end(); place_iter++){
-		//std::cout << place_iter->get()->GetIndex() << std::endl;
-		//Todo: Implement!
-	}
-	return out;
+	return successorGenerator.generateSuccessors(marking);
 }
 
 bool NonStrictDFS::addToPW(NonStrictMarking* marking){
