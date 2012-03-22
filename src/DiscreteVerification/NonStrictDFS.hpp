@@ -21,6 +21,9 @@
 #include "../Core/TAPN/InhibitorArc.hpp"
 #include "../Core/TAPN/OutputArc.hpp"
 
+#include "QueryVisitor.hpp"
+#include "boost/any.hpp"
+
 namespace VerifyTAPN {
 
 namespace DiscreteVerification {

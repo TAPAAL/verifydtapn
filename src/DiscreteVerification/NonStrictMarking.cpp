@@ -49,19 +49,24 @@ unsigned int NonStrictMarking::size(){
 	return count;
 }
 
-int NonStrictMarking::NumberOfTokensInPlace(const Place& place) const{
+//int NonStrictMarking::NumberOfTokensInPlace(const Place& place) const{
+//	int count = 0;
+//	for(TokenList::const_iterator it = place.tokens.begin(); it != place.tokens.end(); it++){
+//		count = count + it->getCount();
+//	}
+//	return count;
+//}
+
+int NonStrictMarking::NumberOfTokensInPlace(int placeId) const{
 	int count = 0;
-	for(TokenList::const_iterator it = place.tokens.begin(); it != place.tokens.end(); it++){
-		count = count + it->getCount();
+	for(PlaceList::const_iterator iter = places.begin(); iter != places.end(); iter++){
+		if(iter->id == placeId){
+			for(TokenList::const_iterator it = iter->tokens.begin(); it != iter->tokens.end(); it++){
+				count = count + it->getCount();
+			}
+		}
 	}
 	return count;
-}
-
-int NonStrictMarking::NumberOfTokensInPlace(int placeId){
-	for(PlaceList::iterator iter = places.begin(); iter != places.end(); iter++){
-		if(iter->id == placeId)	return NumberOfTokensInPlace(*iter);
-	}
-	return 0;
 }
 
 const TokenList& NonStrictMarking::GetTokenList(int placeId){

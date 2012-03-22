@@ -30,6 +30,7 @@ public:
 	void add(int num){ count = count + num; };
 	int getCount() const { return count; };
 	int getAge() const { return age; };
+	void setAge(int i) { age = i; };
 	void setCount(int i) { count = i; };
 	void remove(int num){ count = count - num; };
 
@@ -103,8 +104,8 @@ public:
 		};
 
 	public: // inspectors
-		int NumberOfTokensInPlace(const Place& palce) const;
-		int NumberOfTokensInPlace(int placeId);
+		//int NumberOfTokensInPlace(const Place& palce) const;
+		int NumberOfTokensInPlace(int placeId) const;
 		const TokenList& GetTokenList(int placeId);
 		const PlaceList& GetPlaceList() { return places; }
 		unsigned int size();

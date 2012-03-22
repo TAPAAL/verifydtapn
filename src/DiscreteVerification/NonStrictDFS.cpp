@@ -12,13 +12,15 @@ namespace DiscreteVerification {
 
 NonStrictDFS::NonStrictDFS(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options)
 	: tapn(tapn), initialMarking(initialMarking), query(query), options(options){
-
-	pwList.Add(&initialMarking);
-	std::cout << "PWList: " << pwList << std::endl;
 }
 
 bool NonStrictDFS::Verify(){
 	//TODO: Implement!
+	if(addToPW(&initialMarking)){
+		return true;
+	}
+	std::cout << "PWList: " << pwList << std::endl;
+	std::cout << "MC: " << tapn->MaxConstant() << std::endl;
 
 	//Main loop
 	while(pwList.HasWaitingStates()){
@@ -35,7 +37,9 @@ bool NonStrictDFS::Verify(){
 
 		if(isDelayPossible(marking)){
 			marking.incrementAge();
-			addToPW(&marking);
+			if(addToPW(&marking)){
+				return true;
+			}
 		}
 	}
 
@@ -57,7 +61,10 @@ bool NonStrictDFS::addToPW(NonStrictMarking* marking){
 	if(!isKBound(*m)) return false;
 
 	if(pwList.Add(m)){
-		// TODO: Test if query is fulfilled
+		QueryVisitor checker(*m);
+		boost::any context;
+		query->Accept(checker, context);
+		return boost::any_cast<bool>(context);
 	}
 
 	return false;
@@ -68,7 +75,7 @@ NonStrictMarking* NonStrictDFS::cut(NonStrictMarking& marking){
 	for(PlaceList::iterator place_iter = m->places.begin(); place_iter != m->places.end(); place_iter++){
 		for(TokenList::iterator token_iter = place_iter->tokens.begin(); token_iter != place_iter->tokens.end(); token_iter++){
 			if(token_iter->getAge() > tapn->MaxConstant()+1){
-				token_iter->setCount(tapn->MaxConstant()+1);
+				token_iter->setAge(tapn->MaxConstant()+1);
 			}
 		}
 	}
