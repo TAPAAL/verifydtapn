@@ -80,6 +80,14 @@ class Place {
 		return count;
 	}
 
+	int MaxTokenAge() const{
+		int max = -1;
+		for(TokenList::const_iterator iter = tokens.begin(); iter != tokens.end(); iter++){
+			if(iter->getAge() > max) max = iter->getAge();
+		}
+		return max;
+	}
+
 	// Ages all tokens by 1
 	void incrementAge(){
 		for(TokenList::iterator iter = tokens.begin(); iter != tokens.end(); iter++){
