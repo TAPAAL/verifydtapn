@@ -17,6 +17,24 @@ namespace DiscreteVerification {
 using namespace std;
 using namespace TAPN;
 
+struct InputArcRef{
+	InputArcRef(TimedInputArc* arc) : arc(arc) {}
+	TimedInputArc* arc;
+	vector<Token> enabledBy;
+};
+
+struct InhibitorArcRef{
+	InhibitorArcRef(InhibitorArc* arc) : arc(arc) {}
+	InhibitorArc* arc;
+	vector<Token> enabledBy;
+};
+
+struct TransportArcRef{
+	TransportArcRef(TransportArc* arc) : arc(arc) {}
+	TransportArc* arc;
+	vector<Token> enabledBy;
+};
+
 class SuccessorGenerator {
 public:
 	SuccessorGenerator(TAPN::TimedArcPetriNet& tapn) : tapn(tapn) {};
