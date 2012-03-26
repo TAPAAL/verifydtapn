@@ -111,8 +111,10 @@ void SuccessorGenerator::recursiveGenerateMarking(vector<NonStrictMarking>& resu
 				recursiveGenerateMarking(result, marking, transition, inputArcs, transportArcs, index+1);
 			}
 		}
-		if(index >= inputArcs.size()){
-			for(TokenList::iterator it = transportArcs.at(index-inputArcs.size()).enabledBy.begin(); it != inputArcs.at(index-inputArcs.size()).enabledBy.end(); it++){
+		if(index >= inputArcs.size() && index < inputArcs.size() + transportArcs.size()){
+			for(TokenList::iterator it = transportArcs.at(index-inputArcs.size()).enabledBy.begin();
+					it != transportArcs.at(index-inputArcs.size()).enabledBy.end();
+					it++){
 				NonStrictMarking marking(init_marking);
 
 				marking.RemoveToken(transportArcs.at(index-inputArcs.size()).arc.lock().get()->Source().GetIndex(), it->getAge());
