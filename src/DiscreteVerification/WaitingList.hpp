@@ -23,6 +23,7 @@ public:
 	virtual void Add(NonStrictMarking* marking) = 0;
 	virtual NonStrictMarking* Next() = 0;
 	virtual size_t Size() = 0;
+	friend std::ostream& operator<<(std::ostream& out, WaitingList& x);
 };
 
 class StackWaitingList : public WaitingList{

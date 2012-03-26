@@ -24,6 +24,7 @@ private:
 	int count;
 public:
 	Token(int age, int count) : age(age), count(count) {  };
+	Token(const Token& t) : age(t.age), count(t.count) {  };
 
 	bool equals(const Token &t){ return (this->age == t.age && this->count == t.count); };
 
@@ -56,6 +57,12 @@ class Place {
 		TokenList tokens;
 
 	Place(int id) : id(id){};
+	Place(const Place& p){
+		id = p.id;
+		for(TokenList::const_iterator it = p.tokens.begin(); it != p.tokens.end(); it++){
+			tokens.push_back(*it);
+		}
+	};
 
 	friend std::size_t hash_value(Place const& p)
 	{
@@ -87,7 +94,7 @@ class NonStrictMarking {
 public:
 	NonStrictMarking();
 	NonStrictMarking(const std::vector<int>& v);
-	NonStrictMarking(const NonStrictMarking& nsm) { places = nsm.places; };
+	NonStrictMarking(const NonStrictMarking& nsm);
 
 public:
 	friend std::ostream& operator<<(std::ostream& out, NonStrictMarking& x );

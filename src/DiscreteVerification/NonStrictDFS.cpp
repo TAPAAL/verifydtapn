@@ -15,7 +15,6 @@ NonStrictDFS::NonStrictDFS(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonS
 }
 
 bool NonStrictDFS::Verify(){
-	//TODO: Implement!
 	if(addToPW(&initialMarking)){
 		return true;
 	}
@@ -34,6 +33,8 @@ bool NonStrictDFS::Verify(){
 				return true;
 			}
 		}
+
+		std::cout << "After SG: " << pwList << std::endl;
 
 		if(isDelayPossible(marking)){
 			marking.incrementAge();

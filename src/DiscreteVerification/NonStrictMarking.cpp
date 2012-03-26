@@ -39,6 +39,12 @@ NonStrictMarking::NonStrictMarking(const std::vector<int>& v){
 	}
 }
 
+NonStrictMarking::NonStrictMarking(const NonStrictMarking& nsm) {
+	for(PlaceList::const_iterator it = nsm.places.begin(); it != nsm.places.end(); it++){
+		places.push_back(Place(*it));
+	}
+}
+
 unsigned int NonStrictMarking::size(){
 	int count = 0;
 	for(PlaceList::const_iterator iter = places.begin(); iter != places.end(); iter++){
@@ -97,6 +103,14 @@ bool NonStrictMarking::RemoveToken(Place& place, Token& token){
 		for(TokenList::iterator iter = place.tokens.begin(); iter != place.tokens.end(); iter++){
 			if(iter->getAge() == token.getAge()){
 				place.tokens.erase(iter);
+				if(place.tokens.size() == 0){
+					for(PlaceList::iterator it = places.begin(); it != places.end(); it++){
+						if(it->id == place.id){
+							places.erase(it);
+							return true;
+						}
+					}
+				}
 				return true;
 			}
 		}
@@ -120,7 +134,20 @@ void NonStrictMarking::AddTokenInPlace(int placeId, int age){
 	}
 	Token t(age,1);
 	Place p(placeId);
-	AddTokenInPlace(p, t);
+	AddTokenInPlace(p,t);
+
+	// Insert place
+	bool inserted = false;
+	for(PlaceList::iterator it = places.begin(); it != places.end(); it++){
+		if(it->id > placeId){
+			places.insert(it, p);
+			inserted = true;
+			break;
+		}
+	}
+	if(!inserted){
+		places.push_back(p);
+	}
 }
 
 void NonStrictMarking::AddTokenInPlace(Place& place, Token& token){

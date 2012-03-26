@@ -32,5 +32,11 @@ NonStrictMarking* StackWaitingList::Next()
 		stack.clear();
 	}
 
+	std::ostream& operator<<(std::ostream& out, WaitingList& x){
+		out << x.Size();
+		return out;
+	}
+
+
 } /* namespace DiscreteVerification */
 } /* namespace VerifyTAPN */

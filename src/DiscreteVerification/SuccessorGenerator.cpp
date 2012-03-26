@@ -79,6 +79,7 @@ vector< NonStrictMarking > SuccessorGenerator::generateSuccessors(const NonStric
 		generateMarkings(result, marking, *trans_iter->get(), inputArcs, transportArcs);
 	}
 
+	std::cout << "Size of result: " << result.size() << std::endl;
 
 	std::cout << "------------------------" << std::endl << std::endl;
 	return result;
@@ -104,18 +105,20 @@ void SuccessorGenerator::recursiveGenerateMarking(vector<NonStrictMarking>& resu
 		if(index < inputArcs.size()){
 			for(TokenList::iterator it = inputArcs.at(index).enabledBy.begin(); it != inputArcs.at(index).enabledBy.end(); it++){
 				NonStrictMarking marking(init_marking);
-
+				std::cout << "Before: " << marking << std::endl;
 				marking.RemoveToken(inputArcs.at(index).arc.lock().get()->InputPlace().GetIndex(), it->getAge());
-				recursiveGenerateMarking(result, marking, transition, inputArcs, transportArcs, index++);
+				std::cout << "After: " << marking << std::endl;
+				recursiveGenerateMarking(result, marking, transition, inputArcs, transportArcs, index+1);
 			}
 		}
+		if(index >= inputArcs.size()){
+			for(TokenList::iterator it = transportArcs.at(index-inputArcs.size()).enabledBy.begin(); it != inputArcs.at(index-inputArcs.size()).enabledBy.end(); it++){
+				NonStrictMarking marking(init_marking);
 
-		for(TokenList::iterator it = transportArcs.at(index-inputArcs.size()).enabledBy.begin(); it != inputArcs.at(index-inputArcs.size()).enabledBy.end(); it++){
-			NonStrictMarking marking(init_marking);
-
-			marking.RemoveToken(transportArcs.at(index-inputArcs.size()).arc.lock().get()->Source().GetIndex(), it->getAge());
-			marking.AddTokenInPlace(transportArcs.at(index-inputArcs.size()).arc.lock().get()->Destination().GetIndex(), it->getAge());
-			recursiveGenerateMarking(result, marking, transition, inputArcs, transportArcs, index++);
+				marking.RemoveToken(transportArcs.at(index-inputArcs.size()).arc.lock().get()->Source().GetIndex(), it->getAge());
+				marking.AddTokenInPlace(transportArcs.at(index-inputArcs.size()).arc.lock().get()->Destination().GetIndex(), it->getAge());
+				recursiveGenerateMarking(result, marking, transition, inputArcs, transportArcs, index+1);
+			}
 		}
 	}else{
 		//Beyond last index
