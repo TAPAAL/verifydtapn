@@ -18,93 +18,114 @@ vector< NonStrictMarking > SuccessorGenerator::generateSuccessors(const NonStric
 	std::cout << std::endl << "Successor generator:" << std::endl << "------------------------" << std::endl;
 	vector< NonStrictMarking > result;
 
-	for(PlaceList::const_iterator place_iter = marking.places.begin(); place_iter != marking.places.end(); place_iter++){
-
-		/* Generate vectors with local transitions */
-		vector< InputArcRef > inputArcs;
-		vector< TransportArcRef > transportArcs;
-		vector< InhibitorArcRef > inhibitorArcs;
-
-		// Input arcs
-		std::cout << "Place " << place_iter->id << std::endl << " inputArcs: " << std::endl;
-		for(TimedInputArc::Vector::const_iterator it = tapn.GetInputArcs().begin(); it != tapn.GetInputArcs().end(); it++){
-			if(it->get()->InputPlace().GetIndex() == place_iter->id){
-				inputArcs.push_back( InputArcRef(it->get()) );
-				it->get()->Print(std::cout);
-				std::cout << std::endl;
-			}
-		}
-		std::cout << "EO inputArcs - size: " << inputArcs.size() << std::endl;
-
-		// Transport arcs
-		std::cout << " transport arcs: " << std::endl;
-		for(TransportArc::Vector::const_iterator it = tapn.GetTransportArcs().begin(); it != tapn.GetTransportArcs().end(); it++){
-			if(it->get()->Source().GetIndex() == place_iter->id){
-				transportArcs.push_back( TransportArcRef(it->get()) );
-				it->get()->Print(std::cout);
-				std::cout << std::endl;
-			}
-		}
-		std::cout << "EO transport arcs - size: " << transportArcs.size() << std::endl;
-
-		// Transport arcs
-		std::cout << " inhibitor arcs: " << std::endl;
-		for(InhibitorArc::Vector::const_iterator it = tapn.GetInhibitorArcs().begin(); it != tapn.GetInhibitorArcs().end(); it++){
-			if(it->get()->InputPlace().GetIndex() == place_iter->id){
-				inhibitorArcs.push_back( InhibitorArcRef(it->get()) );
-				it->get()->Print(std::cout);
-				std::cout << std::endl;
-			}
-		}
-		std::cout << "EO inhibitor arcs - size: " << inhibitorArcs.size() << std::endl;
-
-		/* EO Generate vectors with local transitions */
-		for(TokenList::const_iterator iter = place_iter->tokens.begin(); iter != place_iter->tokens.end(); iter++){
-			for(vector<InhibitorArcRef>::const_iterator it = inhibitorArcs.begin(); it != inhibitorArcs.end(); it++){
-				//it->get()->setEnabled(true);
-			}
-
-			//Normal
-			for(vector<InputArcRef>::const_iterator it = inputArcs.begin(); it != inputArcs.end(); it++){
-				if(iter->getAge() >= it->arc->Interval().GetLowerBound() && iter->getAge() <= it->arc->Interval().GetUpperBound()){
-					//it->get()->setEnabled(true);
-				}
-			}
-
-			//Transport
-			for(vector<TransportArcRef>::const_iterator it = transportArcs.begin(); it != transportArcs.end(); it++){
-				if(iter->getAge() >= it->arc->Interval().GetLowerBound() && iter->getAge() <= it->arc->Interval().GetUpperBound() &&
-						iter->getAge() <= it->arc->Destination().GetInvariant().GetBound()){
-					//it->get()->setEnabled(true);
-				}
-			}
-		}
-
-		/* EO Check enabled transitions */
-	}
-
 	/* Check enabled transitions*/
 	for(TimedTransition::Vector::const_iterator trans_iter = tapn.GetTransitions().begin(); trans_iter != tapn.GetTransitions().end(); trans_iter++){
-		//Inhib
-		for(InhibitorArc::Vector::const_iterator it = trans_iter->get()->GetInhibitorArcs().begin(); it != trans_iter->get()->GetInhibitorArcs().end(); it++){
+		vector< InputArcRef > inputArcs;
+		vector< TransportArcRef > transportArcs;
+		bool continue_outer = false;
 
+		//Inhib
+		for(InhibitorArc::WeakPtrVector::const_iterator it = trans_iter->get()->GetInhibitorArcs().begin();
+				it != trans_iter->get()->GetInhibitorArcs().end();
+				it++){
+			TokenList tokens = getPlaceFromMarking(marking, it->lock()->InputPlace().GetIndex());
+
+			if(tokens.size() > 0){
+				continue_outer = true;
+				break;
+			}
 		}
+		if(continue_outer) continue;
 
 		//Normal
-		for(TimedInputArc::Vector::const_iterator it = trans_iter->get()->GetPreset().begin(); it != trans_iter->get()->GetPreset().end(); it++){
+		for(TimedInputArc::WeakPtrVector::const_iterator it = trans_iter->get()->GetPreset().begin();
+				it != trans_iter->get()->GetPreset().end();
+				it++){
 
+			TokenList tokens = getPlaceFromMarking(marking, it->lock()->InputPlace().GetIndex());
+
+			InputArcRef arcref(it->lock());
+			for(TokenList::const_iterator t_it = tokens.begin(); t_it != tokens.end(); t_it++){
+				if(t_it->getAge() >= it->lock()->Interval().GetLowerBound() && t_it->getAge() <= it->lock()->Interval().GetUpperBound()){
+					arcref.enabledBy.push_back(*t_it);
+				}
+			}
+
+			if(arcref.enabledBy.size() > 0) inputArcs.push_back(arcref);
+			else	continue_outer = true;
 		}
+		if(continue_outer) continue;
 
 		//Transport
-		for(TransportArc::Vector::const_iterator it = trans_iter->get()->GetTransportArcs().begin(); it != trans_iter->get()->GetTransportArcs().end(); it++){
+		for(TransportArc::WeakPtrVector::const_iterator it = trans_iter->get()->GetTransportArcs().begin();
+				it != trans_iter->get()->GetTransportArcs().end();
+				it++){
+			TokenList tokens = getPlaceFromMarking(marking, it->lock()->Source().GetIndex());
 
+			TransportArcRef arcref(it->lock());
+			for(TokenList::const_iterator t_it = tokens.begin(); t_it != tokens.end(); t_it++){
+				if(t_it->getAge() >= it->lock()->Interval().GetLowerBound() &&
+						t_it->getAge() <= it->lock()->Interval().GetUpperBound() &&
+						t_it->getAge() <= it->lock()->Destination().GetInvariant().GetBound()){
+					arcref.enabledBy.push_back(*t_it);
+				}
+			}
+
+			if(arcref.enabledBy.size() > 0) transportArcs.push_back(arcref);
+			else	continue_outer = true;
 		}
+		if(continue_outer) continue;
+
+		generateMarkings(result, marking, *trans_iter->get(), inputArcs, transportArcs);
 	}
 
 
 	std::cout << "------------------------" << std::endl << std::endl;
 	return result;
 }
+
+TokenList SuccessorGenerator::getPlaceFromMarking(const NonStrictMarking& marking, int placeID) const{
+	for(PlaceList::const_iterator iter = marking.GetPlaceList().begin();
+			iter != marking.GetPlaceList().end();
+			iter++){
+		if(iter->id == placeID) return iter->tokens;
+	}
+	return TokenList();
+}
+
+void SuccessorGenerator::generateMarkings(vector<NonStrictMarking>& result, const NonStrictMarking& init_marking, const TimedTransition& transition, vector<InputArcRef> inputArcs, vector<TransportArcRef> transportArcs) const{
+	NonStrictMarking marking(init_marking);
+	recursiveGenerateMarking(result, marking, transition, inputArcs, transportArcs, 0);
+}
+
+void SuccessorGenerator::recursiveGenerateMarking(vector<NonStrictMarking>& result, NonStrictMarking& init_marking, const TimedTransition& transition, vector<InputArcRef> inputArcs, vector<TransportArcRef> transportArcs, int index) const{
+	if(index != inputArcs.size()+transportArcs.size()){
+		//Not the last index
+		if(index < inputArcs.size()){
+			for(TokenList::iterator it = inputArcs.at(index).enabledBy.begin(); it != inputArcs.at(index).enabledBy.end(); it++){
+				NonStrictMarking marking(init_marking);
+
+				marking.RemoveToken(inputArcs.at(index).arc.lock().get()->InputPlace().GetIndex(), it->getAge());
+				recursiveGenerateMarking(result, marking, transition, inputArcs, transportArcs, index++);
+			}
+		}
+
+		for(TokenList::iterator it = transportArcs.at(index-inputArcs.size()).enabledBy.begin(); it != inputArcs.at(index-inputArcs.size()).enabledBy.end(); it++){
+			NonStrictMarking marking(init_marking);
+
+			marking.RemoveToken(transportArcs.at(index-inputArcs.size()).arc.lock().get()->Source().GetIndex(), it->getAge());
+			marking.AddTokenInPlace(transportArcs.at(index-inputArcs.size()).arc.lock().get()->Destination().GetIndex(), it->getAge());
+			recursiveGenerateMarking(result, marking, transition, inputArcs, transportArcs, index++);
+		}
+	}else{
+		//Beyond last index
+		for(OutputArc::WeakPtrVector::const_iterator it = transition.GetPostset().begin(); it != transition.GetPostset().end(); it++){
+			init_marking.AddTokenInPlace(it->lock().get()->OutputPlace().GetIndex(), 0);
+		}
+		result.push_back(init_marking);
+	}
+}
+
 
 } /* namespace DiscreteVerification */
 } /* namespace VerifyTAPN */

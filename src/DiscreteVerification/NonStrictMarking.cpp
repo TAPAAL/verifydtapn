@@ -76,6 +76,19 @@ const TokenList& NonStrictMarking::GetTokenList(int placeId){
 	return emptyTokenList;
 }
 
+bool NonStrictMarking::RemoveToken(int placeId, int age){
+	for(PlaceList::iterator pit = places.begin(); pit != places.end(); pit++){
+		if(pit->id == placeId){
+			for(TokenList::iterator tit = pit->tokens.begin(); tit != pit->tokens.end(); tit++){
+				if(tit->getAge() == age){
+					return RemoveToken(*pit, *tit);
+				}
+			}
+		}
+	}
+	return false;
+}
+
 bool NonStrictMarking::RemoveToken(Place& place, Token& token){
 	if(token.getCount() > 1){
 		token.remove(1);
@@ -89,6 +102,25 @@ bool NonStrictMarking::RemoveToken(Place& place, Token& token){
 		}
 	}
 	return false;
+}
+
+void NonStrictMarking::AddTokenInPlace(int placeId, int age){
+	for(PlaceList::iterator pit = places.begin(); pit != places.end(); pit++){
+		if(pit->id == placeId){
+			for(TokenList::iterator tit = pit->tokens.begin(); tit != pit->tokens.end(); tit++){
+				if(tit->getAge() == age){
+					AddTokenInPlace(*pit, *tit);
+					return;
+				}
+			}
+			Token t(age,1);
+			AddTokenInPlace(*pit, t);
+			return;
+		}
+	}
+	Token t(age,1);
+	Place p(placeId);
+	AddTokenInPlace(p, t);
 }
 
 void NonStrictMarking::AddTokenInPlace(Place& place, Token& token){

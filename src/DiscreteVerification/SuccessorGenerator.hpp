@@ -17,22 +17,23 @@ namespace DiscreteVerification {
 using namespace std;
 using namespace TAPN;
 
-struct InputArcRef{
-	InputArcRef(TimedInputArc* arc) : arc(arc) {}
-	TimedInputArc* arc;
-	vector<Token> enabledBy;
+struct ArcRef{
+	TokenList enabledBy;
 };
 
-struct InhibitorArcRef{
-	InhibitorArcRef(InhibitorArc* arc) : arc(arc) {}
-	InhibitorArc* arc;
-	vector<Token> enabledBy;
+struct InputArcRef : ArcRef{
+	InputArcRef(boost::weak_ptr<TimedInputArc> arc) : arc(arc) {}
+	boost::weak_ptr<TimedInputArc> arc;
 };
 
-struct TransportArcRef{
-	TransportArcRef(TransportArc* arc) : arc(arc) {}
-	TransportArc* arc;
-	vector<Token> enabledBy;
+struct InhibitorArcRef : ArcRef{
+	InhibitorArcRef(boost::weak_ptr<InhibitorArc> arc) : arc(arc) {}
+	boost::weak_ptr<InhibitorArc> arc;
+};
+
+struct TransportArcRef : ArcRef{
+	TransportArcRef(boost::weak_ptr<TransportArc> arc) : arc(arc) {}
+	boost::weak_ptr<TransportArc> arc;
 };
 
 class SuccessorGenerator {
@@ -41,6 +42,9 @@ public:
 	~SuccessorGenerator();
 	vector< NonStrictMarking > generateSuccessors(const NonStrictMarking& marking) const;
 private:
+	TokenList getPlaceFromMarking(const NonStrictMarking& marking, int placeID) const;
+	void generateMarkings(vector<NonStrictMarking>& result, const NonStrictMarking& init_marking, const TimedTransition& transition, vector<InputArcRef> inputArcs, vector<TransportArcRef> transportArcs) const;
+	void recursiveGenerateMarking(vector<NonStrictMarking>& result, NonStrictMarking& init_marking, const TimedTransition& transition, vector<InputArcRef> inputArcs, vector<TransportArcRef> transportArcs, int index) const;
 	const TAPN::TimedArcPetriNet& tapn;
 };
 

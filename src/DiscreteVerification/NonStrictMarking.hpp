@@ -107,12 +107,14 @@ public:
 		//int NumberOfTokensInPlace(const Place& palce) const;
 		int NumberOfTokensInPlace(int placeId) const;
 		const TokenList& GetTokenList(int placeId);
-		const PlaceList& GetPlaceList() { return places; }
+		const PlaceList& GetPlaceList() const{ return places; }
 		unsigned int size();
 
 
 	public: // modifiers
+		bool RemoveToken(int placeId, int age);
 		bool RemoveToken(Place& place, Token& token);
+		void AddTokenInPlace(int placeId, int age);
 		void AddTokenInPlace(Place& place, Token& token);
 		void incrementAge();	// increment
 
