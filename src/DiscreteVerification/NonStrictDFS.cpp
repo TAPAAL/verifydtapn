@@ -24,7 +24,7 @@ bool NonStrictDFS::Verify(){
 	//Main loop
 	while(pwList.HasWaitingStates()){
 		NonStrictMarking& marking = *pwList.GetNextUnexplored();
-		std::cout << "Algo: " << marking << std::endl;
+		//std::cout << "Algo: " << marking << std::endl;
 
 		// Do the forall
 		vector<NonStrictMarking> next = getPossibleNextMarkings(marking);
@@ -34,7 +34,7 @@ bool NonStrictDFS::Verify(){
 			}
 		}
 
-		std::cout << "After SG: " << pwList << std::endl;
+		//std::cout << "After SG: " << pwList << std::endl;
 
 		if(isDelayPossible(marking)){
 			marking.incrementAge();

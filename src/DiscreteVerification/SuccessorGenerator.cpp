@@ -15,7 +15,7 @@ SuccessorGenerator::~SuccessorGenerator(){
 }
 
 vector< NonStrictMarking > SuccessorGenerator::generateSuccessors(const NonStrictMarking& marking) const{
-	std::cout << std::endl << "Successor generator:" << std::endl << "------------------------" << std::endl;
+	//std::cout << std::endl << "Successor generator:" << std::endl << "------------------------" << std::endl;
 	vector< NonStrictMarking > result;
 
 	/* Check enabled transitions*/
@@ -79,9 +79,9 @@ vector< NonStrictMarking > SuccessorGenerator::generateSuccessors(const NonStric
 		generateMarkings(result, marking, *trans_iter->get(), inputArcs, transportArcs);
 	}
 
-	std::cout << "Size of result: " << result.size() << std::endl;
+	//std::cout << "Size of result: " << result.size() << std::endl;
 
-	std::cout << "------------------------" << std::endl << std::endl;
+	//std::cout << "------------------------" << std::endl << std::endl;
 	return result;
 }
 
@@ -105,9 +105,9 @@ void SuccessorGenerator::recursiveGenerateMarking(vector<NonStrictMarking>& resu
 		if(index < inputArcs.size()){
 			for(TokenList::iterator it = inputArcs.at(index).enabledBy.begin(); it != inputArcs.at(index).enabledBy.end(); it++){
 				NonStrictMarking marking(init_marking);
-				std::cout << "Before: " << marking << std::endl;
+				//std::cout << "Before: " << marking << std::endl;
 				marking.RemoveToken(inputArcs.at(index).arc.lock().get()->InputPlace().GetIndex(), it->getAge());
-				std::cout << "After: " << marking << std::endl;
+				//std::cout << "After: " << marking << std::endl;
 				recursiveGenerateMarking(result, marking, transition, inputArcs, transportArcs, index+1);
 			}
 		}
