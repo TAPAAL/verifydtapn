@@ -11,12 +11,17 @@
 #include <assert.h>
 #include <vector>
 #include "boost/functional/hash.hpp"
+#include "NonStrictMarking.hpp"
 #include <iostream>
 
 using namespace std;
 
 namespace VerifyTAPN {
 namespace DiscreteVerification {
+
+class Place;
+class Token;
+typedef vector<Token> TokenList;
 
 class Token {
 private:
@@ -48,8 +53,6 @@ public:
 			return seed;
 		}
 };
-
-typedef vector<Token> TokenList;
 
 class Place {
 	public:
@@ -132,6 +135,7 @@ public:
 		void AddTokenInPlace(int placeId, int age);
 		void AddTokenInPlace(Place& place, Token& token);
 		void incrementAge();	// increment
+		void RemoveRangeOfTokens(Place& place, TokenList::iterator begin, TokenList::iterator end);
 
 	public:
 		bool equals(const NonStrictMarking &m1);

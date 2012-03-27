@@ -22,8 +22,8 @@ void StackWaitingList::Add(NonStrictMarking* marking)
 NonStrictMarking* StackWaitingList::Next()
 	{
 		assert(Size() > 0);
-		NonStrictMarking* marking = stack.front();
-		stack.pop_front();
+		NonStrictMarking* marking = stack.back();
+		stack.pop_back();
 		return marking;
 	}
 

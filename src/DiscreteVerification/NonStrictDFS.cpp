@@ -18,23 +18,31 @@ bool NonStrictDFS::Verify(){
 	if(addToPW(&initialMarking)){
 		return true;
 	}
+#if DEBUG
 	std::cout << "PWList: " << pwList << std::endl;
 	std::cout << "MC: " << tapn->MaxConstant() << std::endl;
+#endif
 
 	//Main loop
 	while(pwList.HasWaitingStates()){
 		NonStrictMarking& marking = *pwList.GetNextUnexplored();
-		//std::cout << "Algo: " << marking << std::endl;
+#if DEBUG
+		std::cout << "Algo: " << marking << std::endl;
+#endif
+
+		//"place 0 has tokens (age, count): (0, 2) (1, 6) place 1 has tokens (age, count): (1, 1)"
 
 		// Do the forall
 		vector<NonStrictMarking> next = getPossibleNextMarkings(marking);
 		for(vector<NonStrictMarking>::iterator it = next.begin(); it != next.end(); it++){
+
 			if(addToPW(&(*it))){
 				return true;
 			}
 		}
-
-		//std::cout << "After SG: " << pwList << std::endl;
+#if DEBUG
+		std::cout << "After SG: " << pwList << std::endl << std::endl;
+#endif
 
 		if(isDelayPossible(marking)){
 			marking.incrementAge();
@@ -54,13 +62,18 @@ vector<NonStrictMarking> NonStrictDFS::getPossibleNextMarkings(NonStrictMarking&
 bool NonStrictDFS::addToPW(NonStrictMarking* marking){
 	NonStrictMarking* m = cut(*marking);
 
-	if(!isKBound(*m)) return false;
+	if(!isKBound(*m)) {
+		delete m;
+		return false;
+	}
 
 	if(pwList.Add(m)){
 		QueryVisitor checker(*m);
 		boost::any context;
 		query->Accept(checker, context);
 		return boost::any_cast<bool>(context);
+	} else {
+		delete m;
 	}
 
 	return false;
@@ -69,11 +82,25 @@ bool NonStrictDFS::addToPW(NonStrictMarking* marking){
 NonStrictMarking* NonStrictDFS::cut(NonStrictMarking& marking){
 	NonStrictMarking* m = new NonStrictMarking(marking);
 	for(PlaceList::iterator place_iter = m->places.begin(); place_iter != m->places.end(); place_iter++){
+		int count = 0;
+#if DEBUG
+		std::cout << "Cut before: " << *m << std::endl;
+#endif
 		for(TokenList::iterator token_iter = place_iter->tokens.begin(); token_iter != place_iter->tokens.end(); token_iter++){
-			if(token_iter->getAge() > tapn->MaxConstant()+1){
-				token_iter->setAge(tapn->MaxConstant()+1);
+			if(token_iter->getAge() > tapn->MaxConstant()){
+				TokenList::iterator beginDelete = token_iter;
+				for(; token_iter != place_iter->tokens.end(); token_iter++){
+					count += token_iter->getCount();
+				}
+				m->RemoveRangeOfTokens(*place_iter, beginDelete, place_iter->tokens.end());
+				break;
 			}
 		}
+		Token t(tapn->MaxConstant()+1, count);
+		m->AddTokenInPlace(*place_iter, t);
+#if DEBUG
+		std::cout << "Cut after: " << *m << std::endl;
+#endif
 	}
 	return m;
 }

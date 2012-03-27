@@ -33,9 +33,9 @@ PWList::~PWList() {
 std::ostream& operator<<(std::ostream& out, PWList& x){
 	out << "Passed and waiting:" << std::endl;
 	for(PWList::HashMap::iterator iter = x.markings_storage.begin(); iter != x.markings_storage.end(); iter++){
-		out << iter->second << " ";
+		out << "- "<< iter->second << std::endl;
 	}
-	out << std::endl << "Waiting:" << std::endl << x.waiting_list;
+	out << "Waiting:" << std::endl << x.waiting_list;
 	return out;
 }
 

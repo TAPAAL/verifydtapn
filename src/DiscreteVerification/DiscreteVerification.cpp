@@ -29,8 +29,12 @@ DiscreteVerification::~DiscreteVerification() {
 
 int DiscreteVerification::run(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, std::vector<int> initialPlacement, AST::Query* query, VerificationOptions options){
 	if(!(*tapn).IsNonStrict()){
-		std::cout << "The supplied network is contains strict intervals." << std::endl;
-		return 1;
+		std::cout << "The supplied network contains strict intervals." << std::endl;
+		return -1;
+	}
+	if((*query).GetQuantifier() == AG){
+		std::cout << "The supplied query is AG." << std::endl;
+		return -1;
 	}
 
 	NonStrictMarking* initialMarking = new NonStrictMarking(initialPlacement);
