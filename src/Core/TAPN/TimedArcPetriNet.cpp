@@ -107,32 +107,64 @@ namespace VerifyTAPN {
 		{
 			for(TimedPlace::Vector::const_iterator iter = places.begin(); iter != places.end(); ++iter)
 			{
-				int maxConstant = 0;
+				int maxConstant = -1;
 				if((*iter)->GetInvariant() != TimeInvariant::LS_INF){
 					maxConstant = (*iter)->GetInvariant().GetBound();
+					(*iter)->SetMaxConstant(maxConstant);
+					(*iter)->SetType(Inv);
 				}
-				for(TimedInputArc::Vector::const_iterator arcIter = inputArcs.begin(); arcIter != inputArcs.end(); ++arcIter)
-				{
-					if((*arcIter)->InputPlace() == **iter)
+				else {
+					(*iter)->SetType(Dead);
+					for(TimedInputArc::Vector::const_iterator arcIter = inputArcs.begin(); arcIter != inputArcs.end(); ++arcIter)
 					{
-						boost::shared_ptr<TimedInputArc> ia = *arcIter;
-						const TAPN::TimeInterval& interval = ia->Interval();
+						if((*arcIter)->InputPlace() == **iter)
+						{
+							boost::shared_ptr<TimedInputArc> ia = *arcIter;
+							const TAPN::TimeInterval& interval = ia->Interval();
 
-						const int lowerBound = interval.GetLowerBound();
-						const int upperBound = interval.GetUpperBound();
+							const int lowerBound = interval.GetLowerBound();
+							const int upperBound = interval.GetUpperBound();
 
-						if(upperBound == std::numeric_limits<int>().max())
-							maxConstant = (maxConstant < lowerBound ? lowerBound : maxConstant);
-						else
-							maxConstant = (maxConstant < upperBound ? upperBound : maxConstant);
+							if(upperBound == std::numeric_limits<int>().max()){
+								maxConstant = (maxConstant < lowerBound ? lowerBound : maxConstant);
+								(*iter)->SetType(Std);
+							} else {
+								maxConstant = (maxConstant < upperBound ? upperBound : maxConstant);
+							}
+						}
 					}
+					for(TransportArc::Vector::const_iterator transport_iter = transportArcs.begin(); transport_iter != transportArcs.end(); transport_iter++)
+					{
+						if((*transport_iter)->Source() == **iter)
+						{
+							int maxArc = -1;
+							boost::shared_ptr<TransportArc> ta = *transport_iter;
+							const TAPN::TimeInterval& interval = ta->Interval();
+							const int lowerBound = interval.GetLowerBound();
+							const int upperBound = interval.GetUpperBound();
+
+							if(upperBound == std::numeric_limits<int>().max()){
+								maxArc = lowerBound;
+								(*iter)->SetType(Std);
+							} else {
+								maxArc = upperBound;
+							}
+							int destinationInvariant = ta->Destination().GetInvariant().GetBound();
+							if(destinationInvariant != std::numeric_limits<int>().max()){
+								maxArc = maxArc < destinationInvariant ? maxArc : destinationInvariant;
+							}
+							maxConstant = maxConstant < maxArc ? maxArc : maxConstant;
+						}
+					}
+					//Remember check inhibitors and query
+					(*iter)->SetMaxConstant(maxConstant);
+
 				}
-				(*iter)->SetMaxConstant(maxConstant);
 			}
 
-			for(TransportArc::Vector::const_iterator iter = transportArcs.begin(); iter != transportArcs.end(); iter++)
+			for(TimedPlace::Vector::const_iterator iter = places.begin(); iter != places.end(); ++iter)
 			{
-				(*iter)->Source().SetMaxConstant(this->maxConstant);
+				//std::vector< boost::weak_ptr< TimedPlace > > causalitySet = (*iter)->calculateCausality(this);
 			}
 		}
 
