@@ -27,7 +27,8 @@ bool NonStrictDFS::Verify(){
 	while(pwList.HasWaitingStates()){
 		NonStrictMarking& marking = *pwList.GetNextUnexplored();
 #if DEBUG
-		std::cout << "Algo: " << marking << std::endl;
+		std::cout << "PWList size " << pwList.Size() << std::endl;
+		std::cout << "Current marking: " << marking << std::endl;
 #endif
 
 		//"place 0 has tokens (age, count): (0, 2) (1, 6) place 1 has tokens (age, count): (1, 1)"
@@ -41,6 +42,7 @@ bool NonStrictDFS::Verify(){
 			}
 		}
 #if DEBUG
+		std::cout << "PWList size " << pwList.Size() << std::endl;
 		std::cout << "After SG: " << pwList << std::endl << std::endl;
 #endif
 
@@ -87,7 +89,7 @@ NonStrictMarking* NonStrictDFS::cut(NonStrictMarking& marking){
 		std::cout << "Cut before: " << *m << std::endl;
 #endif
 		for(TokenList::iterator token_iter = place_iter->tokens.begin(); token_iter != place_iter->tokens.end(); token_iter++){
-			if(token_iter->getAge() > tapn->MaxConstant()){
+			if(token_iter->getAge() > (tapn->MaxConstant()==0? -1:tapn->MaxConstant())){
 				TokenList::iterator beginDelete = token_iter;
 				for(; token_iter != place_iter->tokens.end(); token_iter++){
 					count += token_iter->getCount();

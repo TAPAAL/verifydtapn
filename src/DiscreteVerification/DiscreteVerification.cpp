@@ -39,6 +39,7 @@ int DiscreteVerification::run(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, s
 
 	NonStrictMarking* initialMarking = new NonStrictMarking(initialPlacement);
 
+	std::cout << "MC: " << tapn->MaxConstant() << std::endl;
 	std::cout << "initialMarking: " << *initialMarking << std::endl;
 	std::cout << "size: " << initialMarking->size() << std::endl;
 	std::cout << "hash: " << boost::hash_value(initialMarking) << std::endl;
