@@ -16,6 +16,7 @@ NonStrictDFS::NonStrictDFS(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonS
 
 bool NonStrictDFS::Verify(){
 	if(addToPW(&initialMarking)){
+		std::cout << "Markings explored: " << pwList.Size() << std::endl;
 		return true;
 	}
 #if DEBUG
@@ -38,6 +39,7 @@ bool NonStrictDFS::Verify(){
 		for(vector<NonStrictMarking>::iterator it = next.begin(); it != next.end(); it++){
 
 			if(addToPW(&(*it))){
+				std::cout << "Markings explored: " << pwList.Size() << std::endl;
 				return true;
 			}
 		}
@@ -49,11 +51,14 @@ bool NonStrictDFS::Verify(){
 		if(isDelayPossible(marking)){
 			marking.incrementAge();
 			if(addToPW(&marking)){
+				std::cout << "Markings explored: " << pwList.Size() << std::endl;
 				return true;
 			}
 		}
 	}
 
+
+	std::cout << "Markings explored: " << pwList.Size() << std::endl;
 	return false;
 }
 
