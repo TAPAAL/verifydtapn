@@ -138,7 +138,7 @@ public:
 		void RemoveRangeOfTokens(Place& place, TokenList::iterator begin, TokenList::iterator end);
 
 	public:
-		bool equals(const NonStrictMarking &m1);
+		bool equals(const NonStrictMarking &m1) const;
 
 	public:
 		PlaceList places;

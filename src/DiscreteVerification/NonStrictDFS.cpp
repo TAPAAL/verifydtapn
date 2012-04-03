@@ -28,8 +28,10 @@ bool NonStrictDFS::Verify(){
 	while(pwList.HasWaitingStates()){
 		NonStrictMarking& marking = *pwList.GetNextUnexplored();
 #if DEBUG
+		std::cout << "-----------------------------------\n";
 		std::cout << "PWList size " << pwList.Size() << std::endl;
 		std::cout << "Current marking: " << marking << std::endl;
+		std::cout << "-----------------------------------\n";
 #endif
 
 		//"place 0 has tokens (age, count): (0, 2) (1, 6) place 1 has tokens (age, count): (1, 1)"
@@ -37,6 +39,11 @@ bool NonStrictDFS::Verify(){
 		// Do the forall
 		vector<NonStrictMarking> next = getPossibleNextMarkings(marking);
 		for(vector<NonStrictMarking>::iterator it = next.begin(); it != next.end(); it++){
+
+#if DEBUG
+			std:cout << *it << "\n";
+#endif
+
 
 			if(addToPW(&(*it))){
 				std::cout << "Markings explored: " << pwList.Size() << std::endl;
@@ -103,7 +110,7 @@ NonStrictMarking* NonStrictDFS::cut(NonStrictMarking& marking){
 				break;
 			}
 		}
-		Token t(tapn->MaxConstant()+1, count);
+		Token t(tapn->MaxConstant()==0? 0:tapn->MaxConstant()+1,count);
 		m->AddTokenInPlace(*place_iter, t);
 #if DEBUG
 		std::cout << "Cut after: " << *m << std::endl;

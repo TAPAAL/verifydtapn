@@ -13,12 +13,16 @@ namespace VerifyTAPN {
 namespace DiscreteVerification {
 
 bool PWList::Add(NonStrictMarking* marking){
-	if(!markings_storage[marking->HashKey()].equals(*marking)){
-		markings_storage[marking->HashKey()] = *marking;
-		waiting_list.Add(marking);
-		return true;
+	for(HashMap::const_iterator iter = markings_storage.equal_range(marking->HashKey()).first;
+			markings_storage.equal_range(marking->HashKey()).second != iter;
+			iter++){
+		if(iter->second.equals(*marking)){
+			return false;
+		}
 	}
-	return false;
+	markings_storage[marking->HashKey()] = *marking;
+	waiting_list.Add(marking);
+	return true;
 }
 
 NonStrictMarking* PWList::GetNextUnexplored(){
