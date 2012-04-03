@@ -13,8 +13,9 @@ namespace VerifyTAPN {
 namespace DiscreteVerification {
 
 bool PWList::Add(NonStrictMarking* marking){
-	for(HashMap::const_iterator iter = markings_storage.equal_range(marking->HashKey()).first;
-			markings_storage.equal_range(marking->HashKey()).second != iter;
+	google::pair<HashMap::const_iterator, HashMap::const_iterator> ret = markings_storage.equal_range(marking->HashKey());
+	for(HashMap::const_iterator iter = ret.first;
+			ret.second != iter;
 			iter++){
 		if(iter->second.equals(*marking)){
 			return false;
