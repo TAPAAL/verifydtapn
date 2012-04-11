@@ -124,18 +124,18 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
+	tapn->updatePlaceTypes(query);
+
 	//test causality
 	if(true){
 		std::cout << "---------------------------------------" << std::endl;
-		std::cout << "Testing causalityCalc" << std::endl;
+		std::cout << "Testing LocalMC" << std::endl;
 
-		std::vector< TimedPlace* > result;
-		tapn->calculateCausality(*(tapn->GetPlaces()[0]), &result);
-		for(std::vector< TimedPlace* >::const_iterator iter = result.begin(); iter != result.end(); iter++){
+		for(TimedPlace::Vector::const_iterator iter = tapn->GetPlaces().begin(); iter != tapn->GetPlaces().end(); iter++){
 			std::cout << (**iter) << std::endl;
 		}
 
-		std::cout << std::endl << "Done testing causalityCalc" << std::endl;
+		std::cout << std::endl << "Done testing LocalMC" << std::endl;
 		std::cout << "---------------------------------------" << std::endl;
 		return 0;
 	}

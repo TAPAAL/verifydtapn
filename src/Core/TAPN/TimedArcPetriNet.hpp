@@ -12,6 +12,8 @@
 #include "google/sparse_hash_map"
 #include "boost/functional/hash.hpp"
 #include "Pairing.hpp"
+#include "../QueryParser/AST.hpp"
+#include "../../DiscreteVerification/PlaceVisitor.hpp"
 
 namespace VerifyTAPN {
 
@@ -50,6 +52,7 @@ namespace VerifyTAPN {
 			inline const bool IsPlaceUntimed(int index) const { return places[index]->IsUntimed(); }
 			bool IsNonStrict() const;
 			void calculateCausality(TimedPlace& p, std::vector< TimedPlace* >* result) const;
+			void updatePlaceTypes(const AST::Query* query);
 		public: // modifiers
 			void Initialize(bool useUntimedPlaces);
 

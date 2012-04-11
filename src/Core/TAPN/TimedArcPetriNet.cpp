@@ -132,6 +132,8 @@ namespace VerifyTAPN {
 								} else {
 									maxConstant = (maxConstant < upperBound ? upperBound : maxConstant);
 								}
+							} else {
+								(*iter)->SetType(Std);
 							}
 						}
 					}
@@ -152,6 +154,8 @@ namespace VerifyTAPN {
 								} else {
 									maxArc = upperBound;
 								}
+							} else {
+								(*iter)->SetType(Std);
 							}
 							int destinationInvariant = ta->Destination().GetInvariant().GetBound();
 							if(destinationInvariant != std::numeric_limits<int>().max()){
@@ -160,9 +164,13 @@ namespace VerifyTAPN {
 							maxConstant = maxConstant < maxArc ? maxArc : maxConstant;
 						}
 					}
-					//Remember check inhibitors and query
 					(*iter)->SetMaxConstant(maxConstant);
 
+					for(InhibitorArc::Vector::const_iterator inhib_iter = inhibitorArcs.begin(); inhib_iter != inhibitorArcs.end(); inhib_iter++){
+						if((*inhib_iter)->InputPlace().GetIndex() == (*iter)->GetIndex() && (*iter)->GetType() == Dead){
+							(*iter)->SetType(Std);
+						}
+					}
 				}
 			}
 
@@ -180,7 +188,6 @@ namespace VerifyTAPN {
 
 		void TimedArcPetriNet::calculateCausality(TimedPlace& p, std::vector< TimedPlace* >* result) const
 		{
-			//TODO: husk der må ikke være cyckler!!!!
 			for(std::vector< TimedPlace* >::const_iterator iter = result->begin(); iter != result->end(); iter++){
 				if(**iter == p) return;
 			}
@@ -189,6 +196,22 @@ namespace VerifyTAPN {
 				if((*iter)->Source() == p){
 					if((*iter)->Interval().GetUpperBound() == std::numeric_limits<int>().max()){
 						calculateCausality((*iter)->Destination(), result);
+					}
+				}
+			}
+		}
+
+		void TimedArcPetriNet::updatePlaceTypes(const AST::Query* query){
+			std::vector< int > placeNumbers;
+			boost::any context = placeNumbers;
+			DiscreteVerification::PlaceVisitor visitor;
+			query->Accept(visitor, context);
+			placeNumbers = boost::any_cast< std::vector< int > >(context);
+
+			for(TimedPlace::Vector::const_iterator iter = places.begin(); iter != places.end(); ++iter){
+				for(std::vector<int>::const_iterator id_iter = placeNumbers.begin(); id_iter != placeNumbers.end(); id_iter++){
+					if((*id_iter) == (*iter)->GetIndex() && (*iter)->GetType() == Dead){
+						(*iter)->SetType(Std);
 					}
 				}
 			}
