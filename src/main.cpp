@@ -8,6 +8,7 @@
 #include "Core/QueryParser/NormalizationVisitor.hpp"
 #include "Core/QueryParser/ToStringVisitor.hpp"
 #include "Core/QueryParser/BadPlaceVisitor.hpp"
+#include "Core/TAPN/TimedPlace.hpp"
 
 #include "ReachabilityChecker/Search/SearchStrategy.hpp"
 #include "ReachabilityChecker/Search/BFS.hpp"
@@ -110,8 +111,6 @@ int main(int argc, char* argv[])
 	}
 
 	tapn->Initialize(options.GetUntimedPlacesEnabled());
-
-
 
 	std::vector<int> initialPlacement(modelParser.ParseMarking(options.GetInputFile(), *tapn));
 

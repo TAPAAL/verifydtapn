@@ -187,16 +187,25 @@ NonStrictMarking::~NonStrictMarking() {
 	// TODO: Should we destruct something here? (places)
 }
 
-bool NonStrictMarking::equals(const NonStrictMarking &m1){
+bool NonStrictMarking::equals(const NonStrictMarking &m1) const{
 	if(m1.places.size() == 0) return false;
 	if(m1.places.size() != places.size())	return false;
 
-	// TODO: extensive equals - should we test more?
+	PlaceList::const_iterator p_iter = m1.places.begin();
+	for(PlaceList::const_iterator iter = places.begin(); iter != places.end(); iter++, p_iter++){
+		if(iter->id != p_iter->id)	return false;
+		if(iter->tokens.size() != p_iter->tokens.size())	return false;
+		TokenList::const_iterator pt_iter = p_iter->tokens.begin();
+		for(TokenList::const_iterator t_iter = iter->tokens.begin(); t_iter != iter->tokens.end(); t_iter++, pt_iter++){
+			if(!t_iter->equals(*pt_iter))	return false;
+		}
+	}
 
 	return true;
 }
 
 std::ostream& operator<<(std::ostream& out, NonStrictMarking& x ) {
+	out << "-";
 	for(PlaceList::iterator iter = x.places.begin(); iter != x.places.end(); iter++){
 		out << "place " << iter->id << " has tokens (age, count): ";
 		for(TokenList::iterator it = iter->tokens.begin(); it != iter->tokens.end(); it++){

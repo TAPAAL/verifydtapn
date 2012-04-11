@@ -16,6 +16,7 @@ NonStrictDFS::NonStrictDFS(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonS
 
 bool NonStrictDFS::Verify(){
 	if(addToPW(&initialMarking)){
+		std::cout << "Markings explored: " << pwList.Size() << std::endl;
 		return true;
 	}
 #if DEBUG
@@ -27,7 +28,10 @@ bool NonStrictDFS::Verify(){
 	while(pwList.HasWaitingStates()){
 		NonStrictMarking& marking = *pwList.GetNextUnexplored();
 #if DEBUG
-		std::cout << "Algo: " << marking << std::endl;
+		std::cout << "-----------------------------------\n";
+		std::cout << "PWList size " << pwList.Size() << std::endl;
+		std::cout << "Current marking: " << marking << std::endl;
+		std::cout << "-----------------------------------\n";
 #endif
 
 		//"place 0 has tokens (age, count): (0, 2) (1, 6) place 1 has tokens (age, count): (1, 1)"
@@ -36,22 +40,32 @@ bool NonStrictDFS::Verify(){
 		vector<NonStrictMarking> next = getPossibleNextMarkings(marking);
 		for(vector<NonStrictMarking>::iterator it = next.begin(); it != next.end(); it++){
 
+#if DEBUG
+			std:cout << *it << "\n";
+#endif
+
+
 			if(addToPW(&(*it))){
+				std::cout << "Markings explored: " << pwList.Size() << std::endl;
 				return true;
 			}
 		}
 #if DEBUG
+		std::cout << "PWList size " << pwList.Size() << std::endl;
 		std::cout << "After SG: " << pwList << std::endl << std::endl;
 #endif
 
 		if(isDelayPossible(marking)){
 			marking.incrementAge();
 			if(addToPW(&marking)){
+				std::cout << "Markings explored: " << pwList.Size() << std::endl;
 				return true;
 			}
 		}
 	}
 
+
+	std::cout << "Markings explored: " << pwList.Size() << std::endl;
 	return false;
 }
 
@@ -87,7 +101,7 @@ NonStrictMarking* NonStrictDFS::cut(NonStrictMarking& marking){
 		std::cout << "Cut before: " << *m << std::endl;
 #endif
 		for(TokenList::iterator token_iter = place_iter->tokens.begin(); token_iter != place_iter->tokens.end(); token_iter++){
-			if(token_iter->getAge() > tapn->MaxConstant()){
+			if(token_iter->getAge() > (tapn->MaxConstant()==0? -1:tapn->MaxConstant())){
 				TokenList::iterator beginDelete = token_iter;
 				for(; token_iter != place_iter->tokens.end(); token_iter++){
 					count += token_iter->getCount();
@@ -96,7 +110,7 @@ NonStrictMarking* NonStrictDFS::cut(NonStrictMarking& marking){
 				break;
 			}
 		}
-		Token t(tapn->MaxConstant()+1, count);
+		Token t(tapn->MaxConstant()==0? 0:tapn->MaxConstant()+1,count);
 		m->AddTokenInPlace(*place_iter, t);
 #if DEBUG
 		std::cout << "Cut after: " << *m << std::endl;

@@ -31,7 +31,7 @@ public:
 	Token(int age, int count) : age(age), count(count) {  };
 	Token(const Token& t) : age(t.age), count(t.count) {  };
 
-	bool equals(const Token &t){ return (this->age == t.age && this->count == t.count); };
+	bool equals(const Token &t) const { return (this->age == t.age && this->count == t.count); };
 
 	void add(int num){ count = count + num; };
 	int getCount() const { return count; };
@@ -138,7 +138,7 @@ public:
 		void RemoveRangeOfTokens(Place& place, TokenList::iterator begin, TokenList::iterator end);
 
 	public:
-		bool equals(const NonStrictMarking &m1);
+		bool equals(const NonStrictMarking &m1) const;
 
 	public:
 		PlaceList places;

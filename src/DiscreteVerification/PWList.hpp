@@ -31,7 +31,7 @@ public: // inspectors
 
 	virtual long long Size() const {
 		//TODO: implement!
-		return 0;
+		return markings_storage.size();
 	};
 
 	virtual void Print() const {
