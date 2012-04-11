@@ -125,6 +125,22 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
+	//test causality
+	if(true){
+		std::cout << "---------------------------------------" << std::endl;
+		std::cout << "Testing causalityCalc" << std::endl;
+
+		std::vector< TimedPlace* > result;
+		tapn->calculateCausality(*(tapn->GetPlaces()[0]), &result);
+		for(std::vector< TimedPlace* >::const_iterator iter = result.begin(); iter != result.end(); iter++){
+			std::cout << (**iter) << std::endl;
+		}
+
+		std::cout << std::endl << "Done testing causalityCalc" << std::endl;
+		std::cout << "---------------------------------------" << std::endl;
+		return 0;
+	}
+
 	if(true){
 	//if(options.GetDiscreteEnabled()){	// Enable this to require -d flag
 		return DiscreteVerification::DiscreteVerification::run(tapn, initialPlacement, query, options);

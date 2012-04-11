@@ -49,6 +49,7 @@ namespace VerifyTAPN {
 			inline int MaxConstant() const { return maxConstant; };
 			inline const bool IsPlaceUntimed(int index) const { return places[index]->IsUntimed(); }
 			bool IsNonStrict() const;
+			void calculateCausality(TimedPlace& p, std::vector< TimedPlace* >* result) const;
 		public: // modifiers
 			void Initialize(bool useUntimedPlaces);
 

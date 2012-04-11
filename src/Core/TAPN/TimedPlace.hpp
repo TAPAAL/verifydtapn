@@ -9,13 +9,15 @@
 #include "TimedInputArc.hpp"
 #include "OutputArc.hpp"
 #include "boost/shared_ptr.hpp"
-#include "TimedArcPetriNet.hpp"
 
 namespace VerifyTAPN{
 namespace TAPN{
 enum PlaceType {
 	Inv, Dead, Std
 };
+
+class TimedArcPetriNet;
+
 class TimedPlace {
 public: // static
 	static const TimedPlace& Bottom() {
@@ -54,7 +56,6 @@ public: // inspection
 	inline const PlaceType GetType() const { return type; }
 	inline const TAPN::TimeInvariant& GetInvariant() const { return timeInvariant; };
 	inline bool HasInhibitorArcs() const { return hasInhibitorArcs; };
-	void calculateCausality(TimedArcPetriNet* tapn, std::vector< TimedPlace >* result) const;
 private: // data
 	std::string	name;
 	std::string id;

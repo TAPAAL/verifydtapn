@@ -125,11 +125,13 @@ namespace VerifyTAPN {
 							const int lowerBound = interval.GetLowerBound();
 							const int upperBound = interval.GetUpperBound();
 
-							if(upperBound == std::numeric_limits<int>().max()){
-								maxConstant = (maxConstant < lowerBound ? lowerBound : maxConstant);
-								(*iter)->SetType(Std);
-							} else {
-								maxConstant = (maxConstant < upperBound ? upperBound : maxConstant);
+							if(upperBound != std::numeric_limits<int>().max() || lowerBound != 0){
+								if(upperBound == std::numeric_limits<int>().max()){
+									maxConstant = (maxConstant < lowerBound ? lowerBound : maxConstant);
+									(*iter)->SetType(Std);
+								} else {
+									maxConstant = (maxConstant < upperBound ? upperBound : maxConstant);
+								}
 							}
 						}
 					}
@@ -143,11 +145,13 @@ namespace VerifyTAPN {
 							const int lowerBound = interval.GetLowerBound();
 							const int upperBound = interval.GetUpperBound();
 
-							if(upperBound == std::numeric_limits<int>().max()){
-								maxArc = lowerBound;
-								(*iter)->SetType(Std);
-							} else {
-								maxArc = upperBound;
+							if(upperBound != std::numeric_limits<int>().max() || lowerBound != 0){
+								if(upperBound == std::numeric_limits<int>().max()){
+									maxArc = lowerBound;
+									(*iter)->SetType(Std);
+								} else {
+									maxArc = upperBound;
+								}
 							}
 							int destinationInvariant = ta->Destination().GetInvariant().GetBound();
 							if(destinationInvariant != std::numeric_limits<int>().max()){
@@ -162,9 +166,31 @@ namespace VerifyTAPN {
 				}
 			}
 
-			for(TimedPlace::Vector::const_iterator iter = places.begin(); iter != places.end(); ++iter)
+			for(TimedPlace::Vector::const_iterator place_iter = places.begin(); place_iter != places.end(); ++place_iter)
 			{
-				//std::vector< boost::weak_ptr< TimedPlace > > causalitySet = (*iter)->calculateCausality(this);
+				std::vector< TimedPlace* > causalitySet;
+				calculateCausality(**place_iter, &causalitySet);
+				for(std::vector< TimedPlace* >::const_iterator cau_iter = causalitySet.begin(); cau_iter != causalitySet.end(); cau_iter++){
+					if((*cau_iter)->GetMaxConstant() > (*place_iter)->GetMaxConstant()){
+						(*place_iter)->SetMaxConstant((*cau_iter)->GetMaxConstant());
+					}
+				}
+			}
+		}
+
+		void TimedArcPetriNet::calculateCausality(TimedPlace& p, std::vector< TimedPlace* >* result) const
+		{
+			//TODO: husk der må ikke være cyckler!!!!
+			for(std::vector< TimedPlace* >::const_iterator iter = result->begin(); iter != result->end(); iter++){
+				if(**iter == p) return;
+			}
+			result->push_back(&p);
+			for(TransportArc::Vector::const_iterator iter = this->GetTransportArcs().begin(); iter != this->GetTransportArcs().end(); iter++){
+				if((*iter)->Source() == p){
+					if((*iter)->Interval().GetUpperBound() == std::numeric_limits<int>().max()){
+						calculateCausality((*iter)->Destination(), result);
+					}
+				}
 			}
 		}
 
