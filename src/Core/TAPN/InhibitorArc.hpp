@@ -15,7 +15,7 @@ namespace VerifyTAPN {
 				typedef std::vector< boost::shared_ptr<InhibitorArc> > Vector;
 				typedef std::vector< boost::weak_ptr<InhibitorArc> > WeakPtrVector;
 			public:
-				InhibitorArc(const boost::shared_ptr<TimedPlace>& place, const boost::shared_ptr<TimedTransition>& transition) : place(place), transition(transition) { };
+				InhibitorArc(const boost::shared_ptr<TimedPlace>& place, const boost::shared_ptr<TimedTransition>& transition, const int weight) : place(place), transition(transition), weight(weight) { };
 				virtual ~InhibitorArc() { /* empty */ }
 
 			public: // modifiers
@@ -24,9 +24,11 @@ namespace VerifyTAPN {
 
 			public: // Inspectors
 				void Print(std::ostream& out) const;
+				inline const int GetWeight() const { return weight; }
 			private:
 				const boost::shared_ptr<TimedPlace> place;
 				const boost::shared_ptr<TimedTransition> transition;
+				const int weight;
 		};
 
 		inline std::ostream& operator<<(std::ostream& out, const InhibitorArc& arc)
