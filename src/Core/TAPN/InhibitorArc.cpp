@@ -6,7 +6,7 @@ namespace VerifyTAPN {
 	namespace TAPN {
 		void InhibitorArc::Print(std::ostream& out) const
 		{
-			out << "From " << place->GetName() << " to " << transition->GetName();
+			out << "From " << place->GetName() << " to " << transition->GetName() << " weight: " << weight;
 		}
 	}
 }

@@ -8,7 +8,7 @@ namespace VerifyTAPN
 	{
 		void TransportArc::Print(std::ostream& out) const
 		{
-			out << "From " << source->GetName() << " to " << transition->GetName() << " to " << destination->GetName();
+			out << "From " << source->GetName() << " to " << transition->GetName() << " to " << destination->GetName() << " weight: " << weight;
 			out << " with interval " << interval;
 		}
 	}
