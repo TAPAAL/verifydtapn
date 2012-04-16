@@ -96,21 +96,24 @@ bool NonStrictDFS::addToPW(NonStrictMarking* marking){
 NonStrictMarking* NonStrictDFS::cut(NonStrictMarking& marking){
 	NonStrictMarking* m = new NonStrictMarking(marking);
 	for(PlaceList::iterator place_iter = m->places.begin(); place_iter != m->places.end(); place_iter++){
+		const TimedPlace& place = tapn->GetPlace(place_iter->id);
 		int count = 0;
 #if DEBUG
 		std::cout << "Cut before: " << *m << std::endl;
 #endif
 		for(TokenList::iterator token_iter = place_iter->tokens.begin(); token_iter != place_iter->tokens.end(); token_iter++){
-			if(token_iter->getAge() > (tapn->MaxConstant()==0? -1:tapn->MaxConstant())){
+			if(token_iter->getAge() > place.GetMaxConstant()){
 				TokenList::iterator beginDelete = token_iter;
-				for(; token_iter != place_iter->tokens.end(); token_iter++){
-					count += token_iter->getCount();
+				if(place.GetType() == Std){
+					for(; token_iter != place_iter->tokens.end(); token_iter++){
+						count += token_iter->getCount();
+					}
 				}
 				m->RemoveRangeOfTokens(*place_iter, beginDelete, place_iter->tokens.end());
 				break;
 			}
 		}
-		Token t(tapn->MaxConstant()==0? 0:tapn->MaxConstant()+1,count);
+		Token t(place.GetMaxConstant()+1,count);
 		m->AddTokenInPlace(*place_iter, t);
 #if DEBUG
 		std::cout << "Cut after: " << *m << std::endl;
@@ -121,6 +124,8 @@ NonStrictMarking* NonStrictDFS::cut(NonStrictMarking& marking){
 
 bool NonStrictDFS::isDelayPossible(NonStrictMarking& marking){
 	PlaceList& places = marking.places;
+	if(places.size() == 0) return false;
+
 	PlaceList::const_iterator markedPlace_iter = places.begin();
 	for(TAPN::TimedPlace::Vector::const_iterator place_iter = tapn->GetPlaces().begin(); place_iter != tapn->GetPlaces().end(); place_iter++){
 		int inv = place_iter->get()->GetInvariant().GetBound();

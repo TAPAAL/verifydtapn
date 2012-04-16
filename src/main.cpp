@@ -126,19 +126,17 @@ int main(int argc, char* argv[])
 
 	tapn->updatePlaceTypes(query);
 
-	//test causality
-	if(true){
-		std::cout << "---------------------------------------" << std::endl;
-		std::cout << "Testing LocalMC" << std::endl;
+#if DEBUG
+	std::cout << "---------------------------------------" << std::endl;
+	std::cout << "Testing LocalMC" << std::endl;
 
-		for(TimedPlace::Vector::const_iterator iter = tapn->GetPlaces().begin(); iter != tapn->GetPlaces().end(); iter++){
-			std::cout << (**iter) << std::endl;
-		}
-
-		std::cout << std::endl << "Done testing LocalMC" << std::endl;
-		std::cout << "---------------------------------------" << std::endl;
-		return 0;
+	for(TimedPlace::Vector::const_iterator iter = tapn->GetPlaces().begin(); iter != tapn->GetPlaces().end(); iter++){
+		std::cout << (**iter) << std::endl;
 	}
+
+	std::cout << std::endl << "Done testing LocalMC" << std::endl;
+	std::cout << "---------------------------------------" << std::endl;
+#endif
 
 	if(true){
 	//if(options.GetDiscreteEnabled()){	// Enable this to require -d flag
