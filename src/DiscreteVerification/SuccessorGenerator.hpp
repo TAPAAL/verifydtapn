@@ -45,6 +45,7 @@ private:
 	TokenList getPlaceFromMarking(const NonStrictMarking& marking, int placeID) const;
 	void generateMarkings(vector<NonStrictMarking>& result, const NonStrictMarking& init_marking, const TimedTransition& transition, vector<InputArcRef> inputArcs, vector<TransportArcRef> transportArcs) const;
 	void recursiveGenerateMarking(vector<NonStrictMarking>& result, NonStrictMarking& init_marking, const TimedTransition& transition, vector<InputArcRef> inputArcs, vector<TransportArcRef> transportArcs, int index) const;
+	void generatePermultations(vector< NonStrictMarking >& result, NonStrictMarking& init_marking, InputArcRef& inputArc, int tokenToProcess, int remainingToRemove) const;
 	const TAPN::TimedArcPetriNet& tapn;
 };
 

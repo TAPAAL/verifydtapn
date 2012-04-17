@@ -155,6 +155,31 @@ void NonStrictMarking::AddTokenInPlace(int placeId, int age){
 	}
 }
 
+void NonStrictMarking::AddTokenInPlace(int placeid, Token& token){
+	for(PlaceList::iterator pit = places.begin(); pit != places.end(); pit++){
+		if(pit->id == placeid){
+			AddTokenInPlace(*pit, token);
+			return;
+		}
+	}
+
+	Place p(placeid);
+	AddTokenInPlace(p,token);
+
+	// Insert place
+	bool inserted = false;
+	for(PlaceList::iterator it = places.begin(); it != places.end(); it++){
+		if(it->id > placeid){
+			places.insert(it, p);
+			inserted = true;
+			break;
+		}
+	}
+	if(!inserted){
+		places.push_back(p);
+	}
+}
+
 void NonStrictMarking::AddTokenInPlace(Place& place, Token& token){
 	if(token.getCount() == 0) return;
 	for(TokenList::iterator iter = place.tokens.begin(); iter != place.tokens.end(); iter++){

@@ -32,7 +32,12 @@ vector< NonStrictMarking > SuccessorGenerator::generateSuccessors(const NonStric
 				it++){
 			TokenList tokens = getPlaceFromMarking(marking, it->lock()->InputPlace().GetIndex());
 
-			if(tokens.size() > 0){
+			int count = 0;
+			for(TokenList::const_iterator count_it = tokens.begin(); count_it != tokens.end(); count_it++){
+				count += count_it->getCount();
+			}
+
+			if(count >= it->lock()->GetWeight()){
 				continue_outer = true;
 				break;
 			}
@@ -52,8 +57,12 @@ vector< NonStrictMarking > SuccessorGenerator::generateSuccessors(const NonStric
 					arcref.enabledBy.push_back(*t_it);
 				}
 			}
+			int count = 0;
+			for(TokenList::const_iterator count_it = arcref.enabledBy.begin(); count_it != arcref.enabledBy.end(); count_it++){
+				count += count_it->getCount();
+			}
 
-			if(arcref.enabledBy.size() > 0) inputArcs.push_back(arcref);
+			if(count >= it->lock()->GetWeight() ) inputArcs.push_back(arcref);
 			else	continue_outer = true;
 		}
 		if(continue_outer) continue;
@@ -73,7 +82,12 @@ vector< NonStrictMarking > SuccessorGenerator::generateSuccessors(const NonStric
 				}
 			}
 
-			if(arcref.enabledBy.size() > 0) transportArcs.push_back(arcref);
+			int count = 0;
+			for(TokenList::const_iterator count_it = arcref.enabledBy.begin(); count_it != arcref.enabledBy.end(); count_it++){
+				count += count_it->getCount();
+			}
+
+			if(count >= it->lock()->GetWeight()) transportArcs.push_back(arcref);
 			else	continue_outer = true;
 		}
 		if(continue_outer) continue;
@@ -106,17 +120,15 @@ void SuccessorGenerator::recursiveGenerateMarking(vector<NonStrictMarking>& resu
 	if(index != inputArcs.size()+transportArcs.size()){
 		//Not the last index
 		if(index < inputArcs.size()){
-			for(TokenList::iterator it = inputArcs.at(index).enabledBy.begin(); it != inputArcs.at(index).enabledBy.end(); it++){
-				NonStrictMarking marking(init_marking);
-#if DEBUG
-				std::cout << "Before: " << marking << std::endl;
-#endif
-				marking.RemoveToken(inputArcs.at(index).arc.lock().get()->InputPlace().GetIndex(), it->getAge());
-#if DEBUG
-				std::cout << "After: " << marking << std::endl;
-#endif
-				recursiveGenerateMarking(result, marking, transition, inputArcs, transportArcs, index+1);
+			vector< NonStrictMarking > permultations;
+
+			generatePermultations(permultations, init_marking, inputArcs.at(index), 0, inputArcs.at(index).arc.lock()->GetWeight());
+
+			for(vector< NonStrictMarking >::iterator it = permultations.begin(); it != permultations.end(); it++){
+
+				recursiveGenerateMarking(result, *it, transition, inputArcs, transportArcs, index+1);
 			}
+
 		}
 		if(index >= inputArcs.size() && index < inputArcs.size() + transportArcs.size()){
 			for(TokenList::iterator it = transportArcs.at(index-inputArcs.size()).enabledBy.begin();
@@ -132,11 +144,37 @@ void SuccessorGenerator::recursiveGenerateMarking(vector<NonStrictMarking>& resu
 	}else{
 		//Beyond last index
 		for(OutputArc::WeakPtrVector::const_iterator it = transition.GetPostset().begin(); it != transition.GetPostset().end(); it++){
-			init_marking.AddTokenInPlace(it->lock().get()->OutputPlace().GetIndex(), 0);
+			Token t(0, it->lock()->GetWeight());
+			init_marking.AddTokenInPlace(it->lock().get()->OutputPlace().GetIndex(), t);
 		}
 		result.push_back(init_marking);
 	}
 }
+
+void SuccessorGenerator::generatePermultations(vector< NonStrictMarking >& result, NonStrictMarking& init_marking, InputArcRef& inputArc, int tokenToProcess, int remainingToRemove) const{
+	if(remainingToRemove == 0){
+		result.push_back(init_marking);
+		return;
+	} else if (tokenToProcess >= inputArc.enabledBy.size()){
+		return;
+	}
+
+	bool breakouter = false;
+	int age = inputArc.enabledBy[tokenToProcess].getAge();
+	for(int i = 0; i <= remainingToRemove; i++){
+		NonStrictMarking marking(init_marking);
+		for(int j = 0; j < i; j++){
+			if(!marking.RemoveToken(inputArc.arc.lock().get()->InputPlace().GetIndex(), age)){
+				breakouter = true;
+				break;
+			}
+
+		}
+		if(breakouter) break;
+		generatePermultations(result, marking, inputArc, tokenToProcess+1, remainingToRemove-i);
+	}
+}
+
 
 
 } /* namespace DiscreteVerification */

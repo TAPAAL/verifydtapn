@@ -134,6 +134,7 @@ public:
 		bool RemoveToken(Place& place, Token& token);
 		void AddTokenInPlace(int placeId, int age);
 		void AddTokenInPlace(Place& place, Token& token);
+		void AddTokenInPlace(int placeid, Token& token);
 		void incrementAge();	// increment
 		void RemoveRangeOfTokens(Place& place, TokenList::iterator begin, TokenList::iterator end);
 
