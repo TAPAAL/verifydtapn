@@ -122,7 +122,7 @@ void SuccessorGenerator::recursiveGenerateMarking(vector<NonStrictMarking>& resu
 		if(index < inputArcs.size()){
 			vector< NonStrictMarking > permultations;
 
-			generatePermultations(permultations, init_marking, inputArcs.at(index), 0, inputArcs.at(index).arc.lock()->GetWeight());
+			generatePermultations(permultations, init_marking, inputArcs.at(index).arc.lock()->InputPlace().GetIndex(), inputArcs.at(index), 0, inputArcs.at(index).arc.lock()->GetWeight());
 
 			for(vector< NonStrictMarking >::iterator it = permultations.begin(); it != permultations.end(); it++){
 
@@ -131,14 +131,12 @@ void SuccessorGenerator::recursiveGenerateMarking(vector<NonStrictMarking>& resu
 
 		}
 		if(index >= inputArcs.size() && index < inputArcs.size() + transportArcs.size()){
-			for(TokenList::iterator it = transportArcs.at(index-inputArcs.size()).enabledBy.begin();
-					it != transportArcs.at(index-inputArcs.size()).enabledBy.end();
-					it++){
-				NonStrictMarking marking(init_marking);
+			vector< NonStrictMarking > permultations;
 
-				marking.RemoveToken(transportArcs.at(index-inputArcs.size()).arc.lock().get()->Source().GetIndex(), it->getAge());
-				marking.AddTokenInPlace(transportArcs.at(index-inputArcs.size()).arc.lock().get()->Destination().GetIndex(), it->getAge());
-				recursiveGenerateMarking(result, marking, transition, inputArcs, transportArcs, index+1);
+			generatePermultations(permultations, init_marking, transportArcs.at(index-inputArcs.size()).arc.lock()->Source().GetIndex(), transportArcs.at(index-inputArcs.size()), 0, transportArcs.at(index-inputArcs.size()).arc.lock()->GetWeight());
+
+			for(vector< NonStrictMarking >::iterator it = permultations.begin(); it != permultations.end(); it++){
+				recursiveGenerateMarking(result, *it, transition, inputArcs, transportArcs, index+1);
 			}
 		}
 	}else{
@@ -151,7 +149,7 @@ void SuccessorGenerator::recursiveGenerateMarking(vector<NonStrictMarking>& resu
 	}
 }
 
-void SuccessorGenerator::generatePermultations(vector< NonStrictMarking >& result, NonStrictMarking& init_marking, InputArcRef& inputArc, int tokenToProcess, int remainingToRemove) const{
+void SuccessorGenerator::generatePermultations(vector< NonStrictMarking >& result, NonStrictMarking& init_marking, int placeID, ArcRef& inputArc, int tokenToProcess, int remainingToRemove) const{
 	if(remainingToRemove == 0){
 		result.push_back(init_marking);
 		return;
@@ -164,14 +162,21 @@ void SuccessorGenerator::generatePermultations(vector< NonStrictMarking >& resul
 	for(int i = 0; i <= remainingToRemove; i++){
 		NonStrictMarking marking(init_marking);
 		for(int j = 0; j < i; j++){
-			if(!marking.RemoveToken(inputArc.arc.lock().get()->InputPlace().GetIndex(), age)){
+			if(!marking.RemoveToken(placeID, age)){
 				breakouter = true;
 				break;
 			}
 
+			TransportArcRef *trans = NULL;
+			trans = dynamic_cast<TransportArcRef *>(&inputArc);
+			if (trans) {
+			    // Input arc is a transport arc
+				Token t(age, j);
+				marking.AddTokenInPlace(trans->arc.lock()->Destination().GetIndex(), t);
+			}
 		}
 		if(breakouter) break;
-		generatePermultations(result, marking, inputArc, tokenToProcess+1, remainingToRemove-i);
+		generatePermultations(result, marking, placeID, inputArc, tokenToProcess+1, remainingToRemove-i);
 	}
 }
 
