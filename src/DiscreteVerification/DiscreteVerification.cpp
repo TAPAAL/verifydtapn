@@ -32,10 +32,6 @@ int DiscreteVerification::run(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, s
 		std::cout << "The supplied network contains strict intervals." << std::endl;
 		return -1;
 	}
-	if((*query).GetQuantifier() == AG){
-		std::cout << "The supplied query is AG." << std::endl;
-		return -1;
-	}
 
 	NonStrictMarking* initialMarking = new NonStrictMarking(initialPlacement);
 
@@ -53,7 +49,7 @@ int DiscreteVerification::run(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, s
 	NonStrictDFS* strategy = new NonStrictDFS(tapn, *initialMarking, query, options);
 
 	std::cout << options << std::endl;
-	bool result = strategy->Verify();
+	bool result = query->GetQuantifier() == AG ? !strategy->Verify() : strategy->Verify();
 
 	//std::cout << strategy->GetStats() << std::endl;
 	std::cout << "Query is " << (result ? "satisfied" : "NOT satisfied") << "." << std::endl;
