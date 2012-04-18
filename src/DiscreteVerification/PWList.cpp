@@ -13,15 +13,15 @@ namespace VerifyTAPN {
 namespace DiscreteVerification {
 
 bool PWList::Add(NonStrictMarking* marking){
-	google::pair<HashMap::const_iterator, HashMap::const_iterator> ret = markings_storage.equal_range(marking->HashKey());
-	for(HashMap::const_iterator iter = ret.first;
-			ret.second != iter;
+	NonStrictMarkingList& m = markings_storage[marking->HashKey()];
+	for(NonStrictMarkingList::const_iterator iter = m.begin();
+			m.end() != iter;
 			iter++){
-		if(iter->second.equals(*marking)){
+		if(iter->equals(*marking)){
 			return false;
 		}
 	}
-	markings_storage[marking->HashKey()] = *marking;
+	m.push_back(*marking);
 	waiting_list.Add(marking);
 	return true;
 }
@@ -38,7 +38,9 @@ PWList::~PWList() {
 std::ostream& operator<<(std::ostream& out, PWList& x){
 	out << "Passed and waiting:" << std::endl;
 	for(PWList::HashMap::iterator iter = x.markings_storage.begin(); iter != x.markings_storage.end(); iter++){
-		out << "- "<< iter->second << std::endl;
+		for(PWList::NonStrictMarkingList::iterator m_iter = iter->second.begin(); m_iter != iter->second.end(); m_iter++){
+			out << "- "<< *m_iter << std::endl;
+		}
 	}
 	out << "Waiting:" << std::endl << x.waiting_list;
 	return out;
