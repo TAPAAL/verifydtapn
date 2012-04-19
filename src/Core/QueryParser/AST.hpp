@@ -187,7 +187,7 @@ namespace VerifyTAPN{
 			Expression* expr;
 		};
 
-		enum Quantifier { EF, AG };
+		enum Quantifier { EF, AG, EG, AF};
 
 		class Query : public Visitable
 		{

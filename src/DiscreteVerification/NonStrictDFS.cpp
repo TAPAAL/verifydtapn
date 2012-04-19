@@ -10,8 +10,12 @@
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
+bool livenessQuery;
+
 NonStrictDFS::NonStrictDFS(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options)
 	: tapn(tapn), initialMarking(initialMarking), query(query), options(options), successorGenerator( *tapn.get() ){
+	livenessQuery = (query->GetQuantifier() == EG || query->GetQuantifier() == AF);
+	std::cout<< "livenessQuery: " << (livenessQuery? "true":"false") << std::endl;
 }
 
 bool NonStrictDFS::Verify(){
@@ -27,6 +31,7 @@ bool NonStrictDFS::Verify(){
 	//Main loop
 	while(pwList.HasWaitingStates()){
 		NonStrictMarking& marking = *pwList.GetNextUnexplored();
+		bool endOfMaxRun = true;
 #if DEBUG
 		std::cout << "-----------------------------------\n";
 		std::cout << "PWList size " << pwList.Size() << std::endl;
@@ -49,6 +54,7 @@ bool NonStrictDFS::Verify(){
 				std::cout << "Markings explored: " << pwList.Size() << std::endl;
 				return true;
 			}
+			endOfMaxRun = false;
 		}
 #if DEBUG
 		std::cout << "PWList size " << pwList.Size() << std::endl;
@@ -61,6 +67,11 @@ bool NonStrictDFS::Verify(){
 				std::cout << "Markings explored: " << pwList.Size() << std::endl;
 				return true;
 			}
+			endOfMaxRun = false;
+		}
+
+		if(endOfMaxRun && livenessQuery){
+			return true;
 		}
 	}
 
@@ -81,13 +92,23 @@ bool NonStrictDFS::addToPW(NonStrictMarking* marking){
 		return false;
 	}
 
-	if(pwList.Add(m)){
+	if(livenessQuery){
 		QueryVisitor checker(*m);
 		boost::any context;
 		query->Accept(checker, context);
-		return boost::any_cast<bool>(context);
-	} else {
-		delete m;
+		if(!boost::any_cast<bool>(context))	return false;
+		if(!pwList.Add(m)){
+			return true;
+		}
+	}else{
+		if(pwList.Add(m)){
+			QueryVisitor checker(*m);
+			boost::any context;
+			query->Accept(checker, context);
+			return boost::any_cast<bool>(context);
+		} else {
+			delete m;
+		}
 	}
 
 	return false;

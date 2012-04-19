@@ -16,6 +16,8 @@ namespace VerifyTAPN
 		bool IsExpressionSatisfied(const SymbolicMarking& marking) const;
 		inline bool IsEF() const { return query->GetQuantifier() == VerifyTAPN::AST::EF; };
 		inline bool IsAG() const { return query->GetQuantifier() == VerifyTAPN::AST::AG; };
+		inline bool IsEG() const { return query->GetQuantifier() == VerifyTAPN::AST::EG; };
+		inline bool IsAF() const { return query->GetQuantifier() == VerifyTAPN::AST::AF; };
 
 	private:
 		const AST::Query* query;

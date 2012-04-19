@@ -41,7 +41,7 @@ namespace VerifyTAPN{
 %token <string> IDENTIFIER LESS LESSEQUAL EQUAL GREATEREQUAL GREATER
 %token <number> NUMBER    
 %token END      0
-%token EF AG
+%token EF AG AF EG
 %token LPARAN RPARAN
 %token OR AND NOT
 %token BOOL_TRUE BOOL_FALSE
@@ -57,6 +57,8 @@ namespace VerifyTAPN{
 %start query;
 query				: EF expression { $$ = new VerifyTAPN::AST::Query(VerifyTAPN::AST::EF, $2); driver.SetAST($$); }
 					| AG expression { $$ = new VerifyTAPN::AST::Query(VerifyTAPN::AST::AG, $2); driver.SetAST($$); }
+					| EG expression { $$ = new VerifyTAPN::AST::Query(VerifyTAPN::AST::EG, $2); driver.SetAST($$); }
+					| AF expression { $$ = new VerifyTAPN::AST::Query(VerifyTAPN::AST::AF, $2); driver.SetAST($$); }
 ;
 
 expression			: parExpression { $$ = $1; }
