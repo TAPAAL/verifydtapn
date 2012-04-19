@@ -39,6 +39,8 @@ blank [ \t]
 [0-9]+						{ yylval->number = atoi(yytext); return token::NUMBER; }
 ^EF							{ return token::EF; }
 ^AG							{ return token::AG; }
+^AF							{ return token::AF; }
+^EG							{ return token::EG; }
 or|\|\|						{ return token::OR; }
 and|&&						{ return token::AND; }
 true						{ return token::BOOL_TRUE; }

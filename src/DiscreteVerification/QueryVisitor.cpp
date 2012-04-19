@@ -56,7 +56,7 @@ namespace DiscreteVerification {
 		void QueryVisitor::Visit(const Query& query, boost::any& context)
 		{
 			query.Child().Accept(*this, context);
-			if(query.GetQuantifier() == AG){
+			if(query.GetQuantifier() == AG || query.GetQuantifier() == AF){
 				context = !boost::any_cast<bool>(context);
 			}
 		}
