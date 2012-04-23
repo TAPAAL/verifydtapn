@@ -41,7 +41,15 @@ bool NonStrictDFS::Verify(){
 		std::cout << "-----------------------------------\n";
 #endif
 
-		//"place 0 has tokens (age, count): (0, 2) (1, 6) place 1 has tokens (age, count): (1, 1)"
+		if(isDelayPossible(marking)){
+			marking.incrementAge();
+			if(addToPW(&marking)){
+				std::cout << "Markings found: " << pwList.Size() << std::endl;
+				std::cout << "Markings explored: " << pwList.Size()-pwList.waiting_list.Size() << std::endl;
+				return true;
+			}
+			endOfMaxRun = false;
+		}
 
 		// Do the forall
 		vector<NonStrictMarking> next = getPossibleNextMarkings(marking);
@@ -63,16 +71,6 @@ bool NonStrictDFS::Verify(){
 		std::cout << "PWList size " << pwList.Size() << std::endl;
 		std::cout << "After SG: " << pwList << std::endl << std::endl;
 #endif
-
-		if(isDelayPossible(marking)){
-			marking.incrementAge();
-			if(addToPW(&marking)){
-				std::cout << "Markings found: " << pwList.Size() << std::endl;
-				std::cout << "Markings explored: " << pwList.Size()-pwList.waiting_list.Size() << std::endl;
-				return true;
-			}
-			endOfMaxRun = false;
-		}
 
 		if(livenessQuery){
 			if(endOfMaxRun)	return true;
