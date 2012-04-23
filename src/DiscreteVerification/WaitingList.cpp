@@ -9,6 +9,7 @@
 #include "assert.h"
 #include <queue>
 #include <deque>
+#include <stack>
 
 namespace VerifyTAPN {
 namespace DiscreteVerification {
@@ -16,20 +17,22 @@ namespace DiscreteVerification {
 
 void StackWaitingList::Add(NonStrictMarking* marking)
 	{
-		stack.push_front(marking);
+		stack.push(marking);
 	}
 
 NonStrictMarking* StackWaitingList::Next()
 	{
 		assert(Size() > 0);
-		NonStrictMarking* marking = stack.back();
-		stack.pop_back();
+		NonStrictMarking* marking = stack.top();
+		stack.pop();
 		return marking;
 	}
 
 	StackWaitingList::~StackWaitingList()
 	{
-		stack.clear();
+		while(!stack.empty()){
+			stack.pop();
+		}
 	}
 
 	std::ostream& operator<<(std::ostream& out, WaitingList& x){

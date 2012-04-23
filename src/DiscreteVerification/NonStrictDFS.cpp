@@ -53,7 +53,8 @@ bool NonStrictDFS::Verify(){
 
 
 			if(addToPW(&(*it))){
-				std::cout << "Markings explored: " << pwList.Size() << std::endl;
+				std::cout << "Markings found: " << pwList.Size() << std::endl;
+				std::cout << "Markings explored: " << pwList.Size()-pwList.waiting_list.Size() << std::endl;
 				return true;
 			}
 			endOfMaxRun = false;
@@ -66,7 +67,8 @@ bool NonStrictDFS::Verify(){
 		if(isDelayPossible(marking)){
 			marking.incrementAge();
 			if(addToPW(&marking)){
-				std::cout << "Markings explored: " << pwList.Size() << std::endl;
+				std::cout << "Markings found: " << pwList.Size() << std::endl;
+				std::cout << "Markings explored: " << pwList.Size()-pwList.waiting_list.Size() << std::endl;
 				return true;
 			}
 			endOfMaxRun = false;
@@ -89,7 +91,7 @@ bool NonStrictDFS::Verify(){
 			}
 		}
 
-
+		std::cout << trace.size() << std::endl;
 	}
 
 
@@ -116,11 +118,11 @@ bool NonStrictDFS::addToPW(NonStrictMarking* marking){
 		if(!boost::any_cast<bool>(context))	return false;
 		if(!pwList.Add(m)){
 			//Test if collision is in trace
-			PWList::NonStrictMarkingList& m = pwList.markings_storage[marking->HashKey()];
-			for(PWList::NonStrictMarkingList::const_iterator iter = m.begin();
-					m.end() != iter;
+			PWList::NonStrictMarkingList& cm = pwList.markings_storage[marking->HashKey()];
+			for(PWList::NonStrictMarkingList::const_iterator iter = cm.begin();
+					cm.end() != iter;
 					iter++){
-				if(iter->equals(*marking)){
+				if(iter->equals(*m)){
 					if(iter->inTrace){
 						return true;
 					}else{

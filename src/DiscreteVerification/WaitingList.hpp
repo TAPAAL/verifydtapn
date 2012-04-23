@@ -10,6 +10,7 @@
 
 #include "NonStrictMarking.hpp"
 #include <deque>
+#include <stack>
 #include "boost/optional.hpp"
 #include "boost/shared_ptr.hpp"
 
@@ -35,7 +36,7 @@ public:
 	virtual NonStrictMarking* Next();
 	virtual size_t Size() { return stack.size(); };
 private:
-	std::deque< NonStrictMarking* > stack;
+	std::stack< NonStrictMarking* > stack;
 };
 
 } /* namespace DiscreteVerification */
