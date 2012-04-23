@@ -107,6 +107,7 @@ bool NonStrictDFS::addToPW(NonStrictMarking* marking){
 	}
 
 	if(livenessQuery){
+		m->inTrace = true;
 		QueryVisitor checker(*m);
 		boost::any context;
 		query->Accept(checker, context);
