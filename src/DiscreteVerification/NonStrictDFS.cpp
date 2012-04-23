@@ -87,6 +87,7 @@ bool NonStrictDFS::Verify(){
 			}else{
 				marking.children = validChildren;
 				marking.inTrace = true;
+				std::cout << "Adding to trace: " << marking <<std::endl;
 				trace.push(marking);
 			}
 		}
