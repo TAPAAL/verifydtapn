@@ -75,16 +75,16 @@ bool NonStrictDFS::Verify(){
 		if(livenessQuery){
 			if(endOfMaxRun)	return true;
 			if(validChildren == 0){
-				while(!trace.empty() && trace.top().children == 1){
-					trace.top().inTrace = false;
+				while(!trace.empty() && trace.top()->children == 1){
+					trace.top()->inTrace = false;
 					trace.pop();
 				}
 				if(trace.empty())	return false;
-				trace.top().children--;
+				trace.top()->children--;
 			}else{
 				marking.children = validChildren;
 				marking.inTrace = true;
-				trace.push(marking);
+				trace.push(&marking);
 			}
 		}
 	}
