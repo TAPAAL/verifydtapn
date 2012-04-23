@@ -43,16 +43,6 @@ bool NonStrictDFS::Verify(){
 
 		//"place 0 has tokens (age, count): (0, 2) (1, 6) place 1 has tokens (age, count): (1, 1)"
 
-		if(isDelayPossible(marking)){
-					marking.incrementAge();
-					if(addToPW(&marking)){
-						std::cout << "Markings found: " << pwList.Size() << std::endl;
-						std::cout << "Markings explored: " << pwList.Size()-pwList.waiting_list.Size() << std::endl;
-						return true;
-					}
-					endOfMaxRun = false;
-				}
-
 		// Do the forall
 		vector<NonStrictMarking> next = getPossibleNextMarkings(marking);
 		for(vector<NonStrictMarking>::iterator it = next.begin(); it != next.end(); it++){
@@ -74,13 +64,23 @@ bool NonStrictDFS::Verify(){
 		std::cout << "After SG: " << pwList << std::endl << std::endl;
 #endif
 
+		if(isDelayPossible(marking)){
+			marking.incrementAge();
+			if(addToPW(&marking)){
+				std::cout << "Markings found: " << pwList.Size() << std::endl;
+				std::cout << "Markings explored: " << pwList.Size()-pwList.waiting_list.Size() << std::endl;
+				return true;
+			}
+			endOfMaxRun = false;
+		}
+
 		if(livenessQuery){
 			if(endOfMaxRun)	return true;
-
 			if(validChildren == 0){
 				while(!trace.empty() && trace.top().children == 1){
 					trace.top().inTrace = false;
 					trace.pop();
+					if(trace.top().children == 1) std::cout << "Decreasing trace size" << std::endl;
 				}
 				if(trace.empty())	return false;
 				trace.top().children--;
@@ -90,8 +90,6 @@ bool NonStrictDFS::Verify(){
 				trace.push(marking);
 			}
 		}
-
-		std::cout << trace.size() << std::endl;
 	}
 
 
