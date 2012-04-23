@@ -6,6 +6,7 @@
  */
 
 #include "NonStrictDFS.hpp"
+#include "PWList.hpp"
 
 namespace VerifyTAPN {
 namespace DiscreteVerification {
@@ -32,6 +33,7 @@ bool NonStrictDFS::Verify(){
 	while(pwList.HasWaitingStates()){
 		NonStrictMarking& marking = *pwList.GetNextUnexplored();
 		bool endOfMaxRun = true;
+		validChildren = 0;
 #if DEBUG
 		std::cout << "-----------------------------------\n";
 		std::cout << "PWList size " << pwList.Size() << std::endl;
@@ -70,9 +72,24 @@ bool NonStrictDFS::Verify(){
 			endOfMaxRun = false;
 		}
 
-		if(endOfMaxRun && livenessQuery){
-			return true;
+		if(livenessQuery){
+			if(endOfMaxRun)	return true;
+
+			if(validChildren == 0){
+				while(!trace.empty() && trace.top().children == 1){
+					trace.top().inTrace = false;
+					trace.pop();
+				}
+				if(trace.empty())	return false;
+				trace.top().children--;
+			}else{
+				marking.children = validChildren;
+				marking.inTrace = true;
+				trace.push(marking);
+			}
 		}
+
+
 	}
 
 
@@ -98,7 +115,21 @@ bool NonStrictDFS::addToPW(NonStrictMarking* marking){
 		query->Accept(checker, context);
 		if(!boost::any_cast<bool>(context))	return false;
 		if(!pwList.Add(m)){
-			return true;
+			//Test if collision is in trace
+			PWList::NonStrictMarkingList& m = pwList.markings_storage[marking->HashKey()];
+			for(PWList::NonStrictMarkingList::const_iterator iter = m.begin();
+					m.end() != iter;
+					iter++){
+				if(iter->equals(*marking)){
+					if(iter->inTrace){
+						return true;
+					}else{
+						return false;
+					}
+				}
+			}
+		}else{
+			validChildren++;
 		}
 	}else{
 		if(pwList.Add(m)){

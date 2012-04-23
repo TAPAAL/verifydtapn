@@ -141,6 +141,8 @@ public:
 		bool equals(const NonStrictMarking &m1) const;
 
 	public:
+		int children;
+		bool inTrace;
 		PlaceList places;
 		TokenList emptyTokenList;
 };

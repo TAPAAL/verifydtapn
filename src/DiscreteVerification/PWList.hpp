@@ -43,7 +43,7 @@ public: // modifiers
 	virtual bool Add(NonStrictMarking* marking);
 	virtual NonStrictMarking* GetNextUnexplored();
 
-private:
+public:
 	HashMap markings_storage;
 	StackWaitingList waiting_list;
 };
