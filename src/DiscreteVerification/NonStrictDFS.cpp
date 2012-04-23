@@ -80,7 +80,6 @@ bool NonStrictDFS::Verify(){
 				while(!trace.empty() && trace.top().children == 1){
 					trace.top().inTrace = false;
 					trace.pop();
-					if(trace.top().children == 1) std::cout << "Decreasing trace size" << std::endl;
 				}
 				if(trace.empty())	return false;
 				trace.top().children--;
