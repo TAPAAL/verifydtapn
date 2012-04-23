@@ -39,10 +39,11 @@ NonStrictMarking::NonStrictMarking(const std::vector<int>& v) : inTrace(false){
 	}
 }
 
-NonStrictMarking::NonStrictMarking(const NonStrictMarking& nsm) : inTrace(false){
+NonStrictMarking::NonStrictMarking(const NonStrictMarking& nsm){
 	for(PlaceList::const_iterator it = nsm.places.begin(); it != nsm.places.end(); it++){
 		places.push_back(Place(*it));
 	}
+	inTrace = nsm.inTrace;
 }
 
 unsigned int NonStrictMarking::size(){
