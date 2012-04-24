@@ -13,6 +13,7 @@
 #include "boost/functional/hash.hpp"
 #include "NonStrictMarking.hpp"
 #include <iostream>
+#include "../Core/TAPN/TAPN.hpp"
 
 using namespace std;
 
@@ -46,22 +47,21 @@ public:
 	}
 
 	friend std::size_t hash_value(Token const& t)
-		{
-			size_t seed = 0;
-			boost::hash_combine(seed, t.getAge());
-			boost::hash_combine(seed, t.getCount());
-			return seed;
-		}
+	{
+		size_t seed = 0;
+		boost::hash_combine(seed, t.getAge());
+		boost::hash_combine(seed, t.getCount());
+		return seed;
+	}
 };
 
 class Place {
-	public:
-		int id;
-		TokenList tokens;
+public:
+	const TAPN::TimedPlace* place;
+	TokenList tokens;
 
-	Place(int id) : id(id){};
-	Place(const Place& p){
-		id = p.id;
+	Place(const TAPN::TimedPlace* place) : place(place){};
+	Place(const Place& p) : place(p.place){
 		for(TokenList::const_iterator it = p.tokens.begin(); it != p.tokens.end(); it++){
 			tokens.push_back(*it);
 		}
@@ -70,7 +70,7 @@ class Place {
 	friend std::size_t hash_value(Place const& p)
 	{
 		std::size_t seed = boost::hash_range(p.tokens.begin(), p.tokens.end());
-		boost::hash_combine(seed, p.id);
+		boost::hash_combine(seed, p.place->GetIndex());
 
 		return seed;
 	}
@@ -104,7 +104,7 @@ typedef vector<Place> PlaceList;
 class NonStrictMarking {
 public:
 	NonStrictMarking();
-	NonStrictMarking(const std::vector<int>& v);
+	NonStrictMarking(const TAPN::TimedArcPetriNet& tapn, const std::vector<int>& v);
 	NonStrictMarking(const NonStrictMarking& nsm);
 
 public:
@@ -132,7 +132,7 @@ public:
 	public: // modifiers
 		bool RemoveToken(int placeId, int age);
 		bool RemoveToken(Place& place, Token& token);
-		void AddTokenInPlace(int placeId, int age);
+		void AddTokenInPlace(TAPN::TimedPlace& place, int age);
 		void AddTokenInPlace(Place& place, Token& token);
 		void incrementAge();	// increment
 		void RemoveRangeOfTokens(Place& place, TokenList::iterator begin, TokenList::iterator end);

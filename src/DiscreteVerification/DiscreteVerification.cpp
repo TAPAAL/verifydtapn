@@ -33,7 +33,7 @@ int DiscreteVerification::run(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, s
 		return -1;
 	}
 
-	NonStrictMarking* initialMarking = new NonStrictMarking(initialPlacement);
+	NonStrictMarking* initialMarking = new NonStrictMarking(*tapn, initialPlacement);
 
 	std::cout << "MC: " << tapn->MaxConstant() << std::endl;
 	std::cout << "initialMarking: " << *initialMarking << std::endl;

@@ -177,7 +177,7 @@ bool NonStrictDFS::isDelayPossible(NonStrictMarking& marking){
 	PlaceList::const_iterator markedPlace_iter = places.begin();
 	for(TAPN::TimedPlace::Vector::const_iterator place_iter = tapn->GetPlaces().begin(); place_iter != tapn->GetPlaces().end(); place_iter++){
 		int inv = place_iter->get()->GetInvariant().GetBound();
-		if(place_iter->get()->GetIndex() == markedPlace_iter->id){
+		if(*(place_iter->get()) == *(markedPlace_iter->place)){
 			if(markedPlace_iter->MaxTokenAge() > inv-1){
 				return false;
 			}

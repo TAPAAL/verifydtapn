@@ -8,6 +8,8 @@
 #include "TimeInvariant.hpp"
 #include "TimedInputArc.hpp"
 #include "OutputArc.hpp"
+#include "TransportArc.hpp"
+#include "InhibitorArc.hpp"
 #include "boost/shared_ptr.hpp"
 
 namespace VerifyTAPN{
@@ -30,8 +32,8 @@ namespace VerifyTAPN{
 
 		public: // construction / destruction
 			TimedPlace(const std::string& name, const std::string& id, const TimeInvariant timeInvariant)
-			: name(name), id(id), timeInvariant(timeInvariant), index(-2), isUntimed(false), maxConstant(0), hasInhibitorArcs(false) { };
-			TimedPlace() : name(BOTTOM_NAME), timeInvariant(), index(BottomIndex()), isUntimed(false), maxConstant(0), hasInhibitorArcs(false) { };
+			: name(name), id(id), timeInvariant(timeInvariant), index(-2), isUntimed(false), maxConstant(0), hasInhibitorArcs(false), inputArcs(), transportArcs(), inhibitorArcs()  { };
+			TimedPlace() : name(BOTTOM_NAME), timeInvariant(), index(BottomIndex()), isUntimed(false), maxConstant(0), hasInhibitorArcs(false), inputArcs(), transportArcs(), inhibitorArcs(){ };
 			virtual ~TimedPlace() { /* empty */ };
 
 		public: // modifiers
@@ -39,6 +41,10 @@ namespace VerifyTAPN{
 			inline void SetIndex(int i) { index = i; };
 			inline void SetMaxConstant(int max) { maxConstant = max; }
 			inline void SetHasInhibitorArcs(bool inhibitorArcs) { hasInhibitorArcs = inhibitorArcs; }
+			inline void AddInputArc(boost::shared_ptr<TimedInputArc> inputArc) { inputArcs.push_back(inputArc); }
+			inline void AddTransportArc(boost::shared_ptr<TransportArc> transportArc) { transportArcs.push_back(transportArc); }
+			inline void AddInhibitorArc(boost::shared_ptr<InhibitorArc> inhibitorArc) { inhibitorArcs.push_back(inhibitorArc); }
+			inline void AddOutputArc(boost::shared_ptr<OutputArc> outputArc) { outputArcs.push_back(outputArc); }
 		public: // inspection
 			const std::string& GetName() const;
 			const std::string& GetId() const;
@@ -48,6 +54,10 @@ namespace VerifyTAPN{
 			inline const int GetMaxConstant() const { return maxConstant; }
 			inline const TAPN::TimeInvariant& GetInvariant() const { return timeInvariant; };
 			inline bool HasInhibitorArcs() const { return hasInhibitorArcs; };
+			inline const TransportArc::WeakPtrVector& GetTransportArcs() const { return transportArcs; }
+			inline const InhibitorArc::WeakPtrVector& GetInhibitorArcs() const { return inhibitorArcs; }
+			inline const TimedInputArc::WeakPtrVector& GetInputArcs() const { return inputArcs; }
+
 		private: // data
 			std::string	name;
 			std::string id;
@@ -56,6 +66,10 @@ namespace VerifyTAPN{
 			bool isUntimed;
 			int maxConstant;
 			bool hasInhibitorArcs;
+			TimedInputArc::WeakPtrVector inputArcs;
+			TransportArc::WeakPtrVector transportArcs;
+			InhibitorArc::WeakPtrVector inhibitorArcs;
+			OutputArc::WeakPtrVector outputArcs;
 		};
 
 		inline std::ostream& operator<<(std::ostream& out, const TimedPlace& place)
