@@ -49,6 +49,15 @@ int DiscreteVerification::run(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, s
 	NonStrictDFS* strategy = new NonStrictDFS(tapn, *initialMarking, query, options);
 
 	std::cout << options << std::endl;
+
+	if(query->GetQuantifier() == EG || query->GetQuantifier() == AF){
+		std::cout << "Trace (length = "<< strategy->trace.size() <<"): " << std::endl;
+		while(!strategy->trace.empty()){
+			std::cout << *strategy->trace.top() << std::endl;
+			strategy->trace.pop();
+		}
+	}
+
 	bool result = (query->GetQuantifier() == AG || query->GetQuantifier() == AF)? !strategy->Verify() : strategy->Verify();
 
 	//std::cout << strategy->GetStats() << std::endl;

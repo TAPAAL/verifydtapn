@@ -105,7 +105,7 @@ bool NonStrictDFS::addToPW(NonStrictMarking* marking){
 					cm.end() != iter;
 					iter++){
 				if(iter->equals(*m)){
-					delete m;
+					//delete m;
 					if(iter->inTrace){
 						return true;
 					}else{

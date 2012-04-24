@@ -47,13 +47,14 @@ private:
 	NonStrictMarking* cut(NonStrictMarking& marking);
 private:
 	int validChildren;
-	stack< NonStrictMarking* > trace;
 	PWList pwList;
 	boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn;
 	NonStrictMarking& initialMarking;
 	AST::Query* query;
 	VerificationOptions options;
 	SuccessorGenerator successorGenerator;
+public:
+	stack< NonStrictMarking* > trace;
 };
 
 }
