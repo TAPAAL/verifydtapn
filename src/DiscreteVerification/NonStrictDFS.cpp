@@ -34,21 +34,10 @@ bool NonStrictDFS::Verify(){
 		NonStrictMarking& marking = *pwList.GetNextUnexplored();
 		bool endOfMaxRun = true;
 		validChildren = 0;
-#if DEBUG
-		std::cout << "-----------------------------------\n";
-		std::cout << "PWList size " << pwList.Size() << std::endl;
-		std::cout << "Current marking: " << marking << std::endl;
-		std::cout << "-----------------------------------\n";
-#endif
 
 		// Do the forall
 		vector<NonStrictMarking> next = getPossibleNextMarkings(marking);
 		for(vector<NonStrictMarking>::iterator it = next.begin(); it != next.end(); it++){
-
-#if DEBUG
-			std:cout << *it << "\n";
-#endif
-
 
 			if(addToPW(&(*it))){
 				std::cout << "Markings found: " << pwList.Size() << std::endl;
@@ -57,10 +46,6 @@ bool NonStrictDFS::Verify(){
 			}
 			endOfMaxRun = false;
 		}
-#if DEBUG
-		std::cout << "PWList size " << pwList.Size() << std::endl;
-		std::cout << "After SG: " << pwList << std::endl << std::endl;
-#endif
 
 		if(isDelayPossible(marking)){
 			marking.incrementAge();
@@ -69,6 +54,7 @@ bool NonStrictDFS::Verify(){
 				std::cout << "Markings explored: " << pwList.Size()-pwList.waiting_list.Size() << std::endl;
 				return true;
 			}
+			marking.decrementAge();
 			endOfMaxRun = false;
 		}
 

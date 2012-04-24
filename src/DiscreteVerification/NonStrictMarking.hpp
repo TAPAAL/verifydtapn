@@ -42,8 +42,11 @@ public:
 	void remove(int num){ count = count - num; };
 
 	// Ages all tokens by 1
-	void incrementAge(){
+	inline void incrementAge(){
 		age++;
+	}
+	inline void decrementAge(){
+		age--;
 	}
 
 	friend std::size_t hash_value(Token const& t)
@@ -97,6 +100,12 @@ public:
 			iter->incrementAge();
 		}
 	}
+
+	void decrementAge(){
+		for(TokenList::iterator iter = tokens.begin(); iter != tokens.end(); iter++){
+			iter->decrementAge();
+		}
+	}
 };
 
 typedef vector<Place> PlaceList;
@@ -135,6 +144,7 @@ public:
 		void AddTokenInPlace(TAPN::TimedPlace& place, int age);
 		void AddTokenInPlace(Place& place, Token& token);
 		void incrementAge();	// increment
+		void decrementAge();	// decrement
 		void RemoveRangeOfTokens(Place& place, TokenList::iterator begin, TokenList::iterator end);
 
 	public:

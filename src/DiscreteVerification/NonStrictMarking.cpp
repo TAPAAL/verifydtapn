@@ -184,6 +184,11 @@ void NonStrictMarking::incrementAge(){
 		iter->incrementAge();
 	}
 }
+void NonStrictMarking::decrementAge(){
+	for(PlaceList::iterator iter = places.begin(); iter != places.end(); iter++){
+		iter->decrementAge();
+	}
+}
 
 NonStrictMarking::~NonStrictMarking() {
 	// TODO: Should we destruct something here? (places)
