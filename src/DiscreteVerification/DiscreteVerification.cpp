@@ -50,6 +50,8 @@ int DiscreteVerification::run(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, s
 
 	std::cout << options << std::endl;
 
+	bool result = (query->GetQuantifier() == AG || query->GetQuantifier() == AF)? !strategy->Verify() : strategy->Verify();
+
 	if(query->GetQuantifier() == EG || query->GetQuantifier() == AF){
 		std::cout << "Trace (length = "<< strategy->trace.size() <<"): " << std::endl;
 		while(!strategy->trace.empty()){
@@ -57,8 +59,6 @@ int DiscreteVerification::run(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, s
 			strategy->trace.pop();
 		}
 	}
-
-	bool result = (query->GetQuantifier() == AG || query->GetQuantifier() == AF)? !strategy->Verify() : strategy->Verify();
 
 	//std::cout << strategy->GetStats() << std::endl;
 	std::cout << "Query is " << (result ? "satisfied" : "NOT satisfied") << "." << std::endl;

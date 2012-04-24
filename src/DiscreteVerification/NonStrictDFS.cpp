@@ -24,21 +24,21 @@ bool NonStrictDFS::Verify(){
 		std::cout << "Markings explored: " << pwList.Size() << std::endl;
 		return true;
 	}
-#if DEBUG
-	std::cout << "PWList: " << pwList << std::endl;
-	std::cout << "MC: " << tapn->MaxConstant() << std::endl;
-#endif
 
 	//Main loop
 	while(pwList.HasWaitingStates()){
 		NonStrictMarking& marking = *pwList.GetNextUnexplored();
 		bool endOfMaxRun = true;
+		marking.inTrace = true;
+		trace.push(&marking);
+		if(marking.equals(*pwList.markings_storage[marking.HashKey()].at(0))){
+			assert(pwList.markings_storage[marking.HashKey()].at(0)->inTrace == true);
+		}
 		validChildren = 0;
 
 		// Do the forall
 		vector<NonStrictMarking> next = getPossibleNextMarkings(marking);
 		for(vector<NonStrictMarking>::iterator it = next.begin(); it != next.end(); it++){
-
 			if(addToPW(&(*it))){
 				std::cout << "Markings found: " << pwList.Size() << std::endl;
 				std::cout << "Markings explored: " << pwList.Size()-pwList.waiting_list.Size() << std::endl;
@@ -59,8 +59,13 @@ bool NonStrictDFS::Verify(){
 		}
 
 		if(livenessQuery){
-			if(endOfMaxRun)	return true;
+			if(endOfMaxRun){
+				std::cout << "End of max run" << std::endl;
+				return true;
+			}
 			if(validChildren == 0){
+				trace.top()->inTrace = false;
+				trace.pop();
 				while(!trace.empty() && trace.top()->children == 1){
 					trace.top()->inTrace = false;
 					trace.pop();
@@ -69,8 +74,6 @@ bool NonStrictDFS::Verify(){
 				trace.top()->children--;
 			}else{
 				marking.children = validChildren;
-				marking.inTrace = true;
-				trace.push(&marking);
 			}
 		}
 	}
@@ -93,7 +96,6 @@ bool NonStrictDFS::addToPW(NonStrictMarking* marking){
 	}
 
 	if(livenessQuery){
-		m->inTrace = true;
 		QueryVisitor checker(*m);
 		boost::any context;
 		query->Accept(checker, context);
@@ -101,16 +103,20 @@ bool NonStrictDFS::addToPW(NonStrictMarking* marking){
 		if(!pwList.Add(m)){
 			//Test if collision is in trace
 			PWList::NonStrictMarkingList& cm = pwList.markings_storage[marking->HashKey()];
-			for(PWList::NonStrictMarkingList::const_iterator iter = cm.begin();
+			for(PWList::NonStrictMarkingList::iterator iter = cm.begin();
 					cm.end() != iter;
 					iter++){
-				if(iter->equals(*m)){
-					//delete m;
-					if(iter->inTrace){
-						return true;
-					}else{
-						return false;
+				if((*iter)->equals(*m)){
+					delete m;
+					stack<NonStrictMarking*> s = trace;
+					while(!s.empty()){
+						if(s.top()->equals(*(*iter))){
+							trace.push(*iter);
+							return true;
+						}
+						s.pop();
 					}
+					return false;
 				}
 			}
 		}else{

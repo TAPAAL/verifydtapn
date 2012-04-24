@@ -18,7 +18,7 @@ namespace DiscreteVerification {
 
 class PWList {
 public:
-	typedef std::vector<NonStrictMarking> NonStrictMarkingList;
+	typedef std::vector<NonStrictMarking*> NonStrictMarkingList;
 	typedef google::sparse_hash_map<size_t, NonStrictMarkingList> HashMap;
 public:
 	PWList() : markings_storage(256000) {};
