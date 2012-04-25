@@ -28,7 +28,19 @@ bool NonStrictDFS::Verify(){
 	//Main loop
 	while(pwList.HasWaitingStates()){
 		NonStrictMarking& next_marking = *pwList.GetNextUnexplored();
+#if DEBUG
+		std::cout << "--------------------------Start with new marking-----------------------------------" << std::endl;
+		std::cout << "current marking: " << next_marking << " marking size: " << next_marking.size() << std::endl;
+#endif
 		NonStrictMarking marking(next_marking);
+
+#if DEBUG
+		if(marking.places.size() == 2 && (marking.places.at(0).tokens.at(0).getAge() == 7 && marking.places.at(0).tokens.at(0).getCount() == 3 &&
+					marking.places.at(1).tokens.at(0).getAge() == 7 && marking.places.at(1).tokens.at(0).getCount() == 1))
+				std::cout << "Stop!!" << std::endl;
+#endif
+
+
 		assert(marking.equals(next_marking));
 		bool endOfMaxRun = true;
 		next_marking.inTrace = true;
@@ -43,6 +55,9 @@ bool NonStrictDFS::Verify(){
 		// Do the forall
 		vector<NonStrictMarking> next = getPossibleNextMarkings(marking);
 		for(vector<NonStrictMarking>::iterator it = next.begin(); it != next.end(); it++){
+#if DEBUG
+			std::cout << "Succssor marking: " << *it << std::endl;
+#endif
 			if(addToPW(&(*it))){
 				std::cout << "Markings found: " << pwList.Size() << std::endl;
 				std::cout << "Markings explored: " << pwList.Size()-pwList.waiting_list.Size() << std::endl;
@@ -83,6 +98,9 @@ bool NonStrictDFS::Verify(){
 
 			}
 		}
+#if DEBUG
+		std::cout << "--------------------------Done with marking-----------------------------------" << std::endl;
+#endif
 	}
 
 
@@ -150,7 +168,7 @@ NonStrictMarking* NonStrictDFS::cut(NonStrictMarking& marking){
 	for(PlaceList::iterator place_iter = m->places.begin(); place_iter != m->places.end(); place_iter++){
 		int count = 0;
 #if DEBUG
-		std::cout << "Cut before: " << *m << std::endl;
+		//std::cout << "Cut before: " << *m << std::endl;
 #endif
 		for(TokenList::iterator token_iter = place_iter->tokens.begin(); token_iter != place_iter->tokens.end(); token_iter++){
 			if(token_iter->getAge() > (tapn->MaxConstant()==0? -1:tapn->MaxConstant())){
@@ -165,7 +183,7 @@ NonStrictMarking* NonStrictDFS::cut(NonStrictMarking& marking){
 		Token t(tapn->MaxConstant()==0? 0:tapn->MaxConstant()+1,count);
 		m->AddTokenInPlace(*place_iter, t);
 #if DEBUG
-		std::cout << "Cut after: " << *m << std::endl;
+		//std::cout << "Cut after: " << *m << std::endl;
 #endif
 	}
 	return m;

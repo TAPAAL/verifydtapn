@@ -10,6 +10,9 @@
 
 #include "../Core/TAPN/TAPN.hpp"
 #include "NonStrictMarking.hpp"
+#include "google/sparse_hash_map"
+#include <limits>
+#define DEBUG 0
 
 namespace VerifyTAPN {
 namespace DiscreteVerification {
@@ -37,15 +40,28 @@ struct TransportArcRef : ArcRef{
 };
 
 class SuccessorGenerator {
+	typedef google::sparse_hash_map<const void*, TokenList> ArcHashMap;
+
 public:
 	SuccessorGenerator(TAPN::TimedArcPetriNet& tapn) : tapn(tapn) {};
 	~SuccessorGenerator();
 	vector< NonStrictMarking > generateSuccessors(const NonStrictMarking& marking) const;
 private:
 	TokenList getPlaceFromMarking(const NonStrictMarking& marking, int placeID) const;
-	void generateMarkings(vector<NonStrictMarking>& result, const NonStrictMarking& init_marking, const TimedTransition& transition, vector<InputArcRef> inputArcs, vector<TransportArcRef> transportArcs) const;
-	void recursiveGenerateMarking(vector<NonStrictMarking>& result, NonStrictMarking& init_marking, const TimedTransition& transition, vector<InputArcRef> inputArcs, vector<TransportArcRef> transportArcs, int index) const;
+	void generateMarkings(vector<NonStrictMarking>& result, const NonStrictMarking& init_marking, const std::vector< TimedTransition >& transitions, ArcHashMap& enabledArcs) const;
+	void recursiveGenerateMarking(vector<NonStrictMarking>& result, NonStrictMarking& init_marking, const TimedTransition& transition, ArcHashMap& enabledArcs, unsigned int index) const;
 	const TAPN::TimedArcPetriNet& tapn;
+	void processArc(
+			ArcHashMap& enabledArcs,
+			std::vector<unsigned int>& enabledTransitionArcs,
+			std::vector<TAPN::TimedTransition>& enabledTransitions,
+			const Place& place,
+			const TAPN::TimeInterval& interval,
+			const void* arcAddress,
+			const TimedTransition& transition,
+			int bound = std::numeric_limits<int>().max(),
+			bool isInhib = false
+	) const;
 };
 
 } /* namespace DiscreteVerification */
