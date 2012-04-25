@@ -194,7 +194,6 @@ NonStrictMarking::~NonStrictMarking() {
 }
 
 bool NonStrictMarking::equals(const NonStrictMarking &m1) const{
-	if(m1.places.size() == 0) return false;
 	if(m1.places.size() != places.size())	return false;
 
 	PlaceList::const_iterator p_iter = m1.places.begin();
