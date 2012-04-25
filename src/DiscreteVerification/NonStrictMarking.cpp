@@ -13,12 +13,12 @@ using namespace std;
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
-NonStrictMarking::NonStrictMarking() {
+NonStrictMarking::NonStrictMarking() : inTrace(false), children(0){
 	// TODO Auto-generated constructor stub
 
 }
 
-NonStrictMarking::NonStrictMarking(const std::vector<int>& v){
+NonStrictMarking::NonStrictMarking(const TAPN::TimedArcPetriNet& tapn, const std::vector<int>& v) : inTrace(false), children(0){
 	int prevPlaceId = -1;
 	for(std::vector<int>::const_iterator iter = v.begin(); iter != v.end(); iter++){
 		if(*iter == prevPlaceId){
@@ -30,7 +30,8 @@ NonStrictMarking::NonStrictMarking(const std::vector<int>& v){
 				p.tokens.begin()->add(1);
 			}
 		}else{
-			Place p(*iter);
+
+			Place p(&tapn.GetPlace(*iter));
 			Token t(0,1);
 			p.tokens.push_back(t);
 			places.push_back(p);
@@ -39,7 +40,7 @@ NonStrictMarking::NonStrictMarking(const std::vector<int>& v){
 	}
 }
 
-NonStrictMarking::NonStrictMarking(const NonStrictMarking& nsm) {
+NonStrictMarking::NonStrictMarking(const NonStrictMarking& nsm) : inTrace(false), children(0){
 	for(PlaceList::const_iterator it = nsm.places.begin(); it != nsm.places.end(); it++){
 		places.push_back(Place(*it));
 	}
@@ -66,7 +67,7 @@ unsigned int NonStrictMarking::size(){
 int NonStrictMarking::NumberOfTokensInPlace(int placeId) const{
 	int count = 0;
 	for(PlaceList::const_iterator iter = places.begin(); iter != places.end(); iter++){
-		if(iter->id == placeId){
+		if(iter->place->GetIndex() == placeId){
 			for(TokenList::const_iterator it = iter->tokens.begin(); it != iter->tokens.end(); it++){
 				count = count + it->getCount();
 			}
@@ -77,14 +78,14 @@ int NonStrictMarking::NumberOfTokensInPlace(int placeId) const{
 
 const TokenList& NonStrictMarking::GetTokenList(int placeId){
 	for(PlaceList::const_iterator iter = places.begin(); iter != places.end(); iter++){
-		if(iter->id == placeId) return iter->tokens;
+		if(iter->place->GetIndex() == placeId) return iter->tokens;
 	}
 	return emptyTokenList;
 }
 
 bool NonStrictMarking::RemoveToken(int placeId, int age){
 	for(PlaceList::iterator pit = places.begin(); pit != places.end(); pit++){
-		if(pit->id == placeId){
+		if(pit->place->GetIndex() == placeId){
 			for(TokenList::iterator tit = pit->tokens.begin(); tit != pit->tokens.end(); tit++){
 				if(tit->getAge() == age){
 					return RemoveToken(*pit, *tit);
@@ -109,7 +110,7 @@ bool NonStrictMarking::RemoveToken(Place& place, Token& token){
 				place.tokens.erase(iter);
 				if(place.tokens.size() == 0){
 					for(PlaceList::iterator it = places.begin(); it != places.end(); it++){
-						if(it->id == place.id){
+						if(it->place->GetIndex() == place.place->GetIndex()){
 							places.erase(it);
 							return true;
 						}
@@ -122,9 +123,9 @@ bool NonStrictMarking::RemoveToken(Place& place, Token& token){
 	return false;
 }
 
-void NonStrictMarking::AddTokenInPlace(int placeId, int age){
+void NonStrictMarking::AddTokenInPlace(TAPN::TimedPlace& place, int age){
 	for(PlaceList::iterator pit = places.begin(); pit != places.end(); pit++){
-		if(pit->id == placeId){
+		if(pit->place->GetIndex() == place.GetIndex()){
 			for(TokenList::iterator tit = pit->tokens.begin(); tit != pit->tokens.end(); tit++){
 				if(tit->getAge() == age){
 					Token t(age, 1);
@@ -138,13 +139,13 @@ void NonStrictMarking::AddTokenInPlace(int placeId, int age){
 		}
 	}
 	Token t(age,1);
-	Place p(placeId);
+	Place p(&place);
 	AddTokenInPlace(p,t);
 
 	// Insert place
 	bool inserted = false;
 	for(PlaceList::iterator it = places.begin(); it != places.end(); it++){
-		if(it->id > placeId){
+		if(it->place->GetIndex() > place.GetIndex()){
 			places.insert(it, p);
 			inserted = true;
 			break;
@@ -182,18 +183,22 @@ void NonStrictMarking::incrementAge(){
 		iter->incrementAge();
 	}
 }
+void NonStrictMarking::decrementAge(){
+	for(PlaceList::iterator iter = places.begin(); iter != places.end(); iter++){
+		iter->decrementAge();
+	}
+}
 
 NonStrictMarking::~NonStrictMarking() {
 	// TODO: Should we destruct something here? (places)
 }
 
 bool NonStrictMarking::equals(const NonStrictMarking &m1) const{
-	if(m1.places.size() == 0) return false;
 	if(m1.places.size() != places.size())	return false;
 
 	PlaceList::const_iterator p_iter = m1.places.begin();
 	for(PlaceList::const_iterator iter = places.begin(); iter != places.end(); iter++, p_iter++){
-		if(iter->id != p_iter->id)	return false;
+		if(iter->place->GetIndex() != p_iter->place->GetIndex())	return false;
 		if(iter->tokens.size() != p_iter->tokens.size())	return false;
 		TokenList::const_iterator pt_iter = p_iter->tokens.begin();
 		for(TokenList::const_iterator t_iter = iter->tokens.begin(); t_iter != iter->tokens.end(); t_iter++, pt_iter++){
@@ -207,7 +212,7 @@ bool NonStrictMarking::equals(const NonStrictMarking &m1) const{
 std::ostream& operator<<(std::ostream& out, NonStrictMarking& x ) {
 	out << "-";
 	for(PlaceList::iterator iter = x.places.begin(); iter != x.places.end(); iter++){
-		out << "place " << iter->id << " has tokens (age, count): ";
+		out << "place " << iter->place->GetId() << " has tokens (age, count): ";
 		for(TokenList::iterator it = iter->tokens.begin(); it != iter->tokens.end(); it++){
 			out << "(" << it->getAge() << ", " << it->getCount() << ") ";
 		}

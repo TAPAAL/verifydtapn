@@ -27,6 +27,8 @@
 #include "QueryVisitor.hpp"
 #include "boost/any.hpp"
 
+#include <stack>
+
 namespace VerifyTAPN {
 
 namespace DiscreteVerification {
@@ -44,12 +46,15 @@ private:
 	bool isDelayPossible(NonStrictMarking& marking);
 	NonStrictMarking* cut(NonStrictMarking& marking);
 private:
+	int validChildren;
 	PWList pwList;
 	boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn;
 	NonStrictMarking& initialMarking;
 	AST::Query* query;
 	VerificationOptions options;
 	SuccessorGenerator successorGenerator;
+public:
+	stack< NonStrictMarking* > trace;
 };
 
 }

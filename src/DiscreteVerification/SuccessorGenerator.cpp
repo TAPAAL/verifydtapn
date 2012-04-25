@@ -92,7 +92,7 @@ TokenList SuccessorGenerator::getPlaceFromMarking(const NonStrictMarking& markin
 	for(PlaceList::const_iterator iter = marking.GetPlaceList().begin();
 			iter != marking.GetPlaceList().end();
 			iter++){
-		if(iter->id == placeID) return iter->tokens;
+		if(iter->place->GetIndex() == placeID) return iter->tokens;
 	}
 	return TokenList();
 }
@@ -125,14 +125,14 @@ void SuccessorGenerator::recursiveGenerateMarking(vector<NonStrictMarking>& resu
 				NonStrictMarking marking(init_marking);
 
 				marking.RemoveToken(transportArcs.at(index-inputArcs.size()).arc.lock().get()->Source().GetIndex(), it->getAge());
-				marking.AddTokenInPlace(transportArcs.at(index-inputArcs.size()).arc.lock().get()->Destination().GetIndex(), it->getAge());
+				marking.AddTokenInPlace(transportArcs.at(index-inputArcs.size()).arc.lock().get()->Destination(), it->getAge());
 				recursiveGenerateMarking(result, marking, transition, inputArcs, transportArcs, index+1);
 			}
 		}
 	}else{
 		//Beyond last index
 		for(OutputArc::WeakPtrVector::const_iterator it = transition.GetPostset().begin(); it != transition.GetPostset().end(); it++){
-			init_marking.AddTokenInPlace(it->lock().get()->OutputPlace().GetIndex(), 0);
+			init_marking.AddTokenInPlace(it->lock().get()->OutputPlace(), 0);
 		}
 		result.push_back(init_marking);
 	}
