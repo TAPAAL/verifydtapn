@@ -13,12 +13,12 @@ using namespace std;
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
-NonStrictMarking::NonStrictMarking() : inTrace(false){
+NonStrictMarking::NonStrictMarking() : inTrace(false), children(0){
 	// TODO Auto-generated constructor stub
 
 }
 
-NonStrictMarking::NonStrictMarking(const TAPN::TimedArcPetriNet& tapn, const std::vector<int>& v) : inTrace(false){
+NonStrictMarking::NonStrictMarking(const TAPN::TimedArcPetriNet& tapn, const std::vector<int>& v) : inTrace(false), children(0){
 	int prevPlaceId = -1;
 	for(std::vector<int>::const_iterator iter = v.begin(); iter != v.end(); iter++){
 		if(*iter == prevPlaceId){
@@ -40,11 +40,10 @@ NonStrictMarking::NonStrictMarking(const TAPN::TimedArcPetriNet& tapn, const std
 	}
 }
 
-NonStrictMarking::NonStrictMarking(const NonStrictMarking& nsm){
+NonStrictMarking::NonStrictMarking(const NonStrictMarking& nsm) : inTrace(false), children(0){
 	for(PlaceList::const_iterator it = nsm.places.begin(); it != nsm.places.end(); it++){
 		places.push_back(Place(*it));
 	}
-	inTrace = nsm.inTrace;
 }
 
 unsigned int NonStrictMarking::size(){
