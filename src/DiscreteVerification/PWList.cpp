@@ -21,7 +21,6 @@ bool PWList::Add(NonStrictMarking* marking){
 			return false;
 		}
 	}
-	std::cout << "Adding marking " << *marking << std::endl;
 	m.push_back(marking);
 	waiting_list.Add(marking);
 	return true;
