@@ -37,7 +37,9 @@ namespace DiscreteVerification {
 class NonStrictBFS : public NonStrictSearch {
 public:
 	NonStrictBFS(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options)
-	: NonStrictSearch(tapn, initialMarking, query, options, CreateWaitingList()){};
+	: NonStrictSearch(tapn, initialMarking, query, options, CreateWaitingList()){
+		std::cout << "Using BFS strategy" << std::endl;
+	};
 	virtual ~NonStrictBFS(){};
 
 protected:

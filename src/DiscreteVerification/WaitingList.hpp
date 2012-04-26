@@ -51,6 +51,49 @@ private:
 	std::queue< NonStrictMarking* > queue;
 };
 
+struct WeightedMarking{
+	NonStrictMarking* marking;
+	int weight;
+};
+
+struct less : public std::binary_function<WeightedMarking*, WeightedMarking*, bool>
+{
+	bool operator()(const WeightedMarking* x, const WeightedMarking* y) const
+	{
+		return x->weight < y->weight;
+	}
+};
+
+class HeuristicWaitingList : public WaitingList{
+public:
+		typedef std::priority_queue<WeightedMarking*, std::vector<WeightedMarking*>, less > priority_queue;
+public:
+	HeuristicWaitingList() : queue() { };
+	virtual ~HeuristicWaitingList();
+public:
+	virtual void Add(NonStrictMarking* marking);
+	virtual NonStrictMarking* Next();
+	virtual size_t Size() { return queue.size(); };
+private:
+	int calculateWeight(NonStrictMarking* marking);
+	priority_queue queue;
+};
+
+class RandomWaitingList : public WaitingList{
+public:
+		typedef std::priority_queue<WeightedMarking*, std::vector<WeightedMarking*>, less > priority_queue;
+public:
+	RandomWaitingList() : queue() { };
+	virtual ~RandomWaitingList();
+public:
+	virtual void Add(NonStrictMarking* marking);
+	virtual NonStrictMarking* Next();
+	virtual size_t Size() { return queue.size(); };
+private:
+	int calculateWeight(NonStrictMarking* marking);
+	priority_queue queue;
+};
+
 } /* namespace DiscreteVerification */
 } /* namespace VerifyTAPN */
 #endif /* WAITINGLIST_HPP_ */

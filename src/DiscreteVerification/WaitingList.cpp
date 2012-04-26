@@ -62,5 +62,66 @@ NonStrictMarking* StackWaitingList::Next()
 		}
 
 
+		void HeuristicWaitingList::Add(NonStrictMarking* marking)
+		{
+			WeightedMarking* weighted_marking = new WeightedMarking;
+			weighted_marking->marking = marking;
+			weighted_marking->weight = calculateWeight(marking);
+			queue.push(weighted_marking);
+		}
+
+		NonStrictMarking* HeuristicWaitingList::Next()
+		{
+			assert(Size() > 0);
+			WeightedMarking* weighted_marking = queue.top();
+			NonStrictMarking* marking = weighted_marking->marking;
+			queue.pop();
+			return marking;
+		}
+
+		int HeuristicWaitingList::calculateWeight(NonStrictMarking* marking)
+		{
+			//TODO: Calculate weight
+			return 1;
+		}
+
+		HeuristicWaitingList::~HeuristicWaitingList()
+		{
+			while(!queue.empty()){
+				queue.pop();
+			}
+		}
+
+
+		void RandomWaitingList::Add(NonStrictMarking* marking)
+				{
+					WeightedMarking* weighted_marking = new WeightedMarking;
+					weighted_marking->marking = marking;
+					weighted_marking->weight = calculateWeight(marking);
+					queue.push(weighted_marking);
+				}
+
+				NonStrictMarking* RandomWaitingList::Next()
+				{
+					assert(Size() > 0);
+					WeightedMarking* weighted_marking = queue.top();
+					NonStrictMarking* marking = weighted_marking->marking;
+					queue.pop();
+					return marking;
+				}
+
+				int RandomWaitingList::calculateWeight(NonStrictMarking* marking)
+				{
+					return rand();
+				}
+
+				RandomWaitingList::~RandomWaitingList()
+				{
+					while(!queue.empty()){
+						queue.pop();
+					}
+				}
+
+
 } /* namespace DiscreteVerification */
 } /* namespace VerifyTAPN */
