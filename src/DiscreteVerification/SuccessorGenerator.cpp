@@ -198,6 +198,7 @@ void SuccessorGenerator::generateMarkings(vector<NonStrictMarking>& result, cons
 #endif
 		if (inhibited) continue;
 		NonStrictMarking m(init_marking);
+		m.SetGeneratedBy(&(*iter));
 		recursiveGenerateMarking(result, m, *iter, enabledArcs, 0);
 	}
 }

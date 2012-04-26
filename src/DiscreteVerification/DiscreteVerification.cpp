@@ -5,17 +5,12 @@
  *      Author: jakob
  */
 
-#include <iostream>
 #include "DiscreteVerification.hpp"
-#include "../Core/TAPN/TAPN.hpp"
-#include "boost/smart_ptr.hpp"
-#include "../Core/QueryParser/AST.hpp"
-#include "NonStrictMarking.hpp"
 #include "NonStrictDFS.hpp"
 #include "NonStrictBFS.hpp"
 #include "NonStrictHeuristic.hpp"
 #include "NonStrictRandom.hpp"
-
+#include "NonStrictSearch.hpp"
 
 namespace VerifyTAPN {
 
@@ -98,9 +93,48 @@ int DiscreteVerification::run(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, s
 		return 1;
 	}*/
 
+	PrintTraceIfAny(result, strategy->GetLastMarking());
+
 	delete strategy;
 
 	return 0;
+}
+
+void DiscreteVerification::PrintTraceIfAny(bool result, NonStrictMarking* m) {
+	if(result){
+		std::stack < NonStrictMarking* > stack;
+		std::cout << "Trace: " << std::endl;
+		NonStrictMarking* next = m;
+		bool isFirst = true;
+		do{
+			stack.push(next);
+		} while((next=next->parent) != NULL);
+
+		while(!stack.empty()){
+			if(isFirst) {
+				isFirst = false;
+			} else {
+				if(stack.top()->GetGeneratedBy()){
+					std::cout << "Transistion: " << stack.top()->GetGeneratedBy()->GetName() << std::endl;
+				} else{
+					std::cout << "Delay: 1" << std::endl;
+				}
+			}
+
+			std::cout << "Marking: ";
+			for(PlaceList::const_iterator iter = stack.top()->places.begin(); iter != stack.top()->places.end(); iter++){
+				for(TokenList::const_iterator titer = iter->tokens.begin(); titer != iter->tokens.end(); titer++){
+					for(int i = 0; i < titer->getCount(); i++) {
+						std::cout << "(" << iter->place->GetName() << "," << titer->getAge() << ") ";
+					}
+				}
+			}
+			std::cout << std::endl;
+			std::cout << "Stack before: " << stack.size() << std::endl;
+			stack.pop();
+			std::cout << "Stack after: " << stack.size() << std::endl;
+		}
+	}
 }
 
 }
