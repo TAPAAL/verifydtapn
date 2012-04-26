@@ -22,13 +22,13 @@ bool PWList::Add(NonStrictMarking* marking){
 		}
 	}
 	m.push_back(marking);
-	waiting_list.Add(marking);
+	waiting_list->Add(marking);
 	return true;
 }
 
 NonStrictMarking* PWList::GetNextUnexplored(){
 	// TODO: Is this really it?
-	return waiting_list.Next();
+	return waiting_list->Next();
 }
 
 PWList::~PWList() {

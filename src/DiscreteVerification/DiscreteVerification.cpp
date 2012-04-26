@@ -11,7 +11,7 @@
 #include "boost/smart_ptr.hpp"
 #include "../Core/QueryParser/AST.hpp"
 #include "NonStrictMarking.hpp"
-#include "NonStrictSearch.hpp"
+#include "NonStrictDFS.hpp"
 
 
 namespace VerifyTAPN {
@@ -46,9 +46,10 @@ int DiscreteVerification::run(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, s
 		return 1;
 	}
 
-	NonStrictSearch* strategy = new NonStrictSearch(tapn, *initialMarking, query, options);
-
 	std::cout << options << std::endl;
+
+	// Select search strategy
+	NonStrictSearch* strategy = new NonStrictBFS(tapn, *initialMarking, query, options);
 
 	bool result = (query->GetQuantifier() == AG || query->GetQuantifier() == AF)? !strategy->Verify() : strategy->Verify();
 

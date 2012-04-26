@@ -15,19 +15,19 @@
 
 namespace VerifyTAPN {
 namespace DiscreteVerification {
-
 class PWList {
 public:
 	typedef std::vector<NonStrictMarking*> NonStrictMarkingList;
 	typedef google::sparse_hash_map<size_t, NonStrictMarkingList> HashMap;
 public:
-	PWList() : markings_storage(256000) {};
+	PWList() : markings_storage(256000), waiting_list() {};
+	PWList(WaitingList* w_l) : markings_storage(256000), waiting_list(w_l) {};
 	virtual ~PWList();
 	friend std::ostream& operator<<(std::ostream& out, PWList& x);
 
 public: // inspectors
 	virtual bool HasWaitingStates() {
-		return (waiting_list.Size() > 0);
+		return (waiting_list->Size() > 0);
 	};
 
 	virtual long long Size() const {
@@ -45,7 +45,7 @@ public: // modifiers
 
 public:
 	HashMap markings_storage;
-	StackWaitingList waiting_list;
+	WaitingList* waiting_list;
 };
 
 std::ostream& operator<<(std::ostream& out, PWList& x);
