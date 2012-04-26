@@ -5,6 +5,8 @@
  *      Author: MathiasGS
  */
 
+#include "../Core/QueryParser/NormalizationVisitor.hpp"
+#include "WeightQueryVisitor.hpp"
 #include "WaitingList.hpp"
 #include "assert.h"
 #include <queue>
@@ -81,6 +83,13 @@ NonStrictMarking* StackWaitingList::Next()
 
 		int HeuristicWaitingList::calculateWeight(NonStrictMarking* marking)
 		{
+			//Remove nots
+			AST::NormalizationVisitor normalizer();
+			boost::any normal_c;
+			//query.Accept(normalizer, normal_c);
+
+			WeightQueryVisitor weight();
+			boost::any weight_c;
 			//TODO: Calculate weight
 			return 1;
 		}
