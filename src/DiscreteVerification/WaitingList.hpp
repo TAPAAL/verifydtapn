@@ -9,7 +9,7 @@
 #define WAITINGLIST_HPP_
 
 #include "NonStrictMarking.hpp"
-#include <deque>
+#include <queue>
 #include <stack>
 #include "boost/optional.hpp"
 #include "boost/shared_ptr.hpp"
@@ -37,6 +37,18 @@ public:
 	virtual size_t Size() { return stack.size(); };
 private:
 	std::stack< NonStrictMarking* > stack;
+};
+
+class QueueWaitingList : public WaitingList{
+public:
+	QueueWaitingList() : queue() { };
+	virtual ~QueueWaitingList();
+public:
+	virtual void Add(NonStrictMarking* marking);
+	virtual NonStrictMarking* Next();
+	virtual size_t Size() { return queue.size(); };
+private:
+	std::queue< NonStrictMarking* > queue;
 };
 
 } /* namespace DiscreteVerification */

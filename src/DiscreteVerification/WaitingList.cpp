@@ -41,5 +41,26 @@ NonStrictMarking* StackWaitingList::Next()
 	}
 
 
+	void QueueWaitingList::Add(NonStrictMarking* marking)
+		{
+			queue.push(marking);
+		}
+
+	NonStrictMarking* QueueWaitingList::Next()
+		{
+			assert(Size() > 0);
+			NonStrictMarking* marking = queue.front();
+			queue.pop();
+			return marking;
+		}
+
+		QueueWaitingList::~QueueWaitingList()
+		{
+			while(!queue.empty()){
+				queue.pop();
+			}
+		}
+
+
 } /* namespace DiscreteVerification */
 } /* namespace VerifyTAPN */
