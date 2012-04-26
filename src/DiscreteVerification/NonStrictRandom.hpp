@@ -37,13 +37,13 @@ namespace DiscreteVerification {
 class NonStrictRandom : public NonStrictSearch {
 public:
 	NonStrictRandom(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options)
-	: NonStrictSearch(tapn, initialMarking, query, options, CreateWaitingList()){
+	: NonStrictSearch(tapn, initialMarking, query, options, CreateWaitingList(query)){
 		std::cout << "Using random search strategy" << std::endl;
 	};
 	virtual ~NonStrictRandom(){};
 
 protected:
-	virtual WaitingList* CreateWaitingList() const { return new RandomWaitingList; };
+	virtual WaitingList* CreateWaitingList(AST::Query* query) const { return new RandomWaitingList; };
 };
 
 }

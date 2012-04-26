@@ -45,7 +45,7 @@ protected:
 	bool isKBound(NonStrictMarking& marking);
 	bool isDelayPossible(NonStrictMarking& marking);
 	NonStrictMarking* cut(NonStrictMarking& marking);
-	virtual WaitingList* CreateWaitingList() const = 0;
+	virtual WaitingList* CreateWaitingList(AST::Query* query) const = 0;
 protected:
 	bool livenessQuery;
 	int validChildren;

@@ -93,7 +93,7 @@ int DiscreteVerification::run(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, s
 		return 1;
 	}*/
 
-	PrintTraceIfAny(result, strategy->GetLastMarking());
+	//PrintTraceIfAny(result, strategy->GetLastMarking());
 
 	delete strategy;
 
