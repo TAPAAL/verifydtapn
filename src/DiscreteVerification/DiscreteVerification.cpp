@@ -93,7 +93,9 @@ int DiscreteVerification::run(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, s
 		return 1;
 	}*/
 
-	//PrintTraceIfAny(result, strategy->GetLastMarking());
+	if(options.GetTrace() == SOME){
+		PrintTraceIfAny(result, strategy->GetLastMarking());
+	}
 
 	delete strategy;
 
@@ -115,13 +117,13 @@ void DiscreteVerification::PrintTraceIfAny(bool result, NonStrictMarking* m) {
 				isFirst = false;
 			} else {
 				if(stack.top()->GetGeneratedBy()){
-					std::cout << "Transistion: " << stack.top()->GetGeneratedBy()->GetName() << std::endl;
+					std::cout << "\tTransistion: " << stack.top()->GetGeneratedBy()->GetName() << std::endl;
 				} else{
-					std::cout << "Delay: 1" << std::endl;
+					std::cout << "\tDelay: 1" << std::endl;
 				}
 			}
 
-			std::cout << "Marking: ";
+			std::cout << "\tMarking: ";
 			for(PlaceList::const_iterator iter = stack.top()->places.begin(); iter != stack.top()->places.end(); iter++){
 				for(TokenList::const_iterator titer = iter->tokens.begin(); titer != iter->tokens.end(); titer++){
 					for(int i = 0; i < titer->getCount(); i++) {
@@ -130,9 +132,9 @@ void DiscreteVerification::PrintTraceIfAny(bool result, NonStrictMarking* m) {
 				}
 			}
 			std::cout << std::endl;
-			std::cout << "Stack before: " << stack.size() << std::endl;
+			//std::cout << "Stack before: " << stack.size() << std::endl;
 			stack.pop();
-			std::cout << "Stack after: " << stack.size() << std::endl;
+			//std::cout << "Stack after: " << stack.size() << std::endl;
 		}
 	}
 }

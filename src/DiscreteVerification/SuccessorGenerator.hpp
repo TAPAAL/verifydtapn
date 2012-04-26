@@ -48,13 +48,13 @@ public:
 	vector< NonStrictMarking > generateSuccessors(const NonStrictMarking& marking) const;
 private:
 	TokenList getPlaceFromMarking(const NonStrictMarking& marking, int placeID) const;
-	void generateMarkings(vector<NonStrictMarking>& result, const NonStrictMarking& init_marking, const std::vector< TimedTransition >& transitions, ArcHashMap& enabledArcs) const;
-	void recursiveGenerateMarking(vector<NonStrictMarking>& result, NonStrictMarking& init_marking, const TimedTransition& transition, ArcHashMap& enabledArcs, unsigned int index) const;
+	void generateMarkings(vector<NonStrictMarking >& result, const NonStrictMarking& init_marking, const std::vector< const TimedTransition* >& transitions, ArcHashMap& enabledArcs) const;
+	void recursiveGenerateMarking(vector<NonStrictMarking >& result, NonStrictMarking& init_marking, const TimedTransition& transition, ArcHashMap& enabledArcs, unsigned int index) const;
 	const TAPN::TimedArcPetriNet& tapn;
 	void processArc(
 			ArcHashMap& enabledArcs,
 			std::vector<unsigned int>& enabledTransitionArcs,
-			std::vector<TAPN::TimedTransition>& enabledTransitions,
+			std::vector<const TAPN::TimedTransition*>& enabledTransitions,
 			const Place& place,
 			const TAPN::TimeInterval& interval,
 			const void* arcAddress,

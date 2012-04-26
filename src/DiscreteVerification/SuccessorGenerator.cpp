@@ -22,7 +22,7 @@ vector< NonStrictMarking > SuccessorGenerator::generateSuccessors(const NonStric
 	vector< NonStrictMarking > result;
 	ArcHashMap enabledArcs(tapn.GetInhibitorArcs().size() + tapn.GetInputArcs().size() + tapn.GetTransportArcs().size());
 	std::vector<unsigned int> enabledTransitionArcs(tapn.GetTransitions().size(), 0);
-	std::vector<TAPN::TimedTransition> enabledTransitions;
+	std::vector<const TAPN::TimedTransition* > enabledTransitions;
 
 	for(PlaceList::const_iterator iter = marking.places.begin(); iter < marking.places.end(); iter++){
 		for(TAPN::TimedInputArc::WeakPtrVector::const_iterator arc_iter = iter->place->GetInputArcs().begin();
@@ -56,7 +56,7 @@ vector< NonStrictMarking > SuccessorGenerator::generateSuccessors(const NonStric
 void SuccessorGenerator::processArc(
 		ArcHashMap& enabledArcs,
 		std::vector<unsigned int>& enabledTransitionArcs,
-		std::vector<TAPN::TimedTransition>& enabledTransitions,
+		std::vector<const TAPN::TimedTransition* >& enabledTransitions,
 		const Place& place,
 		const TAPN::TimeInterval& interval,
 		const void* arcAddress,
@@ -84,7 +84,7 @@ void SuccessorGenerator::processArc(
 #if DEBUG
 		std::cout << "Transition pushed: " << transition << std::endl;
 #endif
-		enabledTransitions.push_back(transition);
+		enabledTransitions.push_back(&transition);
 	}
 }
 
@@ -175,16 +175,16 @@ TokenList SuccessorGenerator::getPlaceFromMarking(const NonStrictMarking& markin
 }
 
 void SuccessorGenerator::generateMarkings(vector<NonStrictMarking>& result, const NonStrictMarking& init_marking,
-		const std::vector< TimedTransition >& transitions, ArcHashMap& enabledArcs) const {
+		const std::vector< const TimedTransition* >& transitions, ArcHashMap& enabledArcs) const {
 
-	for(std::vector< TimedTransition >::const_iterator iter = transitions.begin(); iter != transitions.end(); iter++){
+	for(std::vector< const TimedTransition* >::const_iterator iter = transitions.begin(); iter != transitions.end(); iter++){
 		bool inhibited = false;
 		//Check that no inhibitors is enabled;
 #if DEBUG
-		std::cout << "Transition: " << *iter << "Number of inhibitors: " << iter->GetInhibitorArcs().size() << std::endl;
+		std::cout << "Transition: " << *(*iter) << "Number of inhibitors: " << iter->GetInhibitorArcs().size() << std::endl;
 #endif
 
-		for(TAPN::InhibitorArc::WeakPtrVector::const_iterator inhib_iter = iter->GetInhibitorArcs().begin(); inhib_iter != iter->GetInhibitorArcs().end(); inhib_iter++){
+		for(TAPN::InhibitorArc::WeakPtrVector::const_iterator inhib_iter = (*iter)->GetInhibitorArcs().begin(); inhib_iter != (*iter)->GetInhibitorArcs().end(); inhib_iter++){
 #if DEBUG
 			std::cout << "Inhibitor: " << *(inhib_iter->lock()) << " Inhibitor size: " << enabledArcs[inhib_iter->lock().get()].size() << std::endl;
 #endif
@@ -198,8 +198,8 @@ void SuccessorGenerator::generateMarkings(vector<NonStrictMarking>& result, cons
 #endif
 		if (inhibited) continue;
 		NonStrictMarking m(init_marking);
-		m.SetGeneratedBy(&(*iter));
-		recursiveGenerateMarking(result, m, *iter, enabledArcs, 0);
+		m.SetGeneratedBy(*iter);
+		recursiveGenerateMarking(result, m, *(*iter), enabledArcs, 0);
 	}
 }
 

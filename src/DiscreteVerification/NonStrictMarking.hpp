@@ -149,10 +149,7 @@ public:
 		void decrementAge();	// decrement
 		void RemoveRangeOfTokens(Place& place, TokenList::iterator begin, TokenList::iterator end);
 		void SetParent(NonStrictMarking* parent) { this->parent = parent; }
-		void SetGeneratedBy(const TAPN::TimedTransition* generatedBy) {
-			std::cout << generatedBy << " " << this->generatedBy << " " << *this << std::endl;
-			this->generatedBy = generatedBy;
-		}
+		void SetGeneratedBy(const TAPN::TimedTransition* generatedBy) { this->generatedBy = generatedBy; }
 
 	public:
 		bool equals(const NonStrictMarking &m1) const;
