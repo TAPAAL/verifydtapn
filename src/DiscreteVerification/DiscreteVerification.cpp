@@ -12,6 +12,7 @@
 #include "../Core/QueryParser/AST.hpp"
 #include "NonStrictMarking.hpp"
 #include "NonStrictDFS.hpp"
+#include "NonStrictBFS.hpp"
 
 
 namespace VerifyTAPN {
@@ -46,9 +47,24 @@ int DiscreteVerification::run(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, s
 		return 1;
 	}
 
-	NonStrictDFS* strategy = new NonStrictDFS(tapn, *initialMarking, query, options);
-
 	std::cout << options << std::endl;
+	// Select search strategy
+	NonStrictSearch* strategy;
+	if(query->GetQuantifier() == EG || query->GetQuantifier() == AF){
+		//Liveness query, force DFS
+		strategy = new NonStrictDFS(tapn, *initialMarking, query, options);
+	}else{
+		switch(options.GetSearchType()){
+		case DEPTHFIRST:
+			strategy = new NonStrictDFS(tapn, *initialMarking, query, options);
+			break;
+		case BREADTHFIRST:
+		case RANDOM:
+		case COVERMOST:
+			strategy = new NonStrictBFS(tapn, *initialMarking, query, options);
+			break;
+		}
+	}
 
 	bool result = (query->GetQuantifier() == AG || query->GetQuantifier() == AF)? !strategy->Verify() : strategy->Verify();
 

@@ -5,8 +5,8 @@
  *      Author: MathiasGS
  */
 
-#ifndef NONSTRICTDFS_HPP_
-#define NONSTRICTDFS_HPP_
+#ifndef NONSTRICTBFS_HPP_
+#define NONSTRICTBFS_HPP_
 #define DEBUG 0
 
 #include "PWList.hpp"
@@ -34,14 +34,14 @@ namespace VerifyTAPN {
 
 namespace DiscreteVerification {
 
-class NonStrictDFS : public NonStrictSearch {
+class NonStrictBFS : public NonStrictSearch {
 public:
-	NonStrictDFS(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options)
+	NonStrictBFS(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options)
 	: NonStrictSearch(tapn, initialMarking, query, options, CreateWaitingList()){};
-	virtual ~NonStrictDFS(){};
+	virtual ~NonStrictBFS(){};
 
 protected:
-	virtual WaitingList* CreateWaitingList() const { return new StackWaitingList; };
+	virtual WaitingList* CreateWaitingList() const { return new QueueWaitingList; };
 };
 
 }

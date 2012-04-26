@@ -1,25 +1,24 @@
 /*
- * NonStrictDFS.cpp
+ * NonStrictSearch.cpp
  *
- *  Created on: 05/03/2012
+ *  Created on: 26/04/2012
  *      Author: MathiasGS
  */
 
-#include "NonStrictDFS.hpp"
-#include "PWList.hpp"
+#include "NonStrictSearch.hpp"
 
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
-bool livenessQuery;
-
-NonStrictDFS::NonStrictDFS(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options)
-	: tapn(tapn), initialMarking(initialMarking), query(query), options(options), successorGenerator( *tapn.get() ){
+NonStrictSearch::NonStrictSearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList* waiting_list)
+	: tapn(tapn), initialMarking(initialMarking), query(query), options(options), successorGenerator( *tapn.get() ), pwList(waiting_list){
 	livenessQuery = (query->GetQuantifier() == EG || query->GetQuantifier() == AF);
 	std::cout<< "livenessQuery: " << (livenessQuery? "true":"false") << std::endl;
 }
 
-bool NonStrictDFS::Verify(){
+bool NonStrictSearch::Verify(){
+	std::cout << "Starting to verify" << std::endl;
+
 	if(addToPW(&initialMarking)){
 		std::cout << "Markings explored: " << pwList.Size() << std::endl;
 		return true;
@@ -60,7 +59,7 @@ bool NonStrictDFS::Verify(){
 #endif
 			if(addToPW(&(*it))){
 				std::cout << "Markings found: " << pwList.Size() << std::endl;
-				std::cout << "Markings explored: " << pwList.Size()-pwList.waiting_list.Size() << std::endl;
+				std::cout << "Markings explored: " << pwList.Size()-pwList.waiting_list->Size() << std::endl;
 				return true;
 			}
 			endOfMaxRun = false;
@@ -70,7 +69,7 @@ bool NonStrictDFS::Verify(){
 			marking.incrementAge();
 			if(addToPW(&marking)){
 				std::cout << "Markings found: " << pwList.Size() << std::endl;
-				std::cout << "Markings explored: " << pwList.Size()-pwList.waiting_list.Size() << std::endl;
+				std::cout << "Markings explored: " << pwList.Size()-pwList.waiting_list->Size() << std::endl;
 				return true;
 			}
 			endOfMaxRun = false;
@@ -108,11 +107,36 @@ bool NonStrictDFS::Verify(){
 	return false;
 }
 
-vector<NonStrictMarking> NonStrictDFS::getPossibleNextMarkings(NonStrictMarking& marking){
+bool NonStrictSearch::isDelayPossible(NonStrictMarking& marking){
+	PlaceList& places = marking.places;
+	if(places.size() == 0) return false;
+
+	PlaceList::const_iterator markedPlace_iter = places.begin();
+	for(TAPN::TimedPlace::Vector::const_iterator place_iter = tapn->GetPlaces().begin(); place_iter != tapn->GetPlaces().end(); place_iter++){
+		int inv = place_iter->get()->GetInvariant().GetBound();
+		if(*(place_iter->get()) == *(markedPlace_iter->place)){
+			if(markedPlace_iter->MaxTokenAge() > inv-1){
+				return false;
+			}
+
+			markedPlace_iter++;
+
+			if(markedPlace_iter == places.end())	return true;
+		}
+	}
+	assert(false);	// This happens if there are markings on places not in the TAPN
+	return false;
+}
+
+vector<NonStrictMarking> NonStrictSearch::getPossibleNextMarkings(NonStrictMarking& marking){
 	return successorGenerator.generateSuccessors(marking);
 }
 
-bool NonStrictDFS::addToPW(NonStrictMarking* marking){
+bool NonStrictSearch::isKBound(NonStrictMarking& marking){
+	return !(marking.size() > options.GetKBound());
+}
+
+bool NonStrictSearch::addToPW(NonStrictMarking* marking){
 	NonStrictMarking* m = cut(*marking);
 	for(PlaceList::const_iterator it = m->places.begin(); it != m->places.end(); it++){
 		for(TokenList::const_iterator iter = it->tokens.begin(); iter != it->tokens.end(); iter++){
@@ -163,7 +187,7 @@ bool NonStrictDFS::addToPW(NonStrictMarking* marking){
 	return false;
 }
 
-NonStrictMarking* NonStrictDFS::cut(NonStrictMarking& marking){
+NonStrictMarking* NonStrictSearch::cut(NonStrictMarking& marking){
 	NonStrictMarking* m = new NonStrictMarking(marking);
 	for(PlaceList::iterator place_iter = m->places.begin(); place_iter != m->places.end(); place_iter++){
 		const TimedPlace& place = tapn->GetPlace(place_iter->place->GetIndex());
@@ -192,34 +216,10 @@ NonStrictMarking* NonStrictDFS::cut(NonStrictMarking& marking){
 	return m;
 }
 
-bool NonStrictDFS::isDelayPossible(NonStrictMarking& marking){
-	PlaceList& places = marking.places;
-	if(places.size() == 0) return false;
 
-	PlaceList::const_iterator markedPlace_iter = places.begin();
-	for(TAPN::TimedPlace::Vector::const_iterator place_iter = tapn->GetPlaces().begin(); place_iter != tapn->GetPlaces().end(); place_iter++){
-		int inv = place_iter->get()->GetInvariant().GetBound();
-		if(*(place_iter->get()) == *(markedPlace_iter->place)){
-			if(markedPlace_iter->MaxTokenAge() > inv-1){
-				return false;
-			}
-
-			markedPlace_iter++;
-
-			if(markedPlace_iter == places.end())	return true;
-		}
-	}
-	assert(false);	// This happens if there are markings on places not in the TAPN
-	return false;
-}
-
-bool NonStrictDFS::isKBound(NonStrictMarking& marking){
-	return !(marking.size() > options.GetKBound());
-}
-
-NonStrictDFS::~NonStrictDFS() {
+NonStrictSearch::~NonStrictSearch() {
 	// TODO Auto-generated destructor stub
 }
 
-}
-}
+} /* namespace DiscreteVerification */
+} /* namespace VerifyTAPN */
