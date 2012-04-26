@@ -33,10 +33,10 @@ namespace VerifyTAPN {
 
 namespace DiscreteVerification {
 
-class NonStrictDFS {
+class NonStrictSearch {
 public:
-	NonStrictDFS(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options);
-	virtual ~NonStrictDFS();
+	NonStrictSearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options);
+	virtual ~NonStrictSearch();
 	bool Verify();
 
 private:

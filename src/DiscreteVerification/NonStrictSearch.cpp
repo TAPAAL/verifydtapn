@@ -5,7 +5,7 @@
  *      Author: MathiasGS
  */
 
-#include "NonStrictDFS.hpp"
+#include "NonStrictSearch.hpp"
 #include "PWList.hpp"
 
 namespace VerifyTAPN {
@@ -13,13 +13,13 @@ namespace DiscreteVerification {
 
 bool livenessQuery;
 
-NonStrictDFS::NonStrictDFS(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options)
+NonStrictSearch::NonStrictSearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options)
 	: tapn(tapn), initialMarking(initialMarking), query(query), options(options), successorGenerator( *tapn.get() ){
 	livenessQuery = (query->GetQuantifier() == EG || query->GetQuantifier() == AF);
 	std::cout<< "livenessQuery: " << (livenessQuery? "true":"false") << std::endl;
 }
 
-bool NonStrictDFS::Verify(){
+bool NonStrictSearch::Verify(){
 	if(addToPW(&initialMarking)){
 		std::cout << "Markings explored: " << pwList.Size() << std::endl;
 		return true;
@@ -108,11 +108,11 @@ bool NonStrictDFS::Verify(){
 	return false;
 }
 
-vector<NonStrictMarking> NonStrictDFS::getPossibleNextMarkings(NonStrictMarking& marking){
+vector<NonStrictMarking> NonStrictSearch::getPossibleNextMarkings(NonStrictMarking& marking){
 	return successorGenerator.generateSuccessors(marking);
 }
 
-bool NonStrictDFS::addToPW(NonStrictMarking* marking){
+bool NonStrictSearch::addToPW(NonStrictMarking* marking){
 	NonStrictMarking* m = cut(*marking);
 	for(PlaceList::const_iterator it = m->places.begin(); it != m->places.end(); it++){
 		for(TokenList::const_iterator iter = it->tokens.begin(); iter != it->tokens.end(); iter++){
@@ -163,7 +163,7 @@ bool NonStrictDFS::addToPW(NonStrictMarking* marking){
 	return false;
 }
 
-NonStrictMarking* NonStrictDFS::cut(NonStrictMarking& marking){
+NonStrictMarking* NonStrictSearch::cut(NonStrictMarking& marking){
 	NonStrictMarking* m = new NonStrictMarking(marking);
 	for(PlaceList::iterator place_iter = m->places.begin(); place_iter != m->places.end(); place_iter++){
 		int count = 0;
@@ -189,7 +189,7 @@ NonStrictMarking* NonStrictDFS::cut(NonStrictMarking& marking){
 	return m;
 }
 
-bool NonStrictDFS::isDelayPossible(NonStrictMarking& marking){
+bool NonStrictSearch::isDelayPossible(NonStrictMarking& marking){
 	PlaceList& places = marking.places;
 	if(places.size() == 0) return false;
 
@@ -210,11 +210,11 @@ bool NonStrictDFS::isDelayPossible(NonStrictMarking& marking){
 	return false;
 }
 
-bool NonStrictDFS::isKBound(NonStrictMarking& marking){
+bool NonStrictSearch::isKBound(NonStrictMarking& marking){
 	return !(marking.size() > options.GetKBound());
 }
 
-NonStrictDFS::~NonStrictDFS() {
+NonStrictSearch::~NonStrictSearch() {
 	// TODO Auto-generated destructor stub
 }
 
