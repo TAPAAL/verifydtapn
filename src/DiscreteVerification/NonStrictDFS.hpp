@@ -34,11 +34,11 @@ namespace VerifyTAPN {
 
 namespace DiscreteVerification {
 
-class NonStrictBFS : public NonStrictSearch {
+class NonStrictDFS : public NonStrictSearch {
 public:
-	NonStrictBFS(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options)
+	NonStrictDFS(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options)
 	: NonStrictSearch(tapn, initialMarking, query, options, CreateWaitingList()){};
-	virtual ~NonStrictBFS(){};
+	virtual ~NonStrictDFS(){};
 
 protected:
 	virtual WaitingList* CreateWaitingList() const { return new StackWaitingList; };

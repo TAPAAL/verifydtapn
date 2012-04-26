@@ -5,8 +5,8 @@
  *      Author: MathiasGS
  */
 
-#ifndef NONSTRICTDFS_HPP_
-#define NONSTRICTDFS_HPP_
+#ifndef NONSTRICTBFS_HPP_
+#define NONSTRICTBFS_HPP_
 #define DEBUG 0
 
 #include "PWList.hpp"
