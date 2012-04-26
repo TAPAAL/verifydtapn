@@ -13,6 +13,8 @@
 #include <stack>
 #include "boost/optional.hpp"
 #include "boost/shared_ptr.hpp"
+#include "../Core/QueryParser/AST.hpp"
+#include "WeightQueryVisitor.hpp"
 
 namespace VerifyTAPN {
 namespace DiscreteVerification {
@@ -68,7 +70,7 @@ class HeuristicWaitingList : public WaitingList{
 public:
 		typedef std::priority_queue<WeightedMarking*, std::vector<WeightedMarking*>, less > priority_queue;
 public:
-	HeuristicWaitingList() : queue() { };
+	HeuristicWaitingList(AST::Query* q) : queue(), query(normalizeQuery(q)) { };
 	virtual ~HeuristicWaitingList();
 public:
 	virtual void Add(NonStrictMarking* marking);
@@ -76,7 +78,9 @@ public:
 	virtual size_t Size() { return queue.size(); };
 private:
 	int calculateWeight(NonStrictMarking* marking);
+	AST::Query* normalizeQuery(AST::Query* q);
 	priority_queue queue;
+	AST::Query* query;
 };
 
 class RandomWaitingList : public WaitingList{

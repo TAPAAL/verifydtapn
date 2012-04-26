@@ -5,6 +5,7 @@
  *      Author: MathiasGS
  */
 
+#include "../Core/QueryParser/NormalizationVisitor.hpp"
 #include "WaitingList.hpp"
 #include "assert.h"
 #include <queue>
@@ -81,8 +82,16 @@ NonStrictMarking* StackWaitingList::Next()
 
 		int HeuristicWaitingList::calculateWeight(NonStrictMarking* marking)
 		{
-			//TODO: Calculate weight
+			WeightQueryVisitor weight(*marking);
+			boost::any weight_c;
+			//query->Accept(weight, weight_c);
+			//return boost::any_cast<int>(weight_c);
 			return 1;
+		}
+
+		AST::Query* HeuristicWaitingList::normalizeQuery(AST::Query* q){
+			AST::NormalizationVisitor visitor;
+			return visitor.Normalize(*q);
 		}
 
 		HeuristicWaitingList::~HeuristicWaitingList()

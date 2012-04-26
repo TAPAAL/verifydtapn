@@ -136,6 +136,8 @@ public:
 		const TokenList& GetTokenList(int placeId);
 		const PlaceList& GetPlaceList() const{ return places; }
 		unsigned int size();
+		const NonStrictMarking* GetParent() const { return parent; }
+		const TAPN::TimedTransition* GetGeneratedBy() const { return generatedBy; }
 
 
 	public: // modifiers
@@ -146,6 +148,11 @@ public:
 		void incrementAge();	// increment
 		void decrementAge();	// decrement
 		void RemoveRangeOfTokens(Place& place, TokenList::iterator begin, TokenList::iterator end);
+		void SetParent(NonStrictMarking* parent) { this->parent = parent; }
+		void SetGeneratedBy(const TAPN::TimedTransition* generatedBy) {
+			std::cout << generatedBy << " " << this->generatedBy << " " << *this << std::endl;
+			this->generatedBy = generatedBy;
+		}
 
 	public:
 		bool equals(const NonStrictMarking &m1) const;
@@ -155,6 +162,10 @@ public:
 		bool inTrace;
 		PlaceList places;
 		TokenList emptyTokenList;
+
+	private:
+		NonStrictMarking* parent;
+		const TAPN::TimedTransition* generatedBy;
 };
 
 std::ostream& operator<<(std::ostream& out, NonStrictMarking& x);
