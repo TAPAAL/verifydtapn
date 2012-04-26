@@ -38,8 +38,19 @@ namespace DiscreteVerification {
 			expr.Left().Accept(*this, left);
 			expr.Right().Accept(*this, right);
 
-			//TODO: Issue with int_max?
-			context = boost::any_cast<int>(left) + boost::any_cast<int>(right);
+			int l = boost::any_cast<int>(left);
+			if(l == std::numeric_limits<int>::max()){
+				context = l;
+				return;
+			}
+
+			int r = boost::any_cast<int>(right);
+			if(r == std::numeric_limits<int>::max()){
+				context = r;
+				return;
+			}
+
+			context = l+r;
 		}
 
 		void WeightQueryVisitor::Visit(const AtomicProposition& expr, boost::any& context)
@@ -60,12 +71,12 @@ namespace DiscreteVerification {
 
 		bool WeightQueryVisitor::Compare(int numberOfTokensInPlace, const std::string& op, int n) const
 		{
-			if(op == "<") return abs(n-numberOfTokensInPlace);
-			else if(op == "<=") return abs(n-numberOfTokensInPlace);
-			else if(op == "=" || op == "==") return abs(n-numberOfTokensInPlace);
-			else if(op == ">=") return abs(n-numberOfTokensInPlace);
-			else if(op == ">") return abs(n-numberOfTokensInPlace);
-			else if(op == "!=") return abs(n-numberOfTokensInPlace);
+			if(op == "<") return numberOfTokensInPlace < n? 0:abs(n-numberOfTokensInPlace);
+			else if(op == "<=") return numberOfTokensInPlace <= n? 0:abs(n-numberOfTokensInPlace);
+			else if(op == "=" || op == "==") return numberOfTokensInPlace == n? 0:abs(n-numberOfTokensInPlace);
+			else if(op == ">=") return numberOfTokensInPlace >= n? 0:abs(n-numberOfTokensInPlace);
+			else if(op == ">") return numberOfTokensInPlace > n? 0:abs(n-numberOfTokensInPlace);
+			else if(op == "!=") return numberOfTokensInPlace == n? 1:0;
 			else
 				throw std::exception();
 		}
