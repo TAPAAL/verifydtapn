@@ -79,6 +79,21 @@ private:
 	priority_queue queue;
 };
 
+class RandomWaitingList : public WaitingList{
+public:
+		typedef std::priority_queue<WeightedMarking*, std::vector<WeightedMarking*>, less > priority_queue;
+public:
+	RandomWaitingList() : queue() { };
+	virtual ~RandomWaitingList();
+public:
+	virtual void Add(NonStrictMarking* marking);
+	virtual NonStrictMarking* Next();
+	virtual size_t Size() { return queue.size(); };
+private:
+	int calculateWeight(NonStrictMarking* marking);
+	priority_queue queue;
+};
+
 } /* namespace DiscreteVerification */
 } /* namespace VerifyTAPN */
 #endif /* WAITINGLIST_HPP_ */

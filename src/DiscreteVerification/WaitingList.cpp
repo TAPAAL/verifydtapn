@@ -93,5 +93,35 @@ NonStrictMarking* StackWaitingList::Next()
 		}
 
 
+		void RandomWaitingList::Add(NonStrictMarking* marking)
+				{
+					WeightedMarking* weighted_marking = new WeightedMarking;
+					weighted_marking->marking = marking;
+					weighted_marking->weight = calculateWeight(marking);
+					queue.push(weighted_marking);
+				}
+
+				NonStrictMarking* RandomWaitingList::Next()
+				{
+					assert(Size() > 0);
+					WeightedMarking* weighted_marking = queue.top();
+					NonStrictMarking* marking = weighted_marking->marking;
+					queue.pop();
+					return marking;
+				}
+
+				int RandomWaitingList::calculateWeight(NonStrictMarking* marking)
+				{
+					return rand();
+				}
+
+				RandomWaitingList::~RandomWaitingList()
+				{
+					while(!queue.empty()){
+						queue.pop();
+					}
+				}
+
+
 } /* namespace DiscreteVerification */
 } /* namespace VerifyTAPN */
