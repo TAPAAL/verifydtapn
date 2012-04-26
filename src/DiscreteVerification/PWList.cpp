@@ -15,13 +15,13 @@ namespace DiscreteVerification {
 bool PWList::Add(NonStrictMarking* marking){
 	NonStrictMarkingList& m = markings_storage[marking->HashKey()];
 	for(NonStrictMarkingList::const_iterator iter = m.begin();
-			m.end() != iter;
+			iter != m.end();
 			iter++){
-		if(iter->equals(*marking)){
+		if((*iter)->equals(*marking)){
 			return false;
 		}
 	}
-	m.push_back(*marking);
+	m.push_back(marking);
 	waiting_list.Add(marking);
 	return true;
 }

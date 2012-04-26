@@ -27,6 +27,7 @@ namespace VerifyTAPN {
 			{
 				const boost::shared_ptr<TimedInputArc>& arc = *iter;
 				arc->OutputTransition().AddToPreset(arc);
+				arc->InputPlace().AddInputArc(arc);
 				UpdateMaxConstant(arc->Interval());
 			}
 
@@ -34,12 +35,14 @@ namespace VerifyTAPN {
 			{
 				const boost::shared_ptr<TransportArc>& arc = *iter;
 				arc->Transition().AddTransportArcGoingThrough(arc);
+				arc->Source().AddTransportArc(arc);
 				UpdateMaxConstant(arc->Interval());
 			}
 
 			for(InhibitorArc::Vector::const_iterator iter = inhibitorArcs.begin(); iter != inhibitorArcs.end(); ++iter) {
 				const boost::shared_ptr<InhibitorArc>& arc = *iter;
 				arc->OutputTransition().AddIncomingInhibitorArc(arc);
+				arc->InputPlace().AddInhibitorArc(arc);
 				arc->InputPlace().SetHasInhibitorArcs(true);
 			}
 
@@ -47,6 +50,7 @@ namespace VerifyTAPN {
 			{
 				const boost::shared_ptr<OutputArc>& arc = *iter;
 				arc->InputTransition().AddToPostset(arc);
+				arc->OutputPlace().AddOutputArc(arc);
 			}
 
 			// CAUTION: This if statement removes orphan transitions.
