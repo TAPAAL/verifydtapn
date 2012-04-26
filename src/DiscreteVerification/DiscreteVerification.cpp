@@ -13,6 +13,7 @@
 #include "NonStrictMarking.hpp"
 #include "NonStrictDFS.hpp"
 #include "NonStrictBFS.hpp"
+#include "NonStrictHeuristic.hpp"
 
 
 namespace VerifyTAPN {
@@ -58,9 +59,11 @@ int DiscreteVerification::run(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, s
 		case DEPTHFIRST:
 			strategy = new NonStrictDFS(tapn, *initialMarking, query, options);
 			break;
+		case COVERMOST:
+			strategy = new NonStrictHeuristic(tapn, *initialMarking, query, options);
+			break;
 		case BREADTHFIRST:
 		case RANDOM:
-		case COVERMOST:
 			strategy = new NonStrictBFS(tapn, *initialMarking, query, options);
 			break;
 		}
