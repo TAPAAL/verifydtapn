@@ -95,12 +95,15 @@ int DiscreteVerification::run(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, s
 
 	if(options.GetTrace() == SOME){
 		std::stack<NonStrictMarking*> printStack;
-		if(query->GetQuantifier() == EF || query->GetQuantifier() == AG) {
+		if((query->GetQuantifier() == EF && result) || (query->GetQuantifier() == AG && !result)) {
 			GenerateTraceStack(strategy->GetLastMarking(), &printStack);
 			PrintTraceIfAny(result, strategy->GetLastMarking(), printStack, query->GetQuantifier());
+		} else if((query->GetQuantifier() == EG && result) || (query->GetQuantifier() == AF && !result)) {
+			NonStrictMarking* m = strategy->trace.top();
+			GenerateTraceStack(m, &printStack, &strategy->trace);
+			PrintTraceIfAny(result, m, printStack, query->GetQuantifier());
 		} else {
-			GenerateTraceStack(strategy->trace.top(), &printStack, &strategy->trace);
-			PrintTraceIfAny(result, strategy->trace.top(), printStack, query->GetQuantifier());
+			std::cout << "A trace could not be generated due to the query result" << std::endl;
 		}
 	}
 
@@ -110,49 +113,50 @@ int DiscreteVerification::run(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, s
 }
 
 void DiscreteVerification::PrintTraceIfAny(bool result, NonStrictMarking* m, std::stack<NonStrictMarking*>& stack, AST::Quantifier query) {
-	if(result && query == EF || query == AG && !result || result && query == EG || query == AF && !result){
-		std::cout << "Trace: " << std::endl;
-		bool isFirst = true;
+	std::cout << "Trace: " << std::endl;
+	bool isFirst = true;
 
-		while(!stack.empty()){
-			if(isFirst) {
-				isFirst = false;
-			} else {
-				if(stack.top()->GetGeneratedBy()){
-					std::cout << "\tTransistion: " << stack.top()->GetGeneratedBy()->GetName() << std::endl;
-				} else{
-					int i = 0;
-					NonStrictMarking* old;
-					while(stack.top()->GetGeneratedBy() == NULL && !(stack.empty())) {
-						old = stack.top();
-						stack.pop();
-						i++;
-					}
-					std::cout << "\tDelay: " << i << std::endl;
-					stack.push(old);
+	while(!stack.empty()){
+		if(isFirst) {
+			isFirst = false;
+		} else {
+			if(stack.top()->GetGeneratedBy()){
+				std::cout << "\tTransistion: " << stack.top()->GetGeneratedBy()->GetName() << std::endl;
+			} else{
+				int i = 1;
+				NonStrictMarking* old = stack.top();
+				stack.pop();
+				while(!(stack.empty()) && stack.top()->GetGeneratedBy() == NULL && !old->equals(*m)) {
+					old = stack.top();
+					stack.pop();
+					i++;
 				}
-			}
-
-			if((query == EG || query == AF) && (stack.top()->equals(*m) && stack.size() > 1)){
-					std::cout << "\t* ";
-			} else {
-				std::cout << "\t";
-			}
-			std::cout << "Marking: ";
-			for(PlaceList::const_iterator iter = stack.top()->places.begin(); iter != stack.top()->places.end(); iter++){
-				for(TokenList::const_iterator titer = iter->tokens.begin(); titer != iter->tokens.end(); titer++){
-					for(int i = 0; i < titer->getCount(); i++) {
-						std::cout << "(" << iter->place->GetName() << "," << titer->getAge() << ") ";
-					}
+				if(stack.empty()){
+					std::cout << "\tDelay: Forever"  << std::endl;
+					return;
 				}
+				std::cout << "\tDelay: " << i << std::endl;
+				stack.push(old);
 			}
-			std::cout << std::endl;
-			//std::cout << "Stack before: " << stack.size() << std::endl;
-			stack.pop();
-			//std::cout << "Stack after: " << stack.size() << std::endl;
 		}
-	} else {
-		std::cout << "A trace could not be generated due to the query result" << std::endl;
+
+		if((query == EG || query == AF) && (stack.top()->equals(*m) && stack.size() > 1)){
+			std::cout << "\t* ";
+		} else {
+			std::cout << "\t";
+		}
+		std::cout << "Marking: ";
+		for(PlaceList::const_iterator iter = stack.top()->places.begin(); iter != stack.top()->places.end(); iter++){
+			for(TokenList::const_iterator titer = iter->tokens.begin(); titer != iter->tokens.end(); titer++){
+				for(int i = 0; i < titer->getCount(); i++) {
+					std::cout << "(" << iter->place->GetName() << "," << titer->getAge() << ") ";
+				}
+			}
+		}
+		std::cout << std::endl;
+		//std::cout << "Stack before: " << stack.size() << std::endl;
+		stack.pop();
+		//std::cout << "Stack after: " << stack.size() << std::endl;
 	}
 }
 

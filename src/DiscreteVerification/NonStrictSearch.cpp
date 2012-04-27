@@ -159,11 +159,11 @@ bool NonStrictSearch::addToPW(NonStrictMarking* marking, NonStrictMarking* paren
 					cm.end() != iter;
 					iter++){
 				if((*iter)->equals(*m)){
-					delete m;
 					if((*iter)->inTrace){
-						trace.push(*iter);
+						trace.push(m);
 						return true;
 					}else{
+						delete m;
 						return false;
 					}
 				}
@@ -197,7 +197,7 @@ NonStrictMarking* NonStrictSearch::cut(NonStrictMarking& marking){
 	for(PlaceList::iterator place_iter = m->places.begin(); place_iter != m->places.end(); place_iter++){
 		int count = 0;
 #if DEBUG
-		//std::cout << "Cut before: " << *m << std::endl;
+		std::cout << "Cut before: " << *m << std::endl;
 #endif
 		for(TokenList::iterator token_iter = place_iter->tokens.begin(); token_iter != place_iter->tokens.end(); token_iter++){
 			if(token_iter->getAge() > (tapn->MaxConstant()==0? -1:tapn->MaxConstant())){
@@ -212,7 +212,7 @@ NonStrictMarking* NonStrictSearch::cut(NonStrictMarking& marking){
 		Token t(tapn->MaxConstant()==0? 0:tapn->MaxConstant()+1,count);
 		m->AddTokenInPlace(*place_iter, t);
 #if DEBUG
-		//std::cout << "Cut after: " << *m << std::endl;
+		std::cout << "Cut after: " << *m << std::endl;
 #endif
 	}
 	return m;

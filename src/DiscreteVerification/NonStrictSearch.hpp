@@ -29,6 +29,8 @@
 
 #include <stack>
 
+#define DEBUG 1
+
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
