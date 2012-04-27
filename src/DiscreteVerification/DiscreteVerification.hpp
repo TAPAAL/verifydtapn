@@ -15,6 +15,8 @@
 #include "../Core/VerificationOptions.hpp"
 #include "NonStrictMarking.hpp"
 
+#include <stack>
+
 
 namespace VerifyTAPN {
 
@@ -26,7 +28,8 @@ public:
 	virtual ~DiscreteVerification();
 	static int run(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, std::vector<int> initialPlacement, AST::Query* query, VerificationOptions options);
 private:
-	static void PrintTraceIfAny(bool result, NonStrictMarking* m);
+	static void PrintTraceIfAny(bool result, NonStrictMarking* m, std::stack<NonStrictMarking*>& stack, AST::Quantifier query);
+	static void GenerateTraceStack(NonStrictMarking* m, std::stack<NonStrictMarking*>* stack, std::stack<NonStrictMarking*>* liveness = NULL);
 };
 
 }

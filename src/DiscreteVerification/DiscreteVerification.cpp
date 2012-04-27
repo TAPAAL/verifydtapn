@@ -71,10 +71,10 @@ int DiscreteVerification::run(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, s
 
 	if(query->GetQuantifier() == EG || query->GetQuantifier() == AF){
 		std::cout << "Trace (length = "<< strategy->trace.size() <<"): " << std::endl;
-		while(!strategy->trace.empty()){
+		/*while(!strategy->trace.empty()){
 			std::cout << *strategy->trace.top() << std::endl;
 			strategy->trace.pop();
-		}
+		}*/
 	}
 
 	//std::cout << strategy->GetStats() << std::endl;
@@ -94,7 +94,14 @@ int DiscreteVerification::run(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, s
 	}*/
 
 	if(options.GetTrace() == SOME){
-		PrintTraceIfAny(result, strategy->GetLastMarking());
+		std::stack<NonStrictMarking*> printStack;
+		if(query->GetQuantifier() == EF || query->GetQuantifier() == AG) {
+			GenerateTraceStack(strategy->GetLastMarking(), &printStack);
+			PrintTraceIfAny(result, strategy->GetLastMarking(), printStack, query->GetQuantifier());
+		} else {
+			GenerateTraceStack(strategy->trace.top(), &printStack, &strategy->trace);
+			PrintTraceIfAny(result, strategy->trace.top(), printStack, query->GetQuantifier());
+		}
 	}
 
 	delete strategy;
@@ -102,15 +109,10 @@ int DiscreteVerification::run(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, s
 	return 0;
 }
 
-void DiscreteVerification::PrintTraceIfAny(bool result, NonStrictMarking* m) {
-	if(result){
-		std::stack < NonStrictMarking* > stack;
+void DiscreteVerification::PrintTraceIfAny(bool result, NonStrictMarking* m, std::stack<NonStrictMarking*>& stack, AST::Quantifier query) {
+	if(result && query == EF || query == AG && !result || result && query == EG || query == AF && !result){
 		std::cout << "Trace: " << std::endl;
-		NonStrictMarking* next = m;
 		bool isFirst = true;
-		do{
-			stack.push(next);
-		} while((next=next->parent) != NULL);
 
 		while(!stack.empty()){
 			if(isFirst) {
@@ -119,11 +121,24 @@ void DiscreteVerification::PrintTraceIfAny(bool result, NonStrictMarking* m) {
 				if(stack.top()->GetGeneratedBy()){
 					std::cout << "\tTransistion: " << stack.top()->GetGeneratedBy()->GetName() << std::endl;
 				} else{
-					std::cout << "\tDelay: 1" << std::endl;
+					int i = 0;
+					NonStrictMarking* old;
+					while(stack.top()->GetGeneratedBy() == NULL && !(stack.empty())) {
+						old = stack.top();
+						stack.pop();
+						i++;
+					}
+					std::cout << "\tDelay: " << i << std::endl;
+					stack.push(old);
 				}
 			}
 
-			std::cout << "\tMarking: ";
+			if((query == EG || query == AF) && (stack.top()->equals(*m) && stack.size() > 1)){
+					std::cout << "\t* ";
+			} else {
+				std::cout << "\t";
+			}
+			std::cout << "Marking: ";
 			for(PlaceList::const_iterator iter = stack.top()->places.begin(); iter != stack.top()->places.end(); iter++){
 				for(TokenList::const_iterator titer = iter->tokens.begin(); titer != iter->tokens.end(); titer++){
 					for(int i = 0; i < titer->getCount(); i++) {
@@ -136,6 +151,22 @@ void DiscreteVerification::PrintTraceIfAny(bool result, NonStrictMarking* m) {
 			stack.pop();
 			//std::cout << "Stack after: " << stack.size() << std::endl;
 		}
+	} else {
+		std::cout << "A trace could not be generated due to the query result" << std::endl;
+	}
+}
+
+void DiscreteVerification::GenerateTraceStack(NonStrictMarking* m, std::stack<NonStrictMarking*>* result ,std::stack<NonStrictMarking*>* liveness) {
+	if(liveness == NULL) {
+		NonStrictMarking* next = m;
+		do{
+			result->push(next);
+		} while((next=next->parent) != NULL);
+	} else {
+		do{
+			result->push(liveness->top());
+			liveness->pop();
+		} while(!(liveness->empty()));
 	}
 }
 

@@ -135,6 +135,7 @@ bool NonStrictSearch::isKBound(NonStrictMarking& marking){
 bool NonStrictSearch::addToPW(NonStrictMarking* marking, NonStrictMarking* parent){
 	NonStrictMarking* m = cut(*marking);
 	m->SetParent(parent);
+	assert(m->equals(initialMarking) || m->GetParent() != NULL);
 	for(PlaceList::const_iterator it = m->places.begin(); it != m->places.end(); it++){
 		for(TokenList::const_iterator iter = it->tokens.begin(); iter != it->tokens.end(); iter++){
 			assert(iter->getAge() <= tapn->MaxConstant()+1);
