@@ -195,7 +195,7 @@ void SuccessorGenerator::generatePermultations(vector< NonStrictMarking >& resul
 
 			if (destinationPlace) {
 			    // Input arc is a transport arc
-				Token t(age, j);
+				Token t(age, 1);
 				marking.AddTokenInPlace(*destinationPlace, t);
 			}
 		}
