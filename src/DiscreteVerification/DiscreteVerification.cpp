@@ -71,10 +71,10 @@ int DiscreteVerification::run(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, s
 
 	if(query->GetQuantifier() == EG || query->GetQuantifier() == AF){
 		std::cout << "Trace (length = "<< strategy->trace.size() <<"): " << std::endl;
-		while(!strategy->trace.empty()){
+		/*while(!strategy->trace.empty()){
 			std::cout << *strategy->trace.top() << std::endl;
 			strategy->trace.pop();
-		}
+		}*/
 	}
 
 	//std::cout << strategy->GetStats() << std::endl;
@@ -93,47 +93,84 @@ int DiscreteVerification::run(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, s
 		return 1;
 	}*/
 
-	//PrintTraceIfAny(result, strategy->GetLastMarking());
+	if(options.GetTrace() == SOME){
+		std::stack<NonStrictMarking*> printStack;
+		if((query->GetQuantifier() == EF && result) || (query->GetQuantifier() == AG && !result)) {
+			GenerateTraceStack(strategy->GetLastMarking(), &printStack);
+			PrintTraceIfAny(result, strategy->GetLastMarking(), printStack, query->GetQuantifier());
+		} else if((query->GetQuantifier() == EG && result) || (query->GetQuantifier() == AF && !result)) {
+			NonStrictMarking* m = strategy->trace.top();
+			GenerateTraceStack(m, &printStack, &strategy->trace);
+			PrintTraceIfAny(result, m, printStack, query->GetQuantifier());
+		} else {
+			std::cout << "A trace could not be generated due to the query result" << std::endl;
+		}
+	}
 
 	delete strategy;
 
 	return 0;
 }
 
-void DiscreteVerification::PrintTraceIfAny(bool result, NonStrictMarking* m) {
-	if(result){
-		std::stack < NonStrictMarking* > stack;
-		std::cout << "Trace: " << std::endl;
-		NonStrictMarking* next = m;
-		bool isFirst = true;
-		do{
-			stack.push(next);
-		} while((next=next->parent) != NULL);
+void DiscreteVerification::PrintTraceIfAny(bool result, NonStrictMarking* m, std::stack<NonStrictMarking*>& stack, AST::Quantifier query) {
+	std::cout << "Trace: " << std::endl;
+	bool isFirst = true;
 
-		while(!stack.empty()){
-			if(isFirst) {
-				isFirst = false;
-			} else {
-				if(stack.top()->GetGeneratedBy()){
-					std::cout << "Transistion: " << stack.top()->GetGeneratedBy()->GetName() << std::endl;
-				} else{
-					std::cout << "Delay: 1" << std::endl;
+	while(!stack.empty()){
+		if(isFirst) {
+			isFirst = false;
+		} else {
+			if(stack.top()->GetGeneratedBy()){
+				std::cout << "\tTransistion: " << stack.top()->GetGeneratedBy()->GetName() << std::endl;
+			} else{
+				int i = 1;
+				NonStrictMarking* old = stack.top();
+				stack.pop();
+				while(!(stack.empty()) && stack.top()->GetGeneratedBy() == NULL && !old->equals(*m)) {
+					old = stack.top();
+					stack.pop();
+					i++;
 				}
-			}
-
-			std::cout << "Marking: ";
-			for(PlaceList::const_iterator iter = stack.top()->places.begin(); iter != stack.top()->places.end(); iter++){
-				for(TokenList::const_iterator titer = iter->tokens.begin(); titer != iter->tokens.end(); titer++){
-					for(int i = 0; i < titer->getCount(); i++) {
-						std::cout << "(" << iter->place->GetName() << "," << titer->getAge() << ") ";
-					}
+				if(stack.empty()){
+					std::cout << "\tDelay: Forever"  << std::endl;
+					return;
 				}
+				std::cout << "\tDelay: " << i << std::endl;
+				stack.push(old);
 			}
-			std::cout << std::endl;
-			std::cout << "Stack before: " << stack.size() << std::endl;
-			stack.pop();
-			std::cout << "Stack after: " << stack.size() << std::endl;
 		}
+
+		if((query == EG || query == AF) && (stack.top()->equals(*m) && stack.size() > 1)){
+			std::cout << "\t* ";
+		} else {
+			std::cout << "\t";
+		}
+		std::cout << "Marking: ";
+		for(PlaceList::const_iterator iter = stack.top()->places.begin(); iter != stack.top()->places.end(); iter++){
+			for(TokenList::const_iterator titer = iter->tokens.begin(); titer != iter->tokens.end(); titer++){
+				for(int i = 0; i < titer->getCount(); i++) {
+					std::cout << "(" << iter->place->GetName() << "," << titer->getAge() << ") ";
+				}
+			}
+		}
+		std::cout << std::endl;
+		//std::cout << "Stack before: " << stack.size() << std::endl;
+		stack.pop();
+		//std::cout << "Stack after: " << stack.size() << std::endl;
+	}
+}
+
+void DiscreteVerification::GenerateTraceStack(NonStrictMarking* m, std::stack<NonStrictMarking*>* result ,std::stack<NonStrictMarking*>* liveness) {
+	if(liveness == NULL) {
+		NonStrictMarking* next = m;
+		do{
+			result->push(next);
+		} while((next=next->parent) != NULL);
+	} else {
+		do{
+			result->push(liveness->top());
+			liveness->pop();
+		} while(!(liveness->empty()));
 	}
 }
 
