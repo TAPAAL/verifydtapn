@@ -19,8 +19,7 @@ NonStrictSearch::NonStrictSearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn
 bool NonStrictSearch::Verify(){
 	std::cout << "Starting to verify" << std::endl;
 
-	if(addToPW(&initialMarking)){
-		std::cout << "Markings explored: " << pwList.Size() << std::endl;
+	if(addToPW(&initialMarking, NULL)){
 		return true;
 	}
 
@@ -49,9 +48,7 @@ bool NonStrictSearch::Verify(){
 #if DEBUG
 			std::cout << "Succssor marking: " << *it << std::endl;
 #endif
-			if(addToPW(&(*it))){
-				std::cout << "Markings found: " << pwList.Size() << std::endl;
-				std::cout << "Markings explored: " << pwList.Size()-pwList.waiting_list->Size() << std::endl;
+			if(addToPW(&(*it), &next_marking)){
 				return true;
 			}
 			endOfMaxRun = false;
@@ -59,9 +56,8 @@ bool NonStrictSearch::Verify(){
 
 		if(isDelayPossible(marking)){
 			marking.incrementAge();
-			if(addToPW(&marking)){
-				std::cout << "Markings found: " << pwList.Size() << std::endl;
-				std::cout << "Markings explored: " << pwList.Size()-pwList.waiting_list->Size() << std::endl;
+			marking.SetGeneratedBy(NULL);
+			if(addToPW(&marking, &next_marking)){
 				return true;
 			}
 			endOfMaxRun = false;
@@ -128,8 +124,10 @@ bool NonStrictSearch::isKBound(NonStrictMarking& marking){
 	return !(marking.size() > options.GetKBound());
 }
 
-bool NonStrictSearch::addToPW(NonStrictMarking* marking){
+bool NonStrictSearch::addToPW(NonStrictMarking* marking, NonStrictMarking* parent){
 	NonStrictMarking* m = cut(*marking);
+	m->SetParent(parent);
+	assert(m->equals(initialMarking) || m->GetParent() != NULL);
 	for(PlaceList::const_iterator it = m->places.begin(); it != m->places.end(); it++){
 		for(TokenList::const_iterator iter = it->tokens.begin(); iter != it->tokens.end(); iter++){
 			assert(iter->getAge() <= tapn->MaxConstant()+1);
@@ -153,11 +151,11 @@ bool NonStrictSearch::addToPW(NonStrictMarking* marking){
 					cm.end() != iter;
 					iter++){
 				if((*iter)->equals(*m)){
-					delete m;
 					if((*iter)->inTrace){
-						trace.push(*iter);
+						trace.push(m);
 						return true;
 					}else{
+						delete m;
 						return false;
 					}
 				}
@@ -170,7 +168,14 @@ bool NonStrictSearch::addToPW(NonStrictMarking* marking){
 			QueryVisitor checker(*m);
 			boost::any context;
 			query->Accept(checker, context);
-			return boost::any_cast<bool>(context);
+			if(boost::any_cast<bool>(context)) {
+				lastMarking = m;
+				std::cout << "Markings found: " << pwList.Size() << std::endl;
+				std::cout << "Markings explored: " << pwList.Size()-pwList.waiting_list->Size() << std::endl;
+				return true;
+			} else {
+				return false;
+			}
 		} else {
 			delete m;
 		}
@@ -185,7 +190,7 @@ NonStrictMarking* NonStrictSearch::cut(NonStrictMarking& marking){
 		const TimedPlace& place = tapn->GetPlace(place_iter->place->GetIndex());
 		int count = 0;
 #if DEBUG
-		//std::cout << "Cut before: " << *m << std::endl;
+		std::cout << "Cut before: " << *m << std::endl;
 #endif
 		for(TokenList::iterator token_iter = place_iter->tokens.begin(); token_iter != place_iter->tokens.end(); token_iter++){
 			if(token_iter->getAge() > place.GetMaxConstant()){
@@ -202,7 +207,7 @@ NonStrictMarking* NonStrictSearch::cut(NonStrictMarking& marking){
 		Token t(place.GetMaxConstant()+1,count);
 		m->AddTokenInPlace(*place_iter, t);
 #if DEBUG
-		//std::cout << "Cut after: " << *m << std::endl;
+		std::cout << "Cut after: " << *m << std::endl;
 #endif
 	}
 	return m;

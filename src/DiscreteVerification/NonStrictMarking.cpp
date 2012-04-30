@@ -44,6 +44,9 @@ NonStrictMarking::NonStrictMarking(const NonStrictMarking& nsm) : inTrace(false)
 	for(PlaceList::const_iterator it = nsm.places.begin(); it != nsm.places.end(); it++){
 		places.push_back(Place(*it));
 	}
+
+	parent = nsm.parent;
+	generatedBy = nsm.generatedBy;
 }
 
 unsigned int NonStrictMarking::size(){

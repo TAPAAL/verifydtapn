@@ -25,8 +25,11 @@
 
 #include "QueryVisitor.hpp"
 #include "boost/any.hpp"
+#include "NonStrictMarking.hpp"
 
 #include <stack>
+
+#define DEBUG 1
 
 namespace VerifyTAPN {
 namespace DiscreteVerification {
@@ -36,14 +39,15 @@ public:
 	NonStrictSearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList* waiting_list);
 	virtual ~NonStrictSearch();
 	bool Verify();
+	NonStrictMarking* GetLastMarking() { return lastMarking; }
 
 protected:
 	vector<NonStrictMarking> getPossibleNextMarkings(NonStrictMarking& marking);
-	bool addToPW(NonStrictMarking* marking);
+	bool addToPW(NonStrictMarking* marking, NonStrictMarking* parent);
 	bool isKBound(NonStrictMarking& marking);
 	bool isDelayPossible(NonStrictMarking& marking);
 	NonStrictMarking* cut(NonStrictMarking& marking);
-	virtual WaitingList* CreateWaitingList() const = 0;
+	virtual WaitingList* CreateWaitingList(AST::Query* query) const = 0;
 protected:
 	bool livenessQuery;
 	int validChildren;
@@ -55,6 +59,8 @@ protected:
 	SuccessorGenerator successorGenerator;
 public:
 	stack< NonStrictMarking* > trace;
+private:
+	NonStrictMarking* lastMarking;
 };
 
 } /* namespace DiscreteVerification */

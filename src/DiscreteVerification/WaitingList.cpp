@@ -5,6 +5,7 @@
  *      Author: MathiasGS
  */
 
+#include "../Core/QueryParser/NormalizationVisitor.hpp"
 #include "WaitingList.hpp"
 #include "assert.h"
 #include <queue>
@@ -60,6 +61,75 @@ NonStrictMarking* StackWaitingList::Next()
 				queue.pop();
 			}
 		}
+
+
+		void HeuristicWaitingList::Add(NonStrictMarking* marking)
+		{
+			WeightedMarking* weighted_marking = new WeightedMarking;
+			weighted_marking->marking = marking;
+			weighted_marking->weight = calculateWeight(marking);
+			queue.push(weighted_marking);
+		}
+
+		NonStrictMarking* HeuristicWaitingList::Next()
+		{
+			assert(Size() > 0);
+			WeightedMarking* weighted_marking = queue.top();
+			NonStrictMarking* marking = weighted_marking->marking;
+			queue.pop();
+			return marking;
+		}
+
+		int HeuristicWaitingList::calculateWeight(NonStrictMarking* marking)
+		{
+			WeightQueryVisitor weight(*marking);
+			boost::any weight_c;
+			//query->Accept(weight, weight_c);
+			//return boost::any_cast<int>(weight_c);
+			return 1;
+		}
+
+		AST::Query* HeuristicWaitingList::normalizeQuery(AST::Query* q){
+			AST::NormalizationVisitor visitor;
+			return visitor.Normalize(*q);
+		}
+
+		HeuristicWaitingList::~HeuristicWaitingList()
+		{
+			while(!queue.empty()){
+				queue.pop();
+			}
+		}
+
+
+		void RandomWaitingList::Add(NonStrictMarking* marking)
+				{
+					WeightedMarking* weighted_marking = new WeightedMarking;
+					weighted_marking->marking = marking;
+					weighted_marking->weight = calculateWeight(marking);
+					queue.push(weighted_marking);
+				}
+
+				NonStrictMarking* RandomWaitingList::Next()
+				{
+					assert(Size() > 0);
+					WeightedMarking* weighted_marking = queue.top();
+					NonStrictMarking* marking = weighted_marking->marking;
+					queue.pop();
+					return marking;
+				}
+
+				int RandomWaitingList::calculateWeight(NonStrictMarking* marking)
+				{
+					return rand();
+				}
+
+				RandomWaitingList::~RandomWaitingList()
+				{
+					while(!queue.empty()){
+						queue.pop();
+					}
+				}
 
 
 } /* namespace DiscreteVerification */
