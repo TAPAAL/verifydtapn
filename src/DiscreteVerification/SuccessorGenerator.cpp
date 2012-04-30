@@ -24,6 +24,13 @@ vector< NonStrictMarking > SuccessorGenerator::generateSuccessors(const NonStric
 	std::vector<unsigned int> enabledTransitionArcs(tapn.GetTransitions().size(), 0);
 	std::vector<const TAPN::TimedTransition* > enabledTransitions;
 
+	//Find the transitions which don't have input arcs
+	for(TimedTransition::Vector::const_iterator iter = tapn.GetTransitions().begin(); iter != tapn.GetTransitions().end(); iter++){
+		if((*iter)->GetPreset().size() + (*iter)->GetTransportArcs().size() == 0){
+			enabledTransitions.push_back(iter->get());
+		}
+	}
+
 	for(PlaceList::const_iterator iter = marking.places.begin(); iter < marking.places.end(); iter++){
 		for(TAPN::TimedInputArc::WeakPtrVector::const_iterator arc_iter = iter->place->GetInputArcs().begin();
 				arc_iter != iter->place->GetInputArcs().end(); arc_iter++){
