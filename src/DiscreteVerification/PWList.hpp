@@ -20,8 +20,8 @@ public:
 	typedef std::vector<NonStrictMarking*> NonStrictMarkingList;
 	typedef google::sparse_hash_map<size_t, NonStrictMarkingList> HashMap;
 public:
-	PWList() : markings_storage(256000), waiting_list() {};
-	PWList(WaitingList* w_l) : markings_storage(256000), waiting_list(w_l) {};
+	PWList() : markings_storage(256000), waiting_list(), discoveredMarkings(0) {};
+	PWList(WaitingList* w_l) : markings_storage(256000), waiting_list(w_l), discoveredMarkings(0) {};
 	virtual ~PWList();
 	friend std::ostream& operator<<(std::ostream& out, PWList& x);
 
@@ -35,10 +35,6 @@ public: // inspectors
 		return markings_storage.size();
 	};
 
-	virtual void Print() const {
-		//TODO: implement!
-	};
-
 public: // modifiers
 	virtual bool Add(NonStrictMarking* marking);
 	virtual NonStrictMarking* GetNextUnexplored();
@@ -46,6 +42,7 @@ public: // modifiers
 public:
 	HashMap markings_storage;
 	WaitingList* waiting_list;
+	int discoveredMarkings;
 };
 
 std::ostream& operator<<(std::ostream& out, PWList& x);
