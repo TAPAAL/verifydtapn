@@ -15,6 +15,9 @@
 #include "../Core/VerificationOptions.hpp"
 #include "NonStrictMarking.hpp"
 
+#include "../../lib/rapidxml-1.13/rapidxml.hpp"
+#include "../../lib/rapidxml-1.13/rapidxml_print.hpp"
+
 #include <stack>
 
 
@@ -28,7 +31,9 @@ public:
 	virtual ~DiscreteVerification();
 	static int run(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, std::vector<int> initialPlacement, AST::Query* query, VerificationOptions options);
 private:
-	static void PrintTraceIfAny(bool result, NonStrictMarking* m, std::stack<NonStrictMarking*>& stack, AST::Quantifier query);
+	static void PrintHumanTrace(bool result, NonStrictMarking* m, std::stack<NonStrictMarking*>& stack, AST::Quantifier query);
+	static void PrintXMLTrace(bool result, NonStrictMarking* m, std::stack<NonStrictMarking*>& stack, AST::Quantifier query);
+	static rapidxml::xml_node<>* CreateTransitionNode(NonStrictMarking* old, NonStrictMarking* current, rapidxml::xml_document<>& doc);
 	static void GenerateTraceStack(NonStrictMarking* m, std::stack<NonStrictMarking*>* stack, std::stack<NonStrictMarking*>* liveness = NULL);
 };
 

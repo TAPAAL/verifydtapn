@@ -11,6 +11,7 @@
 #include "NonStrictHeuristic.hpp"
 #include "NonStrictRandom.hpp"
 #include "NonStrictSearch.hpp"
+#include "../Core/TAPNParser/util.hpp"
 
 namespace VerifyTAPN {
 
@@ -99,11 +100,19 @@ int DiscreteVerification::run(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, s
 		std::stack<NonStrictMarking*> printStack;
 		if((query->GetQuantifier() == EF && result) || (query->GetQuantifier() == AG && !result)) {
 			GenerateTraceStack(strategy->GetLastMarking(), &printStack);
-			PrintTraceIfAny(result, strategy->GetLastMarking(), printStack, query->GetQuantifier());
+			if(options.XmlTrace()){
+				PrintXMLTrace(result, strategy->GetLastMarking(), printStack, query->GetQuantifier());
+			} else {
+				PrintHumanTrace(result, strategy->GetLastMarking(), printStack, query->GetQuantifier());
+			}
 		} else if((query->GetQuantifier() == EG && result) || (query->GetQuantifier() == AF && !result)) {
 			NonStrictMarking* m = strategy->trace.top();
 			GenerateTraceStack(m, &printStack, &strategy->trace);
-			PrintTraceIfAny(result, m, printStack, query->GetQuantifier());
+			if(options.XmlTrace()){
+				PrintHumanTrace(result, m, printStack, query->GetQuantifier());
+			} else {
+				PrintHumanTrace(result, m, printStack, query->GetQuantifier());
+			}
 		} else {
 			std::cout << "A trace could not be generated due to the query result" << std::endl;
 		}
@@ -114,7 +123,7 @@ int DiscreteVerification::run(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, s
 	return 0;
 }
 
-void DiscreteVerification::PrintTraceIfAny(bool result, NonStrictMarking* m, std::stack<NonStrictMarking*>& stack, AST::Quantifier query) {
+void DiscreteVerification::PrintHumanTrace(bool result, NonStrictMarking* m, std::stack<NonStrictMarking*>& stack, AST::Quantifier query) {
 	std::cout << "Trace: " << std::endl;
 	bool isFirst = true;
 
@@ -160,6 +169,129 @@ void DiscreteVerification::PrintTraceIfAny(bool result, NonStrictMarking* m, std
 		stack.pop();
 		//std::cout << "Stack after: " << stack.size() << std::endl;
 	}
+}
+
+void DiscreteVerification::PrintXMLTrace(bool result, NonStrictMarking* m, std::stack<NonStrictMarking*>& stack, AST::Quantifier query) {
+	using namespace rapidxml;
+	std::cout << "Trace: " << std::endl;
+	bool isFirst = true;
+	NonStrictMarking* old;
+
+	xml_document<> doc;
+	xml_node<>* root = doc.allocate_node(node_element, "trace");
+	doc.append_node(root);
+
+	while(!stack.empty()){
+		if(isFirst) {
+			isFirst = false;
+		} else {
+			if(stack.top()->GetGeneratedBy()){
+				root->append_node(CreateTransitionNode(old, stack.top(), doc));
+			} else{
+				int i = 1;
+				old = stack.top();
+				stack.pop();
+				while(!(stack.empty()) && stack.top()->GetGeneratedBy() == NULL && !old->equals(*m)) {
+					old = stack.top();
+					stack.pop();
+					i++;
+				}
+				if(stack.empty()){
+					xml_node<>* node = doc.allocate_node(node_element, "delay", doc.allocate_string("forever"));
+					root->append_node(node);
+					return;
+				}
+				xml_node<>* node = doc.allocate_node(node_element, "delay", doc.allocate_string(ToString(i).c_str()));
+				root->append_node(node);
+				stack.push(old);
+			}
+		}
+
+		/*if((query == EG || query == AF) && (stack.top()->equals(*m) && stack.size() > 1)){
+			std::cout << "\t* ";
+		}*/
+		//std::cout << "Stack before: " << stack.size() << std::endl;
+		old = stack.top();
+		stack.pop();
+
+		//std::cout << "Stack after: " << stack.size() << std::endl;
+	}
+	std::cout << doc;
+}
+
+rapidxml::xml_node<>* DiscreteVerification::CreateTransitionNode(NonStrictMarking* old, NonStrictMarking* current, rapidxml::xml_document<>& doc){
+	using namespace rapidxml;
+	xml_node<>* transitionNode = doc.allocate_node(node_element, "transition");
+	xml_attribute<>* id = doc.allocate_attribute("id", current->generatedBy->GetId().c_str());
+	transitionNode->append_attribute(id);
+
+	for(TAPN::TimedInputArc::WeakPtrVector::const_iterator arc_iter = current->generatedBy->GetPreset().begin(); arc_iter != current->generatedBy->GetPreset().end(); arc_iter++){
+		TokenList current_tokens = current->GetTokenList(arc_iter->lock()->InputPlace().GetIndex());
+		TokenList old_tokens = old->GetTokenList(arc_iter->lock()->InputPlace().GetIndex());;
+
+		TokenList::const_iterator n_iter = current_tokens.begin();
+		TokenList::const_iterator o_iter = old_tokens.begin();
+		bool continueOuter = false;
+		while(n_iter != current_tokens.end() && o_iter != old_tokens.end()){
+			if(n_iter->getAge() == o_iter->getAge()){
+				if(n_iter->getCount() != n_iter->getCount()){
+					xml_node<>* tokenNode = doc.allocate_node(node_element, "token");
+					xml_attribute<>* placeAttribute = doc.allocate_attribute("place", doc.allocate_string(arc_iter->lock()->InputPlace().GetName().c_str()));
+					tokenNode->append_attribute(placeAttribute);
+					xml_attribute<>* ageAttribute = doc.allocate_attribute("age", doc.allocate_string( ToString(n_iter->getAge()).c_str()));
+					tokenNode->append_attribute(ageAttribute);
+					transitionNode->append_node(tokenNode);
+					continueOuter = true;
+					break;
+				}
+				n_iter++;
+				o_iter++;
+			} else {
+				if(n_iter->getAge() > o_iter->getAge()){
+					xml_node<>* tokenNode = doc.allocate_node(node_element, "token");
+					xml_attribute<>* placeAttribute = doc.allocate_attribute("place", doc.allocate_string(arc_iter->lock()->InputPlace().GetName().c_str()));
+					tokenNode->append_attribute(placeAttribute);
+					xml_attribute<>* ageAttribute = doc.allocate_attribute("age", doc.allocate_string( ToString(o_iter->getAge()).c_str()));
+					tokenNode->append_attribute(ageAttribute);
+					transitionNode->append_node(tokenNode);
+					o_iter++;
+					continueOuter = true;
+					break;
+				} else {
+					n_iter++;
+				}
+			}
+		}
+		if(continueOuter) continue;
+
+		for(TokenList::const_iterator iter = o_iter; iter != old_tokens.end(); iter++){
+			xml_node<>* tokenNode = doc.allocate_node(node_element, "token");
+			xml_attribute<>* placeAttribute = doc.allocate_attribute("place", doc.allocate_string(arc_iter->lock()->InputPlace().GetName().c_str()));
+			tokenNode->append_attribute(placeAttribute);
+			xml_attribute<>* ageAttribute = doc.allocate_attribute("age", doc.allocate_string( ToString(iter->getAge()).c_str()));
+			tokenNode->append_attribute(ageAttribute);
+			transitionNode->append_node(tokenNode);
+			continueOuter = true;
+		}
+		if(continueOuter) continue;
+
+		for(TokenList::const_iterator iter = old_tokens.begin(); iter != old_tokens.end(); iter++){
+			if(iter->getAge() >= arc_iter->lock()->Interval().GetLowerBound()){
+				xml_node<>* tokenNode = doc.allocate_node(node_element, "token");
+				xml_attribute<>* placeAttribute = doc.allocate_attribute("place", doc.allocate_string(arc_iter->lock()->InputPlace().GetName().c_str()));
+				tokenNode->append_attribute(placeAttribute);
+				xml_attribute<>* ageAttribute = doc.allocate_attribute("age", doc.allocate_string( ToString(iter->getAge()).c_str()));
+				tokenNode->append_attribute(ageAttribute);
+				transitionNode->append_node(tokenNode);
+			}
+		}
+	}
+
+	for(TAPN::TransportArc::WeakPtrVector::const_iterator arc_iter = current->generatedBy->GetTransportArcs().begin(); arc_iter != current->generatedBy->GetTransportArcs().end(); arc_iter++){
+
+	}
+
+	return transitionNode;
 }
 
 void DiscreteVerification::GenerateTraceStack(NonStrictMarking* m, std::stack<NonStrictMarking*>* result ,std::stack<NonStrictMarking*>* liveness) {
