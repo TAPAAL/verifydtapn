@@ -29,7 +29,7 @@
 
 #include <stack>
 
-#define DEBUG 1
+#define DEBUG 0
 
 namespace VerifyTAPN {
 namespace DiscreteVerification {
