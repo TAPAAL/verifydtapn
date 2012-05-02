@@ -13,6 +13,7 @@ namespace VerifyTAPN {
 namespace DiscreteVerification {
 
 bool PWList::Add(NonStrictMarking* marking){
+	discoveredMarkings++;
 	NonStrictMarkingList& m = markings_storage[marking->HashKey()];
 	for(NonStrictMarkingList::const_iterator iter = m.begin();
 			iter != m.end();

@@ -19,6 +19,14 @@
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
+struct Stats{
+		long long exploredStates;
+		long long discoveredStates;
+		long long storedStates;
+
+		Stats() : exploredStates(0), discoveredStates(0), storedStates(0) {};
+};
+
 class WaitingList {
 public:
 	WaitingList() {};

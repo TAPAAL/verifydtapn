@@ -153,6 +153,7 @@ bool NonStrictSearch::addToPW(NonStrictMarking* marking, NonStrictMarking* paren
 				if((*iter)->equals(*m)){
 					if((*iter)->inTrace){
 						trace.push(m);
+						//printStats(pwList);
 						return true;
 					}else{
 						delete m;
@@ -170,8 +171,10 @@ bool NonStrictSearch::addToPW(NonStrictMarking* marking, NonStrictMarking* paren
 			query->Accept(checker, context);
 			if(boost::any_cast<bool>(context)) {
 				lastMarking = m;
-				std::cout << "Markings found: " << pwList.Size() << std::endl;
-				std::cout << "Markings explored: " << pwList.Size()-pwList.waiting_list->Size() << std::endl;
+				//printStats(pwList);
+				//std::cout << "Markings discovered " << pwList.discoveredMarkings << std::endl;
+				//std::cout << "Markings found: " << pwList.Size() << std::endl;
+				//std::cout << "Markings explored: " << pwList.Size()-pwList.waiting_list->Size() << std::endl;
 				return true;
 			} else {
 				return false;
@@ -213,6 +216,11 @@ NonStrictMarking* NonStrictSearch::cut(NonStrictMarking& marking){
 	return m;
 }
 
+void NonStrictSearch::printStats(){
+	std::cout << "  discovered markings:\t" << pwList.discoveredMarkings << std::endl;
+	std::cout << "  explored markings:\t" << pwList.Size() << std::endl;
+	std::cout << "  stored markings:\t" << pwList.Size()-pwList.waiting_list->Size() << std::endl;
+}
 
 NonStrictSearch::~NonStrictSearch() {
 	// TODO Auto-generated destructor stub
