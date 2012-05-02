@@ -19,7 +19,7 @@ NonStrictSearch::NonStrictSearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn
 bool NonStrictSearch::Verify(){
 	std::cout << "Starting to verify" << std::endl;
 
-	if(addToPW(&initialMarking, NULL)){
+	if(addToPW(&initialMarking, NULL, true)){
 		return true;
 	}
 
@@ -52,27 +52,26 @@ bool NonStrictSearch::Verify(){
 
 		// Do the forall
 		vector<NonStrictMarking> next = getPossibleNextMarkings(marking);
-		for(vector<NonStrictMarking>::iterator it = next.begin(); it != next.end(); it++){
-#if DEBUG
-			std::cout << "Succssor marking: " << *it << std::endl;
-#endif
-			if(addToPW(&(*it), &next_marking)){
-				return true;
-			}
-			endOfMaxRun = false;
-		}
 
 		if(isDelayPossible(marking)){
 			marking.incrementAge();
 			marking.SetGeneratedBy(NULL);
-			if(addToPW(&marking, &next_marking)){
+			next.push_back(marking);
+		}
+
+		for(vector<NonStrictMarking>::iterator it = next.begin(); it != next.end(); it++){
+#if DEBUG
+			std::cout << "Succssor marking: " << *it << std::endl;
+#endif
+
+			bool last = it == next.end()-1;
+			if(addToPW(&(*it), &next_marking, last)){
 				return true;
 			}
 			endOfMaxRun = false;
 		}
 
 		if(livenessQuery){
-			std::cout << "Top marking (" << *trace.top() << ") has children: " << validChildren << std::endl;
 			if(endOfMaxRun){
 				std::cout << "End of max run" << std::endl;
 				return true;
@@ -132,7 +131,7 @@ bool NonStrictSearch::isKBound(NonStrictMarking& marking){
 	return !(marking.size() > options.GetKBound());
 }
 
-bool NonStrictSearch::addToPW(NonStrictMarking* marking, NonStrictMarking* parent){
+bool NonStrictSearch::addToPW(NonStrictMarking* marking, NonStrictMarking* parent, bool last){
 	NonStrictMarking* m = cut(*marking);
 	m->SetParent(parent);
 	assert(m->equals(initialMarking) || m->GetParent() != NULL);
@@ -152,7 +151,7 @@ bool NonStrictSearch::addToPW(NonStrictMarking* marking, NonStrictMarking* paren
 		boost::any context;
 		query->Accept(checker, context);
 		if(!boost::any_cast<bool>(context))	return false;
-		if(!pwList.Add(m)){
+		if(!pwList.Add(m, last)){
 			//Test if collision is in trace
 			PWList::NonStrictMarkingList& cm = pwList.markings_storage[m->HashKey()];
 			for(PWList::NonStrictMarkingList::iterator iter = cm.begin();
@@ -173,7 +172,7 @@ bool NonStrictSearch::addToPW(NonStrictMarking* marking, NonStrictMarking* paren
 			validChildren++;
 		}
 	}else{
-		if(pwList.Add(m)){
+		if(pwList.Add(m, last)){
 			QueryVisitor checker(*m);
 			boost::any context;
 			query->Accept(checker, context);
@@ -223,8 +222,8 @@ NonStrictMarking* NonStrictSearch::cut(NonStrictMarking& marking){
 
 void NonStrictSearch::printStats(){
 	std::cout << "  discovered markings:\t" << pwList.discoveredMarkings << std::endl;
-	std::cout << "  explored markings:\t" << pwList.Size() << std::endl;
-	std::cout << "  stored markings:\t" << pwList.Size()-pwList.waiting_list->Size() << std::endl;
+	std::cout << "  explored markings:\t" << pwList.Size()-pwList.waiting_list->Size() << std::endl;
+	std::cout << "  stored markings:\t" << pwList.Size() << std::endl;
 }
 
 NonStrictSearch::~NonStrictSearch() {

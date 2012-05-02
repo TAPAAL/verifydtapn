@@ -11,12 +11,13 @@
 #include <queue>
 #include <deque>
 #include <stack>
+#include <vector>
 
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
 
-void StackWaitingList::Add(NonStrictMarking* marking)
+void StackWaitingList::Add(NonStrictMarking* marking, bool last)
 	{
 		stack.push(marking);
 	}
@@ -41,8 +42,35 @@ NonStrictMarking* StackWaitingList::Next()
 		return out;
 	}
 
+	void HeuristicStackWaitingList::Add(NonStrictMarking* marking, bool last)
+	{
+		WeightedMarking* weighted_marking = new WeightedMarking;
+		weighted_marking->marking = marking;
+		weighted_marking->weight = calculateWeight(marking);
+		buffer.push(weighted_marking);
+		if(last) {
+			while(!buffer.empty()){
+				stack.push(buffer.top()->marking);
+				buffer.pop();
+			}
+		}
+	}
 
-	void QueueWaitingList::Add(NonStrictMarking* marking)
+	int HeuristicStackWaitingList::calculateWeight(NonStrictMarking* marking)
+			{
+				LivenessWeightQueryVisitor weight(*marking);
+				boost::any weight_c;
+				query->Accept(weight, weight_c);
+				return boost::any_cast<int>(weight_c);
+			}
+
+			AST::Query* HeuristicStackWaitingList::normalizeQuery(AST::Query* q){
+				AST::NormalizationVisitor visitor;
+				return visitor.Normalize(*q);
+			}
+
+
+	void QueueWaitingList::Add(NonStrictMarking* marking, bool last)
 		{
 			queue.push(marking);
 		}
@@ -63,7 +91,7 @@ NonStrictMarking* StackWaitingList::Next()
 		}
 
 
-		void HeuristicWaitingList::Add(NonStrictMarking* marking)
+		void HeuristicWaitingList::Add(NonStrictMarking* marking, bool last)
 		{
 			WeightedMarking* weighted_marking = new WeightedMarking;
 			weighted_marking->marking = marking;
@@ -84,9 +112,8 @@ NonStrictMarking* StackWaitingList::Next()
 		{
 			WeightQueryVisitor weight(*marking);
 			boost::any weight_c;
-			//query->Accept(weight, weight_c);
-			//return boost::any_cast<int>(weight_c);
-			return 1;
+			query->Accept(weight, weight_c);
+			return boost::any_cast<int>(weight_c);
 		}
 
 		AST::Query* HeuristicWaitingList::normalizeQuery(AST::Query* q){
@@ -101,8 +128,7 @@ NonStrictMarking* StackWaitingList::Next()
 			}
 		}
 
-
-		void RandomWaitingList::Add(NonStrictMarking* marking)
+		void RandomWaitingList::Add(NonStrictMarking* marking, bool last)
 				{
 					WeightedMarking* weighted_marking = new WeightedMarking;
 					weighted_marking->marking = marking;

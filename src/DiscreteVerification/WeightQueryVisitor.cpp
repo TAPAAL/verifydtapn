@@ -69,7 +69,7 @@ namespace DiscreteVerification {
 			query.Child().Accept(*this, context);
 		}
 
-		bool WeightQueryVisitor::Compare(int numberOfTokensInPlace, const std::string& op, int n) const
+		int WeightQueryVisitor::Compare(int numberOfTokensInPlace, const std::string& op, int n) const
 		{
 			if(op == "<") return numberOfTokensInPlace < n? 0:abs(n-numberOfTokensInPlace);
 			else if(op == "<=") return numberOfTokensInPlace <= n? 0:abs(n-numberOfTokensInPlace);

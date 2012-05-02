@@ -12,7 +12,7 @@
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
-bool PWList::Add(NonStrictMarking* marking){
+bool PWList::Add(NonStrictMarking* marking, bool last){
 	discoveredMarkings++;
 	NonStrictMarkingList& m = markings_storage[marking->HashKey()];
 	for(NonStrictMarkingList::const_iterator iter = m.begin();
@@ -23,7 +23,7 @@ bool PWList::Add(NonStrictMarking* marking){
 		}
 	}
 	m.push_back(marking);
-	waiting_list->Add(marking);
+	waiting_list->Add(marking, last);
 	return true;
 }
 

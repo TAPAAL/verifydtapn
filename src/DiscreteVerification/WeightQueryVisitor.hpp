@@ -30,7 +30,7 @@ class WeightQueryVisitor : public Visitor{
 		virtual void Visit(const BoolExpression& expr, boost::any& context);
 		virtual void Visit(const Query& query, boost::any& context);
 	private:
-		bool Compare(int numberOfTokensInPlace, const std::string& op, int n) const;
+		int Compare(int numberOfTokensInPlace, const std::string& op, int n) const;
 
 	private:
 		const NonStrictMarking& marking;

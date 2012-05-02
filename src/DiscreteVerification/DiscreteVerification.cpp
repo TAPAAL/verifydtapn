@@ -11,6 +11,7 @@
 #include "NonStrictHeuristic.hpp"
 #include "NonStrictRandom.hpp"
 #include "NonStrictSearch.hpp"
+#include "NonStrictDFSHeuristic.hpp"
 #include "../Core/TAPNParser/util.hpp"
 
 namespace VerifyTAPN {
@@ -50,7 +51,17 @@ int DiscreteVerification::run(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, s
 	NonStrictSearch* strategy;
 	if(query->GetQuantifier() == EG || query->GetQuantifier() == AF){
 		//Liveness query, force DFS
-		strategy = new NonStrictDFS(tapn, *initialMarking, query, options);
+		switch(options.GetSearchType()){
+		case COVERMOST:
+			strategy = new NonStrictDFSHeuristic(tapn, *initialMarking, query, options);
+			break;
+		case RANDOM:
+			strategy = new NonStrictRandom(tapn, *initialMarking, query, options);
+			break;
+		default:
+			strategy = new NonStrictDFS(tapn, *initialMarking, query, options);
+			break;
+		}
 	}else{
 		switch(options.GetSearchType()){
 		case DEPTHFIRST:
