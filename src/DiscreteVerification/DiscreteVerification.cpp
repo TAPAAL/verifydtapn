@@ -173,7 +173,7 @@ void DiscreteVerification::PrintHumanTrace(bool result, NonStrictMarking* m, std
 
 void DiscreteVerification::PrintXMLTrace(bool result, NonStrictMarking* m, std::stack<NonStrictMarking*>& stack, AST::Quantifier query) {
 	using namespace rapidxml;
-	std::cout << "Trace: " << std::endl;
+	std::cerr << "Trace: " << std::endl;
 	bool isFirst = true;
 	NonStrictMarking* old;
 
@@ -213,7 +213,7 @@ void DiscreteVerification::PrintXMLTrace(bool result, NonStrictMarking* m, std::
 		old = stack.top();
 		stack.pop();
 	}
-	std::cout << doc;
+	std::cerr << doc;
 }
 
 rapidxml::xml_node<>* DiscreteVerification::CreateTransitionNode(NonStrictMarking* old, NonStrictMarking* current, rapidxml::xml_document<>& doc){
@@ -243,7 +243,7 @@ rapidxml::xml_node<>* DiscreteVerification::createTransitionSubNode(NonStrictMar
 	TokenList::const_iterator o_iter = old_tokens.begin();
 	while(n_iter != current_tokens.end() && o_iter != old_tokens.end()){
 		if(n_iter->getAge() == o_iter->getAge()){
-			if(n_iter->getCount() != n_iter->getCount()){
+			if(n_iter->getCount() < o_iter->getCount()){
 				return createTokenNode(doc, place, *n_iter);
 			}
 			n_iter++;
