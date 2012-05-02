@@ -71,7 +71,7 @@ bool NonStrictSearch::Verify(){
 			endOfMaxRun = false;
 		}
 
-		/*if(livenessQuery){
+		if(livenessQuery){
 			std::cout << "Top marking (" << *trace.top() << ") has children: " << validChildren << std::endl;
 			if(endOfMaxRun){
 				std::cout << "End of max run" << std::endl;
@@ -92,7 +92,7 @@ bool NonStrictSearch::Verify(){
 				next_marking.children = validChildren;
 
 			}
-		}*/
+		}
 #if DEBUG
 		std::cout << "--------------------------Done with marking-----------------------------------" << std::endl;
 #endif

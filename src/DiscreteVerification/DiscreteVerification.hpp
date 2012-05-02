@@ -34,6 +34,8 @@ private:
 	static void PrintHumanTrace(bool result, NonStrictMarking* m, std::stack<NonStrictMarking*>& stack, AST::Quantifier query);
 	static void PrintXMLTrace(bool result, NonStrictMarking* m, std::stack<NonStrictMarking*>& stack, AST::Quantifier query);
 	static rapidxml::xml_node<>* CreateTransitionNode(NonStrictMarking* old, NonStrictMarking* current, rapidxml::xml_document<>& doc);
+	static rapidxml::xml_node<>* createTokenNode(rapidxml::xml_document<>& doc, const TAPN::TimedPlace& place, const Token& token);
+	static rapidxml::xml_node<>* createTransitionSubNode(NonStrictMarking* old, NonStrictMarking* current, rapidxml::xml_document<>& doc, const TAPN::TimedPlace& place, const TAPN::TimeInterval& interval);
 	static void GenerateTraceStack(NonStrictMarking* m, std::stack<NonStrictMarking*>* stack, std::stack<NonStrictMarking*>* liveness = NULL);
 };
 
