@@ -25,7 +25,7 @@ class WaitingList {
 public:
 	WaitingList() {};
 	virtual ~WaitingList() {};
-	virtual void Add(NonStrictMarking* marking, bool last) = 0;
+	virtual void Add(NonStrictMarking* marking) = 0;
 	virtual NonStrictMarking* Next() = 0;
 	virtual size_t Size() = 0;
 	friend std::ostream& operator<<(std::ostream& out, WaitingList& x);
@@ -36,7 +36,7 @@ public:
 	StackWaitingList() : stack() { };
 	virtual ~StackWaitingList();
 public:
-	virtual void Add(NonStrictMarking* marking, bool last);
+	virtual void Add(NonStrictMarking* marking);
 	virtual NonStrictMarking* Next();
 	virtual size_t Size() { return stack.size(); };
 protected:
@@ -60,12 +60,15 @@ class HeuristicStackWaitingList : public StackWaitingList{
 public:
 	typedef std::priority_queue<WeightedMarking*, std::vector<WeightedMarking*>, less > priority_queue;
 	HeuristicStackWaitingList(AST::Query* q) : query(normalizeQuery(q)), buffer() { };
-	virtual void Add(NonStrictMarking* marking, bool last);
+	virtual void Add(NonStrictMarking* marking);
+	virtual NonStrictMarking* Next();
+	virtual size_t Size() { return stack.size()+buffer.size(); };
 private:
+	void flushBuffer();
 	int calculateWeight(NonStrictMarking* marking);
-		AST::Query* normalizeQuery(AST::Query* q);
-		priority_queue buffer;
-		AST::Query* query;
+	AST::Query* normalizeQuery(AST::Query* q);
+	priority_queue buffer;
+	AST::Query* query;
 };
 
 class QueueWaitingList : public WaitingList{
@@ -73,7 +76,7 @@ public:
 	QueueWaitingList() : queue() { };
 	virtual ~QueueWaitingList();
 public:
-	virtual void Add(NonStrictMarking* marking, bool last);
+	virtual void Add(NonStrictMarking* marking);
 	virtual NonStrictMarking* Next();
 	virtual size_t Size() { return queue.size(); };
 private:
@@ -82,12 +85,12 @@ private:
 
 class HeuristicWaitingList : public WaitingList{
 public:
-		typedef std::priority_queue<WeightedMarking*, std::vector<WeightedMarking*>, less > priority_queue;
+	typedef std::priority_queue<WeightedMarking*, std::vector<WeightedMarking*>, less > priority_queue;
 public:
 	HeuristicWaitingList(AST::Query* q) : queue(), query(normalizeQuery(q)) { };
 	virtual ~HeuristicWaitingList();
 public:
-	virtual void Add(NonStrictMarking* marking, bool last);
+	virtual void Add(NonStrictMarking* marking);
 	virtual NonStrictMarking* Next();
 	virtual size_t Size() { return queue.size(); };
 private:
@@ -97,14 +100,30 @@ private:
 	AST::Query* query;
 };
 
+class RandomStackWaitingList : public StackWaitingList{
+public:
+	typedef std::priority_queue<WeightedMarking*, std::vector<WeightedMarking*>, less > priority_queue;
+public:
+	RandomStackWaitingList() : buffer() { };
+	virtual ~RandomStackWaitingList();
+public:
+	virtual void Add(NonStrictMarking* marking);
+	virtual NonStrictMarking* Next();
+	virtual size_t Size() { return stack.size()+buffer.size(); };
+private:
+	int calculateWeight(NonStrictMarking* marking);
+	void flushBuffer();
+	priority_queue buffer;
+};
+
 class RandomWaitingList : public WaitingList{
 public:
-		typedef std::priority_queue<WeightedMarking*, std::vector<WeightedMarking*>, less > priority_queue;
+	typedef std::priority_queue<WeightedMarking*, std::vector<WeightedMarking*>, less > priority_queue;
 public:
 	RandomWaitingList() : queue() { };
 	virtual ~RandomWaitingList();
 public:
-	virtual void Add(NonStrictMarking* marking, bool last);
+	virtual void Add(NonStrictMarking* marking);
 	virtual NonStrictMarking* Next();
 	virtual size_t Size() { return queue.size(); };
 private:

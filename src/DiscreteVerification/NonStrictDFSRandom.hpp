@@ -5,8 +5,8 @@
  *      Author: MathiasGS
  */
 
-#ifndef NONSTRICTDFSHEURISTIC_HPP_
-#define NONSTRICTDFSHEURISTIC_HPP_
+#ifndef NONSTRICTDFSRANDOM_HPP_
+#define NONSTRICTDFSRANDOM_HPP_
 #define DEBUG 0
 
 #include "PWList.hpp"
@@ -34,16 +34,16 @@ namespace VerifyTAPN {
 
 namespace DiscreteVerification {
 
-class NonStrictDFSHeuristic : public NonStrictSearch {
+class NonStrictDFSRandom : public NonStrictSearch {
 public:
-	NonStrictDFSHeuristic(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options)
+	NonStrictDFSRandom(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options)
 	: NonStrictSearch(tapn, initialMarking, query, options, CreateWaitingList(query)){
-		std::cout << "Using heuristic DFS strategy" << std::endl;
+		std::cout << "Using random DFS strategy" << std::endl;
 	};
-	virtual ~NonStrictDFSHeuristic(){};
+	virtual ~NonStrictDFSRandom(){};
 
 protected:
-	virtual WaitingList* CreateWaitingList(AST::Query* query) const { return new HeuristicStackWaitingList(query); };
+	virtual WaitingList* CreateWaitingList(AST::Query* query) const { return new RandomStackWaitingList; };
 };
 
 }

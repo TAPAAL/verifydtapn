@@ -17,9 +17,7 @@ NonStrictSearch::NonStrictSearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn
 }
 
 bool NonStrictSearch::Verify(){
-	std::cout << "Starting to verify" << std::endl;
-
-	if(addToPW(&initialMarking, NULL, true)){
+	if(addToPW(&initialMarking, NULL)){
 		return true;
 	}
 
@@ -64,8 +62,7 @@ bool NonStrictSearch::Verify(){
 			std::cout << "Succssor marking: " << *it << std::endl;
 #endif
 
-			bool last = it == next.end()-1;
-			if(addToPW(&(*it), &next_marking, last)){
+			if(addToPW(&(*it), &next_marking)){
 				return true;
 			}
 			endOfMaxRun = false;
@@ -97,8 +94,6 @@ bool NonStrictSearch::Verify(){
 #endif
 	}
 
-
-	std::cout << "Markings explored: " << pwList.Size() << std::endl;
 	return false;
 }
 
@@ -131,15 +126,10 @@ bool NonStrictSearch::isKBound(NonStrictMarking& marking){
 	return !(marking.size() > options.GetKBound());
 }
 
-bool NonStrictSearch::addToPW(NonStrictMarking* marking, NonStrictMarking* parent, bool last){
+bool NonStrictSearch::addToPW(NonStrictMarking* marking, NonStrictMarking* parent){
 	NonStrictMarking* m = cut(*marking);
 	m->SetParent(parent);
 	assert(m->equals(initialMarking) || m->GetParent() != NULL);
-	for(PlaceList::const_iterator it = m->places.begin(); it != m->places.end(); it++){
-		for(TokenList::const_iterator iter = it->tokens.begin(); iter != it->tokens.end(); iter++){
-			assert(iter->getAge() <= tapn->MaxConstant()+1);
-		}
-	}
 
 	if(!isKBound(*m)) {
 		delete m;
@@ -151,7 +141,7 @@ bool NonStrictSearch::addToPW(NonStrictMarking* marking, NonStrictMarking* paren
 		boost::any context;
 		query->Accept(checker, context);
 		if(!boost::any_cast<bool>(context))	return false;
-		if(!pwList.Add(m, last)){
+		if(!pwList.Add(m)){
 			//Test if collision is in trace
 			PWList::NonStrictMarkingList& cm = pwList.markings_storage[m->HashKey()];
 			for(PWList::NonStrictMarkingList::iterator iter = cm.begin();
@@ -172,7 +162,7 @@ bool NonStrictSearch::addToPW(NonStrictMarking* marking, NonStrictMarking* paren
 			validChildren++;
 		}
 	}else{
-		if(pwList.Add(m, last)){
+		if(pwList.Add(m)){
 			QueryVisitor checker(*m);
 			boost::any context;
 			query->Accept(checker, context);

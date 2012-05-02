@@ -43,7 +43,7 @@ public:
 
 protected:
 	vector<NonStrictMarking> getPossibleNextMarkings(NonStrictMarking& marking);
-	bool addToPW(NonStrictMarking* marking, NonStrictMarking* parent, bool last);
+	bool addToPW(NonStrictMarking* marking, NonStrictMarking* parent);
 	bool isKBound(NonStrictMarking& marking);
 	bool isDelayPossible(NonStrictMarking& marking);
 	NonStrictMarking* cut(NonStrictMarking& marking);

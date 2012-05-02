@@ -12,6 +12,7 @@
 #include "NonStrictRandom.hpp"
 #include "NonStrictSearch.hpp"
 #include "NonStrictDFSHeuristic.hpp"
+#include "NonStrictDFSRandom.hpp"
 #include "../Core/TAPNParser/util.hpp"
 
 namespace VerifyTAPN {
@@ -56,7 +57,7 @@ int DiscreteVerification::run(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, s
 			strategy = new NonStrictDFSHeuristic(tapn, *initialMarking, query, options);
 			break;
 		case RANDOM:
-			strategy = new NonStrictRandom(tapn, *initialMarking, query, options);
+			strategy = new NonStrictDFSRandom(tapn, *initialMarking, query, options);
 			break;
 		default:
 			strategy = new NonStrictDFS(tapn, *initialMarking, query, options);
