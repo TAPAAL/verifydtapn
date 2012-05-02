@@ -235,7 +235,7 @@ rapidxml::xml_node<>* DiscreteVerification::CreateTransitionNode(NonStrictMarkin
 
 void DiscreteVerification::createTransitionSubNodes(NonStrictMarking* old, NonStrictMarking* current, rapidxml::xml_document<>& doc, rapidxml::xml_node<>* transitionNode, const TAPN::TimedPlace& place, const TAPN::TimeInterval& interval, const int weight){
 	TokenList current_tokens = current->GetTokenList(place.GetIndex());
-	TokenList old_tokens = old->GetTokenList(place.GetIndex());;
+	TokenList old_tokens = old->GetTokenList(place.GetIndex());
 	int tokensFound = 0;
 
 	TokenList::const_iterator n_iter = current_tokens.begin();
@@ -260,14 +260,18 @@ void DiscreteVerification::createTransitionSubNodes(NonStrictMarking* old, NonSt
 	}
 
 	for(TokenList::const_iterator iter = o_iter; iter != old_tokens.end(); iter++){
-		transitionNode->append_node(createTokenNode(doc, place, *iter));
-		tokensFound++;
+		for(int i = 0; i < iter->getCount(); i++){
+			transitionNode->append_node(createTokenNode(doc, place, *iter));
+			tokensFound++;
+		}
 	}
 
 	for(TokenList::const_iterator iter = old_tokens.begin(); iter != old_tokens.end() && tokensFound < weight; iter++){
 		if(iter->getAge() >= interval.GetLowerBound()){
-			transitionNode->append_node(createTokenNode(doc, place, *iter));
-			tokensFound++;
+			for(int i = 0; i < iter->getCount() && tokensFound < weight; i++){
+				transitionNode->append_node(createTokenNode(doc, place, *iter));
+				tokensFound++;
+			}
 		}
 	}
 	//Should not be possible to get here
