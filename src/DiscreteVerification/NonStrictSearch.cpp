@@ -17,8 +17,6 @@ NonStrictSearch::NonStrictSearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn
 }
 
 bool NonStrictSearch::Verify(){
-	std::cout << "Starting to verify" << std::endl;
-
 	if(addToPW(&initialMarking, NULL)){
 		return true;
 	}
@@ -44,27 +42,25 @@ bool NonStrictSearch::Verify(){
 
 		// Do the forall
 		vector<NonStrictMarking> next = getPossibleNextMarkings(marking);
+
+		if(isDelayPossible(marking)){
+			marking.incrementAge();
+			marking.SetGeneratedBy(NULL);
+			next.push_back(marking);
+		}
+
 		for(vector<NonStrictMarking>::iterator it = next.begin(); it != next.end(); it++){
 #if DEBUG
 			std::cout << "Succssor marking: " << *it << std::endl;
 #endif
+
 			if(addToPW(&(*it), &next_marking)){
 				return true;
 			}
 			endOfMaxRun = false;
 		}
 
-		if(isDelayPossible(marking)){
-			marking.incrementAge();
-			marking.SetGeneratedBy(NULL);
-			if(addToPW(&marking, &next_marking)){
-				return true;
-			}
-			endOfMaxRun = false;
-		}
-
 		if(livenessQuery){
-			std::cout << "Top marking (" << *trace.top() << ") has children: " << validChildren << std::endl;
 			if(endOfMaxRun){
 				std::cout << "End of max run" << std::endl;
 				return true;
@@ -90,8 +86,6 @@ bool NonStrictSearch::Verify(){
 #endif
 	}
 
-
-	std::cout << "Markings explored: " << pwList.Size() << std::endl;
 	return false;
 }
 
@@ -128,11 +122,6 @@ bool NonStrictSearch::addToPW(NonStrictMarking* marking, NonStrictMarking* paren
 	NonStrictMarking* m = cut(*marking);
 	m->SetParent(parent);
 	assert(m->equals(initialMarking) || m->GetParent() != NULL);
-	for(PlaceList::const_iterator it = m->places.begin(); it != m->places.end(); it++){
-		for(TokenList::const_iterator iter = it->tokens.begin(); iter != it->tokens.end(); iter++){
-			assert(iter->getAge() <= tapn->MaxConstant()+1);
-		}
-	}
 
 	if(!isKBound(*m)) {
 		delete m;
@@ -218,8 +207,8 @@ NonStrictMarking* NonStrictSearch::cut(NonStrictMarking& marking){
 
 void NonStrictSearch::printStats(){
 	std::cout << "  discovered markings:\t" << pwList.discoveredMarkings << std::endl;
-	std::cout << "  explored markings:\t" << pwList.Size() << std::endl;
-	std::cout << "  stored markings:\t" << pwList.Size()-pwList.waiting_list->Size() << std::endl;
+	std::cout << "  explored markings:\t" << pwList.Size()-pwList.waiting_list->Size() << std::endl;
+	std::cout << "  stored markings:\t" << pwList.Size() << std::endl;
 }
 
 NonStrictSearch::~NonStrictSearch() {

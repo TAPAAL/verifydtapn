@@ -44,7 +44,7 @@ class SuccessorGenerator {
 	typedef google::sparse_hash_map<const void*, TokenList> ArcHashMap;
 
 public:
-	SuccessorGenerator(TAPN::TimedArcPetriNet& tapn) : tapn(tapn) {};
+	SuccessorGenerator(TAPN::TimedArcPetriNet& tapn);
 	~SuccessorGenerator();
 	vector< NonStrictMarking > generateSuccessors(const NonStrictMarking& marking) const;
 private:
@@ -55,6 +55,7 @@ private:
 	void recursiveGenerateMarking(vector<NonStrictMarking >& result, NonStrictMarking& init_marking, const TimedTransition& transition, ArcHashMap& enabledArcs, unsigned int index) const;
 
 	const TAPN::TimedArcPetriNet& tapn;
+	vector<const TAPN::TimedTransition*> allwaysEnabled;
 	void processArc(
 			ArcHashMap& enabledArcs,
 			std::vector<unsigned int>& enabledTransitionArcs,

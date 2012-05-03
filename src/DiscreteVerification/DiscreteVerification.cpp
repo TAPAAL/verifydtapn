@@ -11,6 +11,8 @@
 #include "NonStrictHeuristic.hpp"
 #include "NonStrictRandom.hpp"
 #include "NonStrictSearch.hpp"
+#include "NonStrictDFSHeuristic.hpp"
+#include "NonStrictDFSRandom.hpp"
 #include "../Core/TAPNParser/util.hpp"
 
 namespace VerifyTAPN {
@@ -50,7 +52,17 @@ int DiscreteVerification::run(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, s
 	NonStrictSearch* strategy;
 	if(query->GetQuantifier() == EG || query->GetQuantifier() == AF){
 		//Liveness query, force DFS
-		strategy = new NonStrictDFS(tapn, *initialMarking, query, options);
+		switch(options.GetSearchType()){
+		case COVERMOST:
+			strategy = new NonStrictDFSHeuristic(tapn, *initialMarking, query, options);
+			break;
+		case RANDOM:
+			strategy = new NonStrictDFSRandom(tapn, *initialMarking, query, options);
+			break;
+		default:
+			strategy = new NonStrictDFS(tapn, *initialMarking, query, options);
+			break;
+		}
 	}else{
 		switch(options.GetSearchType()){
 		case DEPTHFIRST:
@@ -124,7 +136,7 @@ int DiscreteVerification::run(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, s
 }
 
 void DiscreteVerification::PrintHumanTrace(bool result, NonStrictMarking* m, std::stack<NonStrictMarking*>& stack, AST::Quantifier query) {
-	std::cout << "Trace: " << std::endl;
+	std::cerr << "Trace: " << std::endl;
 	bool isFirst = true;
 
 	while(!stack.empty()){
@@ -164,7 +176,7 @@ void DiscreteVerification::PrintHumanTrace(bool result, NonStrictMarking* m, std
 				}
 			}
 		}
-		std::cout << std::endl;
+		std::cerr << std::endl;
 		//std::cout << "Stack before: " << stack.size() << std::endl;
 		stack.pop();
 		//std::cout << "Stack after: " << stack.size() << std::endl;

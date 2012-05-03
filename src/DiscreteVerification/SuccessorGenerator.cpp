@@ -14,6 +14,15 @@ SuccessorGenerator::~SuccessorGenerator(){
 
 }
 
+SuccessorGenerator::SuccessorGenerator(TAPN::TimedArcPetriNet& tapn)  : tapn(tapn), allwaysEnabled(){
+	//Find the transitions which don't have input arcs
+	for(TimedTransition::Vector::const_iterator iter = tapn.GetTransitions().begin(); iter != tapn.GetTransitions().end(); iter++){
+		if((*iter)->GetPreset().size() + (*iter)->GetTransportArcs().size() == 0){
+			allwaysEnabled.push_back(iter->get());
+		}
+	}
+}
+
 vector< NonStrictMarking > SuccessorGenerator::generateSuccessors(const NonStrictMarking& marking) const{
 
 #if DEBUG
@@ -23,13 +32,6 @@ vector< NonStrictMarking > SuccessorGenerator::generateSuccessors(const NonStric
 	ArcHashMap enabledArcs(tapn.GetInhibitorArcs().size() + tapn.GetInputArcs().size() + tapn.GetTransportArcs().size());
 	std::vector<unsigned int> enabledTransitionArcs(tapn.GetTransitions().size(), 0);
 	std::vector<const TAPN::TimedTransition* > enabledTransitions;
-
-	//Find the transitions which don't have input arcs
-	for(TimedTransition::Vector::const_iterator iter = tapn.GetTransitions().begin(); iter != tapn.GetTransitions().end(); iter++){
-		if((*iter)->GetPreset().size() + (*iter)->GetTransportArcs().size() == 0){
-			enabledTransitions.push_back(iter->get());
-		}
-	}
 
 	for(PlaceList::const_iterator iter = marking.places.begin(); iter < marking.places.end(); iter++){
 		for(TAPN::TimedInputArc::WeakPtrVector::const_iterator arc_iter = iter->place->GetInputArcs().begin();
@@ -53,6 +55,7 @@ vector< NonStrictMarking > SuccessorGenerator::generateSuccessors(const NonStric
 		}
 	}
 
+	enabledTransitions.insert(enabledTransitions.end(), allwaysEnabled.begin(), allwaysEnabled.end());
 	generateMarkings(result, marking, enabledTransitions, enabledArcs);
 #if DEBUG
 	std::cout << "------------------------------- SuccessorGenerator done---------------------------" << std::endl;
