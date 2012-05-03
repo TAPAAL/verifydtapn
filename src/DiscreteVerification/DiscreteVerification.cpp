@@ -53,14 +53,17 @@ int DiscreteVerification::run(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, s
 	if(query->GetQuantifier() == EG || query->GetQuantifier() == AF){
 		//Liveness query, force DFS
 		switch(options.GetSearchType()){
-		case COVERMOST:
-			strategy = new NonStrictDFSHeuristic(tapn, *initialMarking, query, options);
+		case DEPTHFIRST:
+			strategy = new NonStrictDFS(tapn, *initialMarking, query, options);
 			break;
 		case RANDOM:
 			strategy = new NonStrictDFSRandom(tapn, *initialMarking, query, options);
 			break;
+		case COVERMOST:
+			strategy = new NonStrictDFSHeuristic(tapn, *initialMarking, query, options);
+			break;
 		default:
-			strategy = new NonStrictDFS(tapn, *initialMarking, query, options);
+			strategy = new NonStrictDFSHeuristic(tapn, *initialMarking, query, options);
 			break;
 		}
 	}else{
@@ -280,6 +283,7 @@ rapidxml::xml_node<>* DiscreteVerification::createTransitionSubNode(NonStrictMar
 	}
 	//Should not be possible to get here
 	assert(false);
+	return NULL;
 }
 
 rapidxml::xml_node<>* DiscreteVerification::createTokenNode(rapidxml::xml_document<>& doc, const TAPN::TimedPlace& place, const Token& token){
