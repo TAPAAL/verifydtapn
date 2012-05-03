@@ -178,12 +178,21 @@ bool NonStrictSearch::addToPW(NonStrictMarking* marking, NonStrictMarking* paren
 
 NonStrictMarking* NonStrictSearch::cut(NonStrictMarking& marking){
 	NonStrictMarking* m = new NonStrictMarking(marking);
-	for(PlaceList::iterator place_iter = m->places.begin(); place_iter != m->places.end(); place_iter++){
-		const TimedPlace& place = tapn->GetPlace(place_iter->place->GetIndex());
-		int count = 0;
 #if DEBUG
 		std::cout << "Cut before: " << *m << std::endl;
 #endif
+	for(PlaceList::iterator place_iter = m->places.begin(); place_iter != m->places.end(); place_iter++){
+		const TimedPlace& place = tapn->GetPlace(place_iter->place->GetIndex());
+		//remove dead tokens
+		if (place_iter->place->GetType() == Dead) {
+			for(TokenList::iterator token_iter = place_iter->tokens.begin(); token_iter != place_iter->tokens.end(); token_iter++){
+				if(token_iter->getAge() > place.GetMaxConstant()){
+					token_iter->remove(token_iter->getCount());
+				}
+			}
+		}
+		//set age of too old tokens to max age
+		int count = 0;
 		for(TokenList::iterator token_iter = place_iter->tokens.begin(); token_iter != place_iter->tokens.end(); token_iter++){
 			if(token_iter->getAge() > place.GetMaxConstant()){
 				TokenList::iterator beginDelete = token_iter;
