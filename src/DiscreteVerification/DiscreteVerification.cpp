@@ -11,6 +11,8 @@
 #include "NonStrictHeuristic.hpp"
 #include "NonStrictRandom.hpp"
 #include "NonStrictSearch.hpp"
+#include "NonStrictDFSHeuristic.hpp"
+#include "NonStrictDFSRandom.hpp"
 #include "../Core/TAPNParser/util.hpp"
 
 namespace VerifyTAPN {
@@ -50,7 +52,17 @@ int DiscreteVerification::run(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, s
 	NonStrictSearch* strategy;
 	if(query->GetQuantifier() == EG || query->GetQuantifier() == AF){
 		//Liveness query, force DFS
-		strategy = new NonStrictDFS(tapn, *initialMarking, query, options);
+		switch(options.GetSearchType()){
+		case COVERMOST:
+			strategy = new NonStrictDFSHeuristic(tapn, *initialMarking, query, options);
+			break;
+		case RANDOM:
+			strategy = new NonStrictDFSRandom(tapn, *initialMarking, query, options);
+			break;
+		default:
+			strategy = new NonStrictDFS(tapn, *initialMarking, query, options);
+			break;
+		}
 	}else{
 		switch(options.GetSearchType()){
 		case DEPTHFIRST:
@@ -173,7 +185,7 @@ void DiscreteVerification::PrintHumanTrace(bool result, NonStrictMarking* m, std
 
 void DiscreteVerification::PrintXMLTrace(bool result, NonStrictMarking* m, std::stack<NonStrictMarking*>& stack, AST::Quantifier query) {
 	using namespace rapidxml;
-	std::cout << "Trace: " << std::endl;
+	std::cerr << "Trace: " << std::endl;
 	bool isFirst = true;
 	NonStrictMarking* old;
 
@@ -213,7 +225,7 @@ void DiscreteVerification::PrintXMLTrace(bool result, NonStrictMarking* m, std::
 		old = stack.top();
 		stack.pop();
 	}
-	std::cout << doc;
+	std::cerr << doc;
 }
 
 rapidxml::xml_node<>* DiscreteVerification::CreateTransitionNode(NonStrictMarking* old, NonStrictMarking* current, rapidxml::xml_document<>& doc){

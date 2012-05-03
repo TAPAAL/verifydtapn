@@ -5,8 +5,8 @@
  *      Author: MathiasGS
  */
 
-#ifndef WEIGHTQUERYVISITOR_HPP_
-#define WEIGHTQUERYVISITOR_HPP_
+#ifndef LIVEWEIGHTQUERYVISITOR_HPP_
+#define LIVEWEIGHTQUERYVISITOR_HPP_
 
 #include "../Core/QueryParser/Visitor.hpp"
 #include "NonStrictMarking.hpp"
@@ -16,10 +16,10 @@ namespace DiscreteVerification {
 
 using namespace AST;
 
-class WeightQueryVisitor : public Visitor{
+class LivenessWeightQueryVisitor : public Visitor{
 	public:
-	WeightQueryVisitor(NonStrictMarking& marking) : marking(marking){};
-		virtual ~WeightQueryVisitor(){};
+	LivenessWeightQueryVisitor(NonStrictMarking& marking) : marking(marking){};
+		virtual ~LivenessWeightQueryVisitor(){};
 
 	public: // visitor methods
 		virtual void Visit(const NotExpression& expr, boost::any& context);
@@ -38,4 +38,4 @@ class WeightQueryVisitor : public Visitor{
 
 } /* namespace DiscreteVerification */
 } /* namespace VerifyTAPN */
-#endif /* QUERYVISITOR_HPP_ */
+#endif /* LIVENESSQUERYVISITOR_HPP_ */

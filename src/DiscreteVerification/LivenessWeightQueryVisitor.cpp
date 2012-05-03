@@ -5,7 +5,7 @@
  *      Author: MathiasGS
  */
 
-#include "WeightQueryVisitor.hpp"
+#include "LivenessWeightQueryVisitor.hpp"
 #include "../Core/QueryParser/AST.hpp"
 #include <exception>
 #include <limits.h>
@@ -13,17 +13,17 @@
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
-		void WeightQueryVisitor::Visit(const NotExpression& expr, boost::any& context)
+		void LivenessWeightQueryVisitor::Visit(const NotExpression& expr, boost::any& context)
 		{
 			assert(false);
 		}
 
-		void WeightQueryVisitor::Visit(const ParExpression& expr, boost::any& context)
+		void LivenessWeightQueryVisitor::Visit(const ParExpression& expr, boost::any& context)
 		{
 			expr.Child().Accept(*this, context);
 		}
 
-		void WeightQueryVisitor::Visit(const OrExpression& expr, boost::any& context)
+		void LivenessWeightQueryVisitor::Visit(const OrExpression& expr, boost::any& context)
 		{
 			boost::any left, right;
 			expr.Left().Accept(*this, left);
@@ -32,7 +32,7 @@ namespace DiscreteVerification {
 			context = min(boost::any_cast<int>(left), boost::any_cast<int>(right));
 		}
 
-		void WeightQueryVisitor::Visit(const AndExpression& expr, boost::any& context)
+		void LivenessWeightQueryVisitor::Visit(const AndExpression& expr, boost::any& context)
 		{
 			boost::any left, right;
 			expr.Left().Accept(*this, left);
@@ -53,30 +53,30 @@ namespace DiscreteVerification {
 			context = l+r;
 		}
 
-		void WeightQueryVisitor::Visit(const AtomicProposition& expr, boost::any& context)
+		void LivenessWeightQueryVisitor::Visit(const AtomicProposition& expr, boost::any& context)
 		{
 			int numberOfTokens = marking.NumberOfTokensInPlace(expr.Place());
 			context = Compare(numberOfTokens, expr.Operator(), expr.N());
 		}
 
-		void WeightQueryVisitor::Visit(const BoolExpression& expr, boost::any& context)
+		void LivenessWeightQueryVisitor::Visit(const BoolExpression& expr, boost::any& context)
 		{
 			context = expr.GetValue()? 0 : std::numeric_limits<int>::max();
 		}
 
-		void WeightQueryVisitor::Visit(const Query& query, boost::any& context)
+		void LivenessWeightQueryVisitor::Visit(const Query& query, boost::any& context)
 		{
 			query.Child().Accept(*this, context);
 		}
 
-		int WeightQueryVisitor::Compare(int numberOfTokensInPlace, const std::string& op, int n) const
+		int LivenessWeightQueryVisitor::Compare(int numberOfTokensInPlace, const std::string& op, int n) const
 		{
-			if(op == "<") return numberOfTokensInPlace < n? 0:abs(n-numberOfTokensInPlace);
-			else if(op == "<=") return numberOfTokensInPlace <= n? 0:abs(n-numberOfTokensInPlace);
+			if(op == "<") return numberOfTokensInPlace < n? abs(n-numberOfTokensInPlace):-abs(n-numberOfTokensInPlace);
+			else if(op == "<=") return numberOfTokensInPlace <= n? abs(n-numberOfTokensInPlace):-abs(n-numberOfTokensInPlace);
 			else if(op == "=" || op == "==") return numberOfTokensInPlace == n? 0:abs(n-numberOfTokensInPlace);
-			else if(op == ">=") return numberOfTokensInPlace >= n? 0:abs(n-numberOfTokensInPlace);
-			else if(op == ">") return numberOfTokensInPlace > n? 0:abs(n-numberOfTokensInPlace);
-			else if(op == "!=") return numberOfTokensInPlace == n? 1:0;
+			else if(op == ">=") return numberOfTokensInPlace >= n? abs(n-numberOfTokensInPlace):-abs(n-numberOfTokensInPlace);
+			else if(op == ">") return numberOfTokensInPlace > n? abs(n-numberOfTokensInPlace):-abs(n-numberOfTokensInPlace);
+			else if(op == "!=") return numberOfTokensInPlace == n? abs(n-numberOfTokensInPlace):0;
 			else
 				throw std::exception();
 		}
