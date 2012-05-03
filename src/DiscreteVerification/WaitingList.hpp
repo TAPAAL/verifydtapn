@@ -59,7 +59,7 @@ struct less : public std::binary_function<WeightedMarking*, WeightedMarking*, bo
 class HeuristicStackWaitingList : public StackWaitingList{
 public:
 	typedef std::priority_queue<WeightedMarking*, std::vector<WeightedMarking*>, less > priority_queue;
-	HeuristicStackWaitingList(AST::Query* q) : query(normalizeQuery(q)), buffer() { };
+	HeuristicStackWaitingList(AST::Query* q) : buffer(), query(normalizeQuery(q)) { };
 	virtual void Add(NonStrictMarking* marking);
 	virtual NonStrictMarking* Next();
 	virtual size_t Size() { return stack.size()+buffer.size(); };
