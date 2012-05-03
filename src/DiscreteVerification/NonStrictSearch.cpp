@@ -11,7 +11,7 @@ namespace VerifyTAPN {
 namespace DiscreteVerification {
 
 NonStrictSearch::NonStrictSearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList* waiting_list)
-	: tapn(tapn), initialMarking(initialMarking), query(query), options(options), successorGenerator( *tapn.get() ), pwList(waiting_list){
+	: pwList(waiting_list), tapn(tapn), initialMarking(initialMarking), query(query), options(options), successorGenerator( *tapn.get() ){
 	livenessQuery = (query->GetQuantifier() == EG || query->GetQuantifier() == AF);
 	std::cout<< "livenessQuery: " << (livenessQuery? "true":"false") << std::endl;
 }
@@ -29,15 +29,16 @@ bool NonStrictSearch::Verify(){
 		std::cout << "current marking: " << next_marking << " marking size: " << next_marking.size() << std::endl;
 #endif
 		NonStrictMarking marking(next_marking);
-
 		bool endOfMaxRun = true;
 		next_marking.inTrace = true;
 		trace.push(&next_marking);
+#if debug
 		if(trace.top()->equals(*pwList.markings_storage[trace.top()->HashKey()].at(0))){
 			assert(trace.top() == pwList.markings_storage[trace.top()->HashKey()].at(0));
 			assert(trace.top()->inTrace);
 			assert(pwList.markings_storage[trace.top()->HashKey()].at(0)->inTrace);
 		}
+#endif
 		validChildren = 0;
 
 		// Do the forall
@@ -68,10 +69,12 @@ bool NonStrictSearch::Verify(){
 			if(validChildren == 0){
 				while(!trace.empty() && trace.top()->children <= 1){
 					trace.top()->inTrace = false;
+#if DEBUG
 					if(trace.top()->equals(*pwList.markings_storage[trace.top()->HashKey()].at(0))){
 						assert(trace.top() == pwList.markings_storage[trace.top()->HashKey()].at(0));
 						assert(pwList.markings_storage[trace.top()->HashKey()].at(0)->inTrace == false);
 					}
+#endif
 					trace.pop();
 				}
 				if(trace.empty())	return false;
@@ -121,7 +124,9 @@ bool NonStrictSearch::isKBound(NonStrictMarking& marking){
 bool NonStrictSearch::addToPW(NonStrictMarking* marking, NonStrictMarking* parent){
 	NonStrictMarking* m = cut(*marking);
 	m->SetParent(parent);
+#if DEBUG
 	assert(m->equals(initialMarking) || m->GetParent() != NULL);
+#endif
 
 	if(!isKBound(*m)) {
 		delete m;

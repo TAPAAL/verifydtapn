@@ -24,7 +24,9 @@ void StackWaitingList::Add(NonStrictMarking* marking)
 
 NonStrictMarking* StackWaitingList::Next()
 {
+#if DEBUG
 	assert(Size() > 0);
+#endif
 	NonStrictMarking* marking = stack.top();
 	stack.pop();
 	return marking;
@@ -59,7 +61,9 @@ void HeuristicStackWaitingList::flushBuffer(){
 
 NonStrictMarking* HeuristicStackWaitingList::Next()
 {
+#if DEBUG
 	assert(Size() > 0);
+#endif
 	flushBuffer();
 	NonStrictMarking* marking = stack.top();
 	stack.pop();
@@ -87,7 +91,9 @@ void QueueWaitingList::Add(NonStrictMarking* marking)
 
 NonStrictMarking* QueueWaitingList::Next()
 {
+#if DEBUG
 	assert(Size() > 0);
+#endif
 	NonStrictMarking* marking = queue.front();
 	queue.pop();
 	return marking;
@@ -111,7 +117,9 @@ void HeuristicWaitingList::Add(NonStrictMarking* marking)
 
 NonStrictMarking* HeuristicWaitingList::Next()
 {
+#if DEBUG
 	assert(Size() > 0);
+#endif
 	WeightedMarking* weighted_marking = queue.top();
 	NonStrictMarking* marking = weighted_marking->marking;
 	queue.pop();
@@ -148,7 +156,9 @@ void RandomWaitingList::Add(NonStrictMarking* marking)
 
 NonStrictMarking* RandomWaitingList::Next()
 {
+#if DEBUG
 	assert(Size() > 0);
+#endif
 	WeightedMarking* weighted_marking = queue.top();
 	NonStrictMarking* marking = weighted_marking->marking;
 	queue.pop();
@@ -184,7 +194,9 @@ void RandomStackWaitingList::flushBuffer(){
 
 NonStrictMarking* RandomStackWaitingList::Next()
 {
+#if DEBUG
 	assert(Size() > 0);
+#endif
 	flushBuffer();
 	NonStrictMarking* marking = stack.top();
 	stack.pop();
