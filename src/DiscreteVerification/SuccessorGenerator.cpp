@@ -122,7 +122,8 @@ void SuccessorGenerator::generateMarkings(vector<NonStrictMarking>& result, cons
 #if DEBUG
 			std::cout << "Inhibitor: " << *(inhib_iter->lock()) << " Inhibitor size: " << enabledArcs[inhib_iter->lock().get()].size() << std::endl;
 #endif
-			if(enabledArcs[inhib_iter->lock().get()].size() != 0){
+			// Maybe this could be done more efficiently using ArcHashMap? Dunno exactly how it works
+			if(init_marking.NumberOfTokensInPlace(inhib_iter->lock().get()->InputPlace().GetIndex()) >= inhib_iter->lock().get()->GetWeight()){
 				inhibited = true;
 				break;
 			}
