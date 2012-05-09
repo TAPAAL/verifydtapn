@@ -52,7 +52,7 @@ struct less : public std::binary_function<WeightedMarking*, WeightedMarking*, bo
 {
 	bool operator()(const WeightedMarking* x, const WeightedMarking* y) const
 	{
-		return x->weight < y->weight;
+		return x->weight > y->weight;
 	}
 };
 
