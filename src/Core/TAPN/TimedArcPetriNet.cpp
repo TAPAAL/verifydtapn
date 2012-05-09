@@ -5,7 +5,7 @@
 
 namespace VerifyTAPN {
 	namespace TAPN {
-		void TimedArcPetriNet::Initialize(bool useUntimedPlaces)
+		void TimedArcPetriNet::Initialize(bool useUntimedPlaces, bool useGlobalMaxConstant)
 		{
 			for(unsigned int i = 0; i < places.size(); i++){
 				places[i]->SetIndex(i);
@@ -53,6 +53,21 @@ namespace VerifyTAPN {
 				arc->OutputPlace().AddOutputArc(arc);
 			}
 
+			GeneratePairings();
+			FindMaxConstants();
+
+			if(useGlobalMaxConstant){
+				for(TimedPlace::Vector::const_iterator place_iter = places.begin(); place_iter != places.end(); ++place_iter)
+				{
+					(*place_iter)->SetMaxConstant(MaxConstant());
+				}
+			}
+
+			if(useUntimedPlaces)
+				MarkUntimedPlaces();
+		}
+
+		void TimedArcPetriNet::removeOrphantedTransitions(){
 			// CAUTION: This if statement removes orphan transitions.
 			//			This changes answers for e.g. DEADLOCK queries if
 			//			support for such queries are added later.
@@ -73,12 +88,6 @@ namespace VerifyTAPN {
 					}
 				}
 			}
-
-			GeneratePairings();
-			FindMaxConstants();
-
-			if(useUntimedPlaces)
-				MarkUntimedPlaces();
 		}
 
 		void TimedArcPetriNet::MarkUntimedPlaces()
