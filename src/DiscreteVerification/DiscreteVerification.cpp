@@ -141,6 +141,7 @@ int DiscreteVerification::run(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, s
 void DiscreteVerification::PrintHumanTrace(bool result, NonStrictMarking* m, std::stack<NonStrictMarking*>& stack, AST::Quantifier query) {
 	std::cout << "Trace: " << std::endl;
 	bool isFirst = true;
+	bool foundLoop = false;
 
 	while(!stack.empty()){
 		if(isFirst) {
@@ -168,6 +169,7 @@ void DiscreteVerification::PrintHumanTrace(bool result, NonStrictMarking* m, std
 
 		if((query == EG || query == AF) && (stack.top()->equals(*m) && stack.size() > 1)){
 			std::cout << "\t* ";
+			foundLoop = true;
 		} else {
 			std::cout << "\t";
 		}
@@ -183,6 +185,15 @@ void DiscreteVerification::PrintHumanTrace(bool result, NonStrictMarking* m, std
 		//std::cout << "Stack before: " << stack.size() << std::endl;
 		stack.pop();
 		//std::cout << "Stack after: " << stack.size() << std::endl;
+	}
+
+	if(query == EG || query == AF){
+		if(foundLoop){
+			std::cout << "\tgoto *" << std::endl;
+		} else {
+			std::cout << "\tDeadlock" << std::endl;
+		}
+
 	}
 }
 
