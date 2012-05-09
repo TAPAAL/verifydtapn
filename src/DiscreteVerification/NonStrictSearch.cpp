@@ -125,6 +125,9 @@ bool NonStrictSearch::addToPW(NonStrictMarking* marking, NonStrictMarking* paren
 #endif
 
 	int size = m->size();
+
+	pwList.SetMaxNumTokensIfGreater(size);
+
 	if(size > options.GetKBound()) {
 		delete m;
 		return false;
@@ -153,12 +156,10 @@ bool NonStrictSearch::addToPW(NonStrictMarking* marking, NonStrictMarking* paren
 				}
 			}
 		}else{
-			pwList.SetMaxNumTokensIfGreater(size);
 			validChildren++;
 		}
 	}else{
 		if(pwList.Add(m)){
-			pwList.SetMaxNumTokensIfGreater(size);
 			QueryVisitor checker(*m);
 			boost::any context;
 			query->Accept(checker, context);
