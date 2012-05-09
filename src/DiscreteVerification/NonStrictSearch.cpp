@@ -117,10 +117,6 @@ vector<NonStrictMarking> NonStrictSearch::getPossibleNextMarkings(NonStrictMarki
 	return successorGenerator.generateSuccessors(marking);
 }
 
-bool NonStrictSearch::isKBound(NonStrictMarking& marking){
-	return !(marking.size() > options.GetKBound());
-}
-
 bool NonStrictSearch::addToPW(NonStrictMarking* marking, NonStrictMarking* parent){
 	NonStrictMarking* m = cut(*marking);
 	m->SetParent(parent);
@@ -128,7 +124,8 @@ bool NonStrictSearch::addToPW(NonStrictMarking* marking, NonStrictMarking* paren
 	assert(m->equals(initialMarking) || m->GetParent() != NULL);
 #endif
 
-	if(!isKBound(*m)) {
+	int size = m->size();
+	if(size > options.GetKBound()) {
 		delete m;
 		return false;
 	}
@@ -156,10 +153,12 @@ bool NonStrictSearch::addToPW(NonStrictMarking* marking, NonStrictMarking* paren
 				}
 			}
 		}else{
+			pwList.SetMaxNumTokensIfGreater(size);
 			validChildren++;
 		}
 	}else{
 		if(pwList.Add(m)){
+			pwList.SetMaxNumTokensIfGreater(size);
 			QueryVisitor checker(*m);
 			boost::any context;
 			query->Accept(checker, context);

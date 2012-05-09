@@ -40,14 +40,15 @@ public:
 	virtual ~NonStrictSearch();
 	bool Verify();
 	NonStrictMarking* GetLastMarking() { return lastMarking; }
+	inline int MaxUsedTokens(){ return pwList.maxNumTokensInAnyMarking; };
 
 protected:
 	vector<NonStrictMarking> getPossibleNextMarkings(NonStrictMarking& marking);
 	bool addToPW(NonStrictMarking* marking, NonStrictMarking* parent);
-	bool isKBound(NonStrictMarking& marking);
 	bool isDelayPossible(NonStrictMarking& marking);
 	NonStrictMarking* cut(NonStrictMarking& marking);
 	virtual WaitingList* CreateWaitingList(AST::Query* query) const = 0;
+
 protected:
 	bool livenessQuery;
 	int validChildren;

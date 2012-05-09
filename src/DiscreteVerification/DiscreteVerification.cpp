@@ -97,13 +97,13 @@ int DiscreteVerification::run(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, s
 
 	//std::cout << strategy->GetStats() << std::endl;
 	std::cout << "Query is " << (result ? "satisfied" : "NOT satisfied") << "." << std::endl;
-	/*std::cout << "Max number of tokens found in any reachable marking: ";
-	if(strategy->MaxUsedTokens() == options.GetKBound() + 1)
+	std::cout << "Max number of tokens found in any reachable marking: ";
+	if(strategy->MaxUsedTokens() > options.GetKBound())
 		std::cout << ">" << options.GetKBound() << std::endl;
 	else
 		std::cout << strategy->MaxUsedTokens() << std::endl;
 
-	try{
+	/*try{
 		strategy->PrintTraceIfAny(result);
 	}catch(const trace_exception& e){
 		std::cout << "There was an error generating a trace. This is a bug. Please report this on launchpad and attach your TAPN model and this error message: ";
