@@ -59,7 +59,7 @@ namespace VerifyTAPN {
 			if(useGlobalMaxConstant){
 				for(TimedPlace::Vector::const_iterator place_iter = places.begin(); place_iter != places.end(); ++place_iter)
 				{
-					(*place_iter)->SetMaxConstant(MaxConstant());
+					(*place_iter)->SetMaxConstant(MaxConstant()==0? -1:MaxConstant());
 				}
 			}
 
