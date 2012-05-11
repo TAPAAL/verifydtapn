@@ -121,7 +121,7 @@ bool NonStrictSearch::addToPW(NonStrictMarking* marking, NonStrictMarking* paren
 	NonStrictMarking* m = cut(*marking);
 	m->SetParent(parent);
 #if DEBUG
-	assert(m->equals(initialMarking) || m->GetParent() != NULL);
+	assert(marking->equals(initialMarking) || m->GetParent() != NULL);
 #endif
 
 	int size = m->size();
@@ -146,6 +146,8 @@ bool NonStrictSearch::addToPW(NonStrictMarking* marking, NonStrictMarking* paren
 					iter++){
 				if((*iter)->equals(*m)){
 					if((*iter)->inTrace){
+						//Make sure we can print trace
+						m->children = 1;
 						trace.push(m);
 						//printStats(pwList);
 						return true;

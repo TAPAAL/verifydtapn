@@ -158,7 +158,7 @@ void DiscreteVerification::PrintHumanTrace(bool result, NonStrictMarking* m, std
 					stack.pop();
 					i++;
 				}
-				if(stack.empty() || (stack.size() == 1 && old->equals(*m) && stack.top()->generatedBy == NULL)){
+				if((stack.empty() && old->children > 0) || (stack.size() == 1 && old->equals(*m) && stack.top()->generatedBy == NULL && stack.top()->children > 0)){
 					std::cout << "\tDelay: Forever"  << std::endl;
 					return;
 				}
@@ -222,7 +222,7 @@ void DiscreteVerification::PrintXMLTrace(bool result, NonStrictMarking* m, std::
 					stack.pop();
 					i++;
 				}
-				if(stack.empty() || (stack.size() == 1 && old->equals(*m) && stack.top()->generatedBy == NULL)){
+				if((stack.empty() && old->children > 0) || (stack.size() == 1 && old->equals(*m) && stack.top()->generatedBy == NULL && stack.top()->children > 0)){
 					xml_node<>* node = doc.allocate_node(node_element, "delay", doc.allocate_string("forever"));
 					root->append_node(node);
 					break;
