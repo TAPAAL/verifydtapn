@@ -158,8 +158,26 @@ void DiscreteVerification::PrintHumanTrace(bool result, NonStrictMarking* m, std
 					stack.pop();
 					i++;
 				}
-				if((stack.empty() && old->children > 0) || (stack.size() == 1 && old->equals(*m) && stack.top()->generatedBy == NULL && stack.top()->children > 0)){
+				if((stack.empty() && old->children == 0) || (stack.size() == 1 && old->equals(*m) && stack.top()->generatedBy == NULL && stack.top()->children > 0)){
 					std::cout << "\tDelay: Forever"  << std::endl;
+					return;
+				}else if(stack.empty() && old->children > 0){
+					//This means that there is a children
+					if(m->equals(*old)){
+						std::cout << "\tDelay: " << i  << std::endl;
+						std::cout << "\tMarking: ";
+						for(PlaceList::const_iterator iter = old->places.begin(); iter != old->places.end(); iter++){
+							for(TokenList::const_iterator titer = iter->tokens.begin(); titer != iter->tokens.end(); titer++){
+								for(int i = 0; i < titer->getCount(); i++) {
+									std::cout << "(" << iter->place->GetName() << "," << titer->getAge() << ") ";
+								}
+							}
+						}
+						std::cout << std::endl;
+						std::cout << "\tgoto *" << std::endl;
+					}else{
+						std::cout << "\tDelay: Forever"  << std::endl;
+					}
 					return;
 				}
 				std::cout << "\tDelay: " << i << std::endl;
@@ -222,9 +240,20 @@ void DiscreteVerification::PrintXMLTrace(bool result, NonStrictMarking* m, std::
 					stack.pop();
 					i++;
 				}
-				if((stack.empty() && old->children > 0) || (stack.size() == 1 && old->equals(*m) && stack.top()->generatedBy == NULL && stack.top()->children > 0)){
+				if((stack.empty() && old->children == 0) || (stack.size() == 1 && old->equals(*m) && stack.top()->generatedBy == NULL && stack.top()->children > 0)){
 					xml_node<>* node = doc.allocate_node(node_element, "delay", doc.allocate_string("forever"));
 					root->append_node(node);
+					break;
+				}else if(stack.empty() && old->children > 0){
+					//This means that there is a children
+					if(m->equals(*old)){
+						xml_node<>* node = doc.allocate_node(node_element, "delay", doc.allocate_string(ToString(i).c_str()));
+						root->append_node(node);
+						root->append_node(doc.allocate_node(node_element, "loop"));
+					}else{
+						xml_node<>* node = doc.allocate_node(node_element, "delay", doc.allocate_string("forever"));
+						root->append_node(node);
+					}
 					break;
 				}
 				xml_node<>* node = doc.allocate_node(node_element, "delay", doc.allocate_string(ToString(i).c_str()));
