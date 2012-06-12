@@ -143,39 +143,53 @@ void SuccessorGenerator::recursiveGenerateMarking(vector<NonStrictMarking>& resu
 #if DEBUG
 	std::cout << "Transition: " << transition << " Num of input arcs: " << transition.GetPreset().size() << " Num of transport arcs: " << transition.GetTransportArcs().size() << std::endl;
 #endif
-	if(index != transition.GetPreset().size()+transition.GetTransportArcs().size()){
-		//Not the last index
-		if(index < transition.GetPreset().size()){
-			vector< NonStrictMarking > permultations;
 
-			generatePermultations(permultations, init_marking, transition.GetPreset().at(index).lock()->InputPlace().GetIndex(), enabledArcs[transition.GetPreset().at(index).lock().get()], 0, transition.GetPreset().at(index).lock()->GetWeight());
+	vector<pair<int, vector<unsigned int > > > indicesOfCurrentPermutation;
+	for(TimedInputArc::WeakPtrVector::const_iterator iter = transition.GetPreset().begin(); iter != transition.GetPreset().end(); iter++){
+		vector<unsigned int > tokenList;
+		int tokenIndex = 0;
+		int tokenCount = 0;
+		TokenList placeTokens = init_marking.GetTokenList(iter->lock().get()->InputPlace().GetIndex());
+		for(int ii = 0; ii < iter->lock()->GetWeight(); ii++){
+			if(tokenCount > placeTokens.at(ii).getCount()){
+				tokenIndex++;
+				tokenCount = 0;
+			}
+			tokenList.at(ii) = tokenIndex;
+			tokenCount++;
+		}
+		pair<int, vector<unsigned int > > placeAndTokens(iter->lock().get()->InputPlace().GetIndex(), tokenList);
+		indicesOfCurrentPermutation.push_back(placeAndTokens);
+	}
 
-			for(vector< NonStrictMarking >::iterator it = permultations.begin(); it != permultations.end(); it++){
+	bool done = false;
+	while(!done){
+		addMarking(result, init_marking, indicesOfCurrentPermutation);
 
-				recursiveGenerateMarking(result, *it, transition, enabledArcs, index+1);
+		//Loop through place indexes from the back
+		for(vector<pair<int, vector<unsigned int > > >::iterator placeIter = indicesOfCurrentPermutation.end(); placeIter != indicesOfCurrentPermutation.begin(); placeIter--){
+			vector<unsigned int> placeTokens = placeIter->second;
+			int numOfTokens = 0;
+
+			//Loop through tokens from the back
+			for(vector<unsigned int>::iterator tokenIndex = placeTokens.end(); tokenIndex != placeTokens.begin(); tokenIndex--){
 
 			}
+		}
+	}
+}
+
+void SuccessorGenerator::addMarking(vector<NonStrictMarking >& result, NonStrictMarking& init_marking, vector<pair<int, vector<unsigned int > > >& indicesOfCurrentPermutation) const{
+	NonStrictMarking m(init_marking);
+	for(vector<pair<int, vector<unsigned int > > >::const_iterator iter = indicesOfCurrentPermutation.begin(); iter != indicesOfCurrentPermutation.end(); iter++){
+		const Place* p;
+		for(PlaceList::const_iterator p_iter = m.GetPlaceList().begin(); p_iter != m.GetPlaceList().end(); p_iter++){
+			if(p_iter->place->GetIndex() == iter->first) p = &*p_iter;
+		}
+		TokenList tokens = m.GetTokenList(iter->first);
+		for(vector<unsigned int >::const_iterator it = iter->second.begin(); it != iter->second.end(); it++){
 
 		}
-		if(index >= transition.GetPreset().size() && index < transition.GetPreset().size() + transition.GetTransportArcs().size()){
-			vector< NonStrictMarking > permultations;
-
-			generatePermultations(permultations, init_marking, transition.GetTransportArcs().at(index-transition.GetPreset().size()).lock()->Source().GetIndex(),
-					enabledArcs[transition.GetTransportArcs().at(index-transition.GetPreset().size()).lock().get()], 0,
-					transition.GetTransportArcs().at(index-transition.GetPreset().size()).lock()->GetWeight(),
-					&(transition.GetTransportArcs().at(index-transition.GetPreset().size()).lock()->Destination()));
-
-			for(vector< NonStrictMarking >::iterator it = permultations.begin(); it != permultations.end(); it++){
-				recursiveGenerateMarking(result, *it, transition, enabledArcs, index+1);
-			}
-		}
-	}else{
-		//Beyond last index
-		for(OutputArc::WeakPtrVector::const_iterator it = transition.GetPostset().begin(); it != transition.GetPostset().end(); it++){
-			Token t(0, it->lock()->GetWeight());
-			init_marking.AddTokenInPlace(it->lock().get()->OutputPlace(), t);
-		}
-		result.push_back(init_marking);
 	}
 }
 
