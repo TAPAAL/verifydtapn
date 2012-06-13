@@ -162,7 +162,29 @@ void SuccessorGenerator::recursiveGenerateMarking(vector<NonStrictMarking>& resu
 		for(int ii = 0; ii < iter->lock()->GetWeight(); ii++){
 			tokenList.push_back(ii);
 		}
-		ArcAndTokens arcAndTokens = ArcAndTokens(*iter, availableTokens, tokenList);
+		InputArcAndTokens* arcAndTokens = new InputArcAndTokens(*iter, availableTokens, tokenList);
+		indicesOfCurrentPermutation.push_back(arcAndTokens);
+	}
+	// Transport arcs
+	for(TransportArc::WeakPtrVector::const_iterator iter = transition.GetTransportArcs().begin(); iter != transition.GetTransportArcs().end(); iter++){
+		TokenList availableTokens;
+		vector<unsigned int > tokenList;
+		TokenList placeTokens = enabledArcs[iter->lock().get()];
+
+		// Construct available tokens
+		for(vector<Token>::iterator placeTokensIter = placeTokens.begin(); placeTokensIter != placeTokens.end(); placeTokensIter++){
+			for(int i = 0; i < placeTokensIter->getCount(); i++){
+				Token t(placeTokensIter->getAge(), 1);
+				availableTokens.push_back(t);
+			}
+		}
+
+		// Construct tokenList
+		for(int ii = 0; ii < iter->lock()->GetWeight(); ii++){
+			tokenList.push_back(ii);
+		}
+
+		TransportArcAndTokens* arcAndTokens = new TransportArcAndTokens(*iter, availableTokens, tokenList);
 		indicesOfCurrentPermutation.push_back(arcAndTokens);
 	}
 
@@ -205,10 +227,9 @@ void SuccessorGenerator::addMarking(vector<NonStrictMarking >& result, NonStrict
 	NonStrictMarking m(init_marking);
 	for(ArcAndTokensVector::iterator iter = indicesOfCurrentPermutation.begin(); iter != indicesOfCurrentPermutation.end(); iter++){
 		TokenList tokens = iter->enabledBy;
-		boost::weak_ptr<TimedInputArc> place = iter->arc;
 
 		for(TokenList::iterator tokenIter = tokens.begin(); tokenIter != tokens.end(); tokenIter++){
-			m.RemoveToken(place.lock()->InputPlace().GetIndex(), tokenIter->getAge());
+			iter->moveToken(*tokenIter, m);
 		}
 	}
 

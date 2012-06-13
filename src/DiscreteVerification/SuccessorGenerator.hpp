@@ -13,6 +13,7 @@
 #include "google/sparse_hash_map"
 #include <limits>
 #include "boost/tuple/tuple_io.hpp"
+#include "boost/ptr_container/ptr_vector.hpp"
 #define DEBUG 0
 
 namespace VerifyTAPN {
@@ -43,17 +44,64 @@ struct TransportArcRef : ArcRef{
 };
 
 struct ArcAndTokens{
-	boost::weak_ptr<TimedInputArc> arc;
 	TokenList enabledBy;
 	vector<unsigned int > modificationVector;
 
-	ArcAndTokens(boost::weak_ptr<TimedInputArc> arc, TokenList enabledBy, vector<unsigned int > modificationVector)
-	: arc(arc), enabledBy(enabledBy), modificationVector(modificationVector){}
+	ArcAndTokens(TokenList enabledBy, vector<unsigned int > modificationVector)
+	: enabledBy(enabledBy), modificationVector(modificationVector){
+		std::cout << "Base constructor" << std::endl;
+	}
+	virtual ~ArcAndTokens(){
+		std::cout << "Base destructor" << std::endl;
+	};
+	virtual void moveToken(Token& token, NonStrictMarking& m) = 0;
+	bool isTransport(){
+		return false;
+	}
+};
+
+struct InputArcAndTokens : ArcAndTokens{
+	boost::weak_ptr<TimedInputArc> arc;
+
+	InputArcAndTokens(boost::weak_ptr<TimedInputArc> arc, TokenList enabledBy, vector<unsigned int > modificationVector)
+	: ArcAndTokens(enabledBy, modificationVector), arc(arc){
+		std::cout << "Input constructor" << std::endl;
+	}
+
+	~InputArcAndTokens(){
+		std::cout << "Input destructor" << std::endl;
+	}
+
+	void moveToken(Token& token, NonStrictMarking& m){
+		m.RemoveToken(arc.lock()->InputPlace().GetIndex(), token.getAge());
+	}
+};
+
+struct TransportArcAndTokens : ArcAndTokens{
+	boost::weak_ptr<TransportArc> arc;
+
+	TransportArcAndTokens(boost::weak_ptr<TransportArc> arc, TokenList enabledBy, vector<unsigned int > modificationVector)
+	: ArcAndTokens(enabledBy, modificationVector),  arc(arc){
+		std::cout << "Transport constructor" << std::endl;
+	}
+
+	~TransportArcAndTokens(){
+		std::cout << "Transport destructor" << std::endl;
+	}
+
+	bool isTransport(){
+		return true;
+	}
+
+	void moveToken(Token& token, NonStrictMarking& m){
+		m.RemoveToken(arc.lock()->Source().GetIndex(), token.getAge());
+		m.AddTokenInPlace(arc.lock()->Destination(), token);
+	}
 };
 
 class SuccessorGenerator {
 	typedef google::sparse_hash_map<const void*, TokenList> ArcHashMap;
-	typedef vector< ArcAndTokens > ArcAndTokensVector;
+	typedef boost::ptr_vector< ArcAndTokens > ArcAndTokensVector;
 
 public:
 	SuccessorGenerator(TAPN::TimedArcPetriNet& tapn);
