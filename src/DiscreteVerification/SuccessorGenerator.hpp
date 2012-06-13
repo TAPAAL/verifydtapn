@@ -42,9 +42,17 @@ struct TransportArcRef : ArcRef{
 	boost::weak_ptr<TransportArc> arc;
 };
 
+struct ArcAndTokens{
+	boost::weak_ptr<TimedInputArc> arc;
+	TokenList enabledBy;
+	vector<unsigned int > modificationVector;
+
+	ArcAndTokens(boost::weak_ptr<TimedInputArc> arc, TokenList enabledBy, vector<unsigned int > modificationVector)
+	: arc(arc), enabledBy(enabledBy), modificationVector(modificationVector){}
+};
+
 class SuccessorGenerator {
 	typedef google::sparse_hash_map<const void*, TokenList> ArcHashMap;
-	typedef boost::tuple<boost::weak_ptr<TimedInputArc>, TokenList, vector<unsigned int > > ArcAndTokens;
 	typedef vector< ArcAndTokens > ArcAndTokensVector;
 
 public:

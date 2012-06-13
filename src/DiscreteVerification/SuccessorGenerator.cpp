@@ -162,7 +162,6 @@ void SuccessorGenerator::recursiveGenerateMarking(vector<NonStrictMarking>& resu
 		for(int ii = 0; ii < iter->lock()->GetWeight(); ii++){
 			tokenList.push_back(ii);
 		}
-
 		ArcAndTokens arcAndTokens = ArcAndTokens(*iter, availableTokens, tokenList);
 		indicesOfCurrentPermutation.push_back(arcAndTokens);
 	}
@@ -174,18 +173,18 @@ void SuccessorGenerator::recursiveGenerateMarking(vector<NonStrictMarking>& resu
 		bool cont = false;
 
 		//Loop through place indexes from the back
-		for(ArcAndTokensVector::iterator arcAndTokenIter = indicesOfCurrentPermutation.end(); arcAndTokenIter != indicesOfCurrentPermutation.begin(); arcAndTokenIter--){
-			TokenList enabledTokens = arcAndTokenIter->get<1>();
-			vector<unsigned int > modificationVector = arcAndTokenIter->get<2>();
+		for(ArcAndTokensVector::reverse_iterator arcAndTokenIter = indicesOfCurrentPermutation.rbegin(); arcAndTokenIter != indicesOfCurrentPermutation.rend(); arcAndTokenIter++){
+			TokenList enabledTokens = arcAndTokenIter->enabledBy;
+			vector<unsigned int > modificationVector = arcAndTokenIter->modificationVector;
 			int numOfTokenIndices = enabledTokens.size();
 
 			//Loop through tokens from the back
-			for(vector<unsigned int>::iterator tokenIndex = modificationVector.end(); tokenIndex != modificationVector.begin(); tokenIndex--){
+			for(vector<unsigned int>::reverse_iterator tokenIndex = modificationVector.rbegin(); tokenIndex != modificationVector.rend(); tokenIndex++){
 				if((*tokenIndex) < numOfTokenIndices-1){
 					int numberToSet = ++(*tokenIndex);
-					tokenIndex++;
+					tokenIndex--;
 
-					for(; tokenIndex != modificationVector.end(); tokenIndex++){
+					for(; tokenIndex != modificationVector.rbegin(); tokenIndex--){
 						numberToSet++;
 						(*tokenIndex) = numberToSet;
 					}
@@ -198,14 +197,15 @@ void SuccessorGenerator::recursiveGenerateMarking(vector<NonStrictMarking>& resu
 			}
 			if(cont) break;
 		}
+		if(!cont)	done = true;
 	}
 }
 
 void SuccessorGenerator::addMarking(vector<NonStrictMarking >& result, NonStrictMarking& init_marking, const TimedTransition& transition, ArcAndTokensVector& indicesOfCurrentPermutation) const{
 	NonStrictMarking m(init_marking);
 	for(ArcAndTokensVector::iterator iter = indicesOfCurrentPermutation.begin(); iter != indicesOfCurrentPermutation.end(); iter++){
-		TokenList tokens = iter->get<1>();
-		boost::weak_ptr<TimedInputArc> place = iter->get<0>();
+		TokenList tokens = iter->enabledBy;
+		boost::weak_ptr<TimedInputArc> place = iter->arc;
 
 		for(TokenList::iterator tokenIter = tokens.begin(); tokenIter != tokens.end(); tokenIter++){
 			m.RemoveToken(place.lock()->InputPlace().GetIndex(), tokenIter->getAge());
@@ -216,6 +216,7 @@ void SuccessorGenerator::addMarking(vector<NonStrictMarking >& result, NonStrict
 		Token t(0, postsetIter->lock()->GetWeight());
 		m.AddTokenInPlace(postsetIter->lock()->OutputPlace(), t);
 	}
+	result.push_back(m);
 }
 
 void SuccessorGenerator::generatePermultations(vector< NonStrictMarking >& result, NonStrictMarking& init_marking, int placeID, TokenList enabledBy, int tokenToProcess, int remainingToRemove, TimedPlace* destinationPlace) const{
