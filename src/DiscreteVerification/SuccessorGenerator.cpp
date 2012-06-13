@@ -204,9 +204,8 @@ void SuccessorGenerator::recursiveGenerateMarking(vector<NonStrictMarking>& resu
 			for(vector<unsigned int>::reverse_iterator tokenIndex = modificationVector.rbegin(); tokenIndex != modificationVector.rend(); tokenIndex++){
 				if((*tokenIndex) < numOfTokenIndices-1){
 					int numberToSet = ++(*tokenIndex);
-					tokenIndex--;
 
-					for(; tokenIndex != modificationVector.rbegin(); tokenIndex--){
+					for(vector<unsigned int>::iterator forwardTokenIterator = tokenIndex.base(); forwardTokenIterator != modificationVector.end(); forwardTokenIterator++){
 						numberToSet++;
 						(*tokenIndex) = numberToSet;
 					}
