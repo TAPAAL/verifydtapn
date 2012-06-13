@@ -169,7 +169,7 @@ void SuccessorGenerator::recursiveGenerateMarking(vector<NonStrictMarking>& resu
 
 	bool done = false;
 	while(!done){
-		addMarking(result, init_marking, indicesOfCurrentPermutation);
+		addMarking(result, init_marking, transition, indicesOfCurrentPermutation);
 
 		bool cont = false;
 
@@ -201,19 +201,21 @@ void SuccessorGenerator::recursiveGenerateMarking(vector<NonStrictMarking>& resu
 	}
 }
 
-void SuccessorGenerator::addMarking(vector<NonStrictMarking >& result, NonStrictMarking& init_marking, ArcAndTokensVector& indicesOfCurrentPermutation) const{
-	//TODO: Implement
-	/*NonStrictMarking m(init_marking);
-	for(vector<pair<int, vector<unsigned int > > >::const_iterator iter = indicesOfCurrentPermutation.begin(); iter != indicesOfCurrentPermutation.end(); iter++){
-		const Place* p;
-		for(PlaceList::const_iterator p_iter = m.GetPlaceList().begin(); p_iter != m.GetPlaceList().end(); p_iter++){
-			if(p_iter->place->GetIndex() == iter->first) p = &*p_iter;
-		}
-		TokenList tokens = m.GetTokenList(iter->first);
-		for(vector<unsigned int >::const_iterator it = iter->second.begin(); it != iter->second.end(); it++){
+void SuccessorGenerator::addMarking(vector<NonStrictMarking >& result, NonStrictMarking& init_marking, const TimedTransition& transition, ArcAndTokensVector& indicesOfCurrentPermutation) const{
+	NonStrictMarking m(init_marking);
+	for(ArcAndTokensVector::iterator iter = indicesOfCurrentPermutation.begin(); iter != indicesOfCurrentPermutation.end(); iter++){
+		TokenList tokens = iter->get<1>();
+		boost::weak_ptr<TimedInputArc> place = iter->get<0>();
 
+		for(TokenList::iterator tokenIter = tokens.begin(); tokenIter != tokens.end(); tokenIter++){
+			m.RemoveToken(place.lock()->InputPlace().GetIndex(), tokenIter->getAge());
 		}
-	}*/
+	}
+
+	for(OutputArc::WeakPtrVector::const_iterator postsetIter = transition.GetPostset().begin(); postsetIter != transition.GetPostset().end(); postsetIter++){
+		Token t(0, postsetIter->lock()->GetWeight());
+		m.AddTokenInPlace(postsetIter->lock()->OutputPlace(), t);
+	}
 }
 
 void SuccessorGenerator::generatePermultations(vector< NonStrictMarking >& result, NonStrictMarking& init_marking, int placeID, TokenList enabledBy, int tokenToProcess, int remainingToRemove, TimedPlace* destinationPlace) const{

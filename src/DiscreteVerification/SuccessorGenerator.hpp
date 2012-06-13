@@ -58,7 +58,7 @@ private:
 	void generateMarkings(vector<NonStrictMarking >& result, const NonStrictMarking& init_marking, const std::vector< const TimedTransition* >& transitions, ArcHashMap& enabledArcs) const;
 	void recursiveGenerateMarking(vector<NonStrictMarking >& result, NonStrictMarking& init_marking, const TimedTransition& transition, ArcHashMap& enabledArcs, unsigned int index) const;
 
-	void addMarking(vector<NonStrictMarking >& result, NonStrictMarking& init_marking, ArcAndTokensVector& indicesOfCurrentPermutation) const;
+	void addMarking(vector<NonStrictMarking >& result, NonStrictMarking& init_marking, const TimedTransition& transition, ArcAndTokensVector& indicesOfCurrentPermutation) const;
 
 	const TAPN::TimedArcPetriNet& tapn;
 	vector<const TAPN::TimedTransition*> allwaysEnabled;
