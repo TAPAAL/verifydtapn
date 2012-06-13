@@ -12,6 +12,7 @@
 #include "NonStrictMarking.hpp"
 #include "google/sparse_hash_map"
 #include <limits>
+#include "boost/tuple/tuple_io.hpp"
 #define DEBUG 0
 
 namespace VerifyTAPN {
@@ -19,6 +20,7 @@ namespace DiscreteVerification {
 
 using namespace std;
 using namespace TAPN;
+using namespace boost;
 
 struct ArcRef{
 	TokenList enabledBy;
@@ -42,6 +44,8 @@ struct TransportArcRef : ArcRef{
 
 class SuccessorGenerator {
 	typedef google::sparse_hash_map<const void*, TokenList> ArcHashMap;
+	typedef boost::tuple<boost::weak_ptr<TimedInputArc>, TokenList, vector<unsigned int > > ArcAndTokens;
+	typedef vector< ArcAndTokens > ArcAndTokensVector;
 
 public:
 	SuccessorGenerator(TAPN::TimedArcPetriNet& tapn);
@@ -54,7 +58,7 @@ private:
 	void generateMarkings(vector<NonStrictMarking >& result, const NonStrictMarking& init_marking, const std::vector< const TimedTransition* >& transitions, ArcHashMap& enabledArcs) const;
 	void recursiveGenerateMarking(vector<NonStrictMarking >& result, NonStrictMarking& init_marking, const TimedTransition& transition, ArcHashMap& enabledArcs, unsigned int index) const;
 
-	void addMarking(vector<NonStrictMarking >& result, NonStrictMarking& init_marking, vector<pair<int, vector< unsigned int > > >& indicesOfCurrentPermutation) const;
+	void addMarking(vector<NonStrictMarking >& result, NonStrictMarking& init_marking, ArcAndTokensVector& indicesOfCurrentPermutation) const;
 
 	const TAPN::TimedArcPetriNet& tapn;
 	vector<const TAPN::TimedTransition*> allwaysEnabled;

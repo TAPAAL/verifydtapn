@@ -144,43 +144,66 @@ void SuccessorGenerator::recursiveGenerateMarking(vector<NonStrictMarking>& resu
 	std::cout << "Transition: " << transition << " Num of input arcs: " << transition.GetPreset().size() << " Num of transport arcs: " << transition.GetTransportArcs().size() << std::endl;
 #endif
 
-	vector<pair<int, vector<unsigned int > > > indicesOfCurrentPermutation;
+	ArcAndTokensVector indicesOfCurrentPermutation;
 	for(TimedInputArc::WeakPtrVector::const_iterator iter = transition.GetPreset().begin(); iter != transition.GetPreset().end(); iter++){
+		TokenList availableTokens;
 		vector<unsigned int > tokenList;
-		int tokenIndex = 0;
-		int tokenCount = 0;
-		TokenList placeTokens = init_marking.GetTokenList(iter->lock().get()->InputPlace().GetIndex());
-		for(int ii = 0; ii < iter->lock()->GetWeight(); ii++){
-			if(tokenCount > placeTokens.at(ii).getCount()){
-				tokenIndex++;
-				tokenCount = 0;
+		TokenList placeTokens = enabledArcs[iter->lock().get()];
+
+		// Construct available tokens
+		for(vector<Token>::iterator placeTokensIter = placeTokens.begin(); placeTokensIter != placeTokens.end(); placeTokensIter++){
+			for(int i = 0; i < placeTokensIter->getCount(); i++){
+				Token t(placeTokensIter->getAge(), 1);
+				availableTokens.push_back(t);
 			}
-			tokenList.at(ii) = tokenIndex;
-			tokenCount++;
 		}
-		pair<int, vector<unsigned int > > placeAndTokens(iter->lock().get()->InputPlace().GetIndex(), tokenList);
-		indicesOfCurrentPermutation.push_back(placeAndTokens);
+
+		// Construct tokenList
+		for(int ii = 0; ii < iter->lock()->GetWeight(); ii++){
+			tokenList.push_back(ii);
+		}
+
+		ArcAndTokens arcAndTokens = ArcAndTokens(*iter, availableTokens, tokenList);
+		indicesOfCurrentPermutation.push_back(arcAndTokens);
 	}
 
 	bool done = false;
 	while(!done){
 		addMarking(result, init_marking, indicesOfCurrentPermutation);
 
+		bool cont = false;
+
 		//Loop through place indexes from the back
-		for(vector<pair<int, vector<unsigned int > > >::iterator placeIter = indicesOfCurrentPermutation.end(); placeIter != indicesOfCurrentPermutation.begin(); placeIter--){
-			vector<unsigned int> placeTokens = placeIter->second;
-			int numOfTokens = 0;
+		for(ArcAndTokensVector::iterator arcAndTokenIter = indicesOfCurrentPermutation.end(); arcAndTokenIter != indicesOfCurrentPermutation.begin(); arcAndTokenIter--){
+			TokenList enabledTokens = arcAndTokenIter->get<1>();
+			vector<unsigned int > modificationVector = arcAndTokenIter->get<2>();
+			int numOfTokenIndices = enabledTokens.size();
 
 			//Loop through tokens from the back
-			for(vector<unsigned int>::iterator tokenIndex = placeTokens.end(); tokenIndex != placeTokens.begin(); tokenIndex--){
+			for(vector<unsigned int>::iterator tokenIndex = modificationVector.end(); tokenIndex != modificationVector.begin(); tokenIndex--){
+				if((*tokenIndex) < numOfTokenIndices-1){
+					int numberToSet = ++(*tokenIndex);
+					tokenIndex++;
 
+					for(; tokenIndex != modificationVector.end(); tokenIndex++){
+						numberToSet++;
+						(*tokenIndex) = numberToSet;
+					}
+
+					if(modificationVector.back() >= numOfTokenIndices)	done = true;
+
+					cont = true;
+					break;
+				}
 			}
+			if(cont) break;
 		}
 	}
 }
 
-void SuccessorGenerator::addMarking(vector<NonStrictMarking >& result, NonStrictMarking& init_marking, vector<pair<int, vector<unsigned int > > >& indicesOfCurrentPermutation) const{
-	NonStrictMarking m(init_marking);
+void SuccessorGenerator::addMarking(vector<NonStrictMarking >& result, NonStrictMarking& init_marking, ArcAndTokensVector& indicesOfCurrentPermutation) const{
+	//TODO: Implement
+	/*NonStrictMarking m(init_marking);
 	for(vector<pair<int, vector<unsigned int > > >::const_iterator iter = indicesOfCurrentPermutation.begin(); iter != indicesOfCurrentPermutation.end(); iter++){
 		const Place* p;
 		for(PlaceList::const_iterator p_iter = m.GetPlaceList().begin(); p_iter != m.GetPlaceList().end(); p_iter++){
@@ -190,7 +213,7 @@ void SuccessorGenerator::addMarking(vector<NonStrictMarking >& result, NonStrict
 		for(vector<unsigned int >::const_iterator it = iter->second.begin(); it != iter->second.end(); it++){
 
 		}
-	}
+	}*/
 }
 
 void SuccessorGenerator::generatePermultations(vector< NonStrictMarking >& result, NonStrictMarking& init_marking, int placeID, TokenList enabledBy, int tokenToProcess, int remainingToRemove, TimedPlace* destinationPlace) const{
