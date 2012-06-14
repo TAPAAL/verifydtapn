@@ -179,55 +179,61 @@ void SuccessorGenerator::recursiveGenerateMarking(vector<NonStrictMarking>& resu
 
 bool SuccessorGenerator::incrementModificationVector(vector<unsigned int >& modificationVector, TokenList& enabledTokens) const{
 	int numOfTokenIndices = enabledTokens.size();
-	int currentRemaining = enabledTokens.at(modificationVector.back()).getCount();
 
 	unsigned int refrences[numOfTokenIndices];
 
-	int i = 0;
-	for(TokenList::const_iterator iter = enabledTokens.begin(); iter != enabledTokens.end(); iter++){
-		refrences[i] = iter->getCount();
-		i++;
+	for(int i = 0; i < enabledTokens.size(); i++){
+		refrences[i] = enabledTokens[i].getCount();
 	}
 
-	i = 0;
-	for(vector<unsigned int>::const_iterator iter = modificationVector.begin(); iter != modificationVector.end(); iter++){
-		refrences[i]--;
-		i++;
+	for(int i = 0; i < modificationVector.size(); i++){
+		refrences[modificationVector[i]]--;
 	}
 
 	vector<unsigned int> tmp = modificationVector;
 	//Loop through modification vector from the back
 	for(int i = modificationVector.size()-1; i >= 0; i--){
-		if(modificationVector.at(i) < numOfTokenIndices-1){
+
+		//Possible to increment index
+		if(modificationVector[i] < numOfTokenIndices-1){
+			//Increment index
+			refrences[modificationVector.at(i)]++;
 			modificationVector.at(i)++;
-			if(i != modificationVector.size()-1){
-				currentRemaining = enabledTokens.at(modificationVector.at(i)).getCount();
-				i++;
+			refrences[modificationVector.at(i)]--;
+
+			// Fix following indexes
+			if(i < modificationVector.size()-1){
 				int toSet = modificationVector.at(i);
-				for(; i < modificationVector.size(); i++){
-					currentRemaining--;
-					if(currentRemaining == 0){
+				for(i++; i < modificationVector.size(); i++){
+					//Find next index to set (die if not possible)
+					while(refrences[toSet] == 0){
 						toSet++;
-						if(toSet >= enabledTokens.size()){
+						if(toSet >= numOfTokenIndices){
 							modificationVector = tmp;
 							return false;
 						}
-						currentRemaining = enabledTokens.at(toSet).getCount();
 					}
+
+					//Set index
+					refrences[toSet]--;
 					modificationVector[i] = toSet;
 				}
 			}
+			/*std::cout << "Generated modification vector:";
+			for(int ii = 0; ii < modificationVector.size(); ii++){
+				std::cout << " " << modificationVector[ii];
+			}
+			std::cout << std::endl;*/
 			return true;
 		}else{
+			// Free index
+			refrences[modificationVector[i]]++;
+
+			// Change index
 			i--;
-			currentRemaining--;
-			if(i < 0) break;
-			if(currentRemaining == 0){
-				currentRemaining = enabledTokens.at(modificationVector.at(i)).getCount();
-				numOfTokenIndices--;
-			}
 		}
 	}
+	modificationVector = tmp;
 	return false;
 }
 
