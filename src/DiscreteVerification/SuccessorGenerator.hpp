@@ -46,13 +46,14 @@ struct TransportArcRef : ArcRef{
 struct ArcAndTokens{
 	TokenList enabledBy;
 	vector<unsigned int > modificationVector;
+	bool isOK;
 
 	ArcAndTokens(TokenList enabledBy, vector<unsigned int > modificationVector)
 	: enabledBy(enabledBy), modificationVector(modificationVector){}
 
 	ArcAndTokens(TokenList enabledBy, int weight)
 	: enabledBy(enabledBy), modificationVector(vector<unsigned int>(weight)){
-		this->reset();
+		isOK = this->reset();
 	}
 
 	virtual ~ArcAndTokens(){}
@@ -63,19 +64,22 @@ struct ArcAndTokens{
 		modificationVector.clear();
 	}
 
-	void reset(){
+	bool reset(){
 		int weight = modificationVector.size();
 
 		int index = 0;
 		// Construct available tokens
 		for(vector<Token>::iterator placeTokensIter = enabledBy.begin();
-				placeTokensIter != enabledBy.end() && index <  weight;
+				placeTokensIter != enabledBy.end() && index < weight;
 				placeTokensIter++){
 			for(int i = 0; i < placeTokensIter->getCount() && index <  weight; i++){
 				modificationVector[index] = distance(enabledBy.begin(), placeTokensIter);
 				index++;
 			}
 		}
+
+		if(index < weight)	return false;
+		return true;
 	}
 };
 

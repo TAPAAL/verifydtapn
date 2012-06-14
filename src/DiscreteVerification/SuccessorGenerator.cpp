@@ -148,12 +148,20 @@ void SuccessorGenerator::recursiveGenerateMarking(vector<NonStrictMarking>& resu
 	ArcAndTokensVector indicesOfCurrentPermutation;
 	for(TimedInputArc::WeakPtrVector::const_iterator iter = transition.GetPreset().begin(); iter != transition.GetPreset().end(); iter++){
 		InputArcAndTokens* arcAndTokens = new InputArcAndTokens(*iter, enabledArcs[iter->lock().get()]);
-		indicesOfCurrentPermutation.push_back(arcAndTokens);
+		if(arcAndTokens->isOK){
+			indicesOfCurrentPermutation.push_back(arcAndTokens);
+		}else{
+			return;
+		}
 	}
 	// Transport arcs
 	for(TransportArc::WeakPtrVector::const_iterator iter = transition.GetTransportArcs().begin(); iter != transition.GetTransportArcs().end(); iter++){
 		TransportArcAndTokens* arcAndTokens = new TransportArcAndTokens(*iter, enabledArcs[iter->lock().get()]);
-		indicesOfCurrentPermutation.push_back(arcAndTokens);
+		if(arcAndTokens->isOK){
+			indicesOfCurrentPermutation.push_back(arcAndTokens);
+		}else{
+			return;
+		}
 	}
 
 	// Generate permutations
@@ -167,11 +175,8 @@ void SuccessorGenerator::recursiveGenerateMarking(vector<NonStrictMarking>& resu
 			TokenList& enabledTokens = indicesOfCurrentPermutation.at(arcAndTokenIndex).enabledBy;
 			vector<unsigned int >& modificationVector = indicesOfCurrentPermutation.at(arcAndTokenIndex).modificationVector;
 			if(incrementModificationVector(modificationVector, enabledTokens)){
-				//Reset following vectors
-				for(arcAndTokenIndex++; arcAndTokenIndex < indicesOfCurrentPermutation.size(); arcAndTokenIndex++){
-					indicesOfCurrentPermutation.at(arcAndTokenIndex).reset();
-				}
 				changedSomething = true;
+				break;
 			}
 		}
 	}
@@ -219,16 +224,10 @@ bool SuccessorGenerator::incrementModificationVector(vector<unsigned int >& modi
 					modificationVector[i] = toSet;
 				}
 			}
-			/*std::cout << "Generated modification vector:";
-			for(int ii = 0; ii < modificationVector.size(); ii++){
-				std::cout << " " << modificationVector[ii];
-			}
-			std::cout << std::endl;*/
 			return true;
 		}else{
 			// Free index
 			refrences[modificationVector[i]]++;
-
 			// Change index
 			i--;
 		}
@@ -242,7 +241,7 @@ void SuccessorGenerator::addMarking(vector<NonStrictMarking >& result, NonStrict
 	for(ArcAndTokensVector::iterator iter = indicesOfCurrentPermutation.begin(); iter != indicesOfCurrentPermutation.end(); iter++){
 		vector<unsigned int>& tokens = iter->modificationVector;
 
-		for(vector< unsigned int >::const_iterator tokenIter = tokens.begin(); tokenIter != tokens.end(); tokenIter++){
+		for(vector< unsigned int >::const_iterator tokenIter = tokens.begin(); tokenIter < tokens.end(); tokenIter++){
 			Token t((iter->enabledBy)[*tokenIter].getAge(), 1);
 			iter->moveToken(t, m);
 		}
