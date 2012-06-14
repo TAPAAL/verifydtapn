@@ -151,6 +151,13 @@ public:
 		void RemoveRangeOfTokens(Place& place, TokenList::iterator begin, TokenList::iterator end);
 		void SetParent(NonStrictMarking* parent) { this->parent = parent; }
 		void SetGeneratedBy(const TAPN::TimedTransition* generatedBy) { this->generatedBy = generatedBy; }
+		void CleanUp() {
+			for(int i = 0; i < places.size(); i++){
+				if(places[i].tokens.empty()){
+					places.erase(places.begin()+i);
+				}
+			}
+		}
 
 	public:
 		bool equals(const NonStrictMarking &m1) const;

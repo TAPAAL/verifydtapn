@@ -214,7 +214,7 @@ void SuccessorGenerator::addMarking(vector<NonStrictMarking >& result, NonStrict
 		m.AddTokenInPlace(postsetIter->lock()->OutputPlace(), t);
 	}
 
-	std::cout << init_marking << " --> " << m << std::endl;
+	//std::cout << init_marking << " --> " << m << std::endl;
 
 	result.push_back(m);
 }
