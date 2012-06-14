@@ -13,28 +13,17 @@ namespace VerifyTAPN {
 namespace DiscreteVerification {
 
 bool PWList::Add(NonStrictMarking* marking){
-	static int hashCollisions = 0;
-	int loopRuns = 0;
-	bool collision = false;
 	discoveredMarkings++;
 	NonStrictMarkingList& m = markings_storage[marking->HashKey()];
-	if(m.size() > 0){
-		collision = true;
-	}
 	for(NonStrictMarkingList::const_iterator iter = m.begin();
 			iter != m.end();
 			iter++){
-		loopRuns++;
 		if((*iter)->equals(*marking)){
 			return false;
 		}
 	}
 	m.push_back(marking);
 	waiting_list->Add(marking);
-	if(collision){
-		hashCollisions++;
-		std::cerr << "Collision found, number of collisions: " << hashCollisions << " Size of PWList: " << this->Size() << "Size of waiting: " << waiting_list->Size() << " Number of loops: " << loopRuns << std::endl;
-	}
 	return true;
 }
 

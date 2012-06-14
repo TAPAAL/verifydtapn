@@ -181,10 +181,42 @@ bool SuccessorGenerator::incrementModificationVector(vector<unsigned int >& modi
 	int numOfTokenIndices = enabledTokens.size();
 	int currentRemaining = enabledTokens.at(modificationVector.back()).getCount();
 
+	unsigned int refrences[numOfTokenIndices];
+
+	int i = 0;
+	for(TokenList::const_iterator iter = enabledTokens.begin(); iter != enabledTokens.end(); iter++){
+		refrences[i] = iter->getCount();
+		i++;
+	}
+
+	i = 0;
+	for(vector<unsigned int>::const_iterator iter = modificationVector.begin(); iter != modificationVector.end(); iter++){
+		refrences[i]--;
+		i++;
+	}
+
+	vector<unsigned int> tmp = modificationVector;
 	//Loop through modification vector from the back
 	for(int i = modificationVector.size()-1; i >= 0; i--){
 		if(modificationVector.at(i) < numOfTokenIndices-1){
 			modificationVector.at(i)++;
+			if(i != modificationVector.size()-1){
+				currentRemaining = enabledTokens.at(modificationVector.at(i)).getCount();
+				i++;
+				int toSet = modificationVector.at(i);
+				for(; i < modificationVector.size(); i++){
+					currentRemaining--;
+					if(currentRemaining == 0){
+						toSet++;
+						if(toSet >= enabledTokens.size()){
+							modificationVector = tmp;
+							return false;
+						}
+						currentRemaining = enabledTokens.at(toSet).getCount();
+					}
+					modificationVector[i] = toSet;
+				}
+			}
 			return true;
 		}else{
 			i--;
@@ -192,6 +224,7 @@ bool SuccessorGenerator::incrementModificationVector(vector<unsigned int >& modi
 			if(i < 0) break;
 			if(currentRemaining == 0){
 				currentRemaining = enabledTokens.at(modificationVector.at(i)).getCount();
+				numOfTokenIndices--;
 			}
 		}
 	}
