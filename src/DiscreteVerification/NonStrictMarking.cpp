@@ -111,7 +111,7 @@ bool NonStrictMarking::RemoveToken(Place& place, Token& token){
 		for(TokenList::iterator iter = place.tokens.begin(); iter != place.tokens.end(); iter++){
 			if(iter->getAge() == token.getAge()){
 				place.tokens.erase(iter);
-				if(place.tokens.size() == 0){
+				if(place.tokens.empty()){
 					for(PlaceList::iterator it = places.begin(); it != places.end(); it++){
 						if(it->place->GetIndex() == place.place->GetIndex()){
 							places.erase(it);

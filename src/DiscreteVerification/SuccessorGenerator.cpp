@@ -201,10 +201,10 @@ bool SuccessorGenerator::incrementModificationVector(vector<unsigned int >& modi
 void SuccessorGenerator::addMarking(vector<NonStrictMarking >& result, NonStrictMarking& init_marking, const TimedTransition& transition, ArcAndTokensVector& indicesOfCurrentPermutation) const{
 	NonStrictMarking m(init_marking);
 	for(ArcAndTokensVector::iterator iter = indicesOfCurrentPermutation.begin(); iter != indicesOfCurrentPermutation.end(); iter++){
-		TokenList tokens = iter->enabledBy;
+		vector<unsigned int>& tokens = iter->modificationVector;
 
-		for(TokenList::iterator tokenIter = tokens.begin(); tokenIter != tokens.end(); tokenIter++){
-			Token t(tokenIter->getAge(), 1);
+		for(vector< unsigned int >::const_iterator tokenIter = tokens.begin(); tokenIter != tokens.end(); tokenIter++){
+			Token t((iter->enabledBy)[*tokenIter].getAge(), 1);
 			iter->moveToken(t, m);
 		}
 	}
@@ -214,7 +214,15 @@ void SuccessorGenerator::addMarking(vector<NonStrictMarking >& result, NonStrict
 		m.AddTokenInPlace(postsetIter->lock()->OutputPlace(), t);
 	}
 
-	//std::cout << init_marking << " --> " << m << std::endl;
+	/*std::cout << "Modification vector:";
+	for(ArcAndTokensVector::iterator iter = indicesOfCurrentPermutation.begin(); iter != indicesOfCurrentPermutation.end(); iter++){
+		for(vector< unsigned int >::iterator it = iter->modificationVector.begin();
+				it != iter->modificationVector.end(); it++){
+				std::cout << " " << *it;
+			}
+	}
+	std::cout << std::endl;
+	std::cout << init_marking << " --> " << m << std::endl;*/
 
 	result.push_back(m);
 }
