@@ -157,8 +157,9 @@ void SuccessorGenerator::recursiveGenerateMarking(vector<NonStrictMarking>& resu
 	}
 
 	// Generate permutations
-	bool done = false;
-	while(!done){
+	bool changedSomething = true;
+	while(changedSomething){
+		changedSomething = false;
 		addMarking(result, init_marking, transition, indicesOfCurrentPermutation);
 
 		//Loop through arc indexes from the back
@@ -170,8 +171,7 @@ void SuccessorGenerator::recursiveGenerateMarking(vector<NonStrictMarking>& resu
 				for(arcAndTokenIndex++; arcAndTokenIndex < indicesOfCurrentPermutation.size(); arcAndTokenIndex++){
 					indicesOfCurrentPermutation.at(arcAndTokenIndex).reset();
 				}
-			}else if(arcAndTokenIndex == 0){
-				done = true;
+				changedSomething = true;
 			}
 		}
 	}
@@ -213,16 +213,6 @@ void SuccessorGenerator::addMarking(vector<NonStrictMarking >& result, NonStrict
 		Token t(0, postsetIter->lock()->GetWeight());
 		m.AddTokenInPlace(postsetIter->lock()->OutputPlace(), t);
 	}
-
-	/*std::cout << "Modification vector:";
-	for(ArcAndTokensVector::iterator iter = indicesOfCurrentPermutation.begin(); iter != indicesOfCurrentPermutation.end(); iter++){
-		for(vector< unsigned int >::iterator it = iter->modificationVector.begin();
-				it != iter->modificationVector.end(); it++){
-				std::cout << " " << *it;
-			}
-	}
-	std::cout << std::endl;
-	std::cout << init_marking << " --> " << m << std::endl;*/
 
 	result.push_back(m);
 }
