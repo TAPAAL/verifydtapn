@@ -49,9 +49,34 @@ struct ArcAndTokens{
 
 	ArcAndTokens(TokenList enabledBy, vector<unsigned int > modificationVector)
 	: enabledBy(enabledBy), modificationVector(modificationVector){}
+
+	ArcAndTokens(TokenList enabledBy, int weight)
+	: enabledBy(enabledBy), modificationVector(vector<unsigned int>(weight)){
+		this->reset();
+	}
+
 	virtual ~ArcAndTokens(){}
 
 	virtual void moveToken(Token& token, NonStrictMarking& m) = 0;
+
+	void clearModificationVector(){
+		modificationVector.clear();
+	}
+
+	void reset(){
+		int weight = modificationVector.size();
+
+		int index = 0;
+		// Construct available tokens
+		for(vector<Token>::iterator placeTokensIter = enabledBy.begin();
+				placeTokensIter != enabledBy.end() && index <  weight;
+				placeTokensIter++){
+			for(int i = 0; i < placeTokensIter->getCount() && index <  weight; i++){
+				modificationVector[index] = distance(enabledBy.begin(), placeTokensIter);
+				index++;
+			}
+		}
+	}
 };
 
 struct InputArcAndTokens : ArcAndTokens{
@@ -59,6 +84,9 @@ struct InputArcAndTokens : ArcAndTokens{
 
 	InputArcAndTokens(boost::weak_ptr<TimedInputArc> arc, TokenList enabledBy, vector<unsigned int > modificationVector)
 	: ArcAndTokens(enabledBy, modificationVector), arc(arc){}
+
+	InputArcAndTokens(boost::weak_ptr<TimedInputArc> arc, TokenList enabledBy)
+		: ArcAndTokens(enabledBy, arc.lock()->GetWeight()), arc(arc){}
 
 	void moveToken(Token& token, NonStrictMarking& m){
 		m.RemoveToken(arc.lock()->InputPlace().GetIndex(), token.getAge());
@@ -70,6 +98,9 @@ struct TransportArcAndTokens : ArcAndTokens{
 
 	TransportArcAndTokens(boost::weak_ptr<TransportArc> arc, TokenList enabledBy, vector<unsigned int > modificationVector)
 	: ArcAndTokens(enabledBy, modificationVector),  arc(arc){}
+
+	TransportArcAndTokens(boost::weak_ptr<TransportArc> arc, TokenList enabledBy)
+		: ArcAndTokens(enabledBy, arc.lock()->GetWeight()),  arc(arc){}
 
 	void moveToken(Token& token, NonStrictMarking& m){
 		m.RemoveToken(arc.lock()->Source().GetIndex(), token.getAge());
@@ -93,6 +124,7 @@ private:
 	void recursiveGenerateMarking(vector<NonStrictMarking >& result, NonStrictMarking& init_marking, const TimedTransition& transition, ArcHashMap& enabledArcs, unsigned int index) const;
 
 	void addMarking(vector<NonStrictMarking >& result, NonStrictMarking& init_marking, const TimedTransition& transition, ArcAndTokensVector& indicesOfCurrentPermutation) const;
+	bool incrementModificationVector(vector<unsigned int >& modificationVector, TokenList& enabledTokens) const;
 
 	const TAPN::TimedArcPetriNet& tapn;
 	vector<const TAPN::TimedTransition*> allwaysEnabled;

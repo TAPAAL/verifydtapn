@@ -144,84 +144,58 @@ void SuccessorGenerator::recursiveGenerateMarking(vector<NonStrictMarking>& resu
 	std::cout << "Transition: " << transition << " Num of input arcs: " << transition.GetPreset().size() << " Num of transport arcs: " << transition.GetTransportArcs().size() << std::endl;
 #endif
 
+	// Initialize vectors
 	ArcAndTokensVector indicesOfCurrentPermutation;
 	for(TimedInputArc::WeakPtrVector::const_iterator iter = transition.GetPreset().begin(); iter != transition.GetPreset().end(); iter++){
-		vector<unsigned int > tokenList;
-		TokenList placeTokens = enabledArcs[iter->lock().get()];
-
-		// Construct available tokens
-		for(vector<Token>::iterator placeTokensIter = placeTokens.begin(); placeTokensIter != placeTokens.end(); placeTokensIter++){
-			for(int i = 0; i < placeTokensIter->getCount(); i++){
-				if(tokenList.size() < iter->lock()->GetWeight()){
-					tokenList.push_back(distance(placeTokens.begin(), placeTokensIter));
-				}else{
-					break;	// TODO: Break twice
-				}
-			}
-		}
-
-		InputArcAndTokens* arcAndTokens = new InputArcAndTokens(*iter, enabledArcs[iter->lock().get()], tokenList);
+		InputArcAndTokens* arcAndTokens = new InputArcAndTokens(*iter, enabledArcs[iter->lock().get()]);
 		indicesOfCurrentPermutation.push_back(arcAndTokens);
 	}
-
 	// Transport arcs
 	for(TransportArc::WeakPtrVector::const_iterator iter = transition.GetTransportArcs().begin(); iter != transition.GetTransportArcs().end(); iter++){
-		TokenList availableTokens;
-		vector<unsigned int > tokenList;
-		TokenList placeTokens = enabledArcs[iter->lock().get()];
-
-		// Construct available tokens
-		for(vector<Token>::iterator placeTokensIter = placeTokens.begin(); placeTokensIter != placeTokens.end(); placeTokensIter++){
-			for(int i = 0; i < placeTokensIter->getCount(); i++){
-				if(tokenList.size() < iter->lock()->GetWeight()){
-					tokenList.push_back(distance(placeTokens.begin(), placeTokensIter));
-				}else{
-					break;	// TODO: Break twice
-				}
-			}
-		}
-
-		TransportArcAndTokens* arcAndTokens = new TransportArcAndTokens(*iter, enabledArcs[iter->lock().get()], tokenList);
+		TransportArcAndTokens* arcAndTokens = new TransportArcAndTokens(*iter, enabledArcs[iter->lock().get()]);
 		indicesOfCurrentPermutation.push_back(arcAndTokens);
 	}
 
+	// Generate permutations
 	bool done = false;
 	while(!done){
 		addMarking(result, init_marking, transition, indicesOfCurrentPermutation);
 
-		bool cont = false;
-
 		//Loop through arc indexes from the back
-		for(ArcAndTokensVector::reverse_iterator arcAndTokenIter = indicesOfCurrentPermutation.rbegin(); arcAndTokenIter != indicesOfCurrentPermutation.rend(); arcAndTokenIter++){
-			TokenList enabledTokens = arcAndTokenIter->enabledBy;
-			vector<unsigned int >& modificationVector = arcAndTokenIter->modificationVector;
-			int numOfTokenIndices = enabledTokens.size();
-
-			//std::cout << enabledTokens.size() << std::endl;
-			//std::cout << modificationVector.back() << std::endl;
-			int currentRemaining = enabledTokens.at(modificationVector.back()).getCount();
-
-			//std::cout << "Modification vector: " << std::endl;
-
-			//Loop through modification vector from the back
-			for(int i = modificationVector.size()-1; i >= 0; i--){
-				if(modificationVector.at(i) < numOfTokenIndices-1){
-					modificationVector.at(i)++;
-					cont = true;
-					break;
-				}else{
-					i--;
-					currentRemaining--;
-					if(i < 0) break;
-					if(currentRemaining == 0){
-						currentRemaining = enabledTokens.at(modificationVector.at(i)).getCount();
-					}
+		for(int arcAndTokenIndex = indicesOfCurrentPermutation.size()-1; arcAndTokenIndex >= 0; arcAndTokenIndex--){
+			TokenList& enabledTokens = indicesOfCurrentPermutation.at(arcAndTokenIndex).enabledBy;
+			vector<unsigned int >& modificationVector = indicesOfCurrentPermutation.at(arcAndTokenIndex).modificationVector;
+			if(incrementModificationVector(modificationVector, enabledTokens)){
+				//Reset following vectors
+				for(arcAndTokenIndex++; arcAndTokenIndex < indicesOfCurrentPermutation.size(); arcAndTokenIndex++){
+					indicesOfCurrentPermutation.at(arcAndTokenIndex).reset();
 				}
+			}else if(arcAndTokenIndex == 0){
+				done = true;
 			}
-			if(cont) break;
 		}
-		if(!cont)	done = true;
 	}
+}
+
+bool SuccessorGenerator::incrementModificationVector(vector<unsigned int >& modificationVector, TokenList& enabledTokens) const{
+	int numOfTokenIndices = enabledTokens.size();
+	int currentRemaining = enabledTokens.at(modificationVector.back()).getCount();
+
+	//Loop through modification vector from the back
+	for(int i = modificationVector.size()-1; i >= 0; i--){
+		if(modificationVector.at(i) < numOfTokenIndices-1){
+			modificationVector.at(i)++;
+			return true;
+		}else{
+			i--;
+			currentRemaining--;
+			if(i < 0) break;
+			if(currentRemaining == 0){
+				currentRemaining = enabledTokens.at(modificationVector.at(i)).getCount();
+			}
+		}
+	}
+	return false;
 }
 
 void SuccessorGenerator::addMarking(vector<NonStrictMarking >& result, NonStrictMarking& init_marking, const TimedTransition& transition, ArcAndTokensVector& indicesOfCurrentPermutation) const{
@@ -239,6 +213,9 @@ void SuccessorGenerator::addMarking(vector<NonStrictMarking >& result, NonStrict
 		Token t(0, postsetIter->lock()->GetWeight());
 		m.AddTokenInPlace(postsetIter->lock()->OutputPlace(), t);
 	}
+
+	std::cout << init_marking << " --> " << m << std::endl;
+
 	result.push_back(m);
 }
 
