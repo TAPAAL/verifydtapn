@@ -3,7 +3,6 @@
 
 #include <vector>
 #include "boost/functional/hash.hpp"
-#include "../../HashFunctions/MurmurHash2Neutral.hpp"
 #include <iostream>
 
 namespace VerifyTAPN {
