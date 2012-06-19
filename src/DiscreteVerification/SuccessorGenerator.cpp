@@ -183,21 +183,21 @@ void SuccessorGenerator::recursiveGenerateMarking(vector<NonStrictMarking>& resu
 }
 
 bool SuccessorGenerator::incrementModificationVector(vector<unsigned int >& modificationVector, TokenList& enabledTokens) const{
-	int numOfTokenIndices = enabledTokens.size();
+	unsigned int numOfTokenIndices = enabledTokens.size();
 
 	unsigned int refrences[numOfTokenIndices];
 
-	for(int i = 0; i < enabledTokens.size(); i++){
+	for(unsigned int i = 0; i < enabledTokens.size(); i++){
 		refrences[i] = enabledTokens[i].getCount();
 	}
 
-	for(int i = 0; i < modificationVector.size(); i++){
+	for(unsigned int i = 0; i < modificationVector.size(); i++){
 		refrences[modificationVector[i]]--;
 	}
 
 	vector<unsigned int> tmp = modificationVector;
 	//Loop through modification vector from the back
-	for(int i = modificationVector.size()-1; i >= 0; i--){
+	for(unsigned int i = modificationVector.size()-1; i >= 0; i--){
 
 		//Possible to increment index
 		if(modificationVector[i] < numOfTokenIndices-1){
@@ -208,7 +208,7 @@ bool SuccessorGenerator::incrementModificationVector(vector<unsigned int >& modi
 
 			// Fix following indexes
 			if(i < modificationVector.size()-1){
-				int toSet = modificationVector.at(i);
+				unsigned int toSet = modificationVector.at(i);
 				for(i++; i < modificationVector.size(); i++){
 					//Find next index to set (die if not possible)
 					while(refrences[toSet] == 0){
@@ -254,36 +254,6 @@ void SuccessorGenerator::addMarking(vector<NonStrictMarking >& result, NonStrict
 
 	result.push_back(m);
 }
-
-void SuccessorGenerator::generatePermultations(vector< NonStrictMarking >& result, NonStrictMarking& init_marking, int placeID, TokenList enabledBy, int tokenToProcess, int remainingToRemove, TimedPlace* destinationPlace) const{
-	if(remainingToRemove == 0){
-		result.push_back(init_marking);
-		return;
-	} else if (tokenToProcess >= enabledBy.size()){
-		return;
-	}
-
-	bool breakouter = false;
-	int age = enabledBy[tokenToProcess].getAge();
-	for(int i = 0; i <= remainingToRemove; i++){
-		NonStrictMarking marking(init_marking);
-		for(int j = 0; j < i; j++){
-			if(!marking.RemoveToken(placeID, age)){
-				breakouter = true;
-				break;
-			}
-
-			if (destinationPlace) {
-			    // Input arc is a transport arc
-				Token t(age, 1);
-				marking.AddTokenInPlace(*destinationPlace, t);
-			}
-		}
-		if(breakouter) break;
-		generatePermultations(result, marking, placeID, enabledBy, tokenToProcess+1, remainingToRemove-i, destinationPlace);
-	}
-}
-
 
 } /* namespace DiscreteVerification */
 } /* namespace VerifyTAPN */

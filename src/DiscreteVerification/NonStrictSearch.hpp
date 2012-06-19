@@ -40,7 +40,7 @@ public:
 	virtual ~NonStrictSearch();
 	bool Verify();
 	NonStrictMarking* GetLastMarking() { return lastMarking; }
-	inline int MaxUsedTokens(){ return pwList.maxNumTokensInAnyMarking; };
+	inline unsigned int MaxUsedTokens(){ return pwList.maxNumTokensInAnyMarking; };
 
 protected:
 	vector<NonStrictMarking> getPossibleNextMarkings(NonStrictMarking& marking);

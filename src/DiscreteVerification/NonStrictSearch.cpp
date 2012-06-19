@@ -124,7 +124,7 @@ bool NonStrictSearch::addToPW(NonStrictMarking* marking, NonStrictMarking* paren
 	assert(marking->equals(initialMarking) || m->GetParent() != NULL);
 #endif
 
-	int size = m->size();
+	unsigned int size = m->size();
 
 	pwList.SetMaxNumTokensIfGreater(size);
 

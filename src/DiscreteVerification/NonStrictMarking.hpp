@@ -152,7 +152,7 @@ public:
 		void SetParent(NonStrictMarking* parent) { this->parent = parent; }
 		void SetGeneratedBy(const TAPN::TimedTransition* generatedBy) { this->generatedBy = generatedBy; }
 		void CleanUp() {
-			for(int i = 0; i < places.size(); i++){
+			for(unsigned int i = 0; i < places.size(); i++){
 				if(places[i].tokens.empty()){
 					places.erase(places.begin()+i);
 				}
@@ -163,8 +163,8 @@ public:
 		bool equals(const NonStrictMarking &m1) const;
 
 	public:
-		int children;
 		bool inTrace;
+		int children;
 		PlaceList places;
 		TokenList emptyTokenList;
 
