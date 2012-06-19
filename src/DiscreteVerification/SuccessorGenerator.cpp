@@ -183,20 +183,20 @@ void SuccessorGenerator::recursiveGenerateMarking(vector<NonStrictMarking>& resu
 }
 
 bool SuccessorGenerator::incrementModificationVector(vector<unsigned int >& modificationVector, TokenList& enabledTokens) const{
-	int numOfTokenIndices = enabledTokens.size();
+	unsigned int numOfTokenIndices = enabledTokens.size();
 
 	unsigned int refrences[numOfTokenIndices];
 
-	for(int i = 0; i < enabledTokens.size(); i++){
+	for(unsigned int i = 0; i < enabledTokens.size(); i++){
 		refrences[i] = enabledTokens[i].getCount();
 	}
 
-	for(int i = 0; i < modificationVector.size(); i++){
+	for(unsigned int i = 0; i < modificationVector.size(); i++){
 		refrences[modificationVector[i]]--;
 	}
 
 	vector<unsigned int> tmp = modificationVector;
-	//Loop through modification vector from the back
+	// Loop through modification vector from the back
 	for(int i = modificationVector.size()-1; i >= 0; i--){
 
 		//Possible to increment index
@@ -207,9 +207,10 @@ bool SuccessorGenerator::incrementModificationVector(vector<unsigned int >& modi
 			refrences[modificationVector.at(i)]--;
 
 			// Fix following indexes
-			if(i < modificationVector.size()-1){
-				int toSet = modificationVector.at(i);
-				for(i++; i < modificationVector.size(); i++){
+			if(i < (int) modificationVector.size()-1){
+				unsigned int toSet = modificationVector.at(i);
+
+				for(i++; i < (int) modificationVector.size(); i++){
 					//Find next index to set (die if not possible)
 					while(refrences[toSet] == 0){
 						toSet++;
