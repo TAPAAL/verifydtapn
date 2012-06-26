@@ -223,25 +223,15 @@ void DiscreteVerification::PrintXMLTrace(bool result, NonStrictMarking* m, std::
 				int i = 1;
 				old = stack.top();
 				stack.pop();
-				while(!(stack.empty()) && stack.top()->GetGeneratedBy() == NULL && !old->equals(*m)) {
+				while(!stack.empty() && stack.top()->GetGeneratedBy() == NULL) {
 					old = stack.top();
 					stack.pop();
 					i++;
 				}
-				if((stack.empty() && old->children == 0) || (stack.size() == 1 && old->equals(*m) && stack.top()->generatedBy == NULL && stack.top()->children > 0)){
+
+				if(stack.empty() && old->children > 0){
 					xml_node<>* node = doc.allocate_node(node_element, "delay", doc.allocate_string("forever"));
 					root->append_node(node);
-					break;
-				}else if(stack.empty() && old->children > 0){
-					//This means that there is a children
-					if(m->equals(*old)){
-						xml_node<>* node = doc.allocate_node(node_element, "delay", doc.allocate_string(ToString(i).c_str()));
-						root->append_node(node);
-						root->append_node(doc.allocate_node(node_element, "loop"));
-					}else{
-						xml_node<>* node = doc.allocate_node(node_element, "delay", doc.allocate_string("forever"));
-						root->append_node(node);
-					}
 					break;
 				}
 				xml_node<>* node = doc.allocate_node(node_element, "delay", doc.allocate_string(ToString(i).c_str()));
@@ -250,7 +240,9 @@ void DiscreteVerification::PrintXMLTrace(bool result, NonStrictMarking* m, std::
 			}
 		}
 
-		if((query == EG || query == AF) && (stack.top()->equals(*m) && stack.size() > 1)){
+		if((query == EG || query == AF)
+						&& (stack.size() > 1 && stack.top()->equals(*m))
+						&& (m->GetGeneratedBy() || stack.top()->parent)){
 			root->append_node(doc.allocate_node(node_element, "loop"));
 		}
 		old = stack.top();
