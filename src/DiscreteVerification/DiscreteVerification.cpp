@@ -149,7 +149,7 @@ void DiscreteVerification::PrintHumanTrace(bool result, NonStrictMarking* m, std
 		} else {
 			if(stack.top()->GetGeneratedBy()){
 				std::cout << "\tTransistion: " << stack.top()->GetGeneratedBy()->GetName() << std::endl;
-			} else{
+			}else{
 				int i = 1;
 				NonStrictMarking* old = stack.top();
 				stack.pop();
@@ -159,7 +159,7 @@ void DiscreteVerification::PrintHumanTrace(bool result, NonStrictMarking* m, std
 					i++;
 				}
 
-				if(stack.empty()){
+				if(stack.empty() && old->children > 0){
 					std::cout << "\tDelay: Forever"  << std::endl;
 					return;
 				}
