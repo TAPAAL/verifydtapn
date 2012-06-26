@@ -153,44 +153,32 @@ void DiscreteVerification::PrintHumanTrace(bool result, NonStrictMarking* m, std
 				int i = 1;
 				NonStrictMarking* old = stack.top();
 				stack.pop();
-				while(!(stack.empty()) && stack.top()->GetGeneratedBy() == NULL && !old->equals(*m)) {
+				while(!stack.empty() && stack.top()->GetGeneratedBy() == NULL) {
 					old = stack.top();
 					stack.pop();
 					i++;
 				}
-				if((stack.empty() && old->children == 0) || (stack.size() == 1 && old->equals(*m) && stack.top()->generatedBy == NULL && stack.top()->children > 0)){
+
+				if(stack.empty()){
 					std::cout << "\tDelay: Forever"  << std::endl;
 					return;
-				}else if(stack.empty() && old->children > 0){
-					//This means that there is a children
-					if(m->equals(*old)){
-						std::cout << "\tDelay: " << i  << std::endl;
-						std::cout << "\tMarking: ";
-						for(PlaceList::const_iterator iter = old->places.begin(); iter != old->places.end(); iter++){
-							for(TokenList::const_iterator titer = iter->tokens.begin(); titer != iter->tokens.end(); titer++){
-								for(int i = 0; i < titer->getCount(); i++) {
-									std::cout << "(" << iter->place->GetName() << "," << titer->getAge() << ") ";
-								}
-							}
-						}
-						std::cout << std::endl;
-						std::cout << "\tgoto *" << std::endl;
-					}else{
-						std::cout << "\tDelay: Forever"  << std::endl;
-					}
-					return;
 				}
+
 				std::cout << "\tDelay: " << i << std::endl;
 				stack.push(old);
 			}
 		}
 
-		if((query == EG || query == AF) && (stack.top()->equals(*m) && stack.size() > 1)){
+		if((query == EG || query == AF)
+				&& (stack.size() > 1 && stack.top()->equals(*m))
+				&& (m->GetGeneratedBy() || stack.top()->parent)){
 			std::cout << "\t* ";
 			foundLoop = true;
 		} else {
 			std::cout << "\t";
 		}
+
+		//Print marking
 		std::cout << "Marking: ";
 		for(PlaceList::const_iterator iter = stack.top()->places.begin(); iter != stack.top()->places.end(); iter++){
 			for(TokenList::const_iterator titer = iter->tokens.begin(); titer != iter->tokens.end(); titer++){
@@ -199,12 +187,12 @@ void DiscreteVerification::PrintHumanTrace(bool result, NonStrictMarking* m, std
 				}
 			}
 		}
+
 		std::cout << std::endl;
-		//std::cout << "Stack before: " << stack.size() << std::endl;
 		stack.pop();
-		//std::cout << "Stack after: " << stack.size() << std::endl;
 	}
 
+	//Trace ended, goto * or deadlock
 	if(query == EG || query == AF){
 		if(foundLoop){
 			std::cout << "\tgoto *" << std::endl;

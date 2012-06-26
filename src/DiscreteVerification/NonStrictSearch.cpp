@@ -24,21 +24,10 @@ bool NonStrictSearch::Verify(){
 	//Main loop
 	while(pwList.HasWaitingStates()){
 		NonStrictMarking& next_marking = *pwList.GetNextUnexplored();
-#if DEBUG
-		std::cout << "--------------------------Start with new marking-----------------------------------" << std::endl;
-		std::cout << "current marking: " << next_marking << " marking size: " << next_marking.size() << std::endl;
-#endif
 		NonStrictMarking marking(next_marking);
 		bool endOfMaxRun = true;
 		next_marking.inTrace = true;
 		trace.push(&next_marking);
-#if debug
-		if(trace.top()->equals(*pwList.markings_storage[trace.top()->HashKey()].at(0))){
-			assert(trace.top() == pwList.markings_storage[trace.top()->HashKey()].at(0));
-			assert(trace.top()->inTrace);
-			assert(pwList.markings_storage[trace.top()->HashKey()].at(0)->inTrace);
-		}
-#endif
 		validChildren = 0;
 
 		// Do the forall
@@ -120,9 +109,6 @@ vector<NonStrictMarking> NonStrictSearch::getPossibleNextMarkings(NonStrictMarki
 bool NonStrictSearch::addToPW(NonStrictMarking* marking, NonStrictMarking* parent){
 	NonStrictMarking* m = cut(*marking);
 	m->SetParent(parent);
-#if DEBUG
-	assert(marking->equals(initialMarking) || m->GetParent() != NULL);
-#endif
 
 	unsigned int size = m->size();
 
@@ -149,7 +135,6 @@ bool NonStrictSearch::addToPW(NonStrictMarking* marking, NonStrictMarking* paren
 						//Make sure we can print trace
 						m->children = 1;
 						trace.push(m);
-						//printStats(pwList);
 						return true;
 					}else{
 						delete m;
