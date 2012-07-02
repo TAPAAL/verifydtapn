@@ -13,7 +13,6 @@ namespace DiscreteVerification {
 NonStrictSearch::NonStrictSearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList* waiting_list)
 	: pwList(waiting_list), tapn(tapn), initialMarking(initialMarking), query(query), options(options), successorGenerator( *tapn.get() ){
 	livenessQuery = (query->GetQuantifier() == EG || query->GetQuantifier() == AF);
-	std::cout<< "livenessQuery: " << (livenessQuery? "true":"false") << std::endl;
 }
 
 bool NonStrictSearch::Verify(){

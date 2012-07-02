@@ -37,9 +37,6 @@ int DiscreteVerification::run(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, s
 	NonStrictMarking* initialMarking = new NonStrictMarking(*tapn, initialPlacement);
 
 	std::cout << "MC: " << tapn->MaxConstant() << std::endl;
-	std::cout << "initialMarking: " << *initialMarking << std::endl;
-	std::cout << "size: " << initialMarking->size() << std::endl;
-	std::cout << "hash: " << boost::hash_value(initialMarking) << std::endl;
 
 	if(initialMarking->size() > options.GetKBound())
 	{
@@ -84,14 +81,6 @@ int DiscreteVerification::run(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, s
 	}
 
 	bool result = (query->GetQuantifier() == AG || query->GetQuantifier() == AF)? !strategy->Verify() : strategy->Verify();
-
-	/*if(query->GetQuantifier() == EG || query->GetQuantifier() == AF){
-		std::cout << "Trace (length = "<< strategy->trace.size() <<"): " << std::endl;
-		while(!strategy->trace.empty()){
-			std::cout << *strategy->trace.top() << std::endl;
-			strategy->trace.pop();
-		}
-	}*/
 
 	strategy->printStats();
 

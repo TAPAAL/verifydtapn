@@ -46,7 +46,6 @@ namespace VerifyTAPN {
 		if(options.GetTrace() != NONE) out << " in " << (options.XmlTrace() ? "xml format" : "human readable format");
 		out << std::endl;
 		out << "Using " << (options.GetGlobalMaxConstantsEnabled() ? "global maximum constant" : "local maximum constants") << " for extrapolation" << std::endl;
-		out << "Using " << FactoryEnumToString(options.GetFactory()) << " marking factory" << std::endl;
 		out << "Model file is: " << options.GetInputFile() << std::endl;
 		out << "Query file is: " << options.QueryFile() << std::endl;
 		return out;
