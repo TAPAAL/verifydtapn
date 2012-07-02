@@ -157,7 +157,7 @@ namespace VerifyTAPN {
 
 	void ArgsParser::Version() const
 	{
-		std::cout << "VerifyTAPN " << version << std::endl;
+		std::cout << "VerifyDTAPN " << version << std::endl;
 		std::cout << "Licensed under GPL." << std::endl;
 	}
 
