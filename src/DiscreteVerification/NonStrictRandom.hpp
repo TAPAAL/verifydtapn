@@ -7,7 +7,6 @@
 
 #ifndef NONSTRICTRANDOM_HPP_
 #define NONSTRICTRANDOM_HPP_
-#define DEBUG 0
 
 #include "PWList.hpp"
 #include "boost/smart_ptr.hpp"

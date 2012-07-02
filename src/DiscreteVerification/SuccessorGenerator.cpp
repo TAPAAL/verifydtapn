@@ -24,10 +24,6 @@ SuccessorGenerator::SuccessorGenerator(TAPN::TimedArcPetriNet& tapn)  : tapn(tap
 }
 
 vector< NonStrictMarking > SuccessorGenerator::generateSuccessors(const NonStrictMarking& marking) const{
-
-#if DEBUG
-	std::cout << "------------------------------- SuccessorGenerator ---------------------------" << std::endl;
-#endif
 	vector< NonStrictMarking > result;
 	ArcHashMap enabledArcs(tapn.GetInhibitorArcs().size() + tapn.GetInputArcs().size() + tapn.GetTransportArcs().size());
 	std::vector<unsigned int> enabledTransitionArcs(tapn.GetTransitions().size(), 0);
@@ -57,9 +53,6 @@ vector< NonStrictMarking > SuccessorGenerator::generateSuccessors(const NonStric
 
 	enabledTransitions.insert(enabledTransitions.end(), allwaysEnabled.begin(), allwaysEnabled.end());
 	generateMarkings(result, marking, enabledTransitions, enabledArcs);
-#if DEBUG
-	std::cout << "------------------------------- SuccessorGenerator done---------------------------" << std::endl;
-#endif
 	return result;
 }
 
@@ -75,25 +68,16 @@ void SuccessorGenerator::processArc(
 		bool isInhib
 ) const{
 	bool arcIsEnabled = false;
-#if DEBUG
-	std::cout << "Bound: " << bound << std::endl;
-#endif
 	for(TokenList::const_iterator token_iter = place.tokens.begin(); token_iter != place.tokens.end(); token_iter++){
 		if(interval.GetLowerBound() <= token_iter->getAge() && token_iter->getAge() <= interval.GetUpperBound() && token_iter->getAge() <= bound){
 			enabledArcs[arcAddress].push_back(*token_iter);
 			arcIsEnabled = true;
-#if DEBUG
-			std::cout << "Arc enabled!" << std::endl;
-#endif
 		}
 	}
 	if(arcIsEnabled && !isInhib){
 		enabledTransitionArcs[transition.GetIndex()]++;
 	}
 	if(enabledTransitionArcs[transition.GetIndex()] == transition.GetPreset().size() + transition.GetTransportArcs().size() && !isInhib){
-#if DEBUG
-		std::cout << "Transition pushed: " << transition << std::endl;
-#endif
 		enabledTransitions.push_back(&transition);
 	}
 }
@@ -114,23 +98,14 @@ void SuccessorGenerator::generateMarkings(vector<NonStrictMarking>& result, cons
 	for(std::vector< const TimedTransition* >::const_iterator iter = transitions.begin(); iter != transitions.end(); iter++){
 		bool inhibited = false;
 		//Check that no inhibitors is enabled;
-#if DEBUG
-		std::cout << "Transition: " << *(*iter) << "Number of inhibitors: " << iter->GetInhibitorArcs().size() << std::endl;
-#endif
 
 		for(TAPN::InhibitorArc::WeakPtrVector::const_iterator inhib_iter = (*iter)->GetInhibitorArcs().begin(); inhib_iter != (*iter)->GetInhibitorArcs().end(); inhib_iter++){
-#if DEBUG
-			std::cout << "Inhibitor: " << *(inhib_iter->lock()) << " Inhibitor size: " << enabledArcs[inhib_iter->lock().get()].size() << std::endl;
-#endif
 			// Maybe this could be done more efficiently using ArcHashMap? Dunno exactly how it works
 			if(init_marking.NumberOfTokensInPlace(inhib_iter->lock().get()->InputPlace().GetIndex()) >= inhib_iter->lock().get()->GetWeight()){
 				inhibited = true;
 				break;
 			}
 		}
-#if DEBUG
-		std::cout << "No inhibitors activated" << std::endl;
-#endif
 		if (inhibited) continue;
 		NonStrictMarking m(init_marking);
 		m.SetGeneratedBy(*iter);
@@ -140,9 +115,6 @@ void SuccessorGenerator::generateMarkings(vector<NonStrictMarking>& result, cons
 
 
 void SuccessorGenerator::recursiveGenerateMarking(vector<NonStrictMarking>& result, NonStrictMarking& init_marking, const TimedTransition& transition, ArcHashMap& enabledArcs, unsigned int index) const{
-#if DEBUG
-	std::cout << "Transition: " << transition << " Num of input arcs: " << transition.GetPreset().size() << " Num of transport arcs: " << transition.GetTransportArcs().size() << std::endl;
-#endif
 
 	// Initialize vectors
 	ArcAndTokensVector indicesOfCurrentPermutation;

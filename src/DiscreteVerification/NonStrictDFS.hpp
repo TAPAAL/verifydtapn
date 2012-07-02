@@ -7,7 +7,6 @@
 
 #ifndef NONSTRICTDFS_HPP_
 #define NONSTRICTDFS_HPP_
-#define DEBUG 0
 
 #include "PWList.hpp"
 #include "boost/smart_ptr.hpp"

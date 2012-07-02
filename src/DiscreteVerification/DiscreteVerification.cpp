@@ -309,9 +309,6 @@ void DiscreteVerification::createTransitionSubNodes(NonStrictMarking* old, NonSt
 			}
 		}
 	}
-#if DEBUG
-	assert(tokensFound == weight);
-#endif
 }
 
 rapidxml::xml_node<>* DiscreteVerification::createTokenNode(rapidxml::xml_document<>& doc, const TAPN::TimedPlace& place, const Token& token){

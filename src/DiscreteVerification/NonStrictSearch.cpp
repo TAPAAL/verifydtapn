@@ -30,7 +30,7 @@ bool NonStrictSearch::Verify(){
 		trace.push(&next_marking);
 		validChildren = 0;
 
-		// Do the forall
+		// Generate next markings
 		vector<NonStrictMarking> next = getPossibleNextMarkings(marking);
 
 		if(isDelayPossible(marking)){
@@ -40,10 +40,6 @@ bool NonStrictSearch::Verify(){
 		}
 
 		for(vector<NonStrictMarking>::iterator it = next.begin(); it != next.end(); it++){
-#if DEBUG
-			std::cout << "Succssor marking: " << *it << std::endl;
-#endif
-
 			if(addToPW(&(*it), &next_marking)){
 				return true;
 			}
@@ -58,12 +54,6 @@ bool NonStrictSearch::Verify(){
 			if(validChildren == 0){
 				while(!trace.empty() && trace.top()->children <= 1){
 					trace.top()->inTrace = false;
-#if DEBUG
-					if(trace.top()->equals(*pwList.markings_storage[trace.top()->HashKey()].at(0))){
-						assert(trace.top() == pwList.markings_storage[trace.top()->HashKey()].at(0));
-						assert(pwList.markings_storage[trace.top()->HashKey()].at(0)->inTrace == false);
-					}
-#endif
 					trace.pop();
 				}
 				if(trace.empty())	return false;
@@ -73,9 +63,6 @@ bool NonStrictSearch::Verify(){
 
 			}
 		}
-#if DEBUG
-		std::cout << "--------------------------Done with marking-----------------------------------" << std::endl;
-#endif
 	}
 
 	return false;
@@ -152,10 +139,6 @@ bool NonStrictSearch::addToPW(NonStrictMarking* marking, NonStrictMarking* paren
 			query->Accept(checker, context);
 			if(boost::any_cast<bool>(context)) {
 				lastMarking = m;
-				//printStats(pwList);
-				//std::cout << "Markings discovered " << pwList.discoveredMarkings << std::endl;
-				//std::cout << "Markings found: " << pwList.Size() << std::endl;
-				//std::cout << "Markings explored: " << pwList.Size()-pwList.waiting_list->Size() << std::endl;
 				return true;
 			} else {
 				return false;
@@ -170,9 +153,6 @@ bool NonStrictSearch::addToPW(NonStrictMarking* marking, NonStrictMarking* paren
 
 NonStrictMarking* NonStrictSearch::cut(NonStrictMarking& marking){
 	NonStrictMarking* m = new NonStrictMarking(marking);
-#if DEBUG
-		std::cout << "Cut before: " << *m << std::endl;
-#endif
 	for(PlaceList::iterator place_iter = m->places.begin(); place_iter != m->places.end(); place_iter++){
 		const TimedPlace& place = tapn->GetPlace(place_iter->place->GetIndex());
 		//remove dead tokens
@@ -199,9 +179,6 @@ NonStrictMarking* NonStrictSearch::cut(NonStrictMarking& marking){
 		}
 		Token t(place.GetMaxConstant()+1,count);
 		m->AddTokenInPlace(*place_iter, t);
-#if DEBUG
-		std::cout << "Cut after: " << *m << std::endl;
-#endif
 	}
 	m->CleanUp();
 	return m;

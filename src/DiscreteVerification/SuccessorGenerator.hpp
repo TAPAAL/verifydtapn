@@ -14,7 +14,6 @@
 #include <limits>
 #include "boost/tuple/tuple_io.hpp"
 #include "boost/ptr_container/ptr_vector.hpp"
-#define DEBUG 0
 
 namespace VerifyTAPN {
 namespace DiscreteVerification {

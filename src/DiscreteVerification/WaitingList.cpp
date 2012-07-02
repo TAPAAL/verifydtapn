@@ -24,9 +24,6 @@ void StackWaitingList::Add(NonStrictMarking* marking)
 
 NonStrictMarking* StackWaitingList::Next()
 {
-#if DEBUG
-	assert(Size() > 0);
-#endif
 	NonStrictMarking* marking = stack.top();
 	stack.pop();
 	return marking;
