@@ -169,9 +169,11 @@ bool SuccessorGenerator::incrementModificationVector(vector<unsigned int >& modi
 		refrences[modificationVector[i]]--;
 	}
 
+	int modificationVectorSize = modificationVector.size();
+
 	vector<unsigned int> tmp = modificationVector;
 	// Loop through modification vector from the back
-	for(int i = modificationVector.size()-1; i >= 0; i--){
+	for(int i = modificationVectorSize-1; i >= 0; i--){
 
 		//Possible to increment index
 		if(modificationVector[i] < numOfTokenIndices-1){
@@ -181,10 +183,10 @@ bool SuccessorGenerator::incrementModificationVector(vector<unsigned int >& modi
 			refrences[modificationVector.at(i)]--;
 
 			// Fix following indexes
-			if(i < (int) modificationVector.size()-1){
+			if(i < modificationVectorSize-1){
 				unsigned int toSet = modificationVector.at(i);
 
-				for(i++; i < (int) modificationVector.size(); i++){
+				for(i++; i < modificationVectorSize; i++){
 					//Find next index to set (die if not possible)
 					while(refrences[toSet] == 0){
 						toSet++;
