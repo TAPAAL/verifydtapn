@@ -13,20 +13,16 @@
 #include "../Core/TAPN/TAPN.hpp"
 #include "../Core/QueryParser/AST.hpp"
 #include "../Core/VerificationOptions.hpp"
-
 #include "../Core/TAPN/TimedPlace.hpp"
 #include "../Core/TAPN/TimedTransition.hpp"
 #include "../Core/TAPN/TimedInputArc.hpp"
 #include "../Core/TAPN/TransportArc.hpp"
 #include "../Core/TAPN/InhibitorArc.hpp"
 #include "../Core/TAPN/OutputArc.hpp"
-
 #include "SuccessorGenerator.hpp"
-
 #include "QueryVisitor.hpp"
 #include "boost/any.hpp"
 #include "DataStructures/NonStrictMarking.hpp"
-
 #include <stack>
 
 namespace VerifyTAPN {

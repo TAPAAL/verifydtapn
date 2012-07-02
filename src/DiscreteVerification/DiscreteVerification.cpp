@@ -22,7 +22,7 @@ DiscreteVerification::~DiscreteVerification() {
 
 int DiscreteVerification::run(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, std::vector<int> initialPlacement, AST::Query* query, VerificationOptions options){
 	if(!(*tapn).IsNonStrict()){
-		std::cout << "The supplied network contains strict intervals." << std::endl;
+		std::cout << "The supplied net contains strict intervals." << std::endl;
 		return -1;
 	}
 
@@ -76,21 +76,12 @@ int DiscreteVerification::run(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, s
 
 	strategy->printStats();
 
-	//std::cout << strategy->GetStats() << std::endl;
 	std::cout << "Query is " << (result ? "satisfied" : "NOT satisfied") << "." << std::endl;
 	std::cout << "Max number of tokens found in any reachable marking: ";
 	if(strategy->MaxUsedTokens() > options.GetKBound())
 		std::cout << ">" << options.GetKBound() << std::endl;
 	else
 		std::cout << strategy->MaxUsedTokens() << std::endl;
-
-	/*try{
-		strategy->PrintTraceIfAny(result);
-	}catch(const trace_exception& e){
-		std::cout << "There was an error generating a trace. This is a bug. Please report this on launchpad and attach your TAPN model and this error message: ";
-		std::cout << e.what() << std::endl;
-		return 1;
-	}*/
 
 	if(options.GetTrace() == SOME){
 		std::stack<NonStrictMarking*> printStack;
@@ -222,8 +213,8 @@ void DiscreteVerification::PrintXMLTrace(bool result, NonStrictMarking* m, std::
 		}
 
 		if((query == EG || query == AF)
-						&& (stack.size() > 1 && stack.top()->equals(*m))
-						&& (m->GetGeneratedBy() || stack.top()->parent)){
+				&& (stack.size() > 1 && stack.top()->equals(*m))
+				&& (m->GetGeneratedBy() || stack.top()->parent)){
 			root->append_node(doc.allocate_node(node_element, "loop"));
 		}
 		old = stack.top();
