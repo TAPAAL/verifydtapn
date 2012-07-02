@@ -14,7 +14,6 @@
 #include "../Core/QueryParser/AST.hpp"
 #include "../Core/VerificationOptions.hpp"
 #include "NonStrictMarking.hpp"
-
 #include "../../lib/rapidxml-1.13/rapidxml.hpp"
 #include "../../lib/rapidxml-1.13/rapidxml_print.hpp"
 
