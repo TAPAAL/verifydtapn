@@ -54,7 +54,7 @@ namespace VerifyTAPN {
 			void calculateCausality(TimedPlace& p, std::vector< TimedPlace* >* result) const;
 			void updatePlaceTypes(const AST::Query* query);
 		public: // modifiers
-			void Initialize(bool useUntimedPlaces, bool useGlobalMaxConstant);
+			void Initialize(bool useGlobalMaxConstant);
 			void removeOrphantedTransitions();
 
 

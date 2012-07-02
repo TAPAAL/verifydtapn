@@ -5,7 +5,7 @@
 
 namespace VerifyTAPN {
 	namespace TAPN {
-		void TimedArcPetriNet::Initialize(bool useUntimedPlaces, bool useGlobalMaxConstant)
+		void TimedArcPetriNet::Initialize(bool useGlobalMaxConstant)
 		{
 			for(unsigned int i = 0; i < places.size(); i++){
 				places[i]->SetIndex(i);
@@ -15,13 +15,6 @@ namespace VerifyTAPN {
 			for(unsigned int i = 0; i < transitions.size(); i++){
 				transitions[i]->SetIndex(i);
 			}
-//			placeIndices.set_empty_key(""); // assume place always have a name
-//			IndexMap::value_type bottom(TimedPlace::Bottom().GetName(), TimedPlace::BottomIndex());
-//			placeIndices.insert(bottom);
-//			for(unsigned int i = 0; i < places.size(); i++){
-//				IndexMap::value_type pair(places[i]->GetName(), i);
-//				placeIndices.insert(pair);
-//			}
 
 			for(TimedInputArc::Vector::const_iterator iter = inputArcs.begin(); iter != inputArcs.end(); ++iter)
 			{
@@ -63,8 +56,7 @@ namespace VerifyTAPN {
 				}
 			}
 
-			if(useUntimedPlaces)
-				MarkUntimedPlaces();
+			MarkUntimedPlaces();
 		}
 
 		void TimedArcPetriNet::removeOrphantedTransitions(){

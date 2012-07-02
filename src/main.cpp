@@ -9,9 +9,7 @@
 #include "Core/QueryParser/ToStringVisitor.hpp"
 #include "Core/QueryParser/BadPlaceVisitor.hpp"
 #include "Core/TAPN/TimedPlace.hpp"
-
 #include "ReachabilityChecker/Trace/trace_exception.hpp"
-
 #include "DiscreteVerification/DiscreteVerification.hpp"
 
 using namespace std;
@@ -36,7 +34,7 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
-	tapn->Initialize(options.GetUntimedPlacesEnabled(), options.GetGlobalMaxConstantsEnabled());
+	tapn->Initialize(options.GetGlobalMaxConstantsEnabled());
 
 	std::vector<int> initialPlacement(modelParser.ParseMarking(options.GetInputFile(), *tapn));
 

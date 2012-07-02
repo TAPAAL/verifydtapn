@@ -17,26 +17,16 @@ namespace VerifyTAPN {
 				const std::string& queryFile,
 				SearchType searchType,
 				unsigned int k_bound,
-				bool symmetry,
-				bool discrete,
 				Trace trace,
 				bool xml_trace,
-				bool useUntimedPlaces,
-				bool useGlobalMaxConstants,
-				Factory factory,
-				const std::vector<std::string>& inc_places
+				bool useGlobalMaxConstants
 			) :	inputFile(inputFile),
 				queryFile(queryFile),
 				searchType(searchType),
 				k_bound(k_bound),
-				symmetry(symmetry),
-				discrete(discrete),
 				trace(trace),
 				xml_trace(xml_trace),
-				useUntimedPlaces(useUntimedPlaces),
-				useGlobalMaxConstants(useGlobalMaxConstants),
-				factory(factory),
-				inc_places(inc_places)
+				useGlobalMaxConstants(useGlobalMaxConstants)
 			{ };
 
 		public: // inspectors
@@ -45,28 +35,19 @@ namespace VerifyTAPN {
 			inline const unsigned int GetKBound() const { return k_bound; }
 			inline const Trace GetTrace() const { return trace; };
 			inline const bool XmlTrace() const { return xml_trace; };
-			inline const bool GetSymmetryEnabled() const { return symmetry; }
-			inline const bool GetDiscreteEnabled() const { return discrete; }
-			inline const bool GetUntimedPlacesEnabled() const { return useUntimedPlaces; }
 			inline const bool GetGlobalMaxConstantsEnabled() const { return useGlobalMaxConstants; }
 			inline const SearchType GetSearchType() const { return searchType; }
-			inline Factory GetFactory() const { return factory; };
+			inline Factory GetFactory() const { return DEFAULT; };
 			inline void SetFactory(Factory f) { factory = f; };
-			inline const std::vector<std::string>& GetIncPlaces() const { return inc_places; };
-			inline std::vector<std::string>& GetIncPlaces(){ return inc_places; };
 		private:
 			std::string inputFile;
 			std::string queryFile;
 			SearchType searchType;
 			unsigned int k_bound;
-			bool symmetry;
-			bool discrete;
 			Trace trace;
 			bool xml_trace;
-			bool useUntimedPlaces;
 			bool useGlobalMaxConstants;
 			Factory factory;
-			std::vector<std::string> inc_places;
 	};
 
 	std::ostream& operator<<(std::ostream& out, const VerificationOptions& options);

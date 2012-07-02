@@ -12,12 +12,7 @@ namespace VerifyTAPN {
 	static const std::string SEARCH_OPTION = "search-type";
 	static const std::string TRACE_OPTION = "trace";
 	static const std::string MAX_CONSTANT_OPTION = "global-max-constants";
-	static const std::string UNTIMED_PLACES_OPTION = "disable-untimed-places";
-	static const std::string SYMMETRY_OPTION = "disable-symmetry";
-	static const std::string DISCRETE_OPTION = "discrete-verification";
-	static const std::string FACTORY_OPTION = "factory";
 	static const std::string XML_TRACE_OPTION = "xml-trace";
-	static const std::string INCLUSION_PLACES = "inc-places";
 
 	std::ostream& operator<<(std::ostream& out, const Switch& flag)
 	{
@@ -144,14 +139,8 @@ namespace VerifyTAPN {
 		parsers.push_back(boost::make_shared<SwitchWithArg>("t", TRACE_OPTION, "Specify the desired trace option.\n - 0: none\n - 1: some",0));
 
 		parsers.push_back(boost::make_shared<Switch>("g",MAX_CONSTANT_OPTION, "Use global maximum constant for \nextrapolation (as opposed to local \nconstants)."));
-		parsers.push_back(boost::make_shared<Switch>("u",UNTIMED_PLACES_OPTION, "Disables the untimed place optimization."));
-		parsers.push_back(boost::make_shared<Switch>("s",SYMMETRY_OPTION, "Disables symmetry reduction."));
-		parsers.push_back(boost::make_shared<Switch>("d",DISCRETE_OPTION, "Uses the discrete verification method"));
 
 		parsers.push_back(boost::make_shared<Switch>("x",XML_TRACE_OPTION, "Output trace in xml format for TAPAAL."));
-
-		parsers.push_back(boost::make_shared<SwitchWithArg>("f", FACTORY_OPTION, "Specify the desired marking factory.\n - 0: Default\n - 1: Discrete-inclusion\n - 2: Old factory",0));
-		parsers.push_back(boost::make_shared<SwitchWithStringArg>("i", INCLUSION_PLACES, "Specify a list of places to consider \nfor discrete inclusion. No spaces after\nthe commas!\nSpecial values: *ALL*, *NONE*", "*ALL*"));
 	};
 
 	void ArgsParser::Help() const
@@ -289,18 +278,6 @@ namespace VerifyTAPN {
 		}
 	}
 
-	Factory intToFactory(unsigned int i) {
-		switch(i)
-		{
-		case 0: return DEFAULT;
-		case 1:	return DISCRETE_INCLUSION;
-		case 2:	return OLD_FACTORY;
-		default:
-			std::cout << "Unkown factory specified." << std::endl;
-			exit(1);
-		}
-	}
-
 	unsigned int ArgsParser::TryParseInt(const option& option) const
 	{
 		unsigned int result = 0;
@@ -334,26 +311,12 @@ namespace VerifyTAPN {
 		assert(map.find(TRACE_OPTION) != map.end());
 		Trace trace = intToEnum(TryParseInt(*map.find(TRACE_OPTION)));
 
-		assert(map.find(SYMMETRY_OPTION) != map.end());
-		bool disable_symmetry = boost::lexical_cast<bool>(map.find(SYMMETRY_OPTION)->second);
-
-		assert(map.find(DISCRETE_OPTION) != map.end());
-		bool discrete_option = boost::lexical_cast<bool>(map.find(DISCRETE_OPTION)->second);
-
 		assert(map.find(MAX_CONSTANT_OPTION) != map.end());
 		bool max_constant = boost::lexical_cast<bool>(map.find(MAX_CONSTANT_OPTION)->second);
-
-		assert(map.find(UNTIMED_PLACES_OPTION) != map.end());
-		bool disable_untimed_places = boost::lexical_cast<bool>(map.find(UNTIMED_PLACES_OPTION)->second);
-
-		assert(map.find(FACTORY_OPTION) != map.end());
-		Factory factory = intToFactory(TryParseInt(*map.find(FACTORY_OPTION)));
 
 		assert(map.find(XML_TRACE_OPTION) != map.end());
 		bool xml_trace = boost::lexical_cast<bool>(map.find(XML_TRACE_OPTION)->second);
 
-		assert(map.find(INCLUSION_PLACES) != map.end());
-		std::vector<std::string> inc_places = ParseIncPlaces(map.find(INCLUSION_PLACES)->second);
-		return VerificationOptions(modelFile, queryFile, search, kbound, !disable_symmetry, discrete_option, trace, xml_trace, !disable_untimed_places, max_constant, factory, inc_places);
+		return VerificationOptions(modelFile, queryFile, search, kbound, trace, xml_trace, max_constant);
 	}
 }
