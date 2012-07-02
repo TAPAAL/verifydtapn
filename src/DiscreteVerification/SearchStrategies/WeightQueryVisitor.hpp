@@ -8,8 +8,8 @@
 #ifndef WEIGHTQUERYVISITOR_HPP_
 #define WEIGHTQUERYVISITOR_HPP_
 
-#include "../Core/QueryParser/Visitor.hpp"
-#include "NonStrictMarking.hpp"
+#include "../../Core/QueryParser/Visitor.hpp"
+#include "../NonStrictMarking.hpp"
 
 namespace VerifyTAPN {
 namespace DiscreteVerification {

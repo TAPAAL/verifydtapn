@@ -15,8 +15,8 @@
 #include "boost/optional.hpp"
 #include "boost/shared_ptr.hpp"
 #include "../Core/QueryParser/AST.hpp"
-#include "WeightQueryVisitor.hpp"
-#include "LivenessWeightQueryVisitor.hpp"
+#include "SearchStrategies/WeightQueryVisitor.hpp"
+#include "SearchStrategies/LivenessWeightQueryVisitor.hpp"
 
 namespace VerifyTAPN {
 namespace DiscreteVerification {
