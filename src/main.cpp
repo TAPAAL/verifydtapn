@@ -5,7 +5,6 @@
 #include "Core/ArgsParser.hpp"
 #include "Core/QueryParser/TAPNQueryParser.hpp"
 #include "Core/TAPN/TimedPlace.hpp"
-#include "ReachabilityChecker/Trace/trace_exception.hpp"
 #include "DiscreteVerification/DiscreteVerification.hpp"
 
 using namespace std;

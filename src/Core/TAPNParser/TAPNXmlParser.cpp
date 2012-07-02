@@ -5,7 +5,6 @@
 #include "boost/algorithm/string.hpp"
 #include "boost/lexical_cast.hpp"
 #include "util.hpp"
-#include "../SymbolicMarking/MarkingFactory.hpp"
 #include "../SymbolicMarking/DiscretePart.hpp"
 
 namespace VerifyTAPN {
