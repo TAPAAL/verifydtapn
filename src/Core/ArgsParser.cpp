@@ -13,6 +13,7 @@ namespace VerifyTAPN {
 	static const std::string TRACE_OPTION = "trace";
 	static const std::string MAX_CONSTANT_OPTION = "global-max-constants";
 	static const std::string XML_TRACE_OPTION = "xml-trace";
+	static const std::string LEGACY = "legacy";
 
 	std::ostream& operator<<(std::ostream& out, const Switch& flag)
 	{
@@ -139,6 +140,7 @@ namespace VerifyTAPN {
 		parsers.push_back(boost::make_shared<SwitchWithArg>("t", TRACE_OPTION, "Specify the desired trace option.\n - 0: none\n - 1: some",0));
 
 		parsers.push_back(boost::make_shared<Switch>("g",MAX_CONSTANT_OPTION, "Use global maximum constant for \nextrapolation (as opposed to local \nconstants)."));
+		parsers.push_back(boost::make_shared<Switch>("s",LEGACY, "Legacy option (no effect)."));
 
 		parsers.push_back(boost::make_shared<Switch>("x",XML_TRACE_OPTION, "Output trace in xml format for TAPAAL."));
 	};
