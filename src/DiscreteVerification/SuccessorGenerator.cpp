@@ -95,6 +95,7 @@ TokenList SuccessorGenerator::getPlaceFromMarking(const NonStrictMarking& markin
 void SuccessorGenerator::generateMarkings(vector<NonStrictMarking>& result, const NonStrictMarking& init_marking,
 		const std::vector< const TimedTransition* >& transitions, ArcHashMap& enabledArcs) const {
 
+	//Iterate over transitions
 	for(std::vector< const TimedTransition* >::const_iterator iter = transitions.begin(); iter != transitions.end(); iter++){
 		bool inhibited = false;
 		//Check that no inhibitors is enabled;
@@ -109,6 +110,7 @@ void SuccessorGenerator::generateMarkings(vector<NonStrictMarking>& result, cons
 		if (inhibited) continue;
 		NonStrictMarking m(init_marking);
 		m.SetGeneratedBy(*iter);
+		//Generate markings for transition
 		recursiveGenerateMarking(result, m, *(*iter), enabledArcs, 0);
 	}
 }
