@@ -2,8 +2,7 @@
 
 parser=Core/QueryParser
 
-incw32="-I$HOME/dev/iaw32/include -I$HOME/dev/iaw32/uppaal/include"
-libw32="-L$HOME/dev/iaw32/uppaal/lib -ludbm"
+incw32="-I$HOME/dev/iaw32/include"
 
 src=`find . -name "*.cpp"`
 
@@ -11,7 +10,7 @@ src=`find . -name "*.cpp"`
 bison -o $parser/Generated/parser.cpp $parser/grammar.yy
 
 i586-mingw32msvc-g++ -DBOOST_DISABLE_THREADS -DNDEBUG -DDISABLE_ASSERTX -static -O3 -Wall \
-    $src $incw32 $libw32 -o verifydtapn32.exe && \
+    $src $incw32 -o verifydtapn32.exe && \
 i586-mingw32msvc-strip verifydtapn32.exe && \
 echo "32-bit win OK" 
 
