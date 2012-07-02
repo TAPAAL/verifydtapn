@@ -34,7 +34,8 @@ c. Install google-sparsehash library.
 		- You may need to add a path to the google-sparsehash code's "lib" folder to the 
 		  "Library search path", depending on whether
 		  it compiles to a library or its a header-only library.
-5. MAC ONLY: In "binary parsers" select Mach-O 64 parser to enable debugging.
+5. MAC ONLY: In "binary parsers" select Mach-O 64 parser to enable debugging and 
+   running the project from eclipse.
 6. The project should now be compilable in both debug and release versions.
 
 --------------------------------------------------------------------------------
