@@ -6,14 +6,6 @@
  */
 
 #include "DiscreteVerification.hpp"
-#include "SearchStrategies/NonStrictDFS.hpp"
-#include "SearchStrategies/NonStrictBFS.hpp"
-#include "SearchStrategies/NonStrictHeuristic.hpp"
-#include "SearchStrategies/NonStrictRandom.hpp"
-#include "NonStrictSearch.hpp"
-#include "SearchStrategies/NonStrictDFSHeuristic.hpp"
-#include "SearchStrategies/NonStrictDFSRandom.hpp"
-#include "../Core/TAPNParser/util.hpp"
 
 namespace VerifyTAPN {
 

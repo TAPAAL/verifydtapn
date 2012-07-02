@@ -17,6 +17,12 @@
 #include "../../Core/QueryParser/AST.hpp"
 #include "../SearchStrategies/WeightQueryVisitor.hpp"
 #include "../SearchStrategies/LivenessWeightQueryVisitor.hpp"
+#include "../../Core/QueryParser/NormalizationVisitor.hpp"
+#include "assert.h"
+#include <queue>
+#include <deque>
+#include <stack>
+#include <vector>
 
 namespace VerifyTAPN {
 namespace DiscreteVerification {

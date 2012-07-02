@@ -6,8 +6,6 @@
  */
 
 #include "QueryVisitor.hpp"
-#include "../Core/QueryParser/AST.hpp"
-#include <exception>
 
 namespace VerifyTAPN {
 namespace DiscreteVerification {

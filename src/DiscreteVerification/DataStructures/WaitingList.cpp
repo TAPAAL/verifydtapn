@@ -5,13 +5,7 @@
  *      Author: MathiasGS
  */
 
-#include "../../Core/QueryParser/NormalizationVisitor.hpp"
 #include "WaitingList.hpp"
-#include "assert.h"
-#include <queue>
-#include <deque>
-#include <stack>
-#include <vector>
 
 namespace VerifyTAPN {
 namespace DiscreteVerification {

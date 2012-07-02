@@ -6,8 +6,6 @@
  */
 
 #include "PWList.hpp"
-#include "NonStrictMarking.hpp"
-#include "WaitingList.hpp"
 
 namespace VerifyTAPN {
 namespace DiscreteVerification {

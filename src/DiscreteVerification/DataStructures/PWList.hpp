@@ -12,6 +12,8 @@
 #include <iostream>
 #include "google/sparse_hash_map"
 #include  "NonStrictMarking.hpp"
+#include "NonStrictMarking.hpp"
+#include "WaitingList.hpp"
 
 namespace VerifyTAPN {
 namespace DiscreteVerification {

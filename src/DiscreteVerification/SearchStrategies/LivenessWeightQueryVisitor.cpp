@@ -6,9 +6,6 @@
  */
 
 #include "LivenessWeightQueryVisitor.hpp"
-#include "../../Core/QueryParser/AST.hpp"
-#include <exception>
-#include <limits.h>
 
 namespace VerifyTAPN {
 namespace DiscreteVerification {

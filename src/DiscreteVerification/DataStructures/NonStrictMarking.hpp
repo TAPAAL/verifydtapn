@@ -14,6 +14,7 @@
 #include "NonStrictMarking.hpp"
 #include <iostream>
 #include "../../Core/TAPN/TAPN.hpp"
+#include <iostream>
 
 using namespace std;
 
