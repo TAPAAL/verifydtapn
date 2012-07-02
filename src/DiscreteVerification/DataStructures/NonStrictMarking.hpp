@@ -13,7 +13,7 @@
 #include "boost/functional/hash.hpp"
 #include "NonStrictMarking.hpp"
 #include <iostream>
-#include "../Core/TAPN/TAPN.hpp"
+#include "../../Core/TAPN/TAPN.hpp"
 
 using namespace std;
 

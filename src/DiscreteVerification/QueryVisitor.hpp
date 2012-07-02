@@ -9,7 +9,7 @@
 #define QUERYVISITOR_HPP_
 
 #include "../Core/QueryParser/Visitor.hpp"
-#include "NonStrictMarking.hpp"
+#include "DataStructures/NonStrictMarking.hpp"
 
 namespace VerifyTAPN {
 namespace DiscreteVerification {

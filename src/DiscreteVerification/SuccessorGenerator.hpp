@@ -9,7 +9,7 @@
 #define SUCCESSORGENERATOR_HPP_
 
 #include "../Core/TAPN/TAPN.hpp"
-#include "NonStrictMarking.hpp"
+#include "DataStructures/NonStrictMarking.hpp"
 #include "google/sparse_hash_map"
 #include <limits>
 #include "boost/tuple/tuple_io.hpp"

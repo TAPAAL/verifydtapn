@@ -8,7 +8,7 @@
 #ifndef NONSTRICTDFS_HPP_
 #define NONSTRICTDFS_HPP_
 
-#include "../PWList.hpp"
+#include "../DataStructures/PWList.hpp"
 #include "boost/smart_ptr.hpp"
 #include "../../Core/TAPN/TAPN.hpp"
 #include "../../Core/QueryParser/AST.hpp"

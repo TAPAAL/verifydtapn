@@ -8,7 +8,7 @@
 #ifndef NONSTRICTSEARCH_HPP_
 #define NONSTRICTSEARCH_HPP_
 
-#include "PWList.hpp"
+#include "DataStructures/PWList.hpp"
 #include "boost/smart_ptr.hpp"
 #include "../Core/TAPN/TAPN.hpp"
 #include "../Core/QueryParser/AST.hpp"
@@ -25,7 +25,7 @@
 
 #include "QueryVisitor.hpp"
 #include "boost/any.hpp"
-#include "NonStrictMarking.hpp"
+#include "DataStructures/NonStrictMarking.hpp"
 
 #include <stack>
 
