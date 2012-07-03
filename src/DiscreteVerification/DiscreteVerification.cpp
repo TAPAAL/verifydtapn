@@ -179,6 +179,7 @@ void DiscreteVerification::PrintXMLTrace(bool result, NonStrictMarking* m, std::
 	using namespace rapidxml;
 	std::cerr << "Trace: " << std::endl;
 	bool isFirst = true;
+	bool foundLoop = false;
 	NonStrictMarking* old;
 
 	xml_document<> doc;
@@ -216,10 +217,20 @@ void DiscreteVerification::PrintXMLTrace(bool result, NonStrictMarking* m, std::
 				&& (stack.size() > 1 && stack.top()->equals(*m))
 				&& (m->GetGeneratedBy() || stack.top()->parent)){
 			root->append_node(doc.allocate_node(node_element, "loop"));
+			foundLoop = true;
 		}
 		old = stack.top();
 		stack.pop();
 	}
+
+	//Trace ended, goto * or deadlock
+	if(query == EG || query == AF){
+		if(!foundLoop) {
+			root->append_node(doc.allocate_node(node_element, "deadlock"));
+		}
+
+	}
+
 	std::cerr << doc;
 }
 
