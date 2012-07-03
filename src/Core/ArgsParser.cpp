@@ -160,7 +160,7 @@ namespace VerifyTAPN {
 	void ArgsParser::Version() const
 	{
 		std::cout << "VerifyDTAPN " << version << std::endl;
-		std::cout << "Licensed under GPL." << std::endl;
+		std::cout << "Licensed under BSD." << std::endl;
 	}
 
 	VerificationOptions ArgsParser::Parse(int argc, char* argv[]) const
