@@ -171,6 +171,15 @@ void DiscreteVerification::PrintHumanTrace(bool result, NonStrictMarking* m, std
 		} else {
 			if(m->children > 0){
 				std::cout << "\tDeadlock" << std::endl;
+			}else{
+				for(PlaceList::const_iterator iter = m->places.begin(); iter != m->places.end(); iter++){
+					if(iter->place->GetInvariant().GetBound() != std::numeric_limits<int>::max()){
+						//Invariant, deadlock
+						std::cout << "\tDeadlock" << std::endl;
+						return;
+					}
+				}
+				std::cout << "\tDelay: Forever"  << std::endl;
 			}
 		}
 
@@ -232,6 +241,17 @@ void DiscreteVerification::PrintXMLTrace(bool result, NonStrictMarking* m, std::
 		if(!foundLoop && !delayedForever) {
 			if(m->children > 0){
 				root->append_node(doc.allocate_node(node_element, "deadlock"));
+			}else{
+				// By default delay forever
+				xml_node<>* node = doc.allocate_node(node_element, "delay", doc.allocate_string("forever"));
+				for(PlaceList::const_iterator iter = m->places.begin(); iter != m->places.end(); iter++){
+					if(iter->place->GetInvariant().GetBound() != std::numeric_limits<int>::max()){
+						//Invariant, deadlock instead of delay forever
+						node = doc.allocate_node(node_element, "deadlock");
+						break;
+					}
+				}
+				root->append_node(node);
 			}
 		}
 	}
