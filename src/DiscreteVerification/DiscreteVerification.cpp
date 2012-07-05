@@ -169,7 +169,12 @@ void DiscreteVerification::PrintHumanTrace(bool result, NonStrictMarking* m, std
 		if(foundLoop){
 			std::cout << "\tgoto *" << std::endl;
 		} else {
-			std::cout << "\tDeadlock" << std::endl;
+			for(PlaceList::const_iterator iter = m->places.begin(); iter != m->places.end(); iter++){
+				if(iter->place->GetInputArcs().size() > 0 || iter->place->GetTransportArcs().size() > 0){
+					std::cout << "\tDeadlock" << std::endl;
+					break;
+				}
+			}
 		}
 
 	}
@@ -226,9 +231,13 @@ void DiscreteVerification::PrintXMLTrace(bool result, NonStrictMarking* m, std::
 	//Trace ended, goto * or deadlock
 	if(query == EG || query == AF){
 		if(!foundLoop) {
-			root->append_node(doc.allocate_node(node_element, "deadlock"));
+			for(PlaceList::const_iterator iter = m->places.begin(); iter != m->places.end(); iter++){
+				if(iter->place->GetInputArcs().size() > 0 || iter->place->GetTransportArcs().size() > 0){
+					root->append_node(doc.allocate_node(node_element, "deadlock"));
+					break;
+				}
+			}
 		}
-
 	}
 
 	std::cerr << doc;
