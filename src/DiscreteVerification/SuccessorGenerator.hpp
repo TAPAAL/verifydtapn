@@ -119,6 +119,7 @@ public:
 	SuccessorGenerator(TAPN::TimedArcPetriNet& tapn);
 	~SuccessorGenerator();
 	vector< NonStrictMarking > generateSuccessors(const NonStrictMarking& marking) const;
+	void PrintTransitionStatistics(std::ostream & out) const;
 private:
 	TokenList getPlaceFromMarking(const NonStrictMarking& marking, int placeID) const;
 
@@ -141,6 +142,13 @@ private:
 			int bound = std::numeric_limits<int>().max(),
 			bool isInhib = false
 	) const;
+
+    inline void ClearTransitionsArray() {
+    	memset(transitionStatistics, 0, numberoftransitions * sizeof (transitionStatistics[0]));
+    }
+
+    unsigned int numberoftransitions;
+	unsigned int* transitionStatistics;
 };
 
 } /* namespace DiscreteVerification */
