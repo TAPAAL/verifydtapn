@@ -140,11 +140,12 @@ void SuccessorGenerator::recursiveGenerateMarking(vector<NonStrictMarking>& resu
 		}
 	}
 
+	// Write statistics
+	transitionStatistics[transition.GetIndex()]++;
+
 	// Generate permutations
 	bool changedSomething = true;
 	while(changedSomething){
-		// Write statistics
-		transitionStatistics[transition.GetIndex()]++;
 		changedSomething = false;
 		addMarking(result, init_marking, transition, indicesOfCurrentPermutation);
 
