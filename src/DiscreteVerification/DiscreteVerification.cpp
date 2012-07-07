@@ -75,6 +75,7 @@ int DiscreteVerification::run(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, s
 	bool result = (query->GetQuantifier() == AG || query->GetQuantifier() == AF)? !strategy->Verify() : strategy->Verify();
 
 	strategy->printStats();
+	strategy->PrintTransitionStatistics();
 
 	std::cout << "Query is " << (result ? "satisfied" : "NOT satisfied") << "." << std::endl;
 	std::cout << "Max number of tokens found in any reachable marking: ";

@@ -14,8 +14,10 @@ SuccessorGenerator::~SuccessorGenerator(){
 
 }
 
-SuccessorGenerator::SuccessorGenerator(TAPN::TimedArcPetriNet& tapn)  : tapn(tapn), allwaysEnabled(){
+SuccessorGenerator::SuccessorGenerator(TAPN::TimedArcPetriNet& tapn)  : tapn(tapn), allwaysEnabled(), numberoftransitions(tapn.GetTransitions().size()), transitionStatistics(){
 	//Find the transitions which don't have input arcs
+	transitionStatistics = new unsigned int [numberoftransitions];
+	ClearTransitionsArray();
 	for(TimedTransition::Vector::const_iterator iter = tapn.GetTransitions().begin(); iter != tapn.GetTransitions().end(); iter++){
 		if((*iter)->GetPreset().size() + (*iter)->GetTransportArcs().size() == 0){
 			allwaysEnabled.push_back(iter->get());
@@ -138,6 +140,9 @@ void SuccessorGenerator::recursiveGenerateMarking(vector<NonStrictMarking>& resu
 		}
 	}
 
+	// Write statistics
+	transitionStatistics[transition.GetIndex()]++;
+
 	// Generate permutations
 	bool changedSomething = true;
 	while(changedSomething){
@@ -231,6 +236,21 @@ void SuccessorGenerator::addMarking(vector<NonStrictMarking >& result, NonStrict
 
 	result.push_back(m);
 }
+
+void SuccessorGenerator::PrintTransitionStatistics(std::ostream& out) const {
+		out << std::endl << "TRANSITION STATISTICS";
+		for (unsigned int i=0;i<numberoftransitions;i++) {
+			if ((i) % 6 == 0) {
+				out << std::endl;
+				out << "<" << tapn.GetTransitions()[i]->GetName() << ":" << transitionStatistics[i] << ">";
+			}
+			else {
+				out << " <"  <<tapn.GetTransitions()[i]->GetName() << ":" << transitionStatistics[i] << ">";
+			}
+		}
+		out << std::endl;
+		out << std::endl;
+	}
 
 } /* namespace DiscreteVerification */
 } /* namespace VerifyTAPN */
