@@ -15,7 +15,7 @@ namespace VerifyTAPN {
 	std::string SearchTypeEnumToString(SearchType s){
 		switch(s){
 		case COVERMOST:
-			return "Maximum Cover Search";
+			return "Heuristic Search";
 		case RANDOM:
 			return "Random Search";
 		case DEPTHFIRST:
