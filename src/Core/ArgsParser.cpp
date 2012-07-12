@@ -14,6 +14,7 @@ namespace VerifyTAPN {
 	static const std::string MAX_CONSTANT_OPTION = "global-max-constants";
 	static const std::string XML_TRACE_OPTION = "xml-trace";
 	static const std::string LEGACY = "legacy";
+	static const std::string KEEP_DEAD = "keep-dead-tokens";
 
 	std::ostream& operator<<(std::ostream& out, const Switch& flag)
 	{
@@ -138,7 +139,7 @@ namespace VerifyTAPN {
 		parsers.push_back(boost::make_shared<SwitchWithArg>("k", KBOUND_OPTION, "Max tokens to use during exploration.",0));
 		parsers.push_back(boost::make_shared<SwitchWithArg>("o", SEARCH_OPTION, "Specify the desired search strategy.\n - 0: Breadth-First Search\n - 1: Depth-First Search\n - 2: Random Search\n - 3: Heuristic Search",3));
 		parsers.push_back(boost::make_shared<SwitchWithArg>("t", TRACE_OPTION, "Specify the desired trace option.\n - 0: none\n - 1: some",0));
-
+		parsers.push_back(boost::make_shared<Switch>("d",KEEP_DEAD, "Do not discard dead tokens\n(used for boundedness checking)"));
 		parsers.push_back(boost::make_shared<Switch>("g",MAX_CONSTANT_OPTION, "Use global maximum constant for \nextrapolation (as opposed to local \nconstants)."));
 		parsers.push_back(boost::make_shared<Switch>("s",LEGACY, "Legacy option (no effect)."));
 
@@ -316,9 +317,12 @@ namespace VerifyTAPN {
 		assert(map.find(MAX_CONSTANT_OPTION) != map.end());
 		bool max_constant = boost::lexical_cast<bool>(map.find(MAX_CONSTANT_OPTION)->second);
 
+		assert(map.find(KEEP_DEAD) != map.end());
+		bool keep_dead = boost::lexical_cast<bool>(map.find(KEEP_DEAD)->second);
+
 		assert(map.find(XML_TRACE_OPTION) != map.end());
 		bool xml_trace = boost::lexical_cast<bool>(map.find(XML_TRACE_OPTION)->second);
 
-		return VerificationOptions(modelFile, queryFile, search, kbound, trace, xml_trace, max_constant);
+		return VerificationOptions(modelFile, queryFile, search, kbound, trace, xml_trace, max_constant, keep_dead);
 	}
 }

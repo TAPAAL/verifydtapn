@@ -206,7 +206,7 @@ namespace VerifyTAPN {
 			}
 		}
 
-		void TimedArcPetriNet::updatePlaceTypes(const AST::Query* query){
+		void TimedArcPetriNet::updatePlaceTypes(const AST::Query* query, VerificationOptions options){
 			std::vector< int > placeNumbers;
 			boost::any context = placeNumbers;
 			DiscreteVerification::PlaceVisitor visitor;
@@ -214,9 +214,14 @@ namespace VerifyTAPN {
 			placeNumbers = boost::any_cast< std::vector< int > >(context);
 
 			for(TimedPlace::Vector::const_iterator iter = places.begin(); iter != places.end(); ++iter){
+				if(options.GetKeepDeadTokens() && (*iter)->GetType() == Dead){
+					(*iter)->SetType(Std);
+					continue;
+				}
 				for(std::vector<int>::const_iterator id_iter = placeNumbers.begin(); id_iter != placeNumbers.end(); id_iter++){
 					if((*id_iter) == (*iter)->GetIndex() && (*iter)->GetType() == Dead){
 						(*iter)->SetType(Std);
+						break;
 					}
 				}
 			}

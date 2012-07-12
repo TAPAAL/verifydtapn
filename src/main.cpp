@@ -47,7 +47,7 @@ int main(int argc, char* argv[])
 		tapn->removeOrphantedTransitions();
 	}
 
-	tapn->updatePlaceTypes(query);
+	tapn->updatePlaceTypes(query, options);
 
 	return DiscreteVerification::DiscreteVerification::run(tapn, initialPlacement, query, options);
 }

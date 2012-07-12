@@ -96,6 +96,8 @@ bool NonStrictSearch::addToPW(NonStrictMarking* marking, NonStrictMarking* paren
 	NonStrictMarking* m = cut(*marking);
 	m->SetParent(parent);
 
+	std::cout << "Marking: " << *m << std::endl;
+
 	unsigned int size = m->size();
 
 	pwList.SetMaxNumTokensIfGreater(size);

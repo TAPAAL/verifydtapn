@@ -14,6 +14,7 @@
 #include "Pairing.hpp"
 #include "../QueryParser/AST.hpp"
 #include "../../DiscreteVerification/PlaceVisitor.hpp"
+#include "../VerificationOptions.hpp"
 
 namespace VerifyTAPN {
 
@@ -52,7 +53,7 @@ namespace VerifyTAPN {
 			inline const bool IsPlaceUntimed(int index) const { return places[index]->IsUntimed(); }
 			bool IsNonStrict() const;
 			void calculateCausality(TimedPlace& p, std::vector< TimedPlace* >* result) const;
-			void updatePlaceTypes(const AST::Query* query);
+			void updatePlaceTypes(const AST::Query* query, VerificationOptions options);
 		public: // modifiers
 			void Initialize(bool useGlobalMaxConstant);
 			void removeOrphantedTransitions();
