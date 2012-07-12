@@ -19,14 +19,16 @@ namespace VerifyTAPN {
 				unsigned int k_bound,
 				Trace trace,
 				bool xml_trace,
-				bool useGlobalMaxConstants
+				bool useGlobalMaxConstants,
+				bool keepDeadTokens
 			) :	inputFile(inputFile),
 				queryFile(queryFile),
 				searchType(searchType),
 				k_bound(k_bound),
 				trace(trace),
 				xml_trace(xml_trace),
-				useGlobalMaxConstants(useGlobalMaxConstants)
+				useGlobalMaxConstants(useGlobalMaxConstants),
+				keepDeadTokens(keepDeadTokens)
 			{ };
 
 		public: // inspectors
@@ -37,6 +39,7 @@ namespace VerifyTAPN {
 			inline const bool XmlTrace() const { return xml_trace; };
 			inline const bool GetGlobalMaxConstantsEnabled() const { return useGlobalMaxConstants; }
 			inline const SearchType GetSearchType() const { return searchType; }
+			inline const bool GetKeepDeadTokens() const { return keepDeadTokens; };
 			inline Factory GetFactory() const { return DEFAULT; };
 			inline void SetFactory(Factory f) { factory = f; };
 		private:
@@ -47,6 +50,7 @@ namespace VerifyTAPN {
 			Trace trace;
 			bool xml_trace;
 			bool useGlobalMaxConstants;
+			bool keepDeadTokens;
 			Factory factory;
 	};
 
