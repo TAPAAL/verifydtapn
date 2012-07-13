@@ -69,7 +69,7 @@ bool NonStrictSearch::Verify(){
 
 bool NonStrictSearch::isDelayPossible(NonStrictMarking& marking){
 	PlaceList& places = marking.places;
-	if(places.size() == 0) return false;
+	if(places.size() == 0) return true;	//Delay always possible in empty markings
 
 	PlaceList::const_iterator markedPlace_iter = places.begin();
 	for(TAPN::TimedPlace::Vector::const_iterator place_iter = tapn->GetPlaces().begin(); place_iter != tapn->GetPlaces().end(); place_iter++){
