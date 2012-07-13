@@ -17,7 +17,11 @@ bool PWList::Add(NonStrictMarking* marking){
 			iter != m.end();
 			iter++){
 		if((*iter)->equals(*marking)){
-			return false;
+			if((*iter)->passed){
+				return false;
+			}else{
+				break;
+			}
 		}
 	}
 	m.push_back(marking);
