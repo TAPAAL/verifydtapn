@@ -166,6 +166,7 @@ public:
 	public:
 		bool inTrace;
 		int children;
+		bool passed;
 		PlaceList places;
 		TokenList emptyTokenList;
 

@@ -23,8 +23,10 @@ bool NonStrictSearch::Verify(){
 	//Main loop
 	while(pwList.HasWaitingStates()){
 		NonStrictMarking& next_marking = *pwList.GetNextUnexplored();
+		if(livenessQuery && next_marking.passed)	continue;
 		NonStrictMarking marking(next_marking);
 		bool endOfMaxRun = true;
+		next_marking.passed = true;
 		next_marking.inTrace = true;
 		trace.push(&next_marking);
 		validChildren = 0;
@@ -132,6 +134,7 @@ bool NonStrictSearch::addToPW(NonStrictMarking* marking, NonStrictMarking* paren
 			validChildren++;
 		}
 	}else{
+		m->passed = true;
 		if(pwList.Add(m)){
 			QueryVisitor checker(*m);
 			boost::any context;

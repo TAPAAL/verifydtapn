@@ -33,7 +33,6 @@ public: // inspectors
 	};
 
 	virtual long long Size() const {
-		//TODO: implement!
 		return markings_storage.size();
 	};
 
