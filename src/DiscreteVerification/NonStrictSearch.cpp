@@ -23,28 +23,33 @@ bool NonStrictSearch::Verify(){
 	//Main loop
 	while(pwList.HasWaitingStates()){
 		NonStrictMarking& next_marking = *pwList.GetNextUnexplored();
-		if(livenessQuery && next_marking.passed)	continue;
-		NonStrictMarking marking(next_marking);
-		bool endOfMaxRun = true;
-		next_marking.passed = true;
-		next_marking.inTrace = true;
-		trace.push(&next_marking);
-		validChildren = 0;
+		bool endOfMaxRun;
+		if(!(livenessQuery && next_marking.passed)){
+			NonStrictMarking marking(next_marking);
+			endOfMaxRun = true;
+			next_marking.passed = true;
+			next_marking.inTrace = true;
+			trace.push(&next_marking);
+			validChildren = 0;
 
-		// Generate next markings
-		vector<NonStrictMarking> next = getPossibleNextMarkings(marking);
+			// Generate next markings
+			vector<NonStrictMarking> next = getPossibleNextMarkings(marking);
 
-		if(isDelayPossible(marking)){
-			marking.incrementAge();
-			marking.SetGeneratedBy(NULL);
-			next.push_back(marking);
-		}
-
-		for(vector<NonStrictMarking>::iterator it = next.begin(); it != next.end(); it++){
-			if(addToPW(&(*it), &next_marking)){
-				return true;
+			if(isDelayPossible(marking)){
+				marking.incrementAge();
+				marking.SetGeneratedBy(NULL);
+				next.push_back(marking);
 			}
+
+			for(vector<NonStrictMarking>::iterator it = next.begin(); it != next.end(); it++){
+				if(addToPW(&(*it), &next_marking)){
+					return true;
+				}
+				endOfMaxRun = false;
+			}
+		} else {
 			endOfMaxRun = false;
+			validChildren = 0;
 		}
 
 		if(livenessQuery){
