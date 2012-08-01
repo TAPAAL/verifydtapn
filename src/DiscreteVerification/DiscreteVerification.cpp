@@ -38,7 +38,7 @@ int DiscreteVerification::run(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, s
 
 	std::cout << options << std::endl;
 	// Select search strategy
-	NonStrictSearch* strategy;
+	NonStrictSearch* strategy = null;
 	if(query->GetQuantifier() == EG || query->GetQuantifier() == AF){
 		//Liveness query, force DFS
 		switch(options.GetSearchType()){
