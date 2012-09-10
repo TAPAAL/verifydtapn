@@ -55,7 +55,6 @@ protected:
 public:
 	void printStats();
 private:
-	stack< NonStrictMarking* > trace;
 	NonStrictMarking* lastMarking;
 };
 

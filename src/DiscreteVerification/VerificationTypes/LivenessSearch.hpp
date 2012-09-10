@@ -52,7 +52,6 @@ protected:
 	VerificationOptions options;
 	SuccessorGenerator successorGenerator;
 public:
-	stack< NonStrictMarking* > trace;
 	void printStats();
 private:
 	NonStrictMarking* lastMarking;
