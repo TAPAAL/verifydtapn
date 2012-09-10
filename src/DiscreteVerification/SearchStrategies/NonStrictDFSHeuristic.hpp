@@ -22,26 +22,19 @@
 #include "../../Core/TAPN/OutputArc.hpp"
 
 #include "../SuccessorGenerator.hpp"
-#include "../NonStrictSearch.hpp"
 
 #include "../QueryVisitor.hpp"
 #include "boost/any.hpp"
 
 #include <stack>
+#include "SearchStrategy.hpp"
 
 namespace VerifyTAPN {
 
 namespace DiscreteVerification {
 
-class NonStrictDFSHeuristic : public NonStrictSearch {
+class NonStrictDFSHeuristic : public SearchStrategy {
 public:
-	NonStrictDFSHeuristic(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options)
-	: NonStrictSearch(tapn, initialMarking, query, options, CreateWaitingList(query)){
-		std::cout << "Using heuristic DFS strategy" << std::endl;
-	};
-	virtual ~NonStrictDFSHeuristic(){};
-
-protected:
 	virtual WaitingList* CreateWaitingList(AST::Query* query) const { return new HeuristicStackWaitingList(query); };
 };
 

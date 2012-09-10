@@ -37,65 +37,71 @@ int DiscreteVerification::run(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, s
 	}
 
 	std::cout << options << std::endl;
+	WaitingList* strategy = NULL;
+	Verification* verifier = NULL;
 	// Select search strategy
-	NonStrictSearch* strategy = NULL;
 	if(query->GetQuantifier() == EG || query->GetQuantifier() == AF){
 		//Liveness query, force DFS
 		switch(options.GetSearchType()){
 		case DEPTHFIRST:
-			strategy = new NonStrictDFS(tapn, *initialMarking, query, options);
+			strategy = (new NonStrictDFS())->CreateWaitingList(query);
 			break;
 		case RANDOM:
-			strategy = new NonStrictDFSRandom(tapn, *initialMarking, query, options);
+			strategy = (new NonStrictDFSRandom())->CreateWaitingList(query);
 			break;
 		case COVERMOST:
-			strategy = new NonStrictDFSHeuristic(tapn, *initialMarking, query, options);
+			strategy = (new NonStrictDFSHeuristic())->CreateWaitingList(query);
 			break;
 		default:
-			strategy = new NonStrictDFSHeuristic(tapn, *initialMarking, query, options);
+			strategy = (new NonStrictDFSHeuristic())->CreateWaitingList(query);
 			break;
 		}
-	}else{
+
+		verifier = new LivenessSearch(tapn, *initialMarking, query, options, strategy);
+
+	}else if(query->GetQuantifier() == EF || query->GetQuantifier() == AG){
 		switch(options.GetSearchType()){
 		case DEPTHFIRST:
-			strategy = new NonStrictDFS(tapn, *initialMarking, query, options);
+			strategy = (new NonStrictDFS())->CreateWaitingList(query);
 			break;
 		case COVERMOST:
-			strategy = new NonStrictHeuristic(tapn, *initialMarking, query, options);
+			strategy = (new NonStrictHeuristic())->CreateWaitingList(query);
 			break;
 		case BREADTHFIRST:
-			strategy = new NonStrictBFS(tapn, *initialMarking, query, options);
+			strategy = (new NonStrictBFS())->CreateWaitingList(query);
 			break;
 		case RANDOM:
-			strategy = new NonStrictRandom(tapn, *initialMarking, query, options);
+			strategy = (new NonStrictRandom())->CreateWaitingList(query);
 			break;
 		}
+
+		verifier = new ReachabilitySearch(tapn, *initialMarking, query, options, strategy);
 	}
 
-	bool result = (query->GetQuantifier() == AG || query->GetQuantifier() == AF)? !strategy->Verify() : strategy->Verify();
+	bool result = (query->GetQuantifier() == AG || query->GetQuantifier() == AF)? !verifier->Verify() : verifier->Verify();
 
-	strategy->printStats();
-	strategy->PrintTransitionStatistics();
+	verifier->printStats();
+	verifier->PrintTransitionStatistics();
 
 	std::cout << "Query is " << (result ? "satisfied" : "NOT satisfied") << "." << std::endl;
 	std::cout << "Max number of tokens found in any reachable marking: ";
-	if(strategy->MaxUsedTokens() > options.GetKBound())
+	if(verifier->MaxUsedTokens() > options.GetKBound())
 		std::cout << ">" << options.GetKBound() << std::endl;
 	else
-		std::cout << strategy->MaxUsedTokens() << std::endl;
+		std::cout << verifier->MaxUsedTokens() << std::endl;
 
 	if(options.GetTrace() == SOME){
 		std::stack<NonStrictMarking*> printStack;
 		if((query->GetQuantifier() == EF && result) || (query->GetQuantifier() == AG && !result)) {
-			GenerateTraceStack(strategy->GetLastMarking(), &printStack);
+			GenerateTraceStack(verifier->GetLastMarking(), &printStack);
 			if(options.XmlTrace()){
-				PrintXMLTrace(result, strategy->GetLastMarking(), printStack, query->GetQuantifier());
+				PrintXMLTrace(result, verifier->GetLastMarking(), printStack, query->GetQuantifier());
 			} else {
-				PrintHumanTrace(result, strategy->GetLastMarking(), printStack, query->GetQuantifier());
+				PrintHumanTrace(result, verifier->GetLastMarking(), printStack, query->GetQuantifier());
 			}
 		} else if((query->GetQuantifier() == EG && result) || (query->GetQuantifier() == AF && !result)) {
-			NonStrictMarking* m = strategy->trace.top();
-			GenerateTraceStack(m, &printStack, &strategy->trace);
+			NonStrictMarking* m = verifier->trace.top();
+			GenerateTraceStack(m, &printStack, &verifier->trace);
 			if(options.XmlTrace()){
 				PrintXMLTrace(result, m, printStack, query->GetQuantifier());
 			} else {
