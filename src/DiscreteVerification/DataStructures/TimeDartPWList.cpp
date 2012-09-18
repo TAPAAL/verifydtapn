@@ -42,10 +42,10 @@ TimeDartPWList::~TimeDartPWList() {
 	// TODO Auto-generated destructor stub
 }
 
-std::ostream& operator<<(std::ostream& out, PWList& x){
+std::ostream& operator<<(std::ostream& out, TimeDartPWList& x){
 	out << "Passed and waiting:" << std::endl;
-	for(PWList::HashMap::iterator iter = x.markings_storage.begin(); iter != x.markings_storage.end(); iter++){
-		for(PWList::NonStrictMarkingList::iterator m_iter = iter->second.begin(); m_iter != iter->second.end(); m_iter++){
+	for(TimeDartPWList::HashMap::iterator iter = x.markings_storage.begin(); iter != x.markings_storage.end(); iter++){
+		for(TimeDartPWList::NonStrictMarkingList::iterator m_iter = iter->second.begin(); m_iter != iter->second.end(); m_iter++){
 			out << "- "<< *m_iter << std::endl;
 		}
 	}
