@@ -27,6 +27,7 @@
 #include "VerificationTypes/Verification.hpp"
 #include "VerificationTypes/LivenessSearch.hpp"
 #include "VerificationTypes/ReachabilitySearch.hpp"
+#include "VerificationTypes/TimeDartReachabilitySearch.hpp"
 
 namespace VerifyTAPN {
 

@@ -39,43 +39,69 @@ int DiscreteVerification::run(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, s
 	std::cout << options << std::endl;
 	WaitingList* strategy = NULL;
 	Verification* verifier = NULL;
-	// Select search strategy
-	if(query->GetQuantifier() == EG || query->GetQuantifier() == AF){
-		//Liveness query, force DFS
-		switch(options.GetSearchType()){
-		case DEPTHFIRST:
-			strategy = (new NonStrictDFS())->CreateWaitingList(query);
-			break;
-		case RANDOM:
-			strategy = (new NonStrictDFSRandom())->CreateWaitingList(query);
-			break;
-		case COVERMOST:
-			strategy = (new NonStrictDFSHeuristic())->CreateWaitingList(query);
-			break;
-		default:
-			strategy = (new NonStrictDFSHeuristic())->CreateWaitingList(query);
-			break;
+	// Select verification method
+	if(options.GetVerificationType() == DISCRETE){
+		// Select search strategy
+		if(query->GetQuantifier() == EG || query->GetQuantifier() == AF){
+			//Liveness query, force DFS
+			switch(options.GetSearchType()){
+			case DEPTHFIRST:
+				strategy = (new NonStrictDFS())->CreateWaitingList(query);
+				break;
+			case RANDOM:
+				strategy = (new NonStrictDFSRandom())->CreateWaitingList(query);
+				break;
+			case COVERMOST:
+				strategy = (new NonStrictDFSHeuristic())->CreateWaitingList(query);
+				break;
+			default:
+				strategy = (new NonStrictDFSHeuristic())->CreateWaitingList(query);
+				break;
+			}
+
+			verifier = new LivenessSearch(tapn, *initialMarking, query, options, strategy);
+
+		}else if(query->GetQuantifier() == EF || query->GetQuantifier() == AG){
+			switch(options.GetSearchType()){
+			case DEPTHFIRST:
+				strategy = (new NonStrictDFS())->CreateWaitingList(query);
+				break;
+			case COVERMOST:
+				strategy = (new NonStrictHeuristic())->CreateWaitingList(query);
+				break;
+			case BREADTHFIRST:
+				strategy = (new NonStrictBFS())->CreateWaitingList(query);
+				break;
+			case RANDOM:
+				strategy = (new NonStrictRandom())->CreateWaitingList(query);
+				break;
+			}
+
+			verifier = new ReachabilitySearch(tapn, *initialMarking, query, options, strategy);
 		}
+	}else if(options.GetVerificationType() == TIMEDART){
+		// Select search strategy
+		if(query->GetQuantifier() == EG || query->GetQuantifier() == AF){
+			std::cout << "Liveness not implemented for time darts" << std::endl;
+			exit(1);
+		}else if(query->GetQuantifier() == EF || query->GetQuantifier() == AG){
+			switch(options.GetSearchType()){
+			case DEPTHFIRST:
+				strategy = (new NonStrictDFS())->CreateWaitingList(query);
+				break;
+			case COVERMOST:
+				strategy = (new NonStrictHeuristic())->CreateWaitingList(query);
+				break;
+			case BREADTHFIRST:
+				strategy = (new NonStrictBFS())->CreateWaitingList(query);
+				break;
+			case RANDOM:
+				strategy = (new NonStrictRandom())->CreateWaitingList(query);
+				break;
+			}
 
-		verifier = new LivenessSearch(tapn, *initialMarking, query, options, strategy);
-
-	}else if(query->GetQuantifier() == EF || query->GetQuantifier() == AG){
-		switch(options.GetSearchType()){
-		case DEPTHFIRST:
-			strategy = (new NonStrictDFS())->CreateWaitingList(query);
-			break;
-		case COVERMOST:
-			strategy = (new NonStrictHeuristic())->CreateWaitingList(query);
-			break;
-		case BREADTHFIRST:
-			strategy = (new NonStrictBFS())->CreateWaitingList(query);
-			break;
-		case RANDOM:
-			strategy = (new NonStrictRandom())->CreateWaitingList(query);
-			break;
+			verifier = new TimeDartReachabilitySearch(tapn, *initialMarking, query, options, strategy);
 		}
-
-		verifier = new ReachabilitySearch(tapn, *initialMarking, query, options, strategy);
 	}
 
 	bool result = (query->GetQuantifier() == AG || query->GetQuantifier() == AF)? !verifier->Verify() : verifier->Verify();

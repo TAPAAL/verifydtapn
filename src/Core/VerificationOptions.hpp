@@ -8,7 +8,7 @@
 namespace VerifyTAPN {
 	enum Trace { NONE, SOME };
 	enum SearchType { BREADTHFIRST, DEPTHFIRST, RANDOM, COVERMOST };
-	enum Factory { DEFAULT, DISCRETE_INCLUSION, OLD_FACTORY };
+	enum VerificationType { DISCRETE, TIMEDART };
 
 	class VerificationOptions {
 		public:
@@ -16,6 +16,7 @@ namespace VerifyTAPN {
 				const std::string& inputFile,
 				const std::string& queryFile,
 				SearchType searchType,
+				VerificationType verificationType,
 				unsigned int k_bound,
 				Trace trace,
 				bool xml_trace,
@@ -24,6 +25,7 @@ namespace VerifyTAPN {
 			) :	inputFile(inputFile),
 				queryFile(queryFile),
 				searchType(searchType),
+				verificationType(verificationType),
 				k_bound(k_bound),
 				trace(trace),
 				xml_trace(xml_trace),
@@ -39,19 +41,18 @@ namespace VerifyTAPN {
 			inline const bool XmlTrace() const { return xml_trace; };
 			inline const bool GetGlobalMaxConstantsEnabled() const { return useGlobalMaxConstants; }
 			inline const SearchType GetSearchType() const { return searchType; }
+			inline const VerificationType GetVerificationType() const { return verificationType; }
 			inline const bool GetKeepDeadTokens() const { return keepDeadTokens; };
-			inline Factory GetFactory() const { return DEFAULT; };
-			inline void SetFactory(Factory f) { factory = f; };
 		private:
 			std::string inputFile;
 			std::string queryFile;
 			SearchType searchType;
+			VerificationType verificationType;
 			unsigned int k_bound;
 			Trace trace;
 			bool xml_trace;
 			bool useGlobalMaxConstants;
 			bool keepDeadTokens;
-			Factory factory;
 	};
 
 	std::ostream& operator<<(std::ostream& out, const VerificationOptions& options);
