@@ -15,8 +15,9 @@ namespace DiscreteVerification {
 
 class TimeDart {
 public:
-	TimeDart(NonStrictMarking base, int waiting, int passed)
-		: base(base), waiting(waiting), passed(passed){
+	TimeDart(NonStrictMarking* base, int waiting, int passed)
+		: base(*(new NonStrictMarking(*base))), waiting(waiting), passed(passed){
+		// TODO make base an actual base marking
 	}
 	virtual ~TimeDart();
 

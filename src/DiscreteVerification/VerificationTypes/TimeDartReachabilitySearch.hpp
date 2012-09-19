@@ -8,7 +8,8 @@
 #ifndef TIMEDARTREACHABILITYSEARCH_HPP_
 #define TIMEDARTREACHABILITYSEARCH_HPP_
 
-#include "../DataStructures/PWList.hpp"
+#include "../DataStructures/TimeDart.hpp"
+#include "../DataStructures/TimeDartPWList.hpp"
 #include "boost/smart_ptr.hpp"
 #include "../../Core/TAPN/TAPN.hpp"
 #include "../../Core/QueryParser/AST.hpp"
@@ -40,13 +41,16 @@ public:
 
 protected:
 	vector<NonStrictMarking> getPossibleNextMarkings(NonStrictMarking& marking);
-	bool addToPW(NonStrictMarking* marking, NonStrictMarking* parent);
+	bool addToPW(NonStrictMarking* marking, int w, int p);
 	bool isDelayPossible(NonStrictMarking& marking);
 	NonStrictMarking* cut(NonStrictMarking& marking);
+	TimeDart makeDart(NonStrictMarking* marking, int w, int p);
+	vector<TimedTransition> getTransitions(NonStrictMarking* marking);
+	int calculateStart(const TimedTransition& transition, NonStrictMarking& marking);
 
 protected:
 	int validChildren;
-	PWList pwList;
+	TimeDartPWList pwList;
 	boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn;
 	NonStrictMarking& initialMarking;
 	AST::Query* query;

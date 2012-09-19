@@ -15,22 +15,24 @@ TimeDartReachabilitySearch::TimeDartReachabilitySearch(boost::shared_ptr<TAPN::T
 }
 
 bool TimeDartReachabilitySearch::Verify(){
-	if(addToPW(&initialMarking, NULL)){
+	if(addToPW(&initialMarking, 0, INT_MAX)){
 		return true;
 	}
 
 	//Main loop
 	while(pwList.HasWaitingStates()){
-		NonStrictMarking& next_marking = *pwList.GetNextUnexplored();
-		bool endOfMaxRun;
-		NonStrictMarking marking(next_marking);
-		endOfMaxRun = true;
-		next_marking.passed = true;
-		next_marking.inTrace = true;
-		trace.push(&next_marking);
-		validChildren = 0;
+		TimeDart& dart = *pwList.GetNextUnexplored();
+		bool endOfMaxRun = true;
 
-		// Generate next markings
+		vector<TimedTransition> transitions = getTransitions(&(dart.getBase()));
+		for(vector<TimedTransition>::const_iterator transition = transitions.begin(); transition != transitions.end(); transition++){
+			int calculatedStart = calculateStart((*transition), dart.getBase());
+			//int start = max(dart->getWaiting(), );
+			//int end
+		}
+
+
+		/*// Generate next markings
 		vector<NonStrictMarking> next = getPossibleNextMarkings(marking);
 
 		if(isDelayPossible(marking)){
@@ -44,7 +46,7 @@ bool TimeDartReachabilitySearch::Verify(){
 				return true;
 			}
 			endOfMaxRun = false;
-		}
+		}*/
 	}
 
 	return false;
@@ -75,35 +77,78 @@ vector<NonStrictMarking> TimeDartReachabilitySearch::getPossibleNextMarkings(Non
 	return successorGenerator.generateSuccessors(marking);
 }
 
-bool TimeDartReachabilitySearch::addToPW(NonStrictMarking* marking, NonStrictMarking* parent){
-	NonStrictMarking* m = cut(*marking);
-	m->SetParent(parent);
-
-	unsigned int size = m->size();
+bool TimeDartReachabilitySearch::addToPW(NonStrictMarking* marking, int w, int p){
+	unsigned int size = marking->size();
 
 	pwList.SetMaxNumTokensIfGreater(size);
 
 	if(size > options.GetKBound()) {
-		delete m;
 		return false;
 	}
 
-	m->passed = true;
-	if(pwList.Add(m)){
-		QueryVisitor checker(*m);
+	TimeDart dart = makeDart(marking, w, p);
+	if(pwList.Add(&dart)){
+		QueryVisitor checker(*marking);
 		boost::any context;
 		query->Accept(checker, context);
 		if(boost::any_cast<bool>(context)) {
-			lastMarking = m;
+			lastMarking = marking;
 			return true;
 		} else {
 			return false;
 		}
-	} else {
-		delete m;
 	}
 
 	return false;
+}
+
+TimeDart TimeDartReachabilitySearch::makeDart(NonStrictMarking* marking, int w, int p){
+	TimeDart* dart = new TimeDart(marking, w, p);
+	return *dart;
+
+}
+
+vector<TimedTransition> TimeDartReachabilitySearch::getTransitions(NonStrictMarking* marking){
+	vector<TimedTransition>* transitions = new vector<TimedTransition>();
+
+	// Go through places
+	for(vector<Place>::const_iterator place_iter = marking->places.begin(); place_iter != marking->places.end(); place_iter++){
+		// Normal arcs
+		for(TAPN::TimedInputArc::WeakPtrVector::const_iterator arc_iter = place_iter->place->GetInputArcs().begin(); arc_iter != place_iter->place->GetInputArcs().end(); arc_iter++){
+			transitions->push_back(arc_iter->lock()->OutputTransition());
+		}
+		// Transport arcs
+		for(TAPN::TransportArc::WeakPtrVector::const_iterator arc_iter = place_iter->place->GetTransportArcs().begin(); arc_iter != place_iter->place->GetTransportArcs().end(); arc_iter++){
+			transitions->push_back(arc_iter->lock()->Transition());
+		}
+	}
+
+	std::sort(transitions->begin(), transitions->end());
+	transitions->erase(std::unique(transitions->begin(), transitions->end()), transitions->end());
+
+	return *transitions;
+}
+
+int TimeDartReachabilitySearch::calculateStart(const TimedTransition& transition, NonStrictMarking& marking){
+	vector<pair<int, int> >* start = new vector<pair<int, int> >();
+	pair<int, int>* initial = new pair<int, int>(0, INT_MAX);
+	start->push_back(*initial);
+
+	for(TAPN::TimedInputArc::WeakPtrVector::const_iterator arc = transition.GetPreset().begin(); arc != transition.GetPreset().end(); arc++){
+		vector<pair<int, int> >* intervals = new vector<pair<int, int> >();
+		int range = 0;
+		if(arc->lock()->Interval().GetUpperBound() == INT_MAX){
+			range = INT_MAX;
+		}else{
+			range = arc->lock()->Interval().GetUpperBound()-arc->lock()->Interval().GetLowerBound();
+		}
+		int weight = arc->lock()->GetWeight();
+
+		for(int i = 0; i <= marking.NumberOfTokensInPlace(arc->lock()->InputPlace().GetIndex())-weight; i++){
+
+		}
+	}
+	return start->at(0).first;
 }
 
 NonStrictMarking* TimeDartReachabilitySearch::cut(NonStrictMarking& marking){
