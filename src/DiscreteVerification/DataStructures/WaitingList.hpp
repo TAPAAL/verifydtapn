@@ -27,115 +27,333 @@
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
+template <class T>
 class WaitingList {
 public:
 	WaitingList() {};
 	virtual ~WaitingList() {};
-	virtual void Add(NonStrictMarking* marking) = 0;
-	virtual NonStrictMarking* Next() = 0;
+	virtual void Add(T* marking) = 0;
+	virtual T* Next() = 0;
 	virtual size_t Size() = 0;
 	friend std::ostream& operator<<(std::ostream& out, WaitingList& x);
 };
 
-class StackWaitingList : public WaitingList{
+template <class T>
+class StackWaitingList : public WaitingList<T>{
 public:
 	StackWaitingList() : stack() { };
 	virtual ~StackWaitingList();
 public:
-	virtual void Add(NonStrictMarking* marking);
-	virtual NonStrictMarking* Next();
+	virtual void Add(T* marking);
+	virtual T* Next();
 	virtual size_t Size() { return stack.size(); };
 protected:
-	std::stack< NonStrictMarking* > stack;
+	std::stack<T*> stack;
 };
 
-struct WeightedMarking{
-	NonStrictMarking* marking;
+template <class T>
+struct WeightedItem{
+	T* item;
 	int weight;
 };
 
-struct less : public std::binary_function<WeightedMarking*, WeightedMarking*, bool>
+template <class T>
+struct less : public std::binary_function<WeightedItem<T>*, WeightedItem<T>*, bool>
 {
-	bool operator()(const WeightedMarking* x, const WeightedMarking* y) const
+	bool operator()(const WeightedItem<T>* x, const WeightedItem<T>* y) const
 	{
 		return x->weight > y->weight;
 	}
 };
 
-class HeuristicStackWaitingList : public StackWaitingList{
+template <class T>
+class HeuristicStackWaitingList : public StackWaitingList<T>{
 public:
-	typedef std::priority_queue<WeightedMarking*, std::vector<WeightedMarking*>, less > priority_queue;
+	typedef std::priority_queue<WeightedItem<T>*, std::vector<WeightedItem<T>*>, less<T> > priority_queue;
 	HeuristicStackWaitingList(AST::Query* q) : buffer(), query(normalizeQuery(q)) { };
-	virtual void Add(NonStrictMarking* marking);
-	virtual NonStrictMarking* Next();
-	virtual size_t Size() { return stack.size()+buffer.size(); };
+	virtual void Add(T* marking);
+	virtual T* Next();
+	virtual size_t Size()
+	{
+		return this->stack.size+buffer.size();
+	};
 private:
 	void flushBuffer();
-	int calculateWeight(NonStrictMarking* marking);
+	int calculateWeight(T* marking);
 	AST::Query* normalizeQuery(AST::Query* q);
 	priority_queue buffer;
 	AST::Query* query;
 };
 
-class QueueWaitingList : public WaitingList{
+template <class T>
+class QueueWaitingList : public WaitingList<T>{
 public:
 	QueueWaitingList() : queue() { };
 	virtual ~QueueWaitingList();
 public:
-	virtual void Add(NonStrictMarking* marking);
-	virtual NonStrictMarking* Next();
+	virtual void Add(T* marking);
+	virtual T* Next();
 	virtual size_t Size() { return queue.size(); };
 private:
-	std::queue< NonStrictMarking* > queue;
+	std::queue< T* > queue;
 };
 
-class HeuristicWaitingList : public WaitingList{
+template <class T>
+class HeuristicWaitingList : public WaitingList<T>{
 public:
-	typedef std::priority_queue<WeightedMarking*, std::vector<WeightedMarking*>, less > priority_queue;
+	typedef std::priority_queue<WeightedItem<T>*, std::vector<WeightedItem<T>* >, less<T> > priority_queue;
 public:
 	HeuristicWaitingList(AST::Query* q) : queue(), query(normalizeQuery(q)) { };
 	virtual ~HeuristicWaitingList();
 public:
-	virtual void Add(NonStrictMarking* marking);
-	virtual NonStrictMarking* Next();
+	virtual void Add(T* marking);
+	virtual T* Next();
 	virtual size_t Size() { return queue.size(); };
 private:
-	int calculateWeight(NonStrictMarking* marking);
+	int calculateWeight(T* marking);
 	AST::Query* normalizeQuery(AST::Query* q);
 	priority_queue queue;
 	AST::Query* query;
 };
 
-class RandomStackWaitingList : public StackWaitingList{
+template <class T>
+class RandomStackWaitingList : public StackWaitingList<T>{
 public:
-	typedef std::priority_queue<WeightedMarking*, std::vector<WeightedMarking*>, less > priority_queue;
+	typedef std::priority_queue<WeightedItem<T>*, std::vector<WeightedItem<T>*>, less<T> > priority_queue;
 public:
 	RandomStackWaitingList() : buffer() { };
 	virtual ~RandomStackWaitingList();
 public:
-	virtual void Add(NonStrictMarking* marking);
-	virtual NonStrictMarking* Next();
-	virtual size_t Size() { return stack.size()+buffer.size(); };
+	virtual void Add(T* marking);
+	virtual T* Next();
+	virtual size_t Size() { return this->stack.size()+buffer.size(); };
 private:
-	int calculateWeight(NonStrictMarking* marking);
+	int calculateWeight(T* marking);
 	void flushBuffer();
 	priority_queue buffer;
 };
 
-class RandomWaitingList : public WaitingList{
+template <class T>
+class RandomWaitingList : public WaitingList<T>{
 public:
-	typedef std::priority_queue<WeightedMarking*, std::vector<WeightedMarking*>, less > priority_queue;
+	typedef std::priority_queue<WeightedItem<T>*, std::vector<WeightedItem<T>*>, less<T> > priority_queue;
 public:
 	RandomWaitingList() : queue() { };
 	virtual ~RandomWaitingList();
 public:
-	virtual void Add(NonStrictMarking* marking);
-	virtual NonStrictMarking* Next();
+	virtual void Add(T* marking);
+	virtual T* Next();
 	virtual size_t Size() { return queue.size(); };
 private:
-	int calculateWeight(NonStrictMarking* marking);
+	int calculateWeight(T* marking);
 	priority_queue queue;
 };
+
+
+//IMPLEMENTATIONS
+template <class T>
+void StackWaitingList<T>::Add(T* marking)
+{
+	stack.push(marking);
+}
+
+template <class T>
+T* StackWaitingList<T>::Next()
+{
+	T* marking = stack.top();
+	stack.pop();
+	return marking;
+}
+
+template <class T>
+StackWaitingList<T>::~StackWaitingList()
+{
+	while(!stack.empty()){
+		stack.pop();
+	}
+}
+
+template <class T>
+std::ostream& operator<<(std::ostream& out, WaitingList<T>& x){
+	out << x.Size();
+	return out;
+}
+
+template <class T>
+void HeuristicStackWaitingList<T>::Add(T* marking)
+{
+	WeightedItem<T>* weighted_marking = new WeightedItem<T>;
+	weighted_marking->marking = marking;
+	weighted_marking->weight = calculateWeight(marking);
+	buffer.push(weighted_marking);
+}
+
+template <class T>
+void HeuristicStackWaitingList<T>::flushBuffer(){
+	while(!buffer.empty()){
+		this->stack.push(buffer.top()->marking);
+		buffer.pop();
+	}
+}
+
+template <class T>
+T* HeuristicStackWaitingList<T>::Next()
+{
+	flushBuffer();
+	NonStrictMarking* marking = this->stack.top();
+	this->stack.pop();
+	return marking;
+}
+
+template <>
+int HeuristicStackWaitingList<NonStrictMarking>::calculateWeight(NonStrictMarking* marking)
+{
+	LivenessWeightQueryVisitor weight(*marking);
+	boost::any weight_c;
+	query->Accept(weight, weight_c);
+	return boost::any_cast<int>(weight_c);
+}
+
+template <class T>
+AST::Query* HeuristicStackWaitingList<T>::normalizeQuery(AST::Query* q){
+	AST::NormalizationVisitor visitor;
+	return visitor.Normalize(*q);
+}
+
+template <class T>
+void QueueWaitingList<T>::Add(T* marking)
+{
+	queue.push(marking);
+}
+
+template <class T>
+T* QueueWaitingList<T>::Next()
+{
+	T* marking = queue.front();
+	queue.pop();
+	return marking;
+}
+
+template <class T>
+QueueWaitingList<T>::~QueueWaitingList()
+{
+	while(!queue.empty()){
+		queue.pop();
+	}
+}
+
+template <class T>
+void HeuristicWaitingList<T>::Add(T* marking)
+{
+	WeightedItem<T>* weighted_item = new WeightedItem<T>;
+	weighted_item->marking = marking;
+	weighted_item->weight = calculateWeight(marking);
+	queue.push(weighted_item);
+}
+
+template <class T>
+T* HeuristicWaitingList<T>::Next()
+{
+	WeightedItem<T>* weighted_item = queue.top();
+	T* marking = weighted_item->marking;
+	queue.pop();
+	return marking;
+}
+
+template <>
+int HeuristicWaitingList<NonStrictMarking>::calculateWeight(NonStrictMarking* marking)
+{
+	WeightQueryVisitor weight(*marking);
+	boost::any weight_c;
+	query->Accept(weight, weight_c);
+	return boost::any_cast<int>(weight_c);
+}
+
+template <class T>
+AST::Query* HeuristicWaitingList<T>::normalizeQuery(AST::Query* q){
+	AST::NormalizationVisitor visitor;
+	return visitor.Normalize(*q);
+}
+
+template <class T>
+HeuristicWaitingList<T>::~HeuristicWaitingList()
+{
+	while(!queue.empty()){
+		queue.pop();
+	}
+}
+
+template <class T>
+void RandomWaitingList<T>::Add(T* marking)
+{
+	WeightedItem<T>* weighted_item = new WeightedItem<T>;
+	weighted_item->marking = marking;
+	weighted_item->weight = calculateWeight(marking);
+	queue.push(weighted_item);
+}
+
+template <class T>
+T* RandomWaitingList<T>::Next()
+{
+	WeightedItem<T>* weighted_item = queue.top();
+	T* marking = weighted_item->marking;
+	queue.pop();
+	return marking;
+}
+
+template <class T>
+int RandomWaitingList<T>::calculateWeight(T* marking)
+{
+	return rand();
+}
+
+template <class T>
+RandomWaitingList<T>::~RandomWaitingList()
+{
+	while(!queue.empty()){
+		queue.pop();
+	}
+}
+
+template <class T>
+void RandomStackWaitingList<T>::Add(T* marking)
+{
+	WeightedItem<T>* weighted_item = new WeightedItem<T>;
+	weighted_item->marking = marking;
+	weighted_item->weight = calculateWeight(marking);
+	buffer.push(weighted_item);
+}
+
+template <class T>
+void RandomStackWaitingList<T>::flushBuffer(){
+	while(!buffer.empty()){
+		this->stack.push(buffer.top()->marking);
+		buffer.pop();
+	}
+}
+
+template <class T>
+T* RandomStackWaitingList<T>::Next()
+{
+	flushBuffer();
+	T* marking = this->stack.top();
+	this->stack.pop();
+	return marking;
+}
+
+template <class T>
+int RandomStackWaitingList<T>::calculateWeight(T* marking)
+{
+	return rand();
+}
+
+template <class T>
+RandomStackWaitingList<T>::~RandomStackWaitingList()
+{
+	while(!this->stack.empty()){
+		this->stack.pop();
+	}
+}
 
 } /* namespace DiscreteVerification */
 } /* namespace VerifyTAPN */

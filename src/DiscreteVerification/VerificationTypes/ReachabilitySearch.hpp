@@ -25,13 +25,14 @@
 #include "../DataStructures/NonStrictMarking.hpp"
 #include <stack>
 #include "Verification.hpp"
+#include "../DataStructures/WaitingList.hpp"
 
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
 class ReachabilitySearch : public Verification{
 public:
-	ReachabilitySearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList* waiting_list);
+	ReachabilitySearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list);
 	virtual ~ReachabilitySearch();
 	bool Verify();
 	NonStrictMarking* GetLastMarking() { return lastMarking; }

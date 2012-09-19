@@ -44,7 +44,7 @@ public: // modifiers
 
 public:
 	HashMap markings_storage;
-	WaitingList* waiting_list;
+	TimeDartWaitingList* waiting_list;
 	int discoveredMarkings;
 	int maxNumTokensInAnyMarking;
 };
