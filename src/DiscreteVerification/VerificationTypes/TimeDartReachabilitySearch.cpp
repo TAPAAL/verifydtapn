@@ -10,7 +10,7 @@
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
-TimeDartReachabilitySearch::TimeDartReachabilitySearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList* waiting_list)
+TimeDartReachabilitySearch::TimeDartReachabilitySearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<TimeDart>* waiting_list)
 	: pwList(waiting_list), tapn(tapn), initialMarking(initialMarking), query(query), options(options), successorGenerator( *tapn.get() ){
 }
 
@@ -123,8 +123,8 @@ vector<TimedTransition> TimeDartReachabilitySearch::getTransitions(NonStrictMark
 		}
 	}
 
-	std::sort(transitions->begin(), transitions->end());
-	transitions->erase(std::unique(transitions->begin(), transitions->end()), transitions->end());
+	//std::sort(transitions->begin(), transitions->end());
+	//transitions->erase(std::unique(transitions->begin(), transitions->end()), transitions->end());
 
 	return *transitions;
 }

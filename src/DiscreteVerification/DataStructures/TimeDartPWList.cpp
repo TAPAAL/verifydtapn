@@ -10,7 +10,7 @@
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
-void TimeDartPWList::Add(TimeDart* dart){
+bool TimeDartPWList::Add(TimeDart* dart){
 	discoveredMarkings++;
 	NonStrictMarkingList& m = markings_storage[dart->getBase().HashKey()];
 	for(NonStrictMarkingList::const_iterator iter = m.begin();
@@ -26,12 +26,13 @@ void TimeDartPWList::Add(TimeDart* dart){
 				waiting_list->Add((*iter));
 			}
 
-			return;
+			return false;
 		}
 	}
 
 	m.push_back(dart);
 	waiting_list->Add(dart);
+	return true;
 }
 
 TimeDart* TimeDartPWList::GetNextUnexplored(){

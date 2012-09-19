@@ -24,7 +24,7 @@ public:
 	typedef google::sparse_hash_map<size_t, NonStrictMarkingList> HashMap;
 public:
 	TimeDartPWList() : markings_storage(256000), waiting_list(), discoveredMarkings(0), maxNumTokensInAnyMarking(-1) {};
-	TimeDartPWList(WaitingList* w_l) : markings_storage(256000), waiting_list(w_l), discoveredMarkings(0), maxNumTokensInAnyMarking(-1) {};
+	TimeDartPWList(WaitingList<TimeDart>* w_l) : markings_storage(256000), waiting_list(w_l), discoveredMarkings(0), maxNumTokensInAnyMarking(-1) {};
 	virtual ~TimeDartPWList();
 	friend std::ostream& operator<<(std::ostream& out, TimeDartPWList& x);
 
@@ -38,13 +38,13 @@ public: // inspectors
 	};
 
 public: // modifiers
-	virtual void Add(TimeDart* marking);
+	virtual bool Add(TimeDart* marking);
 	virtual TimeDart* GetNextUnexplored();
 	inline void SetMaxNumTokensIfGreater(int i){ if(i>maxNumTokensInAnyMarking) maxNumTokensInAnyMarking = i; };
 
 public:
 	HashMap markings_storage;
-	WaitingList* waiting_list;
+	WaitingList<TimeDart>* waiting_list;
 	int discoveredMarkings;
 	int maxNumTokensInAnyMarking;
 };
