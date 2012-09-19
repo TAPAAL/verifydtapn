@@ -33,9 +33,10 @@ namespace VerifyTAPN {
 
 namespace DiscreteVerification {
 
-class NonStrictDFS : public SearchStrategy {
+template <class T>
+class NonStrictDFS : public SearchStrategy<T> {
 public:
-	virtual WaitingList* CreateWaitingList(AST::Query* query) const { return new StackWaitingList; };
+	virtual WaitingList<T>* CreateWaitingList(AST::Query* query) const { return new StackWaitingList<T>; };
 };
 
 }

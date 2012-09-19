@@ -11,9 +11,10 @@
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
+template <class T>
 class SearchStrategy{
 public:
-	virtual WaitingList* CreateWaitingList(AST::Query* query) const = 0;
+	virtual WaitingList<T>* CreateWaitingList(AST::Query* query) const = 0;
 	virtual ~SearchStrategy(){};
 };
 
