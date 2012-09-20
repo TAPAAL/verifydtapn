@@ -27,6 +27,7 @@ bool TimeDartReachabilitySearch::Verify(){
 		vector<TimedTransition> transitions = getTransitions(&(dart.getBase()));
 		for(vector<TimedTransition>::const_iterator transition = transitions.begin(); transition != transitions.end(); transition++){
 			int calculatedStart = calculateStart((*transition), dart.getBase());
+			// TODO fix
 			//int start = max(dart->getWaiting(), );
 			//int end
 		}
@@ -105,7 +106,6 @@ bool TimeDartReachabilitySearch::addToPW(NonStrictMarking* marking, int w, int p
 TimeDart TimeDartReachabilitySearch::makeDart(NonStrictMarking* marking, int w, int p){
 	TimeDart* dart = new TimeDart(marking, w, p);
 	return *dart;
-
 }
 
 vector<TimedTransition> TimeDartReachabilitySearch::getTransitions(NonStrictMarking* marking){
@@ -123,6 +123,8 @@ vector<TimedTransition> TimeDartReachabilitySearch::getTransitions(NonStrictMark
 		}
 	}
 
+	// TODO FIX
+
 	//std::sort(transitions->begin(), transitions->end());
 	//transitions->erase(std::unique(transitions->begin(), transitions->end()), transitions->end());
 
@@ -133,6 +135,8 @@ int TimeDartReachabilitySearch::calculateStart(const TimedTransition& transition
 	vector<pair<int, int> >* start = new vector<pair<int, int> >();
 	pair<int, int>* initial = new pair<int, int>(0, INT_MAX);
 	start->push_back(*initial);
+
+	// TODO fix
 
 	for(TAPN::TimedInputArc::WeakPtrVector::const_iterator arc = transition.GetPreset().begin(); arc != transition.GetPreset().end(); arc++){
 		vector<pair<int, int> >* intervals = new vector<pair<int, int> >();
