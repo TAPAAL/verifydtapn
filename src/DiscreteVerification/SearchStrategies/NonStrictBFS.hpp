@@ -25,10 +25,9 @@
 
 #include "../QueryVisitor.hpp"
 #include "boost/any.hpp"
+#include "SearchStrategy.hpp"
 
 #include <stack>
-
-#include "SearchStrategy.hpp"
 
 namespace VerifyTAPN {
 

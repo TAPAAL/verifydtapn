@@ -6,7 +6,6 @@
  */
 
 #include "LivenessSearch.hpp"
-#include "../DataStructures/WaitingList.hpp"
 
 namespace VerifyTAPN {
 namespace DiscreteVerification {

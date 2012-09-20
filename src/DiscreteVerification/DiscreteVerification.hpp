@@ -16,18 +16,14 @@
 #include "DataStructures/NonStrictMarking.hpp"
 #include "../../lib/rapidxml-1.13/rapidxml.hpp"
 #include "../../lib/rapidxml-1.13/rapidxml_print.hpp"
-#include "SearchStrategies/NonStrictDFS.hpp"
-#include "SearchStrategies/NonStrictBFS.hpp"
-#include "SearchStrategies/NonStrictHeuristic.hpp"
-#include "SearchStrategies/NonStrictRandom.hpp"
-#include "SearchStrategies/NonStrictDFSHeuristic.hpp"
-#include "SearchStrategies/NonStrictDFSRandom.hpp"
+#include "SearchStrategies/SearchStrategy.hpp"
 #include "../Core/TAPNParser/util.hpp"
 #include <stack>
 #include "VerificationTypes/Verification.hpp"
 #include "VerificationTypes/LivenessSearch.hpp"
 #include "VerificationTypes/ReachabilitySearch.hpp"
 #include "VerificationTypes/TimeDartReachabilitySearch.hpp"
+#include "SearchStrategies/SearchFactory.h"
 
 namespace VerifyTAPN {
 

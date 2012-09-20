@@ -9,6 +9,7 @@
 #define WAITINGLIST_HPP_
 
 #include "NonStrictMarking.hpp"
+#include "TimeDart.hpp"
 #include <queue>
 #include <stack>
 #include <vector>
@@ -69,7 +70,7 @@ struct less : public std::binary_function<WeightedItem<T>*, WeightedItem<T>*, bo
 template <class T>
 class HeuristicStackWaitingList : public StackWaitingList<T>{
 public:
-	typedef std::priority_queue<WeightedItem<T>*, std::vector<WeightedItem<T>*>, less<T> > priority_queue;
+	typedef std::priority_queue<WeightedItem<T>*, std::vector<WeightedItem<T> * >, less<T> > priority_queue;
 	HeuristicStackWaitingList(AST::Query* q) : buffer(), query(normalizeQuery(q)) { };
 	virtual void Add(T* marking);
 	virtual T* Next();
@@ -79,7 +80,8 @@ public:
 	};
 private:
 	void flushBuffer();
-	int calculateWeight(T* marking);
+	int calculateWeight(NonStrictMarking* marking);
+	int calculateWeight(TimeDart* marking);
 	AST::Query* normalizeQuery(AST::Query* q);
 	priority_queue buffer;
 	AST::Query* query;
@@ -110,8 +112,9 @@ public:
 	virtual T* Next();
 	virtual size_t Size() { return queue.size(); };
 private:
-	int calculateWeight(T* marking);
 	AST::Query* normalizeQuery(AST::Query* q);
+	int calculateWeight(NonStrictMarking* marking);
+	int calculateWeight(TimeDart* marking);
 	priority_queue queue;
 	AST::Query* query;
 };
@@ -205,13 +208,19 @@ T* HeuristicStackWaitingList<T>::Next()
 	return marking;
 }
 
-template <>
-int HeuristicStackWaitingList<NonStrictMarking>::calculateWeight(NonStrictMarking* marking)
+template <class T>
+int HeuristicStackWaitingList<T>::calculateWeight(NonStrictMarking* marking)
 {
 	LivenessWeightQueryVisitor weight(*marking);
 	boost::any weight_c;
 	query->Accept(weight, weight_c);
 	return boost::any_cast<int>(weight_c);
+}
+
+template <class T>
+int HeuristicStackWaitingList<T>::calculateWeight(TimeDart* dart)
+{
+	return calculateWeight(&dart->getBase());
 }
 
 template <class T>
@@ -260,13 +269,19 @@ T* HeuristicWaitingList<T>::Next()
 	return marking;
 }
 
-template <>
-int HeuristicWaitingList<NonStrictMarking>::calculateWeight(NonStrictMarking* marking)
+template <class T>
+int HeuristicWaitingList<T>::calculateWeight(NonStrictMarking* marking)
 {
 	WeightQueryVisitor weight(*marking);
 	boost::any weight_c;
 	query->Accept(weight, weight_c);
 	return boost::any_cast<int>(weight_c);
+}
+
+template <class T>
+int HeuristicWaitingList<T>::calculateWeight(TimeDart* dart)
+{
+	return calculateWeight(&dart->getBase());
 }
 
 template <class T>
