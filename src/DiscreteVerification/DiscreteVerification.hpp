@@ -37,7 +37,7 @@ class DiscreteVerification {
 public:
 	DiscreteVerification();
 	virtual ~DiscreteVerification();
-	static int run(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, std::vector<int> initialPlacement, AST::Query* query, VerificationOptions options);
+	static int run(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, std::vector<int> initialPlacement, AST::Query* query, VerificationOptions& options);
 private:
 	static void PrintHumanTrace(bool result, NonStrictMarking* m, std::stack<NonStrictMarking*>& stack, AST::Quantifier query);
 	static void PrintXMLTrace(bool result, NonStrictMarking* m, std::stack<NonStrictMarking*>& stack, AST::Quantifier query);

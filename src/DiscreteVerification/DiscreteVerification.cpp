@@ -20,7 +20,7 @@ DiscreteVerification::~DiscreteVerification() {
 	// TODO Auto-generated destructor stub
 }
 
-int DiscreteVerification::run(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, std::vector<int> initialPlacement, AST::Query* query, VerificationOptions options){
+int DiscreteVerification::run(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, std::vector<int> initialPlacement, AST::Query* query, VerificationOptions& options){
 	if(!(*tapn).IsNonStrict()){
 		std::cout << "The supplied net contains strict intervals." << std::endl;
 		return -1;
@@ -37,8 +37,10 @@ int DiscreteVerification::run(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, s
 	}
 
 	std::cout << options << std::endl;
-	WaitingList* strategy = NULL;
 	Verification* verifier = NULL;
+
+	WaitingList<NonStrictMarking>* strategy = NULL;
+	/*
 	// Select verification method
 	if(options.GetVerificationType() == DISCRETE){
 		// Select search strategy
@@ -102,7 +104,7 @@ int DiscreteVerification::run(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, s
 
 			verifier = new TimeDartReachabilitySearch(tapn, *initialMarking, query, options, strategy);
 		}
-	}
+	}*/
 
 	bool result = (query->GetQuantifier() == AG || query->GetQuantifier() == AF)? !verifier->Verify() : verifier->Verify();
 
