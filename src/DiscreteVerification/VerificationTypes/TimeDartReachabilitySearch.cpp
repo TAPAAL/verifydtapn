@@ -29,12 +29,15 @@ bool TimeDartReachabilitySearch::Verify(){
 			int calculatedStart = calculateStart((*transition), dart.getBase());
 			int start = max(dart.getWaiting(), calculatedStart);
 			int end = min(dart.getPassed(), calculateEnd((*transition), dart.getBase()));
-			//TODO int end = calculateEnd();
 			if(start <= end){
-				if(true){	// TODO only if no normal arcs
-
+				if(transition->GetPostsetSize() == 0){
+					// TODO DO THIS FOR ALL GENERATEABLE MARKINGS, NOT FOR SAME BASE MARKING
+					if(addToPW(&(dart.getBase()), start, INT_MAX)){
+						return true;
+					}
 				}else{
 					for(int n = start; n < end; n++){
+						// TODO DO THIS FOR ALL GENERATEABLE MARKINGS, NOT FOR SAME BASE MARKING
 						if(addToPW(&(dart.getBase()), 0, INT_MAX)){
 							return true;
 						}
