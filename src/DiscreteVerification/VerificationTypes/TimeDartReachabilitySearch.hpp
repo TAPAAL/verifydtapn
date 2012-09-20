@@ -48,6 +48,7 @@ protected:
 	TimeDart makeDart(NonStrictMarking* marking, int w, int p);
 	vector<TimedTransition> getTransitions(NonStrictMarking* marking);
 	int calculateStart(const TimedTransition& transition, NonStrictMarking& marking);
+	int calculateEnd(const TimedTransition& transition, NonStrictMarking& marking);
 
 protected:
 	int validChildren;
