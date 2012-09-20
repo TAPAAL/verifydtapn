@@ -27,27 +27,21 @@ bool TimeDartReachabilitySearch::Verify(){
 		vector<TimedTransition> transitions = getTransitions(&(dart.getBase()));
 		for(vector<TimedTransition>::const_iterator transition = transitions.begin(); transition != transitions.end(); transition++){
 			int calculatedStart = calculateStart((*transition), dart.getBase());
-			// TODO fix
-			//int start = max(dart->getWaiting(), );
-			//int end
-		}
+			int start = max(dart.getWaiting(), calculatedStart);
+			int end = 0;
+			//TODO int end = calculateEnd();
+			if(start <= end){
+				if(true){	// TODO only if no normal arcs
 
-
-		/*// Generate next markings
-		vector<NonStrictMarking> next = getPossibleNextMarkings(marking);
-
-		if(isDelayPossible(marking)){
-			marking.incrementAge();
-			marking.SetGeneratedBy(NULL);
-			next.push_back(marking);
-		}
-
-		for(vector<NonStrictMarking>::iterator it = next.begin(); it != next.end(); it++){
-			if(addToPW(&(*it), &next_marking)){
-				return true;
+				}else{
+					for(int n = start; n < end; n++){
+						if(addToPW(&(dart.getBase()), 0, INT_MAX)){
+							return true;
+						}
+					}
+				}
 			}
-			endOfMaxRun = false;
-		}*/
+		}
 	}
 
 	return false;
@@ -108,6 +102,10 @@ TimeDart TimeDartReachabilitySearch::makeDart(NonStrictMarking* marking, int w, 
 	return *dart;
 }
 
+bool compare( const TimedTransition& lx, const TimedTransition& rx ) {
+	return lx.GetIndex() < rx.GetIndex();
+}
+
 vector<TimedTransition> TimeDartReachabilitySearch::getTransitions(NonStrictMarking* marking){
 	vector<TimedTransition>* transitions = new vector<TimedTransition>();
 
@@ -123,10 +121,8 @@ vector<TimedTransition> TimeDartReachabilitySearch::getTransitions(NonStrictMark
 		}
 	}
 
-	// TODO FIX
-
-	//std::sort(transitions->begin(), transitions->end());
-	//transitions->erase(std::unique(transitions->begin(), transitions->end()), transitions->end());
+	std::sort(transitions->begin(), transitions->end(), compare);
+	transitions->erase(std::unique(transitions->begin(), transitions->end()), transitions->end());
 
 	return *transitions;
 }
@@ -136,7 +132,7 @@ int TimeDartReachabilitySearch::calculateStart(const TimedTransition& transition
 	pair<int, int>* initial = new pair<int, int>(0, INT_MAX);
 	start->push_back(*initial);
 
-	// TODO fix
+	// TODO do the same for transport arcs
 
 	for(TAPN::TimedInputArc::WeakPtrVector::const_iterator arc = transition.GetPreset().begin(); arc != transition.GetPreset().end(); arc++){
 		vector<pair<int, int> >* intervals = new vector<pair<int, int> >();
@@ -148,9 +144,16 @@ int TimeDartReachabilitySearch::calculateStart(const TimedTransition& transition
 		}
 		int weight = arc->lock()->GetWeight();
 
-		for(int i = 0; i <= marking.NumberOfTokensInPlace(arc->lock()->InputPlace().GetIndex())-weight; i++){
-
+		int end = marking.NumberOfTokensInPlace(arc->lock()->InputPlace().GetIndex())-weight;
+		TokenList tokens = marking.GetTokenList(arc->lock()->InputPlace().GetIndex());
+		int ii = 0;
+		for(int i = 0; i <= end; i++){
+			for(int c = 0; c < tokens.at(ii).getCount(); c++){
+				// TODO add to intervals
+			}
+			ii++;
 		}
+		// TODO intersection of intervals and start
 	}
 	return start->at(0).first;
 }
@@ -195,7 +198,6 @@ void TimeDartReachabilitySearch::printStats(){
 }
 
 TimeDartReachabilitySearch::~TimeDartReachabilitySearch() {
-	// TODO Auto-generated destructor stub
 }
 
 } /* namespace DiscreteVerification */
