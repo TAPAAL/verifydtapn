@@ -130,6 +130,43 @@ vector<TimedTransition> TimeDartReachabilitySearch::getTransitions(NonStrictMark
 	return *transitions;
 }
 
+void set_add(vector< pair<int, int> >* first, pair<int, int>* element){
+
+	bool inserted = false;
+	for(unsigned int i = 0; i < first->size(); i++){
+
+		if(!inserted){
+			if(element->second < first->at(i).first){
+				// Add element
+				first->insert(first->begin()+i, *element);
+				inserted = true;
+			}else if(element->first >= first->at(i).first && element->first <= first->at(i).second){
+				// Merge with node
+				int _max = max(first->at(i).second, element->second);
+				first->at(i).second = _max;
+				inserted = true;
+				// Clean up
+				for(i += 1; i < first->size(); i++){
+					if(first->at(i).first <= _max){
+						// Merge items
+						if(first->at(i).second >= _max){
+							first->at(i-1).second = first->at(i).second;
+						}
+						first->erase(first->begin()+i-1,first->begin()+i);
+						i--;
+					}
+				}
+			}
+		}else{
+			break;
+		}
+	}
+
+	if(!inserted){
+		first->push_back(*element);
+	}
+}
+
 int TimeDartReachabilitySearch::calculateStart(const TimedTransition& transition, NonStrictMarking& marking){
 	vector<pair<int, int> >* start = new vector<pair<int, int> >();
 	pair<int, int>* initial = new pair<int, int>(0, INT_MAX);
@@ -152,7 +189,8 @@ int TimeDartReachabilitySearch::calculateStart(const TimedTransition& transition
 		int ii = 0;
 		for(int i = 0; i <= end; i++){
 			for(int c = 0; c < tokens.at(ii).getCount(); c++){
-				// TODO add to intervals
+				pair<int, int>* element = new pair<int, int>(0,0);
+				set_add(intervals, element);
 			}
 			ii++;
 		}
