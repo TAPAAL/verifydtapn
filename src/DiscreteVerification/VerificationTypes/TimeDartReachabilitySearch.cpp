@@ -28,7 +28,7 @@ bool TimeDartReachabilitySearch::Verify(){
 		for(vector<TimedTransition>::const_iterator transition = transitions.begin(); transition != transitions.end(); transition++){
 			int calculatedStart = calculateStart((*transition), dart.getBase());
 			int start = max(dart.getWaiting(), calculatedStart);
-			int end = 0;
+			int end = min(dart.getPassed(), calculateEnd((*transition), dart.getBase()));
 			//TODO int end = calculateEnd();
 			if(start <= end){
 				if(true){	// TODO only if no normal arcs
@@ -156,6 +156,37 @@ int TimeDartReachabilitySearch::calculateStart(const TimedTransition& transition
 		// TODO intersection of intervals and start
 	}
 	return start->at(0).first;
+}
+
+int TimeDartReachabilitySearch::calculateEnd(const TimedTransition& transition, NonStrictMarking& marking){
+
+	int part1 = 0;
+
+	// Normal arcs
+	for(TimedInputArc::WeakPtrVector::const_iterator iter = transition.GetPreset().begin(); iter != transition.GetPreset().end(); iter++){
+		int c = iter->lock()->InputPlace().GetMaxConstant()+1-marking.GetTokenList(iter->lock()->InputPlace().GetIndex()).front().getAge();
+		if(c > part1){
+			part1 = c;
+		}
+	}
+
+	// Transport arcs
+	for(TransportArc::WeakPtrVector::const_iterator iter = transition.GetTransportArcs().begin(); iter != transition.GetTransportArcs().end(); iter++){
+		int c = iter->lock()->Source().GetMaxConstant()+1-marking.GetTokenList(iter->lock()->Source().GetIndex()).front().getAge();
+		if(c > part1){
+			part1 = c;
+		}
+	}
+
+	int part2 = INT_MAX;
+
+	for(PlaceList::const_iterator iter = marking.GetPlaceList().begin(); iter != marking.GetPlaceList().end(); iter++){
+		if(iter->place->GetInvariant().GetBound()-iter->tokens.back().getAge() < part2){
+			part2 = iter->place->GetInvariant().GetBound()-iter->tokens.back().getAge();
+		}
+	}
+
+	return min(part1, part2);
 }
 
 NonStrictMarking* TimeDartReachabilitySearch::cut(NonStrictMarking& marking){
