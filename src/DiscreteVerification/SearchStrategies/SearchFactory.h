@@ -20,41 +20,49 @@ WaitingList<T>* GetWaitingList(AST::Query* query, VerificationOptions& options){
 	if(query->GetQuantifier() == EG || query->GetQuantifier() == AF){
 		//Liveness query, force DFS
 		switch(options.GetSearchType()){
-		case DEPTHFIRST:
-			NonStrictDFS<T> dfs;
-			strategy = dfs.CreateWaitingList(query);
+		case DEPTHFIRST: {
+			NonStrictDFS<T> s;
+			strategy = s.CreateWaitingList(query);
 			break;
-		case RANDOM:
-			NonStrictDFSRandom<T> dfsr;
-			strategy = dfsr.CreateWaitingList(query);
+		}
+		case RANDOM:{
+			NonStrictDFSRandom<T> s;
+			strategy = s.CreateWaitingList(query);
 			break;
-		case COVERMOST:
-			NonStrictDFSHeuristic<T> dfsh;
-			strategy = dfsh.CreateWaitingList(query);
+		}
+		case COVERMOST: {
+			NonStrictDFSHeuristic<T> s;
+			strategy = s.CreateWaitingList(query);
 			break;
-		default:
-			NonStrictDFSHeuristic<T> dfsh2;
-			strategy = dfsh2.CreateWaitingList(query);
+		}
+		default: {
+			NonStrictDFSHeuristic<T> s;
+			strategy = s.CreateWaitingList(query);
 			break;
+		}
 		}
 	}else if(query->GetQuantifier() == EF || query->GetQuantifier() == AG){
 		switch(options.GetSearchType()){
-		case DEPTHFIRST:
-			NonStrictDFS<T> dfs;
-			strategy = dfs.CreateWaitingList(query);
+		case DEPTHFIRST: {
+			NonStrictDFS<T> s;
+			strategy = s.CreateWaitingList(query);
 			break;
-		case COVERMOST:
-			NonStrictDFSHeuristic<T> h;
-			strategy = h.CreateWaitingList(query);
+		}
+		case COVERMOST: {
+			NonStrictDFSHeuristic<T> s;
+			strategy = s.CreateWaitingList(query);
 			break;
-		case BREADTHFIRST:
-			NonStrictBFS<T> bfs;
-			strategy = bfs.CreateWaitingList(query);
+		}
+		case BREADTHFIRST: {
+			NonStrictBFS<T> s;
+			strategy = s.CreateWaitingList(query);
 			break;
-		case RANDOM:
-			NonStrictDFSRandom<T> r;
-			strategy = r.CreateWaitingList(query);
+		}
+		case RANDOM: {
+			NonStrictDFSRandom<T> s;
+			strategy = s.CreateWaitingList(query);
 			break;
+		}
 		}
 	}
 	return strategy;

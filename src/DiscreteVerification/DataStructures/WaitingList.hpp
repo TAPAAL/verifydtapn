@@ -36,7 +36,8 @@ public:
 	virtual void Add(T* marking) = 0;
 	virtual T* Next() = 0;
 	virtual size_t Size() = 0;
-	friend std::ostream& operator<<(std::ostream& out, WaitingList& x);
+	template <class S>
+	friend std::ostream& operator<<(std::ostream& out, WaitingList<S>& x);
 };
 
 template <class T>
@@ -74,10 +75,7 @@ public:
 	HeuristicStackWaitingList(AST::Query* q) : buffer(), query(normalizeQuery(q)) { };
 	virtual void Add(T* marking);
 	virtual T* Next();
-	virtual size_t Size()
-	{
-		return this->stack.size+buffer.size();
-	};
+	virtual size_t Size() { return this->stack.size() +buffer.size(); };
 private:
 	void flushBuffer();
 	int calculateWeight(NonStrictMarking* marking);
@@ -183,18 +181,18 @@ std::ostream& operator<<(std::ostream& out, WaitingList<T>& x){
 }
 
 template <class T>
-void HeuristicStackWaitingList<T>::Add(T* marking)
+void HeuristicStackWaitingList<T>::Add(T* item)
 {
-	WeightedItem<T>* weighted_marking = new WeightedItem<T>;
-	weighted_marking->marking = marking;
-	weighted_marking->weight = calculateWeight(marking);
-	buffer.push(weighted_marking);
+	WeightedItem<T>* weighted_item = new WeightedItem<T>;
+	weighted_item->item = item;
+	weighted_item->weight = calculateWeight(item);
+	buffer.push(weighted_item);
 }
 
 template <class T>
 void HeuristicStackWaitingList<T>::flushBuffer(){
 	while(!buffer.empty()){
-		this->stack.push(buffer.top()->marking);
+		this->stack.push(buffer.top()->item);
 		buffer.pop();
 	}
 }
@@ -203,7 +201,7 @@ template <class T>
 T* HeuristicStackWaitingList<T>::Next()
 {
 	flushBuffer();
-	NonStrictMarking* marking = this->stack.top();
+	T* marking = this->stack.top();
 	this->stack.pop();
 	return marking;
 }
@@ -334,7 +332,7 @@ template <class T>
 void RandomStackWaitingList<T>::Add(T* marking)
 {
 	WeightedItem<T>* weighted_item = new WeightedItem<T>;
-	weighted_item->marking = marking;
+	weighted_item->item = marking;
 	weighted_item->weight = calculateWeight(marking);
 	buffer.push(weighted_item);
 }
@@ -342,7 +340,7 @@ void RandomStackWaitingList<T>::Add(T* marking)
 template <class T>
 void RandomStackWaitingList<T>::flushBuffer(){
 	while(!buffer.empty()){
-		this->stack.push(buffer.top()->marking);
+		this->stack.push(buffer.top()->item);
 		buffer.pop();
 	}
 }
