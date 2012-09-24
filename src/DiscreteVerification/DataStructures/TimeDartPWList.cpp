@@ -13,10 +13,12 @@ namespace DiscreteVerification {
 bool TimeDartPWList::Add(TimeDart* dart){
 	discoveredMarkings++;
 	NonStrictMarkingList& m = markings_storage[dart->getBase().HashKey()];
+	std::cout << "NonStrictmarkinglist:" << m.size() << std::endl;
 	for(NonStrictMarkingList::const_iterator iter = m.begin();
 			iter != m.end();
 			iter++){
 		if((*iter)->getBase().equals(dart->getBase())){
+
 			(*iter)->setPassed(min((*iter)->getPassed(),dart->getPassed()));
 			(*iter)->setWaiting(min((*iter)->getWaiting(),dart->getWaiting()));
 

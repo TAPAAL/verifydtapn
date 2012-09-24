@@ -31,7 +31,7 @@ bool TimeDartReachabilitySearch::Verify(){
 	//Main loop
 	while(pwList.HasWaitingStates()){
 		TimeDart& dart = *pwList.GetNextUnexplored();
-
+		dart.setPassed(dart.getWaiting());
 		vector<const TimedTransition*> transitions = getTransitions(&(dart.getBase()));
 		for(vector<const TimedTransition*>::const_iterator transition = transitions.begin(); transition != transitions.end(); transition++){
 			int calculatedStart = calculateStart(*(*transition), dart.getBase());
@@ -126,6 +126,13 @@ bool compare( const TimedTransition* lx, const TimedTransition* rx ) {
 vector<const TimedTransition*> TimeDartReachabilitySearch::getTransitions(NonStrictMarking* marking){
 	vector<const TimedTransition*> transitions;
 
+	// TODO nicer?
+	for(TimedTransition::Vector::const_iterator iter = tapn->GetTransitions().begin(); iter != tapn->GetTransitions().end(); iter++){
+		transitions.push_back(iter->get());
+	}
+
+	return transitions;
+
 	// Go through places
 	for(vector<Place>::const_iterator place_iter = marking->places.begin(); place_iter != marking->places.end(); place_iter++){
 		// Normal arcs
@@ -147,8 +154,8 @@ vector<const TimedTransition*> TimeDartReachabilitySearch::getTransitions(NonStr
 }
 
 int TimeDartReachabilitySearch::calculateStart(const TimedTransition& transition, NonStrictMarking& marking){
-	vector<pair<int, int> > start;
-	pair<int, int> initial(0, INT_MAX);
+	vector<interval<int> > start;
+	interval<int> initial(0, INT_MAX);
 	start.push_back(initial);
 
 	// TODO do the same for transport arcs
@@ -166,14 +173,17 @@ int TimeDartReachabilitySearch::calculateStart(const TimedTransition& transition
 		//TODO: Here we search twice
 		int end = marking.NumberOfTokensInPlace(arc->lock()->InputPlace().GetIndex())-weight;
 		TokenList tokens = marking.GetTokenList(arc->lock()->InputPlace().GetIndex());
+		if(tokens.size() == 0) return -1;
 
+		// TODO always enabled transitions?
 		unsigned int j = 0;
 		int numberOfTokensAvailable = tokens.at(j).getCount();
 		for(unsigned int  i = 0; i < tokens.size(); i++){
-			for(j=max(i,j); j < tokens.size(); j++){
-				if(numberOfTokensAvailable >= weight)
-					break;
-				numberOfTokensAvailable += tokens.at(j).getCount();
+			if(numberOfTokensAvailable < weight){
+				for(j=max(i,j); j < tokens.size() && numberOfTokensAvailable < weight; j++){
+					numberOfTokensAvailable += tokens.at(j).getCount();
+				}
+				j--;
 			}
 			if(numberOfTokensAvailable >= weight && tokens.at(j).getAge() - tokens.at(i).getAge() <= range){ //This span is interesting
 				interval<int> element(arc->lock()->Interval().GetLowerBound() - tokens.at(i).getAge(),
@@ -183,9 +193,49 @@ int TimeDartReachabilitySearch::calculateStart(const TimedTransition& transition
 			numberOfTokensAvailable -= tokens.at(i).getCount();
 		}
 
-		// TODO intersection of intervals and start
+		start = Util::setIntersection(start, intervals);
 	}
-	return start.empty()? -1:start.at(0).first;
+
+	// Transport arcs
+	for(TAPN::TransportArc::WeakPtrVector::const_iterator arc = transition.GetTransportArcs().begin(); arc != transition.GetTransportArcs().end(); arc++){
+			vector<interval<int> > intervals;
+			int range;
+			if(arc->lock()->Interval().GetUpperBound() == INT_MAX){
+				range = INT_MAX;
+			}else{
+				range = arc->lock()->Interval().GetUpperBound()-arc->lock()->Interval().GetLowerBound();
+			}
+			int weight = arc->lock()->GetWeight();
+
+			//TODO: Here we search twice
+			int end = marking.NumberOfTokensInPlace(arc->lock()->Source().GetIndex())-weight;
+			TokenList tokens = marking.GetTokenList(arc->lock()->Source().GetIndex());
+
+			if(tokens.size() == 0) return -1;
+
+			// TODO always enabled transitions?
+			unsigned int j = 0;
+			int numberOfTokensAvailable = tokens.at(j).getCount();
+			for(unsigned int  i = 0; i < tokens.size(); i++){
+				if(numberOfTokensAvailable < weight){
+					for(j=max(i,j); j < tokens.size() && numberOfTokensAvailable < weight; j++){
+						numberOfTokensAvailable += tokens.at(j).getCount();
+					}
+					j--;
+				}
+				if(numberOfTokensAvailable >= weight && tokens.at(j).getAge() - tokens.at(i).getAge() <= range){ //This span is interesting
+					interval<int> element(arc->lock()->Interval().GetLowerBound() - tokens.at(i).getAge(),
+							arc->lock()->Interval().GetUpperBound() - tokens.at(j).getAge());
+					Util::set_add(intervals, element);
+				}
+				numberOfTokensAvailable -= tokens.at(i).getCount();
+			}
+
+			start = Util::setIntersection(start, intervals);
+		}
+
+
+	return start.empty()? -1:start.at(0).lower();
 }
 
 int TimeDartReachabilitySearch::calculateEnd(const TimedTransition& transition, NonStrictMarking& marking){
