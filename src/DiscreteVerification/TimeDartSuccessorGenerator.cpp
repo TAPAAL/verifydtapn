@@ -27,60 +27,37 @@ TimeDartSuccessorGenerator::TimeDartSuccessorGenerator(TAPN::TimedArcPetriNet& t
 
 vector< NonStrictMarking > TimeDartSuccessorGenerator::generateSuccessors(const NonStrictMarking& marking, const TimedTransition& transition) const{
 	vector< NonStrictMarking > result;
-	ArcHashMap enabledArcs(transition.GetPresetSize() + transition.GetInhibitorArcs().size() + transition.GetTransportArcs().size());
-	std::vector<unsigned int> enabledTransitionArcs(tapn.GetTransitions().size(), 0);
-	std::vector<const TAPN::TimedTransition* > enabledTransitions;
+	ArcHashMap enabledArcs(transition.GetPresetSize() + transition.GetTransportArcs().size());
 
-	for(PlaceList::const_iterator iter = marking.places.begin(); iter < marking.places.end(); iter++){
-		for(TAPN::TimedInputArc::WeakPtrVector::const_iterator arc_iter = iter->place->GetInputArcs().begin();
-				arc_iter != iter->place->GetInputArcs().end(); arc_iter++){
-			processArc(enabledArcs, enabledTransitionArcs, enabledTransitions,
-					*iter, arc_iter->lock()->Interval(), arc_iter->lock().get(), arc_iter->lock()->OutputTransition());
-		}
-
-		for(TAPN::TransportArc::WeakPtrVector::const_iterator arc_iter = iter->place->GetTransportArcs().begin();
-				arc_iter != iter->place->GetTransportArcs().end(); arc_iter++){
-			processArc(enabledArcs, enabledTransitionArcs, enabledTransitions,
-					*iter, arc_iter->lock()->Interval(), arc_iter->lock().get(),
-					arc_iter->lock()->Transition(), arc_iter->lock()->Destination().GetInvariant().GetBound());
-		}
-
-		for(TAPN::InhibitorArc::WeakPtrVector::const_iterator arc_iter = iter->place->GetInhibitorArcs().begin();
-				arc_iter != iter->place->GetInhibitorArcs().end(); arc_iter++){
-			TimeInterval t(false, 0, std::numeric_limits<int>().max(), true);
-			processArc(enabledArcs, enabledTransitionArcs, enabledTransitions,
-					*iter, t, arc_iter->lock().get(), arc_iter->lock()->OutputTransition(), std::numeric_limits<int>().max(), true);
-		}
+	// Calculate enableing tokens
+	for(TAPN::TimedInputArc::WeakPtrVector::const_iterator arc_iter = transition.GetPreset().begin();
+			arc_iter != transition.GetPreset().end(); arc_iter++){
+			processArc(enabledArcs,	marking.GetTokenList( arc_iter->lock()->InputPlace().GetIndex() ), arc_iter->lock()->Interval(), arc_iter->lock().get(), transition);
 	}
 
-	enabledTransitions.insert(enabledTransitions.end(), allwaysEnabled.begin(), allwaysEnabled.end());
-	generateMarkings(result, marking, enabledTransitions, enabledArcs);
+	for(TAPN::TransportArc::WeakPtrVector::const_iterator arc_iter = iter->place->GetTransportArcs().begin();
+			arc_iter != iter->place->GetTransportArcs().end(); arc_iter++){
+		processArc(enabledArcs, enabledTransitionArcs, enabledTransitions,
+				*iter, arc_iter->lock()->Interval(), arc_iter->lock().get(),
+				arc_iter->lock()->Transition(), arc_iter->lock()->Destination().GetInvariant().GetBound());
+	}
+
+	generateMarkings(result, marking, transition);
 	return result;
 }
 
 void TimeDartSuccessorGenerator::processArc(
 		ArcHashMap& enabledArcs,
-		std::vector<unsigned int>& enabledTransitionArcs,
-		std::vector<const TAPN::TimedTransition* >& enabledTransitions,
-		const Place& place,
+		const TokenList& tokens,
 		const TAPN::TimeInterval& interval,
 		const void* arcAddress,
-		const TimedTransition& transition,
-		int bound,
-		bool isInhib
+		const TimedTransition& transition
 ) const{
 	bool arcIsEnabled = false;
-	for(TokenList::const_iterator token_iter = place.tokens.begin(); token_iter != place.tokens.end(); token_iter++){
+	for(TokenList::const_iterator token_iter = tokens.back(); token_iter !=tokens.end(); token_iter++){
 		if(interval.GetLowerBound() <= token_iter->getAge() && token_iter->getAge() <= interval.GetUpperBound() && token_iter->getAge() <= bound){
 			enabledArcs[arcAddress].push_back(*token_iter);
-			arcIsEnabled = true;
 		}
-	}
-	if(arcIsEnabled && !isInhib){
-		enabledTransitionArcs[transition.GetIndex()]++;
-	}
-	if(enabledTransitionArcs[transition.GetIndex()] == transition.GetPreset().size() + transition.GetTransportArcs().size() && !isInhib){
-		enabledTransitions.push_back(&transition);
 	}
 }
 
@@ -95,30 +72,28 @@ TokenList TimeDartSuccessorGenerator::getPlaceFromMarking(const NonStrictMarking
 }
 
 void TimeDartSuccessorGenerator::generateMarkings(vector<NonStrictMarking>& result, const NonStrictMarking& init_marking,
-		const std::vector< const TimedTransition* >& transitions, ArcHashMap& enabledArcs) const {
+		const TimedTransition& transition) const {
 
-	//Iterate over transitions
-	for(std::vector< const TimedTransition* >::const_iterator iter = transitions.begin(); iter != transitions.end(); iter++){
 		bool inhibited = false;
 		//Check that no inhibitors is enabled;
 
-		for(TAPN::InhibitorArc::WeakPtrVector::const_iterator inhib_iter = (*iter)->GetInhibitorArcs().begin(); inhib_iter != (*iter)->GetInhibitorArcs().end(); inhib_iter++){
+		for(TAPN::InhibitorArc::WeakPtrVector::const_iterator inhib_iter = transition.GetInhibitorArcs().begin(); inhib_iter != transition.GetInhibitorArcs().end(); inhib_iter++){
 			// Maybe this could be done more efficiently using ArcHashMap? Dunno exactly how it works
 			if(init_marking.NumberOfTokensInPlace(inhib_iter->lock().get()->InputPlace().GetIndex()) >= inhib_iter->lock().get()->GetWeight()){
 				inhibited = true;
 				break;
 			}
 		}
-		if (inhibited) continue;
+		if (inhibited) return;
+
 		NonStrictMarking m(init_marking);
-		m.SetGeneratedBy(*iter);
+		m.SetGeneratedBy(&transition);
 		//Generate markings for transition
-		recursiveGenerateMarking(result, m, *(*iter), enabledArcs, 0);
-	}
+		recursiveGenerateMarking(result, m, transition, 0);
 }
 
 
-void TimeDartSuccessorGenerator::recursiveGenerateMarking(vector<NonStrictMarking>& result, NonStrictMarking& init_marking, const TimedTransition& transition, ArcHashMap& enabledArcs, unsigned int index) const{
+void TimeDartSuccessorGenerator::recursiveGenerateMarking(vector<NonStrictMarking>& result, NonStrictMarking& init_marking, const TimedTransition& transition, unsigned int index) const{
 
 	// Initialize vectors
 	ArcAndTokensVector indicesOfCurrentPermutation;

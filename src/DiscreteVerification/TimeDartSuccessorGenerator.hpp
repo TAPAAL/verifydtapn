@@ -123,8 +123,8 @@ public:
 private:
 	TokenList getPlaceFromMarking(const NonStrictMarking& marking, int placeID) const;
 
-	void generateMarkings(vector<NonStrictMarking >& result, const NonStrictMarking& init_marking, const std::vector< const TimedTransition* >& transitions, ArcHashMap& enabledArcs) const;
-	void recursiveGenerateMarking(vector<NonStrictMarking >& result, NonStrictMarking& init_marking, const TimedTransition& transition, ArcHashMap& enabledArcs, unsigned int index) const;
+	void generateMarkings(vector<NonStrictMarking >& result, const NonStrictMarking& init_marking, const TimedTransition& transition) const;
+	void recursiveGenerateMarking(vector<NonStrictMarking >& result, NonStrictMarking& init_marking, const TimedTransition& transition, unsigned int index) const;
 
 	void addMarking(vector<NonStrictMarking >& result, NonStrictMarking& init_marking, const TimedTransition& transition, ArcAndTokensVector& indicesOfCurrentPermutation) const;
 	bool incrementModificationVector(vector<unsigned int >& modificationVector, TokenList& enabledTokens) const;
@@ -133,15 +133,11 @@ private:
 	vector<const TAPN::TimedTransition*> allwaysEnabled;
 	void processArc(
 			ArcHashMap& enabledArcs,
-			std::vector<unsigned int>& enabledTransitionArcs,
-			std::vector<const TAPN::TimedTransition*>& enabledTransitions,
-			const Place& place,
-			const TAPN::TimeInterval& interval,
-			const void* arcAddress,
-			const TimedTransition& transition,
-			int bound = std::numeric_limits<int>().max(),
-			bool isInhib = false
-	) const;
+					const TokenList& place,
+					const TAPN::TimeInterval& interval,
+					const void* arcAddress,
+					const TimedTransition& transition
+			) const;
 
     inline void ClearTransitionsArray() {
     	memset(transitionStatistics, 0, numberoftransitions * sizeof (transitionStatistics[0]));
