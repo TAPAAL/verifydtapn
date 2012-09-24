@@ -29,7 +29,7 @@ vector<interval<int> > setIntersection(const vector<interval<int> >& first, cons
 		return result;
 	}
 
-	int i=0, j=0;
+	unsigned int i=0, j=0;
 
 	while(i<first.size() && j<second.size()){
 		int i1up = first.at(i).upper();
