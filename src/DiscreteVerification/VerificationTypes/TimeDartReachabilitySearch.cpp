@@ -10,8 +10,6 @@
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
-using boost::numeric::interval;
-
 TimeDartReachabilitySearch::TimeDartReachabilitySearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<TimeDart>* waiting_list)
 	: pwList(waiting_list), tapn(tapn), initialMarking(initialMarking), query(query), options(options), successorGenerator( *tapn.get() ), allwaysEnabled(){
 
@@ -31,6 +29,7 @@ bool TimeDartReachabilitySearch::Verify(){
 	//Main loop
 	while(pwList.HasWaitingStates()){
 		TimeDart& dart = *pwList.GetNextUnexplored();
+		int passed = dart.getPassed();
 		dart.setPassed(dart.getWaiting());
 		vector<const TimedTransition*> transitions = getTransitions(&(dart.getBase()));
 		for(vector<const TimedTransition*>::const_iterator transition = transitions.begin(); transition != transitions.end(); transition++){
@@ -39,7 +38,7 @@ bool TimeDartReachabilitySearch::Verify(){
 				continue;
 			}
 			int start = max(dart.getWaiting(), calculatedStart);
-			int end = min(dart.getPassed(), calculateEnd(*(*transition), dart.getBase()));
+			int end = min(passed, calculateEnd(*(*transition), dart.getBase()));
 			if(start <= end){
 				if((*transition)->GetPostsetSize() == 0){
 					NonStrictMarking Mpp = NonStrictMarking(dart.getBase());
@@ -154,14 +153,14 @@ vector<const TimedTransition*> TimeDartReachabilitySearch::getTransitions(NonStr
 }
 
 int TimeDartReachabilitySearch::calculateStart(const TimedTransition& transition, NonStrictMarking& marking){
-	vector<interval<int> > start;
-	interval<int> initial(0, INT_MAX);
+	vector<Util::interval > start;
+	Util::interval initial(0, INT_MAX);
 	start.push_back(initial);
 
 	// TODO do the same for transport arcs
 
 	for(TAPN::TimedInputArc::WeakPtrVector::const_iterator arc = transition.GetPreset().begin(); arc != transition.GetPreset().end(); arc++){
-		vector<interval<int> > intervals;
+		vector<Util::interval > intervals;
 		int range;
 		if(arc->lock()->Interval().GetUpperBound() == INT_MAX){
 			range = INT_MAX;
@@ -186,7 +185,7 @@ int TimeDartReachabilitySearch::calculateStart(const TimedTransition& transition
 				j--;
 			}
 			if(numberOfTokensAvailable >= weight && tokens.at(j).getAge() - tokens.at(i).getAge() <= range){ //This span is interesting
-				interval<int> element(arc->lock()->Interval().GetLowerBound() - tokens.at(i).getAge(),
+				Util::interval element(arc->lock()->Interval().GetLowerBound() - tokens.at(i).getAge(),
 						arc->lock()->Interval().GetUpperBound() - tokens.at(j).getAge());
 				Util::set_add(intervals, element);
 			}
@@ -198,7 +197,7 @@ int TimeDartReachabilitySearch::calculateStart(const TimedTransition& transition
 
 	// Transport arcs
 	for(TAPN::TransportArc::WeakPtrVector::const_iterator arc = transition.GetTransportArcs().begin(); arc != transition.GetTransportArcs().end(); arc++){
-			vector<interval<int> > intervals;
+			vector<Util::interval > intervals;
 			int range;
 			if(arc->lock()->Interval().GetUpperBound() == INT_MAX){
 				range = INT_MAX;
@@ -224,7 +223,7 @@ int TimeDartReachabilitySearch::calculateStart(const TimedTransition& transition
 					j--;
 				}
 				if(numberOfTokensAvailable >= weight && tokens.at(j).getAge() - tokens.at(i).getAge() <= range){ //This span is interesting
-					interval<int> element(arc->lock()->Interval().GetLowerBound() - tokens.at(i).getAge(),
+					Util::interval element(arc->lock()->Interval().GetLowerBound() - tokens.at(i).getAge(),
 							arc->lock()->Interval().GetUpperBound() - tokens.at(j).getAge());
 					Util::set_add(intervals, element);
 				}

@@ -12,18 +12,17 @@ namespace DiscreteVerification {
 namespace Util {
 
 using namespace std;
-using boost::numeric::interval;
 using boost::numeric::intersect;
 
 //TODO Optimize!!
-void setUnion(vector< interval<int> >& first, const vector< interval<int> >& second){
-	for(vector< interval<int> >::const_iterator iter = second.begin(); iter != second.end(); iter++){
+void setUnion(vector< interval >& first, const vector< interval >& second){
+	for(vector< interval >::const_iterator iter = second.begin(); iter != second.end(); iter++){
 		set_add(first, *iter);
 	}
 }
 
-vector<interval<int> > setIntersection(const vector<interval<int> >& first, const vector<interval<int> >& second){
-	vector<interval<int> > result;
+vector<interval > setIntersection(const vector<interval >& first, const vector<interval >& second){
+	vector<interval > result;
 
 	if(first.size() < 1 || second.size() < 1){
 		return result;
@@ -35,7 +34,7 @@ vector<interval<int> > setIntersection(const vector<interval<int> >& first, cons
 		int i1up = first.at(i).upper();
 		int i2up = second.at(j).upper();
 
-		interval<int> intersection = intersect(first.at(i), second.at(j));
+		interval intersection = intersect(first.at(i), second.at(j));
 
 		if(!empty(intersection)){
 			result.push_back(intersection);
@@ -53,7 +52,7 @@ vector<interval<int> > setIntersection(const vector<interval<int> >& first, cons
 }
 
 //TODO: Move to utility file
-void set_add(vector< interval<int> >& first, const interval<int>& element){
+void set_add(vector< interval >& first, const interval& element){
 
 	bool inserted = false;
 	for(unsigned int i = 0; i < first.size(); i++){

@@ -15,10 +15,15 @@ namespace VerifyTAPN {
 namespace DiscreteVerification {
 namespace Util {
 
-void set_add(std::vector< boost::numeric::interval<int> >& first, const boost::numeric::interval<int>& element);
-void setUnion(std::vector< boost::numeric::interval<int> >& first, const std::vector< boost::numeric::interval<int> >& second);
-std::vector<boost::numeric::interval<int> > setIntersection(const std::vector<boost::numeric::interval<int> >& first,
-		const std::vector<boost::numeric::interval<int> >& second);
+typedef boost::numeric::interval_lib::rounded_math< int > rounding_policy;
+typedef boost::numeric::interval_lib::checking_no_nan< int > checking_policy;
+typedef boost::numeric::interval_lib::policies< rounding_policy, checking_policy > interval_policies;
+typedef boost::numeric::interval< int, interval_policies > interval;
+
+void set_add(std::vector< interval >& first, const interval& element);
+void setUnion(std::vector< interval >& first, const std::vector< interval >& second);
+std::vector<interval > setIntersection(const std::vector<interval >& first,
+		const std::vector<interval >& second);
 
 } /* namespace Util */
 } /* namespace DiscreteVerification */
