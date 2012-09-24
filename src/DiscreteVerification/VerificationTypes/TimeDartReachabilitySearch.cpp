@@ -130,53 +130,16 @@ vector<TimedTransition> TimeDartReachabilitySearch::getTransitions(NonStrictMark
 	return *transitions;
 }
 
-void set_add(vector< pair<int, int> >* first, pair<int, int>* element){
-
-	bool inserted = false;
-	for(unsigned int i = 0; i < first->size(); i++){
-
-		if(!inserted){
-			if(element->second < first->at(i).first){
-				// Add element
-				first->insert(first->begin()+i, *element);
-				inserted = true;
-			}else if(element->first >= first->at(i).first && element->first <= first->at(i).second){
-				// Merge with node
-				int _max = max(first->at(i).second, element->second);
-				first->at(i).second = _max;
-				inserted = true;
-				// Clean up
-				for(i += 1; i < first->size(); i++){
-					if(first->at(i).first <= _max){
-						// Merge items
-						if(first->at(i).second >= _max){
-							first->at(i-1).second = first->at(i).second;
-						}
-						first->erase(first->begin()+i-1,first->begin()+i);
-						i--;
-					}
-				}
-			}
-		}else{
-			break;
-		}
-	}
-
-	if(!inserted){
-		first->push_back(*element);
-	}
-}
-
 int TimeDartReachabilitySearch::calculateStart(const TimedTransition& transition, NonStrictMarking& marking){
-	vector<pair<int, int> >* start = new vector<pair<int, int> >();
-	pair<int, int>* initial = new pair<int, int>(0, INT_MAX);
-	start->push_back(*initial);
+	vector<pair<int, int> > start;
+	pair<int, int> initial(0, INT_MAX);
+	start.push_back(initial);
 
 	// TODO do the same for transport arcs
 
 	for(TAPN::TimedInputArc::WeakPtrVector::const_iterator arc = transition.GetPreset().begin(); arc != transition.GetPreset().end(); arc++){
-		vector<pair<int, int> >* intervals = new vector<pair<int, int> >();
-		int range = 0;
+		vector<pair<int, int> > intervals;
+		int range;
 		if(arc->lock()->Interval().GetUpperBound() == INT_MAX){
 			range = INT_MAX;
 		}else{
@@ -184,19 +147,30 @@ int TimeDartReachabilitySearch::calculateStart(const TimedTransition& transition
 		}
 		int weight = arc->lock()->GetWeight();
 
+		//TODO: Here we search twice
 		int end = marking.NumberOfTokensInPlace(arc->lock()->InputPlace().GetIndex())-weight;
 		TokenList tokens = marking.GetTokenList(arc->lock()->InputPlace().GetIndex());
-		int ii = 0;
-		for(int i = 0; i <= end; i++){
-			for(int c = 0; c < tokens.at(ii).getCount(); c++){
-				pair<int, int>* element = new pair<int, int>(0,0);
-				set_add(intervals, element);
+
+		int j = 0;
+		int numberOfTokensAvailable = tokens.at(j).getCount();
+		for(int  i = 0; i < tokens.size(); i++){
+			for(j=max(i,j); j < tokens.size(); j++){
+				if(numberOfTokensAvailable >= weight)
+					break;
+				numberOfTokensAvailable += tokens.at(j).getCount();
 			}
-			ii++;
+			if(numberOfTokensAvailable >= weight && tokens.at(j).getAge() - tokens.at(i).getAge() <= range){ //This span is interesting
+				pair<int, int> element(
+						arc->lock()->Interval().GetLowerBound() - tokens.at(i).getAge(),
+						arc->lock()->Interval().GetUpperBound() - tokens.at(j).getAge());
+				set_add(&intervals, &element);
+			}
+			numberOfTokensAvailable -= tokens.at(i).getCount();
 		}
+
 		// TODO intersection of intervals and start
 	}
-	return start->at(0).first;
+	return start.at(0).first;
 }
 
 int TimeDartReachabilitySearch::calculateEnd(const TimedTransition& transition, NonStrictMarking& marking){
