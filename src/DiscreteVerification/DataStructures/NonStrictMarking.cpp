@@ -78,7 +78,7 @@ int NonStrictMarking::NumberOfTokensInPlace(int placeId) const{
 	return count;
 }
 
-const TokenList& NonStrictMarking::GetTokenList(int placeId){
+const TokenList& NonStrictMarking::GetTokenList(int placeId) const{
 	for(PlaceList::const_iterator iter = places.begin(); iter != places.end(); iter++){
 		if(iter->place->GetIndex() == placeId) return iter->tokens;
 	}

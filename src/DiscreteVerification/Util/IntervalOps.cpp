@@ -17,19 +17,19 @@ using boost::numeric::intersect;
 
 //TODO Optimize!!
 void setUnion(vector< interval<int> >& first, const vector< interval<int> >& second){
-	for(vector< interval<int> >::const_iterator iter = second.begin(); iter != second.end(); second++){
-		set_add(first, &(*iter));
+	for(vector< interval<int> >::const_iterator iter = second.begin(); iter != second.end(); iter++){
+		set_add(first, *iter);
 	}
 }
 
-vector<interval<int> > setIntersection(vector<interval<int> >& first, vector<interval<int> >& second){
+vector<interval<int> > setIntersection(const vector<interval<int> >& first, const vector<interval<int> >& second){
 	vector<interval<int> > result;
 
 	if(first.size() < 1 || second.size() < 1){
 		return result;
 	}
 
-	int i=0, j=0;
+	unsigned int i=0, j=0;
 
 	while(i<first.size() && j<second.size()){
 		int i1up = first.at(i).upper();
@@ -37,7 +37,7 @@ vector<interval<int> > setIntersection(vector<interval<int> >& first, vector<int
 
 		interval<int> intersection = intersect(first.at(i), second.at(j));
 
-		if(!intersection.empty()){
+		if(!empty(intersection)){
 			result.push_back(intersection);
 		}
 
@@ -49,6 +49,7 @@ vector<interval<int> > setIntersection(vector<interval<int> >& first, vector<int
 			j++;
 		}
 	}
+	return result;
 }
 
 //TODO: Move to utility file
@@ -65,14 +66,14 @@ void set_add(vector< interval<int> >& first, const interval<int>& element){
 			} else if(element.lower() >= first.at(i).lower() && element.lower() <= first.at(i).upper()){
 				// Merge with node
 				int _max = max(first.at(i).upper(), element.upper());
-				first.at(i).upper() = _max;
+				first.at(i).assign(first.at(i).lower(), _max);
 				inserted = true;
 				// Clean up
 				for(i += 1; i < first.size(); i++){
 					if(first.at(i).lower() <= _max){
 						// Merge items
 						if(first.at(i).upper() >= _max){
-							first.at(i-1).upper() = first.at(i).upper();
+							first.at(i-1).assign(first.at(i-1).lower(), first.at(i).upper());
 						}
 						first.erase(first.begin()+i-1,first.begin()+i);
 						i--;

@@ -35,14 +35,12 @@ vector< NonStrictMarking > TimeDartSuccessorGenerator::generateSuccessors(const 
 			processArc(enabledArcs,	marking.GetTokenList( arc_iter->lock()->InputPlace().GetIndex() ), arc_iter->lock()->Interval(), arc_iter->lock().get(), transition);
 	}
 
-	for(TAPN::TransportArc::WeakPtrVector::const_iterator arc_iter = iter->place->GetTransportArcs().begin();
-			arc_iter != iter->place->GetTransportArcs().end(); arc_iter++){
-		processArc(enabledArcs, enabledTransitionArcs, enabledTransitions,
-				*iter, arc_iter->lock()->Interval(), arc_iter->lock().get(),
-				arc_iter->lock()->Transition(), arc_iter->lock()->Destination().GetInvariant().GetBound());
+	for(TAPN::TransportArc::WeakPtrVector::const_iterator arc_iter = transition.GetTransportArcs().begin();
+			arc_iter != transition.GetTransportArcs().end(); arc_iter++){
+			processArc(enabledArcs,	marking.GetTokenList( arc_iter->lock()->Source().GetIndex() ), arc_iter->lock()->Interval(), arc_iter->lock().get(), transition, arc_iter->lock()->Destination().GetInvariant().GetBound());
 	}
 
-	generateMarkings(result, marking, transition);
+	generateMarkings(result, marking, transition, enabledArcs);
 	return result;
 }
 
@@ -51,10 +49,10 @@ void TimeDartSuccessorGenerator::processArc(
 		const TokenList& tokens,
 		const TAPN::TimeInterval& interval,
 		const void* arcAddress,
-		const TimedTransition& transition
+		const TimedTransition& transition,
+		int bound
 ) const{
-	bool arcIsEnabled = false;
-	for(TokenList::const_iterator token_iter = tokens.back(); token_iter !=tokens.end(); token_iter++){
+	for(TokenList::const_iterator token_iter = tokens.begin();	token_iter != tokens.end(); token_iter++){
 		if(interval.GetLowerBound() <= token_iter->getAge() && token_iter->getAge() <= interval.GetUpperBound() && token_iter->getAge() <= bound){
 			enabledArcs[arcAddress].push_back(*token_iter);
 		}
@@ -72,7 +70,7 @@ TokenList TimeDartSuccessorGenerator::getPlaceFromMarking(const NonStrictMarking
 }
 
 void TimeDartSuccessorGenerator::generateMarkings(vector<NonStrictMarking>& result, const NonStrictMarking& init_marking,
-		const TimedTransition& transition) const {
+		const TimedTransition& transition, ArcHashMap& enabledArcs) const {
 
 		bool inhibited = false;
 		//Check that no inhibitors is enabled;
@@ -89,11 +87,11 @@ void TimeDartSuccessorGenerator::generateMarkings(vector<NonStrictMarking>& resu
 		NonStrictMarking m(init_marking);
 		m.SetGeneratedBy(&transition);
 		//Generate markings for transition
-		recursiveGenerateMarking(result, m, transition, 0);
+		recursiveGenerateMarking(result, m, transition, 0, enabledArcs);
 }
 
 
-void TimeDartSuccessorGenerator::recursiveGenerateMarking(vector<NonStrictMarking>& result, NonStrictMarking& init_marking, const TimedTransition& transition, unsigned int index) const{
+void TimeDartSuccessorGenerator::recursiveGenerateMarking(vector<NonStrictMarking>& result, NonStrictMarking& init_marking, const TimedTransition& transition, unsigned int index, ArcHashMap& enabledArcs) const{
 
 	// Initialize vectors
 	ArcAndTokensVector indicesOfCurrentPermutation;

@@ -145,7 +145,7 @@ public:
 	public: // inspectors
 		//int NumberOfTokensInPlace(const Place& palce) const;
 		int NumberOfTokensInPlace(int placeId) const;
-		const TokenList& GetTokenList(int placeId);
+		const TokenList& GetTokenList(int placeId) const;
 		const PlaceList& GetPlaceList() const{ return places; }
 		unsigned int size();
 		const NonStrictMarking* GetParent() const { return parent; }

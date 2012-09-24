@@ -10,6 +10,8 @@
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
+using boost::numeric::interval;
+
 TimeDartReachabilitySearch::TimeDartReachabilitySearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<TimeDart>* waiting_list)
 	: pwList(waiting_list), tapn(tapn), initialMarking(initialMarking), query(query), options(options), successorGenerator( *tapn.get() ){
 }
@@ -148,7 +150,7 @@ int TimeDartReachabilitySearch::calculateStart(const TimedTransition& transition
 	// TODO do the same for transport arcs
 
 	for(TAPN::TimedInputArc::WeakPtrVector::const_iterator arc = transition.GetPreset().begin(); arc != transition.GetPreset().end(); arc++){
-		vector<pair<int, int> > intervals;
+		vector<interval<int> > intervals;
 		int range;
 		if(arc->lock()->Interval().GetUpperBound() == INT_MAX){
 			range = INT_MAX;
@@ -161,19 +163,18 @@ int TimeDartReachabilitySearch::calculateStart(const TimedTransition& transition
 		int end = marking.NumberOfTokensInPlace(arc->lock()->InputPlace().GetIndex())-weight;
 		TokenList tokens = marking.GetTokenList(arc->lock()->InputPlace().GetIndex());
 
-		int j = 0;
+		unsigned int j = 0;
 		int numberOfTokensAvailable = tokens.at(j).getCount();
-		for(int  i = 0; i < tokens.size(); i++){
+		for(unsigned int  i = 0; i < tokens.size(); i++){
 			for(j=max(i,j); j < tokens.size(); j++){
 				if(numberOfTokensAvailable >= weight)
 					break;
 				numberOfTokensAvailable += tokens.at(j).getCount();
 			}
 			if(numberOfTokensAvailable >= weight && tokens.at(j).getAge() - tokens.at(i).getAge() <= range){ //This span is interesting
-				pair<int, int> element(
-						arc->lock()->Interval().GetLowerBound() - tokens.at(i).getAge(),
+				interval<int> element(arc->lock()->Interval().GetLowerBound() - tokens.at(i).getAge(),
 						arc->lock()->Interval().GetUpperBound() - tokens.at(j).getAge());
-				set_add(&intervals, &element);
+				Util::set_add(intervals, element);
 			}
 			numberOfTokensAvailable -= tokens.at(i).getCount();
 		}
