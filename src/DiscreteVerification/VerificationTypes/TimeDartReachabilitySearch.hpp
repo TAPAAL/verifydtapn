@@ -11,6 +11,7 @@
 #include "../DataStructures/TimeDart.hpp"
 #include "../DataStructures/TimeDartPWList.hpp"
 #include "boost/smart_ptr.hpp"
+#include "boost/numeric/interval.hpp"
 #include "../../Core/TAPN/TAPN.hpp"
 #include "../../Core/QueryParser/AST.hpp"
 #include "../../Core/VerificationOptions.hpp"
@@ -27,6 +28,7 @@
 #include <stack>
 #include "Verification.hpp"
 #include "../DataStructures/TimeDart.hpp"
+#include "../Util/IntervalOps.hpp"
 
 namespace VerifyTAPN {
 namespace DiscreteVerification {
