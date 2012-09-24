@@ -13,7 +13,14 @@ namespace DiscreteVerification {
 using boost::numeric::interval;
 
 TimeDartReachabilitySearch::TimeDartReachabilitySearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<TimeDart>* waiting_list)
-	: pwList(waiting_list), tapn(tapn), initialMarking(initialMarking), query(query), options(options), successorGenerator( *tapn.get() ){
+	: pwList(waiting_list), tapn(tapn), initialMarking(initialMarking), query(query), options(options), successorGenerator( *tapn.get() ), allwaysEnabled(){
+
+	//Find the transitions which don't have input arcs
+	for(TimedTransition::Vector::const_iterator iter = tapn->GetTransitions().begin(); iter != tapn->GetTransitions().end(); iter++){
+		if((*iter)->GetPreset().size() + (*iter)->GetTransportArcs().size() == 0){
+			allwaysEnabled.push_back(iter->get());
+		}
+	}
 }
 
 bool TimeDartReachabilitySearch::Verify(){
@@ -25,29 +32,29 @@ bool TimeDartReachabilitySearch::Verify(){
 	while(pwList.HasWaitingStates()){
 		TimeDart& dart = *pwList.GetNextUnexplored();
 
-		vector<TimedTransition> transitions = getTransitions(&(dart.getBase()));
-		for(vector<TimedTransition>::const_iterator transition = transitions.begin(); transition != transitions.end(); transition++){
-			int calculatedStart = calculateStart((*transition), dart.getBase());
+		vector<const TimedTransition*> transitions = getTransitions(&(dart.getBase()));
+		for(vector<const TimedTransition*>::const_iterator transition = transitions.begin(); transition != transitions.end(); transition++){
+			int calculatedStart = calculateStart(*(*transition), dart.getBase());
 			if(calculatedStart == -1){	// Transition cannot be enabled in marking
 				continue;
 			}
 			int start = max(dart.getWaiting(), calculatedStart);
-			int end = min(dart.getPassed(), calculateEnd((*transition), dart.getBase()));
+			int end = min(dart.getPassed(), calculateEnd(*(*transition), dart.getBase()));
 			if(start <= end){
-				if(transition->GetPostsetSize() == 0){
+				if((*transition)->GetPostsetSize() == 0){
 					NonStrictMarking Mpp = NonStrictMarking(dart.getBase());
 					Mpp.incrementAge(start);
-					vector<NonStrictMarking> next = getPossibleNextMarkings(Mpp, *transition);
+					vector<NonStrictMarking> next = getPossibleNextMarkings(Mpp, *(*transition));
 					for(vector<NonStrictMarking>::iterator it = next.begin(); it != next.end(); it++){
 						if(addToPW(&(*it), start, INT_MAX)){
 							return true;
 						}
 					}
 				}else{
-					for(int n = start; n < end; n++){
-						NonStrictMarking Mpp = NonStrictMarking(dart.getBase());
-						Mpp.incrementAge(start);
-						vector<NonStrictMarking> next = getPossibleNextMarkings(Mpp, *transition);
+					for(int n = start; n <= end; n++){
+						NonStrictMarking Mpp(dart.getBase());
+						Mpp.incrementAge(n);
+						vector<NonStrictMarking> next = getPossibleNextMarkings(Mpp, **transition);
 						for(vector<NonStrictMarking>::iterator it = next.begin(); it != next.end(); it++){
 							if(addToPW(&(*it), 0, INT_MAX)){
 								return true;
@@ -96,8 +103,8 @@ bool TimeDartReachabilitySearch::addToPW(NonStrictMarking* marking, int w, int p
 		return false;
 	}
 
-	TimeDart dart = makeDart(marking, w, p);
-	if(pwList.Add(&dart)){
+	TimeDart* dart = new TimeDart(marking, w, p);
+	if(pwList.Add(dart)){
 		QueryVisitor checker(*marking);
 		boost::any context;
 		query->Accept(checker, context);
@@ -112,34 +119,31 @@ bool TimeDartReachabilitySearch::addToPW(NonStrictMarking* marking, int w, int p
 	return false;
 }
 
-TimeDart TimeDartReachabilitySearch::makeDart(NonStrictMarking* marking, int w, int p){
-	TimeDart* dart = new TimeDart(marking, w, p);
-	return *dart;
+bool compare( const TimedTransition* lx, const TimedTransition* rx ) {
+	return lx->GetIndex() < rx->GetIndex();
 }
 
-bool compare( const TimedTransition& lx, const TimedTransition& rx ) {
-	return lx.GetIndex() < rx.GetIndex();
-}
-
-vector<TimedTransition> TimeDartReachabilitySearch::getTransitions(NonStrictMarking* marking){
-	vector<TimedTransition>* transitions = new vector<TimedTransition>();
+vector<const TimedTransition*> TimeDartReachabilitySearch::getTransitions(NonStrictMarking* marking){
+	vector<const TimedTransition*> transitions;
 
 	// Go through places
 	for(vector<Place>::const_iterator place_iter = marking->places.begin(); place_iter != marking->places.end(); place_iter++){
 		// Normal arcs
 		for(TAPN::TimedInputArc::WeakPtrVector::const_iterator arc_iter = place_iter->place->GetInputArcs().begin(); arc_iter != place_iter->place->GetInputArcs().end(); arc_iter++){
-			transitions->push_back(arc_iter->lock()->OutputTransition());
+			transitions.push_back(&arc_iter->lock()->OutputTransition());
 		}
 		// Transport arcs
 		for(TAPN::TransportArc::WeakPtrVector::const_iterator arc_iter = place_iter->place->GetTransportArcs().begin(); arc_iter != place_iter->place->GetTransportArcs().end(); arc_iter++){
-			transitions->push_back(arc_iter->lock()->Transition());
+			transitions.push_back(&arc_iter->lock()->Transition());
 		}
 	}
 
-	std::sort(transitions->begin(), transitions->end(), compare);
-	transitions->erase(std::unique(transitions->begin(), transitions->end()), transitions->end());
+	std::sort(transitions.begin(), transitions.end(), compare);
+	transitions.erase(std::unique(transitions.begin(), transitions.end()), transitions.end());
 
-	return *transitions;
+	transitions.insert(transitions.end(), allwaysEnabled.begin(), allwaysEnabled.end());
+
+	return transitions;
 }
 
 int TimeDartReachabilitySearch::calculateStart(const TimedTransition& transition, NonStrictMarking& marking){

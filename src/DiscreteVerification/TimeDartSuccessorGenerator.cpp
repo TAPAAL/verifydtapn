@@ -29,7 +29,7 @@ vector< NonStrictMarking > TimeDartSuccessorGenerator::generateSuccessors(const 
 	vector< NonStrictMarking > result;
 	ArcHashMap enabledArcs(transition.GetPresetSize() + transition.GetTransportArcs().size());
 
-	// Calculate enableing tokens
+	// Calculate enabling tokens
 	for(TAPN::TimedInputArc::WeakPtrVector::const_iterator arc_iter = transition.GetPreset().begin();
 			arc_iter != transition.GetPreset().end(); arc_iter++){
 			processArc(enabledArcs,	marking.GetTokenList( arc_iter->lock()->InputPlace().GetIndex() ), arc_iter->lock()->Interval(), arc_iter->lock().get(), transition);

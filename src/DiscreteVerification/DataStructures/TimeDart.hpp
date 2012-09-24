@@ -37,7 +37,6 @@ public:
 		this->base = *baseMarking;
 	}
 	~TimeDart(){
-		delete &base;
 	}
 
 	//Getters

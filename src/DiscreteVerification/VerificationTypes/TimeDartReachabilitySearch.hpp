@@ -47,8 +47,7 @@ protected:
 	bool addToPW(NonStrictMarking* marking, int w, int p);
 	bool isDelayPossible(NonStrictMarking& marking);
 	NonStrictMarking* cut(NonStrictMarking& marking);
-	TimeDart makeDart(NonStrictMarking* marking, int w, int p);
-	vector<TimedTransition> getTransitions(NonStrictMarking* marking);
+	vector<const TimedTransition*> getTransitions(NonStrictMarking* marking);
 	int calculateStart(const TimedTransition& transition, NonStrictMarking& marking);
 	int calculateEnd(const TimedTransition& transition, NonStrictMarking& marking);
 
@@ -60,6 +59,7 @@ protected:
 	AST::Query* query;
 	VerificationOptions options;
 	TimeDartSuccessorGenerator successorGenerator;
+	vector<const TAPN::TimedTransition*> allwaysEnabled;
 public:
 	void printStats();
 private:
