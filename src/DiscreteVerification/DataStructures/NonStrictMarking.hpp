@@ -46,6 +46,11 @@ public:
 	inline void incrementAge(){
 		age++;
 	}
+
+	inline void incrementAge(int x){
+		age += x;
+	}
+
 	inline void decrementAge(){
 		age--;
 	}
@@ -102,6 +107,12 @@ public:
 		}
 	}
 
+	void incrementAge(int age){
+		for(TokenList::iterator iter = tokens.begin(); iter != tokens.end(); iter++){
+			iter->incrementAge(age);
+		}
+	}
+
 	void decrementAge(){
 		for(TokenList::iterator iter = tokens.begin(); iter != tokens.end(); iter++){
 			iter->decrementAge();
@@ -148,6 +159,7 @@ public:
 		void AddTokenInPlace(Place& place, Token& token);
 		void AddTokenInPlace(TAPN::TimedPlace& place, Token& token);
 		void incrementAge();	// increment
+		void incrementAge(int age);
 		void decrementAge();	// decrement
 		void RemoveRangeOfTokens(Place& place, TokenList::iterator begin, TokenList::iterator end);
 		void SetParent(NonStrictMarking* parent) { this->parent = parent; }

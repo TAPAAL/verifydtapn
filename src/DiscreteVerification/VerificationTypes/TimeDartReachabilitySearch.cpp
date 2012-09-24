@@ -22,24 +22,34 @@ bool TimeDartReachabilitySearch::Verify(){
 	//Main loop
 	while(pwList.HasWaitingStates()){
 		TimeDart& dart = *pwList.GetNextUnexplored();
-		bool endOfMaxRun = true;
 
 		vector<TimedTransition> transitions = getTransitions(&(dart.getBase()));
 		for(vector<TimedTransition>::const_iterator transition = transitions.begin(); transition != transitions.end(); transition++){
 			int calculatedStart = calculateStart((*transition), dart.getBase());
+			if(calculatedStart == -1){	// Transition cannot be enabled in marking
+				continue;
+			}
 			int start = max(dart.getWaiting(), calculatedStart);
 			int end = min(dart.getPassed(), calculateEnd((*transition), dart.getBase()));
 			if(start <= end){
 				if(transition->GetPostsetSize() == 0){
-					// TODO DO THIS FOR ALL GENERATEABLE MARKINGS, NOT FOR SAME BASE MARKING
-					if(addToPW(&(dart.getBase()), start, INT_MAX)){
-						return true;
+					NonStrictMarking Mpp = NonStrictMarking(dart.getBase());
+					Mpp.incrementAge(start);
+					vector<NonStrictMarking> next = getPossibleNextMarkings(Mpp, *transition);
+					for(vector<NonStrictMarking>::iterator it = next.begin(); it != next.end(); it++){
+						if(addToPW(&(*it), start, INT_MAX)){
+							return true;
+						}
 					}
 				}else{
 					for(int n = start; n < end; n++){
-						// TODO DO THIS FOR ALL GENERATEABLE MARKINGS, NOT FOR SAME BASE MARKING
-						if(addToPW(&(dart.getBase()), 0, INT_MAX)){
-							return true;
+						NonStrictMarking Mpp = NonStrictMarking(dart.getBase());
+						Mpp.incrementAge(start);
+						vector<NonStrictMarking> next = getPossibleNextMarkings(Mpp, *transition);
+						for(vector<NonStrictMarking>::iterator it = next.begin(); it != next.end(); it++){
+							if(addToPW(&(*it), 0, INT_MAX)){
+								return true;
+							}
 						}
 					}
 				}
@@ -71,8 +81,8 @@ bool TimeDartReachabilitySearch::isDelayPossible(NonStrictMarking& marking){
 	return false;
 }
 
-vector<NonStrictMarking> TimeDartReachabilitySearch::getPossibleNextMarkings(NonStrictMarking& marking){
-	return successorGenerator.generateSuccessors(marking);
+vector<NonStrictMarking> TimeDartReachabilitySearch::getPossibleNextMarkings(NonStrictMarking& marking, const TimedTransition& transition){
+	return successorGenerator.generateSuccessors(marking, transition);
 }
 
 bool TimeDartReachabilitySearch::addToPW(NonStrictMarking* marking, int w, int p){
@@ -170,7 +180,7 @@ int TimeDartReachabilitySearch::calculateStart(const TimedTransition& transition
 
 		// TODO intersection of intervals and start
 	}
-	return start.at(0).first;
+	return start.empty()? -1:start.at(0).first;
 }
 
 int TimeDartReachabilitySearch::calculateEnd(const TimedTransition& transition, NonStrictMarking& marking){

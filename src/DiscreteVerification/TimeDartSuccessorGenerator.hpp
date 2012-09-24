@@ -118,7 +118,7 @@ class TimeDartSuccessorGenerator {
 public:
 	TimeDartSuccessorGenerator(TAPN::TimedArcPetriNet& tapn);
 	~TimeDartSuccessorGenerator();
-	vector< NonStrictMarking > generateSuccessors(const NonStrictMarking& marking) const;
+	vector< NonStrictMarking > generateSuccessors(const NonStrictMarking& marking, const TimedTransition& transition) const;
 	void PrintTransitionStatistics(std::ostream & out) const;
 private:
 	TokenList getPlaceFromMarking(const NonStrictMarking& marking, int placeID) const;

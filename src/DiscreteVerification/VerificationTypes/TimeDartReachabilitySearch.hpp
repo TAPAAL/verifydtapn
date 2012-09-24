@@ -20,7 +20,7 @@
 #include "../../Core/TAPN/TransportArc.hpp"
 #include "../../Core/TAPN/InhibitorArc.hpp"
 #include "../../Core/TAPN/OutputArc.hpp"
-#include "../SuccessorGenerator.hpp"
+#include "../TimeDartSuccessorGenerator.hpp"
 #include "../QueryVisitor.hpp"
 #include "boost/any.hpp"
 #include "../DataStructures/NonStrictMarking.hpp"
@@ -41,7 +41,7 @@ public:
 	void PrintTransitionStatistics() const { successorGenerator.PrintTransitionStatistics(std::cout); }
 
 protected:
-	vector<NonStrictMarking> getPossibleNextMarkings(NonStrictMarking& marking);
+	vector<NonStrictMarking> getPossibleNextMarkings(NonStrictMarking& marking, const TimedTransition& transition);
 	bool addToPW(NonStrictMarking* marking, int w, int p);
 	bool isDelayPossible(NonStrictMarking& marking);
 	NonStrictMarking* cut(NonStrictMarking& marking);
@@ -57,7 +57,7 @@ protected:
 	NonStrictMarking& initialMarking;
 	AST::Query* query;
 	VerificationOptions options;
-	SuccessorGenerator successorGenerator;
+	TimeDartSuccessorGenerator successorGenerator;
 public:
 	void printStats();
 private:

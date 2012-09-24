@@ -25,9 +25,9 @@ TimeDartSuccessorGenerator::TimeDartSuccessorGenerator(TAPN::TimedArcPetriNet& t
 	}
 }
 
-vector< NonStrictMarking > TimeDartSuccessorGenerator::generateSuccessors(const NonStrictMarking& marking) const{
+vector< NonStrictMarking > TimeDartSuccessorGenerator::generateSuccessors(const NonStrictMarking& marking, const TimedTransition& transition) const{
 	vector< NonStrictMarking > result;
-	ArcHashMap enabledArcs(tapn.GetInhibitorArcs().size() + tapn.GetInputArcs().size() + tapn.GetTransportArcs().size());
+	ArcHashMap enabledArcs(transition.GetPresetSize() + transition.GetInhibitorArcs().size() + transition.GetTransportArcs().size());
 	std::vector<unsigned int> enabledTransitionArcs(tapn.GetTransitions().size(), 0);
 	std::vector<const TAPN::TimedTransition* > enabledTransitions;
 

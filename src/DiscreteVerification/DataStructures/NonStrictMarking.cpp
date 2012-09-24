@@ -210,6 +210,13 @@ void NonStrictMarking::incrementAge(){
 		iter->incrementAge();
 	}
 }
+
+void NonStrictMarking::incrementAge(int age){
+	for(PlaceList::iterator iter = places.begin(); iter != places.end(); iter++){
+		iter->incrementAge(age);
+	}
+}
+
 void NonStrictMarking::decrementAge(){
 	for(PlaceList::iterator iter = places.begin(); iter != places.end(); iter++){
 		iter->decrementAge();
