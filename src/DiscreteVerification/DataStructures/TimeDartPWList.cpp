@@ -17,13 +17,14 @@ bool TimeDartPWList::Add(TimeDart* dart){
 			iter != m.end();
 			iter++){
 		if((*iter)->getBase().equals(dart->getBase())){
+			bool inWaiting = (*iter)->getWaiting() < (*iter)->getPassed();
 
 			(*iter)->setPassed(min((*iter)->getPassed(),dart->getPassed()));
 			(*iter)->setWaiting(min((*iter)->getWaiting(),dart->getWaiting()));
 
 			delete dart;
 
-			if((*iter)->getWaiting() < (*iter)->getPassed()){
+			if((*iter)->getWaiting() < (*iter)->getPassed() && !inWaiting){
 				waiting_list->Add((*iter));
 			}
 

@@ -29,6 +29,7 @@ bool TimeDartReachabilitySearch::Verify(){
 	//Main loop
 	while(pwList.HasWaitingStates()){
 		TimeDart& dart = *pwList.GetNextUnexplored();
+		//std::cout << "Marking: " << dart.getBase() << " waiting: " << dart.getWaiting() << " passed: " << dart.getPassed() << std::endl;
 		int passed = dart.getPassed();
 		dart.setPassed(dart.getWaiting());
 		vector<const TimedTransition*> transitions = getTransitions(&(dart.getBase()));
@@ -41,7 +42,7 @@ bool TimeDartReachabilitySearch::Verify(){
 			int end = min(passed, calculateEnd(*(*transition), dart.getBase()));
 			if(start <= end){
 				if((*transition)->GetPostsetSize() == 0){
-					NonStrictMarking Mpp = NonStrictMarking(dart.getBase());
+					NonStrictMarking Mpp(dart.getBase());
 					Mpp.incrementAge(start);
 					vector<NonStrictMarking> next = getPossibleNextMarkings(Mpp, *(*transition));
 					for(vector<NonStrictMarking>::iterator it = next.begin(); it != next.end(); it++){
@@ -101,6 +102,9 @@ bool TimeDartReachabilitySearch::addToPW(NonStrictMarking* marking, int w, int p
 	if(size > options.GetKBound()) {
 		return false;
 	}
+
+	//TODO avoid copying
+	marking = cut(*marking);
 
 	TimeDart* dart = new TimeDart(marking, w, p);
 	if(pwList.Add(dart)){
