@@ -41,7 +41,7 @@ bool TimeDartReachabilitySearch::Verify(){
 			int start = max(dart.getWaiting(), calculatedStart);
 			int end = min(passed, calculateEnd(*(*transition), dart.getBase()));
 			if(start <= end){
-				if((*transition)->GetPostsetSize() == 0){
+				if((*transition)->GetPostset().size() == 0){
 					NonStrictMarking Mpp(dart.getBase());
 					Mpp.incrementAge(start);
 					vector<NonStrictMarking> next = getPossibleNextMarkings(Mpp, *(*transition));
