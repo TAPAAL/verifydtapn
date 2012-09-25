@@ -168,6 +168,7 @@ public:
 			for(unsigned int i = 0; i < places.size(); i++){
 				if(places[i].tokens.empty()){
 					places.erase(places.begin()+i);
+					i--;
 				}
 			}
 		}
