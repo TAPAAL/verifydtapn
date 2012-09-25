@@ -161,7 +161,9 @@ int TimeDartReachabilitySearch::calculateStart(const TimedTransition& transition
 	Util::interval initial(0, INT_MAX);
 	start.push_back(initial);
 
-	// TODO do the same for transport arcs
+	if(transition.NumberOfInputArcs() + transition.NumberOfTransportArcs() == 0){ //always enabled
+		return 0;
+	}
 
 	for(TAPN::TimedInputArc::WeakPtrVector::const_iterator arc = transition.GetPreset().begin(); arc != transition.GetPreset().end(); arc++){
 		vector<Util::interval > intervals;
@@ -178,7 +180,6 @@ int TimeDartReachabilitySearch::calculateStart(const TimedTransition& transition
 		TokenList tokens = marking.GetTokenList(arc->lock()->InputPlace().GetIndex());
 		if(tokens.size() == 0) return -1;
 
-		// TODO always enabled transitions?
 		unsigned int j = 0;
 		int numberOfTokensAvailable = tokens.at(j).getCount();
 		for(unsigned int  i = 0; i < tokens.size(); i++){
@@ -216,7 +217,6 @@ int TimeDartReachabilitySearch::calculateStart(const TimedTransition& transition
 
 			if(tokens.size() == 0) return -1;
 
-			// TODO always enabled transitions?
 			unsigned int j = 0;
 			int numberOfTokensAvailable = tokens.at(j).getCount();
 			for(unsigned int  i = 0; i < tokens.size(); i++){
@@ -245,20 +245,24 @@ int TimeDartReachabilitySearch::calculateEnd(const TimedTransition& transition, 
 
 	int part1 = 0;
 
-	// Normal arcs
-	for(TimedInputArc::WeakPtrVector::const_iterator iter = transition.GetPreset().begin(); iter != transition.GetPreset().end(); iter++){
-		int c = iter->lock()->InputPlace().GetMaxConstant()+1-marking.GetTokenList(iter->lock()->InputPlace().GetIndex()).front().getAge();
-		if(c > part1){
-			part1 = c;
+	if(transition.NumberOfInputArcs() + transition.NumberOfTransportArcs() > 0){
+		// Normal arcs
+		for(TimedInputArc::WeakPtrVector::const_iterator iter = transition.GetPreset().begin(); iter != transition.GetPreset().end(); iter++){
+			int c = iter->lock()->InputPlace().GetMaxConstant()+1-marking.GetTokenList(iter->lock()->InputPlace().GetIndex()).front().getAge();
+			if(c > part1){
+				part1 = c;
+			}
 		}
-	}
 
-	// Transport arcs
-	for(TransportArc::WeakPtrVector::const_iterator iter = transition.GetTransportArcs().begin(); iter != transition.GetTransportArcs().end(); iter++){
-		int c = iter->lock()->Source().GetMaxConstant()+1-marking.GetTokenList(iter->lock()->Source().GetIndex()).front().getAge();
-		if(c > part1){
-			part1 = c;
+		// Transport arcs
+		for(TransportArc::WeakPtrVector::const_iterator iter = transition.GetTransportArcs().begin(); iter != transition.GetTransportArcs().end(); iter++){
+			int c = iter->lock()->Source().GetMaxConstant()+1-marking.GetTokenList(iter->lock()->Source().GetIndex()).front().getAge();
+			if(c > part1){
+				part1 = c;
+			}
 		}
+	} else { // always enabled
+		part1 = INT_MAX;
 	}
 
 	int part2 = INT_MAX;
