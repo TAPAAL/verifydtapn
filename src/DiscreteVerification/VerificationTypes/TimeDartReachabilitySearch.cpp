@@ -29,7 +29,7 @@ bool TimeDartReachabilitySearch::Verify(){
 	//Main loop
 	while(pwList.HasWaitingStates()){
 		TimeDart& dart = *pwList.GetNextUnexplored();
-		std::cout << "Marking: " << dart.getBase() << " waiting: " << dart.getWaiting() << " passed: " << dart.getPassed() << std::endl;
+		//std::cout << "Marking: " << dart.getBase() << " waiting: " << dart.getWaiting() << " passed: " << dart.getPassed() << std::endl;
 		int passed = dart.getPassed();
 		dart.setPassed(dart.getWaiting());
 		vector<const TimedTransition*> transitions = getTransitions(&(dart.getBase()));
