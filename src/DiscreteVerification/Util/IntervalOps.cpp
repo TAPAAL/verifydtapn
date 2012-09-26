@@ -60,7 +60,7 @@ void set_add(vector< interval >& first, const interval& element){
 		if(!inserted){
 			if(element.upper() < first.at(i).lower()){
 				//Add element
-				first.insert(first.begin()+1, element);
+				first.insert(first.begin(), element);
 				inserted = true;
 			} else if(element.lower() >= first.at(i).lower() && element.lower() <= first.at(i).upper()){
 				// Merge with node

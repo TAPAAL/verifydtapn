@@ -40,6 +40,9 @@ bool TimeDartReachabilitySearch::Verify(){
 	//Main loop
 	while(pwList.HasWaitingStates()){
 		TimeDart& dart = *pwList.GetNextUnexplored();
+
+		//std::cout << "-----------------------------------------------------------------------------\n";
+
 		//std::cout << "Marking: " << dart.getBase() << " waiting: " << dart.getWaiting() << " passed: " << dart.getPassed() << std::endl;
 		int passed = dart.getPassed();
 		dart.setPassed(dart.getWaiting());
@@ -115,8 +118,13 @@ bool TimeDartReachabilitySearch::addToPW(NonStrictMarking* marking, int w, int p
 		return false;
 	}
 
+
+	//std::cout << "Uncut: " << *marking << std::endl;
+
 	//TODO avoid copying
 	marking = cut(*marking);
+
+	//std::cout << "Cut: " << *marking << std::endl;
 
 	TimeDart* dart = new TimeDart(marking, w, p);
 	if(pwList.Add(dart)){
@@ -202,8 +210,11 @@ int TimeDartReachabilitySearch::calculateStart(const TimedTransition& transition
 				j--;
 			}
 			if(numberOfTokensAvailable >= weight && tokens.at(j).getAge() - tokens.at(i).getAge() <= range){ //This span is interesting
-				Util::interval element(arc->lock()->Interval().GetLowerBound() - tokens.at(i).getAge(),
-						arc->lock()->Interval().GetUpperBound() - tokens.at(j).getAge());
+				int low = arc->lock()->Interval().GetLowerBound() - tokens.at(i).getAge();
+				int heigh = arc->lock()->Interval().GetUpperBound() - tokens.at(j).getAge();
+
+				Util::interval element(low < 0 ? 0 : low,
+						arc->lock()->Interval().GetUpperBound() == INT_MAX ? INT_MAX : heigh);
 				Util::set_add(intervals, element);
 			}
 			numberOfTokensAvailable -= tokens.at(i).getCount();
@@ -257,7 +268,20 @@ int TimeDartReachabilitySearch::calculateEnd(const TimedTransition& transition, 
 
 	int part1 = 0;
 
-	if(transition.NumberOfInputArcs() + transition.NumberOfTransportArcs() > 0){
+	PlaceList placeList = marking.GetPlaceList();
+
+	for(PlaceList::const_iterator place_iter = placeList.begin(); place_iter != placeList.end(); place_iter++){
+		//TODO optimize
+		//TODO check for infty
+		for(TokenList::const_iterator token_iter = place_iter->tokens.begin(); token_iter != place_iter->tokens.end(); token_iter++){
+			int maxDelay = place_iter->place->GetMaxConstant() + 1 - token_iter->getAge();
+			if(maxDelay > part1){
+				part1 = maxDelay;
+			}
+		}
+	}
+
+	/*if(transition.NumberOfInputArcs() + transition.NumberOfTransportArcs() > 0){
 		// Normal arcs
 		for(TimedInputArc::WeakPtrVector::const_iterator iter = transition.GetPreset().begin(); iter != transition.GetPreset().end(); iter++){
 			int c = iter->lock()->InputPlace().GetMaxConstant()+1-marking.GetTokenList(iter->lock()->InputPlace().GetIndex()).front().getAge();
@@ -275,7 +299,7 @@ int TimeDartReachabilitySearch::calculateEnd(const TimedTransition& transition, 
 		}
 	} else { // always enabled
 		part1 = INT_MAX;
-	}
+	}*/
 
 	int part2 = INT_MAX;
 
