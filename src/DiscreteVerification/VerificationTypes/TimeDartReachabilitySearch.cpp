@@ -21,6 +21,17 @@ TimeDartReachabilitySearch::TimeDartReachabilitySearch(boost::shared_ptr<TAPN::T
 	}
 }
 
+int help(const TimedTransition* transition){
+	int x = INT_MAX;
+	for(TimedInputArc::WeakPtrVector::const_iterator iter = transition->GetPreset().begin(); iter != transition->GetPreset().end(); iter++){
+		x = min(x, iter->lock()->InputPlace().GetMaxConstant()+1);
+	}
+	for(TransportArc::WeakPtrVector::const_iterator iter = transition->GetTransportArcs().begin(); iter != transition->GetTransportArcs().end(); iter++){
+			x = min(x, iter->lock()->Source().GetMaxConstant()+1);
+		}
+	return x;
+}
+
 bool TimeDartReachabilitySearch::Verify(){
 	if(addToPW(&initialMarking, 0, INT_MAX)){
 		return true;
@@ -38,8 +49,9 @@ bool TimeDartReachabilitySearch::Verify(){
 			if(calculatedStart == -1){	// Transition cannot be enabled in marking
 				continue;
 			}
-			int start = max(dart.getWaiting(), calculatedStart);
-			int end = min(passed, calculateEnd(*(*transition), dart.getBase()));
+			int tmp = help(*transition);
+			int start = max(min(tmp, dart.getWaiting()), calculatedStart);
+			int end = min(passed-1, calculateEnd(*(*transition), dart.getBase()));
 			if(start <= end){
 				if((*transition)->GetPostset().size() == 0){
 					NonStrictMarking Mpp(dart.getBase());
