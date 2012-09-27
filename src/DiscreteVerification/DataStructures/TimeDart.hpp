@@ -17,10 +17,19 @@ class TimeDart {
 public:
 	TimeDart(NonStrictMarking* base, int waiting, int passed)
 		: base(), waiting(waiting), passed(passed){
-		// TODO make base an actual base marking
+		// TODO make base an actual base marking ????
+		// TODO memory leek??
 		NonStrictMarking* baseMarking = new NonStrictMarking(*base);
+
+		//std::cout << "####################################\n";
+		//std::cout << "Before cut: " << *base << std::endl;
+
+		baseMarking->cut();
+
+		//std::cout << "After cut: " << *baseMarking << std::endl;
+
 		int youngest = INT_MAX;
-		for(PlaceList::const_iterator place_iter = base->GetPlaceList().begin(); place_iter != base->GetPlaceList().end(); place_iter++){
+		for(PlaceList::const_iterator place_iter = baseMarking->GetPlaceList().begin(); place_iter != baseMarking->GetPlaceList().end(); place_iter++){
 			if(youngest > place_iter->tokens.front().getAge()){
 				youngest = place_iter->tokens.front().getAge();
 			}
@@ -33,6 +42,12 @@ public:
 				}
 			}
 		}
+
+		this->waiting = youngest;
+
+		//std::cout << "After scale: " << *baseMarking << std::endl;
+
+		//std::cout << "####################################\n";
 
 		this->base = *baseMarking;
 	}

@@ -118,14 +118,6 @@ bool TimeDartReachabilitySearch::addToPW(NonStrictMarking* marking, int w, int p
 		return false;
 	}
 
-
-	//std::cout << "Uncut: " << *marking << std::endl;
-
-	//TODO avoid copying
-	marking = cut(*marking);
-
-	//std::cout << "Cut: " << *marking << std::endl;
-
 	TimeDart* dart = new TimeDart(marking, w, p);
 	if(pwList.Add(dart)){
 		QueryVisitor checker(*marking);
@@ -310,39 +302,6 @@ int TimeDartReachabilitySearch::calculateEnd(const TimedTransition& transition, 
 	}
 
 	return min(part1, part2);
-}
-
-NonStrictMarking* TimeDartReachabilitySearch::cut(NonStrictMarking& marking){
-	NonStrictMarking* m = new NonStrictMarking(marking);
-	for(PlaceList::iterator place_iter = m->places.begin(); place_iter != m->places.end(); place_iter++){
-		const TimedPlace& place = tapn->GetPlace(place_iter->place->GetIndex());
-		//remove dead tokens
-		if (place_iter->place->GetType() == Dead) {
-			for(TokenList::iterator token_iter = place_iter->tokens.begin(); token_iter != place_iter->tokens.end(); token_iter++){
-				if(token_iter->getAge() > place.GetMaxConstant()){
-					token_iter->remove(token_iter->getCount());
-				}
-			}
-		}
-		//set age of too old tokens to max age
-		int count = 0;
-		for(TokenList::iterator token_iter = place_iter->tokens.begin(); token_iter != place_iter->tokens.end(); token_iter++){
-			if(token_iter->getAge() > place.GetMaxConstant()){
-				TokenList::iterator beginDelete = token_iter;
-				if(place.GetType() == Std){
-					for(; token_iter != place_iter->tokens.end(); token_iter++){
-						count += token_iter->getCount();
-					}
-				}
-				m->RemoveRangeOfTokens(*place_iter, beginDelete, place_iter->tokens.end());
-				break;
-			}
-		}
-		Token t(place.GetMaxConstant()+1,count);
-		m->AddTokenInPlace(*place_iter, t);
-	}
-	m->CleanUp();
-	return m;
 }
 
 void TimeDartReachabilitySearch::printStats(){

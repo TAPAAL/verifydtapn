@@ -258,5 +258,35 @@ std::ostream& operator<<(std::ostream& out, NonStrictMarking& x ) {
 	return out;
 }
 
+void NonStrictMarking::cut(){
+	for(PlaceList::iterator place_iter = this->places.begin(); place_iter != this->places.end(); place_iter++){
+		//remove dead tokens
+		if (place_iter->place->GetType() ==  TAPN::Dead) {
+			for(TokenList::iterator token_iter = place_iter->tokens.begin(); token_iter != place_iter->tokens.end(); token_iter++){
+				if(token_iter->getAge() > place_iter->place->GetMaxConstant()){
+					token_iter->remove(token_iter->getCount());
+				}
+			}
+		}
+		//set age of too old tokens to max age
+		int count = 0;
+		for(TokenList::iterator token_iter = place_iter->tokens.begin(); token_iter != place_iter->tokens.end(); token_iter++){
+			if(token_iter->getAge() > place_iter->place->GetMaxConstant()){
+				TokenList::iterator beginDelete = token_iter;
+				if(place_iter->place->GetType() == TAPN::Std){
+					for(; token_iter != place_iter->tokens.end(); token_iter++){
+						count += token_iter->getCount();
+					}
+				}
+				this->RemoveRangeOfTokens(*place_iter, beginDelete, place_iter->tokens.end());
+				break;
+			}
+		}
+		Token t(place_iter->place->GetMaxConstant()+1,count);
+		this->AddTokenInPlace(*place_iter, t);
+	}
+	this->CleanUp();
+}
+
 } /* namespace DiscreteVerification */
 } /* namespace VerifyTAPN */
