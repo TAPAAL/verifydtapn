@@ -292,8 +292,6 @@ void NonStrictMarking::cut(){
 
 int NonStrictMarking::makeBase(){
 
-	cut();
-
 	int youngest = INT_MAX;
 	for(PlaceList::const_iterator place_iter = GetPlaceList().begin(); place_iter != GetPlaceList().end(); place_iter++){
 		if(youngest > place_iter->tokens.front().getAge()){

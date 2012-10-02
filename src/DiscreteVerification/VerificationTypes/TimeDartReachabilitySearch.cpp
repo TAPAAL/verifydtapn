@@ -99,6 +99,7 @@ vector<NonStrictMarking> TimeDartReachabilitySearch::getPossibleNextMarkings(Non
 }
 
 bool TimeDartReachabilitySearch::addToPW(NonStrictMarking* marking, int w, int p){
+	marking->cut();
 	unsigned int size = marking->size();
 
 	pwList.SetMaxNumTokensIfGreater(size);
