@@ -36,7 +36,7 @@ bool TimeDartReachabilitySearch::Verify(){
 		//std::cout << "Marking: " << dart.getBase() << " waiting: " << dart.getWaiting() << " passed: " << dart.getPassed() << std::endl;
 		int passed = dart.getPassed();
 		dart.setPassed(dart.getWaiting());
-		vector<const TimedTransition*> transitions = getTransitions(&(dart.getBase()));
+		vector<const TimedTransition*> transitions = getTransitions(dart.getBase());
 		for(vector<const TimedTransition*>::const_iterator transition = transitions.begin(); transition != transitions.end(); transition++){
 			int calculatedStart = calculateStart(*(*transition), dart.getBase());
 			if(calculatedStart == -1){	// Transition cannot be enabled in marking
@@ -46,7 +46,7 @@ bool TimeDartReachabilitySearch::Verify(){
 			int end = min(passed-1, calculateEnd(*(*transition), dart.getBase()));
 			if(start <= end){
 				if((*transition)->GetPostset().size() == 0){
-					NonStrictMarking Mpp(dart.getBase());
+					NonStrictMarking Mpp(*dart.getBase());
 					Mpp.incrementAge(start);
 					vector<NonStrictMarking> next = getPossibleNextMarkings(Mpp, *(*transition));
 					for(vector<NonStrictMarking>::iterator it = next.begin(); it != next.end(); it++){
@@ -56,7 +56,7 @@ bool TimeDartReachabilitySearch::Verify(){
 					}
 				}else{
 					for(int n = start; n <= end; n++){
-						NonStrictMarking Mpp(dart.getBase());
+						NonStrictMarking Mpp(*dart.getBase());
 						Mpp.incrementAge(n);
 						vector<NonStrictMarking> next = getPossibleNextMarkings(Mpp, **transition);
 						for(vector<NonStrictMarking>::iterator it = next.begin(); it != next.end(); it++){
@@ -99,9 +99,7 @@ vector<NonStrictMarking> TimeDartReachabilitySearch::getPossibleNextMarkings(Non
 }
 
 bool TimeDartReachabilitySearch::addToPW(NonStrictMarking* marking, int w, int p){
-	TimeDart* dart = new TimeDart(marking, w, p);
-
-	unsigned int size = dart->getBase().size();
+	unsigned int size = marking->size();
 
 	pwList.SetMaxNumTokensIfGreater(size);
 
@@ -109,7 +107,7 @@ bool TimeDartReachabilitySearch::addToPW(NonStrictMarking* marking, int w, int p
 		return false;
 	}
 
-	if(pwList.Add(dart)){
+	if(pwList.Add(marking, w, p)){
 		QueryVisitor checker(*marking);
 		boost::any context;
 		query->Accept(checker, context);
@@ -158,7 +156,7 @@ vector<const TimedTransition*> TimeDartReachabilitySearch::getTransitions(NonStr
 	return transitions;
 }
 
-int TimeDartReachabilitySearch::calculateStart(const TimedTransition& transition, NonStrictMarking& marking){
+int TimeDartReachabilitySearch::calculateStart(const TimedTransition& transition, NonStrictMarking* marking){
 	vector<Util::interval > start;
 	Util::interval initial(0, INT_MAX);
 	start.push_back(initial);
@@ -177,7 +175,7 @@ int TimeDartReachabilitySearch::calculateStart(const TimedTransition& transition
 		}
 		int weight = arc->lock()->GetWeight();
 
-		TokenList tokens = marking.GetTokenList(arc->lock()->InputPlace().GetIndex());
+		TokenList tokens = marking->GetTokenList(arc->lock()->InputPlace().GetIndex());
 		if(tokens.size() == 0) return -1;
 
 		unsigned int j = 0;
@@ -214,7 +212,7 @@ int TimeDartReachabilitySearch::calculateStart(const TimedTransition& transition
 			}
 			int weight = arc->lock()->GetWeight();
 
-			TokenList tokens = marking.GetTokenList(arc->lock()->Source().GetIndex());
+			TokenList tokens = marking->GetTokenList(arc->lock()->Source().GetIndex());
 
 			if(tokens.size() == 0) return -1;
 
@@ -242,11 +240,11 @@ int TimeDartReachabilitySearch::calculateStart(const TimedTransition& transition
 	return start.empty()? -1:start.at(0).lower();
 }
 
-int TimeDartReachabilitySearch::calculateEnd(const TimedTransition& transition, NonStrictMarking& marking){
+int TimeDartReachabilitySearch::calculateEnd(const TimedTransition& transition, NonStrictMarking* marking){
 
 	int part1 = 0;
 
-	PlaceList placeList = marking.GetPlaceList();
+	PlaceList placeList = marking->GetPlaceList();
 
 	for(PlaceList::const_iterator place_iter = placeList.begin(); place_iter != placeList.end(); place_iter++){
 		//The smallest age is the first as the tokens is sorted
@@ -261,7 +259,7 @@ int TimeDartReachabilitySearch::calculateEnd(const TimedTransition& transition, 
 
 	int part2 = INT_MAX;
 
-	for(PlaceList::const_iterator iter = marking.GetPlaceList().begin(); iter != marking.GetPlaceList().end(); iter++){
+	for(PlaceList::const_iterator iter = marking->GetPlaceList().begin(); iter != marking->GetPlaceList().end(); iter++){
 		if(iter->place->GetInvariant().GetBound() != std::numeric_limits<int>::max() && iter->place->GetInvariant().GetBound()-iter->tokens.back().getAge() < part2){
 			part2 = iter->place->GetInvariant().GetBound()-iter->tokens.back().getAge();
 		}

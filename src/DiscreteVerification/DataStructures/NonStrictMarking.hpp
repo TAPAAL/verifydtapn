@@ -173,6 +173,7 @@ public:
 				}
 			}
 		}
+		int makeBase();
 
 	public:
 		bool equals(const NonStrictMarking &m1) const;

@@ -47,8 +47,8 @@ protected:
 	bool addToPW(NonStrictMarking* marking, int w, int p);
 	bool isDelayPossible(NonStrictMarking& marking);
 	vector<const TimedTransition*> getTransitions(NonStrictMarking* marking);
-	int calculateStart(const TimedTransition& transition, NonStrictMarking& marking);
-	int calculateEnd(const TimedTransition& transition, NonStrictMarking& marking);
+	int calculateStart(const TimedTransition& transition, NonStrictMarking* marking);
+	int calculateEnd(const TimedTransition& transition, NonStrictMarking* marking);
 
 protected:
 	int validChildren;

@@ -218,7 +218,7 @@ int HeuristicStackWaitingList<T>::calculateWeight(NonStrictMarking* marking)
 template <class T>
 int HeuristicStackWaitingList<T>::calculateWeight(TimeDart* dart)
 {
-	return calculateWeight(&dart->getBase());
+	return calculateWeight(dart->getBase());
 }
 
 template <class T>
@@ -279,7 +279,7 @@ int HeuristicWaitingList<T>::calculateWeight(NonStrictMarking* marking)
 template <class T>
 int HeuristicWaitingList<T>::calculateWeight(TimeDart* dart)
 {
-	return calculateWeight(&dart->getBase());
+	return calculateWeight(dart->getBase());
 }
 
 template <class T>

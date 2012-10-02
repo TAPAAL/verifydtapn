@@ -16,45 +16,13 @@ namespace DiscreteVerification {
 class TimeDart {
 public:
 	TimeDart(NonStrictMarking* base, int waiting, int passed)
-		: base(), waiting(waiting), passed(passed){
-		// TODO make base an actual base marking ????
-		NonStrictMarking* baseMarking = new NonStrictMarking(*base);
-
-		//std::cout << "####################################\n";
-		//std::cout << "Before cut: " << *base << std::endl;
-
-		baseMarking->cut();
-
-		//std::cout << "After cut: " << *baseMarking << std::endl;
-
-		int youngest = INT_MAX;
-		for(PlaceList::const_iterator place_iter = baseMarking->GetPlaceList().begin(); place_iter != baseMarking->GetPlaceList().end(); place_iter++){
-			if(youngest > place_iter->tokens.front().getAge()){
-				youngest = place_iter->tokens.front().getAge();
-			}
-		}
-
-		if(youngest < INT_MAX && youngest > 0){
-			for(PlaceList::iterator place_iter = baseMarking->places.begin(); place_iter != baseMarking->places.end(); place_iter++){
-				for(TokenList::iterator token_iter = place_iter->tokens.begin(); token_iter != place_iter->tokens.end(); token_iter++){
-					token_iter->setAge(token_iter->getAge()-youngest);
-				}
-			}
-		}
-
-		this->waiting = youngest;
-
-		//std::cout << "After scale: " << *baseMarking << std::endl;
-
-		//std::cout << "####################################\n";
-
-		this->base = *baseMarking;
+		: base(base), waiting(waiting), passed(passed){
 	}
 	~TimeDart(){
 	}
 
 	//Getters
-	inline NonStrictMarking& getBase(){ return base; }
+	inline NonStrictMarking* getBase(){ return base; }
 	inline int getWaiting(){ return waiting; }
 	inline int getPassed(){ return passed; }
 
@@ -63,7 +31,7 @@ public:
 	inline void setPassed(int p){ passed = p; }
 
 private:
-	NonStrictMarking base;
+	NonStrictMarking* base;
 	int waiting;
 	int passed;
 };

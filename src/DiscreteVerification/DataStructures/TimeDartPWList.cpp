@@ -10,19 +10,18 @@
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
-bool TimeDartPWList::Add(TimeDart* dart){
+bool TimeDartPWList::Add(NonStrictMarking* marking, int w, int p){
 	discoveredMarkings++;
-	NonStrictMarkingList& m = markings_storage[dart->getBase().HashKey()];
+	int youngest = marking->makeBase();
+	NonStrictMarkingList& m = markings_storage[marking->HashKey()];
 	for(NonStrictMarkingList::const_iterator iter = m.begin();
 			iter != m.end();
 			iter++){
-		if((*iter)->getBase().equals(dart->getBase())){
+		if((*iter)->getBase()->equals(*marking)){
 			bool inWaiting = (*iter)->getWaiting() < (*iter)->getPassed();
 
-			(*iter)->setPassed(min((*iter)->getPassed(),dart->getPassed()));
-			(*iter)->setWaiting(min((*iter)->getWaiting(),dart->getWaiting()));
-
-			delete dart;
+			(*iter)->setPassed(min((*iter)->getPassed(),p));
+			(*iter)->setWaiting(min((*iter)->getWaiting(),w));
 
 			if((*iter)->getWaiting() < (*iter)->getPassed() && !inWaiting){
 				waiting_list->Add((*iter));
@@ -32,6 +31,8 @@ bool TimeDartPWList::Add(TimeDart* dart){
 		}
 	}
 
+	NonStrictMarking* heapMarking = new NonStrictMarking(*marking);	// TODO optimize
+	TimeDart* dart = new TimeDart(heapMarking, youngest, p);
 	m.push_back(dart);
 	waiting_list->Add(dart);
 	return true;

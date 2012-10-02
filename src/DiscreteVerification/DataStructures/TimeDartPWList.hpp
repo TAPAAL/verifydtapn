@@ -38,7 +38,7 @@ public: // inspectors
 	};
 
 public: // modifiers
-	virtual bool Add(TimeDart* marking);
+	virtual bool Add(NonStrictMarking* marking, int w, int p);
 	virtual TimeDart* GetNextUnexplored();
 	inline void SetMaxNumTokensIfGreater(int i){ if(i>maxNumTokensInAnyMarking) maxNumTokensInAnyMarking = i; };
 

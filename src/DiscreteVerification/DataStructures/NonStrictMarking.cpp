@@ -290,5 +290,27 @@ void NonStrictMarking::cut(){
 	this->CleanUp();
 }
 
+int NonStrictMarking::makeBase(){
+
+	cut();
+
+	int youngest = INT_MAX;
+	for(PlaceList::const_iterator place_iter = GetPlaceList().begin(); place_iter != GetPlaceList().end(); place_iter++){
+		if(youngest > place_iter->tokens.front().getAge()){
+			youngest = place_iter->tokens.front().getAge();
+		}
+	}
+
+	if(youngest < INT_MAX && youngest > 0){
+		for(PlaceList::iterator place_iter = places.begin(); place_iter != places.end(); place_iter++){
+			for(TokenList::iterator token_iter = place_iter->tokens.begin(); token_iter != place_iter->tokens.end(); token_iter++){
+				token_iter->setAge(token_iter->getAge()-youngest);
+			}
+		}
+	}
+
+	return youngest;
+}
+
 } /* namespace DiscreteVerification */
 } /* namespace VerifyTAPN */
