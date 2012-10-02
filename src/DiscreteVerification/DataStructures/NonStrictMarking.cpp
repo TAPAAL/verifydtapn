@@ -40,9 +40,11 @@ NonStrictMarking::NonStrictMarking(const TAPN::TimedArcPetriNet& tapn, const std
 }
 
 NonStrictMarking::NonStrictMarking(const NonStrictMarking& nsm) : inTrace(false), children(0), passed(false){
-	for(PlaceList::const_iterator it = nsm.places.begin(); it != nsm.places.end(); it++){
-		places.push_back(Place(*it));
-	}
+	//for(PlaceList::const_iterator it = nsm.places.begin(); it != nsm.places.end(); it++){
+	//	places.push_back(Place(*it));
+	//}
+
+	places = nsm.places;
 
 	parent = nsm.parent;
 	generatedBy = nsm.generatedBy;

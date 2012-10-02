@@ -21,17 +21,6 @@ TimeDartReachabilitySearch::TimeDartReachabilitySearch(boost::shared_ptr<TAPN::T
 	}
 }
 
-int help(const TimedTransition* transition){
-	int x = INT_MAX;
-	for(TimedInputArc::WeakPtrVector::const_iterator iter = transition->GetPreset().begin(); iter != transition->GetPreset().end(); iter++){
-		x = min(x, iter->lock()->InputPlace().GetMaxConstant()+1);
-	}
-	for(TransportArc::WeakPtrVector::const_iterator iter = transition->GetTransportArcs().begin(); iter != transition->GetTransportArcs().end(); iter++){
-			x = min(x, iter->lock()->Source().GetMaxConstant()+1);
-		}
-	return x;
-}
-
 bool TimeDartReachabilitySearch::Verify(){
 	if(addToPW(&initialMarking, 0, INT_MAX)){
 		return true;
@@ -52,8 +41,7 @@ bool TimeDartReachabilitySearch::Verify(){
 			if(calculatedStart == -1){	// Transition cannot be enabled in marking
 				continue;
 			}
-			int tmp = help(*transition);
-			int start = max(min(tmp, dart.getWaiting()), calculatedStart);
+			int start = max(dart.getWaiting(), calculatedStart);
 			int end = min(passed-1, calculateEnd(*(*transition), dart.getBase()));
 			if(start <= end){
 				if((*transition)->GetPostset().size() == 0){
@@ -110,7 +98,9 @@ vector<NonStrictMarking> TimeDartReachabilitySearch::getPossibleNextMarkings(Non
 }
 
 bool TimeDartReachabilitySearch::addToPW(NonStrictMarking* marking, int w, int p){
-	unsigned int size = marking->size();
+	TimeDart* dart = new TimeDart(marking, w, p);
+
+	unsigned int size = dart->getBase().size();
 
 	pwList.SetMaxNumTokensIfGreater(size);
 
@@ -118,7 +108,6 @@ bool TimeDartReachabilitySearch::addToPW(NonStrictMarking* marking, int w, int p
 		return false;
 	}
 
-	TimeDart* dart = new TimeDart(marking, w, p);
 	if(pwList.Add(dart)){
 		QueryVisitor checker(*marking);
 		boost::any context;
@@ -187,8 +176,6 @@ int TimeDartReachabilitySearch::calculateStart(const TimedTransition& transition
 		}
 		int weight = arc->lock()->GetWeight();
 
-		//TODO: Here we search twice
-		int end = marking.NumberOfTokensInPlace(arc->lock()->InputPlace().GetIndex())-weight;
 		TokenList tokens = marking.GetTokenList(arc->lock()->InputPlace().GetIndex());
 		if(tokens.size() == 0) return -1;
 
@@ -226,8 +213,6 @@ int TimeDartReachabilitySearch::calculateStart(const TimedTransition& transition
 			}
 			int weight = arc->lock()->GetWeight();
 
-			//TODO: Here we search twice
-			int end = marking.NumberOfTokensInPlace(arc->lock()->Source().GetIndex())-weight;
 			TokenList tokens = marking.GetTokenList(arc->lock()->Source().GetIndex());
 
 			if(tokens.size() == 0) return -1;
@@ -263,40 +248,20 @@ int TimeDartReachabilitySearch::calculateEnd(const TimedTransition& transition, 
 	PlaceList placeList = marking.GetPlaceList();
 
 	for(PlaceList::const_iterator place_iter = placeList.begin(); place_iter != placeList.end(); place_iter++){
-		//TODO optimize
-		//TODO check for infty
-		for(TokenList::const_iterator token_iter = place_iter->tokens.begin(); token_iter != place_iter->tokens.end(); token_iter++){
-			int maxDelay = place_iter->place->GetMaxConstant() + 1 - token_iter->getAge();
-			if(maxDelay > part1){
-				part1 = maxDelay;
-			}
+		//The smallest age is the first as the tokens is sorted
+		int maxDelay = place_iter->place->GetMaxConstant() - place_iter->tokens.at(0).getAge();
+		if(maxDelay > part1){
+			part1 = maxDelay;
 		}
 	}
 
-	/*if(transition.NumberOfInputArcs() + transition.NumberOfTransportArcs() > 0){
-		// Normal arcs
-		for(TimedInputArc::WeakPtrVector::const_iterator iter = transition.GetPreset().begin(); iter != transition.GetPreset().end(); iter++){
-			int c = iter->lock()->InputPlace().GetMaxConstant()+1-marking.GetTokenList(iter->lock()->InputPlace().GetIndex()).front().getAge();
-			if(c > part1){
-				part1 = c;
-			}
-		}
-
-		// Transport arcs
-		for(TransportArc::WeakPtrVector::const_iterator iter = transition.GetTransportArcs().begin(); iter != transition.GetTransportArcs().end(); iter++){
-			int c = iter->lock()->Source().GetMaxConstant()+1-marking.GetTokenList(iter->lock()->Source().GetIndex()).front().getAge();
-			if(c > part1){
-				part1 = c;
-			}
-		}
-	} else { // always enabled
-		part1 = INT_MAX;
-	}*/
+	//should be maxconstant + 1
+	part1++;
 
 	int part2 = INT_MAX;
 
 	for(PlaceList::const_iterator iter = marking.GetPlaceList().begin(); iter != marking.GetPlaceList().end(); iter++){
-		if(iter->place->GetInvariant().GetBound()-iter->tokens.back().getAge() < part2){
+		if(iter->place->GetInvariant().GetBound() != std::numeric_limits<int>::max() && iter->place->GetInvariant().GetBound()-iter->tokens.back().getAge() < part2){
 			part2 = iter->place->GetInvariant().GetBound()-iter->tokens.back().getAge();
 		}
 	}

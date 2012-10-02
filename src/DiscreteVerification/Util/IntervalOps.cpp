@@ -51,7 +51,6 @@ vector<interval > setIntersection(const vector<interval >& first, const vector<i
 	return result;
 }
 
-//TODO: Move to utility file
 void set_add(vector< interval >& first, const interval& element){
 
 	bool inserted = false;

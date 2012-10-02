@@ -18,7 +18,6 @@ public:
 	TimeDart(NonStrictMarking* base, int waiting, int passed)
 		: base(), waiting(waiting), passed(passed){
 		// TODO make base an actual base marking ????
-		// TODO memory leek??
 		NonStrictMarking* baseMarking = new NonStrictMarking(*base);
 
 		//std::cout << "####################################\n";
