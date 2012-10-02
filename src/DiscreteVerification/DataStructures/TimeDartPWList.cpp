@@ -23,6 +23,8 @@ bool TimeDartPWList::Add(NonStrictMarking* marking, int w, int p){
 			(*iter)->setPassed(min((*iter)->getPassed(),p));
 			(*iter)->setWaiting(min((*iter)->getWaiting(),w));
 
+			delete marking;
+
 			if((*iter)->getWaiting() < (*iter)->getPassed() && !inWaiting){
 				waiting_list->Add((*iter));
 			}
@@ -31,8 +33,7 @@ bool TimeDartPWList::Add(NonStrictMarking* marking, int w, int p){
 		}
 	}
 
-	NonStrictMarking* heapMarking = new NonStrictMarking(*marking);	// TODO optimize
-	TimeDart* dart = new TimeDart(heapMarking, youngest, p);
+	TimeDart* dart = new TimeDart(marking, youngest, p);
 	m.push_back(dart);
 	waiting_list->Add(dart);
 	return true;

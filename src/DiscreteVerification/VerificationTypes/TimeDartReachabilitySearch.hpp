@@ -43,7 +43,7 @@ public:
 	void PrintTransitionStatistics() const { successorGenerator.PrintTransitionStatistics(std::cout); }
 
 protected:
-	vector<NonStrictMarking> getPossibleNextMarkings(NonStrictMarking& marking, const TimedTransition& transition);
+	vector<NonStrictMarking*> getPossibleNextMarkings(NonStrictMarking& marking, const TimedTransition& transition);
 	bool addToPW(NonStrictMarking* marking, int w, int p);
 	bool isDelayPossible(NonStrictMarking& marking);
 	vector<const TimedTransition*> getTransitions(NonStrictMarking* marking);

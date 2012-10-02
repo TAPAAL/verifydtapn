@@ -48,9 +48,9 @@ bool TimeDartReachabilitySearch::Verify(){
 				if((*transition)->GetPostset().size() == 0){
 					NonStrictMarking Mpp(*dart.getBase());
 					Mpp.incrementAge(start);
-					vector<NonStrictMarking> next = getPossibleNextMarkings(Mpp, *(*transition));
-					for(vector<NonStrictMarking>::iterator it = next.begin(); it != next.end(); it++){
-						if(addToPW(&(*it), start, INT_MAX)){
+					vector<NonStrictMarking*> next = getPossibleNextMarkings(Mpp, *(*transition));
+					for(vector<NonStrictMarking*>::iterator it = next.begin(); it != next.end(); it++){
+						if(addToPW(*it, start, INT_MAX)){
 							return true;
 						}
 					}
@@ -58,9 +58,9 @@ bool TimeDartReachabilitySearch::Verify(){
 					for(int n = start; n <= end; n++){
 						NonStrictMarking Mpp(*dart.getBase());
 						Mpp.incrementAge(n);
-						vector<NonStrictMarking> next = getPossibleNextMarkings(Mpp, **transition);
-						for(vector<NonStrictMarking>::iterator it = next.begin(); it != next.end(); it++){
-							if(addToPW(&(*it), 0, INT_MAX)){
+						vector<NonStrictMarking*> next = getPossibleNextMarkings(Mpp, **transition);
+						for(vector<NonStrictMarking*>::iterator it = next.begin(); it != next.end(); it++){
+							if(addToPW(*it, 0, INT_MAX)){
 								return true;
 							}
 						}
@@ -94,7 +94,7 @@ bool TimeDartReachabilitySearch::isDelayPossible(NonStrictMarking& marking){
 	return false;
 }
 
-vector<NonStrictMarking> TimeDartReachabilitySearch::getPossibleNextMarkings(NonStrictMarking& marking, const TimedTransition& transition){
+vector<NonStrictMarking*> TimeDartReachabilitySearch::getPossibleNextMarkings(NonStrictMarking& marking, const TimedTransition& transition){
 	return successorGenerator.generateSuccessors(marking, transition);
 }
 

@@ -30,15 +30,15 @@ class TimeDartSuccessorGenerator {
 public:
 	TimeDartSuccessorGenerator(TAPN::TimedArcPetriNet& tapn);
 	~TimeDartSuccessorGenerator();
-	vector< NonStrictMarking > generateSuccessors(const NonStrictMarking& marking, const TimedTransition& transition) const;
+	vector< NonStrictMarking* > generateSuccessors(const NonStrictMarking& marking, const TimedTransition& transition) const;
 	void PrintTransitionStatistics(std::ostream & out) const;
 private:
 	TokenList getPlaceFromMarking(const NonStrictMarking& marking, int placeID) const;
 
-	void generateMarkings(vector<NonStrictMarking >& result, const NonStrictMarking& init_marking, const TimedTransition& transition, ArcHashMap& enabledArcs) const;
-	void recursiveGenerateMarking(vector<NonStrictMarking >& result, NonStrictMarking& init_marking, const TimedTransition& transition, unsigned int index, ArcHashMap& enabledArcs) const;
+	void generateMarkings(vector<NonStrictMarking* >& result, const NonStrictMarking& init_marking, const TimedTransition& transition, ArcHashMap& enabledArcs) const;
+	void recursiveGenerateMarking(vector<NonStrictMarking* >& result, NonStrictMarking& init_marking, const TimedTransition& transition, unsigned int index, ArcHashMap& enabledArcs) const;
 
-	void addMarking(vector<NonStrictMarking >& result, NonStrictMarking& init_marking, const TimedTransition& transition, ArcAndTokensVector& indicesOfCurrentPermutation) const;
+	void addMarking(vector<NonStrictMarking* >& result, NonStrictMarking& init_marking, const TimedTransition& transition, ArcAndTokensVector& indicesOfCurrentPermutation) const;
 	bool incrementModificationVector(vector<unsigned int >& modificationVector, TokenList& enabledTokens) const;
 
 	const TAPN::TimedArcPetriNet& tapn;
