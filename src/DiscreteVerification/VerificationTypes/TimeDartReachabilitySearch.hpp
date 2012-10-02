@@ -59,6 +59,7 @@ protected:
 	VerificationOptions options;
 	TimeDartSuccessorGenerator successorGenerator;
 	vector<const TAPN::TimedTransition*> allwaysEnabled;
+	int exploredMarkings;
 public:
 	void printStats();
 private:

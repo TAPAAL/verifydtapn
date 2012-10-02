@@ -11,7 +11,7 @@ namespace VerifyTAPN {
 namespace DiscreteVerification {
 
 TimeDartReachabilitySearch::TimeDartReachabilitySearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<TimeDart>* waiting_list)
-	: pwList(waiting_list), tapn(tapn), initialMarking(initialMarking), query(query), options(options), successorGenerator( *tapn.get() ), allwaysEnabled(){
+	: pwList(waiting_list), tapn(tapn), initialMarking(initialMarking), query(query), options(options), successorGenerator( *tapn.get() ), allwaysEnabled(), exploredMarkings(0){
 
 	//Find the transitions which don't have input arcs
 	for(TimedTransition::Vector::const_iterator iter = tapn->GetTransitions().begin(); iter != tapn->GetTransitions().end(); iter++){
@@ -29,6 +29,7 @@ bool TimeDartReachabilitySearch::Verify(){
 	//Main loop
 	while(pwList.HasWaitingStates()){
 		TimeDart& dart = *pwList.GetNextUnexplored();
+		exploredMarkings++;
 
 		//std::cout << "-----------------------------------------------------------------------------\n";
 
@@ -271,7 +272,7 @@ int TimeDartReachabilitySearch::calculateEnd(const TimedTransition& transition, 
 
 void TimeDartReachabilitySearch::printStats(){
 	std::cout << "  discovered markings:\t" << pwList.discoveredMarkings << std::endl;
-	std::cout << "  explored markings:\t" << pwList.Size()-pwList.waiting_list->Size() << std::endl;
+	std::cout << "  explored markings:\t" << exploredMarkings << std::endl;
 	std::cout << "  stored markings:\t" << pwList.Size() << std::endl;
 }
 
