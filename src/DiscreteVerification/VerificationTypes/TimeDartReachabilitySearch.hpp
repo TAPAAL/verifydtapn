@@ -49,6 +49,7 @@ protected:
 	vector<const TimedTransition*> getTransitions(NonStrictMarking* marking);
 	int calculateStart(const TimedTransition& transition, NonStrictMarking* marking);
 	int calculateEnd(const TimedTransition& transition, NonStrictMarking* marking);
+	int calculateStop(const TimedTransition& transition, NonStrictMarking* marking);
 
 protected:
 	int validChildren;
