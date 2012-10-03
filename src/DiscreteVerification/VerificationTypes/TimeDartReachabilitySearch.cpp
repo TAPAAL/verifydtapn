@@ -276,14 +276,19 @@ int TimeDartReachabilitySearch::calculateStop(const TimedTransition& transition,
 
 	unsigned int i = 0;
 	for(PlaceList::const_iterator iter = marking->GetPlaceList().begin(); iter != marking->GetPlaceList().end(); iter++){
-		while(i < transition.GetPreset().size()){
-			if(transition.GetPreset().at(i).lock()->InputPlace().GetIndex() > iter->place->GetIndex() ||
-			(transition.GetPreset().at(i).lock()->InputPlace().GetIndex() == iter->place->GetIndex() && transition.GetPreset().at(i).lock()->GetWeight() < iter->NumberOfTokens())){
-				value = min(value, iter->tokens.front().getAge());
-				MC = max(MC, iter->place->GetMaxConstant() - iter->tokens.front().getAge());
-				break;
+		if(i < transition.GetPreset().size()){	// TODO make this a little nicer
+			while(i < transition.GetPreset().size()){
+				if(transition.GetPreset().at(i).lock()->InputPlace().GetIndex() > iter->place->GetIndex() ||
+				(transition.GetPreset().at(i).lock()->InputPlace().GetIndex() == iter->place->GetIndex() && transition.GetPreset().at(i).lock()->GetWeight() < iter->NumberOfTokens())){
+					value = min(value, iter->tokens.front().getAge());
+					MC = max(MC, iter->place->GetMaxConstant() - iter->tokens.front().getAge());
+					break;
+				}
+				i++;
 			}
-			i++;
+		}else{
+			value = min(value, iter->tokens.front().getAge());
+			MC = max(MC, iter->place->GetMaxConstant() - iter->tokens.front().getAge());
 		}
 	}
 
