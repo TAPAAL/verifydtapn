@@ -272,22 +272,22 @@ int TimeDartReachabilitySearch::calculateEnd(const TimedTransition& transition, 
 
 int TimeDartReachabilitySearch::calculateStop(const TimedTransition& transition, NonStrictMarking* marking){
 	int value = INT_MAX;
-	int MC;
+	int MC = 0;
+
 	unsigned int i = 0;
 	for(PlaceList::const_iterator iter = marking->GetPlaceList().begin(); iter != marking->GetPlaceList().end(); iter++){
 		while(i < transition.GetPreset().size()){
-			if(transition.GetPreset().at(i).lock()->InputPlace().GetIndex() > iter->place->GetIndex()){
+			if(transition.GetPreset().at(i).lock()->InputPlace().GetIndex() > iter->place->GetIndex() ||
+			(transition.GetPreset().at(i).lock()->InputPlace().GetIndex() == iter->place->GetIndex() && transition.GetPreset().at(i).lock()->GetWeight() < iter->NumberOfTokens())){
 				value = min(value, iter->tokens.front().getAge());
-				MC = max(MC, iter->place->GetMaxConstant()-iter->tokens.front().getAge());
+				MC = max(MC, iter->place->GetMaxConstant() - iter->tokens.front().getAge());
 				break;
 			}
 			i++;
 		}
 	}
 
-
-
-	return max(MC+1-value,0);
+	return MC+1-value;
 }
 
 void TimeDartReachabilitySearch::printStats(){
