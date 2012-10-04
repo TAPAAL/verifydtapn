@@ -261,6 +261,9 @@ std::ostream& operator<<(std::ostream& out, NonStrictMarking& x ) {
 }
 
 void NonStrictMarking::cut(){
+#ifdef DEBUG
+	std::cout << "Before cut: " << *this << std::endl;
+#endif
 	for(PlaceList::iterator place_iter = this->places.begin(); place_iter != this->places.end(); place_iter++){
 		//remove dead tokens
 		if (place_iter->place->GetType() ==  TAPN::Dead) {
@@ -288,24 +291,36 @@ void NonStrictMarking::cut(){
 		this->AddTokenInPlace(*place_iter, t);
 	}
 	this->CleanUp();
+	#ifdef DEBUG
+		std::cout << "After cut: " << *this << std::endl;
+	#endif
 }
 
-int NonStrictMarking::makeBase(){
-
+int NonStrictMarking::makeBase(TAPN::TimedArcPetriNet* tapn){
+	#ifdef DEBUG
+		std::cout << "Before makeBase: " << *this << std::endl;
+	#endif
 	int youngest = INT_MAX;
 	for(PlaceList::const_iterator place_iter = GetPlaceList().begin(); place_iter != GetPlaceList().end(); place_iter++){
-		if(youngest > place_iter->tokens.front().getAge()){
+		if(youngest > place_iter->tokens.front().getAge() && place_iter->tokens.front().getAge() <= place_iter->place->GetMaxConstant()){
 			youngest = place_iter->tokens.front().getAge();
 		}
 	}
 
-	if(youngest < INT_MAX && youngest > 0){
-		for(PlaceList::iterator place_iter = places.begin(); place_iter != places.end(); place_iter++){
-			for(TokenList::iterator token_iter = place_iter->tokens.begin(); token_iter != place_iter->tokens.end(); token_iter++){
-				token_iter->setAge(token_iter->getAge()-youngest);
-			}
+	if(youngest == INT_MAX){
+		youngest = 0;
+	}
+
+	for(PlaceList::iterator place_iter = places.begin(); place_iter != places.end(); place_iter++){
+		for(TokenList::iterator token_iter = place_iter->tokens.begin(); token_iter != place_iter->tokens.end(); token_iter++){
+			token_iter->setAge(max(token_iter->getAge()-youngest,0));
 		}
 	}
+
+	#ifdef DEBUG
+		std::cout << "After makeBase: " << *this << std::endl;
+		std::cout << "Youngest: " << youngest << std::endl;
+	#endif
 
 	return youngest;
 }

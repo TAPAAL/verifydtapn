@@ -173,7 +173,7 @@ public:
 				}
 			}
 		}
-		int makeBase();
+		int makeBase(TAPN::TimedArcPetriNet* tapn);
 
 	public:
 		bool equals(const NonStrictMarking &m1) const;

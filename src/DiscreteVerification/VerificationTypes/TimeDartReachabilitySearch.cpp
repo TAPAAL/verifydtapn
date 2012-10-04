@@ -31,9 +31,11 @@ bool TimeDartReachabilitySearch::Verify(){
 		TimeDart& dart = *pwList.GetNextUnexplored();
 		exploredMarkings++;
 
-		//std::cout << "-----------------------------------------------------------------------------\n";
+#ifdef DEBUG
+		std::cout << "-----------------------------------------------------------------------------\n";
+		std::cout << "Marking: " << *(dart.getBase()) << " waiting: " << dart.getWaiting() << " passed: " << dart.getPassed() << std::endl;
+#endif
 
-		//std::cout << "Marking: " << dart.getBase() << " waiting: " << dart.getWaiting() << " passed: " << dart.getPassed() << std::endl;
 		int passed = dart.getPassed();
 		dart.setPassed(dart.getWaiting());
 		vector<const TimedTransition*> transitions = getTransitions(dart.getBase());
@@ -101,6 +103,7 @@ vector<NonStrictMarking*> TimeDartReachabilitySearch::getPossibleNextMarkings(No
 
 bool TimeDartReachabilitySearch::addToPW(NonStrictMarking* marking, int w, int p){
 	marking->cut();
+
 	unsigned int size = marking->size();
 
 	pwList.SetMaxNumTokensIfGreater(size);
@@ -109,7 +112,7 @@ bool TimeDartReachabilitySearch::addToPW(NonStrictMarking* marking, int w, int p
 		return false;
 	}
 
-	if(pwList.Add(marking, w, p)){
+	if(pwList.Add(tapn.get(), marking, w, p)){
 		QueryVisitor checker(*marking);
 		boost::any context;
 		query->Accept(checker, context);
