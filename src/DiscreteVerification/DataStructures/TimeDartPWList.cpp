@@ -21,7 +21,7 @@ bool TimeDartPWList::Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarking* marking
 			bool inWaiting = (*iter)->getWaiting() < (*iter)->getPassed();
 
 			(*iter)->setPassed(min((*iter)->getPassed(),p));
-			(*iter)->setWaiting(min((*iter)->getWaiting(),w));
+			(*iter)->setWaiting(min((*iter)->getWaiting(),youngest));
 
 			delete marking;
 
