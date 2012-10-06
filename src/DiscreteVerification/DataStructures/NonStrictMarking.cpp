@@ -313,7 +313,14 @@ int NonStrictMarking::makeBase(TAPN::TimedArcPetriNet* tapn){
 
 	for(PlaceList::iterator place_iter = places.begin(); place_iter != places.end(); place_iter++){
 		for(TokenList::iterator token_iter = place_iter->tokens.begin(); token_iter != place_iter->tokens.end(); token_iter++){
-			token_iter->setAge(max(token_iter->getAge()-youngest,0));
+			if(token_iter->getAge() != place_iter->place->GetMaxConstant() + 1){
+				token_iter->setAge(token_iter->getAge()-youngest);
+			}
+#ifdef DEBUG
+			else if(token_iter->getAge() > place_iter->place->GetMaxConstant() + 1){
+				assert(false);
+			}
+#endif
 		}
 	}
 
