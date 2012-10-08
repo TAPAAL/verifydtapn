@@ -11,7 +11,9 @@ namespace VerifyTAPN {
 namespace DiscreteVerification {
 
 bool TimeDartPWList::Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarking* marking, int w, int p, bool skip){
-	discoveredMarkings++;
+	if(!skip){
+		discoveredMarkings++;
+	}
 	int youngest = marking->makeBase(tapn);
 	NonStrictMarkingList& m = markings_storage[marking->HashKey()];
 	for(NonStrictMarkingList::const_iterator iter = m.begin();
