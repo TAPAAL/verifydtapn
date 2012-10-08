@@ -40,12 +40,15 @@ bool TimeDartReachabilitySearch::Verify(){
 		dart.setPassed(dart.getWaiting());
 		vector<const TimedTransition*> transitions = getTransitions(dart.getBase());
 		for(vector<const TimedTransition*>::const_iterator transition = transitions.begin(); transition != transitions.end(); transition++){
-			int calculatedStart = calculateStart(*(*transition), dart.getBase());
-			if(calculatedStart == -1){	// Transition cannot be enabled in marking
+			pair<int,int> calculatedStart = calculateStart(*(*transition), dart.getBase());
+			if(calculatedStart.first == -1){	// Transition cannot be enabled in marking
 				continue;
 			}
-			int start = max(dart.getWaiting(), calculatedStart);
-			int end = min(passed-1, calculateEnd(*(*transition), dart.getBase()));
+			int start = max(dart.getWaiting(), calculatedStart.first);
+			int end = min(passed-1, calculatedStart.second);
+#ifdef DEBUG
+			std::cout << "New end: " << calculatedStart.second << " old end: " << calculateEnd(*(*transition), dart.getBase());
+#endif
 			if(start <= end){
 				if((*transition)->GetPostset().size() == 0){
 					NonStrictMarking Mpp(*dart.getBase());
@@ -161,13 +164,14 @@ vector<const TimedTransition*> TimeDartReachabilitySearch::getTransitions(NonStr
 	return transitions;
 }
 
-int TimeDartReachabilitySearch::calculateStart(const TimedTransition& transition, NonStrictMarking* marking){
+pair<int,int> TimeDartReachabilitySearch::calculateStart(const TimedTransition& transition, NonStrictMarking* marking){
 	vector<Util::interval > start;
 	Util::interval initial(0, INT_MAX);
 	start.push_back(initial);
 
 	if(transition.NumberOfInputArcs() + transition.NumberOfTransportArcs() == 0){ //always enabled
-		return 0;
+		pair<int, int> p(0, INT_MAX);
+		return p;
 	}
 
 	for(TAPN::TimedInputArc::WeakPtrVector::const_iterator arc = transition.GetPreset().begin(); arc != transition.GetPreset().end(); arc++){
@@ -181,7 +185,10 @@ int TimeDartReachabilitySearch::calculateStart(const TimedTransition& transition
 		int weight = arc->lock()->GetWeight();
 
 		TokenList tokens = marking->GetTokenList(arc->lock()->InputPlace().GetIndex());
-		if(tokens.size() == 0) return -1;
+		if(tokens.size() == 0){
+			pair<int, int> p(-1, -1);
+			return p;
+		}
 
 		unsigned int j = 0;
 		int numberOfTokensAvailable = tokens.at(j).getCount();
@@ -219,7 +226,10 @@ int TimeDartReachabilitySearch::calculateStart(const TimedTransition& transition
 
 			TokenList tokens = marking->GetTokenList(arc->lock()->Source().GetIndex());
 
-			if(tokens.size() == 0) return -1;
+			if(tokens.size() == 0){
+				pair<int, int> p(-1, -1);
+				return p;
+			}
 
 			unsigned int j = 0;
 			int numberOfTokensAvailable = tokens.at(j).getCount();
@@ -241,8 +251,27 @@ int TimeDartReachabilitySearch::calculateStart(const TimedTransition& transition
 			start = Util::setIntersection(start, intervals);
 		}
 
+		int invariantPart = INT_MAX;
 
-	return start.empty()? -1:start.at(0).lower();
+		for(PlaceList::const_iterator iter = marking->GetPlaceList().begin(); iter != marking->GetPlaceList().end(); iter++){
+			if(iter->place->GetInvariant().GetBound() != std::numeric_limits<int>::max() && iter->place->GetInvariant().GetBound()-iter->tokens.back().getAge() < invariantPart){
+				invariantPart = iter->place->GetInvariant().GetBound()-iter->tokens.back().getAge();
+			}
+		}
+
+		vector<Util::interval > invEnd;
+		Util::interval initialInv(0, invariantPart);
+		invEnd.push_back(initialInv);
+		start = Util::setIntersection(start, invEnd);
+
+
+	if(start.empty()){
+		pair<int, int> p(-1,-1);
+		return p;
+	}else{
+		pair<int, int> p(start.front().lower(), start.back().upper());
+		return p;
+	}
 }
 
 int TimeDartReachabilitySearch::calculateEnd(const TimedTransition& transition, NonStrictMarking* marking){
