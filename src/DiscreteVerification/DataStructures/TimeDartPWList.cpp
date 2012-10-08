@@ -10,7 +10,7 @@
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
-bool TimeDartPWList::Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarking* marking, int w, int p){
+bool TimeDartPWList::Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarking* marking, int w, int p, bool skip){
 	discoveredMarkings++;
 	int youngest = marking->makeBase(tapn);
 	NonStrictMarkingList& m = markings_storage[marking->HashKey()];
@@ -18,16 +18,18 @@ bool TimeDartPWList::Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarking* marking
 			iter != m.end();
 			iter++){
 		if((*iter)->getBase()->equals(*marking)){
-			bool inWaiting = (*iter)->getWaiting() < (*iter)->getPassed();
+			if(!skip){
+				bool inWaiting = (*iter)->getWaiting() < (*iter)->getPassed();
 
-			(*iter)->setPassed(min((*iter)->getPassed(),p));
-			(*iter)->setWaiting(min((*iter)->getWaiting(),youngest));
+				(*iter)->setPassed(min((*iter)->getPassed(),p));
+				(*iter)->setWaiting(min((*iter)->getWaiting(),youngest));
+
+				if((*iter)->getWaiting() < (*iter)->getPassed() && !inWaiting){
+					waiting_list->Add((*iter));
+				}
+			}
 
 			delete marking;
-
-			if((*iter)->getWaiting() < (*iter)->getPassed() && !inWaiting){
-				waiting_list->Add((*iter));
-			}
 
 			return false;
 		}

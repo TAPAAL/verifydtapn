@@ -38,7 +38,7 @@ public: // inspectors
 	};
 
 public: // modifiers
-	virtual bool Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarking* marking, int w, int p);
+	virtual bool Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarking* marking, int w, int p, bool skip = false);
 	virtual TimeDart* GetNextUnexplored();
 	inline void SetMaxNumTokensIfGreater(int i){ if(i>maxNumTokensInAnyMarking) maxNumTokensInAnyMarking = i; };
 

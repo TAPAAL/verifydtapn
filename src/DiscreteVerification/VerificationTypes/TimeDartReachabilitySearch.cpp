@@ -64,6 +64,11 @@ bool TimeDartReachabilitySearch::Verify(){
 					for(int n = start; n <= stop; n++){
 						NonStrictMarking Mpp(*dart.getBase());
 						Mpp.incrementAge(n);
+						Mpp.cut();
+						NonStrictMarking* Mppp = new NonStrictMarking(Mpp);
+						if(pwList.Add(tapn.get(), Mppp, 0, INT_MAX, true)){
+							break;
+						}
 						vector<NonStrictMarking*> next = getPossibleNextMarkings(Mpp, **transition);
 						for(vector<NonStrictMarking*>::iterator it = next.begin(); it != next.end(); it++){
 							if(addToPW(*it, 0, INT_MAX)){
@@ -264,6 +269,9 @@ pair<int,int> TimeDartReachabilitySearch::calculateStart(const TimedTransition& 
 		invEnd.push_back(initialInv);
 		start = Util::setIntersection(start, invEnd);
 
+#if DEBUG
+		std::cout << "Intervals in start: " << start.size() << std::endl;
+#endif
 
 	if(start.empty()){
 		pair<int, int> p(-1,-1);
