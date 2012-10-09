@@ -46,9 +46,6 @@ bool TimeDartReachabilitySearch::Verify(){
 			}
 			int start = max(dart.getWaiting(), calculatedStart.first);
 			int end = min(passed-1, calculatedStart.second);
-#ifdef DEBUG
-			std::cout << "New end: " << calculatedStart.second << " old end: " << calculateEnd(*(*transition), dart.getBase());
-#endif
 			if(start <= end){
 				if((*transition)->GetPostset().size() == 0){
 					NonStrictMarking Mpp(*dart.getBase());
@@ -311,28 +308,22 @@ int TimeDartReachabilitySearch::calculateEnd(const TimedTransition& transition, 
 }
 
 int TimeDartReachabilitySearch::calculateStop(const TimedTransition& transition, NonStrictMarking* marking){
-	int value = INT_MAX;
-	int MC = 0;
+	int MC = -1;
 
 	unsigned int i = 0;
 	for(PlaceList::const_iterator iter = marking->GetPlaceList().begin(); iter != marking->GetPlaceList().end(); iter++){
-		if(i < transition.GetPreset().size()){	// TODO make this a little nicer
-			while(i < transition.GetPreset().size()){
-				if(transition.GetPreset().at(i).lock()->InputPlace().GetIndex() > iter->place->GetIndex() ||
-				(transition.GetPreset().at(i).lock()->InputPlace().GetIndex() == iter->place->GetIndex() && transition.GetPreset().at(i).lock()->GetWeight() < iter->NumberOfTokens())){
-					value = min(value, iter->tokens.front().getAge());
-					MC = max(MC, iter->place->GetMaxConstant() - iter->tokens.front().getAge());
-					break;
-				}
-				i++;
+		if(i < transition.GetPreset().size() && iter->place->GetIndex() == transition.GetPreset().at(i).lock()->InputPlace().GetIndex()){
+			if(transition.GetPreset().at(i).lock()->GetWeight() < iter->NumberOfTokens()){
+				// TODO it should be the youngest NumberOfTokens-GetWeight'e token for optimization
+				MC = max(MC, iter->place->GetMaxConstant() - iter->tokens.front().getAge());
 			}
-		}else{
-			value = min(value, iter->tokens.front().getAge());
-			MC = max(MC, iter->place->GetMaxConstant() - iter->tokens.front().getAge());
+			i++;
+			continue;
 		}
+		MC = max(MC, iter->place->GetMaxConstant() - iter->tokens.front().getAge());
 	}
 
-	return MC+1-value;
+	return MC+1;
 }
 
 void TimeDartReachabilitySearch::printStats(){
