@@ -21,7 +21,6 @@ typedef boost::numeric::interval_lib::policies< rounding_policy, checking_policy
 typedef boost::numeric::interval< int, interval_policies > interval;
 
 void set_add(std::vector< interval >& first, const interval& element);
-void setUnion(std::vector< interval >& first, const std::vector< interval >& second);
 std::vector<interval > setIntersection(const std::vector<interval >& first,
 		const std::vector<interval >& second);
 

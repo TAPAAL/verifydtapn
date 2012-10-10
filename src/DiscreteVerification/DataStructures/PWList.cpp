@@ -30,7 +30,6 @@ bool PWList::Add(NonStrictMarking* marking){
 }
 
 NonStrictMarking* PWList::GetNextUnexplored(){
-	// TODO: Is this really it?
 	return waiting_list->Next();
 }
 

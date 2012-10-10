@@ -36,11 +36,6 @@ private:
 	int passed;
 };
 
-/*std::ostream& operator<<(std::ostream& out, TimeDart& x){
-	out << "Base: " << x.getBase() << std::endl << "Waiting: " << x.getWaiting() << std::endl << "Passed: " << x.getPassed() << std::endl;
-	return out;
-}*/ // TODO fix
-
 }
 }
 

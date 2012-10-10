@@ -14,13 +14,6 @@ namespace Util {
 using namespace std;
 using boost::numeric::intersect;
 
-//TODO Optimize!!
-void setUnion(vector< interval >& first, const vector< interval >& second){
-	for(vector< interval >::const_iterator iter = second.begin(); iter != second.end(); iter++){
-		set_add(first, *iter);
-	}
-}
-
 vector<interval > setIntersection(const vector<interval >& first, const vector<interval >& second){
 	vector<interval > result;
 

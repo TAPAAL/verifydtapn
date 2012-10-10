@@ -225,9 +225,7 @@ void NonStrictMarking::decrementAge(){
 	}
 }
 
-NonStrictMarking::~NonStrictMarking() {
-	// TODO: Should we destruct something here? (places)
-}
+NonStrictMarking::~NonStrictMarking() { }
 
 bool NonStrictMarking::equals(const NonStrictMarking &m1) const{
 	if(m1.places.size() != places.size())	return false;
