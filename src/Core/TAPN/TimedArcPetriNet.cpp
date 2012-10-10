@@ -189,6 +189,15 @@ namespace VerifyTAPN {
 					}
 				}
 			}
+
+			for(TimedTransition::Vector::iterator iter = transitions.begin(); iter != transitions.end(); iter++){
+				for(OutputArc::WeakPtrVector::const_iterator place_iter = iter->get()->GetPostset().begin(); place_iter != iter->get()->GetPostset().end(); place_iter++){
+					if(place_iter->lock()->OutputPlace().GetMaxConstant() > -1){
+						iter->get()->setUntimedPostset(false);
+						break;
+					}
+				}
+			}
 		}
 
 		void TimedArcPetriNet::calculateCausality(TimedPlace& p, std::vector< TimedPlace* >* result) const

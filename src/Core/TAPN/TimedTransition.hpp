@@ -21,8 +21,8 @@ class SymMarking;
 		public: // typedefs
 			typedef std::vector< boost::shared_ptr<TimedTransition> > Vector;
 		public:
-			TimedTransition(const std::string& name, const std::string& id) : name(name), id(id), preset(), postset(), transportArcs(), index(-1) { };
-			TimedTransition() : name("*EMPTY*"), id("-1"), preset(), postset(), transportArcs(), index(-1) { };
+			TimedTransition(const std::string& name, const std::string& id) : name(name), id(id), preset(), postset(), transportArcs(), index(-1), untimedPostset(true) { };
+			TimedTransition() : name("*EMPTY*"), id("-1"), preset(), postset(), transportArcs(), index(-1), untimedPostset(true) { };
 			virtual ~TimedTransition() { /* empty */ }
 
 		public: // modifiers
@@ -46,7 +46,9 @@ class SymMarking;
 			inline unsigned int NumberOfTransportArcs() const { return transportArcs.size(); };
 		//	bool isEnabledBy(const TimedArcPetriNet& tapn, const VerifyTAPN::SymMarking& marking) const;
 			inline const bool isConservative() const { return preset.size() == postset.size(); }
-			inline unsigned int GetIndex() const { return index; };
+			inline unsigned int GetIndex() const { return index; }
+			inline const bool hasUntimedPostset() const { return untimedPostset; }
+			inline void setUntimedPostset(bool untimed){ untimedPostset = untimed; }
 
 		private: // data
 			std::string name;
@@ -56,6 +58,7 @@ class SymMarking;
 			TransportArc::WeakPtrVector transportArcs;
 			InhibitorArc::WeakPtrVector inhibitorArcs;
 			unsigned int index;
+			bool untimedPostset;
 		};
 
 		inline std::ostream& operator<<(std::ostream& out, const TimedTransition& transition)
