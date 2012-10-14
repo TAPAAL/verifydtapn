@@ -118,15 +118,15 @@ class SuccessorGenerator {
 public:
 	SuccessorGenerator(TAPN::TimedArcPetriNet& tapn);
 	~SuccessorGenerator();
-	vector< NonStrictMarking > generateSuccessors(const NonStrictMarking& marking) const;
+	vector< NonStrictMarking* > generateSuccessors(const NonStrictMarking& marking) const;
 	void PrintTransitionStatistics(std::ostream & out) const;
 private:
 	TokenList getPlaceFromMarking(const NonStrictMarking& marking, int placeID) const;
 
-	void generateMarkings(vector<NonStrictMarking >& result, const NonStrictMarking& init_marking, const std::vector< const TimedTransition* >& transitions, ArcHashMap& enabledArcs) const;
-	void recursiveGenerateMarking(vector<NonStrictMarking >& result, NonStrictMarking& init_marking, const TimedTransition& transition, ArcHashMap& enabledArcs, unsigned int index) const;
+	void generateMarkings(vector<NonStrictMarking* >& result, const NonStrictMarking& init_marking, const std::vector< const TimedTransition* >& transitions, ArcHashMap& enabledArcs) const;
+	void recursiveGenerateMarking(vector<NonStrictMarking* >& result, NonStrictMarking& init_marking, const TimedTransition& transition, ArcHashMap& enabledArcs, unsigned int index) const;
 
-	void addMarking(vector<NonStrictMarking >& result, NonStrictMarking& init_marking, const TimedTransition& transition, ArcAndTokensVector& indicesOfCurrentPermutation) const;
+	void addMarking(vector<NonStrictMarking* >& result, NonStrictMarking& init_marking, const TimedTransition& transition, ArcAndTokensVector& indicesOfCurrentPermutation) const;
 	bool incrementModificationVector(vector<unsigned int >& modificationVector, TokenList& enabledTokens) const;
 
 	const TAPN::TimedArcPetriNet& tapn;
