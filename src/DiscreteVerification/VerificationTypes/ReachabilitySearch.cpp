@@ -144,10 +144,10 @@ void ReachabilitySearch::printStats(){
 	std::cout << "  stored markings:\t" << pwList.Size() << std::endl;
 }
 
-void ReachabilitySearch::GetTrace(bool xml){
+void ReachabilitySearch::GetTrace(){
 	stack < NonStrictMarking*> printStack;
 	GenerateTraceStack(lastMarking, &printStack);
-	if(xml){
+	if(options.XmlTrace()){
 		PrintXMLTrace(lastMarking, printStack, query->GetQuantifier());
 	} else {
 		PrintHumanTrace(lastMarking, printStack, query->GetQuantifier());

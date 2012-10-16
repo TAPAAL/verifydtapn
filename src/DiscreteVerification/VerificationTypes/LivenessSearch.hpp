@@ -35,7 +35,6 @@ public:
 	LivenessSearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list);
 	virtual ~LivenessSearch();
 	bool Verify();
-	NonStrictMarking* GetLastMarking() { return lastMarking; }
 	inline unsigned int MaxUsedTokens(){ return pwList.maxNumTokensInAnyMarking; };
 	void PrintTransitionStatistics() const { successorGenerator.PrintTransitionStatistics(std::cout); }
 protected:
@@ -54,9 +53,8 @@ protected:
 	SuccessorGenerator successorGenerator;
 public:
 	void printStats();
-	void GetTrace(bool xml);
+	void GetTrace();
 private:
-	NonStrictMarking* lastMarking;
 	stack< NonStrictMarking* > trace;
 };
 

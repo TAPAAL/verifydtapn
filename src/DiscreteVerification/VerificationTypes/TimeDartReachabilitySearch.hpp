@@ -62,7 +62,7 @@ protected:
 	int exploredMarkings;
 public:
 	void printStats();
-	void GetTrace(bool xml){
+	void GetTrace(){
 		std::cout << "Trace not yet implemented" << std::endl;
 	}
 private:

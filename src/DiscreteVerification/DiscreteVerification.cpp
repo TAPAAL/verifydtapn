@@ -73,31 +73,11 @@ int DiscreteVerification::run(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, s
 
 	if(options.GetTrace() == SOME){
 		if((query->GetQuantifier() == EF && result) || (query->GetQuantifier() == AG && !result) || (query->GetQuantifier() == EG && result) || (query->GetQuantifier() == AF && !result)) {
-			verifier->GetTrace(options.XmlTrace());
+			verifier->GetTrace();
 		}else {
 			std::cout << "A trace could not be generated due to the query result" << std::endl;
 		}
 	}
-		/*
-		std::stack<NonStrictMarking*> printStack;
-		if((query->GetQuantifier() == EF && result) || (query->GetQuantifier() == AG && !result)) {
-			GenerateTraceStack(verifier->GetLastMarking(), &printStack);
-			if(options.XmlTrace()){
-				PrintXMLTrace(result, verifier->GetLastMarking(), printStack, query->GetQuantifier());
-			} else {
-				PrintHumanTrace(result, verifier->GetLastMarking(), printStack, query->GetQuantifier());
-			}
-		} else if((query->GetQuantifier() == EG && result) || (query->GetQuantifier() == AF && !result)) {
-			NonStrictMarking* m = verifier->trace.top();
-			GenerateTraceStack(m, &printStack, &verifier->trace);
-			if(options.XmlTrace()){
-				PrintXMLTrace(result, m, printStack, query->GetQuantifier());
-			} else {
-				PrintHumanTrace(result, m, printStack, query->GetQuantifier());
-			}
-		} else {
-			std::cout << "A trace could not be generated due to the query result" << std::endl;
-		}*/
 
 	delete strategy;
 

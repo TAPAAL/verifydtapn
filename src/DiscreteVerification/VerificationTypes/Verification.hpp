@@ -17,8 +17,7 @@ virtual ~Verification(){};
 virtual void printStats() = 0;
 virtual void PrintTransitionStatistics() const = 0;
 virtual unsigned int MaxUsedTokens() = 0;
-virtual NonStrictMarking* GetLastMarking() = 0;
-virtual void GetTrace(bool XMLTrace){ std::cout << "Error generating trace" << std::endl; }
+virtual void GetTrace(){ std::cout << "Error generating trace" << std::endl; }
 
 void PrintHumanTrace(NonStrictMarking* m, std::stack<NonStrictMarking*>& stack, AST::Quantifier query);
 void PrintXMLTrace(NonStrictMarking* m, std::stack<NonStrictMarking*>& stack, AST::Quantifier query);
