@@ -27,7 +27,6 @@ bool ReachabilitySearch::Verify(){
 		endOfMaxRun = true;
 		next_marking.passed = true;
 		next_marking.inTrace = true;
-		trace.push(&next_marking);
 		validChildren = 0;
 
 		// Generate next markings
@@ -143,6 +142,16 @@ void ReachabilitySearch::printStats(){
 	std::cout << "  discovered markings:\t" << pwList.discoveredMarkings << std::endl;
 	std::cout << "  explored markings:\t" << pwList.Size()-pwList.waiting_list->Size() << std::endl;
 	std::cout << "  stored markings:\t" << pwList.Size() << std::endl;
+}
+
+void ReachabilitySearch::GetTrace(bool xml){
+	stack < NonStrictMarking*> printStack;
+	GenerateTraceStack(lastMarking, &printStack);
+	if(xml){
+		PrintXMLTrace(lastMarking, printStack, query->GetQuantifier());
+	} else {
+		PrintHumanTrace(lastMarking, printStack, query->GetQuantifier());
+	}
 }
 
 ReachabilitySearch::~ReachabilitySearch() {

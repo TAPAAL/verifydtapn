@@ -62,6 +62,9 @@ protected:
 	int exploredMarkings;
 public:
 	void printStats();
+	void GetTrace(bool xml){
+		std::cout << "Trace not yet implemented" << std::endl;
+	}
 private:
 	NonStrictMarking* lastMarking;
 };

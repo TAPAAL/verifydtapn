@@ -5,13 +5,13 @@
  *      Author: MathiasGS
  */
 
-#include "TimeDartReachabilitySearch.hpp"
+#include "TimeDartLiveness.hpp"
 
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
-TimeDartReachabilitySearch::TimeDartReachabilitySearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<TimeDart>* waiting_list)
-	: pwList(waiting_list), tapn(tapn), initialMarking(initialMarking), query(query), options(options), successorGenerator( *tapn.get() ), allwaysEnabled(), exploredMarkings(0){
+TimeDartLiveness::TimeDartLiveness(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<TimeDart>* waiting_list)
+	: pwList(waiting_list), tapn(tapn), initialMarking(initialMarking), query(query), options(options), successorGenerator( *tapn.get() ), allwaysEnabled(), exploredMarkings(0), trace(){
 
 	//Find the transitions which don't have input arcs
 	for(TimedTransition::Vector::const_iterator iter = tapn->GetTransitions().begin(); iter != tapn->GetTransitions().end(); iter++){
@@ -21,7 +21,7 @@ TimeDartReachabilitySearch::TimeDartReachabilitySearch(boost::shared_ptr<TAPN::T
 	}
 }
 
-bool TimeDartReachabilitySearch::Verify(){
+bool TimeDartLiveness::Verify(){
 	if(addToPW(&initialMarking)){
 		return true;
 	}
@@ -80,7 +80,7 @@ bool TimeDartReachabilitySearch::Verify(){
 	return false;
 }
 
-bool TimeDartReachabilitySearch::isDelayPossible(NonStrictMarking& marking){
+bool TimeDartLiveness::isDelayPossible(NonStrictMarking& marking){
 	PlaceList& places = marking.places;
 	if(places.size() == 0) return true;	//Delay always possible in empty markings
 
@@ -101,11 +101,11 @@ bool TimeDartReachabilitySearch::isDelayPossible(NonStrictMarking& marking){
 	return false;
 }
 
-vector<NonStrictMarking*> TimeDartReachabilitySearch::getPossibleNextMarkings(NonStrictMarking& marking, const TimedTransition& transition){
+vector<NonStrictMarking*> TimeDartLiveness::getPossibleNextMarkings(NonStrictMarking& marking, const TimedTransition& transition){
 	return successorGenerator.generateSuccessors(marking, transition);
 }
 
-bool TimeDartReachabilitySearch::addToPW(NonStrictMarking* marking){
+bool TimeDartLiveness::addToPW(NonStrictMarking* marking){
 	marking->cut();
 
 	unsigned int size = marking->size();
@@ -131,7 +131,7 @@ bool TimeDartReachabilitySearch::addToPW(NonStrictMarking* marking){
 	return false;
 }
 
-pair<int,int> TimeDartReachabilitySearch::calculateStart(const TimedTransition& transition, NonStrictMarking* marking){
+pair<int,int> TimeDartLiveness::calculateStart(const TimedTransition& transition, NonStrictMarking* marking){
 	vector<Util::interval > start;
 	Util::interval initial(0, INT_MAX);
 	start.push_back(initial);
@@ -244,7 +244,7 @@ pair<int,int> TimeDartReachabilitySearch::calculateStart(const TimedTransition& 
 	}
 }
 
-int TimeDartReachabilitySearch::calculateEnd(const TimedTransition& transition, NonStrictMarking* marking){
+int TimeDartLiveness::calculateEnd(const TimedTransition& transition, NonStrictMarking* marking){
 
 	int part1 = 0;
 
@@ -272,7 +272,7 @@ int TimeDartReachabilitySearch::calculateEnd(const TimedTransition& transition, 
 	return min(part1, part2);
 }
 
-int TimeDartReachabilitySearch::calculateStop(const TimedTransition& transition, NonStrictMarking* marking){
+int TimeDartLiveness::calculateStop(const TimedTransition& transition, NonStrictMarking* marking){
 	int MC = -1;
 
 	unsigned int i = 0;
@@ -291,13 +291,13 @@ int TimeDartReachabilitySearch::calculateStop(const TimedTransition& transition,
 	return MC+1;
 }
 
-void TimeDartReachabilitySearch::printStats(){
+void TimeDartLiveness::printStats(){
 	std::cout << "  discovered markings:\t" << pwList.discoveredMarkings << std::endl;
 	std::cout << "  explored markings:\t" << exploredMarkings << std::endl;
 	std::cout << "  stored markings:\t" << pwList.Size() << std::endl;
 }
 
-TimeDartReachabilitySearch::~TimeDartReachabilitySearch() {
+TimeDartLiveness::~TimeDartLiveness() {
 }
 
 } /* namespace DiscreteVerification */

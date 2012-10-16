@@ -5,11 +5,13 @@
  *      Author: MathiasGS
  */
 
-#ifndef LIVENESSSEARCH_HPP_
-#define LIVENESSSEARCH_HPP_
+#ifndef TIMEDARTLIVENESS_HPP_
+#define TIMEDARTLIVENESS_HPP_
 
-#include "../DataStructures/PWList.hpp"
+#include "../DataStructures/TimeDart.hpp"
+#include "../DataStructures/TimeDartPWList.hpp"
 #include "boost/smart_ptr.hpp"
+#include "boost/numeric/interval.hpp"
 #include "../../Core/TAPN/TAPN.hpp"
 #include "../../Core/QueryParser/AST.hpp"
 #include "../../Core/VerificationOptions.hpp"
@@ -19,45 +21,59 @@
 #include "../../Core/TAPN/TransportArc.hpp"
 #include "../../Core/TAPN/InhibitorArc.hpp"
 #include "../../Core/TAPN/OutputArc.hpp"
-#include "../SuccessorGenerator.hpp"
+#include "../TimeDartSuccessorGenerator.hpp"
 #include "../QueryVisitor.hpp"
 #include "boost/any.hpp"
 #include "../DataStructures/NonStrictMarking.hpp"
 #include <stack>
 #include "Verification.hpp"
-#include "../DataStructures/WaitingList.hpp"
+#include "../DataStructures/TimeDart.hpp"
+#include "../Util/IntervalOps.hpp"
 
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
-class LivenessSearch : public Verification{
+struct TraceDart{
+	TimeDart* dart;
+	int start;
+	int end;
+};
+
+class TimeDartLiveness : public Verification{
 public:
-	LivenessSearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list);
-	virtual ~LivenessSearch();
+	TimeDartLiveness(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<TimeDart>* waiting_list);
+	virtual ~TimeDartLiveness();
 	bool Verify();
 	NonStrictMarking* GetLastMarking() { return lastMarking; }
 	inline unsigned int MaxUsedTokens(){ return pwList.maxNumTokensInAnyMarking; };
 	void PrintTransitionStatistics() const { successorGenerator.PrintTransitionStatistics(std::cout); }
+
 protected:
-	vector<NonStrictMarking> getPossibleNextMarkings(NonStrictMarking& marking);
-	bool addToPW(NonStrictMarking* marking, NonStrictMarking* parent);
+	vector<NonStrictMarking*> getPossibleNextMarkings(NonStrictMarking& marking, const TimedTransition& transition);
+	bool addToPW(NonStrictMarking* marking);
 	bool isDelayPossible(NonStrictMarking& marking);
-	NonStrictMarking* cut(NonStrictMarking& marking);
+	pair<int,int> calculateStart(const TimedTransition& transition, NonStrictMarking* marking);
+	int calculateEnd(const TimedTransition& transition, NonStrictMarking* marking);
+	int calculateStop(const TimedTransition& transition, NonStrictMarking* marking);
 
 protected:
 	int validChildren;
-	PWList pwList;
+	TimeDartPWList pwList;
 	boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn;
 	NonStrictMarking& initialMarking;
 	AST::Query* query;
 	VerificationOptions options;
-	SuccessorGenerator successorGenerator;
+	TimeDartSuccessorGenerator successorGenerator;
+	vector<const TAPN::TimedTransition*> allwaysEnabled;
+	int exploredMarkings;
 public:
 	void printStats();
-	void GetTrace(bool xml);
+	void GetTrace(bool xml){
+		std::cout << "Trace not yet implemented" << std::endl;
+	}
 private:
 	NonStrictMarking* lastMarking;
-	stack< NonStrictMarking* > trace;
+	stack< TraceDart > trace;
 };
 
 } /* namespace DiscreteVerification */

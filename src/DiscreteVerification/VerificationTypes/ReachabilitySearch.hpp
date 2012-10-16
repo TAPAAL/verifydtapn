@@ -55,6 +55,7 @@ protected:
 	SuccessorGenerator successorGenerator;
 public:
 	void printStats();
+	void GetTrace(bool xml);
 private:
 	NonStrictMarking* lastMarking;
 };

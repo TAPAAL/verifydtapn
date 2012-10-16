@@ -177,6 +177,17 @@ void LivenessSearch::printStats(){
 	std::cout << "  stored markings:\t" << pwList.Size() << std::endl;
 }
 
+void LivenessSearch::GetTrace(bool xml){
+	stack < NonStrictMarking*> printStack;
+	NonStrictMarking* m = trace.top();
+	GenerateTraceStack(m, &printStack, &trace);
+	if(options.XmlTrace()){
+		PrintXMLTrace(m, printStack, query->GetQuantifier());
+	} else {
+		PrintHumanTrace(m, printStack, query->GetQuantifier());
+	}
+}
+
 LivenessSearch::~LivenessSearch() {
 	// TODO Auto-generated destructor stub
 }
