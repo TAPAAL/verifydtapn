@@ -5,17 +5,16 @@
  *      Author: MathiasGS
  */
 
-#include "NonStrictSearch.hpp"
+#include "ReachabilitySearch.hpp"
 
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
-NonStrictSearch::NonStrictSearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList* waiting_list)
+ReachabilitySearch::ReachabilitySearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList* waiting_list)
 	: pwList(waiting_list), tapn(tapn), initialMarking(initialMarking), query(query), options(options), successorGenerator( *tapn.get() ){
-	livenessQuery = (query->GetQuantifier() == EG || query->GetQuantifier() == AF);
 }
 
-bool NonStrictSearch::Verify(){
+bool ReachabilitySearch::Verify(){
 	if(addToPW(&initialMarking, NULL)){
 		return true;
 	}
@@ -24,57 +23,34 @@ bool NonStrictSearch::Verify(){
 	while(pwList.HasWaitingStates()){
 		NonStrictMarking& next_marking = *pwList.GetNextUnexplored();
 		bool endOfMaxRun;
-		if(!(livenessQuery && next_marking.passed)){
-			NonStrictMarking marking(next_marking);
-			endOfMaxRun = true;
-			next_marking.passed = true;
-			next_marking.inTrace = true;
-			trace.push(&next_marking);
-			validChildren = 0;
+		NonStrictMarking marking(next_marking);
+		endOfMaxRun = true;
+		next_marking.passed = true;
+		next_marking.inTrace = true;
+		trace.push(&next_marking);
+		validChildren = 0;
 
-			// Generate next markings
-			vector<NonStrictMarking> next = getPossibleNextMarkings(marking);
+		// Generate next markings
+		vector<NonStrictMarking> next = getPossibleNextMarkings(marking);
 
-			if(isDelayPossible(marking)){
-				marking.incrementAge();
-				marking.SetGeneratedBy(NULL);
-				next.push_back(marking);
-			}
-
-			for(vector<NonStrictMarking>::iterator it = next.begin(); it != next.end(); it++){
-				if(addToPW(&(*it), &next_marking)){
-					return true;
-				}
-				endOfMaxRun = false;
-			}
-		} else {
-			endOfMaxRun = false;
-			validChildren = 0;
+		if(isDelayPossible(marking)){
+			marking.incrementAge();
+			marking.SetGeneratedBy(NULL);
+			next.push_back(marking);
 		}
 
-		if(livenessQuery){
-			if(endOfMaxRun){
-				std::cout << "End of max run" << std::endl;
+		for(vector<NonStrictMarking>::iterator it = next.begin(); it != next.end(); it++){
+			if(addToPW(&(*it), &next_marking)){
 				return true;
 			}
-			if(validChildren == 0){
-				while(!trace.empty() && trace.top()->children <= 1){
-					trace.top()->inTrace = false;
-					trace.pop();
-				}
-				if(trace.empty())	return false;
-				trace.top()->children--;
-			}else{
-				next_marking.children = validChildren;
-
-			}
+			endOfMaxRun = false;
 		}
 	}
 
 	return false;
 }
 
-bool NonStrictSearch::isDelayPossible(NonStrictMarking& marking){
+bool ReachabilitySearch::isDelayPossible(NonStrictMarking& marking){
 	PlaceList& places = marking.places;
 	if(places.size() == 0) return true;	//Delay always possible in empty markings
 
@@ -95,11 +71,11 @@ bool NonStrictSearch::isDelayPossible(NonStrictMarking& marking){
 	return false;
 }
 
-vector<NonStrictMarking> NonStrictSearch::getPossibleNextMarkings(NonStrictMarking& marking){
+vector<NonStrictMarking> ReachabilitySearch::getPossibleNextMarkings(NonStrictMarking& marking){
 	return successorGenerator.generateSuccessors(marking);
 }
 
-bool NonStrictSearch::addToPW(NonStrictMarking* marking, NonStrictMarking* parent){
+bool ReachabilitySearch::addToPW(NonStrictMarking* marking, NonStrictMarking* parent){
 	NonStrictMarking* m = cut(*marking);
 	m->SetParent(parent);
 
@@ -112,53 +88,25 @@ bool NonStrictSearch::addToPW(NonStrictMarking* marking, NonStrictMarking* paren
 		return false;
 	}
 
-	if(livenessQuery){
+	m->passed = true;
+	if(pwList.Add(m)){
 		QueryVisitor checker(*m);
 		boost::any context;
 		query->Accept(checker, context);
-		if(!boost::any_cast<bool>(context))	return false;
-		if(!pwList.Add(m)){
-			//Test if collision is in trace
-			PWList::NonStrictMarkingList& cm = pwList.markings_storage[m->HashKey()];
-			for(PWList::NonStrictMarkingList::iterator iter = cm.begin();
-					cm.end() != iter;
-					iter++){
-				if((*iter)->equals(*m)){
-					if((*iter)->inTrace){
-						//Make sure we can print trace
-						m->children = 1;
-						trace.push(m);
-						return true;
-					}else{
-						delete m;
-						return false;
-					}
-				}
-			}
-		}else{
-			validChildren++;
-		}
-	}else{
-		m->passed = true;
-		if(pwList.Add(m)){
-			QueryVisitor checker(*m);
-			boost::any context;
-			query->Accept(checker, context);
-			if(boost::any_cast<bool>(context)) {
-				lastMarking = m;
-				return true;
-			} else {
-				return false;
-			}
+		if(boost::any_cast<bool>(context)) {
+			lastMarking = m;
+			return true;
 		} else {
-			delete m;
+			return false;
 		}
+	} else {
+		delete m;
 	}
 
 	return false;
 }
 
-NonStrictMarking* NonStrictSearch::cut(NonStrictMarking& marking){
+NonStrictMarking* ReachabilitySearch::cut(NonStrictMarking& marking){
 	NonStrictMarking* m = new NonStrictMarking(marking);
 	for(PlaceList::iterator place_iter = m->places.begin(); place_iter != m->places.end(); place_iter++){
 		const TimedPlace& place = tapn->GetPlace(place_iter->place->GetIndex());
@@ -191,13 +139,13 @@ NonStrictMarking* NonStrictSearch::cut(NonStrictMarking& marking){
 	return m;
 }
 
-void NonStrictSearch::printStats(){
+void ReachabilitySearch::printStats(){
 	std::cout << "  discovered markings:\t" << pwList.discoveredMarkings << std::endl;
 	std::cout << "  explored markings:\t" << pwList.Size()-pwList.waiting_list->Size() << std::endl;
 	std::cout << "  stored markings:\t" << pwList.Size() << std::endl;
 }
 
-NonStrictSearch::~NonStrictSearch() {
+ReachabilitySearch::~ReachabilitySearch() {
 	// TODO Auto-generated destructor stub
 }
 

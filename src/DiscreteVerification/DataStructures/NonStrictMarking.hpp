@@ -170,7 +170,7 @@ public:
 		PlaceList places;
 		TokenList emptyTokenList;
 
-	private:
+	public:
 		NonStrictMarking* parent;
 		const TAPN::TimedTransition* generatedBy;
 };
