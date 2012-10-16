@@ -24,7 +24,6 @@ bool LivenessSearch::Verify(){
 		NonStrictMarking& next_marking = *pwList.GetNextUnexplored();
 		bool endOfMaxRun;
 		if(!next_marking.passed){
-			NonStrictMarking marking(next_marking);
 			endOfMaxRun = true;
 			next_marking.passed = true;
 			next_marking.inTrace = true;
@@ -32,16 +31,17 @@ bool LivenessSearch::Verify(){
 			validChildren = 0;
 
 			// Generate next markings
-			vector<NonStrictMarking> next = getPossibleNextMarkings(marking);
+			vector<NonStrictMarking*> next = getPossibleNextMarkings(next_marking);
 
-			if(isDelayPossible(marking)){
-				marking.incrementAge();
-				marking.SetGeneratedBy(NULL);
+			if(isDelayPossible(next_marking)){
+				NonStrictMarking* marking = new NonStrictMarking(next_marking);
+				marking->incrementAge();
+				marking->SetGeneratedBy(NULL);
 				next.push_back(marking);
 			}
 
-			for(vector<NonStrictMarking>::iterator it = next.begin(); it != next.end(); it++){
-				if(addToPW(&(*it), &next_marking)){
+			for(vector<NonStrictMarking*>::iterator it = next.begin(); it != next.end(); it++){
+				if(addToPW(*it, &next_marking)){
 					return true;
 				}
 				endOfMaxRun = false;
@@ -92,41 +92,41 @@ bool LivenessSearch::isDelayPossible(NonStrictMarking& marking){
 	return false;
 }
 
-vector<NonStrictMarking> LivenessSearch::getPossibleNextMarkings(NonStrictMarking& marking){
+vector<NonStrictMarking*> LivenessSearch::getPossibleNextMarkings(const NonStrictMarking& marking){
 	return successorGenerator.generateSuccessors(marking);
 }
 
 bool LivenessSearch::addToPW(NonStrictMarking* marking, NonStrictMarking* parent){
-	NonStrictMarking* m = cut(*marking);
-	m->SetParent(parent);
+	cut(marking);
+	marking->SetParent(parent);
 
-	unsigned int size = m->size();
+	unsigned int size = marking->size();
 
 	pwList.SetMaxNumTokensIfGreater(size);
 
 	if(size > options.GetKBound()) {
-		delete m;
+		delete marking;
 		return false;
 	}
 
-	QueryVisitor checker(*m);
+	QueryVisitor checker(*marking);
 	boost::any context;
 	query->Accept(checker, context);
 	if(!boost::any_cast<bool>(context))	return false;
-	if(!pwList.Add(m)){
+	if(!pwList.Add(marking)){
 		//Test if collision is in trace
-		PWList::NonStrictMarkingList& cm = pwList.markings_storage[m->HashKey()];
+		PWList::NonStrictMarkingList& cm = pwList.markings_storage[marking->HashKey()];
 		for(PWList::NonStrictMarkingList::iterator iter = cm.begin();
 				cm.end() != iter;
 				iter++){
-			if((*iter)->equals(*m)){
+			if((*iter)->equals(*marking)){
 				if((*iter)->inTrace){
 					//Make sure we can print trace
-					m->children = 1;
-					trace.push(m);
+					marking->children = 1;
+					trace.push(marking);
 					return true;
 				}else{
-					delete m;
+					delete marking;
 					return false;
 				}
 			}
@@ -138,8 +138,7 @@ bool LivenessSearch::addToPW(NonStrictMarking* marking, NonStrictMarking* parent
 	return false;
 }
 
-NonStrictMarking* LivenessSearch::cut(NonStrictMarking& marking){
-	NonStrictMarking* m = new NonStrictMarking(marking);
+void LivenessSearch::cut(NonStrictMarking* m){
 	for(PlaceList::iterator place_iter = m->places.begin(); place_iter != m->places.end(); place_iter++){
 		const TimedPlace& place = tapn->GetPlace(place_iter->place->GetIndex());
 		//remove dead tokens
@@ -168,7 +167,6 @@ NonStrictMarking* LivenessSearch::cut(NonStrictMarking& marking){
 		m->AddTokenInPlace(*place_iter, t);
 	}
 	m->CleanUp();
-	return m;
 }
 
 void LivenessSearch::printStats(){

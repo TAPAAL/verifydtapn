@@ -23,7 +23,6 @@ bool ReachabilitySearch::Verify(){
 	while(pwList.HasWaitingStates()){
 		NonStrictMarking& next_marking = *pwList.GetNextUnexplored();
 		bool endOfMaxRun;
-		NonStrictMarking marking(next_marking);
 		endOfMaxRun = true;
 		next_marking.passed = true;
 		next_marking.inTrace = true;
@@ -31,16 +30,17 @@ bool ReachabilitySearch::Verify(){
 		validChildren = 0;
 
 		// Generate next markings
-		vector<NonStrictMarking> next = getPossibleNextMarkings(marking);
+		vector<NonStrictMarking*> next = getPossibleNextMarkings(next_marking);
 
-		if(isDelayPossible(marking)){
-			marking.incrementAge();
-			marking.SetGeneratedBy(NULL);
+		if(isDelayPossible(next_marking)){
+			NonStrictMarking* marking = new NonStrictMarking(next_marking);
+			marking->incrementAge();
+			marking->SetGeneratedBy(NULL);
 			next.push_back(marking);
 		}
 
-		for(vector<NonStrictMarking>::iterator it = next.begin(); it != next.end(); it++){
-			if(addToPW(&(*it), &next_marking)){
+		for(vector<NonStrictMarking*>::iterator it = next.begin(); it != next.end(); it++){
+			if(addToPW(*it, &next_marking)){
 				return true;
 			}
 			endOfMaxRun = false;
@@ -71,43 +71,42 @@ bool ReachabilitySearch::isDelayPossible(NonStrictMarking& marking){
 	return false;
 }
 
-vector<NonStrictMarking> ReachabilitySearch::getPossibleNextMarkings(NonStrictMarking& marking){
+vector<NonStrictMarking*> ReachabilitySearch::getPossibleNextMarkings(const NonStrictMarking& marking){
 	return successorGenerator.generateSuccessors(marking);
 }
 
 bool ReachabilitySearch::addToPW(NonStrictMarking* marking, NonStrictMarking* parent){
-	NonStrictMarking* m = cut(*marking);
-	m->SetParent(parent);
+	cut(marking);
+	marking->SetParent(parent);
 
-	unsigned int size = m->size();
+	unsigned int size = marking->size();
 
 	pwList.SetMaxNumTokensIfGreater(size);
 
 	if(size > options.GetKBound()) {
-		delete m;
+		delete marking;
 		return false;
 	}
 
-	m->passed = true;
-	if(pwList.Add(m)){
-		QueryVisitor checker(*m);
+	marking->passed = true;
+	if(pwList.Add(marking)){
+		QueryVisitor checker(*marking);
 		boost::any context;
 		query->Accept(checker, context);
 		if(boost::any_cast<bool>(context)) {
-			lastMarking = m;
+			lastMarking = marking;
 			return true;
 		} else {
 			return false;
 		}
 	} else {
-		delete m;
+		delete marking;
 	}
 
 	return false;
 }
 
-NonStrictMarking* ReachabilitySearch::cut(NonStrictMarking& marking){
-	NonStrictMarking* m = new NonStrictMarking(marking);
+void ReachabilitySearch::cut(NonStrictMarking* m){
 	for(PlaceList::iterator place_iter = m->places.begin(); place_iter != m->places.end(); place_iter++){
 		const TimedPlace& place = tapn->GetPlace(place_iter->place->GetIndex());
 		//remove dead tokens
@@ -136,7 +135,6 @@ NonStrictMarking* ReachabilitySearch::cut(NonStrictMarking& marking){
 		m->AddTokenInPlace(*place_iter, t);
 	}
 	m->CleanUp();
-	return m;
 }
 
 void ReachabilitySearch::printStats(){

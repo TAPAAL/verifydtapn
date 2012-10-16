@@ -25,8 +25,8 @@ SuccessorGenerator::SuccessorGenerator(TAPN::TimedArcPetriNet& tapn)  : tapn(tap
 	}
 }
 
-vector< NonStrictMarking > SuccessorGenerator::generateSuccessors(const NonStrictMarking& marking) const{
-	vector< NonStrictMarking > result;
+vector< NonStrictMarking* > SuccessorGenerator::generateSuccessors(const NonStrictMarking& marking) const{
+	vector< NonStrictMarking* > result;
 	ArcHashMap enabledArcs(tapn.GetInhibitorArcs().size() + tapn.GetInputArcs().size() + tapn.GetTransportArcs().size());
 	std::vector<unsigned int> enabledTransitionArcs(tapn.GetTransitions().size(), 0);
 	std::vector<const TAPN::TimedTransition* > enabledTransitions;
@@ -94,7 +94,7 @@ TokenList SuccessorGenerator::getPlaceFromMarking(const NonStrictMarking& markin
 	return TokenList();
 }
 
-void SuccessorGenerator::generateMarkings(vector<NonStrictMarking>& result, const NonStrictMarking& init_marking,
+void SuccessorGenerator::generateMarkings(vector<NonStrictMarking*>& result, const NonStrictMarking& init_marking,
 		const std::vector< const TimedTransition* >& transitions, ArcHashMap& enabledArcs) const {
 
 	//Iterate over transitions
@@ -118,7 +118,7 @@ void SuccessorGenerator::generateMarkings(vector<NonStrictMarking>& result, cons
 }
 
 
-void SuccessorGenerator::recursiveGenerateMarking(vector<NonStrictMarking>& result, NonStrictMarking& init_marking, const TimedTransition& transition, ArcHashMap& enabledArcs, unsigned int index) const{
+void SuccessorGenerator::recursiveGenerateMarking(vector<NonStrictMarking*>& result, NonStrictMarking& init_marking, const TimedTransition& transition, ArcHashMap& enabledArcs, unsigned int index) const{
 
 	// Initialize vectors
 	ArcAndTokensVector indicesOfCurrentPermutation;
@@ -218,20 +218,20 @@ bool SuccessorGenerator::incrementModificationVector(vector<unsigned int >& modi
 	return false;
 }
 
-void SuccessorGenerator::addMarking(vector<NonStrictMarking >& result, NonStrictMarking& init_marking, const TimedTransition& transition, ArcAndTokensVector& indicesOfCurrentPermutation) const{
-	NonStrictMarking m(init_marking);
+void SuccessorGenerator::addMarking(vector<NonStrictMarking* >& result, NonStrictMarking& init_marking, const TimedTransition& transition, ArcAndTokensVector& indicesOfCurrentPermutation) const{
+	NonStrictMarking* m = new NonStrictMarking(init_marking);
 	for(ArcAndTokensVector::iterator iter = indicesOfCurrentPermutation.begin(); iter != indicesOfCurrentPermutation.end(); iter++){
 		vector<unsigned int>& tokens = iter->modificationVector;
 
 		for(vector< unsigned int >::const_iterator tokenIter = tokens.begin(); tokenIter < tokens.end(); tokenIter++){
 			Token t((iter->enabledBy)[*tokenIter].getAge(), 1);
-			iter->moveToken(t, m);
+			iter->moveToken(t, *m);
 		}
 	}
 
 	for(OutputArc::WeakPtrVector::const_iterator postsetIter = transition.GetPostset().begin(); postsetIter != transition.GetPostset().end(); postsetIter++){
 		Token t(0, postsetIter->lock()->GetWeight());
-		m.AddTokenInPlace(postsetIter->lock()->OutputPlace(), t);
+		m->AddTokenInPlace(postsetIter->lock()->OutputPlace(), t);
 	}
 
 	result.push_back(m);

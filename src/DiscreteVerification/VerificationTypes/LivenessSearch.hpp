@@ -38,10 +38,10 @@ public:
 	inline unsigned int MaxUsedTokens(){ return pwList.maxNumTokensInAnyMarking; };
 	void PrintTransitionStatistics() const { successorGenerator.PrintTransitionStatistics(std::cout); }
 protected:
-	vector<NonStrictMarking> getPossibleNextMarkings(NonStrictMarking& marking);
+	vector<NonStrictMarking*> getPossibleNextMarkings(const NonStrictMarking& marking);
 	bool addToPW(NonStrictMarking* marking, NonStrictMarking* parent);
 	bool isDelayPossible(NonStrictMarking& marking);
-	NonStrictMarking* cut(NonStrictMarking& marking);
+	void cut(NonStrictMarking* m);
 
 protected:
 	int validChildren;
