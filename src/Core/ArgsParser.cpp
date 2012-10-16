@@ -139,7 +139,7 @@ void ArgsParser::Initialize() {
 	parsers.push_back(
 				boost::make_shared<SwitchWithArg>("m", VERIFICATION_OPTION,
 						"Specify the desired verification method.\n - 0: Default (discrete)\n - 1: Time Darts",
-						0));	// TODO change to 0!
+						1));	// TODO change to 0!
 	parsers.push_back(
 			boost::make_shared<SwitchWithArg>("t", TRACE_OPTION,
 					"Specify the desired trace option.\n - 0: none\n - 1: some",
