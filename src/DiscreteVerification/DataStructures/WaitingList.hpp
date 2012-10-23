@@ -80,6 +80,7 @@ private:
 	void flushBuffer();
 	int calculateWeight(NonStrictMarking* marking);
 	int calculateWeight(TimeDart* marking);
+	int calculateWeight(WaitingDart* marking);
 	AST::Query* normalizeQuery(AST::Query* q);
 	priority_queue buffer;
 	AST::Query* query;
@@ -220,6 +221,13 @@ int HeuristicStackWaitingList<T>::calculateWeight(TimeDart* dart)
 {
 	return calculateWeight(dart->getBase());
 }
+
+template <class T>
+int HeuristicStackWaitingList<T>::calculateWeight(WaitingDart* dart)
+{
+	return calculateWeight(dart->dart->getBase());
+}
+
 
 template <class T>
 AST::Query* HeuristicStackWaitingList<T>::normalizeQuery(AST::Query* q){

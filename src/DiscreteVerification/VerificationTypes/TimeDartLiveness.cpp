@@ -10,7 +10,7 @@
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
-TimeDartLiveness::TimeDartLiveness(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<TimeDart>* waiting_list)
+TimeDartLiveness::TimeDartLiveness(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<WaitingDart>* waiting_list)
 	: pwList(waiting_list), tapn(tapn), initialMarking(initialMarking), query(query), options(options), successorGenerator( *tapn.get() ), allwaysEnabled(), exploredMarkings(0), trace(){
 
 	//Find the transitions which don't have input arcs
@@ -22,52 +22,66 @@ TimeDartLiveness::TimeDartLiveness(boost::shared_ptr<TAPN::TimedArcPetriNet>& ta
 }
 
 bool TimeDartLiveness::Verify(){
-	if(addToPW(&initialMarking)){
+	if(addToPW(&initialMarking, NULL, 0, INT_MAX)){
 		return true;
 	}
 
 	//Main loop
 	while(pwList.HasWaitingStates()){
-		TimeDart& dart = *pwList.GetNextUnexplored();
+		WaitingDart& waitingDart = *pwList.GetNextUnexplored();
 		exploredMarkings++;
 
-#ifdef DEBUG
-		std::cout << "-----------------------------------------------------------------------------\n";
-		std::cout << "Marking: " << *(dart.getBase()) << " waiting: " << dart.getWaiting() << " passed: " << dart.getPassed() << std::endl;
-#endif
+		if(canDelayForever(waitingDart.dart->getBase())){
+			return true;
+		}
 
-		int passed = dart.getPassed();
-		dart.setPassed(dart.getWaiting());
+		int maxCalculatedEnd = -1;
+
+		trace.push(new TraceDart(waitingDart.parent, waitingDart.start, waitingDart.end));
+
+		int passed = waitingDart.dart->getPassed();
+		waitingDart.dart->setPassed(waitingDart.w);
 		tapn->GetTransitions();
 		for(TimedTransition::Vector::const_iterator transition_iter = tapn->GetTransitions().begin();
 				transition_iter != tapn->GetTransitions().end(); transition_iter++){
 			TimedTransition& transition = **transition_iter;
-			pair<int,int> calculatedStart = calculateStart(transition, dart.getBase());
+			pair<int,int> calculatedStart = calculateStart(transition, waitingDart.dart->getBase());
 			if(calculatedStart.first == -1){	// Transition cannot be enabled in marking
 				continue;
 			}
-			int start = max(dart.getWaiting(), calculatedStart.first);
+
+			// Aggregate on calculatedEnd for deadlock detection
+			if(calculatedStart.second > maxCalculatedEnd){
+				maxCalculatedEnd = calculatedStart.second;
+			}
+
+			int start = max(waitingDart.w, calculatedStart.first);
 			int end = min(passed-1, calculatedStart.second);
 			if(start <= end){
 
 				if(transition.GetPostset().size() == 0 || transition.hasUntimedPostset()){
-					NonStrictMarking Mpp(*dart.getBase());
+					NonStrictMarking Mpp(*waitingDart.dart->getBase());
 					Mpp.incrementAge(start);
 					vector<NonStrictMarking*> next = getPossibleNextMarkings(Mpp, transition);
 					for(vector<NonStrictMarking*>::iterator it = next.begin(); it != next.end(); it++){
-						if(addToPW(*it)){
+						if(addToPW(*it, waitingDart.dart->getBase(), start, calculatedStart.second)){
 							return true;
 						}
 					}
 				}else{
-					int stop = min(max(start, calculateStop(transition, dart.getBase())), end);
-					for(int n = start; n <= stop; n++){
-						NonStrictMarking Mpp(*dart.getBase());
+					int stop = max(start, calculateStop(transition, waitingDart.dart->getBase()));
+					int finalStop = min(stop, end);
+					for(int n = start; n <= finalStop; n++){
+						NonStrictMarking Mpp(*waitingDart.dart->getBase());
 						Mpp.incrementAge(n);
+						int _end = n;
+						if(n == stop){
+							_end = calculatedStart.second;
+						}
 
 						vector<NonStrictMarking*> next = getPossibleNextMarkings(Mpp, transition);
 						for(vector<NonStrictMarking*>::iterator it = next.begin(); it != next.end(); it++){
-							if(addToPW(*it)){
+							if(addToPW(*it, waitingDart.dart->getBase(), n, _end)){
 								return true;
 							}
 						}
@@ -75,9 +89,46 @@ bool TimeDartLiveness::Verify(){
 				}
 			}
 		}
+
+		if(maxCalculatedEnd < maxPossibleDelay(waitingDart.dart->getBase())){
+			return true;	/* DEADLOCK! */
+		}
+
+		delete &waitingDart;
+
+		while(!trace.empty() && trace.top()->successors == 0){
+			TraceDart* tmp = trace.top();
+			trace.pop();
+			delete tmp;
+			if(trace.top()->parent == NULL){
+				return false;
+			}
+			trace.top()->successors--;
+		}
 	}
 
 	return false;
+}
+
+bool TimeDartLiveness::canDelayForever(NonStrictMarking* marking){
+	for(PlaceList::const_iterator p_iter = marking->GetPlaceList().begin(); p_iter != marking->GetPlaceList().end(); p_iter++){
+		if(p_iter->place->GetInvariant().GetBound() < INT_MAX){
+			return false;
+		}
+	}
+	return true;
+}
+
+int TimeDartLiveness::maxPossibleDelay(NonStrictMarking* marking){
+	int invariantPart = INT_MAX;
+
+	for(PlaceList::const_iterator iter = marking->GetPlaceList().begin(); iter != marking->GetPlaceList().end(); iter++){
+		if(iter->place->GetInvariant().GetBound() != std::numeric_limits<int>::max() && iter->place->GetInvariant().GetBound()-iter->tokens.back().getAge() < invariantPart){
+			invariantPart = iter->place->GetInvariant().GetBound()-iter->tokens.back().getAge();
+		}
+	}
+
+	return invariantPart;
 }
 
 bool TimeDartLiveness::isDelayPossible(NonStrictMarking& marking){
@@ -105,7 +156,7 @@ vector<NonStrictMarking*> TimeDartLiveness::getPossibleNextMarkings(NonStrictMar
 	return successorGenerator.generateSuccessors(marking, transition);
 }
 
-bool TimeDartLiveness::addToPW(NonStrictMarking* marking){
+bool TimeDartLiveness::addToPW(NonStrictMarking* marking, NonStrictMarking* parent, int start, int end){
 	marking->cut();
 
 	unsigned int size = marking->size();
@@ -116,15 +167,35 @@ bool TimeDartLiveness::addToPW(NonStrictMarking* marking){
 		return false;
 	}
 
-	if(pwList.Add(tapn.get(), marking)){
-		QueryVisitor checker(*marking);
-		boost::any context;
-		query->Accept(checker, context);
-		if(boost::any_cast<bool>(context)) {
-			lastMarking = marking;
-			return true;
-		} else {
-			return false;
+	int youngest = marking->makeBase(tapn.get());
+
+	// TODO optimize
+	int loop = false;
+	stack< TraceDart* > tmp;
+	while(!trace.empty() && trace.top()->parent != NULL){
+		tmp.push(trace.top());
+		if(trace.top()->parent->equals(*marking) && youngest <= trace.top()->end){
+			loop = true;
+		}
+		trace.pop();
+	}
+	while(!tmp.empty()){
+		trace.push(tmp.top());
+		tmp.pop();
+	}
+	if(loop){
+		lastMarking = marking;
+		return true;
+	}
+
+	QueryVisitor checker(*marking);
+	boost::any context;
+	query->Accept(checker, context);
+	if(boost::any_cast<bool>(context)) {
+		if(pwList.Add(tapn.get(), marking, youngest, parent, start, end)){
+			if(!trace.empty()){
+				trace.top()->successors++;
+			}
 		}
 	}
 
@@ -218,13 +289,7 @@ pair<int,int> TimeDartLiveness::calculateStart(const TimedTransition& transition
 			start = Util::setIntersection(start, intervals);
 		}
 
-		int invariantPart = INT_MAX;
-
-		for(PlaceList::const_iterator iter = marking->GetPlaceList().begin(); iter != marking->GetPlaceList().end(); iter++){
-			if(iter->place->GetInvariant().GetBound() != std::numeric_limits<int>::max() && iter->place->GetInvariant().GetBound()-iter->tokens.back().getAge() < invariantPart){
-				invariantPart = iter->place->GetInvariant().GetBound()-iter->tokens.back().getAge();
-			}
-		}
+		int invariantPart = maxPossibleDelay(marking);
 
 		vector<Util::interval > invEnd;
 		Util::interval initialInv(0, invariantPart);

@@ -50,11 +50,11 @@ int DiscreteVerification::run(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, s
 			verifier = new ReachabilitySearch(tapn, *initialMarking, query, options, strategy);
 		}
 	}else if(options.GetVerificationType() == TIMEDART){
-		WaitingList<TimeDart>* strategy = GetWaitingList<TimeDart>(query, options);
-
 		if(query->GetQuantifier() == EG || query->GetQuantifier() == AF){
+			WaitingList<WaitingDart>* strategy = GetWaitingList<WaitingDart>(query, options);
 			verifier = new TimeDartLiveness(tapn, *initialMarking, query, options, strategy);
 		}else if(query->GetQuantifier() == EF || query->GetQuantifier() == AG){
+			WaitingList<TimeDart>* strategy = GetWaitingList<TimeDart>(query, options);
 			verifier = new TimeDartReachabilitySearch(tapn, *initialMarking, query, options, strategy);
 		}
 	}

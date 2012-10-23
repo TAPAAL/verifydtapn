@@ -36,6 +36,29 @@ private:
 	int passed;
 };
 
+struct TraceDart{
+	NonStrictMarking* parent;
+	int start;
+	int end;
+	int successors;
+
+	TraceDart(NonStrictMarking* parent, int start, int end) : parent(parent), start(start), end(end), successors(0){
+
+	}
+};
+
+struct WaitingDart{
+	TimeDart* dart;
+	int w;
+	NonStrictMarking* parent;
+	int start;
+	int end;
+
+	WaitingDart(TimeDart* dart, NonStrictMarking* parent, int w, int start, int end) : dart(dart), w(w), parent(parent), start(start), end(end){
+
+	}
+};
+
 }
 }
 

@@ -9,7 +9,7 @@
 #define TIMEDARTLIVENESS_HPP_
 
 #include "../DataStructures/TimeDart.hpp"
-#include "../DataStructures/TimeDartPWList.hpp"
+#include "../DataStructures/TimeDartLivenessPWList.hpp"
 #include "boost/smart_ptr.hpp"
 #include "boost/numeric/interval.hpp"
 #include "../../Core/TAPN/TAPN.hpp"
@@ -33,15 +33,9 @@
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
-struct TraceDart{
-	TimeDart* dart;
-	int start;
-	int end;
-};
-
 class TimeDartLiveness : public Verification{
 public:
-	TimeDartLiveness(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<TimeDart>* waiting_list);
+	TimeDartLiveness(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<WaitingDart>* waiting_list);
 	virtual ~TimeDartLiveness();
 	bool Verify();
 	inline unsigned int MaxUsedTokens(){ return pwList.maxNumTokensInAnyMarking; };
@@ -49,15 +43,17 @@ public:
 
 protected:
 	vector<NonStrictMarking*> getPossibleNextMarkings(NonStrictMarking& marking, const TimedTransition& transition);
-	bool addToPW(NonStrictMarking* marking);
+	bool addToPW(NonStrictMarking* marking, NonStrictMarking* parent, int start, int end);
 	bool isDelayPossible(NonStrictMarking& marking);
 	pair<int,int> calculateStart(const TimedTransition& transition, NonStrictMarking* marking);
 	int calculateEnd(const TimedTransition& transition, NonStrictMarking* marking);
 	int calculateStop(const TimedTransition& transition, NonStrictMarking* marking);
+	bool canDelayForever(NonStrictMarking* marking);
+	int maxPossibleDelay(NonStrictMarking* marking);
 
 protected:
 	int validChildren;
-	TimeDartPWList pwList;
+	TimeDartLivenessPWList pwList;
 	boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn;
 	NonStrictMarking& initialMarking;
 	AST::Query* query;
@@ -72,7 +68,7 @@ public:
 	}
 private:
 	NonStrictMarking* lastMarking;
-	stack< TraceDart > trace;
+	stack< TraceDart* > trace;
 };
 
 } /* namespace DiscreteVerification */
