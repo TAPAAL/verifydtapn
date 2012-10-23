@@ -100,7 +100,7 @@ bool TimeDartLiveness::Verify(){
 			TraceDart* tmp = trace.top();
 			trace.pop();
 			delete tmp;
-			if(trace.top()->parent == NULL){
+			if(trace.empty()){
 				return false;
 			}
 			trace.top()->successors--;
