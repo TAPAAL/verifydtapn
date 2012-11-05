@@ -141,6 +141,16 @@ pair<int,int> TimeDartReachabilitySearch::calculateStart(const TimedTransition& 
 		return p;
 	}
 
+	//inhibited
+	for(TAPN::InhibitorArc::WeakPtrVector::const_iterator arc = transition.GetInhibitorArcs().begin();
+			arc != transition.GetInhibitorArcs().end();
+			arc++){
+		if(marking->NumberOfTokensInPlace(arc->lock()->InputPlace().GetIndex()) >= arc->lock()->GetWeight()){
+			pair<int, int> p(-1, -1);
+			return p;
+		}
+	}
+
 	for(TAPN::TimedInputArc::WeakPtrVector::const_iterator arc = transition.GetPreset().begin(); arc != transition.GetPreset().end(); arc++){
 		vector<Util::interval > intervals;
 		int range;
@@ -182,45 +192,45 @@ pair<int,int> TimeDartReachabilitySearch::calculateStart(const TimedTransition& 
 
 	// Transport arcs
 	for(TAPN::TransportArc::WeakPtrVector::const_iterator arc = transition.GetTransportArcs().begin(); arc != transition.GetTransportArcs().end(); arc++){
-			Util::interval arcGuard(arc->lock()->Interval().GetLowerBound(), arc->lock()->Interval().GetUpperBound());
-			Util::interval invGuard(0, arc->lock()->Destination().GetInvariant().GetBound());
+		Util::interval arcGuard(arc->lock()->Interval().GetLowerBound(), arc->lock()->Interval().GetUpperBound());
+		Util::interval invGuard(0, arc->lock()->Destination().GetInvariant().GetBound());
 
-			Util::interval arcInterval = boost::numeric::intersect(arcGuard, invGuard);
-			vector<Util::interval > intervals;
-			int range;
-			if(arcInterval.upper() == INT_MAX){
-				range = INT_MAX;
-			}else{
-				range = arcInterval.upper()-arcInterval.upper();
-			}
-			int weight = arc->lock()->GetWeight();
-
-			TokenList tokens = marking->GetTokenList(arc->lock()->Source().GetIndex());
-
-			if(tokens.size() == 0){
-				pair<int, int> p(-1, -1);
-				return p;
-			}
-
-			unsigned int j = 0;
-			int numberOfTokensAvailable = tokens.at(j).getCount();
-			for(unsigned int  i = 0; i < tokens.size(); i++){
-				if(numberOfTokensAvailable < weight){
-					for(j=max(i,j); j < tokens.size() && numberOfTokensAvailable < weight; j++){
-						numberOfTokensAvailable += tokens.at(j).getCount();
-					}
-					j--;
-				}
-				if(numberOfTokensAvailable >= weight && tokens.at(j).getAge() - tokens.at(i).getAge() <= range){ //This span is interesting
-					Util::interval element(arcInterval.lower() - tokens.at(i).getAge(),
-							arcInterval.upper() - tokens.at(j).getAge());
-					Util::set_add(intervals, element);
-				}
-				numberOfTokensAvailable -= tokens.at(i).getCount();
-			}
-
-			start = Util::setIntersection(start, intervals);
+		Util::interval arcInterval = boost::numeric::intersect(arcGuard, invGuard);
+		vector<Util::interval > intervals;
+		int range;
+		if(arcInterval.upper() == INT_MAX){
+			range = INT_MAX;
+		}else{
+			range = arcInterval.upper()-arcInterval.upper();
 		}
+		int weight = arc->lock()->GetWeight();
+
+		TokenList tokens = marking->GetTokenList(arc->lock()->Source().GetIndex());
+
+		if(tokens.size() == 0){
+			pair<int, int> p(-1, -1);
+			return p;
+		}
+
+		unsigned int j = 0;
+		int numberOfTokensAvailable = tokens.at(j).getCount();
+		for(unsigned int  i = 0; i < tokens.size(); i++){
+			if(numberOfTokensAvailable < weight){
+				for(j=max(i,j); j < tokens.size() && numberOfTokensAvailable < weight; j++){
+					numberOfTokensAvailable += tokens.at(j).getCount();
+				}
+				j--;
+			}
+			if(numberOfTokensAvailable >= weight && tokens.at(j).getAge() - tokens.at(i).getAge() <= range){ //This span is interesting
+				Util::interval element(arcInterval.lower() - tokens.at(i).getAge(),
+						arcInterval.upper() - tokens.at(j).getAge());
+				Util::set_add(intervals, element);
+			}
+			numberOfTokensAvailable -= tokens.at(i).getCount();
+		}
+
+		start = Util::setIntersection(start, intervals);
+	}
 
 	int invariantPart = INT_MAX;
 

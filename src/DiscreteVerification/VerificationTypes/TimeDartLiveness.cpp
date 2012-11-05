@@ -226,6 +226,16 @@ pair<int,int> TimeDartLiveness::calculateStart(const TimedTransition& transition
 		return p;
 	}
 
+	//inhibited
+	for(TAPN::InhibitorArc::WeakPtrVector::const_iterator arc = transition.GetInhibitorArcs().begin();
+			arc != transition.GetInhibitorArcs().end();
+			arc++){
+		if(marking->NumberOfTokensInPlace(arc->lock()->InputPlace().GetIndex()) >= arc->lock()->GetWeight()){
+			pair<int, int> p(-1, -1);
+			return p;
+		}
+	}
+
 	for(TAPN::TimedInputArc::WeakPtrVector::const_iterator arc = transition.GetPreset().begin(); arc != transition.GetPreset().end(); arc++){
 		vector<Util::interval > intervals;
 		int range;
