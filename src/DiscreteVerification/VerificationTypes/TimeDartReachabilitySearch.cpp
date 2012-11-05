@@ -11,7 +11,7 @@ namespace VerifyTAPN {
 namespace DiscreteVerification {
 
 TimeDartReachabilitySearch::TimeDartReachabilitySearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<TimeDart>* waiting_list)
-	: pwList(waiting_list), tapn(tapn), initialMarking(initialMarking), query(query), options(options), successorGenerator( *tapn.get() ), allwaysEnabled(), exploredMarkings(0){
+: pwList(waiting_list), tapn(tapn), initialMarking(initialMarking), query(query), options(options), successorGenerator( *tapn.get() ), allwaysEnabled(), exploredMarkings(0){
 
 	//Find the transitions which don't have input arcs
 	for(TimedTransition::Vector::const_iterator iter = tapn->GetTransitions().begin(); iter != tapn->GetTransitions().end(); iter++){
@@ -182,12 +182,16 @@ pair<int,int> TimeDartReachabilitySearch::calculateStart(const TimedTransition& 
 
 	// Transport arcs
 	for(TAPN::TransportArc::WeakPtrVector::const_iterator arc = transition.GetTransportArcs().begin(); arc != transition.GetTransportArcs().end(); arc++){
+			Util::interval arcGuard(arc->lock()->Interval().GetLowerBound(), arc->lock()->Interval().GetUpperBound());
+			Util::interval invGuard(0, arc->lock()->Destination().GetInvariant().GetBound());
+
+			Util::interval arcInterval = boost::numeric::intersect(arcGuard, invGuard);
 			vector<Util::interval > intervals;
 			int range;
-			if(arc->lock()->Interval().GetUpperBound() == INT_MAX){
+			if(arcInterval.upper() == INT_MAX){
 				range = INT_MAX;
 			}else{
-				range = arc->lock()->Interval().GetUpperBound()-arc->lock()->Interval().GetLowerBound();
+				range = arcInterval.upper()-arcInterval.upper();
 			}
 			int weight = arc->lock()->GetWeight();
 
@@ -208,8 +212,8 @@ pair<int,int> TimeDartReachabilitySearch::calculateStart(const TimedTransition& 
 					j--;
 				}
 				if(numberOfTokensAvailable >= weight && tokens.at(j).getAge() - tokens.at(i).getAge() <= range){ //This span is interesting
-					Util::interval element(arc->lock()->Interval().GetLowerBound() - tokens.at(i).getAge(),
-							arc->lock()->Interval().GetUpperBound() - tokens.at(j).getAge());
+					Util::interval element(arcInterval.lower() - tokens.at(i).getAge(),
+							arcInterval.upper() - tokens.at(j).getAge());
 					Util::set_add(intervals, element);
 				}
 				numberOfTokensAvailable -= tokens.at(i).getCount();
@@ -218,21 +222,21 @@ pair<int,int> TimeDartReachabilitySearch::calculateStart(const TimedTransition& 
 			start = Util::setIntersection(start, intervals);
 		}
 
-		int invariantPart = INT_MAX;
+	int invariantPart = INT_MAX;
 
-		for(PlaceList::const_iterator iter = marking->GetPlaceList().begin(); iter != marking->GetPlaceList().end(); iter++){
-			if(iter->place->GetInvariant().GetBound() != std::numeric_limits<int>::max() && iter->place->GetInvariant().GetBound()-iter->tokens.back().getAge() < invariantPart){
-				invariantPart = iter->place->GetInvariant().GetBound()-iter->tokens.back().getAge();
-			}
+	for(PlaceList::const_iterator iter = marking->GetPlaceList().begin(); iter != marking->GetPlaceList().end(); iter++){
+		if(iter->place->GetInvariant().GetBound() != std::numeric_limits<int>::max() && iter->place->GetInvariant().GetBound()-iter->tokens.back().getAge() < invariantPart){
+			invariantPart = iter->place->GetInvariant().GetBound()-iter->tokens.back().getAge();
 		}
+	}
 
-		vector<Util::interval > invEnd;
-		Util::interval initialInv(0, invariantPart);
-		invEnd.push_back(initialInv);
-		start = Util::setIntersection(start, invEnd);
+	vector<Util::interval > invEnd;
+	Util::interval initialInv(0, invariantPart);
+	invEnd.push_back(initialInv);
+	start = Util::setIntersection(start, invEnd);
 
 #if DEBUG
-		std::cout << "Intervals in start: " << start.size() << std::endl;
+	std::cout << "Intervals in start: " << start.size() << std::endl;
 #endif
 
 	if(start.empty()){

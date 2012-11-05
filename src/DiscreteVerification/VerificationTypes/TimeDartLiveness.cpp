@@ -11,7 +11,7 @@ namespace VerifyTAPN {
 namespace DiscreteVerification {
 
 TimeDartLiveness::TimeDartLiveness(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<WaitingDart>* waiting_list)
-	: pwList(waiting_list), tapn(tapn), initialMarking(initialMarking), query(query), options(options), successorGenerator( *tapn.get() ), allwaysEnabled(), exploredMarkings(0), trace(){
+: pwList(waiting_list), tapn(tapn), initialMarking(initialMarking), query(query), options(options), successorGenerator( *tapn.get() ), allwaysEnabled(), exploredMarkings(0), trace(){
 
 	//Find the transitions which don't have input arcs
 	for(TimedTransition::Vector::const_iterator iter = tapn->GetTransitions().begin(); iter != tapn->GetTransitions().end(); iter++){
@@ -31,6 +31,11 @@ bool TimeDartLiveness::Verify(){
 		WaitingDart& waitingDart = *pwList.GetNextUnexplored();
 		exploredMarkings++;
 
+#ifdef DEBUG
+		std::cout << "-----------------------------------------------------------------------------\n";
+		std::cout << "Marking: " << *(waitingDart.dart->getBase()) << " waiting: " << waitingDart.dart->getWaiting() << " passed: " << waitingDart.dart->getPassed() << std::endl;
+#endif
+
 		if(canDelayForever(waitingDart.dart->getBase())){
 			return true;
 		}
@@ -45,6 +50,11 @@ bool TimeDartLiveness::Verify(){
 		for(TimedTransition::Vector::const_iterator transition_iter = tapn->GetTransitions().begin();
 				transition_iter != tapn->GetTransitions().end(); transition_iter++){
 			TimedTransition& transition = **transition_iter;
+
+#ifdef DEBUG
+			std::cout << "Transition: " << transition << std::endl;
+#endif
+
 			pair<int,int> calculatedStart = calculateStart(transition, waitingDart.dart->getBase());
 			if(calculatedStart.first == -1){	// Transition cannot be enabled in marking
 				continue;
@@ -171,6 +181,10 @@ bool TimeDartLiveness::addToPW(NonStrictMarking* marking, NonStrictMarking* pare
 
 	// TODO optimize
 	int loop = false;
+	if(parent != NULL && parent->equals(*marking) && youngest <= end){
+		loop = true;
+	}
+
 	stack< TraceDart* > tmp;
 	while(!trace.empty() && trace.top()->parent != NULL){
 		tmp.push(trace.top());
@@ -253,51 +267,55 @@ pair<int,int> TimeDartLiveness::calculateStart(const TimedTransition& transition
 
 	// Transport arcs
 	for(TAPN::TransportArc::WeakPtrVector::const_iterator arc = transition.GetTransportArcs().begin(); arc != transition.GetTransportArcs().end(); arc++){
-			vector<Util::interval > intervals;
-			int range;
-			if(arc->lock()->Interval().GetUpperBound() == INT_MAX){
-				range = INT_MAX;
-			}else{
-				range = arc->lock()->Interval().GetUpperBound()-arc->lock()->Interval().GetLowerBound();
-			}
-			int weight = arc->lock()->GetWeight();
+		Util::interval arcGuard(arc->lock()->Interval().GetLowerBound(), arc->lock()->Interval().GetUpperBound());
+		Util::interval invGuard(0, arc->lock()->Destination().GetInvariant().GetBound());
 
-			TokenList tokens = marking->GetTokenList(arc->lock()->Source().GetIndex());
+		Util::interval arcInterval = boost::numeric::intersect(arcGuard, invGuard);
+		vector<Util::interval > intervals;
+		int range;
+		if(arcInterval.upper() == INT_MAX){
+			range = INT_MAX;
+		}else{
+			range = arcInterval.upper()-arcInterval.upper();
+		}
+		int weight = arc->lock()->GetWeight();
 
-			if(tokens.size() == 0){
-				pair<int, int> p(-1, -1);
-				return p;
-			}
+		TokenList tokens = marking->GetTokenList(arc->lock()->Source().GetIndex());
 
-			unsigned int j = 0;
-			int numberOfTokensAvailable = tokens.at(j).getCount();
-			for(unsigned int  i = 0; i < tokens.size(); i++){
-				if(numberOfTokensAvailable < weight){
-					for(j=max(i,j); j < tokens.size() && numberOfTokensAvailable < weight; j++){
-						numberOfTokensAvailable += tokens.at(j).getCount();
-					}
-					j--;
-				}
-				if(numberOfTokensAvailable >= weight && tokens.at(j).getAge() - tokens.at(i).getAge() <= range){ //This span is interesting
-					Util::interval element(arc->lock()->Interval().GetLowerBound() - tokens.at(i).getAge(),
-							arc->lock()->Interval().GetUpperBound() - tokens.at(j).getAge());
-					Util::set_add(intervals, element);
-				}
-				numberOfTokensAvailable -= tokens.at(i).getCount();
-			}
-
-			start = Util::setIntersection(start, intervals);
+		if(tokens.size() == 0){
+			pair<int, int> p(-1, -1);
+			return p;
 		}
 
-		int invariantPart = maxPossibleDelay(marking);
+		unsigned int j = 0;
+		int numberOfTokensAvailable = tokens.at(j).getCount();
+		for(unsigned int  i = 0; i < tokens.size(); i++){
+			if(numberOfTokensAvailable < weight){
+				for(j=max(i,j); j < tokens.size() && numberOfTokensAvailable < weight; j++){
+					numberOfTokensAvailable += tokens.at(j).getCount();
+				}
+				j--;
+			}
+			if(numberOfTokensAvailable >= weight && tokens.at(j).getAge() - tokens.at(i).getAge() <= range){ //This span is interesting
+				Util::interval element(arcInterval.lower() - tokens.at(i).getAge(),
+						arcInterval.upper() - tokens.at(j).getAge());
+				Util::set_add(intervals, element);
+			}
+			numberOfTokensAvailable -= tokens.at(i).getCount();
+		}
 
-		vector<Util::interval > invEnd;
-		Util::interval initialInv(0, invariantPart);
-		invEnd.push_back(initialInv);
-		start = Util::setIntersection(start, invEnd);
+		start = Util::setIntersection(start, intervals);
+	}
+
+	int invariantPart = maxPossibleDelay(marking);
+
+	vector<Util::interval > invEnd;
+	Util::interval initialInv(0, invariantPart);
+	invEnd.push_back(initialInv);
+	start = Util::setIntersection(start, invEnd);
 
 #if DEBUG
-		std::cout << "Intervals in start: " << start.size() << std::endl;
+	std::cout << "Intervals in start: " << start.size() << std::endl;
 #endif
 
 	if(start.empty()){
