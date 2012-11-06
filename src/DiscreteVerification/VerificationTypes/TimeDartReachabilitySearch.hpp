@@ -33,7 +33,11 @@
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
+using namespace rapidxml;
+
 class TimeDartReachabilitySearch : public Verification{
+public:
+	typedef pair<NonStrictMarking*, int> TraceList;
 public:
 	TimeDartReachabilitySearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<TimeDart>* waiting_list);
 	virtual ~TimeDartReachabilitySearch();
@@ -45,10 +49,13 @@ public:
 protected:
 	vector<NonStrictMarking*> getPossibleNextMarkings(NonStrictMarking& marking, const TimedTransition& transition);
 	bool addToPW(NonStrictMarking* marking);
-	bool isDelayPossible(NonStrictMarking& marking);
 	pair<int,int> calculateStart(const TimedTransition& transition, NonStrictMarking* marking);
 	int calculateEnd(const TimedTransition& transition, NonStrictMarking* marking);
 	int calculateStop(const TimedTransition& transition, NonStrictMarking* marking);
+	void addToTrace(NonStrictMarking* marking, NonStrictMarking* parent, int d);
+	void PrintXMLTrace(NonStrictMarking* m, std::stack<TraceList*>& stack);
+	xml_node<>* generateTransitionNode(NonStrictMarking* from, NonStrictMarking* to, xml_document<> doc);
+	xml_node<>* generateDelayNode(int delay, xml_document<> doc);
 
 protected:
 	int validChildren;
@@ -62,11 +69,10 @@ protected:
 	int exploredMarkings;
 public:
 	void printStats();
-	void GetTrace(){
-		std::cout << "Trace not yet implemented" << std::endl;
-	}
+	void GetTrace();
 private:
 	NonStrictMarking* lastMarking;
+	google::sparse_hash_map<NonStrictMarking*, TraceList > trace;
 };
 
 } /* namespace DiscreteVerification */

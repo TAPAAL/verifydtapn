@@ -11,7 +11,7 @@ namespace VerifyTAPN {
 namespace DiscreteVerification {
 
 TimeDartReachabilitySearch::TimeDartReachabilitySearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<TimeDart>* waiting_list)
-: pwList(waiting_list), tapn(tapn), initialMarking(initialMarking), query(query), options(options), successorGenerator( *tapn.get() ), allwaysEnabled(), exploredMarkings(0){
+: pwList(waiting_list), tapn(tapn), initialMarking(initialMarking), query(query), options(options), successorGenerator( *tapn.get() ), allwaysEnabled(), exploredMarkings(0), trace(10000){
 
 	//Find the transitions which don't have input arcs
 	for(TimedTransition::Vector::const_iterator iter = tapn->GetTransitions().begin(); iter != tapn->GetTransitions().end(); iter++){
@@ -22,19 +22,22 @@ TimeDartReachabilitySearch::TimeDartReachabilitySearch(boost::shared_ptr<TAPN::T
 }
 
 bool TimeDartReachabilitySearch::Verify(){
+	if(options.GetTrace() == SOME){
+		initialMarking.SetGeneratedBy(NULL);
+		addToTrace(&initialMarking, NULL, 0);
+	}
+
 	if(addToPW(&initialMarking)){
 		return true;
+		if(options.GetTrace() == SOME){
+			lastMarking = &initialMarking;
+		}
 	}
 
 	//Main loop
 	while(pwList.HasWaitingStates()){
 		TimeDart& dart = *pwList.GetNextUnexplored();
 		exploredMarkings++;
-
-#ifdef DEBUG
-		std::cout << "-----------------------------------------------------------------------------\n";
-		std::cout << "Marking: " << *(dart.getBase()) << " waiting: " << dart.getWaiting() << " passed: " << dart.getPassed() << std::endl;
-#endif
 
 		int passed = dart.getPassed();
 		dart.setPassed(dart.getWaiting());
@@ -56,7 +59,16 @@ bool TimeDartReachabilitySearch::Verify(){
 					vector<NonStrictMarking*> next = getPossibleNextMarkings(Mpp, transition);
 					for(vector<NonStrictMarking*>::iterator it = next.begin(); it != next.end(); it++){
 						if(addToPW(*it)){
+							if(options.GetTrace() == SOME){
+								lastMarking = *it;
+								(*it)->SetGeneratedBy(&transition);
+								addToTrace(*it, dart.getBase(), start);
+							}
 							return true;
+						}
+						if(options.GetTrace() == SOME){
+							(*it)->SetGeneratedBy(&transition);
+							addToTrace(*it, dart.getBase(), start);
 						}
 					}
 				}else{
@@ -68,7 +80,16 @@ bool TimeDartReachabilitySearch::Verify(){
 						vector<NonStrictMarking*> next = getPossibleNextMarkings(Mpp, transition);
 						for(vector<NonStrictMarking*>::iterator it = next.begin(); it != next.end(); it++){
 							if(addToPW(*it)){
+								if(options.GetTrace() == SOME){
+									lastMarking = *it;
+									(*it)->SetGeneratedBy(&transition);
+									addToTrace(*it, dart.getBase(), n);
+								}
 								return true;
+							}
+							if(options.GetTrace() == SOME){
+								(*it)->SetGeneratedBy(&transition);
+								addToTrace(*it, dart.getBase(), n);
 							}
 						}
 					}
@@ -80,25 +101,62 @@ bool TimeDartReachabilitySearch::Verify(){
 	return false;
 }
 
-bool TimeDartReachabilitySearch::isDelayPossible(NonStrictMarking& marking){
-	PlaceList& places = marking.places;
-	if(places.size() == 0) return true;	//Delay always possible in empty markings
+void TimeDartReachabilitySearch::GetTrace(){
+	stack<TraceList*> traceStack;
 
-	PlaceList::const_iterator markedPlace_iter = places.begin();
-	for(TAPN::TimedPlace::Vector::const_iterator place_iter = tapn->GetPlaces().begin(); place_iter != tapn->GetPlaces().end(); place_iter++){
-		int inv = place_iter->get()->GetInvariant().GetBound();
-		if(*(place_iter->get()) == *(markedPlace_iter->place)){
-			if(markedPlace_iter->MaxTokenAge() > inv-1){
-				return false;
-			}
-
-			markedPlace_iter++;
-
-			if(markedPlace_iter == places.end())	return true;
-		}
+	TraceList* current = new TraceList(lastMarking, 0);
+	while(current->first != NULL){
+		traceStack.push(current);
+		current = &trace[current->first];
 	}
-	assert(false);	// This happens if there are markings on places not in the TAPN
-	return false;
+
+	PrintXMLTrace(lastMarking, traceStack);
+}
+
+xml_node<>* TimeDartReachabilitySearch::generateTransitionNode(NonStrictMarking* from, NonStrictMarking* to, xml_document<> doc){
+	xml_node<>* node = doc.allocate_node(node_element, "transition", doc.allocate_string(ToString(to->GetGeneratedBy()->GetId()).c_str()));
+	return node;
+}
+
+xml_node<>* TimeDartReachabilitySearch::generateDelayNode(int delay, xml_document<> doc){
+	xml_node<>* node = doc.allocate_node(node_element, "delay", doc.allocate_string(ToString(delay).c_str()));
+	return node;
+}
+
+void TimeDartReachabilitySearch::PrintXMLTrace(NonStrictMarking* m, std::stack<TraceList*>& stack) {
+	using namespace rapidxml;
+	std::cerr << "Trace: " << std::endl;
+	TraceList* old = NULL;
+
+	xml_document<> doc;
+	xml_node<>* root = doc.allocate_node(node_element, "trace");
+	doc.append_node(root);
+
+	while(!stack.empty()){
+
+		if(stack.top()->first->generatedBy != NULL){
+			root->append_node(CreateTransitionNode(old->first, stack.top()->first, doc));
+		}
+		if(stack.top()->second > 0){
+			xml_node<>* node = doc.allocate_node(node_element, "delay", doc.allocate_string(ToString(stack.top()->second).c_str()));
+			root->append_node(node);
+			stack.top()->first->incrementAge(stack.top()->second);
+
+		}
+
+		old = stack.top();
+		stack.pop();
+	}
+
+	std::cerr << doc;
+}
+
+
+
+void TimeDartReachabilitySearch::addToTrace(NonStrictMarking* marking, NonStrictMarking* parent, int d){
+	TraceList& m = trace[marking];
+	m.first = parent;
+	m.second = max(d, m.second);
 }
 
 vector<NonStrictMarking*> TimeDartReachabilitySearch::getPossibleNextMarkings(NonStrictMarking& marking, const TimedTransition& transition){
