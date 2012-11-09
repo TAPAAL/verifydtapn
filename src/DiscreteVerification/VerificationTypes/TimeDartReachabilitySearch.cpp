@@ -104,53 +104,14 @@ bool TimeDartReachabilitySearch::Verify(){
 void TimeDartReachabilitySearch::GetTrace(){
 	stack<TraceList*> traceStack;
 
-	TraceList* current = new TraceList(lastMarking, 0);
+	TraceList* current = &trace[lastMarking];
 	while(current->first != NULL){
 		traceStack.push(current);
 		current = &trace[current->first];
 	}
 
-	PrintXMLTrace(lastMarking, traceStack);
+	PrintXMLTrace(new TraceList(lastMarking,0), traceStack, query->GetQuantifier());
 }
-
-xml_node<>* TimeDartReachabilitySearch::generateTransitionNode(NonStrictMarking* from, NonStrictMarking* to, xml_document<> doc){
-	xml_node<>* node = doc.allocate_node(node_element, "transition", doc.allocate_string(ToString(to->GetGeneratedBy()->GetId()).c_str()));
-	return node;
-}
-
-xml_node<>* TimeDartReachabilitySearch::generateDelayNode(int delay, xml_document<> doc){
-	xml_node<>* node = doc.allocate_node(node_element, "delay", doc.allocate_string(ToString(delay).c_str()));
-	return node;
-}
-
-void TimeDartReachabilitySearch::PrintXMLTrace(NonStrictMarking* m, std::stack<TraceList*>& stack) {
-	using namespace rapidxml;
-	std::cerr << "Trace: " << std::endl;
-	TraceList* old = NULL;
-
-	xml_document<> doc;
-	xml_node<>* root = doc.allocate_node(node_element, "trace");
-	doc.append_node(root);
-
-	while(!stack.empty()){
-
-		if(stack.top()->first->generatedBy != NULL){
-			root->append_node(CreateTransitionNode(old->first, stack.top()->first, doc));
-		}
-		if(stack.top()->second > 0){
-			xml_node<>* node = doc.allocate_node(node_element, "delay", doc.allocate_string(ToString(stack.top()->second).c_str()));
-			root->append_node(node);
-			stack.top()->first->incrementAge(stack.top()->second);
-
-		}
-
-		old = stack.top();
-		stack.pop();
-	}
-
-	std::cerr << doc;
-}
-
 
 
 void TimeDartReachabilitySearch::addToTrace(NonStrictMarking* marking, NonStrictMarking* parent, int d){

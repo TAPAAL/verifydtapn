@@ -36,13 +36,14 @@ bool TimeDartLiveness::Verify(){
 		std::cout << "Marking: " << *(waitingDart.dart->getBase()) << " waiting: " << waitingDart.dart->getWaiting() << " passed: " << waitingDart.dart->getPassed() << std::endl;
 #endif
 
-		if(canDelayForever(waitingDart.dart->getBase())){
-			return true;
-		}
-
 		int maxCalculatedEnd = -1;
 
 		trace.push(new TraceDart(waitingDart.parent, waitingDart.start, waitingDart.end));
+
+		if(canDelayForever(waitingDart.dart->getBase())){
+			lastMarking = new TraceList(waitingDart.dart->getBase(), waitingDart.start);
+			return true;
+		}
 
 		int passed = waitingDart.dart->getPassed();
 		waitingDart.dart->setPassed(waitingDart.w);
@@ -74,6 +75,9 @@ bool TimeDartLiveness::Verify(){
 					Mpp.incrementAge(start);
 					vector<NonStrictMarking*> next = getPossibleNextMarkings(Mpp, transition);
 					for(vector<NonStrictMarking*>::iterator it = next.begin(); it != next.end(); it++){
+						if(options.GetTrace() == SOME){
+							(*it)->SetGeneratedBy(&transition);
+						}
 						if(addToPW(*it, waitingDart.dart->getBase(), start, calculatedStart.second)){
 							return true;
 						}
@@ -91,6 +95,9 @@ bool TimeDartLiveness::Verify(){
 
 						vector<NonStrictMarking*> next = getPossibleNextMarkings(Mpp, transition);
 						for(vector<NonStrictMarking*>::iterator it = next.begin(); it != next.end(); it++){
+							if(options.GetTrace() == SOME){
+								(*it)->SetGeneratedBy(&transition);
+							}
 							if(addToPW(*it, waitingDart.dart->getBase(), n, _end)){
 								return true;
 							}
@@ -101,6 +108,7 @@ bool TimeDartLiveness::Verify(){
 		}
 
 		if(maxCalculatedEnd < maxPossibleDelay(waitingDart.dart->getBase())){
+			lastMarking = new TraceList(waitingDart.dart->getBase(), -1);
 			return true;	/* DEADLOCK! */
 		}
 
@@ -118,6 +126,18 @@ bool TimeDartLiveness::Verify(){
 	}
 
 	return false;
+}
+
+void TimeDartLiveness::GetTrace(){
+	stack<TraceList*> traceStack;
+
+	traceStack.push(lastMarking);
+	while(!trace.empty()){
+		TraceList* m = new TraceList(trace.top()->parent, trace.top()->start);
+		traceStack.push(m);
+		trace.pop();
+	}
+	PrintXMLTrace(lastMarking, traceStack, query->GetQuantifier());
 }
 
 bool TimeDartLiveness::canDelayForever(NonStrictMarking* marking){
@@ -198,7 +218,7 @@ bool TimeDartLiveness::addToPW(NonStrictMarking* marking, NonStrictMarking* pare
 		tmp.pop();
 	}
 	if(loop){
-		lastMarking = marking;
+		lastMarking = new TraceList(marking, start);
 		return true;
 	}
 

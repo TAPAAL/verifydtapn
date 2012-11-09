@@ -26,7 +26,7 @@
 #include "boost/any.hpp"
 #include "../DataStructures/NonStrictMarking.hpp"
 #include <stack>
-#include "Verification.hpp"
+#include "TimeDartVerification.hpp"
 #include "../DataStructures/TimeDart.hpp"
 #include "../Util/IntervalOps.hpp"
 
@@ -35,9 +35,7 @@ namespace DiscreteVerification {
 
 using namespace rapidxml;
 
-class TimeDartReachabilitySearch : public Verification{
-public:
-	typedef pair<NonStrictMarking*, int> TraceList;
+class TimeDartReachabilitySearch : public TimeDartVerification{
 public:
 	TimeDartReachabilitySearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<TimeDart>* waiting_list);
 	virtual ~TimeDartReachabilitySearch();
@@ -53,9 +51,6 @@ protected:
 	int calculateEnd(const TimedTransition& transition, NonStrictMarking* marking);
 	int calculateStop(const TimedTransition& transition, NonStrictMarking* marking);
 	void addToTrace(NonStrictMarking* marking, NonStrictMarking* parent, int d);
-	void PrintXMLTrace(NonStrictMarking* m, std::stack<TraceList*>& stack);
-	xml_node<>* generateTransitionNode(NonStrictMarking* from, NonStrictMarking* to, xml_document<> doc);
-	xml_node<>* generateDelayNode(int delay, xml_document<> doc);
 
 protected:
 	int validChildren;

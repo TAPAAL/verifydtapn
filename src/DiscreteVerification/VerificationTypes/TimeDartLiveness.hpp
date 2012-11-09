@@ -26,14 +26,14 @@
 #include "boost/any.hpp"
 #include "../DataStructures/NonStrictMarking.hpp"
 #include <stack>
-#include "Verification.hpp"
+#include "TimeDartVerification.hpp"
 #include "../DataStructures/TimeDart.hpp"
 #include "../Util/IntervalOps.hpp"
 
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
-class TimeDartLiveness : public Verification{
+class TimeDartLiveness : public TimeDartVerification{
 public:
 	TimeDartLiveness(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<WaitingDart>* waiting_list);
 	virtual ~TimeDartLiveness();
@@ -63,11 +63,9 @@ protected:
 	int exploredMarkings;
 public:
 	void printStats();
-	void GetTrace(){
-		std::cout << "Trace not yet implemented" << std::endl;
-	}
+	void GetTrace();
 private:
-	NonStrictMarking* lastMarking;
+	TraceList* lastMarking;
 	stack< TraceDart* > trace;
 };
 
