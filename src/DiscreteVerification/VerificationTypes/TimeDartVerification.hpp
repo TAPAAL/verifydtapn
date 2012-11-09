@@ -70,22 +70,6 @@ public:
 
 		std::cerr << doc;
 	}
-
-	xml_node<>* CreateTransitionNode(NonStrictMarking* old, NonStrictMarking* current, rapidxml::xml_document<>& doc){
-		xml_node<>* transitionNode = doc.allocate_node(node_element, "transition");
-		xml_attribute<>* id = doc.allocate_attribute("id", current->generatedBy->GetId().c_str());
-		transitionNode->append_attribute(id);
-
-		for(TAPN::TimedInputArc::WeakPtrVector::const_iterator arc_iter = current->generatedBy->GetPreset().begin(); arc_iter != current->generatedBy->GetPreset().end(); arc_iter++){
-			createTransitionSubNodes(old, current, doc, transitionNode, arc_iter->lock()->InputPlace(), arc_iter->lock()->Interval(), arc_iter->lock()->GetWeight());
-		}
-
-		for(TAPN::TransportArc::WeakPtrVector::const_iterator arc_iter = current->generatedBy->GetTransportArcs().begin(); arc_iter != current->generatedBy->GetTransportArcs().end(); arc_iter++){
-			createTransitionSubNodes(old, current, doc, transitionNode, arc_iter->lock()->Source(), arc_iter->lock()->Interval(), arc_iter->lock()->GetWeight());
-		}
-
-		return transitionNode;
-	}
 };
 
 }
