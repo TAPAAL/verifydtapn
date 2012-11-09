@@ -59,6 +59,10 @@ public:
 					for(PlaceList::const_iterator iter = m->first->places.begin(); iter != m->first->places.end(); iter++){
 						if(iter->place->GetInvariant().GetBound() != std::numeric_limits<int>::max()){
 							//Invariant, deadlock instead of delay forever
+							if(m->second > 0){
+								xml_node<>* node = doc.allocate_node(node_element, "delay", doc.allocate_string(ToString(m->second).c_str()));
+								root->append_node(node);
+							}
 							node = doc.allocate_node(node_element, "deadlock");
 							break;
 						}
