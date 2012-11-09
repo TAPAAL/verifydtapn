@@ -39,7 +39,7 @@ public:
 
 
 			if((query == AST::EG || query == AST::AF)
-					&& (stack.size() > 2 && stack.top()->first->equals(*m->first))){
+					&& (stack.size() > 1 && stack.top()->first->equals(*m->first))){
 				root->append_node(doc.allocate_node(node_element, "loop"));
 				foundLoop = true;
 			}

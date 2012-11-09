@@ -218,6 +218,7 @@ bool TimeDartLiveness::addToPW(NonStrictMarking* marking, NonStrictMarking* pare
 		tmp.pop();
 	}
 	if(loop){
+		trace.push(new TraceDart(parent, start, end));
 		lastMarking = new TraceList(marking, start);
 		return true;
 	}
