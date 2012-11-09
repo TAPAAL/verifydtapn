@@ -155,8 +155,10 @@ void TimeDartReachabilitySearch::PrintXMLTrace(NonStrictMarking* m, std::stack<T
 
 void TimeDartReachabilitySearch::addToTrace(NonStrictMarking* marking, NonStrictMarking* parent, int d){
 	TraceList& m = trace[marking];
-	m.first = parent;
-	m.second = max(d, m.second);
+	if(m.first == NULL){
+		m.first = parent;
+		m.second = d;
+	}
 }
 
 vector<NonStrictMarking*> TimeDartReachabilitySearch::getPossibleNextMarkings(NonStrictMarking& marking, const TimedTransition& transition){
