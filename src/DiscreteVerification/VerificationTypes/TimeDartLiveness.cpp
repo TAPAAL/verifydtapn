@@ -47,7 +47,6 @@ bool TimeDartLiveness::Verify(){
 
 		int passed = waitingDart.dart->getPassed();
 		waitingDart.dart->setPassed(waitingDart.w);
-		tapn->GetTransitions();
 		for(TimedTransition::Vector::const_iterator transition_iter = tapn->GetTransitions().begin();
 				transition_iter != tapn->GetTransitions().end(); transition_iter++){
 			TimedTransition& transition = **transition_iter;
@@ -247,7 +246,7 @@ pair<int,int> TimeDartLiveness::calculateStart(const TimedTransition& transition
 		return p;
 	}
 
-	//inhibited
+	// Inhibitor arcs
 	for(TAPN::InhibitorArc::WeakPtrVector::const_iterator arc = transition.GetInhibitorArcs().begin();
 			arc != transition.GetInhibitorArcs().end();
 			arc++){
@@ -257,6 +256,8 @@ pair<int,int> TimeDartLiveness::calculateStart(const TimedTransition& transition
 		}
 	}
 
+
+	// Standard arcs
 	for(TAPN::TimedInputArc::WeakPtrVector::const_iterator arc = transition.GetPreset().begin(); arc != transition.GetPreset().end(); arc++){
 		vector<Util::interval > intervals;
 		int range;
@@ -277,7 +278,7 @@ pair<int,int> TimeDartLiveness::calculateStart(const TimedTransition& transition
 		int numberOfTokensAvailable = tokens.at(j).getCount();
 		for(unsigned int  i = 0; i < tokens.size(); i++){
 			if(numberOfTokensAvailable < weight){
-				for(j=max(i,j); j < tokens.size() && numberOfTokensAvailable < weight; j++){
+				for(j++; j < tokens.size() && numberOfTokensAvailable < weight; j++){
 					numberOfTokensAvailable += tokens.at(j).getCount();
 				}
 				j--;
@@ -322,7 +323,7 @@ pair<int,int> TimeDartLiveness::calculateStart(const TimedTransition& transition
 		int numberOfTokensAvailable = tokens.at(j).getCount();
 		for(unsigned int  i = 0; i < tokens.size(); i++){
 			if(numberOfTokensAvailable < weight){
-				for(j=max(i,j); j < tokens.size() && numberOfTokensAvailable < weight; j++){
+				for(j++; j < tokens.size() && numberOfTokensAvailable < weight; j++){
 					numberOfTokensAvailable += tokens.at(j).getCount();
 				}
 				j--;
