@@ -1,6 +1,10 @@
 #ifndef TIMEDARTVERIFICATION_HPP_
 #define TIMEDARTVERIFICATION_HPP_
 
+#include "../../Core/TAPN/TAPN.hpp"
+#include "../DataStructures/NonStrictMarking.hpp"
+#include "../Util/IntervalOps.hpp"
+#include "../TimeDartSuccessorGenerator.hpp"
 #include "Verification.hpp"
 #include "../DataStructures/TimeDart.hpp"
 #include <stack>
@@ -15,62 +19,36 @@ typedef pair<NonStrictMarking*, int> TraceList;
 class TimeDartVerification : public Verification {
 public:
 
-	void PrintXMLTrace(TraceList* m, std::stack<TraceList*>& stack, Quantifier query) {
-		std::cerr << "Trace: " << std::endl;
-		TraceList* old = stack.top();
-		stack.pop();
-		bool foundLoop = false;
-		bool delayedForever = false;
+	TimeDartVerification(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, VerificationOptions options, AST::Query* query, NonStrictMarking& initialMarking):
+		query(query), options(options), tapn(tapn), initialMarking(initialMarking), exploredMarkings(0), allwaysEnabled(), successorGenerator(*tapn.get()){
 
-		xml_document<> doc;
-		xml_node<>* root = doc.allocate_node(node_element, "trace");
-		doc.append_node(root);
-
-		while(!stack.empty()){
-			if(old->first != NULL){
-				root->append_node(CreateTransitionNode(old->first, stack.top()->first, doc));
-			}
-
-			if(stack.size() > 1 && stack.top()->second > 0){
-				xml_node<>* node = doc.allocate_node(node_element, "delay", doc.allocate_string(ToString(stack.top()->second).c_str()));
-				root->append_node(node);
-				stack.top()->first->incrementAge(stack.top()->second);
-			}
-
-
-			if((query == AST::EG || query == AST::AF)
-					&& (stack.size() > 1 && stack.top()->first->equals(*m->first))){
-				root->append_node(doc.allocate_node(node_element, "loop"));
-				foundLoop = true;
-			}
-			old = stack.top();
-			stack.pop();
-		}
-
-		//Trace ended, goto * or deadlock
-		if(query == AST::EG || query == AST::AF){
-			if(!foundLoop && !delayedForever) {
-				// By default delay forever
-				xml_node<>* node = doc.allocate_node(node_element, "delay", doc.allocate_string("forever"));
-				for(PlaceList::const_iterator iter = m->first->places.begin(); iter != m->first->places.end(); iter++){
-					if(iter->place->GetInvariant().GetBound() != std::numeric_limits<int>::max()){
-						//Invariant, deadlock instead of delay forever
-						if(m->second > 0){
-							xml_node<>* node = doc.allocate_node(node_element, "delay", doc.allocate_string(ToString(m->second).c_str()));
-							root->append_node(node);
-						}
-						node = doc.allocate_node(node_element, "deadlock");
-						break;
-					}
-				}
-				root->append_node(node);
+		//Find the transitions which don't have input arcs
+		for(TimedTransition::Vector::const_iterator iter = tapn->GetTransitions().begin(); iter != tapn->GetTransitions().end(); iter++){
+			if((*iter)->GetPreset().size() + (*iter)->GetTransportArcs().size() == 0){
+				allwaysEnabled.push_back(iter->get());
 			}
 		}
-
-		std::cerr << doc;
 	}
-};
 
+	std::pair<int, int> calculateStart(const TAPN::TimedTransition& transition, NonStrictMarking* marking);
+	int calculateStop(const TAPN::TimedTransition& transition, NonStrictMarking* marking);
+	int maxPossibleDelay(NonStrictMarking* marking);
+	vector<NonStrictMarking*> getPossibleNextMarkings(NonStrictMarking& marking, const TimedTransition& transition);
+	void PrintXMLTrace(TraceList* m, std::stack<TraceList*>& stack, Quantifier query);
+	void PrintTransitionStatistics() const { successorGenerator.PrintTransitionStatistics(std::cout); }
+
+protected:
+	AST::Query* query;
+	VerificationOptions options;
+	boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn;
+	NonStrictMarking& initialMarking;
+	int exploredMarkings;
+	vector<const TAPN::TimedTransition*> allwaysEnabled;
+
+private:
+	TimeDartSuccessorGenerator successorGenerator;
+
+};
 }
 }
 
