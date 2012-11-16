@@ -174,7 +174,7 @@ bool TimeDartLiveness::addToPW(NonStrictMarking* marking, TimeDart* parent, int 
 
 			// TODO optimize
 			int loop = false;
-			if(parent != NULL && parent->getBase()->equals(*marking) && youngest <= end){
+			if(parent != NULL && parent->getBase()->equals(*result->getBase()) && youngest <= end){
 				loop = true;
 			}
 
@@ -182,7 +182,7 @@ bool TimeDartLiveness::addToPW(NonStrictMarking* marking, TimeDart* parent, int 
 			//Find the dart created in the PWList
 			if(result->traceData != NULL){
 				for(TraceMetaDataList::const_iterator iter = result->traceData->begin(); iter != result->traceData->end(); iter++){
-					if((*iter)->parent->getBase()->equals(*marking) && youngest <= (*iter)->end){
+					if((*iter)->parent->getBase()->equals(*result->getBase()) && youngest <= (*iter)->end){
 						loop = true;
 						break;
 					}
@@ -191,7 +191,7 @@ bool TimeDartLiveness::addToPW(NonStrictMarking* marking, TimeDart* parent, int 
 
 			if(loop){
 				trace.push(new TraceDart(parent, start, end));
-				lastMarking = new TraceList(marking, start);
+				lastMarking = new TraceList(result->getBase(), start);
 				return true;
 			}
 		}

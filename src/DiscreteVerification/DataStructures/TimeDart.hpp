@@ -53,14 +53,17 @@ struct TraceDart{
 	}
 
 	~TraceDart(){
-		for(TraceMetaDataList::iterator iter = parent->traceData->begin(); iter != parent->traceData->end(); iter++){
-			if(*iter == this){
-				parent->traceData->erase(iter);
+		if(parent != NULL && parent->traceData != NULL){
+			for(TraceMetaDataList::iterator iter = parent->traceData->begin(); iter != parent->traceData->end(); iter++){
+				if((*iter) == this){
+					parent->traceData->erase(iter);
+					break;
+				}
 			}
-		}
-		if(parent->traceData->empty()){
-			delete parent->traceData;
-			parent->traceData = NULL;
+			if(parent->traceData->empty()){
+				delete parent->traceData;
+				parent->traceData = NULL;
+			}
 		}
 	}
 };

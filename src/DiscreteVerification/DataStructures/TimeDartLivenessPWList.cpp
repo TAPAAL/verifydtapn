@@ -17,17 +17,19 @@ TimeDart* TimeDartLivenessPWList::Add(TAPN::TimedArcPetriNet* tapn, NonStrictMar
 			iter != m.end();
 			iter++){
 		if((*iter)->getBase()->equals(*marking)){
+			TimeDart* result = NULL;
 			(*iter)->setWaiting(min((*iter)->getWaiting(),youngest));
 
 			if((*iter)->getWaiting() < (*iter)->getPassed()){
 				waiting_list->Add(new WaitingDart((*iter), parent, youngest, start, end));
-				delete marking;
-				return *iter ;
+			}
+			if((*iter)->getWaiting() <= (*iter)->getPassed()){
+				result = *iter;
 			}
 
 			delete marking;
 
-			return NULL;
+			return result;
 		}
 	}
 
