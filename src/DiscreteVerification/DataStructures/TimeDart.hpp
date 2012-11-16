@@ -13,10 +13,14 @@
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
+struct TraceDart;
+
+typedef vector<TraceDart*> TraceMetaDataList;
+
 class TimeDart {
 public:
 	TimeDart(NonStrictMarking* base, int waiting, int passed)
-		: base(base), waiting(waiting), passed(passed){
+		: traceData(NULL), base(base), waiting(waiting), passed(passed){
 	}
 	~TimeDart(){
 	}
@@ -30,6 +34,8 @@ public:
 	inline void setWaiting(int w){ waiting = w; }
 	inline void setPassed(int p){ passed = p; }
 
+	TraceMetaDataList* traceData;
+
 private:
 	NonStrictMarking* base;
 	int waiting;
@@ -37,24 +43,36 @@ private:
 };
 
 struct TraceDart{
-	NonStrictMarking* parent;
+	TimeDart* parent;
 	int start;
 	int end;
 	int successors;
 
-	TraceDart(NonStrictMarking* parent, int start, int end) : parent(parent), start(start), end(end), successors(0){
+	TraceDart(TimeDart* parent, int start, int end) : parent(parent), start(start), end(end), successors(0){
 
+	}
+
+	~TraceDart(){
+		for(TraceMetaDataList::iterator iter = parent->traceData->begin(); iter != parent->traceData->end(); iter++){
+			if(*iter == this){
+				parent->traceData->erase(iter);
+			}
+		}
+		if(parent->traceData->empty()){
+			delete parent->traceData;
+			parent->traceData = NULL;
+		}
 	}
 };
 
 struct WaitingDart{
 	TimeDart* dart;
 	int w;
-	NonStrictMarking* parent;
+	TimeDart* parent;
 	int start;
 	int end;
 
-	WaitingDart(TimeDart* dart, NonStrictMarking* parent, int w, int start, int end) : dart(dart), w(w), parent(parent), start(start), end(end){
+	WaitingDart(TimeDart* dart, TimeDart* parent, int w, int start, int end) : dart(dart), w(w), parent(parent), start(start), end(end){
 
 	}
 };

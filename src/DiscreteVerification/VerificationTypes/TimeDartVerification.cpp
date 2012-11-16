@@ -190,7 +190,6 @@ int TimeDartVerification::calculateStop(const TAPN::TimedTransition& transition,
 	for(PlaceList::const_iterator iter = marking->GetPlaceList().begin(); iter != marking->GetPlaceList().end(); iter++){
 		if(i < transition.GetPreset().size() && iter->place->GetIndex() == transition.GetPreset().at(i).lock()->InputPlace().GetIndex()){
 			if(transition.GetPreset().at(i).lock()->GetWeight() < iter->NumberOfTokens()){
-				// TODO it should be the youngest NumberOfTokens-GetWeight'e token for optimization
 				MC = max(MC, iter->place->GetMaxConstant() - iter->tokens.front().getAge());
 			}
 			i++;

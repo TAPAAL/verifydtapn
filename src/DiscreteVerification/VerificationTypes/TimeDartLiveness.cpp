@@ -30,7 +30,16 @@ bool TimeDartLiveness::Verify(){
 
 		int maxCalculatedEnd = -1;
 
-		trace.push(new TraceDart(waitingDart.parent, waitingDart.start, waitingDart.end));
+		TraceDart* traceDart = new TraceDart(waitingDart.parent, waitingDart.start, waitingDart.end);
+
+		if(waitingDart.parent != NULL){
+			if(waitingDart.parent->traceData == NULL){
+				TraceMetaDataList* list = new TraceMetaDataList();
+				waitingDart.parent->traceData = list;
+			}
+			waitingDart.parent->traceData->push_back(traceDart);
+		}
+		trace.push(traceDart);
 
 		if(canDelayForever(waitingDart.dart->getBase())){
 			lastMarking = new TraceList(waitingDart.dart->getBase(), waitingDart.start);
@@ -69,7 +78,7 @@ bool TimeDartLiveness::Verify(){
 						if(options.GetTrace() == SOME){
 							(*it)->SetGeneratedBy(&transition);
 						}
-						if(addToPW(*it, waitingDart.dart->getBase(), start, calculatedStart.second)){
+						if(addToPW(*it, waitingDart.dart, start, calculatedStart.second)){
 							return true;
 						}
 					}
@@ -89,7 +98,7 @@ bool TimeDartLiveness::Verify(){
 							if(options.GetTrace() == SOME){
 								(*it)->SetGeneratedBy(&transition);
 							}
-							if(addToPW(*it, waitingDart.dart->getBase(), n, _end)){
+							if(addToPW(*it, waitingDart.dart, n, _end)){
 								return true;
 							}
 						}
@@ -124,7 +133,7 @@ void TimeDartLiveness::GetTrace(){
 
 	traceStack.push(lastMarking);
 	while(!trace.empty()){
-		TraceList* m = new TraceList(trace.top()->parent, trace.top()->start);
+		TraceList* m = new TraceList(trace.top()->parent->getBase(), trace.top()->start);
 		traceStack.push(m);
 		trace.pop();
 	}
@@ -140,7 +149,7 @@ bool TimeDartLiveness::canDelayForever(NonStrictMarking* marking){
 	return true;
 }
 
-bool TimeDartLiveness::addToPW(NonStrictMarking* marking, NonStrictMarking* parent, int start, int end){
+bool TimeDartLiveness::addToPW(NonStrictMarking* marking, TimeDart* parent, int start, int end){
 	marking->cut();
 
 	unsigned int size = marking->size();
@@ -153,37 +162,37 @@ bool TimeDartLiveness::addToPW(NonStrictMarking* marking, NonStrictMarking* pare
 
 	int youngest = marking->makeBase(tapn.get());
 
-	// TODO optimize
-	int loop = false;
-	if(parent != NULL && parent->equals(*marking) && youngest <= end){
-		loop = true;
-	}
-
-	stack< TraceDart* > tmp;
-	while(!trace.empty() && trace.top()->parent != NULL){
-		tmp.push(trace.top());
-		if(trace.top()->parent->equals(*marking) && youngest <= trace.top()->end){
-			loop = true;
-		}
-		trace.pop();
-	}
-	while(!tmp.empty()){
-		trace.push(tmp.top());
-		tmp.pop();
-	}
-	if(loop){
-		trace.push(new TraceDart(parent, start, end));
-		lastMarking = new TraceList(marking, start);
-		return true;
-	}
-
 	QueryVisitor checker(*marking);
 	boost::any context;
 	query->Accept(checker, context);
 	if(boost::any_cast<bool>(context)) {
-		if(pwList.Add(tapn.get(), marking, youngest, parent, start, end)){
+		TimeDart* result = pwList.Add(tapn.get(), marking, youngest, parent, start, end);
+		if(result != NULL){
 			if(!trace.empty()){
 				trace.top()->successors++;
+			}
+
+			// TODO optimize
+			int loop = false;
+			if(parent != NULL && parent->getBase()->equals(*marking) && youngest <= end){
+				loop = true;
+			}
+
+
+			//Find the dart created in the PWList
+			if(result->traceData != NULL){
+				for(TraceMetaDataList::const_iterator iter = result->traceData->begin(); iter != result->traceData->end(); iter++){
+					if((*iter)->parent->getBase()->equals(*marking) && youngest <= (*iter)->end){
+						loop = true;
+						break;
+					}
+				}
+			}
+
+			if(loop){
+				trace.push(new TraceDart(parent, start, end));
+				lastMarking = new TraceList(marking, start);
+				return true;
 			}
 		}
 	}

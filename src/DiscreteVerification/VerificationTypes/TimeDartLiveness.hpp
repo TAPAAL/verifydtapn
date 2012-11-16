@@ -34,7 +34,7 @@ public:
 	inline unsigned int MaxUsedTokens(){ return pwList.maxNumTokensInAnyMarking; };
 
 protected:
-	bool addToPW(NonStrictMarking* marking, NonStrictMarking* parent, int start, int end);
+	bool addToPW(NonStrictMarking* marking, TimeDart* parent, int start, int end);
 	bool canDelayForever(NonStrictMarking* marking);
 
 protected:
