@@ -12,7 +12,7 @@ namespace DiscreteVerification {
 namespace Util {
 
 using namespace std;
-using boost::numeric::intersect;
+using namespace boost::numeric;
 
 vector<interval > setIntersection(const vector<interval >& first, const vector<interval >& second){
 	vector<interval > result;
@@ -46,39 +46,32 @@ vector<interval > setIntersection(const vector<interval >& first, const vector<i
 
 void set_add(vector< interval >& first, const interval& element){
 
-	bool inserted = false;
 	for(unsigned int i = 0; i < first.size(); i++){
 
-		if(!inserted){
-			if(element.upper() < first.at(i).lower()){
-				//Add element
-				first.insert(first.begin(), element);
-				inserted = true;
-			} else if(element.lower() >= first.at(i).lower() && element.lower() <= first.at(i).upper()){
-				// Merge with node
-				int _max = max(first.at(i).upper(), element.upper());
-				first.at(i).assign(first.at(i).lower(), _max);
-				inserted = true;
-				// Clean up
-				for(i += 1; i < first.size(); i++){
-					if(first.at(i).lower() <= _max){
-						// Merge items
-						if(first.at(i).upper() >= _max){
-							first.at(i-1).assign(first.at(i-1).lower(), first.at(i).upper());
-						}
-						first.erase(first.begin()+i-1,first.begin()+i);
-						i--;
+		if(element.upper() < first.at(i).lower()){
+			//Add element
+			first.insert(first.begin()+i, element);
+			return;
+		} else if(overlap(element, first.at(i))){
+			interval u = hull(element, first.at(i));
+			// Merge with node
+			first.at(i).assign(u.lower(), u.upper());
+			// Clean up
+			for(i++; i < first.size(); i++){
+				if(first.at(i).lower() <= u.upper()){
+					// Merge items
+					if(first.at(i).upper() > u.upper()){
+						first.at(i-1).assign(first.at(i-1).lower(), first.at(i).upper());
 					}
+					first.erase(first.begin()+i);
+					i--;
 				}
 			}
-		}else{
-			break;
+			return;
 		}
 	}
 
-	if(!inserted){
-		first.push_back(element);
-	}
+	first.push_back(element);
 }
 
 } /* namespace Util */

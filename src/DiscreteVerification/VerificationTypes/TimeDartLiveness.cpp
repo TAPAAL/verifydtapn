@@ -37,6 +37,9 @@ bool TimeDartLiveness::Verify(){
 				TraceMetaDataList* list = new TraceMetaDataList();
 				waitingDart.parent->traceData = list;
 			}
+#ifdef DEBUG
+			std::cout << "Pushing to this dart: " << *waitingDart.parent->getBase() << std::endl;
+#endif
 			waitingDart.parent->traceData->push_back(traceDart);
 		}
 		trace.push(traceDart);
@@ -114,8 +117,12 @@ bool TimeDartLiveness::Verify(){
 
 		delete &waitingDart;
 
-		while(!trace.empty() && trace.top()->successors == 0){
+		while(trace.top()->successors == 0){
 			TraceDart* tmp = trace.top();
+#ifdef DEBUG
+			if(tmp->parent != NULL) std::cout << "Deleting: " << *tmp->parent->getBase() << std::endl;
+			else std::cout << "Deleting: " << "NULL" << std::endl;
+#endif
 			trace.pop();
 			delete tmp;
 			if(trace.empty()){
@@ -166,38 +173,37 @@ bool TimeDartLiveness::addToPW(NonStrictMarking* marking, TimeDart* parent, int 
 	boost::any context;
 	query->Accept(checker, context);
 	if(boost::any_cast<bool>(context)) {
-		TimeDart* result = pwList.Add(tapn.get(), marking, youngest, parent, start, end);
-		if(result != NULL){
-			if(!trace.empty()){
-				trace.top()->successors++;
-			}
+		std::pair<TimeDart*, bool> result = pwList.Add(tapn.get(), marking, youngest, parent, start, end);
+		if(!trace.empty() && result.second){
+			trace.top()->successors++;
+		}
 
-			// TODO optimize
-			int loop = false;
-			if(parent != NULL && parent->getBase()->equals(*result->getBase()) && youngest <= end){
-				loop = true;
-			}
+		// TODO optimize
+		int loop = false;
+		if(parent != NULL && parent->getBase()->equals(*result.first->getBase()) && youngest <= end){
+			loop = true;
+		}
 
 
-			//Find the dart created in the PWList
-			if(result->traceData != NULL){
-				for(TraceMetaDataList::const_iterator iter = result->traceData->begin(); iter != result->traceData->end(); iter++){
-					if((*iter)->parent->getBase()->equals(*result->getBase()) && youngest <= (*iter)->end){
-						loop = true;
-						break;
-					}
+		//Find the dart created in the PWList
+		if(result.first->traceData != NULL){
+			std::cout << "TraceData lenght: " << result.first->traceData->size() << std::endl;
+			for(TraceMetaDataList::const_iterator iter = result.first->traceData->begin(); iter != result.first->traceData->end(); iter++){
+				if((*iter)->parent->getBase()->equals(*result.first->getBase()) && youngest <= (*iter)->end){
+					loop = true;
+					break;
 				}
 			}
+		}
 
-			if(loop){
-				trace.push(new TraceDart(parent, start, end));
-				lastMarking = new TraceList(result->getBase(), start);
-				return true;
-			}
+		if(loop){
+			trace.push(new TraceDart(parent, start, end));
+			lastMarking = new TraceList(result.first->getBase(), start);
+			return true;
 		}
 	}
 
-	return false;
+return false;
 }
 
 void TimeDartLiveness::printStats(){

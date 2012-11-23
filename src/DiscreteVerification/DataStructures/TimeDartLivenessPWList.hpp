@@ -38,7 +38,7 @@ public: // inspectors
 	};
 
 public: // modifiers
-	virtual TimeDart* Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarking* base, int youngest, TimeDart* parent, int start, int end);
+	virtual std::pair<TimeDart*, bool> Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarking* base, int youngest, TimeDart* parent, int start, int end);
 	virtual WaitingDart* GetNextUnexplored();
 	inline void SetMaxNumTokensIfGreater(int i){ if(i>maxNumTokensInAnyMarking) maxNumTokensInAnyMarking = i; };
 

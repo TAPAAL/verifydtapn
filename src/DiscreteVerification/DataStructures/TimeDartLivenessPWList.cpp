@@ -10,21 +10,19 @@
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
-TimeDart* TimeDartLivenessPWList::Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarking* marking, int youngest, TimeDart* parent, int start, int end){
+std::pair<TimeDart*, bool> TimeDartLivenessPWList::Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarking* marking, int youngest, TimeDart* parent, int start, int end){
 	discoveredMarkings++;
 	TimeDartList& m = markings_storage[marking->HashKey()];
 	for(TimeDartList::const_iterator iter = m.begin();
 			iter != m.end();
 			iter++){
 		if((*iter)->getBase()->equals(*marking)){
-			TimeDart* result = NULL;
+			std::pair<TimeDart*, bool> result(*iter, false);
 			(*iter)->setWaiting(min((*iter)->getWaiting(),youngest));
 
 			if((*iter)->getWaiting() < (*iter)->getPassed()){
 				waiting_list->Add(new WaitingDart((*iter), parent, youngest, start, end));
-			}
-			if((*iter)->getWaiting() <= (*iter)->getPassed()){
-				result = *iter;
+				result.second = true;
 			}
 
 			delete marking;
@@ -36,7 +34,8 @@ TimeDart* TimeDartLivenessPWList::Add(TAPN::TimedArcPetriNet* tapn, NonStrictMar
 	TimeDart* dart = new TimeDart(marking, youngest, INT_MAX);
 	m.push_back(dart);
 	waiting_list->Add(new WaitingDart(dart, parent, youngest, start, end));
-	return dart;
+	std::pair<TimeDart*, bool> result(dart, true);
+	return result;
 }
 
 WaitingDart* TimeDartLivenessPWList::GetNextUnexplored(){

@@ -259,9 +259,6 @@ std::ostream& operator<<(std::ostream& out, NonStrictMarking& x ) {
 }
 
 void NonStrictMarking::cut(){
-#ifdef DEBUG
-	std::cout << "Before cut: " << *this << std::endl;
-#endif
 	for(PlaceList::iterator place_iter = this->places.begin(); place_iter != this->places.end(); place_iter++){
 		//remove dead tokens
 		if (place_iter->place->GetType() ==  TAPN::Dead) {
@@ -289,15 +286,9 @@ void NonStrictMarking::cut(){
 		this->AddTokenInPlace(*place_iter, t);
 	}
 	this->CleanUp();
-	#ifdef DEBUG
-		std::cout << "After cut: " << *this << std::endl;
-	#endif
 }
 
 int NonStrictMarking::makeBase(TAPN::TimedArcPetriNet* tapn){
-	#ifdef DEBUG
-		std::cout << "Before makeBase: " << *this << std::endl;
-	#endif
 	int youngest = INT_MAX;
 	for(PlaceList::const_iterator place_iter = GetPlaceList().begin(); place_iter != GetPlaceList().end(); place_iter++){
 		if(youngest > place_iter->tokens.front().getAge() && place_iter->tokens.front().getAge() <= place_iter->place->GetMaxConstant()){
