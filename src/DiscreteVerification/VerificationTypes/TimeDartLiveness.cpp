@@ -203,7 +203,7 @@ bool TimeDartLiveness::addToPW(NonStrictMarking* marking, TimeDart* parent, int 
 		}
 	}
 
-return false;
+	return false;
 }
 
 void TimeDartLiveness::printStats(){
