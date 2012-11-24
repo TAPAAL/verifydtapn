@@ -181,7 +181,6 @@ NonStrictMarking* RandomStackWaitingList::Next()
 {
 	flushBuffer();
 	NonStrictMarking* marking = stack.top();
-        delete buffer.top();
 	stack.pop();
 	return marking;
 }
