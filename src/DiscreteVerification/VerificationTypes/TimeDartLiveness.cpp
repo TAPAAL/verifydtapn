@@ -82,6 +82,7 @@ bool TimeDartLiveness::Verify(){
 							(*it)->SetGeneratedBy(&transition);
 						}
 						if(addToPW(*it, waitingDart.dart, start, calculatedStart.second)){
+							lastMarking->first->generatedBy = &transition;
 							return true;
 						}
 					}
@@ -102,6 +103,7 @@ bool TimeDartLiveness::Verify(){
 								(*it)->SetGeneratedBy(&transition);
 							}
 							if(addToPW(*it, waitingDart.dart, n, _end)){
+								lastMarking->first->generatedBy = &transition;
 								return true;
 							}
 						}
@@ -138,12 +140,18 @@ bool TimeDartLiveness::Verify(){
 void TimeDartLiveness::GetTrace(){
 	stack<TraceList*> traceStack;
 
+	#if DEBUG
+		std::cout << "Trace size: " << trace.size() << std::endl;
+		std::cout << "Last marking: " << *lastMarking->first << std::endl;
+	#endif
+
 	traceStack.push(lastMarking);
 	while(!trace.empty()){
-		TraceList* m = new TraceList(trace.top()->parent->getBase(), trace.top()->start);
+		TraceList* m = new TraceList(trace.top()->parent == NULL? NULL:trace.top()->parent->getBase(), trace.top()->start);
 		traceStack.push(m);
 		trace.pop();
 	}
+
 	PrintXMLTrace(lastMarking, traceStack, query->GetQuantifier());
 }
 
@@ -198,7 +206,7 @@ bool TimeDartLiveness::addToPW(NonStrictMarking* marking, TimeDart* parent, int 
 
 		if(loop){
 			trace.push(new TraceDart(parent, start, end));
-			lastMarking = new TraceList(result.first->getBase(), start);
+			lastMarking = new TraceList(new NonStrictMarking(*result.first->getBase()), start);
 			return true;
 		}
 	}
