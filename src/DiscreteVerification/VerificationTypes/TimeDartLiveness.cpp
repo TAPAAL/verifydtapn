@@ -113,7 +113,7 @@ bool TimeDartLiveness::Verify(){
 		}
 
 		if(maxCalculatedEnd < maxPossibleDelay(waitingDart.dart->getBase())){
-			lastMarking = new TraceList(waitingDart.dart->getBase(), waitingDart.end);
+			lastMarking = new TraceList(waitingDart.dart->getBase(), maxPossibleDelay(waitingDart.dart->getBase()));
 			return true;	/* DEADLOCK! */
 		}
 
