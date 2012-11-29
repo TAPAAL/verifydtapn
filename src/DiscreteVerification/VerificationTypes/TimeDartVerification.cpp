@@ -11,6 +11,7 @@ void TimeDartVerification::PrintXMLTrace(TraceList* m, std::stack<TraceList*>& s
 	stack.pop();
 	bool foundLoop = false;
 	bool delayedForever = false;
+	int accumulatedDelay = 0;
 
 	xml_document<> doc;
 	xml_node<>* root = doc.allocate_node(node_element, "trace");
@@ -30,10 +31,14 @@ void TimeDartVerification::PrintXMLTrace(TraceList* m, std::stack<TraceList*>& s
 			foundLoop = true;
 		}
 
-		if(stack.size() > 1 && stack.top()->second > 0){
-			xml_node<>* node = doc.allocate_node(node_element, "delay", doc.allocate_string(ToString(stack.top()->second).c_str()));
+		if(stack.top()->first->generatedBy != NULL && !stack.top()->first->generatedBy->GetPostset().empty()){
+			accumulatedDelay = 0;
+		}
+		if(stack.size() > 1 && stack.top()->second-accumulatedDelay > 0){
+			xml_node<>* node = doc.allocate_node(node_element, "delay", doc.allocate_string(ToString(stack.top()->second-accumulatedDelay).c_str()));
 			root->append_node(node);
 			stack.top()->first->incrementAge(stack.top()->second);
+			accumulatedDelay = stack.top()->second;
 		}
 
 		if((query == AST::EG || query == AST::AF) && stack.top()->second == 0
@@ -54,7 +59,7 @@ void TimeDartVerification::PrintXMLTrace(TraceList* m, std::stack<TraceList*>& s
 				if(iter->place->GetInvariant().GetBound() != std::numeric_limits<int>::max()){
 					//Invariant, deadlock instead of delay forever
 					if(m->second > 0){
-						xml_node<>* node = doc.allocate_node(node_element, "delay", doc.allocate_string(ToString(m->second).c_str()));
+						xml_node<>* node = doc.allocate_node(node_element, "delay", doc.allocate_string(ToString(m->second-accumulatedDelay).c_str()));
 						root->append_node(node);
 					}
 					node = doc.allocate_node(node_element, "deadlock");
