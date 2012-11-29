@@ -29,6 +29,12 @@ int DiscreteVerification::run(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, s
 	NonStrictMarking* initialMarking = new NonStrictMarking(*tapn, initialPlacement);
 
 	std::cout << "MC: " << tapn->MaxConstant() << std::endl;
+#if DEBUG
+	std::cout << "Places: " << std::endl;
+	for(TAPN::TimedPlace::Vector::const_iterator iter = tapn.get()->GetPlaces().begin(); iter != tapn.get()->GetPlaces().end(); iter++){
+		std::cout << "Place " << iter->get()->GetIndex() << " has category " << iter->get()->GetType() << std::endl;
+	}
+#endif
 
 	if(initialMarking->size() > options.GetKBound())
 	{
