@@ -94,6 +94,10 @@ bool TimeDartReachabilitySearch::Verify(){
 }
 
 void TimeDartReachabilitySearch::GetTrace(){
+
+	std::cout << "Error generating trace" << std::endl;
+	return;
+
 	stack<TraceList*> traceStack;
 
 	TraceList* current = &trace[lastMarking];
