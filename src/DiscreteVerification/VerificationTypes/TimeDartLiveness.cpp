@@ -45,7 +45,9 @@ bool TimeDartLiveness::Verify(){
 		trace.push(traceDart);
 
 		if(canDelayForever(waitingDart.dart->getBase())){
-			lastMarking = new TraceList(new NonStrictMarking(*waitingDart.dart->getBase()), waitingDart.start);
+			NonStrictMarking* lm = new NonStrictMarking(*waitingDart.dart->getBase());
+			lm->generatedBy = waitingDart.dart->getBase()->generatedBy;
+			lastMarking = new TraceList(lm, waitingDart.start);
 			return true;
 		}
 
@@ -186,7 +188,6 @@ bool TimeDartLiveness::addToPW(NonStrictMarking* marking, TimeDart* parent, int 
 			trace.top()->successors++;
 		}
 
-		// TODO optimize
 		int loop = false;
 		if(parent != NULL && parent->getBase()->equals(*result.first->getBase()) && youngest <= end){
 			loop = true;
@@ -195,7 +196,7 @@ bool TimeDartLiveness::addToPW(NonStrictMarking* marking, TimeDart* parent, int 
 
 		//Find the dart created in the PWList
 		if(result.first->traceData != NULL){
-			std::cout << "TraceData lenght: " << result.first->traceData->size() << std::endl;
+			std::cout << "TraceData length: " << result.first->traceData->size() << std::endl;
 			for(TraceMetaDataList::const_iterator iter = result.first->traceData->begin(); iter != result.first->traceData->end(); iter++){
 				if((*iter)->parent->getBase()->equals(*result.first->getBase()) && youngest <= (*iter)->end){
 					loop = true;
