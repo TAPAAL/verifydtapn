@@ -24,6 +24,7 @@ bool PWList::Add(NonStrictMarking* marking){
 			return false;
 		}
 	}
+        stored++;
 	m.push_back(marking);
 	waiting_list->Add(marking);
 	return true;

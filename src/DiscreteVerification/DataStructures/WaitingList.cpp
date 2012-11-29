@@ -46,6 +46,7 @@ void HeuristicStackWaitingList::Add(NonStrictMarking* marking)
 void HeuristicStackWaitingList::flushBuffer(){
 	while(!buffer.empty()){
 		stack.push(buffer.top()->marking);
+                delete  buffer.top();
 		buffer.pop();
 	}
 }
@@ -104,6 +105,7 @@ NonStrictMarking* HeuristicWaitingList::Next()
 {
 	WeightedMarking* weighted_marking = queue.top();
 	NonStrictMarking* marking = weighted_marking->marking;
+        delete queue.top();
 	queue.pop();
 	return marking;
 }
@@ -124,6 +126,7 @@ AST::Query* HeuristicWaitingList::normalizeQuery(AST::Query* q){
 HeuristicWaitingList::~HeuristicWaitingList()
 {
 	while(!queue.empty()){
+                delete queue.top();
 		queue.pop();
 	}
 }
@@ -140,6 +143,7 @@ NonStrictMarking* RandomWaitingList::Next()
 {
 	WeightedMarking* weighted_marking = queue.top();
 	NonStrictMarking* marking = weighted_marking->marking;
+        delete queue.top();
 	queue.pop();
 	return marking;
 }
@@ -152,6 +156,7 @@ int RandomWaitingList::calculateWeight(NonStrictMarking* marking)
 RandomWaitingList::~RandomWaitingList()
 {
 	while(!queue.empty()){
+                delete queue.top();
 		queue.pop();
 	}
 }
@@ -167,6 +172,7 @@ void RandomStackWaitingList::Add(NonStrictMarking* marking)
 void RandomStackWaitingList::flushBuffer(){
 	while(!buffer.empty()){
 		stack.push(buffer.top()->marking);
+                delete buffer.top();
 		buffer.pop();
 	}
 }
