@@ -17,8 +17,17 @@ void TimeDartVerification::PrintXMLTrace(TraceList* m, std::stack<TraceList*>& s
 	doc.append_node(root);
 
 	while(!stack.empty()){
+#if DEBUG
+	std::cout << "Last: " << *m->first << " equals " << *stack.top()->first << "?" << std::endl;
+#endif
 		if(old->first != NULL){
 			root->append_node(CreateTransitionNode(old->first, stack.top()->first, doc));
+		}
+
+		if((query == AST::EG || query == AST::AF)
+				&& (stack.size() > 1 && stack.top()->first->equals(*m->first))){
+			root->append_node(doc.allocate_node(node_element, "loop"));
+			foundLoop = true;
 		}
 
 		if(stack.size() > 1 && stack.top()->second > 0){
@@ -27,8 +36,7 @@ void TimeDartVerification::PrintXMLTrace(TraceList* m, std::stack<TraceList*>& s
 			stack.top()->first->incrementAge(stack.top()->second);
 		}
 
-
-		if((query == AST::EG || query == AST::AF)
+		if((query == AST::EG || query == AST::AF) && stack.top()->second == 0
 				&& (stack.size() > 1 && stack.top()->first->equals(*m->first))){
 			root->append_node(doc.allocate_node(node_element, "loop"));
 			foundLoop = true;

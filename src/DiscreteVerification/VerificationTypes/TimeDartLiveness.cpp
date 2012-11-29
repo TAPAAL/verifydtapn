@@ -45,7 +45,7 @@ bool TimeDartLiveness::Verify(){
 		trace.push(traceDart);
 
 		if(canDelayForever(waitingDart.dart->getBase())){
-			lastMarking = new TraceList(waitingDart.dart->getBase(), waitingDart.start);
+			lastMarking = new TraceList(new NonStrictMarking(*waitingDart.dart->getBase()), waitingDart.start);
 			return true;
 		}
 
@@ -206,7 +206,9 @@ bool TimeDartLiveness::addToPW(NonStrictMarking* marking, TimeDart* parent, int 
 
 		if(loop){
 			trace.push(new TraceDart(parent, start, end));
-			lastMarking = new TraceList(new NonStrictMarking(*result.first->getBase()), start);
+			NonStrictMarking* lm = new NonStrictMarking(*result.first->getBase());
+			lm->parent = parent->getBase();
+			lastMarking = new TraceList(lm, start);
 			return true;
 		}
 	}
