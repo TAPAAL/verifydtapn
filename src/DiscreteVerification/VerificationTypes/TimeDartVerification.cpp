@@ -145,7 +145,7 @@ pair<int,int> TimeDartVerification::calculateStart(const TAPN::TimedTransition& 
 		if(arcInterval.upper() == INT_MAX){
 			range = INT_MAX;
 		}else{
-			range = arcInterval.upper()-arcInterval.upper();
+			range = arcInterval.upper()-arcInterval.lower();
 		}
 		int weight = arc->lock()->GetWeight();
 
