@@ -34,7 +34,7 @@ public:
 	inline unsigned int MaxUsedTokens(){ return pwList.maxNumTokensInAnyMarking; };
 
 protected:
-	bool addToPW(NonStrictMarking* marking, TimeDart* parent, int start, int end);
+	bool addToPW(NonStrictMarking* marking, TimeDart* parent, int upper);
 	bool canDelayForever(NonStrictMarking* marking);
 
 protected:
@@ -45,7 +45,6 @@ public:
 	void GetTrace();
 private:
 	TraceList* lastMarking;
-	stack< TraceDart* > trace;
 };
 
 } /* namespace DiscreteVerification */

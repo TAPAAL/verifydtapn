@@ -11,10 +11,10 @@ namespace VerifyTAPN {
 namespace DiscreteVerification {
 
 TimeDartLiveness::TimeDartLiveness(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<WaitingDart>* waiting_list)
-: TimeDartVerification(tapn, options, query, initialMarking), pwList(waiting_list), trace(){}
+: TimeDartVerification(tapn, options, query, initialMarking), pwList(waiting_list){}
 
 bool TimeDartLiveness::Verify(){
-	if(addToPW(&initialMarking, NULL, 0, INT_MAX)){
+	if(addToPW(&initialMarking, NULL, INT_MAX)){
 		return true;
 	}
 
@@ -23,44 +23,46 @@ bool TimeDartLiveness::Verify(){
 		WaitingDart& waitingDart = *pwList.GetNextUnexplored();
 		exploredMarkings++;
 
-#ifdef DEBUG
-		std::cout << "-----------------------------------------------------------------------------\n";
-		std::cout << "Marking: " << *(waitingDart.dart->getBase()) << " waiting: " << waitingDart.dart->getWaiting() << " passed: " << waitingDart.dart->getPassed() << std::endl;
-#endif
-
-		int maxCalculatedEnd = -1;
-
-		TraceDart* traceDart = new TraceDart(waitingDart.parent, waitingDart.start, waitingDart.end);
-
+		// Add trace meta data ("add to trace")
 		if(waitingDart.parent != NULL){
 			if(waitingDart.parent->traceData == NULL){
 				TraceMetaDataList* list = new TraceMetaDataList();
 				waitingDart.parent->traceData = list;
 			}
-#ifdef DEBUG
-			std::cout << "Pushing to this dart: " << *waitingDart.parent->getBase() << std::endl;
-#endif
-			waitingDart.parent->traceData->push_back(traceDart);
+			waitingDart.parent->traceData->push_back(&waitingDart);
 		}
-		trace.push(traceDart);
 
+		// Detect ability to delay forever
 		if(canDelayForever(waitingDart.dart->getBase())){
 			NonStrictMarking* lm = new NonStrictMarking(*waitingDart.dart->getBase());
 			lm->generatedBy = waitingDart.dart->getBase()->generatedBy;
-			lastMarking = new TraceList(lm, waitingDart.start);
+			lastMarking = new TraceList(lm, waitingDart.upper);
 			return true;
 		}
 
+		// Initialize
+		int maxCalculatedEnd = -1;
+
+		// Set passed
 		int passed = waitingDart.dart->getPassed();
+
+		// Skip if already passed
+		if(passed <= waitingDart.w){
+			if(waitingDart.parent != NULL){
+				waitingDart.parent->traceData->pop_back();
+			}
+			delete pwList.PopWaiting();
+			continue;
+		}
+
 		waitingDart.dart->setPassed(waitingDart.w);
+
+		// Iterate over transitions
 		for(TimedTransition::Vector::const_iterator transition_iter = tapn->GetTransitions().begin();
 				transition_iter != tapn->GetTransitions().end(); transition_iter++){
 			TimedTransition& transition = **transition_iter;
 
-#ifdef DEBUG
-			std::cout << "Transition: " << transition << std::endl;
-#endif
-
+			// Calculate enabled set
 			pair<int,int> calculatedStart = calculateStart(transition, waitingDart.dart->getBase());
 			if(calculatedStart.first == -1){	// Transition cannot be enabled in marking
 				continue;
@@ -71,6 +73,7 @@ bool TimeDartLiveness::Verify(){
 				maxCalculatedEnd = calculatedStart.second;
 			}
 
+			// Calculate start and end
 			int start = max(waitingDart.w, calculatedStart.first);
 			int end = min(passed-1, calculatedStart.second);
 			if(start <= end){
@@ -83,7 +86,7 @@ bool TimeDartLiveness::Verify(){
 						if(options.GetTrace() == SOME){
 							(*it)->SetGeneratedBy(&transition);
 						}
-						if(addToPW(*it, waitingDart.dart, start, calculatedStart.second)){
+						if(addToPW(*it, waitingDart.dart, calculatedStart.second)){
 							lastMarking->first->generatedBy = &transition;
 							return true;
 						}
@@ -104,7 +107,7 @@ bool TimeDartLiveness::Verify(){
 							if(options.GetTrace() == SOME){
 								(*it)->SetGeneratedBy(&transition);
 							}
-							if(addToPW(*it, waitingDart.dart, n, _end)){
+							if(addToPW(*it, waitingDart.dart, _end)){
 								lastMarking->first->generatedBy = &transition;
 								return true;
 							}
@@ -114,25 +117,10 @@ bool TimeDartLiveness::Verify(){
 			}
 		}
 
+		// Detect deadlock
 		if(maxCalculatedEnd < maxPossibleDelay(waitingDart.dart->getBase())){
 			lastMarking = new TraceList(waitingDart.dart->getBase(), maxPossibleDelay(waitingDart.dart->getBase()));
 			return true;	/* DEADLOCK! */
-		}
-
-		delete &waitingDart;
-
-		while(trace.top()->successors == 0){
-			TraceDart* tmp = trace.top();
-#ifdef DEBUG
-			if(tmp->parent != NULL) std::cout << "Deleting: " << *tmp->parent->getBase() << std::endl;
-			else std::cout << "Deleting: " << "NULL" << std::endl;
-#endif
-			trace.pop();
-			delete tmp;
-			if(trace.empty()){
-				return false;
-			}
-			trace.top()->successors--;
 		}
 	}
 
@@ -142,19 +130,22 @@ bool TimeDartLiveness::Verify(){
 void TimeDartLiveness::GetTrace(){
 	stack<TraceList*> traceStack;
 
+	std::cout << "Not implemented" << std::endl;
+
 	#if DEBUG
-		std::cout << "Trace size: " << trace.size() << std::endl;
+		//std::cout << "Trace size: " << trace.size() << std::endl;
 		std::cout << "Last marking: " << *lastMarking->first << std::endl;
 	#endif
 
-	traceStack.push(lastMarking);
-	while(!trace.empty()){
-		TraceList* m = new TraceList(trace.top()->parent == NULL? NULL:trace.top()->parent->getBase(), trace.top()->start);
+	/*traceStack.push(lastMarking);
+	WaitingDart* parent = pwList.GetNextUnexplored()->parent->;
+	while(parent != NULL){
+		TraceList* m = new TraceList(parent->dart->getBase(), parent->upper);
 		traceStack.push(m);
-		trace.pop();
+		parent = parent->parent;
 	}
 
-	PrintXMLTrace(lastMarking, traceStack, query->GetQuantifier());
+	PrintXMLTrace(lastMarking, traceStack, query->GetQuantifier());*/
 }
 
 bool TimeDartLiveness::canDelayForever(NonStrictMarking* marking){
@@ -166,7 +157,7 @@ bool TimeDartLiveness::canDelayForever(NonStrictMarking* marking){
 	return true;
 }
 
-bool TimeDartLiveness::addToPW(NonStrictMarking* marking, TimeDart* parent, int start, int end){
+bool TimeDartLiveness::addToPW(NonStrictMarking* marking, TimeDart* parent, int upper){
 	marking->cut();
 
 	unsigned int size = marking->size();
@@ -183,22 +174,17 @@ bool TimeDartLiveness::addToPW(NonStrictMarking* marking, TimeDart* parent, int 
 	boost::any context;
 	query->Accept(checker, context);
 	if(boost::any_cast<bool>(context)) {
-		std::pair<TimeDart*, bool> result = pwList.Add(tapn.get(), marking, youngest, parent, start, end);
-		if(!trace.empty() && result.second){
-			trace.top()->successors++;
-		}
+		std::pair<TimeDart*, bool> result = pwList.Add(tapn.get(), marking, youngest, parent, upper);
 
 		int loop = false;
-		if(parent != NULL && parent->getBase()->equals(*result.first->getBase()) && youngest <= end){
+		if(parent != NULL && parent->getBase()->equals(*result.first->getBase()) && youngest <= upper){
 			loop = true;
 		}
 
-
 		//Find the dart created in the PWList
 		if(result.first->traceData != NULL){
-			std::cout << "TraceData length: " << result.first->traceData->size() << std::endl;
 			for(TraceMetaDataList::const_iterator iter = result.first->traceData->begin(); iter != result.first->traceData->end(); iter++){
-				if((*iter)->parent->getBase()->equals(*result.first->getBase()) && youngest <= (*iter)->end){
+				if((*iter)->parent->getBase()->equals(*result.first->getBase()) && youngest <= (*iter)->upper){
 					loop = true;
 					break;
 				}
@@ -206,10 +192,9 @@ bool TimeDartLiveness::addToPW(NonStrictMarking* marking, TimeDart* parent, int 
 		}
 
 		if(loop){
-			trace.push(new TraceDart(parent, start, end));
 			NonStrictMarking* lm = new NonStrictMarking(*result.first->getBase());
 			lm->parent = parent->getBase();
-			lastMarking = new TraceList(lm, start);
+			lastMarking = new TraceList(lm, upper);
 			return true;
 		}
 	}

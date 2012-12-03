@@ -39,7 +39,7 @@ bool TimeDartPWList::Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarking* marking
 }
 
 TimeDart* TimeDartPWList::GetNextUnexplored(){
-	return waiting_list->Next();
+	return waiting_list->Pop();
 }
 
 TimeDartPWList::~TimeDartPWList() {

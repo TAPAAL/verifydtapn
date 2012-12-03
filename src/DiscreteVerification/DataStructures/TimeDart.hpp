@@ -13,9 +13,9 @@
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
-struct TraceDart;
+struct WaitingDart;
 
-typedef vector<TraceDart*> TraceMetaDataList;
+typedef vector<WaitingDart*> TraceMetaDataList;
 
 class TimeDart {
 public:
@@ -42,42 +42,30 @@ private:
 	int passed;
 };
 
-struct TraceDart{
-	TimeDart* parent;
-	int start;
-	int end;
-	int successors;
-
-	TraceDart(TimeDart* parent, int start, int end) : parent(parent), start(start), end(end), successors(0){
-
-	}
-
-	~TraceDart(){
-		if(parent != NULL && parent->traceData != NULL){
-			for(TraceMetaDataList::iterator iter = parent->traceData->begin(); iter != parent->traceData->end(); iter++){
-				if((*iter) == this){
-					parent->traceData->erase(iter);
-					break;
-				}
-			}
-			if(parent->traceData->empty()){
-				delete parent->traceData;
-				parent->traceData = NULL;
-			}
-		}
-	}
-};
-
 struct WaitingDart{
 	TimeDart* dart;
-	int w;
 	TimeDart* parent;
-	int start;
-	int end;
+	int w;
+	int upper;
 
-	WaitingDart(TimeDart* dart, TimeDart* parent, int w, int start, int end) : dart(dart), w(w), parent(parent), start(start), end(end){
+	WaitingDart(TimeDart* dart, TimeDart* parent, int w, int upper) : dart(dart), parent(parent), w(w), upper(upper){
 
 	}
+
+	~WaitingDart(){
+			if(parent != NULL && parent->traceData != NULL){
+				for(TraceMetaDataList::iterator iter = parent->traceData->begin(); iter != parent->traceData->end(); iter++){
+					if((*iter) == this){
+						parent->traceData->erase(iter);
+						break;
+					}
+				}
+				if(parent->traceData->empty()){
+					delete parent->traceData;
+					parent->traceData = NULL;
+				}
+			}
+		}
 };
 
 }

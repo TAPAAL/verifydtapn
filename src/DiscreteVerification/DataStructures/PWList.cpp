@@ -29,7 +29,7 @@ bool PWList::Add(NonStrictMarking* marking){
 }
 
 NonStrictMarking* PWList::GetNextUnexplored(){
-	return waiting_list->Next();
+	return waiting_list->Pop();
 }
 
 PWList::~PWList() {

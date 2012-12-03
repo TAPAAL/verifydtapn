@@ -34,7 +34,8 @@ public:
 	WaitingList() {};
 	virtual ~WaitingList() {};
 	virtual void Add(T* marking) = 0;
-	virtual T* Next() = 0;
+	virtual T* Peek() = 0;
+	virtual T* Pop() = 0;
 	virtual size_t Size() = 0;
 	template <class S>
 	friend std::ostream& operator<<(std::ostream& out, WaitingList<S>& x);
@@ -47,7 +48,8 @@ public:
 	virtual ~StackWaitingList();
 public:
 	virtual void Add(T* marking);
-	virtual T* Next();
+	virtual T* Peek();
+	virtual T* Pop();
 	virtual size_t Size() { return stack.size(); };
 protected:
 	std::stack<T*> stack;
@@ -74,7 +76,8 @@ public:
 	typedef std::priority_queue<WeightedItem<T>*, std::vector<WeightedItem<T> * >, less<T> > priority_queue;
 	HeuristicStackWaitingList(AST::Query* q) : buffer(), query(normalizeQuery(q)) { };
 	virtual void Add(T* marking);
-	virtual T* Next();
+	virtual T* Peek();
+	virtual T* Pop();
 	virtual size_t Size() { return this->stack.size() +buffer.size(); };
 private:
 	void flushBuffer();
@@ -93,7 +96,8 @@ public:
 	virtual ~QueueWaitingList();
 public:
 	virtual void Add(T* marking);
-	virtual T* Next();
+	virtual T* Peek();
+	virtual T* Pop();
 	virtual size_t Size() { return queue.size(); };
 private:
 	std::queue< T* > queue;
@@ -108,7 +112,8 @@ public:
 	virtual ~HeuristicWaitingList();
 public:
 	virtual void Add(T* marking);
-	virtual T* Next();
+	virtual T* Peek();
+	virtual T* Pop();
 	virtual size_t Size() { return queue.size(); };
 private:
 	AST::Query* normalizeQuery(AST::Query* q);
@@ -127,7 +132,8 @@ public:
 	virtual ~RandomStackWaitingList();
 public:
 	virtual void Add(T* marking);
-	virtual T* Next();
+	virtual T* Peek();
+	virtual T* Pop();
 	virtual size_t Size() { return this->stack.size()+buffer.size(); };
 private:
 	int calculateWeight(T* marking);
@@ -144,7 +150,8 @@ public:
 	virtual ~RandomWaitingList();
 public:
 	virtual void Add(T* marking);
-	virtual T* Next();
+	virtual T* Peek();
+	virtual T* Pop();
 	virtual size_t Size() { return queue.size(); };
 private:
 	int calculateWeight(T* marking);
@@ -160,10 +167,17 @@ void StackWaitingList<T>::Add(T* marking)
 }
 
 template <class T>
-T* StackWaitingList<T>::Next()
+T* StackWaitingList<T>::Pop()
 {
 	T* marking = stack.top();
 	stack.pop();
+	return marking;
+}
+
+template <class T>
+T* StackWaitingList<T>::Peek()
+{
+	T* marking = stack.top();
 	return marking;
 }
 
@@ -199,11 +213,19 @@ void HeuristicStackWaitingList<T>::flushBuffer(){
 }
 
 template <class T>
-T* HeuristicStackWaitingList<T>::Next()
+T* HeuristicStackWaitingList<T>::Pop()
 {
 	flushBuffer();
 	T* marking = this->stack.top();
 	this->stack.pop();
+	return marking;
+}
+
+template <class T>
+T* HeuristicStackWaitingList<T>::Peek()
+{
+	flushBuffer();
+	T* marking = this->stack.top();
 	return marking;
 }
 
@@ -242,10 +264,17 @@ void QueueWaitingList<T>::Add(T* marking)
 }
 
 template <class T>
-T* QueueWaitingList<T>::Next()
+T* QueueWaitingList<T>::Pop()
 {
 	T* marking = queue.front();
 	queue.pop();
+	return marking;
+}
+
+template <class T>
+T* QueueWaitingList<T>::Peek()
+{
+	T* marking = queue.front();
 	return marking;
 }
 
@@ -267,11 +296,19 @@ void HeuristicWaitingList<T>::Add(T* marking)
 }
 
 template <class T>
-T* HeuristicWaitingList<T>::Next()
+T* HeuristicWaitingList<T>::Pop()
 {
 	WeightedItem<T>* weighted_item = queue.top();
 	T* marking = weighted_item->marking;
 	queue.pop();
+	return marking;
+}
+
+template <class T>
+T* HeuristicWaitingList<T>::Peek()
+{
+	WeightedItem<T>* weighted_item = queue.top();
+	T* marking = weighted_item->marking;
 	return marking;
 }
 
@@ -314,11 +351,19 @@ void RandomWaitingList<T>::Add(T* marking)
 }
 
 template <class T>
-T* RandomWaitingList<T>::Next()
+T* RandomWaitingList<T>::Pop()
 {
 	WeightedItem<T>* weighted_item = queue.top();
 	T* marking = weighted_item->marking;
 	queue.pop();
+	return marking;
+}
+
+template <class T>
+T* RandomWaitingList<T>::Peek()
+{
+	WeightedItem<T>* weighted_item = queue.top();
+	T* marking = weighted_item->marking;
 	return marking;
 }
 
@@ -354,11 +399,19 @@ void RandomStackWaitingList<T>::flushBuffer(){
 }
 
 template <class T>
-T* RandomStackWaitingList<T>::Next()
+T* RandomStackWaitingList<T>::Pop()
 {
 	flushBuffer();
 	T* marking = this->stack.top();
 	this->stack.pop();
+	return marking;
+}
+
+template <class T>
+T* RandomStackWaitingList<T>::Peek()
+{
+	flushBuffer();
+	T* marking = this->stack.top();
 	return marking;
 }
 
