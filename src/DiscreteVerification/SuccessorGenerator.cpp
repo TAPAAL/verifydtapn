@@ -181,7 +181,7 @@ bool SuccessorGenerator::incrementModificationVector(vector<unsigned int >& modi
 	for(int i = modificationVectorSize-1; i >= 0; i--){
 
 		//Possible to increment index
-		if(modificationVector[i] < numOfTokenIndices-1){
+		if(modificationVector[i] < numOfTokenIndices-1 && refrences[modificationVector.at(i)+1] > 0){
 			//Increment index
 			refrences[modificationVector.at(i)]++;
 			modificationVector.at(i)++;
