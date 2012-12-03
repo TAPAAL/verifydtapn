@@ -164,7 +164,8 @@ void SuccessorGenerator::recursiveGenerateMarking(vector<NonStrictMarking>& resu
 bool SuccessorGenerator::incrementModificationVector(vector<unsigned int >& modificationVector, TokenList& enabledTokens) const{
 	unsigned int numOfTokenIndices = enabledTokens.size();
 
-	unsigned int refrences[numOfTokenIndices];
+	unsigned int* refrences = new unsigned int[numOfTokenIndices];
+	unsigned int* org_refrences = new unsigned int[numOfTokenIndices];
 
 	for(unsigned int i = 0; i < enabledTokens.size(); i++){
 		refrences[i] = enabledTokens[i].getCount();
@@ -174,6 +175,8 @@ bool SuccessorGenerator::incrementModificationVector(vector<unsigned int >& modi
 		refrences[modificationVector[i]]--;
 	}
 
+	memcpy(org_refrences, refrences, sizeof(unsigned int)*numOfTokenIndices);
+
 	int modificationVectorSize = modificationVector.size();
 
 	vector<unsigned int> tmp = modificationVector;
@@ -181,7 +184,7 @@ bool SuccessorGenerator::incrementModificationVector(vector<unsigned int >& modi
 	for(int i = modificationVectorSize-1; i >= 0; i--){
 
 		//Possible to increment index
-		if(modificationVector[i] < numOfTokenIndices-1 && refrences[modificationVector.at(i)+1] > 0){
+		if(modificationVector[i] < numOfTokenIndices-1 && org_refrences[modificationVector.at(i)+1] > 0){
 			//Increment index
 			refrences[modificationVector.at(i)]++;
 			modificationVector.at(i)++;
@@ -197,6 +200,8 @@ bool SuccessorGenerator::incrementModificationVector(vector<unsigned int >& modi
 						toSet++;
 						if(toSet >= numOfTokenIndices){
 							modificationVector = tmp;
+							delete [] refrences;
+							delete [] org_refrences;
 							return false;
 						}
 					}
@@ -206,15 +211,17 @@ bool SuccessorGenerator::incrementModificationVector(vector<unsigned int >& modi
 					modificationVector[i] = toSet;
 				}
 			}
+			delete [] refrences;
+			delete [] org_refrences;
 			return true;
 		}else{
 			// Free index
 			refrences[modificationVector[i]]++;
-			// Change index
-			i--;
 		}
 	}
 	modificationVector = tmp;
+	delete [] refrences;
+	delete [] org_refrences;
 	return false;
 }
 
