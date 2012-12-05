@@ -127,43 +127,42 @@ option SwitchWithStringArg::Parse(const std::string& flag) {
 ;
 
 void ArgsParser::Initialize() {
-	// NOTE: The Help() function only splits and indents descriptions based on newlines.
-	//       Each line in the description is assumed to fit within the remaining width
-	//       of the console, so keep descriptions short, or implement manual word-wrapping :).
-	parsers.push_back(
-			boost::make_shared<SwitchWithArg>("k", KBOUND_OPTION,
-					"Max tokens to use during exploration.", 0));
-	parsers.push_back(
-			boost::make_shared<SwitchWithArg>("o", SEARCH_OPTION,
-					"Specify the desired search strategy.\n - 0: Breadth-First Search\n - 1: Depth-First Search\n - 2: Random Search\n - 3: Heuristic Search",
-					3));
-	parsers.push_back(
-				boost::make_shared<SwitchWithArg>("m", VERIFICATION_OPTION,
-						"Specify the desired verification method.\n - 0: Default (discrete)\n - 1: Time Darts",
-						0));	// TODO change to 0!
-        parsers.push_back(
-                            boost::make_shared<SwitchWithArg > ("p", MEMORY_OPTIMIZATION_OPTION,
-                            "Specify the desired memory optimization.\n - 0: None \n - 1: PData",
-                            0));
-	parsers.push_back(
-			boost::make_shared<SwitchWithArg>("t", TRACE_OPTION,
-					"Specify the desired trace option.\n - 0: none\n - 1: some",
-					0));
-	parsers.push_back(
-			boost::make_shared<Switch>("d", KEEP_DEAD,
-					"Do not discard dead tokens\n(used for boundedness checking)"));
-	parsers.push_back(
-			boost::make_shared<Switch>("g", MAX_CONSTANT_OPTION,
-					"Use global maximum constant for \nextrapolation (as opposed to local \nconstants)."));
-	parsers.push_back(
-			boost::make_shared<Switch>("s", LEGACY,
-					"Legacy option (no effect)."));
+    // NOTE: The Help() function only splits and indents descriptions based on newlines.
+    //       Each line in the description is assumed to fit within the remaining width
+    //       of the console, so keep descriptions short, or implement manual word-wrapping :).
+    parsers.push_back(
+            boost::make_shared<SwitchWithArg > ("k", KBOUND_OPTION,
+            "Max tokens to use during exploration.", 0));
+    parsers.push_back(
+            boost::make_shared<SwitchWithArg > ("o", SEARCH_OPTION,
+            "Specify the desired search strategy.\n - 0: Breadth-First Search\n - 1: Depth-First Search\n - 2: Random Search\n - 3: Heuristic Search",
+            3));
+    parsers.push_back(
+            boost::make_shared<SwitchWithArg > ("m", VERIFICATION_OPTION,
+            "Specify the desired verification method.\n - 0: Default (discrete)\n - 1: Time Darts",
+            1)); // TODO change to 0!
+    parsers.push_back(
+            boost::make_shared<SwitchWithArg > ("p", MEMORY_OPTIMIZATION_OPTION,
+            "Specify the desired memory optimization.\n - 0: None \n - 1: PData",
+            0));
+    parsers.push_back(
+            boost::make_shared<SwitchWithArg > ("t", TRACE_OPTION,
+            "Specify the desired trace option.\n - 0: none\n - 1: some",
+            0));
+    parsers.push_back(
+            boost::make_shared<Switch > ("d", KEEP_DEAD,
+            "Do not discard dead tokens\n(used for boundedness checking)"));
+    parsers.push_back(
+            boost::make_shared<Switch > ("g", MAX_CONSTANT_OPTION,
+            "Use global maximum constant for \nextrapolation (as opposed to local \nconstants)."));
+    parsers.push_back(
+            boost::make_shared<Switch > ("s", LEGACY,
+            "Legacy option (no effect)."));
 
-	parsers.push_back(
-			boost::make_shared<Switch>("x", XML_TRACE_OPTION,
-					"Output trace in xml format for TAPAAL."));
-}
-;
+    parsers.push_back(
+            boost::make_shared<Switch > ("x", XML_TRACE_OPTION,
+            "Output trace in xml format for TAPAAL."));
+};
 
 void ArgsParser::Help() const {
 	std::cout

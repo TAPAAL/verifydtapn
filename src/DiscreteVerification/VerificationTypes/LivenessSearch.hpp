@@ -50,7 +50,7 @@ protected:
 	NonStrictMarking& initialMarking;
 	AST::Query* query;
 	VerificationOptions options;
-	SuccessorGenerator successorGenerator;
+	SuccessorGenerator<NonStrictMarking> successorGenerator;
 public:
 	void printStats();
 	void GetTrace();
