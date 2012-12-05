@@ -11,6 +11,7 @@ namespace VerifyTAPN {
 static const std::string KBOUND_OPTION = "k-bound";
 static const std::string SEARCH_OPTION = "search-type";
 static const std::string VERIFICATION_OPTION = "verification-method";
+static const std::string MEMORY_OPTIMIZATION_OPTION = "memory-optimization";
 static const std::string TRACE_OPTION = "trace";
 static const std::string MAX_CONSTANT_OPTION = "global-max-constants";
 static const std::string XML_TRACE_OPTION = "xml-trace";
@@ -140,6 +141,10 @@ void ArgsParser::Initialize() {
 				boost::make_shared<SwitchWithArg>("m", VERIFICATION_OPTION,
 						"Specify the desired verification method.\n - 0: Default (discrete)\n - 1: Time Darts",
 						1));	// TODO change to 0!
+        parsers.push_back(
+                            boost::make_shared<SwitchWithArg > ("p", MEMORY_OPTIMIZATION_OPTION,
+                            "Specify the desired memory optimization.\n - 0: None \n - 1: PData",
+                            0)); // TODO change to 0!
 	parsers.push_back(
 			boost::make_shared<SwitchWithArg>("t", TRACE_OPTION,
 					"Specify the desired trace option.\n - 0: none\n - 1: some",
@@ -292,6 +297,19 @@ VerificationType intToVerificationTypeEnum(int i) {
 	}
 }
 
+MemoryOptimization intToMemoryOptimizationEnum(int i) {
+	switch (i) {
+	case 0:
+		return NO_MEMORY_OPTIMIZATION;
+	case 1:
+		return PDATA;
+	default:
+		std::cout << "Unknown memory optimization specified." << std::endl;
+		exit(1);
+	}
+}
+
+
 Trace intToEnum(int i) {
 	switch (i) {
 	case 0:
@@ -335,7 +353,11 @@ VerificationOptions ArgsParser::CreateVerificationOptions(const option_map& map,
 	assert(map.find(VERIFICATION_OPTION) != map.end());
 	VerificationType verification = intToVerificationTypeEnum(
 			TryParseInt(*map.find(VERIFICATION_OPTION)));
-
+        
+	assert(map.find(MEMORY_OPTIMIZATION_OPTION) != map.end());
+	MemoryOptimization memoptimization = intToMemoryOptimizationEnum(
+			TryParseInt(*map.find(MEMORY_OPTIMIZATION_OPTION)));
+        
 	assert(map.find(TRACE_OPTION) != map.end());
 	Trace trace = intToEnum(TryParseInt(*map.find(TRACE_OPTION)));
 
@@ -350,7 +372,12 @@ VerificationOptions ArgsParser::CreateVerificationOptions(const option_map& map,
 	bool xml_trace = boost::lexical_cast<bool>(
 			map.find(XML_TRACE_OPTION)->second);
 
-	return VerificationOptions(modelFile, queryFile, search, verification, kbound, trace,
+        if(trace == SOME && memoptimization == PDATA){
+            std::cout << "Trace and PData memory optimization options are incompatible" << std::endl;
+            exit(1);
+        }
+        
+	return VerificationOptions(modelFile, queryFile, search, verification, memoptimization, kbound, trace,
 			xml_trace, max_constant, keep_dead);
 }
 }

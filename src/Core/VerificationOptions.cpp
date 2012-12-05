@@ -34,10 +34,22 @@ namespace VerifyTAPN {
 			}
 		}
 
+        std::string MemoryOptimizationEnumToString(MemoryOptimization m){
+            switch(m){
+                case NONE:
+                    return "None";
+                case PDATA:
+                    return "Pdata ";
+                default:
+                    return "None";
+            }
+        }
+        
 	std::ostream& operator<<(std::ostream& out, const VerificationOptions& options)
 	{
 		out << "Search type: " << SearchTypeEnumToString(options.GetSearchType()) << std::endl;
 		out << "Verification method: " << VerificationTypeEnumToString(options.GetVerificationType()) << std::endl;
+                out << "Memory optimization: " << MemoryOptimizationEnumToString(options.GetMemoryOptimization()) << std::endl;
 		out << "k-bound is: " << options.GetKBound() << std::endl;
 		out << "Generating " << enumToString(options.GetTrace()) << " trace";
 		if(options.GetTrace() != NONE) out << " in " << (options.XmlTrace() ? "xml format" : "human readable format");

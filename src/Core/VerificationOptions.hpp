@@ -9,6 +9,7 @@ namespace VerifyTAPN {
 	enum Trace { NONE, SOME };
 	enum SearchType { BREADTHFIRST, DEPTHFIRST, RANDOM, COVERMOST };
 	enum VerificationType { DISCRETE, TIMEDART };
+        enum MemoryOptimization { NO_MEMORY_OPTIMIZATION, PDATA };
 
 	class VerificationOptions {
 		public:
@@ -17,6 +18,7 @@ namespace VerifyTAPN {
 				const std::string& queryFile,
 				SearchType searchType,
 				VerificationType verificationType,
+                                MemoryOptimization memOptimization,
 				unsigned int k_bound,
 				Trace trace,
 				bool xml_trace,
@@ -26,12 +28,15 @@ namespace VerifyTAPN {
 				queryFile(queryFile),
 				searchType(searchType),
 				verificationType(verificationType),
+                                memOptimization(memOptimization),
 				k_bound(k_bound),
 				trace(trace),
 				xml_trace(xml_trace),
 				useGlobalMaxConstants(useGlobalMaxConstants),
 				keepDeadTokens(keepDeadTokens)
-			{ };
+			{ 
+                        
+                        };
 
 		public: // inspectors
 			const std::string GetInputFile() const { return inputFile; }
@@ -42,12 +47,14 @@ namespace VerifyTAPN {
 			inline const bool GetGlobalMaxConstantsEnabled() const { return useGlobalMaxConstants; }
 			inline const SearchType GetSearchType() const { return searchType; }
 			inline const VerificationType GetVerificationType() const { return verificationType; }
+                        inline const MemoryOptimization GetMemoryOptimization() const { return memOptimization; }
 			inline const bool GetKeepDeadTokens() const { return keepDeadTokens; };
 		private:
 			std::string inputFile;
 			std::string queryFile;
 			SearchType searchType;
 			VerificationType verificationType;
+                        MemoryOptimization memOptimization;
 			unsigned int k_bound;
 			Trace trace;
 			bool xml_trace;
