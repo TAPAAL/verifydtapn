@@ -43,7 +43,7 @@ int DiscreteVerification::run(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, s
 	}
 
 	std::cout << options << std::endl;
-	Verification* verifier = NULL;
+	Verification<NonStrictMarking>* verifier = NULL;
 
 	WaitingList<NonStrictMarking>* strategy = NULL;
 	// Select verification method

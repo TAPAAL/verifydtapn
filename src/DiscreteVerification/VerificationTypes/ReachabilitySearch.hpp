@@ -30,7 +30,7 @@
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
-class ReachabilitySearch : public Verification{
+class ReachabilitySearch : public Verification<NonStrictMarking>{
 public:
 	ReachabilitySearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list);
 	virtual ~ReachabilitySearch();

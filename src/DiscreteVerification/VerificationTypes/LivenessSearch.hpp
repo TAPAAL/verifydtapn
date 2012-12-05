@@ -30,7 +30,7 @@
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
-class LivenessSearch : public Verification{
+class LivenessSearch : public Verification<NonStrictMarking>{
 public:
 	LivenessSearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list);
 	virtual ~LivenessSearch();

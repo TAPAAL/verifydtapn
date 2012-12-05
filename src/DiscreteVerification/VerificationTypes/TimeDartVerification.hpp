@@ -16,7 +16,7 @@ using namespace rapidxml;
 
 typedef pair<NonStrictMarking*, int> TraceList;
 
-class TimeDartVerification : public Verification {
+class TimeDartVerification : public Verification<NonStrictMarking> {
 public:
 
 	TimeDartVerification(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, VerificationOptions options, AST::Query* query, NonStrictMarking& initialMarking):
