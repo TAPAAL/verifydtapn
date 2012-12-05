@@ -83,7 +83,7 @@ public:
 	virtual size_t Size() { return this->stack.size() +buffer.size(); };
 	virtual void flushBuffer();
 private:
-	int calculateWeight(NonStrictMarking* marking);
+	int calculateWeight(NonStrictMarkingBase* marking);
 	int calculateWeight(TimeDart* marking);
 	int calculateWeight(WaitingDart* marking);
 	AST::Query* normalizeQuery(AST::Query* q);
@@ -119,7 +119,7 @@ public:
 	virtual size_t Size() { return queue.size(); };
 private:
 	AST::Query* normalizeQuery(AST::Query* q);
-	int calculateWeight(NonStrictMarking* marking);
+	int calculateWeight(NonStrictMarkingBase* marking);
 	int calculateWeight(TimeDart* marking);
 	priority_queue queue;
 	AST::Query* query;
@@ -232,7 +232,7 @@ T* HeuristicStackWaitingList<T>::Peek()
 }
 
 template <class T>
-int HeuristicStackWaitingList<T>::calculateWeight(NonStrictMarking* marking)
+int HeuristicStackWaitingList<T>::calculateWeight(NonStrictMarkingBase* marking)
 {
 	LivenessWeightQueryVisitor weight(*marking);
 	boost::any weight_c;
@@ -315,7 +315,7 @@ T* HeuristicWaitingList<T>::Peek()
 }
 
 template <class T>
-int HeuristicWaitingList<T>::calculateWeight(NonStrictMarking* marking)
+int HeuristicWaitingList<T>::calculateWeight(NonStrictMarkingBase* marking)
 {
 	WeightQueryVisitor weight(*marking);
 	boost::any weight_c;
