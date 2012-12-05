@@ -46,6 +46,11 @@ WaitingDart* TimeDartLivenessPWList::PopWaiting(){
 	return waiting_list->Pop();
 }
 
+void TimeDartLivenessPWList::flushBuffer(){
+	// Flush buffer if w has changed
+	waiting_list->flushBuffer();
+}
+
 
 TimeDartLivenessPWList::~TimeDartLivenessPWList() {
 	// TODO Auto-generated destructor stub

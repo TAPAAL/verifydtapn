@@ -37,6 +37,7 @@ public:
 	virtual T* Peek() = 0;
 	virtual T* Pop() = 0;
 	virtual size_t Size() = 0;
+	virtual void flushBuffer(){};
 	template <class S>
 	friend std::ostream& operator<<(std::ostream& out, WaitingList<S>& x);
 };
@@ -51,6 +52,7 @@ public:
 	virtual T* Peek();
 	virtual T* Pop();
 	virtual size_t Size() { return stack.size(); };
+	virtual void flushBuffer(){};
 protected:
 	std::stack<T*> stack;
 };
@@ -79,8 +81,8 @@ public:
 	virtual T* Peek();
 	virtual T* Pop();
 	virtual size_t Size() { return this->stack.size() +buffer.size(); };
+	virtual void flushBuffer();
 private:
-	void flushBuffer();
 	int calculateWeight(NonStrictMarking* marking);
 	int calculateWeight(TimeDart* marking);
 	int calculateWeight(WaitingDart* marking);
@@ -135,9 +137,9 @@ public:
 	virtual T* Peek();
 	virtual T* Pop();
 	virtual size_t Size() { return this->stack.size()+buffer.size(); };
+	virtual void flushBuffer();
 private:
 	int calculateWeight(T* marking);
-	void flushBuffer();
 	priority_queue buffer;
 };
 
