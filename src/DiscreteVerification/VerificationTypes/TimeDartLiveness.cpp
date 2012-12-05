@@ -10,7 +10,7 @@
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
-TimeDartLiveness::TimeDartLiveness(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<WaitingDart>* waiting_list)
+TimeDartLiveness::TimeDartLiveness(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarkingBase& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<WaitingDart>* waiting_list)
 : TimeDartVerification(tapn, options, query, initialMarking), pwList(waiting_list){}
 
 bool TimeDartLiveness::Verify(){
@@ -34,7 +34,7 @@ bool TimeDartLiveness::Verify(){
 
 		// Detect ability to delay forever
 		if(canDelayForever(waitingDart.dart->getBase())){
-			NonStrictMarking* lm = new NonStrictMarking(*waitingDart.dart->getBase());
+			NonStrictMarkingBase* lm = new NonStrictMarkingBase(*waitingDart.dart->getBase());
 			lm->generatedBy = waitingDart.dart->getBase()->generatedBy;
 			lastMarking = new TraceList(lm, waitingDart.upper);
 			return true;
@@ -79,10 +79,10 @@ bool TimeDartLiveness::Verify(){
 			if(start <= end){
 
 				if(transition.GetPostset().size() == 0 || transition.hasUntimedPostset()){
-					NonStrictMarking Mpp(*waitingDart.dart->getBase());
+					NonStrictMarkingBase Mpp(*waitingDart.dart->getBase());
 					Mpp.incrementAge(start);
-					vector<NonStrictMarking*> next = getPossibleNextMarkings(Mpp, transition);
-					for(vector<NonStrictMarking*>::iterator it = next.begin(); it != next.end(); it++){
+					vector<NonStrictMarkingBase*> next = getPossibleNextMarkings(Mpp, transition);
+					for(vector<NonStrictMarkingBase*>::iterator it = next.begin(); it != next.end(); it++){
 						if(options.GetTrace() == SOME){
 							(*it)->SetGeneratedBy(&transition);
 						}
@@ -95,15 +95,15 @@ bool TimeDartLiveness::Verify(){
 					int stop = max(start, calculateStop(transition, waitingDart.dart->getBase()));
 					int finalStop = min(stop, end);
 					for(int n = start; n <= finalStop; n++){
-						NonStrictMarking Mpp(*waitingDart.dart->getBase());
+						NonStrictMarkingBase Mpp(*waitingDart.dart->getBase());
 						Mpp.incrementAge(n);
 						int _end = n;
 						if(n == stop){
 							_end = calculatedStart.second;
 						}
 
-						vector<NonStrictMarking*> next = getPossibleNextMarkings(Mpp, transition);
-						for(vector<NonStrictMarking*>::iterator it = next.begin(); it != next.end(); it++){
+						vector<NonStrictMarkingBase*> next = getPossibleNextMarkings(Mpp, transition);
+						for(vector<NonStrictMarkingBase*>::iterator it = next.begin(); it != next.end(); it++){
 							if(options.GetTrace() == SOME){
 								(*it)->SetGeneratedBy(&transition);
 							}
@@ -148,7 +148,7 @@ void TimeDartLiveness::GetTrace(){
 	PrintXMLTrace(lastMarking, traceStack, query->GetQuantifier());*/
 }
 
-bool TimeDartLiveness::canDelayForever(NonStrictMarking* marking){
+bool TimeDartLiveness::canDelayForever(NonStrictMarkingBase* marking){
 	for(PlaceList::const_iterator p_iter = marking->GetPlaceList().begin(); p_iter != marking->GetPlaceList().end(); p_iter++){
 		if(p_iter->place->GetInvariant().GetBound() < INT_MAX){
 			return false;
@@ -157,7 +157,7 @@ bool TimeDartLiveness::canDelayForever(NonStrictMarking* marking){
 	return true;
 }
 
-bool TimeDartLiveness::addToPW(NonStrictMarking* marking, TimeDart* parent, int upper){
+bool TimeDartLiveness::addToPW(NonStrictMarkingBase* marking, TimeDart* parent, int upper){
 	marking->cut();
 
 	unsigned int size = marking->size();
@@ -170,7 +170,7 @@ bool TimeDartLiveness::addToPW(NonStrictMarking* marking, TimeDart* parent, int 
 
 	int youngest = marking->makeBase(tapn.get());
 
-	QueryVisitor checker(*marking);
+	QueryVisitor<NonStrictMarkingBase> checker(*marking);
 	boost::any context;
 	query->Accept(checker, context);
 	if(boost::any_cast<bool>(context)) {
@@ -192,7 +192,7 @@ bool TimeDartLiveness::addToPW(NonStrictMarking* marking, TimeDart* parent, int 
 		}
 
 		if(loop){
-			NonStrictMarking* lm = new NonStrictMarking(*result.first->getBase());
+			NonStrictMarkingBase* lm = new NonStrictMarkingBase(*result.first->getBase());
 			lm->parent = parent->getBase();
 			lastMarking = new TraceList(lm, upper);
 			return true;

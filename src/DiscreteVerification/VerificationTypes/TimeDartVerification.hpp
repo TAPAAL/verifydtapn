@@ -2,7 +2,7 @@
 #define TIMEDARTVERIFICATION_HPP_
 
 #include "../../Core/TAPN/TAPN.hpp"
-#include "../DataStructures/NonStrictMarking.hpp"
+#include "../DataStructures/NonStrictMarkingBase.hpp"
 #include "../Util/IntervalOps.hpp"
 #include "../TimeDartSuccessorGenerator.hpp"
 #include "Verification.hpp"
@@ -14,12 +14,12 @@ namespace DiscreteVerification {
 
 using namespace rapidxml;
 
-typedef pair<NonStrictMarking*, int> TraceList;
+typedef pair<NonStrictMarkingBase*, int> TraceList;
 
-class TimeDartVerification : public Verification<NonStrictMarking> {
+class TimeDartVerification : public Verification<NonStrictMarkingBase> {
 public:
 
-	TimeDartVerification(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, VerificationOptions options, AST::Query* query, NonStrictMarking& initialMarking):
+	TimeDartVerification(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, VerificationOptions options, AST::Query* query, NonStrictMarkingBase& initialMarking):
 		query(query), options(options), tapn(tapn), initialMarking(initialMarking), exploredMarkings(0), allwaysEnabled(), successorGenerator(*tapn.get()){
 
 		//Find the transitions which don't have input arcs
@@ -30,10 +30,10 @@ public:
 		}
 	}
 
-	std::pair<int, int> calculateStart(const TAPN::TimedTransition& transition, NonStrictMarking* marking);
-	int calculateStop(const TAPN::TimedTransition& transition, NonStrictMarking* marking);
-	int maxPossibleDelay(NonStrictMarking* marking);
-	vector<NonStrictMarking*> getPossibleNextMarkings(NonStrictMarking& marking, const TimedTransition& transition);
+	std::pair<int, int> calculateStart(const TAPN::TimedTransition& transition, NonStrictMarkingBase* marking);
+	int calculateStop(const TAPN::TimedTransition& transition, NonStrictMarkingBase* marking);
+	int maxPossibleDelay(NonStrictMarkingBase* marking);
+	vector<NonStrictMarkingBase*> getPossibleNextMarkings(NonStrictMarkingBase& marking, const TimedTransition& transition);
 	void PrintXMLTrace(TraceList* m, std::stack<TraceList*>& stack, Quantifier query);
 	void PrintTransitionStatistics() const { successorGenerator.PrintTransitionStatistics(std::cout); }
 
@@ -41,7 +41,7 @@ protected:
 	AST::Query* query;
 	VerificationOptions options;
 	boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn;
-	NonStrictMarking& initialMarking;
+	NonStrictMarkingBase& initialMarking;
 	int exploredMarkings;
 	vector<const TAPN::TimedTransition*> allwaysEnabled;
 

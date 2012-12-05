@@ -17,7 +17,7 @@
 #include "../../Core/VerificationOptions.hpp"
 #include "../QueryVisitor.hpp"
 #include "boost/any.hpp"
-#include "../DataStructures/NonStrictMarking.hpp"
+#include "../DataStructures/NonStrictMarkingBase.hpp"
 #include <stack>
 #include "TimeDartVerification.hpp"
 #include "../DataStructures/TimeDart.hpp"
@@ -28,14 +28,14 @@ namespace DiscreteVerification {
 
 class TimeDartLiveness : public TimeDartVerification{
 public:
-	TimeDartLiveness(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<WaitingDart>* waiting_list);
+	TimeDartLiveness(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarkingBase& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<WaitingDart>* waiting_list);
 	virtual ~TimeDartLiveness();
 	bool Verify();
 	inline unsigned int MaxUsedTokens(){ return pwList.maxNumTokensInAnyMarking; };
 
 protected:
-	bool addToPW(NonStrictMarking* marking, TimeDart* parent, int upper);
-	bool canDelayForever(NonStrictMarking* marking);
+	bool addToPW(NonStrictMarkingBase* marking, TimeDart* parent, int upper);
+	bool canDelayForever(NonStrictMarkingBase* marking);
 
 protected:
 	int validChildren;

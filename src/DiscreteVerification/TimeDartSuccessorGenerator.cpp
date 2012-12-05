@@ -25,8 +25,8 @@ TimeDartSuccessorGenerator::TimeDartSuccessorGenerator(TAPN::TimedArcPetriNet& t
 	}
 }
 
-vector< NonStrictMarking* > TimeDartSuccessorGenerator::generateSuccessors(const NonStrictMarking& marking, const TimedTransition& transition) const{
-	vector< NonStrictMarking* > result;
+vector< NonStrictMarkingBase* > TimeDartSuccessorGenerator::generateSuccessors(const NonStrictMarkingBase& marking, const TimedTransition& transition) const{
+	vector< NonStrictMarkingBase* > result;
 	ArcHashMap enabledArcs(transition.GetPresetSize() + transition.GetTransportArcs().size());
 
 	// Calculate enabling tokens
@@ -60,7 +60,7 @@ void TimeDartSuccessorGenerator::processArc(
 }
 
 
-TokenList TimeDartSuccessorGenerator::getPlaceFromMarking(const NonStrictMarking& marking, int placeID) const{
+TokenList TimeDartSuccessorGenerator::getPlaceFromMarking(const NonStrictMarkingBase& marking, int placeID) const{
 	for(PlaceList::const_iterator iter = marking.GetPlaceList().begin();
 			iter != marking.GetPlaceList().end();
 			iter++){
@@ -69,7 +69,7 @@ TokenList TimeDartSuccessorGenerator::getPlaceFromMarking(const NonStrictMarking
 	return TokenList();
 }
 
-void TimeDartSuccessorGenerator::generateMarkings(vector<NonStrictMarking*>& result, const NonStrictMarking& init_marking,
+void TimeDartSuccessorGenerator::generateMarkings(vector<NonStrictMarkingBase*>& result, const NonStrictMarkingBase& init_marking,
 		const TimedTransition& transition, ArcHashMap& enabledArcs) const {
 
 		bool inhibited = false;
@@ -84,19 +84,19 @@ void TimeDartSuccessorGenerator::generateMarkings(vector<NonStrictMarking*>& res
 		}
 		if (inhibited) return;
 
-		NonStrictMarking m(init_marking);
+		NonStrictMarkingBase m(init_marking);
 		m.SetGeneratedBy(&transition);
 		//Generate markings for transition
 		recursiveGenerateMarking(result, m, transition, 0, enabledArcs);
 }
 
 
-void TimeDartSuccessorGenerator::recursiveGenerateMarking(vector<NonStrictMarking*>& result, NonStrictMarking& init_marking, const TimedTransition& transition, unsigned int index, ArcHashMap& enabledArcs) const{
+void TimeDartSuccessorGenerator::recursiveGenerateMarking(vector<NonStrictMarkingBase*>& result, NonStrictMarkingBase& init_marking, const TimedTransition& transition, unsigned int index, ArcHashMap& enabledArcs) const{
 
 	// Initialize vectors
 	ArcAndTokensVector indicesOfCurrentPermutation;
 	for(TimedInputArc::WeakPtrVector::const_iterator iter = transition.GetPreset().begin(); iter != transition.GetPreset().end(); iter++){
-		InputArcAndTokens* arcAndTokens = new InputArcAndTokens(*iter, enabledArcs[iter->lock().get()]);
+		InputArcAndTokens<NonStrictMarkingBase>* arcAndTokens = new InputArcAndTokens<NonStrictMarkingBase>(*iter, enabledArcs[iter->lock().get()]);
 		if(arcAndTokens->isOK){
 			indicesOfCurrentPermutation.push_back(arcAndTokens);
 		}else{
@@ -105,7 +105,7 @@ void TimeDartSuccessorGenerator::recursiveGenerateMarking(vector<NonStrictMarkin
 	}
 	// Transport arcs
 	for(TransportArc::WeakPtrVector::const_iterator iter = transition.GetTransportArcs().begin(); iter != transition.GetTransportArcs().end(); iter++){
-		TransportArcAndTokens* arcAndTokens = new TransportArcAndTokens(*iter, enabledArcs[iter->lock().get()]);
+		TransportArcAndTokens<NonStrictMarkingBase>* arcAndTokens = new TransportArcAndTokens<NonStrictMarkingBase>(*iter, enabledArcs[iter->lock().get()]);
 		if(arcAndTokens->isOK){
 			indicesOfCurrentPermutation.push_back(arcAndTokens);
 		}else{
@@ -198,8 +198,8 @@ bool TimeDartSuccessorGenerator::incrementModificationVector(vector<unsigned int
 	return false;
 }
 
-void TimeDartSuccessorGenerator::addMarking(vector<NonStrictMarking* >& result, NonStrictMarking& init_marking, const TimedTransition& transition, ArcAndTokensVector& indicesOfCurrentPermutation) const{
-	NonStrictMarking* m = new NonStrictMarking(init_marking);
+void TimeDartSuccessorGenerator::addMarking(vector<NonStrictMarkingBase* >& result, NonStrictMarkingBase& init_marking, const TimedTransition& transition, ArcAndTokensVector& indicesOfCurrentPermutation) const{
+	NonStrictMarkingBase* m = new NonStrictMarkingBase(init_marking);
 	for(ArcAndTokensVector::iterator iter = indicesOfCurrentPermutation.begin(); iter != indicesOfCurrentPermutation.end(); iter++){
 		vector<unsigned int>& tokens = iter->modificationVector;
 

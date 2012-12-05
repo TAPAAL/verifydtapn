@@ -123,7 +123,7 @@ void SuccessorGenerator::recursiveGenerateMarking(vector<NonStrictMarking>& resu
 	// Initialize vectors
 	ArcAndTokensVector indicesOfCurrentPermutation;
 	for(TimedInputArc::WeakPtrVector::const_iterator iter = transition.GetPreset().begin(); iter != transition.GetPreset().end(); iter++){
-		InputArcAndTokens* arcAndTokens = new InputArcAndTokens(*iter, enabledArcs[iter->lock().get()]);
+		InputArcAndTokens<NonStrictMarking>* arcAndTokens = new InputArcAndTokens<NonStrictMarking>(*iter, enabledArcs[iter->lock().get()]);
 		if(arcAndTokens->isOK){
 			indicesOfCurrentPermutation.push_back(arcAndTokens);
 		}else{
@@ -132,7 +132,7 @@ void SuccessorGenerator::recursiveGenerateMarking(vector<NonStrictMarking>& resu
 	}
 	// Transport arcs
 	for(TransportArc::WeakPtrVector::const_iterator iter = transition.GetTransportArcs().begin(); iter != transition.GetTransportArcs().end(); iter++){
-		TransportArcAndTokens* arcAndTokens = new TransportArcAndTokens(*iter, enabledArcs[iter->lock().get()]);
+		TransportArcAndTokens<NonStrictMarking>* arcAndTokens = new TransportArcAndTokens<NonStrictMarking>(*iter, enabledArcs[iter->lock().get()]);
 		if(arcAndTokens->isOK){
 			indicesOfCurrentPermutation.push_back(arcAndTokens);
 		}else{

@@ -42,7 +42,9 @@ struct TransportArcRef : ArcRef{
 	boost::weak_ptr<TransportArc> arc;
 };
 
-struct ArcAndTokens{
+template<typename T>
+class ArcAndTokens{
+    public:
 	TokenList enabledBy;
 	vector<unsigned int > modificationVector;
 	bool isOK;
@@ -57,7 +59,7 @@ struct ArcAndTokens{
 
 	virtual ~ArcAndTokens(){}
 
-	virtual void moveToken(Token& token, NonStrictMarking& m) = 0;
+	virtual void moveToken(Token& token, T& m) = 0;
 
 	void clearModificationVector(){
 		modificationVector.clear();
@@ -82,30 +84,34 @@ struct ArcAndTokens{
 	}
 };
 
-struct InputArcAndTokens : ArcAndTokens{
+template<typename T>
+class InputArcAndTokens : public ArcAndTokens<T>{
+public:
 	boost::weak_ptr<TimedInputArc> arc;
 
 	InputArcAndTokens(boost::weak_ptr<TimedInputArc> arc, TokenList enabledBy, vector<unsigned int > modificationVector)
-	: ArcAndTokens(enabledBy, modificationVector), arc(arc){}
+	: ArcAndTokens<T>(enabledBy, modificationVector), arc(arc){}
 
 	InputArcAndTokens(boost::weak_ptr<TimedInputArc> arc, TokenList enabledBy)
-		: ArcAndTokens(enabledBy, arc.lock()->GetWeight()), arc(arc){}
+		: ArcAndTokens<T>(enabledBy, arc.lock()->GetWeight()), arc(arc){}
 
-	void moveToken(Token& token, NonStrictMarking& m){
+	void moveToken(Token& token, T& m){
 		m.RemoveToken(arc.lock()->InputPlace().GetIndex(), token.getAge());
 	}
 };
 
-struct TransportArcAndTokens : ArcAndTokens{
+template<typename T>
+class TransportArcAndTokens : public ArcAndTokens<T>{
+    public:
 	boost::weak_ptr<TransportArc> arc;
 
 	TransportArcAndTokens(boost::weak_ptr<TransportArc> arc, TokenList enabledBy, vector<unsigned int > modificationVector)
-	: ArcAndTokens(enabledBy, modificationVector),  arc(arc){}
+	: ArcAndTokens<T>(enabledBy, modificationVector),  arc(arc){}
 
 	TransportArcAndTokens(boost::weak_ptr<TransportArc> arc, TokenList enabledBy)
-		: ArcAndTokens(enabledBy, arc.lock()->GetWeight()),  arc(arc){}
+		: ArcAndTokens<T>(enabledBy, arc.lock()->GetWeight()),  arc(arc){}
 
-	void moveToken(Token& token, NonStrictMarking& m){
+	void moveToken(Token& token, T& m){
 		m.RemoveToken(arc.lock()->Source().GetIndex(), token.getAge());
 		m.AddTokenInPlace(arc.lock()->Destination(), token);
 	}
@@ -113,7 +119,7 @@ struct TransportArcAndTokens : ArcAndTokens{
 
 class SuccessorGenerator {
 	typedef google::sparse_hash_map<const void*, TokenList> ArcHashMap;
-	typedef boost::ptr_vector< ArcAndTokens > ArcAndTokensVector;
+	typedef boost::ptr_vector< ArcAndTokens<NonStrictMarking> > ArcAndTokensVector;
 
 public:
 	SuccessorGenerator(TAPN::TimedArcPetriNet& tapn);

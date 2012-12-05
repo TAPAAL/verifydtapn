@@ -73,7 +73,7 @@ void TimeDartVerification::PrintXMLTrace(TraceList* m, std::stack<TraceList*>& s
 	std::cerr << doc;
 }
 
-pair<int,int> TimeDartVerification::calculateStart(const TAPN::TimedTransition& transition, NonStrictMarking* marking){
+pair<int,int> TimeDartVerification::calculateStart(const TAPN::TimedTransition& transition, NonStrictMarkingBase* marking){
 	vector<Util::interval > start;
 	Util::interval initial(0, INT_MAX);
 	start.push_back(initial);
@@ -196,7 +196,7 @@ pair<int,int> TimeDartVerification::calculateStart(const TAPN::TimedTransition& 
 	}
 }
 
-int TimeDartVerification::calculateStop(const TAPN::TimedTransition& transition, NonStrictMarking* marking){
+int TimeDartVerification::calculateStop(const TAPN::TimedTransition& transition, NonStrictMarkingBase* marking){
 	int MC = -1;
 
 	unsigned int i = 0;
@@ -214,7 +214,7 @@ int TimeDartVerification::calculateStop(const TAPN::TimedTransition& transition,
 	return MC+1;
 }
 
-int TimeDartVerification::maxPossibleDelay(NonStrictMarking* marking){
+int TimeDartVerification::maxPossibleDelay(NonStrictMarkingBase* marking){
 	int invariantPart = INT_MAX;
 
 	for(PlaceList::const_iterator iter = marking->GetPlaceList().begin(); iter != marking->GetPlaceList().end(); iter++){
@@ -226,7 +226,7 @@ int TimeDartVerification::maxPossibleDelay(NonStrictMarking* marking){
 	return invariantPart;
 }
 
-vector<NonStrictMarking*> TimeDartVerification::getPossibleNextMarkings(NonStrictMarking& marking, const TAPN::TimedTransition& transition){
+vector<NonStrictMarkingBase*> TimeDartVerification::getPossibleNextMarkings(NonStrictMarkingBase& marking, const TAPN::TimedTransition& transition){
 	return successorGenerator.generateSuccessors(marking, transition);
 }
 

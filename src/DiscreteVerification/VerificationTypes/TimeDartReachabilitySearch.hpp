@@ -17,7 +17,7 @@
 #include "../../Core/VerificationOptions.hpp"
 #include "../QueryVisitor.hpp"
 #include "boost/any.hpp"
-#include "../DataStructures/NonStrictMarking.hpp"
+#include "../DataStructures/NonStrictMarkingBase.hpp"
 #include <stack>
 #include "TimeDartVerification.hpp"
 #include "../DataStructures/TimeDart.hpp"
@@ -30,15 +30,15 @@ using namespace rapidxml;
 
 class TimeDartReachabilitySearch : public TimeDartVerification{
 public:
-	TimeDartReachabilitySearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<TimeDart>* waiting_list);
+	TimeDartReachabilitySearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarkingBase& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<TimeDart>* waiting_list);
 	virtual ~TimeDartReachabilitySearch();
 	bool Verify();
-	NonStrictMarking* GetLastMarking() { return lastMarking; }
+	NonStrictMarkingBase* GetLastMarking() { return lastMarking; }
 	inline unsigned int MaxUsedTokens(){ return pwList.maxNumTokensInAnyMarking; };
 
 protected:
-	bool addToPW(NonStrictMarking* marking);
-	void addToTrace(NonStrictMarking* marking, NonStrictMarking* parent, int d);
+	bool addToPW(NonStrictMarkingBase* marking);
+	void addToTrace(NonStrictMarkingBase* marking, NonStrictMarkingBase* parent, int d);
 
 protected:
 	int validChildren;
@@ -48,8 +48,8 @@ public:
 	void printStats();
 	void GetTrace();
 private:
-	NonStrictMarking* lastMarking;
-	google::sparse_hash_map<NonStrictMarking*, TraceList > trace;
+	NonStrictMarkingBase* lastMarking;
+	google::sparse_hash_map<NonStrictMarkingBase*, TraceList > trace;
 };
 
 } /* namespace DiscreteVerification */
