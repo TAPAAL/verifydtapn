@@ -112,6 +112,8 @@ bool TimeDartLiveness::Verify(){
 								return true;
 							}
 						}
+
+						pwList.flushBuffer();
 					}
 				}
 			}

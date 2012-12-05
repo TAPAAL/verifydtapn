@@ -11,8 +11,7 @@
 #include "WaitingList.hpp"
 #include <iostream>
 #include "google/sparse_hash_map"
-#include  "NonStrictMarking.hpp"
-#include "NonStrictMarking.hpp"
+#include "NonStrictMarkingBase.hpp"
 #include "WaitingList.hpp"
 #include "TimeDart.hpp"
 
@@ -38,7 +37,7 @@ public: // inspectors
 	};
 
 public: // modifiers
-	virtual bool Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarking* marking);
+	virtual bool Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* marking);
 	virtual TimeDart* GetNextUnexplored();
 	inline void SetMaxNumTokensIfGreater(int i){ if(i>maxNumTokensInAnyMarking) maxNumTokensInAnyMarking = i; };
 

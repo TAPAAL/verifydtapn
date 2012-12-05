@@ -19,14 +19,14 @@ typedef vector<WaitingDart*> TraceMetaDataList;
 
 class TimeDart {
 public:
-	TimeDart(NonStrictMarking* base, int waiting, int passed)
+	TimeDart(NonStrictMarkingBase* base, int waiting, int passed)
 		: traceData(NULL), base(base), waiting(waiting), passed(passed){
 	}
 	~TimeDart(){
 	}
 
 	//Getters
-	inline NonStrictMarking* getBase(){ return base; }
+	inline NonStrictMarkingBase* getBase(){ return base; }
 	inline int getWaiting(){ return waiting; }
 	inline int getPassed(){ return passed; }
 
@@ -37,7 +37,7 @@ public:
 	TraceMetaDataList* traceData;
 
 private:
-	NonStrictMarking* base;
+	NonStrictMarkingBase* base;
 	int waiting;
 	int passed;
 };
