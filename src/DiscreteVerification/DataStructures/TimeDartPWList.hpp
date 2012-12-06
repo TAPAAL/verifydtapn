@@ -14,42 +14,92 @@
 #include "NonStrictMarkingBase.hpp"
 #include "WaitingList.hpp"
 #include "TimeDart.hpp"
+#include "PData.h"
 
 namespace VerifyTAPN {
-namespace DiscreteVerification {
-class TimeDartPWList {
-public:
-	typedef std::vector<TimeDart*> NonStrictMarkingList;
-	typedef google::sparse_hash_map<size_t, NonStrictMarkingList> HashMap;
-public:
-	TimeDartPWList() : markings_storage(256000), waiting_list(), discoveredMarkings(0), maxNumTokensInAnyMarking(-1) {};
-	TimeDartPWList(WaitingList<TimeDart>* w_l) : markings_storage(256000), waiting_list(w_l), discoveredMarkings(0), maxNumTokensInAnyMarking(-1) {};
-	virtual ~TimeDartPWList();
-	friend std::ostream& operator<<(std::ostream& out, TimeDartPWList& x);
+    namespace DiscreteVerification {
+        class TimeDartPWBase;
+        class TimeDartPWHashMap;
+        class TimeDartPWPData;
 
-public: // inspectors
-	virtual bool HasWaitingStates() {
-		return (waiting_list->Size() > 0);
-	};
+        class TimeDartPWBase {
+        public:
 
-	virtual long long Size() const {
-		return markings_storage.size();
-	};
+            TimeDartPWBase() : discoveredMarkings(0), maxNumTokensInAnyMarking(-1), stored(0) {
+            };
 
-public: // modifiers
-	virtual bool Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* marking);
-	virtual TimeDart* GetNextUnexplored();
-	inline void SetMaxNumTokensIfGreater(int i){ if(i>maxNumTokensInAnyMarking) maxNumTokensInAnyMarking = i; };
+            virtual ~TimeDartPWBase() {
+            };
 
-public:
-	HashMap markings_storage;
-	WaitingList<TimeDart>* waiting_list;
-	int discoveredMarkings;
-	int maxNumTokensInAnyMarking;
-};
+        public:
 
-std::ostream& operator<<(std::ostream& out, TimeDartPWList& x);
+            virtual bool HasWaitingStates() = 0;
 
-} /* namespace DiscreteVerification */
+            long long Size() const {
+                return stored;
+            };
+
+            virtual bool Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* marking) = 0;
+            virtual TimeDart* GetNextUnexplored() = 0;
+
+            inline void SetMaxNumTokensIfGreater(int i) {
+                if (i > maxNumTokensInAnyMarking) maxNumTokensInAnyMarking = i;
+            };
+
+
+            int discoveredMarkings;
+            int maxNumTokensInAnyMarking;
+            long long stored;
+        };
+
+        class TimeDartPWHashMap : public TimeDartPWBase {
+        public:
+            typedef std::vector<TimeDart*> NonStrictMarkingList;
+            typedef google::sparse_hash_map<size_t, NonStrictMarkingList> HashMap;
+        public:
+
+            TimeDartPWHashMap() : TimeDartPWBase(), markings_storage(256000) {
+            };
+
+            TimeDartPWHashMap(WaitingList<TimeDart>* w_l) : TimeDartPWBase(), waiting_list(w_l), markings_storage(256000) {
+            };
+            virtual ~TimeDartPWHashMap();
+            friend std::ostream& operator<<(std::ostream& out, TimeDartPWHashMap& x);
+            virtual bool Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* marking);
+            virtual TimeDart* GetNextUnexplored();
+
+            virtual bool HasWaitingStates() {
+                return (waiting_list->Size() > 0);
+            };
+        protected:
+            WaitingList<TimeDart>* waiting_list;
+        private:
+            HashMap markings_storage;
+        };
+
+        std::ostream& operator<<(std::ostream& out, TimeDartPWHashMap& x);
+
+        class TimeDartPWPData : public TimeDartPWBase {
+        public:
+
+            TimeDartPWPData() : TimeDartPWBase() {
+            };
+
+            TimeDartPWPData(WaitingList<EncodingPointer>* w_l, boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, int knumber, int nplaces, int mage) :
+            TimeDartPWBase(), passed(tapn, knumber, nplaces, mage), waiting_list(w_l) {
+            };
+        private:
+            WaitingList<EncodingPointer>* waiting_list;
+            PData passed;
+            virtual bool Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* marking);
+            virtual TimeDart* GetNextUnexplored();
+
+            virtual bool HasWaitingStates() {
+                return (waiting_list->Size() > 0);
+            };
+
+        };
+
+    } /* namespace DiscreteVerification */
 } /* namespace VerifyTAPN */
 #endif /* PWLIST_HPP_ */

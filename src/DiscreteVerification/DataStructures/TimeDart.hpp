@@ -27,6 +27,7 @@ public:
 
 	//Getters
 	inline NonStrictMarkingBase* getBase(){ return base; }
+        inline void setBase(NonStrictMarkingBase* newbase) { base = newbase;}
 	inline int getWaiting(){ return waiting; }
 	inline int getPassed(){ return passed; }
 

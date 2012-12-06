@@ -69,11 +69,20 @@ namespace VerifyTAPN {
                             options,
                             query);
                 } else if (query->GetQuantifier() == EF || query->GetQuantifier() == AG) {
-                    WaitingList<TimeDart>* strategy = GetWaitingList<TimeDart > (query, options);
-                    VerifyAndPrint(
-                            new TimeDartReachabilitySearch(tapn, *initialMarking, query, options, strategy),
+
+                    if(options.GetMemoryOptimization() == PDATA) {
+                        WaitingList<EncodingPointer>* strategy = GetWaitingList<EncodingPointer > (query, options);
+                        VerifyAndPrint(
+                            new TimeDartReachabilitySearchPData(tapn, *initialMarking, query, options, strategy),
                             options,
                             query);
+                    } else {
+                        WaitingList<TimeDart>* strategy = GetWaitingList<TimeDart > (query, options);
+                        VerifyAndPrint(
+                            new TimeDartReachabilitySearch(tapn, *initialMarking, query, options, strategy),
+                            options,
+                            query);                      
+                    }
                 }
             }
 

@@ -30,11 +30,16 @@ using namespace rapidxml;
 
 class TimeDartReachabilitySearch : public TimeDartVerification{
 public:
-	TimeDartReachabilitySearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarkingBase& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<TimeDart>* waiting_list);
-	virtual ~TimeDartReachabilitySearch();
+        TimeDartReachabilitySearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarkingBase& initialMarking, AST::Query* query, VerificationOptions options) 
+        :TimeDartVerification(tapn, options, query, initialMarking), trace(10000){};
+        TimeDartReachabilitySearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarkingBase& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<TimeDart>* waiting_list)
+        :TimeDartVerification(tapn, options, query, initialMarking), trace(10000){
+            pwList = new TimeDartPWHashMap(waiting_list);
+        };
+        virtual ~TimeDartReachabilitySearch();
 	bool Verify();
 	NonStrictMarkingBase* GetLastMarking() { return lastMarking; }
-	inline unsigned int MaxUsedTokens(){ return pwList.maxNumTokensInAnyMarking; };
+	inline unsigned int MaxUsedTokens(){ return pwList->maxNumTokensInAnyMarking; };
 
 protected:
 	bool addToPW(NonStrictMarkingBase* marking);
@@ -42,14 +47,30 @@ protected:
 
 protected:
 	int validChildren;
-	TimeDartPWList pwList;
+	google::sparse_hash_map<NonStrictMarkingBase*, TraceList > trace;
+        TimeDartPWBase* pwList;
 	vector<const TAPN::TimedTransition*> allwaysEnabled;
+        virtual inline void deleteBase(NonStrictMarkingBase* base){
+           // Dummy
+        }
 public:
 	void printStats();
 	void GetTrace();
 private:
 	NonStrictMarkingBase* lastMarking;
-	google::sparse_hash_map<NonStrictMarkingBase*, TraceList > trace;
+
+};
+
+class TimeDartReachabilitySearchPData : public TimeDartReachabilitySearch {
+public:
+    TimeDartReachabilitySearchPData(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarkingBase& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<EncodingPointer>* waiting_list)
+    :TimeDartReachabilitySearch(tapn, initialMarking, query, options){
+        pwList = new TimeDartPWPData(waiting_list, tapn, options.GetKBound(), tapn->NumberOfPlaces(), tapn->MaxConstant());
+    };
+protected:
+       virtual inline void deleteBase(NonStrictMarkingBase* base){
+            delete base;
+        }
 };
 
 } /* namespace DiscreteVerification */

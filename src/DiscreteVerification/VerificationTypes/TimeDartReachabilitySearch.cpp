@@ -10,9 +10,6 @@
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
-TimeDartReachabilitySearch::TimeDartReachabilitySearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarkingBase& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<TimeDart>* waiting_list)
-: TimeDartVerification(tapn, options, query, initialMarking), pwList(waiting_list), trace(10000){}
-
 bool TimeDartReachabilitySearch::Verify(){
 	if(options.GetTrace() == SOME){
 		initialMarking.SetGeneratedBy(NULL);
@@ -27,8 +24,8 @@ bool TimeDartReachabilitySearch::Verify(){
 	}
 
 	//Main loop
-	while(pwList.HasWaitingStates()){
-		TimeDart& dart = *pwList.GetNextUnexplored();
+	while(pwList->HasWaitingStates()){
+		TimeDart& dart = *pwList->GetNextUnexplored();
 		exploredMarkings++;
 
 		int passed = dart.getPassed();
@@ -88,6 +85,7 @@ bool TimeDartReachabilitySearch::Verify(){
 				}
 			}
 		}
+                deleteBase(dart.getBase());
 	}
 
 	return false;
@@ -123,13 +121,13 @@ bool TimeDartReachabilitySearch::addToPW(NonStrictMarkingBase* marking){
 
 	unsigned int size = marking->size();
 
-	pwList.SetMaxNumTokensIfGreater(size);
+	pwList->SetMaxNumTokensIfGreater(size);
 
 	if(size > options.GetKBound()) {
 		return false;
 	}
 
-	if(pwList.Add(tapn.get(), marking)){
+	if(pwList->Add(tapn.get(), marking)){
 		QueryVisitor<NonStrictMarkingBase> checker(*marking);
 		boost::any context;
 		query->Accept(checker, context);
@@ -137,17 +135,18 @@ bool TimeDartReachabilitySearch::addToPW(NonStrictMarkingBase* marking){
 			lastMarking = marking;
 			return true;
 		} else {
+                    deleteBase(marking);
 			return false;
 		}
 	}
-
+        deleteBase(marking);
 	return false;
 }
 
 void TimeDartReachabilitySearch::printStats(){
-	std::cout << "  discovered markings:\t" << pwList.discoveredMarkings << std::endl;
+	std::cout << "  discovered markings:\t" << pwList->discoveredMarkings << std::endl;
 	std::cout << "  explored markings:\t" << exploredMarkings << std::endl;
-	std::cout << "  stored markings:\t" << pwList.Size() << std::endl;
+	std::cout << "  stored markings:\t" << pwList->Size() << std::endl;
 }
 
 TimeDartReachabilitySearch::~TimeDartReachabilitySearch() {

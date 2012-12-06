@@ -21,7 +21,7 @@ std::pair<TimeDart*, bool> TimeDartLivenessPWList::Add(TAPN::TimedArcPetriNet* t
 			(*iter)->setWaiting(min((*iter)->getWaiting(),youngest));
 
 			if((*iter)->getWaiting() < (*iter)->getPassed()){
-				waiting_list->Add(new WaitingDart((*iter), parent, youngest, upper));
+				waiting_list->Add((*iter)->getBase(), new WaitingDart((*iter), parent, youngest, upper));
 				result.second = true;
 			}
 
@@ -33,7 +33,7 @@ std::pair<TimeDart*, bool> TimeDartLivenessPWList::Add(TAPN::TimedArcPetriNet* t
 
 	TimeDart* dart = new TimeDart(marking, youngest, INT_MAX);
 	m.push_back(dart);
-	waiting_list->Add(new WaitingDart(dart, parent, youngest, upper));
+	waiting_list->Add(dart->getBase(), new WaitingDart(dart, parent, youngest, upper));
 	std::pair<TimeDart*, bool> result(dart, true);
 	return result;
 }
