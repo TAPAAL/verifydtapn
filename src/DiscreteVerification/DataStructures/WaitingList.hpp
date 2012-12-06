@@ -210,6 +210,7 @@ template <class T>
 void HeuristicStackWaitingList<T>::flushBuffer(){
 	while(!buffer.empty()){
 		this->stack.push(buffer.top()->item);
+                delete buffer.top();
 		buffer.pop();
 	}
 }
@@ -302,6 +303,7 @@ T* HeuristicWaitingList<T>::Pop()
 {
 	WeightedItem<T>* weighted_item = queue.top();
 	T* marking = weighted_item->marking;
+        delete queue.top();
 	queue.pop();
 	return marking;
 }
@@ -339,6 +341,7 @@ template <class T>
 HeuristicWaitingList<T>::~HeuristicWaitingList()
 {
 	while(!queue.empty()){
+                delete queue.top();
 		queue.pop();
 	}
 }
@@ -357,6 +360,7 @@ T* RandomWaitingList<T>::Pop()
 {
 	WeightedItem<T>* weighted_item = queue.top();
 	T* marking = weighted_item->marking;
+        delete queue.top();
 	queue.pop();
 	return marking;
 }
@@ -379,6 +383,7 @@ template <class T>
 RandomWaitingList<T>::~RandomWaitingList()
 {
 	while(!queue.empty()){
+                delete queue.top();
 		queue.pop();
 	}
 }
@@ -396,6 +401,7 @@ template <class T>
 void RandomStackWaitingList<T>::flushBuffer(){
 	while(!buffer.empty()){
 		this->stack.push(buffer.top()->item);
+                delete buffer.top();
 		buffer.pop();
 	}
 }
@@ -426,6 +432,7 @@ int RandomStackWaitingList<T>::calculateWeight(T* marking)
 template <class T>
 RandomStackWaitingList<T>::~RandomStackWaitingList()
 {
+        flushBuffer();
 	while(!this->stack.empty()){
 		this->stack.pop();
 	}
