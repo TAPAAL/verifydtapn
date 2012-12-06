@@ -157,7 +157,7 @@ public:
 		bool RemoveToken(Place& place, Token& token);
 		void AddTokenInPlace(TAPN::TimedPlace& place, int age);
 		void AddTokenInPlace(Place& place, Token& token);
-		void AddTokenInPlace(TAPN::TimedPlace& place, Token& token);
+		void AddTokenInPlace(const TAPN::TimedPlace& place, Token& token);
 		void incrementAge();	// increment
 		void incrementAge(int age);
 		void decrementAge();	// decrement

@@ -160,7 +160,7 @@ void NonStrictMarkingBase::AddTokenInPlace(TAPN::TimedPlace& place, int age){
 	}
 }
 
-void NonStrictMarkingBase::AddTokenInPlace(TAPN::TimedPlace& place, Token& token){
+void NonStrictMarkingBase::AddTokenInPlace(const TAPN::TimedPlace& place, Token& token){
 	for(PlaceList::iterator pit = places.begin(); pit != places.end(); pit++){
 		if(pit->place->GetIndex() == place.GetIndex()){
 			AddTokenInPlace(*pit, token);
