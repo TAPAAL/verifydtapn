@@ -39,7 +39,7 @@ protected:
 
 protected:
 	int validChildren;
-	TimeDartLivenessPWList pwList;
+	TimeDartLivenessPWHashMap pwList;
 public:
 	void printStats();
 	void GetTrace();

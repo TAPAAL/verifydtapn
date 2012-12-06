@@ -63,7 +63,7 @@ private:
 
 class TimeDartReachabilitySearchPData : public TimeDartReachabilitySearch {
 public:
-    TimeDartReachabilitySearchPData(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarkingBase& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<EncodingPointer>* waiting_list)
+    TimeDartReachabilitySearchPData(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarkingBase& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<TimeDartEncodingPointer >* waiting_list)
     :TimeDartReachabilitySearch(tapn, initialMarking, query, options){
         pwList = new TimeDartPWPData(waiting_list, tapn, options.GetKBound(), tapn->NumberOfPlaces(), tapn->MaxConstant());
     };

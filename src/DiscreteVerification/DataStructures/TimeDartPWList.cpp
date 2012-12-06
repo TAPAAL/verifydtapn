@@ -46,7 +46,7 @@ TimeDart* TimeDartPWHashMap::GetNextUnexplored(){
 bool TimeDartPWPData::Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* marking){
 	discoveredMarkings++;
 	int youngest = marking->makeBase(tapn);
-        PData::Result res = passed.Add(marking);
+        PData<TimeDart>::Result res = passed.Add(marking);
 
         if(!res.isNew){
             TimeDart* t = res.encoding.GetMetaData();
@@ -54,7 +54,7 @@ bool TimeDartPWPData::Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* ma
             t->setWaiting(min(t->getWaiting(),youngest));
 
             if(t->getWaiting() < t->getPassed() && !inWaiting){
-                    waiting_list->Add(marking, new EncodingPointer(res.encoding, res.pos));
+                    waiting_list->Add(marking, new EncodingPointer<TimeDart>(res.encoding, res.pos));
  //               waiting_list->Add(t->getBase(), t);
             }
             return false;
@@ -63,14 +63,14 @@ bool TimeDartPWPData::Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* ma
 	TimeDart* dart = new TimeDart(marking, youngest, INT_MAX);
         stored++;
         res.encoding.SetMetaData(dart);
-	waiting_list->Add(marking, new EncodingPointer(res.encoding, res.pos));
+	waiting_list->Add(marking, new EncodingPointer<TimeDart>(res.encoding, res.pos));
 //        waiting_list->Add(dart->getBase(), dart);
 	return true;
 }
 
 TimeDart* TimeDartPWPData::GetNextUnexplored(){
   
-    EncodingPointer* p = waiting_list->Pop();
+    EncodingPointer<TimeDart>* p = waiting_list->Pop();
     NonStrictMarkingBase* m = passed.EnumerateDecode(*p);
     TimeDart* dart = p->encoding.GetMetaData();
     dart->setBase(m);

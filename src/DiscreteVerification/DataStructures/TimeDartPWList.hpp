@@ -85,12 +85,12 @@ namespace VerifyTAPN {
             TimeDartPWPData() : TimeDartPWBase() {
             };
 
-            TimeDartPWPData(WaitingList<EncodingPointer>* w_l, boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, int knumber, int nplaces, int mage) :
+            TimeDartPWPData(WaitingList<EncodingPointer<TimeDart> >* w_l, boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, int knumber, int nplaces, int mage) :
             TimeDartPWBase(), passed(tapn, knumber, nplaces, mage), waiting_list(w_l) {
             };
         private:
-            WaitingList<EncodingPointer>* waiting_list;
-            PData passed;
+            WaitingList<EncodingPointer<TimeDart> >* waiting_list;
+            PData<TimeDart> passed;
             virtual bool Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* marking);
             virtual TimeDart* GetNextUnexplored();
 

@@ -71,7 +71,7 @@ namespace VerifyTAPN {
                 } else if (query->GetQuantifier() == EF || query->GetQuantifier() == AG) {
 
                     if(options.GetMemoryOptimization() == PDATA) {
-                        WaitingList<EncodingPointer>* strategy = GetWaitingList<EncodingPointer > (query, options);
+                        WaitingList<TimeDartEncodingPointer>* strategy = GetWaitingList<TimeDartEncodingPointer > (query, options);
                         VerifyAndPrint(
                             new TimeDartReachabilitySearchPData(tapn, *initialMarking, query, options, strategy),
                             options,
