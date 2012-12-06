@@ -21,7 +21,7 @@ using namespace AST;
 
 class LivenessWeightQueryVisitor : public Visitor{
 	public:
-	LivenessWeightQueryVisitor(NonStrictMarking& marking) : marking(marking){};
+	LivenessWeightQueryVisitor(NonStrictMarkingBase& marking) : marking(marking){};
 		virtual ~LivenessWeightQueryVisitor(){};
 
 	public: // visitor methods
@@ -36,7 +36,7 @@ class LivenessWeightQueryVisitor : public Visitor{
 		int Compare(int numberOfTokensInPlace, const std::string& op, int n) const;
 
 	private:
-		const NonStrictMarking& marking;
+		const NonStrictMarkingBase& marking;
 };
 
 } /* namespace DiscreteVerification */
