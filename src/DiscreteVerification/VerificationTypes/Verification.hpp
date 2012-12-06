@@ -30,6 +30,7 @@ namespace VerifyTAPN {
             void createTransitionSubNodes(T* old, T* current, rapidxml::xml_document<>& doc, rapidxml::xml_node<>* transitionNode, const TAPN::TimedPlace& place, const TAPN::TimeInterval& interval, const int weight);
             rapidxml::xml_node<>* createTokenNode(rapidxml::xml_document<>& doc, const TAPN::TimedPlace& place, const Token& token);
             void GenerateTraceStack(T* m, std::stack<T*>* result, std::stack<T*>* liveness = NULL);
+            stack< T* > trace;
         };
 
         template<typename T>

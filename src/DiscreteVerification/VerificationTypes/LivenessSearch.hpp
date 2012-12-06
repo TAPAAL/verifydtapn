@@ -35,13 +35,14 @@ public:
 	LivenessSearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list);
 	virtual ~LivenessSearch();
 	bool Verify();
+	NonStrictMarking* GetLastMarking() { return lastMarking; }
 	inline unsigned int MaxUsedTokens(){ return pwList.maxNumTokensInAnyMarking; };
 	void PrintTransitionStatistics() const { successorGenerator.PrintTransitionStatistics(std::cout); }
 protected:
-	vector<NonStrictMarking> getPossibleNextMarkings(NonStrictMarking& marking);
+	vector<NonStrictMarking*> getPossibleNextMarkings(const NonStrictMarking& marking);
 	bool addToPW(NonStrictMarking* marking, NonStrictMarking* parent);
 	bool isDelayPossible(NonStrictMarking& marking);
-	NonStrictMarking* cut(NonStrictMarking& marking);
+	void cut(NonStrictMarking* m);
 
 protected:
 	int validChildren;
@@ -55,7 +56,7 @@ public:
 	void printStats();
 	void GetTrace();
 private:
-	stack< NonStrictMarking* > trace;
+	NonStrictMarking* lastMarking;
 };
 
 } /* namespace DiscreteVerification */

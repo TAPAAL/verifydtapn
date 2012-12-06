@@ -140,15 +140,15 @@ namespace VerifyTAPN {
         public:
             SuccessorGenerator(TAPN::TimedArcPetriNet& tapn);
             ~SuccessorGenerator();
-            vector< T > generateSuccessors(const T& marking) const;
+            vector< T *> generateSuccessors(const T& marking) const;
             void PrintTransitionStatistics(std::ostream & out) const;
         private:
             TokenList getPlaceFromMarking(const T& marking, int placeID) const;
 
-            void generateMarkings(vector<T >& result, const T& init_marking, const std::vector< const TimedTransition* >& transitions, ArcHashMap& enabledArcs) const;
-            void recursiveGenerateMarking(vector<T >& result, T& init_marking, const TimedTransition& transition, ArcHashMap& enabledArcs, unsigned int index) const;
+            void generateMarkings(vector<T* >& result, const T& init_marking, const std::vector< const TimedTransition* >& transitions, ArcHashMap& enabledArcs) const;
+            void recursiveGenerateMarking(vector<T* >& result, T& init_marking, const TimedTransition& transition, ArcHashMap& enabledArcs, unsigned int index) const;
 
-            void addMarking(vector<T >& result, T& init_marking, const TimedTransition& transition, ArcAndTokensVector& indicesOfCurrentPermutation) const;
+            void addMarking(vector<T* >& result, T& init_marking, const TimedTransition& transition, ArcAndTokensVector& indicesOfCurrentPermutation) const;
             bool incrementModificationVector(vector<unsigned int >& modificationVector, TokenList& enabledTokens) const;
 
             const TAPN::TimedArcPetriNet& tapn;
@@ -191,8 +191,8 @@ namespace VerifyTAPN {
         }
 
         template<typename T>
-        vector< T > SuccessorGenerator<T>::generateSuccessors(const T& marking) const {
-            vector< T > result;
+        vector< T* > SuccessorGenerator<T>::generateSuccessors(const T& marking) const {
+            vector< T* > result;
             ArcHashMap enabledArcs(tapn.GetInhibitorArcs().size() + tapn.GetInputArcs().size() + tapn.GetTransportArcs().size());
             std::vector<unsigned int> enabledTransitionArcs(tapn.GetTransitions().size(), 0);
             std::vector<const TAPN::TimedTransition* > enabledTransitions;
@@ -262,7 +262,7 @@ namespace VerifyTAPN {
         }
 
         template<typename T>
-        void SuccessorGenerator<T>::generateMarkings(vector<T>& result, const T& init_marking,
+        void SuccessorGenerator<T>::generateMarkings(vector<T*>& result, const T& init_marking,
                 const std::vector< const TimedTransition* >& transitions, ArcHashMap& enabledArcs) const {
 
             //Iterate over transitions
@@ -286,7 +286,7 @@ namespace VerifyTAPN {
         }
 
         template<typename T>
-        void SuccessorGenerator<T>::recursiveGenerateMarking(vector<T>& result, T& init_marking, const TimedTransition& transition, ArcHashMap& enabledArcs, unsigned int index) const {
+        void SuccessorGenerator<T>::recursiveGenerateMarking(vector<T*>& result, T& init_marking, const TimedTransition& transition, ArcHashMap& enabledArcs, unsigned int index) const {
 
             // Initialize vectors
             ArcAndTokensVector indicesOfCurrentPermutation;
@@ -395,20 +395,20 @@ namespace VerifyTAPN {
         }
 
         template<typename T>
-        void SuccessorGenerator<T>::addMarking(vector<T >& result, T& init_marking, const TimedTransition& transition, ArcAndTokensVector& indicesOfCurrentPermutation) const {
-            T m(init_marking);
+        void SuccessorGenerator<T>::addMarking(vector<T *>& result, T& init_marking, const TimedTransition& transition, ArcAndTokensVector& indicesOfCurrentPermutation) const {
+            T* m = new T(init_marking);
             for (typename ArcAndTokensVector::iterator iter = indicesOfCurrentPermutation.begin(); iter != indicesOfCurrentPermutation.end(); iter++) {
                 vector<unsigned int>& tokens = iter->modificationVector;
 
                 for (vector< unsigned int >::const_iterator tokenIter = tokens.begin(); tokenIter < tokens.end(); tokenIter++) {
                     Token t((iter->enabledBy)[*tokenIter].getAge(), 1);
-                    iter->moveToken(t, m);
+                    iter->moveToken(t, *m);
                 }
             }
 
             for (OutputArc::WeakPtrVector::const_iterator postsetIter = transition.GetPostset().begin(); postsetIter != transition.GetPostset().end(); postsetIter++) {
                 Token t(0, postsetIter->lock()->GetWeight());
-                m.AddTokenInPlace(postsetIter->lock()->OutputPlace(), t);
+                m->AddTokenInPlace(postsetIter->lock()->OutputPlace(), t);
             }
 
             result.push_back(m);
