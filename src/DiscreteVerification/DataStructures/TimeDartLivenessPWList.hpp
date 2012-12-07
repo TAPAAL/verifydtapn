@@ -86,9 +86,9 @@ namespace VerifyTAPN {
         class TimeDartLivenessPWPData : public TimeDartLivenessPWBase {
         public:
 
-            TimeDartLivenessPWPData(){};
+
             
-            TimeDartLivenessPWPData(WaitingList<EncodingPointer<WaitingDart> >* w_l) : TimeDartLivenessPWBase(), waiting_list(w_l) {
+            TimeDartLivenessPWPData(WaitingList<WaitingDart >* w_l, boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, int knumber, int nplaces, int mage) : TimeDartLivenessPWBase(), waiting_list(w_l), passed(tapn, knumber, nplaces, mage) {
             };
 
             ~TimeDartLivenessPWPData() {
@@ -103,7 +103,8 @@ namespace VerifyTAPN {
             };
             virtual void flushBuffer();
         private:
-            WaitingList<EncodingPointer<WaitingDart> >* waiting_list;
+            WaitingList<WaitingDart >* waiting_list;
+            PData<TimeDart> passed;
         };
 
     } /* namespace DiscreteVerification */

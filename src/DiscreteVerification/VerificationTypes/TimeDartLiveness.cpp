@@ -10,17 +10,14 @@
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
-TimeDartLiveness::TimeDartLiveness(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarkingBase& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<WaitingDart>* waiting_list)
-: TimeDartVerification(tapn, options, query, initialMarking), pwList(waiting_list){}
-
 bool TimeDartLiveness::Verify(){
 	if(addToPW(&initialMarking, NULL, INT_MAX)){
 		return true;
 	}
 
 	//Main loop
-	while(pwList.HasWaitingStates()){
-		WaitingDart& waitingDart = *pwList.GetNextUnexplored();
+	while(pwList->HasWaitingStates()){
+		WaitingDart& waitingDart = *pwList->GetNextUnexplored();
 		exploredMarkings++;
 
 		// Add trace meta data ("add to trace")
@@ -51,7 +48,7 @@ bool TimeDartLiveness::Verify(){
 			if(waitingDart.parent != NULL){
 				waitingDart.parent->traceData->pop_back();
 			}
-			delete pwList.PopWaiting();
+			delete pwList->PopWaiting();
 			continue;
 		}
 
@@ -113,7 +110,7 @@ bool TimeDartLiveness::Verify(){
 							}
 						}
 
-						pwList.flushBuffer();
+						pwList->flushBuffer();
 					}
 				}
 			}
@@ -164,7 +161,7 @@ bool TimeDartLiveness::addToPW(NonStrictMarkingBase* marking, TimeDart* parent, 
 
 	unsigned int size = marking->size();
 
-	pwList.SetMaxNumTokensIfGreater(size);
+	pwList->SetMaxNumTokensIfGreater(size);
 
 	if(size > options.GetKBound()) {
 		return false;
@@ -176,7 +173,7 @@ bool TimeDartLiveness::addToPW(NonStrictMarkingBase* marking, TimeDart* parent, 
 	boost::any context;
 	query->Accept(checker, context);
 	if(boost::any_cast<bool>(context)) {
-		std::pair<TimeDart*, bool> result = pwList.Add(tapn.get(), marking, youngest, parent, upper);
+		std::pair<TimeDart*, bool> result = pwList->Add(tapn.get(), marking, youngest, parent, upper);
 
 		int loop = false;
 		if(parent != NULL && parent->getBase()->equals(*result.first->getBase()) && youngest <= upper){
@@ -205,9 +202,9 @@ bool TimeDartLiveness::addToPW(NonStrictMarkingBase* marking, TimeDart* parent, 
 }
 
 void TimeDartLiveness::printStats(){
-	std::cout << "  discovered markings:\t" << pwList.discoveredMarkings << std::endl;
+	std::cout << "  discovered markings:\t" << pwList->discoveredMarkings << std::endl;
 	std::cout << "  explored markings:\t" << exploredMarkings << std::endl;
-	std::cout << "  stored markings:\t" << pwList.Size() << std::endl;
+	std::cout << "  stored markings:\t" << pwList->Size() << std::endl;
 }
 
 TimeDartLiveness::~TimeDartLiveness() {

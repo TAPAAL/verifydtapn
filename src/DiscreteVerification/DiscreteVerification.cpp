@@ -12,7 +12,7 @@ namespace VerifyTAPN {
     namespace DiscreteVerification {
 
         template<typename T> void VerifyAndPrint(Verification<T>* verifier, VerificationOptions& options, AST::Query* query);
-        
+
         DiscreteVerification::DiscreteVerification() {
             // TODO Auto-generated constructor stub
 
@@ -63,25 +63,33 @@ namespace VerifyTAPN {
                 }
             } else if (options.GetVerificationType() == TIMEDART) {
                 if (query->GetQuantifier() == EG || query->GetQuantifier() == AF) {
-                    WaitingList<WaitingDart>* strategy = GetWaitingList<WaitingDart > (query, options);
-                    VerifyAndPrint(
-                            new TimeDartLiveness(tapn, *initialMarking, query, options, strategy),
-                            options,
-                            query);
+                    if (options.GetMemoryOptimization() == PDATA) {
+                        WaitingList<WaitingDart>* strategy = GetWaitingList<WaitingDart > (query, options);
+                        VerifyAndPrint(
+                                new TimeDartLivenessPData(tapn, *initialMarking, query, options, strategy),
+                                options,
+                                query);
+                    } else {
+                        WaitingList<WaitingDart>* strategy = GetWaitingList<WaitingDart > (query, options);
+                        VerifyAndPrint(
+                                new TimeDartLiveness(tapn, *initialMarking, query, options, strategy),
+                                options,
+                                query);
+                    }
                 } else if (query->GetQuantifier() == EF || query->GetQuantifier() == AG) {
 
-                    if(options.GetMemoryOptimization() == PDATA) {
+                    if (options.GetMemoryOptimization() == PDATA) {
                         WaitingList<TimeDartEncodingPointer>* strategy = GetWaitingList<TimeDartEncodingPointer > (query, options);
                         VerifyAndPrint(
-                            new TimeDartReachabilitySearchPData(tapn, *initialMarking, query, options, strategy),
-                            options,
-                            query);
+                                new TimeDartReachabilitySearchPData(tapn, *initialMarking, query, options, strategy),
+                                options,
+                                query);
                     } else {
                         WaitingList<TimeDart>* strategy = GetWaitingList<TimeDart > (query, options);
                         VerifyAndPrint(
-                            new TimeDartReachabilitySearch(tapn, *initialMarking, query, options, strategy),
-                            options,
-                            query);                      
+                                new TimeDartReachabilitySearch(tapn, *initialMarking, query, options, strategy),
+                                options,
+                                query);
                     }
                 }
             }

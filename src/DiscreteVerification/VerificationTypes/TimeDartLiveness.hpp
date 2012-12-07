@@ -24,29 +24,46 @@
 #include "../Util/IntervalOps.hpp"
 
 namespace VerifyTAPN {
-namespace DiscreteVerification {
+    namespace DiscreteVerification {
 
-class TimeDartLiveness : public TimeDartVerification{
-public:
-	TimeDartLiveness(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarkingBase& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<WaitingDart>* waiting_list);
-	virtual ~TimeDartLiveness();
-	bool Verify();
-	inline unsigned int MaxUsedTokens(){ return pwList.maxNumTokensInAnyMarking; };
+        class TimeDartLiveness : public TimeDartVerification {
+        public:
+            TimeDartLiveness(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarkingBase& initialMarking, AST::Query* query, VerificationOptions options)
+            : TimeDartVerification(tapn, options, query, initialMarking)
+            {};
+            TimeDartLiveness(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarkingBase& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<WaitingDart>* waiting_list)
+            : TimeDartVerification(tapn, options, query, initialMarking){
+                pwList = new TimeDartLivenessPWHashMap(waiting_list);
+            };
+            virtual ~TimeDartLiveness();
+            bool Verify();
 
-protected:
-	bool addToPW(NonStrictMarkingBase* marking, TimeDart* parent, int upper);
-	bool canDelayForever(NonStrictMarkingBase* marking);
+            inline unsigned int MaxUsedTokens() {
+                return pwList->maxNumTokensInAnyMarking;
+            };
 
-protected:
-	int validChildren;
-	TimeDartLivenessPWHashMap pwList;
-public:
-	void printStats();
-	void GetTrace();
-private:
-	TraceList* lastMarking;
-};
+        protected:
+            bool addToPW(NonStrictMarkingBase* marking, TimeDart* parent, int upper);
+            bool canDelayForever(NonStrictMarkingBase* marking);
 
-} /* namespace DiscreteVerification */
+        protected:
+            int validChildren;
+            TimeDartLivenessPWBase* pwList;
+        public:
+            void printStats();
+            void GetTrace();
+        private:
+            TraceList* lastMarking;
+        };
+        
+        class TimeDartLivenessPData : public TimeDartLiveness {
+        public:
+            TimeDartLivenessPData(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarkingBase& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<WaitingDart>* waiting_list)
+            : TimeDartLiveness(tapn, initialMarking, query, options){
+                pwList = new TimeDartLivenessPWPData(waiting_list, tapn, options.GetKBound(), tapn->NumberOfPlaces(), tapn->MaxConstant());
+            };
+        };
+
+    } /* namespace DiscreteVerification */
 } /* namespace VerifyTAPN */
 #endif /* NONSTRICTSEARCH_HPP_ */
