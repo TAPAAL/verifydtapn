@@ -62,7 +62,7 @@ namespace VerifyTAPN {
         class TimeDartLivenessPWHashMap : public TimeDartLivenessPWBase {
         public:
 
-            TimeDartLivenessPWHashMap(){};
+            TimeDartLivenessPWHashMap() : markings_storage(), waiting_list(){};
             
             TimeDartLivenessPWHashMap(WaitingList<WaitingDart>* w_l) : TimeDartLivenessPWBase(), markings_storage(256000), waiting_list(w_l) {
             };
@@ -79,8 +79,9 @@ namespace VerifyTAPN {
             };
             virtual void flushBuffer();
         private:
-            WaitingList<WaitingDart>* waiting_list;
+
             HashMap markings_storage;
+            WaitingList<WaitingDart>* waiting_list;
         };
 
         class TimeDartLivenessPWPData : public TimeDartLivenessPWBase {

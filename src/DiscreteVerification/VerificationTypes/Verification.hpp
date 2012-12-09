@@ -269,8 +269,9 @@ namespace VerifyTAPN {
             if (liveness == NULL) {
                 T* next = m;
                 do {
-                    result->push(next);
-                } while ((next = next->parent) != NULL);
+                    
+                    result->push((T*)next);
+                } while ((next = ((T*)next->parent)) != NULL);
             } else {
                 do {
                     result->push(liveness->top());

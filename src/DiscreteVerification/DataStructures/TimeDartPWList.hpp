@@ -58,7 +58,7 @@ namespace VerifyTAPN {
             typedef google::sparse_hash_map<size_t, NonStrictMarkingList> HashMap;
         public:
 
-            TimeDartPWHashMap() : TimeDartPWBase(), markings_storage(256000) {
+            TimeDartPWHashMap() : TimeDartPWBase(), waiting_list(), markings_storage(256000) {
             };
 
             TimeDartPWHashMap(WaitingList<TimeDart>* w_l) : TimeDartPWBase(), waiting_list(w_l), markings_storage(256000) {
@@ -82,11 +82,11 @@ namespace VerifyTAPN {
         class TimeDartPWPData : public TimeDartPWBase {
         public:
 
-            TimeDartPWPData() : TimeDartPWBase() {
+            TimeDartPWPData() : TimeDartPWBase(), waiting_list(), passed() {
             };
 
             TimeDartPWPData(WaitingList<EncodingPointer<TimeDart> >* w_l, boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, int knumber, int nplaces, int mage) :
-            TimeDartPWBase(), passed(tapn, knumber, nplaces, mage), waiting_list(w_l) {
+            TimeDartPWBase(), waiting_list(w_l), passed(tapn, knumber, nplaces, mage) {
             };
         private:
             WaitingList<EncodingPointer<TimeDart> >* waiting_list;
