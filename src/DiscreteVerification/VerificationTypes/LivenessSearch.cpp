@@ -168,7 +168,6 @@ void LivenessSearch::cut(NonStrictMarking* m){
 		m->AddTokenInPlace(*place_iter, t);
 	}
 	m->CleanUp();
-	return m;
 }
 
 void LivenessSearch::printStats(){

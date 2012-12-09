@@ -46,8 +46,15 @@ namespace VerifyTAPN {
                 Result(bool ex, MarkingEncoding en, uint node) : isNew(ex), encoding(en), pos(node) {
                 };
             };
-            PData(){};
-            PData(const PData& orig){};
+            PData() :
+            k(0),
+            maxAge(0),
+            numberOfPlaces(0),
+            countSize(0),
+            enumeratedOffset(0),
+            numberOfVariables(0),
+            cachesize(0),
+            tapn(){};
 
             PData(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, int knumber, int nplaces, int mage) :
             k(knumber),

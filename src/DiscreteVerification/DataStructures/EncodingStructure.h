@@ -27,6 +27,10 @@ namespace VerifyTAPN {
             EncodingStructure(const EncodingStructure &other, uint offset);
             EncodingStructure(const EncodingStructure &other, uint size, uint offset, uint encsize);
             EncodingStructure(char* raw, uint size, uint offset, uint encsize);
+            EncodingStructure(char* raw, uint size){
+                shadow = raw;
+                rsize = size;
+            };
             virtual ~EncodingStructure();
 
             EncodingStructure Clone() {

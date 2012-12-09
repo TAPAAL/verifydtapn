@@ -136,7 +136,6 @@ void ReachabilitySearch::cut(NonStrictMarking* m){
 		m->AddTokenInPlace(*place_iter, t);
 	}
 	m->CleanUp();
-	return m;
 }
 
 void ReachabilitySearch::printStats(){
