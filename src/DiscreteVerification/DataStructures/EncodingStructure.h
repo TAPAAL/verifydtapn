@@ -40,6 +40,11 @@ namespace VerifyTAPN {
             void Copy(const EncodingStructure &other, unsigned int offset) {
                 memcpy(&(shadow[offset / 8]), other.shadow, other.rsize);
             }
+            
+            void Copy(const char* raw, unsigned int size){
+                shadow = new char[size + sizeof(T)];
+                memcpy(shadow, raw, size);
+            }
 
             bool At(const uint place) const;
             void Set(const uint place, const bool value) const;

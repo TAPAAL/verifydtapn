@@ -64,7 +64,7 @@ namespace VerifyTAPN {
             } else if (options.GetVerificationType() == TIMEDART) {
                 if (query->GetQuantifier() == EG || query->GetQuantifier() == AF) {
                     if (options.GetMemoryOptimization() == PDATA) {
-                        WaitingList<WaitingDart>* strategy = GetWaitingList<WaitingDart > (query, options);
+                        WaitingList<EncodingPointer<WaitingDart> >* strategy = GetWaitingList<EncodingPointer<WaitingDart> > (query, options);
                         VerifyAndPrint(
                                 new TimeDartLivenessPData(tapn, *initialMarking, query, options, strategy),
                                 options,

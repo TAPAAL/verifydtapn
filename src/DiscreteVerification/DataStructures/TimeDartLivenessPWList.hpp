@@ -46,7 +46,7 @@ namespace VerifyTAPN {
         public: // modifiers
             virtual std::pair<TimeDart*, bool> Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* base, int youngest, TimeDart* parent, int upper) = 0;
             virtual WaitingDart* GetNextUnexplored() = 0;
-            virtual WaitingDart* PopWaiting() = 0;
+            virtual void PopWaiting() = 0;
             virtual void flushBuffer() = 0;
 
             inline void SetMaxNumTokensIfGreater(int i) {
@@ -72,7 +72,7 @@ namespace VerifyTAPN {
             friend std::ostream& operator<<(std::ostream& out, TimeDartLivenessPWHashMap& x);
             virtual std::pair<TimeDart*, bool> Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* base, int youngest, TimeDart* parent, int upper);
             virtual WaitingDart* GetNextUnexplored();
-            virtual WaitingDart* PopWaiting();
+            virtual void PopWaiting();
 
             virtual bool HasWaitingStates() {
                 return (waiting_list->Size() > 0);
@@ -88,7 +88,7 @@ namespace VerifyTAPN {
 
 
             
-            TimeDartLivenessPWPData(WaitingList<WaitingDart >* w_l, boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, int knumber, int nplaces, int mage) : TimeDartLivenessPWBase(), waiting_list(w_l), passed(tapn, knumber, nplaces, mage) {
+            TimeDartLivenessPWPData(WaitingList<EncodingPointer<WaitingDart> >* w_l, boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, int knumber, int nplaces, int mage) : TimeDartLivenessPWBase(), waiting_list(w_l), passed(tapn, knumber, nplaces, mage) {
             };
 
             ~TimeDartLivenessPWPData() {
@@ -96,14 +96,14 @@ namespace VerifyTAPN {
             friend std::ostream& operator<<(std::ostream& out, TimeDartLivenessPWHashMap& x);
             virtual std::pair<TimeDart*, bool> Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* base, int youngest, TimeDart* parent, int upper);
             virtual WaitingDart* GetNextUnexplored();
-            virtual WaitingDart* PopWaiting();
+            virtual void PopWaiting();
 
             virtual bool HasWaitingStates() {
                 return (waiting_list->Size() > 0);
             };
             virtual void flushBuffer();
         private:
-            WaitingList<WaitingDart >* waiting_list;
+            WaitingList<EncodingPointer<WaitingDart> >* waiting_list;
             PData<TimeDart> passed;
         };
 

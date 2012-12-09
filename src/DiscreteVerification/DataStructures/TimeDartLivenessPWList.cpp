@@ -42,8 +42,8 @@ namespace VerifyTAPN {
             return waiting_list->Peek();
         }
 
-        WaitingDart* TimeDartLivenessPWHashMap::PopWaiting() {
-            return waiting_list->Pop();
+        void TimeDartLivenessPWHashMap::PopWaiting() {
+            delete waiting_list->Pop();
         }
 
         void TimeDartLivenessPWHashMap::flushBuffer() {
@@ -61,29 +61,43 @@ namespace VerifyTAPN {
                 t->setWaiting(min(t->getWaiting(), youngest));
                 delete marking;
                 if (t->getWaiting() < t->getPassed()) {
-                    waiting_list->Add(t->getBase(), new WaitingDart(t, parent, youngest, upper));
-                    return std::pair< TimeDart*, bool> (t, true);
+                    EncodingStructure<WaitingDart*> es;
+                    es.Copy(res.encoding.GetRaw(), res.encoding.Size());
+                    es.SetMetaData(new WaitingDart(t, parent, youngest, upper));
+                    EncodingPointer<WaitingDart>* ewp = new EncodingPointer<WaitingDart > (es, res.pos);
+                    waiting_list->Add(t->getBase(), ewp);
+                    if (es.GetMetaData() == NULL) {
+                        cout << "error" << endl;
+                    }
+                    return std::pair < TimeDart*, bool> (t, true);
                 } else {
-                    return std::pair< TimeDart*, bool> (t, false);
+                    return std::pair < TimeDart*, bool> (t, false);
                 }
             }
 
             stored++;
             TimeDart* dart = new TimeDart(marking, youngest, INT_MAX);
             WaitingDart* wd = new WaitingDart(dart, parent, youngest, upper);
-            waiting_list->Add(dart->getBase(), wd);
+            EncodingStructure<WaitingDart*> es;
+            es.Copy(res.encoding.GetRaw(), res.encoding.Size());
+            es.SetMetaData(wd);
+            EncodingPointer<WaitingDart>* ewp = new EncodingPointer<WaitingDart > (es, res.pos);
             res.encoding.SetMetaData(dart);
+            waiting_list->Add(marking, ewp);
             result.first = dart;
             result.second = true;
+            if (es.GetMetaData() == NULL) {
+                cout << "error" << endl;
+            }
             return result;
         }
 
         WaitingDart* TimeDartLivenessPWPData::GetNextUnexplored() {
-            return waiting_list->Peek();
+            return waiting_list->Peek()->encoding.GetMetaData();
         }
 
-        WaitingDart* TimeDartLivenessPWPData::PopWaiting() {
-            return waiting_list->Pop();
+        void TimeDartLivenessPWPData::PopWaiting() {
+            delete waiting_list->Pop();
         }
 
         void TimeDartLivenessPWPData::flushBuffer() {

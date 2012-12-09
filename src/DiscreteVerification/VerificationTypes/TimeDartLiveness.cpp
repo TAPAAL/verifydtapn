@@ -48,7 +48,7 @@ bool TimeDartLiveness::Verify(){
 			if(waitingDart.parent != NULL){
 				waitingDart.parent->traceData->pop_back();
 			}
-			delete pwList->PopWaiting();
+			pwList->PopWaiting();
 			continue;
 		}
 
