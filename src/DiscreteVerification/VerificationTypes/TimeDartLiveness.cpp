@@ -74,44 +74,28 @@ bool TimeDartLiveness::Verify(){
 			int start = max(waitingDart.w, calculatedStart.first);
 			int end = min(passed-1, calculatedStart.second);
 			if(start <= end){
-
-				if(transition.GetPostset().size() == 0 || transition.hasUntimedPostset()){
+				int stop = max(start, calculateStop(transition, waitingDart.dart->getBase()));
+				int finalStop = min(stop, end);
+				for(int n = start; n <= finalStop; n++){
 					NonStrictMarkingBase Mpp(*waitingDart.dart->getBase());
-					Mpp.incrementAge(start);
+					Mpp.incrementAge(n);
+					int _end = n;
+					if(n == stop){
+						_end = calculatedStart.second;
+					}
+
 					vector<NonStrictMarkingBase*> next = getPossibleNextMarkings(Mpp, transition);
 					for(vector<NonStrictMarkingBase*>::iterator it = next.begin(); it != next.end(); it++){
 						if(options.GetTrace() == SOME){
 							(*it)->SetGeneratedBy(&transition);
 						}
-						if(addToPW(*it, waitingDart.dart, calculatedStart.second)){
+						if(addToPW(*it, waitingDart.dart, _end)){
 							lastMarking->first->generatedBy = &transition;
 							return true;
 						}
 					}
-				}else{
-					int stop = max(start, calculateStop(transition, waitingDart.dart->getBase()));
-					int finalStop = min(stop, end);
-					for(int n = start; n <= finalStop; n++){
-						NonStrictMarkingBase Mpp(*waitingDart.dart->getBase());
-						Mpp.incrementAge(n);
-						int _end = n;
-						if(n == stop){
-							_end = calculatedStart.second;
-						}
 
-						vector<NonStrictMarkingBase*> next = getPossibleNextMarkings(Mpp, transition);
-						for(vector<NonStrictMarkingBase*>::iterator it = next.begin(); it != next.end(); it++){
-							if(options.GetTrace() == SOME){
-								(*it)->SetGeneratedBy(&transition);
-							}
-							if(addToPW(*it, waitingDart.dart, _end)){
-								lastMarking->first->generatedBy = &transition;
-								return true;
-							}
-						}
-
-						pwList->flushBuffer();
-					}
+					pwList->flushBuffer();
 				}
 			}
 		}
