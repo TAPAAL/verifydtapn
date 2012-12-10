@@ -106,6 +106,7 @@ bool TimeDartLiveness::Verify(){
 			return true;	/* DEADLOCK! */
 		}
                 deleteBase(waitingDart.dart->getBase());
+                waitingDart.dart->setBase(NULL);
 	}
 
 	return false;

@@ -59,6 +59,7 @@ namespace VerifyTAPN {
 
                 if (!res.isNew) {
                     TimeDart* td = res.encoding.GetMetaData();
+                    td->setBase(marking);
                     std::pair < TimeDart*, bool> result(td, false);
                     td->setWaiting(min(td->getWaiting(), youngest));
                            
@@ -98,7 +99,8 @@ namespace VerifyTAPN {
         void TimeDartLivenessPWPData::PopWaiting() {
             EncodingPointer<WaitingDart>* ewp =  waiting_list->Pop();
             WaitingDart* wd = ewp->encoding.GetMetaData();
- //           delete wd->dart->getBase();
+            delete wd->dart->getBase();
+            wd->dart->setBase(NULL);
             delete wd;
             ewp->encoding.Release();
             delete ewp;
