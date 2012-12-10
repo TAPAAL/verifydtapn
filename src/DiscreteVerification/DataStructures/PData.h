@@ -53,8 +53,7 @@ namespace VerifyTAPN {
             countSize(0),
             enumeratedOffset(0),
             numberOfVariables(0),
-            cachesize(0),
-            tapn(){};
+            cachesize(0){};
 
             PData(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, int knumber, int nplaces, int mage) :
             k(knumber),

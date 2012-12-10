@@ -164,6 +164,7 @@ bool TimeDartLiveness::addToPW(NonStrictMarkingBase* marking, TimeDart* parent, 
 	pwList->SetMaxNumTokensIfGreater(size);
 
 	if(size > options.GetKBound()) {
+                delete marking;
 		return false;
 	}
 
@@ -197,7 +198,7 @@ bool TimeDartLiveness::addToPW(NonStrictMarkingBase* marking, TimeDart* parent, 
 			return true;
 		}
 	}
-
+        deleteBase(marking);
 	return false;
 }
 

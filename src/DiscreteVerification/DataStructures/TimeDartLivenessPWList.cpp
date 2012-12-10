@@ -52,51 +52,7 @@ namespace VerifyTAPN {
         }
 
         std::pair<TimeDart*, bool> TimeDartLivenessPWPData::Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* marking, int youngest, TimeDart* parent, int upper) {
- /*           discoveredMarkings++;
-            PData<TimeDart>::Result res = passed.Add(marking);
-            std::pair < TimeDart*, bool> result;
 
-            if (!res.isNew) {
-                TimeDart* t = res.encoding.GetMetaData();
-                t->setWaiting(min(t->getWaiting(), youngest));
- //               delete marking;
-                if (t->getWaiting() < t->getPassed()) {
-                    EncodingStructure<WaitingDart*> es;
-                    es.Copy(res.encoding.GetRaw(), res.encoding.Size());
-                    WaitingDart* d = new WaitingDart(t, parent, youngest, upper);
-                    es.SetMetaData(d);
-                    EncodingPointer<WaitingDart>* ewp = new EncodingPointer<WaitingDart > (es, res.pos);
-                    waiting_list->Add(t->getBase(), ewp);
-                    if (es.GetMetaData() != d) {
-                        cout << "error" << endl;
-                    }
-                    if (res.encoding.GetMetaData() != t) {
-                        cout << "error" << endl;
-                    }
-                    return std::pair < TimeDart*, bool> (t, true);
-                } else {
-                    return std::pair < TimeDart*, bool> (t, false);
-                }
-            }
-
-            stored++;
-            TimeDart* dart = new TimeDart(marking, youngest, INT_MAX);
-            WaitingDart* wd = new WaitingDart(dart, parent, youngest, upper);
-            EncodingStructure<WaitingDart*> es;
-            es.Copy(res.encoding.GetRaw(), res.encoding.Size());
-            es.SetMetaData(wd);
-            EncodingPointer<WaitingDart>* ewp = new EncodingPointer<WaitingDart > (es, res.pos);
-            res.encoding.SetMetaData(dart);
-            waiting_list->Add(marking, ewp);
-            result.first = dart;
-            result.second = true;
-            if (es.GetMetaData() != wd) {
-                cout << "error" << endl;
-            }
-            if (res.encoding.GetMetaData() != dart) {
-                cout << "error" << endl;
-            }
-            return result;*/
             
             discoveredMarkings++;
             PData<TimeDart>::Result res = passed.Add(marking);
@@ -115,9 +71,6 @@ namespace VerifyTAPN {
                         waiting_list->Add(marking, ewp);
                         result.second = true;
                     }
-
-                    delete marking;
-
                     return result;
                 }
             
@@ -135,12 +88,17 @@ namespace VerifyTAPN {
         }
 
         WaitingDart* TimeDartLivenessPWPData::GetNextUnexplored() {
+            EncodingPointer<WaitingDart>* ewp =  waiting_list->Peek();
+            WaitingDart* wd = ewp->encoding.GetMetaData();
+            NonStrictMarkingBase* base = passed.EnumerateDecode(*((EncodingPointer<TimeDart>*)ewp));
+            wd->dart->setBase(base);
             return waiting_list->Peek()->encoding.GetMetaData();
         }
 
         void TimeDartLivenessPWPData::PopWaiting() {
             EncodingPointer<WaitingDart>* ewp =  waiting_list->Pop();
             delete ewp->encoding.GetMetaData();
+            ewp->encoding.Release();
             delete ewp;
         }
 

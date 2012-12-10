@@ -28,11 +28,13 @@ namespace VerifyTAPN {
 
         class TimeDartLiveness : public TimeDartVerification {
         public:
+
             TimeDartLiveness(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarkingBase& initialMarking, AST::Query* query, VerificationOptions options)
-            : TimeDartVerification(tapn, options, query, initialMarking)
-            {};
+            : TimeDartVerification(tapn, options, query, initialMarking) {
+            };
+
             TimeDartLiveness(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarkingBase& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<WaitingDart>* waiting_list)
-            : TimeDartVerification(tapn, options, query, initialMarking){
+            : TimeDartVerification(tapn, options, query, initialMarking) {
                 pwList = new TimeDartLivenessPWHashMap(waiting_list);
             };
             virtual ~TimeDartLiveness();
@@ -49,19 +51,29 @@ namespace VerifyTAPN {
         protected:
             int validChildren;
             TimeDartLivenessPWBase* pwList;
+
+            virtual inline void deleteBase(NonStrictMarkingBase* base) {
+                //
+            }
         public:
             void printStats();
             void GetTrace();
         private:
             TraceList* lastMarking;
         };
-        
+
         class TimeDartLivenessPData : public TimeDartLiveness {
         public:
+
             TimeDartLivenessPData(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarkingBase& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<EncodingPointer<WaitingDart> >* waiting_list)
-            : TimeDartLiveness(tapn, initialMarking, query, options){
+            : TimeDartLiveness(tapn, initialMarking, query, options) {
                 pwList = new TimeDartLivenessPWPData(waiting_list, tapn, options.GetKBound(), tapn->NumberOfPlaces(), tapn->MaxConstant());
             };
+        protected:
+
+            virtual inline void deleteBase(NonStrictMarkingBase* base) {
+                delete base;
+            }
         };
 
     } /* namespace DiscreteVerification */

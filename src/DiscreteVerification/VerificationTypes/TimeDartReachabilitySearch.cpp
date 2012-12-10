@@ -124,6 +124,7 @@ bool TimeDartReachabilitySearch::addToPW(NonStrictMarkingBase* marking){
 	pwList->SetMaxNumTokensIfGreater(size);
 
 	if(size > options.GetKBound()) {
+                delete marking;
 		return false;
 	}
 
@@ -135,7 +136,7 @@ bool TimeDartReachabilitySearch::addToPW(NonStrictMarkingBase* marking){
 			lastMarking = marking;
 			return true;
 		} else {
-                    deleteBase(marking);
+                        deleteBase(marking);
 			return false;
 		}
 	}
