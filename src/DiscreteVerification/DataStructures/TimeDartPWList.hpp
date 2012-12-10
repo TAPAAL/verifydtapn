@@ -82,9 +82,6 @@ namespace VerifyTAPN {
         class TimeDartPWPData : public TimeDartPWBase {
         public:
 
-            TimeDartPWPData() : TimeDartPWBase(), waiting_list(), passed() {
-            };
-
             TimeDartPWPData(WaitingList<EncodingPointer<TimeDart> >* w_l, boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, int knumber, int nplaces, int mage) :
             TimeDartPWBase(), waiting_list(w_l), passed(tapn, knumber, nplaces, mage) {
             };
