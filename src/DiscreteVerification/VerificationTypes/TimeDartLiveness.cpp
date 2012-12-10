@@ -75,7 +75,8 @@ bool TimeDartLiveness::Verify(){
 			int end = min(passed-1, calculatedStart.second);
 			if(start <= end){
 
-				if(transition.GetPostset().size() == 0 || transition.hasUntimedPostset()){
+				if(false){
+				/*if(transition.GetPostset().size() == 0 || transition.hasUntimedPostset()){
 					NonStrictMarkingBase Mpp(*waitingDart.dart->getBase());
 					Mpp.incrementAge(start);
 					vector<NonStrictMarkingBase*> next = getPossibleNextMarkings(Mpp, transition);
@@ -87,7 +88,7 @@ bool TimeDartLiveness::Verify(){
 							lastMarking->first->generatedBy = &transition;
 							return true;
 						}
-					}
+					}*/
 				}else{
 					int stop = max(start, calculateStop(transition, waitingDart.dart->getBase()));
 					int finalStop = min(stop, end);
