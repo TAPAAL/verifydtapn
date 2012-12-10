@@ -97,7 +97,9 @@ namespace VerifyTAPN {
 
         void TimeDartLivenessPWPData::PopWaiting() {
             EncodingPointer<WaitingDart>* ewp =  waiting_list->Pop();
-            delete ewp->encoding.GetMetaData();
+            WaitingDart* wd = ewp->encoding.GetMetaData();
+ //           delete wd->dart->getBase();
+            delete wd;
             ewp->encoding.Release();
             delete ewp;
         }
