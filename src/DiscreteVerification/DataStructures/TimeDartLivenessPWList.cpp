@@ -100,7 +100,6 @@ namespace VerifyTAPN {
             EncodingPointer<WaitingDart>* ewp =  waiting_list->Pop();
             WaitingDart* wd = ewp->encoding.GetMetaData();
             delete wd->dart->getBase();
-            wd->dart->setBase(NULL);
             delete wd;
             ewp->encoding.Release();
             delete ewp;
