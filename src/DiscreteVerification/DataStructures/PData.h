@@ -53,7 +53,7 @@ namespace VerifyTAPN {
             maxAge(mage + 1),
             numberOfPlaces(nplaces),
             countSize(ceil(log2((knumber ? knumber : 1)) + 1)),
-            enumeratedOffset(ceil(log2((nplaces * (mage + 1)) + 1)) + countSize),
+            enumeratedOffset(ceil(log2((nplaces * (mage + 1))) + 1) + countSize),
             numberOfVariables(enumeratedOffset * (knumber ? knumber : 1)),
             cachesize(128),
             tapn(tapn) {
