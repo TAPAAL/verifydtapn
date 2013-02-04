@@ -261,7 +261,6 @@ namespace VerifyTAPN {
         rapidxml::xml_node<>* TimeDartVerification::CreateTransitionNode(NonStrictMarkingBase* old, NonStrictMarkingBase* current, rapidxml::xml_document<>& doc) {
             using namespace rapidxml;
             
-            cout << *current << endl;
             
             xml_node<>* transitionNode = doc.allocate_node(node_element, "transition");
             xml_attribute<>* id = doc.allocate_attribute("id", current->generatedBy->GetId().c_str());
@@ -285,12 +284,10 @@ namespace VerifyTAPN {
                         intersect->places[i].tokens.begin()->remove((*arc_iter).lock()->GetWeight());
                     }
 		}
-                //createTransitionSubNodes(old, current, doc, transitionNode, arc_iter->lock()->InputPlace(), arc_iter->lock()->Interval(), arc_iter->lock()->GetWeight());
             }
             
-            intersect->CleanUp();
-            int intersectage = intersect->makeBase(tapn.get());
             int oldage = old->makeBase(tapn.get());
+            int intersectage = intersect->makeBase(tapn.get());
      
             for(PlaceList::const_iterator oit = old->places.begin(); oit != old->places.end(); oit++){
                 bool handled = false;
@@ -324,6 +321,10 @@ namespace VerifyTAPN {
                         transitionNode->append_node(this->createTokenNode(doc,*oit->place, t));                            
                     }
                 }
+/*                if(intersectage > oldage && ){
+                    xml_node<>* node = doc.allocate_node(node_element, "delay", doc.allocate_string(ToString(intersectage-oldage).c_str()));
+                    doc.first_node("trace",5,false)->append_node(node);
+                }*/
             }
             return transitionNode;
         }

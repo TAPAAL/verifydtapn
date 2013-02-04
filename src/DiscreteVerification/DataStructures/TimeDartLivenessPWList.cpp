@@ -24,8 +24,7 @@ namespace VerifyTAPN {
                         if(options.GetTrace()){
 
                             waiting_list->Add((*iter)->getBase(), new TraceDart((*iter), parent, youngest, upper, marking->generatedBy));
-                            if(marking->generatedBy != NULL)
-                                cout << marking->generatedBy->GetIndex() << endl;
+
                         } else {
                             waiting_list->Add((*iter)->getBase(), new WaitingDart((*iter), parent, youngest, upper));
                         }
@@ -43,8 +42,7 @@ namespace VerifyTAPN {
             if(options.GetTrace()){
 
                 waiting_list->Add(dart->getBase(), new TraceDart(dart, parent, youngest, upper, marking->generatedBy));
-                if(marking->generatedBy != NULL)
-                        cout << marking->generatedBy->GetIndex() << endl;
+
             } else {
                 waiting_list->Add(dart->getBase(), new WaitingDart(dart, parent, youngest, upper));                
             }
