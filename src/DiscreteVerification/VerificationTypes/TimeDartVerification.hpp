@@ -10,46 +10,52 @@
 #include <stack>
 
 namespace VerifyTAPN {
-namespace DiscreteVerification {
+    namespace DiscreteVerification {
 
-using namespace rapidxml;
+        using namespace rapidxml;
 
-typedef pair<NonStrictMarkingBase*, int> TraceList;
+        typedef pair<NonStrictMarkingBase*, int> TraceList;
 
-class TimeDartVerification : public Verification<NonStrictMarkingBase> {
-public:
+        class TimeDartVerification : public Verification<NonStrictMarkingBase> {
+        public:
 
-	TimeDartVerification(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, VerificationOptions options, AST::Query* query, NonStrictMarkingBase& initialMarking):
-		query(query), options(options), tapn(tapn), initialMarking(initialMarking), exploredMarkings(0), allwaysEnabled(), successorGenerator(*tapn.get()){
+            TimeDartVerification(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, VerificationOptions options, AST::Query* query, NonStrictMarkingBase& initialMarking) :
+            query(query), options(options), tapn(tapn), initialMarking(initialMarking), exploredMarkings(0), allwaysEnabled(), successorGenerator(*tapn.get()) {
 
-		//Find the transitions which don't have input arcs
-		for(TimedTransition::Vector::const_iterator iter = tapn->GetTransitions().begin(); iter != tapn->GetTransitions().end(); iter++){
-			if((*iter)->GetPreset().size() + (*iter)->GetTransportArcs().size() == 0){
-				allwaysEnabled.push_back(iter->get());
-			}
-		}
-	}
+                //Find the transitions which don't have input arcs
+                for (TimedTransition::Vector::const_iterator iter = tapn->GetTransitions().begin(); iter != tapn->GetTransitions().end(); iter++) {
+                    if ((*iter)->GetPreset().size() + (*iter)->GetTransportArcs().size() == 0) {
+                        allwaysEnabled.push_back(iter->get());
+                    }
+                }
+            }
 
-	std::pair<int, int> calculateStart(const TAPN::TimedTransition& transition, NonStrictMarkingBase* marking);
-	int calculateStop(const TAPN::TimedTransition& transition, NonStrictMarkingBase* marking);
-	int maxPossibleDelay(NonStrictMarkingBase* marking);
-	vector<NonStrictMarkingBase*> getPossibleNextMarkings(NonStrictMarkingBase& marking, const TimedTransition& transition);
-	void PrintXMLTrace(TraceList* m, std::stack<TraceList*>& stack, Quantifier query);
-	void PrintTransitionStatistics() const { successorGenerator.PrintTransitionStatistics(std::cout); }
+            std::pair<int, int> calculateStart(const TAPN::TimedTransition& transition, NonStrictMarkingBase* marking);
+            int calculateStop(const TAPN::TimedTransition& transition, NonStrictMarkingBase* marking);
+            int maxPossibleDelay(NonStrictMarkingBase* marking);
+            vector<NonStrictMarkingBase*> getPossibleNextMarkings(NonStrictMarkingBase& marking, const TimedTransition& transition);
 
-protected:
-	AST::Query* query;
-	VerificationOptions options;
-	boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn;
-	NonStrictMarkingBase& initialMarking;
-	int exploredMarkings;
-	vector<const TAPN::TimedTransition*> allwaysEnabled;
+            void PrintTransitionStatistics() const {
+                successorGenerator.PrintTransitionStatistics(std::cout);
+            }
 
-private:
-	TimeDartSuccessorGenerator successorGenerator;
+        protected:
+            AST::Query* query;
+            VerificationOptions options;
+            boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn;
+            NonStrictMarkingBase& initialMarking;
+            int exploredMarkings;
+            vector<const TAPN::TimedTransition*> allwaysEnabled;
+            bool loop = false;            
 
-};
-}
+            
+            void PrintXMLTrace(NonStrictMarkingBase* m, std::stack<NonStrictMarkingBase*>& stack, AST::Quantifier query);
+            rapidxml::xml_node<>* CreateTransitionNode(NonStrictMarkingBase* old, NonStrictMarkingBase* current, rapidxml::xml_document<>& doc);
+        private:
+            TimeDartSuccessorGenerator successorGenerator;
+
+        };
+    }
 }
 
 #endif

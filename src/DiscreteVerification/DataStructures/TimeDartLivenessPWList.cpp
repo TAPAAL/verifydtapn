@@ -10,7 +10,7 @@
 namespace VerifyTAPN {
     namespace DiscreteVerification {
 
-        std::pair<TimeDart*, bool> TimeDartLivenessPWHashMap::Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* marking, int youngest, TimeDart* parent, int upper) {
+        std::pair<TimeDart*, bool> TimeDartLivenessPWHashMap::Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* marking, int youngest, WaitingDart* parent, int upper) {
             discoveredMarkings++;
             TimeDartList& m = markings_storage[marking->HashKey()];
             for (TimeDartList::const_iterator iter = m.begin();
@@ -21,7 +21,14 @@ namespace VerifyTAPN {
                     (*iter)->setWaiting(min((*iter)->getWaiting(), youngest));
 
                     if ((*iter)->getWaiting() < (*iter)->getPassed()) {
-                        waiting_list->Add((*iter)->getBase(), new WaitingDart((*iter), parent, youngest, upper));
+                        if(options.GetTrace()){
+
+                            waiting_list->Add((*iter)->getBase(), new TraceDart((*iter), parent, youngest, upper, marking->generatedBy));
+                            if(marking->generatedBy != NULL)
+                                cout << marking->generatedBy->GetIndex() << endl;
+                        } else {
+                            waiting_list->Add((*iter)->getBase(), new WaitingDart((*iter), parent, youngest, upper));
+                        }
                         result.second = true;
                     }
 
@@ -33,7 +40,14 @@ namespace VerifyTAPN {
             stored++;
             TimeDart* dart = new TimeDart(marking, youngest, INT_MAX);
             m.push_back(dart);
-            waiting_list->Add(dart->getBase(), new WaitingDart(dart, parent, youngest, upper));
+            if(options.GetTrace()){
+
+                waiting_list->Add(dart->getBase(), new TraceDart(dart, parent, youngest, upper, marking->generatedBy));
+                if(marking->generatedBy != NULL)
+                        cout << marking->generatedBy->GetIndex() << endl;
+            } else {
+                waiting_list->Add(dart->getBase(), new WaitingDart(dart, parent, youngest, upper));                
+            }
             std::pair < TimeDart*, bool> result(dart, true);
             return result;
         }
@@ -51,7 +65,7 @@ namespace VerifyTAPN {
             waiting_list->flushBuffer();
         }
 
-        std::pair<TimeDart*, bool> TimeDartLivenessPWPData::Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* marking, int youngest, TimeDart* parent, int upper) {
+        std::pair<TimeDart*, bool> TimeDartLivenessPWPData::Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* marking, int youngest, WaitingDart* parent, int upper) {
 
             
             discoveredMarkings++;

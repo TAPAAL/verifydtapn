@@ -104,7 +104,7 @@ void TimeDartReachabilitySearch::GetTrace(){
 		current = &trace[current->first];
 	}
 
-	PrintXMLTrace(new TraceList(lastMarking,0), traceStack, query->GetQuantifier());
+//	PrintXMLTrace( traceStack, query->GetQuantifier());
 }
 
 

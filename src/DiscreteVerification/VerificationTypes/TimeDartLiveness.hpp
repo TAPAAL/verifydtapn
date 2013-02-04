@@ -35,7 +35,7 @@ namespace VerifyTAPN {
 
             TimeDartLiveness(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarkingBase& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<WaitingDart>* waiting_list)
             : TimeDartVerification(tapn, options, query, initialMarking) {
-                pwList = new TimeDartLivenessPWHashMap(waiting_list);
+                pwList = new TimeDartLivenessPWHashMap( options, waiting_list);
             };
             virtual ~TimeDartLiveness();
             bool Verify();
@@ -45,7 +45,7 @@ namespace VerifyTAPN {
             };
 
         protected:
-            bool addToPW(NonStrictMarkingBase* marking, TimeDart* parent, int upper);
+            bool addToPW(NonStrictMarkingBase* marking, WaitingDart* parent, int upper);
             bool canDelayForever(NonStrictMarkingBase* marking);
 
         protected:
@@ -59,7 +59,7 @@ namespace VerifyTAPN {
             void printStats();
             void GetTrace();
         private:
-            TraceList* lastMarking;
+            WaitingDart* lastMarking;
         };
 
         class TimeDartLivenessPData : public TimeDartLiveness {

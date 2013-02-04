@@ -13,6 +13,7 @@ namespace VerifyTAPN {
 
 	class VerificationOptions {
 		public:
+                        VerificationOptions(){}
 			VerificationOptions(
 				const std::string& inputFile,
 				const std::string& queryFile,

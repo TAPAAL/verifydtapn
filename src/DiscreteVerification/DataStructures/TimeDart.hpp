@@ -45,30 +45,40 @@ private:
 
 struct WaitingDart{
 	TimeDart* dart;
-	TimeDart* parent;
+	WaitingDart* parent;
 	int w;
 	int upper;
 
-	WaitingDart(TimeDart* dart, TimeDart* parent, int w, int upper) : dart(dart), parent(parent), w(w), upper(upper){
+	WaitingDart(TimeDart* dart, WaitingDart* parent, int w, int upper) : dart(dart), parent(parent), w(w), upper(upper){
 
 	}
 
 	~WaitingDart(){
-			if(parent != NULL && parent->traceData != NULL){
-				for(TraceMetaDataList::iterator iter = parent->traceData->begin(); iter != parent->traceData->end(); iter++){
+			if(parent != NULL && parent->dart->traceData != NULL){
+				for(TraceMetaDataList::iterator iter = parent->dart->traceData->begin(); iter != parent->dart->traceData->end(); iter++){
 					if((*iter) == this){
-						parent->traceData->erase(iter);
+						parent->dart->traceData->erase(iter);
 						break;
 					}
 				}
-				if(parent->traceData->empty()){
-					delete parent->traceData;
-					parent->traceData = NULL;
+				if(parent->dart->traceData->empty()){
+					delete parent->dart->traceData;
+					parent->dart->traceData = NULL;
 				}
 			}
 		}
 };
 
+struct TraceDart : WaitingDart {
+    TAPN::TimedTransition* generatedBy;
+    TraceDart(TraceDart &t) : TraceDart(t.dart, t.parent, t.w, t.upper, t.generatedBy){
+
+    };
+    TraceDart(TimeDart* dart, WaitingDart* parent, int w, int upper, TAPN::TimedTransition* GeneratedBy) : WaitingDart(dart, parent, w, upper), generatedBy(GeneratedBy){
+
+	}
+    
+};
 }
 }
 

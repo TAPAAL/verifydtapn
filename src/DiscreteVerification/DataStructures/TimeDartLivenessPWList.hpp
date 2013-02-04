@@ -44,7 +44,7 @@ namespace VerifyTAPN {
             };
 
         public: // modifiers
-            virtual std::pair<TimeDart*, bool> Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* base, int youngest, TimeDart* parent, int upper) = 0;
+            virtual std::pair<TimeDart*, bool> Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* base, int youngest, WaitingDart* parent, int upper) = 0;
             virtual WaitingDart* GetNextUnexplored() = 0;
             virtual void PopWaiting() = 0;
             virtual void flushBuffer() = 0;
@@ -64,13 +64,13 @@ namespace VerifyTAPN {
 
             TimeDartLivenessPWHashMap() : markings_storage(), waiting_list(){};
             
-            TimeDartLivenessPWHashMap(WaitingList<WaitingDart>* w_l) : TimeDartLivenessPWBase(), markings_storage(256000), waiting_list(w_l) {
+            TimeDartLivenessPWHashMap(VerificationOptions options, WaitingList<WaitingDart>* w_l) : TimeDartLivenessPWBase(), options(options), markings_storage(256000), waiting_list(w_l) {
             };
 
             ~TimeDartLivenessPWHashMap() {
             };
             friend std::ostream& operator<<(std::ostream& out, TimeDartLivenessPWHashMap& x);
-            virtual std::pair<TimeDart*, bool> Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* base, int youngest, TimeDart* parent, int upper);
+            virtual std::pair<TimeDart*, bool> Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* base, int youngest, WaitingDart* parent, int upper);
             virtual WaitingDart* GetNextUnexplored();
             virtual void PopWaiting();
 
@@ -79,7 +79,7 @@ namespace VerifyTAPN {
             };
             virtual void flushBuffer();
         private:
-
+            VerificationOptions options;
             HashMap markings_storage;
             WaitingList<WaitingDart>* waiting_list;
         };
@@ -95,7 +95,7 @@ namespace VerifyTAPN {
             ~TimeDartLivenessPWPData() {
             };
             friend std::ostream& operator<<(std::ostream& out, TimeDartLivenessPWHashMap& x);
-            virtual std::pair<TimeDart*, bool> Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* base, int youngest, TimeDart* parent, int upper);
+            virtual std::pair<TimeDart*, bool> Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* base, int youngest, WaitingDart* parent, int upper);
             virtual WaitingDart* GetNextUnexplored();
             virtual void PopWaiting();
 
