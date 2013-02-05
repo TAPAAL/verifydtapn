@@ -188,7 +188,7 @@ namespace VerifyTAPN {
             stack.pop();
 
             while (!stack.empty()) {
-                root->append_node(CreateTransitionNode(old, stack.top(), doc));
+                CreateTransitionNode(old, stack.top(), doc);
                 old = stack.top();
                 stack.pop();
             }
@@ -258,7 +258,7 @@ namespace VerifyTAPN {
             std::cerr << doc;
         }
 
-        rapidxml::xml_node<>* TimeDartVerification::CreateTransitionNode(NonStrictMarkingBase* old, NonStrictMarkingBase* current, rapidxml::xml_document<>& doc) {
+        void TimeDartVerification::CreateTransitionNode(NonStrictMarkingBase* old, NonStrictMarkingBase* current, rapidxml::xml_document<>& doc) {
             using namespace rapidxml;
 
 
@@ -281,7 +281,6 @@ namespace VerifyTAPN {
             // transported tokens dont change age - hence, find out the delay and create basemarkings
             int intersectage = intersect->makeBase(tapn.get());
             int oldage = old->makeBase(tapn.get());
-            int delay = oldage - intersect;
             // remove all "transported" tokens
 
 
@@ -309,19 +308,22 @@ namespace VerifyTAPN {
                     }
                 }
                 // find ages
-                if (newsrc >= 0) {
+                
                     for (TokenList::const_iterator otit = old->places[src].tokens.begin(); otit != old->places[src].tokens.end(); otit++) {
+                        
                         bool found = false;
-                        for (TokenList::const_iterator ntit = intersect->places[newsrc].tokens.begin(); ntit != intersect->places[newsrc].tokens.end(); ntit++) {
-                            if(ntit->getAge() == otit->getAge()){
-                                if(ntit->getCount() != otit->getCount()){
-                                    int diff = ntit->getCount() - otit->getCount();
+                        if (newsrc >= 0) {      // if the src exists in the intersecttoken, find the ages
+                            for (TokenList::const_iterator ntit = intersect->places[newsrc].tokens.begin(); ntit != intersect->places[newsrc].tokens.end(); ntit++) {
+                                if(ntit->getAge() == otit->getAge()){
+                                    if(ntit->getCount() != otit->getCount()){
+                                        int diff = ntit->getCount() - otit->getCount(); // work in progress
+                                    }
+                                    found = true;
+                                    break;
                                 }
-                                found = true;
-                                break;
                             }
                         }
-                        if(!found){
+                        if(!found){     // if no matches found, remove all at destination
                             int count = otit->getCount();   // count to remove
                             while(count > 0){
                                 intersect->RemoveToken((*arc_iter).lock()->Destination().GetIndex(),otit->getAge());
@@ -329,9 +331,6 @@ namespace VerifyTAPN {
                             }
                         }
                     }
-                } else {
-                    // remove ALL!
-                }
             }
             intersect->CleanUp();
 
@@ -368,12 +367,13 @@ namespace VerifyTAPN {
                         transitionNode->append_node(this->createTokenNode(doc, *oit->place, t));
                     }
                 }
-                /*                if(intersectage > oldage && ){
-                                    xml_node<>* node = doc.allocate_node(node_element, "delay", doc.allocate_string(ToString(intersectage-oldage).c_str()));
-                                    doc.first_node("trace",5,false)->append_node(node);
-                                }*/
+
             }
-            return transitionNode;
+            doc.first_node("trace",5,false)->append_node(transitionNode);
+            if(intersectage > oldage){
+                xml_node<>* node = doc.allocate_node(node_element, "delay", doc.allocate_string(ToString(intersectage-oldage).c_str()));
+                doc.first_node("trace",5,false)->append_node(node);
+            }
         }
     }
 }
