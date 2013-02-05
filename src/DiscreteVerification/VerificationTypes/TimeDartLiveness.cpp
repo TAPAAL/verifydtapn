@@ -123,11 +123,14 @@ namespace VerifyTAPN {
                 upper = trace->upper;
                 trace = trace->parent;
             }
-
+            
+            NonStrictMarkingBase* m = new NonStrictMarkingBase(*(lastMarking->dart->getBase()));
+            m->SetGeneratedBy(((TraceDart*)lastMarking)->generatedBy);
+            m->incrementAge(lastMarking->w);
             
             traceStack.push(&initialMarking);
             
-            PrintXMLTrace(lastMarking->dart->getBase(), traceStack, query->GetQuantifier());
+            PrintXMLTrace(m, traceStack, query->GetQuantifier());
         }
 
         bool TimeDartLiveness::canDelayForever(NonStrictMarkingBase* marking) {

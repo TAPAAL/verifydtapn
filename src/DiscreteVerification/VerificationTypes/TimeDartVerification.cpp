@@ -189,13 +189,13 @@ namespace VerifyTAPN {
 
             while (!stack.empty()) {
                 CreateTransitionNode(old, stack.top(), doc);
-                old = stack.top();
+                old = stack.top();             
+                if(stack.top()->equals(*m)){
+                    root->append_node(doc.allocate_node(node_element, "loop"));
+                }
                 stack.pop();
             }
 
-
-            if (loop)
-                root->append_node(doc.allocate_node(node_element, "loop"));
             /*
              while (!stack.empty()) {
                  if (isFirst) {
