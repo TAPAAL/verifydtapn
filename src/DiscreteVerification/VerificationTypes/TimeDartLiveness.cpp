@@ -130,7 +130,7 @@ namespace VerifyTAPN {
             
             traceStack.push(&initialMarking);
             
-            PrintXMLTrace(m, traceStack, query->GetQuantifier());
+            PrintXMLTraceTimeDart(m, traceStack, query->GetQuantifier());
         }
 
         bool TimeDartLiveness::canDelayForever(NonStrictMarkingBase* marking) {

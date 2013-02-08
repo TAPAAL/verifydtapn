@@ -49,7 +49,7 @@ namespace VerifyTAPN {
             bool loop = false;            
 
             
-            void PrintXMLTrace(NonStrictMarkingBase* m, std::stack<NonStrictMarkingBase*>& stack, AST::Quantifier query);
+            void PrintXMLTraceTimeDart(NonStrictMarkingBase* m, std::stack<NonStrictMarkingBase*>& stack, AST::Quantifier query);
             void CreateTransitionNode(NonStrictMarkingBase* old, NonStrictMarkingBase* current, rapidxml::xml_document<>& doc);
         private:
             TimeDartSuccessorGenerator successorGenerator;

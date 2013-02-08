@@ -162,7 +162,7 @@ namespace VerifyTAPN {
             return successorGenerator.generateSuccessors(marking, transition);
         }
 
-        void TimeDartVerification::PrintXMLTrace(NonStrictMarkingBase* m, std::stack<NonStrictMarkingBase*>& stack, AST::Quantifier query) {
+        void TimeDartVerification::PrintXMLTraceTimeDart(NonStrictMarkingBase* m, std::stack<NonStrictMarkingBase*>& stack, AST::Quantifier query) {
             using namespace rapidxml;
             std::cerr << "Trace: " << std::endl;
             bool isFirst = true;
@@ -170,6 +170,8 @@ namespace VerifyTAPN {
             bool delayedForever = false;
             NonStrictMarkingBase* old;
 
+            std::stack<NonStrictMarkingBase*> newStack = std::stack<NonStrictMarkingBase*>(); 
+            
             xml_document<> doc;
             xml_node<>* root = doc.allocate_node(node_element, "trace");
             doc.append_node(root);
