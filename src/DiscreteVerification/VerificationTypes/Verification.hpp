@@ -150,7 +150,9 @@ namespace VerifyTAPN {
                         stack.push(old);
                     }
                 }
-
+                cout << *m << endl;
+                cout << *stack.top() << endl;
+                
                 if ((query == AST::EG || query == AST::AF)
                         && (stack.size() > 1 && stack.top()->equals(*m))
                         && (m->GetGeneratedBy() || stack.top()->parent)) {

@@ -48,9 +48,6 @@ namespace VerifyTAPN {
             vector<const TAPN::TimedTransition*> allwaysEnabled;
             bool loop = false;            
 
-            
-            void PrintXMLTraceTimeDart(NonStrictMarkingBase* m, std::stack<NonStrictMarkingBase*>& stack, AST::Quantifier query);
-            void CreateTransitionNode(NonStrictMarkingBase* old, NonStrictMarkingBase* current, rapidxml::xml_document<>& doc);
         private:
             TimeDartSuccessorGenerator successorGenerator;
 

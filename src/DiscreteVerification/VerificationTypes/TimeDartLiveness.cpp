@@ -33,7 +33,7 @@ namespace VerifyTAPN {
                 if (canDelayForever(waitingDart.dart->getBase())) {
                     NonStrictMarkingBase* lm = new NonStrictMarkingBase(*waitingDart.dart->getBase());
                     lm->generatedBy = waitingDart.dart->getBase()->generatedBy;
-                   // lastMarking = new TraceList(lm, waitingDart.upper);
+                    // lastMarking = new TraceList(lm, waitingDart.upper);
                     lastMarking = &waitingDart;
                     return true;
                 }
@@ -89,7 +89,7 @@ namespace VerifyTAPN {
                             for (vector<NonStrictMarkingBase*>::iterator it = next.begin(); it != next.end(); it++) {
 
                                 if (addToPW(*it, &waitingDart, _end)) {
-                                     return true;
+                                    return true;
                                 }
                             }
 
@@ -113,24 +113,63 @@ namespace VerifyTAPN {
         void TimeDartLiveness::GetTrace() {
             stack<NonStrictMarkingBase*> traceStack;
             int upper = lastMarking->w;
-            TraceDart* trace = lastMarking;
+            TraceDart* trace = (TraceDart*) lastMarking;
+            NonStrictMarkingBase* last = NULL;
 
-            while(trace != NULL){
+            while (trace != NULL) {
+
+                int lower;
+                if (trace->generatedBy != NULL && trace->generatedBy->NumberOfInputArcs() > 0) {
+                    // if there are consumed (and produced) tokens
+                    lower = 0;
+                } else {
+                    // if only transport-arcs
+                    if (trace->parent != NULL) {
+                        // find the initial age
+                        if (trace->parent->parent == NULL) {
+                            // if parent is the initialMarking
+                            lower = trace->w;
+                        } else {
+                            lower = trace->parent->upper;
+                        }
+                    } else {
+                        // if we have the initial marking
+                        lower = 0;
+                    }
+                }
+
                 NonStrictMarkingBase* m = new NonStrictMarkingBase(*(trace->dart->getBase()));
                 m->SetGeneratedBy(trace->generatedBy);
-                m->incrementAge(upper);
+                m->incrementAge(lower);
+
+                if (upper > lower) {
+                    int diff = upper - lower;
+                    while (diff) {
+                        NonStrictMarkingBase* mc = new NonStrictMarkingBase(*(trace->dart->getBase()));
+                        mc->incrementAge(diff);
+                        mc->SetGeneratedBy(NULL);
+                        if (last != NULL)
+                            last->parent = mc;
+                        last = mc;
+                        cout << *mc << endl;
+                        traceStack.push(mc);
+                        diff--;
+                    }
+
+                }
+                if (last != NULL)
+                    last->parent = m;
+                last = m;
+                cout << *m << endl;
                 traceStack.push(m);
+
                 upper = trace->upper;
-                trace = trace->parent;
+                trace = (TraceDart*) trace->parent;
             }
-            
-            NonStrictMarkingBase* m = new NonStrictMarkingBase(*(lastMarking->dart->getBase()));
-            m->SetGeneratedBy(((TraceDart*)lastMarking)->generatedBy);
-            m->incrementAge(lastMarking->w);
-            
-            traceStack.push(&initialMarking);
-            
-            PrintXMLTraceTimeDart(m, traceStack, query->GetQuantifier());
+
+            last = new NonStrictMarkingBase(*lastMarking->dart->getBase());
+            last->incrementAge(lastMarking->w);
+            PrintXMLTrace(last, traceStack, query->GetQuantifier());
         }
 
         bool TimeDartLiveness::canDelayForever(NonStrictMarkingBase* marking) {
@@ -183,14 +222,14 @@ namespace VerifyTAPN {
                     NonStrictMarkingBase* lm = new NonStrictMarkingBase(*result.first->getBase());
                     lm->parent = parent->dart->getBase();
                     //lastMarking = new TraceList(lm, upper);
-                    if(options.GetTrace()){
-                        TraceDart* t = new TraceDart(*(TraceDart*)lastMarking);
-                        lastMarking = new TraceDart(result.first, parent, result.first->getWaiting(), upper, transition ); 
+                    if (options.GetTrace()) {
+                        TraceDart* t = new TraceDart(*(TraceDart*) lastMarking);
+                        lastMarking = new TraceDart(result.first, parent, result.first->getWaiting(), upper, transition);
                         t->parent = lastMarking;
                         lastMarking = t;
 
                     } else {
-                        lastMarking = new WaitingDart(result.first, parent, result.first->getWaiting(), upper );
+                        lastMarking = new WaitingDart(result.first, parent, result.first->getWaiting(), upper);
                     }
                     return true;
                 }
