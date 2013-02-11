@@ -32,7 +32,7 @@ class TimeDartReachabilitySearch : public TimeDartVerification{
 public:
         TimeDartReachabilitySearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarkingBase& initialMarking, AST::Query* query, VerificationOptions options) 
         :TimeDartVerification(tapn, options, query, initialMarking), trace(10000){};
-        TimeDartReachabilitySearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarkingBase& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<TimeDart>* waiting_list)
+        TimeDartReachabilitySearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarkingBase& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<LivenessDart>* waiting_list)
         :TimeDartVerification(tapn, options, query, initialMarking), trace(10000){
             pwList = new TimeDartPWHashMap(waiting_list);
         };

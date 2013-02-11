@@ -14,15 +14,16 @@ namespace VerifyTAPN {
 namespace DiscreteVerification {
 
 struct WaitingDart;
+struct TraceDart;
 
 typedef vector<WaitingDart*> TraceMetaDataList;
 
-class TimeDart {
+class TimeDartBase {
 public:
-	TimeDart(NonStrictMarkingBase* base, int waiting, int passed)
-		: traceData(NULL), base(base), waiting(waiting), passed(passed){
+	TimeDartBase(NonStrictMarkingBase* base, int waiting, int passed)
+		: base(base), waiting(waiting), passed(passed){
 	}
-	~TimeDart(){
+	~TimeDartBase(){
 	}
 
 	//Getters
@@ -35,21 +36,42 @@ public:
 	inline void setWaiting(int w){ waiting = w; }
 	inline void setPassed(int p){ passed = p; }
 
-	TraceMetaDataList* traceData;
-
 private:
 	NonStrictMarkingBase* base;
 	int waiting;
 	int passed;
 };
 
+class ReachabilityDart : public TimeDartBase {
+public:
+    ReachabilityDart(NonStrictMarkingBase* base, int waiting, int passed)
+            : TimeDartBase(base, waiting, passed){
+    }
+};
+
+class ReachabilityTraceableDart : public ReachabilityDart {
+public:
+    ReachabilityTraceableDart(NonStrictMarkingBase* base, int waiting, int passed)
+            : ReachabilityDart(base, waiting, passed), parent(NULL){
+    }
+    TraceDart* parent;
+};
+
+class LivenessDart : public TimeDartBase {
+public:
+    LivenessDart(NonStrictMarkingBase* base, int waiting, int passed)
+		: TimeDartBase(base, waiting, passed), traceData(NULL){
+        }
+    TraceMetaDataList* traceData;
+};
+
 struct WaitingDart{
-	TimeDart* dart;
+	LivenessDart* dart;
 	WaitingDart* parent;
 	int w;
 	int upper;
 
-	WaitingDart(TimeDart* dart, WaitingDart* parent, int w, int upper) : dart(dart), parent(parent), w(w), upper(upper){
+	WaitingDart(LivenessDart* dart, WaitingDart* parent, int w, int upper) : dart(dart), parent(parent), w(w), upper(upper){
 
 	}
 
@@ -71,10 +93,10 @@ struct WaitingDart{
 
 struct TraceDart : WaitingDart {
     TAPN::TimedTransition* generatedBy;
-    TraceDart(TraceDart &t) : TraceDart(t.dart, t.parent, t.w, t.upper, t.generatedBy){
-
+    TraceDart(TraceDart &t) : WaitingDart(t.dart, t.parent, t.w, t.upper), generatedBy(t.generatedBy){
+        
     };
-    TraceDart(TimeDart* dart, WaitingDart* parent, int w, int upper, TAPN::TimedTransition* GeneratedBy) : WaitingDart(dart, parent, w, upper), generatedBy(GeneratedBy){
+    TraceDart(LivenessDart* dart, WaitingDart* parent, int w, int upper, TAPN::TimedTransition* GeneratedBy) : WaitingDart(dart, parent, w, upper), generatedBy(GeneratedBy){
 
 	}
     

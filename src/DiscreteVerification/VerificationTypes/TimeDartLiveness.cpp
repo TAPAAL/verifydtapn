@@ -199,7 +199,7 @@ namespace VerifyTAPN {
             boost::any context;
             query->Accept(checker, context);
             if (boost::any_cast<bool>(context)) {
-                std::pair < TimeDart*, bool> result = pwList->Add(tapn.get(), marking, youngest, parent, upper);
+                std::pair < LivenessDart*, bool> result = pwList->Add(tapn.get(), marking, youngest, parent, upper);
 
 
                 if (parent != NULL && parent->dart->getBase()->equals(*result.first->getBase()) && youngest <= upper) {

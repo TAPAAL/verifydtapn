@@ -29,7 +29,7 @@ namespace VerifyTAPN {
             }
         };
         
-        typedef EncodingPointer<TimeDart> TimeDartEncodingPointer;
+        typedef EncodingPointer<LivenessDart> TimeDartEncodingPointer;
         typedef EncodingPointer<WaitingDart> WaitingDartEncodingPointer;
         
         template<typename T>
