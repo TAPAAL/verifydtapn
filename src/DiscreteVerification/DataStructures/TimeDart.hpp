@@ -42,17 +42,11 @@ private:
 	int passed;
 };
 
-class ReachabilityDart : public TimeDartBase {
-public:
-    ReachabilityDart(NonStrictMarkingBase* base, int waiting, int passed)
-            : TimeDartBase(base, waiting, passed){
-    }
-};
 
-class ReachabilityTraceableDart : public ReachabilityDart {
+class ReachabilityTraceableDart : public TimeDartBase {
 public:
     ReachabilityTraceableDart(NonStrictMarkingBase* base, int waiting, int passed)
-            : ReachabilityDart(base, waiting, passed), parent(NULL){
+            : TimeDartBase(base, waiting, passed), parent(NULL){
     }
     TraceDart* parent;
 };

@@ -32,47 +32,47 @@ bool TimeDartPWHashMap::Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* 
 		}
 	}
 
-	LivenessDart* dart = new LivenessDart(marking, youngest, INT_MAX);
+	TimeDartBase* dart = new TimeDartBase(marking, youngest, INT_MAX);
         stored++;
 	m.push_back(dart);
 	waiting_list->Add(dart->getBase(), dart);
 	return true;
 }
 
-LivenessDart* TimeDartPWHashMap::GetNextUnexplored(){
+TimeDartBase* TimeDartPWHashMap::GetNextUnexplored(){
 	return waiting_list->Pop();
 }
 
 bool TimeDartPWPData::Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* marking){
 	discoveredMarkings++;
 	int youngest = marking->makeBase(tapn);
-        PData<LivenessDart>::Result res = passed.Add(marking);
+        PData<TimeDartBase>::Result res = passed.Add(marking);
 
         if(!res.isNew){
-            LivenessDart* t = res.encoding.GetMetaData();
+            TimeDartBase* t = res.encoding.GetMetaData();
             bool inWaiting = t->getWaiting() < t->getPassed();
             t->setWaiting(min(t->getWaiting(),youngest));
 
             if(t->getWaiting() < t->getPassed() && !inWaiting){
-                    waiting_list->Add(marking, new EncodingPointer<LivenessDart>(res.encoding, res.pos));
+                    waiting_list->Add(marking, new EncodingPointer<TimeDartBase>(res.encoding, res.pos));
  //               waiting_list->Add(t->getBase(), t);
             }
             return false;
         }
 
-	LivenessDart* dart = new LivenessDart(marking, youngest, INT_MAX);
+	TimeDartBase* dart = new TimeDartBase(marking, youngest, INT_MAX);
         stored++;
         res.encoding.SetMetaData(dart);
-	waiting_list->Add(marking, new EncodingPointer<LivenessDart>(res.encoding, res.pos));
+	waiting_list->Add(marking, new EncodingPointer<TimeDartBase>(res.encoding, res.pos));
 //        waiting_list->Add(dart->getBase(), dart);
 	return true;
 }
 
-LivenessDart* TimeDartPWPData::GetNextUnexplored(){
+TimeDartBase* TimeDartPWPData::GetNextUnexplored(){
   
-    EncodingPointer<LivenessDart>* p = waiting_list->Pop();
+    EncodingPointer<TimeDartBase>* p = waiting_list->Pop();
     NonStrictMarkingBase* m = passed.EnumerateDecode(*p);
-    LivenessDart* dart = p->encoding.GetMetaData();
+    TimeDartBase* dart = p->encoding.GetMetaData();
     dart->setBase(m);
     
     p->encoding.Release();

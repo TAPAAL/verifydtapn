@@ -25,7 +25,7 @@ bool TimeDartReachabilitySearch::Verify(){
 
 	//Main loop
 	while(pwList->HasWaitingStates()){
-		LivenessDart& dart = *pwList->GetNextUnexplored();
+		TimeDartBase& dart = *pwList->GetNextUnexplored();
 		exploredMarkings++;
 
 		int passed = dart.getPassed();

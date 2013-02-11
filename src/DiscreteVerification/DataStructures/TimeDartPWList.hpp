@@ -40,7 +40,7 @@ namespace VerifyTAPN {
             };
 
             virtual bool Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* marking) = 0;
-            virtual LivenessDart* GetNextUnexplored() = 0;
+            virtual TimeDartBase* GetNextUnexplored() = 0;
 
             inline void SetMaxNumTokensIfGreater(int i) {
                 if (i > maxNumTokensInAnyMarking) maxNumTokensInAnyMarking = i;
@@ -54,25 +54,25 @@ namespace VerifyTAPN {
 
         class TimeDartPWHashMap : public TimeDartPWBase {
         public:
-            typedef std::vector<LivenessDart*> NonStrictMarkingList;
+            typedef std::vector<TimeDartBase*> NonStrictMarkingList;
             typedef google::sparse_hash_map<size_t, NonStrictMarkingList> HashMap;
         public:
 
             TimeDartPWHashMap() : TimeDartPWBase(), waiting_list(), markings_storage(256000) {
             };
 
-            TimeDartPWHashMap(WaitingList<LivenessDart>* w_l) : TimeDartPWBase(), waiting_list(w_l), markings_storage(256000) {
+            TimeDartPWHashMap(WaitingList<TimeDartBase>* w_l) : TimeDartPWBase(), waiting_list(w_l), markings_storage(256000) {
             };
             virtual ~TimeDartPWHashMap();
             friend std::ostream& operator<<(std::ostream& out, TimeDartPWHashMap& x);
             virtual bool Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* marking);
-            virtual LivenessDart* GetNextUnexplored();
+            virtual TimeDartBase* GetNextUnexplored();
 
             virtual bool HasWaitingStates() {
                 return (waiting_list->Size() > 0);
             };
         protected:
-            WaitingList<LivenessDart>* waiting_list;
+            WaitingList<TimeDartBase>* waiting_list;
         private:
             HashMap markings_storage;
         };
@@ -82,14 +82,14 @@ namespace VerifyTAPN {
         class TimeDartPWPData : public TimeDartPWBase {
         public:
 
-            TimeDartPWPData(WaitingList<EncodingPointer<LivenessDart> >* w_l, boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, int knumber, int nplaces, int mage) :
+            TimeDartPWPData(WaitingList<EncodingPointer<TimeDartBase> >* w_l, boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, int knumber, int nplaces, int mage) :
             TimeDartPWBase(), waiting_list(w_l), passed(tapn, knumber, nplaces, mage) {
             };
         private:
-            WaitingList<EncodingPointer<LivenessDart> >* waiting_list;
-            PData<LivenessDart> passed;
+            WaitingList<EncodingPointer<TimeDartBase> >* waiting_list;
+            PData<TimeDartBase> passed;
             virtual bool Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* marking);
-            virtual LivenessDart* GetNextUnexplored();
+            virtual TimeDartBase* GetNextUnexplored();
 
             virtual bool HasWaitingStates() {
                 return (waiting_list->Size() > 0);

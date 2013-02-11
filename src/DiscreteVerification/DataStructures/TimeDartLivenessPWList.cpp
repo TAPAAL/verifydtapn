@@ -10,14 +10,14 @@
 namespace VerifyTAPN {
     namespace DiscreteVerification {
 
-        std::pair<TimeDart*, bool> TimeDartLivenessPWHashMap::Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* marking, int youngest, WaitingDart* parent, int upper) {
+        std::pair<LivenessDart*, bool> TimeDartLivenessPWHashMap::Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* marking, int youngest, WaitingDart* parent, int upper) {
             discoveredMarkings++;
             TimeDartList& m = markings_storage[marking->HashKey()];
             for (TimeDartList::const_iterator iter = m.begin();
                     iter != m.end();
                     iter++) {
                 if ((*iter)->getBase()->equals(*marking)) {
-                    std::pair < TimeDart*, bool> result(*iter, false);
+                    std::pair < LivenessDart*, bool> result(*iter, false);
                     (*iter)->setWaiting(min((*iter)->getWaiting(), youngest));
 
                     if ((*iter)->getWaiting() < (*iter)->getPassed()) {
@@ -37,7 +37,7 @@ namespace VerifyTAPN {
                 }
             }
             stored++;
-            TimeDart* dart = new TimeDart(marking, youngest, INT_MAX);
+            LivenessDart* dart = new LivenessDart(marking, youngest, INT_MAX);
             m.push_back(dart);
             if(options.GetTrace()){
 
@@ -46,7 +46,7 @@ namespace VerifyTAPN {
             } else {
                 waiting_list->Add(dart->getBase(), new WaitingDart(dart, parent, youngest, upper));                
             }
-            std::pair < TimeDart*, bool> result(dart, true);
+            std::pair < LivenessDart*, bool> result(dart, true);
             return result;
         }
 
@@ -63,16 +63,16 @@ namespace VerifyTAPN {
             waiting_list->flushBuffer();
         }
 
-        std::pair<TimeDart*, bool> TimeDartLivenessPWPData::Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* marking, int youngest, WaitingDart* parent, int upper) {
+        std::pair<LivenessDart*, bool> TimeDartLivenessPWPData::Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* marking, int youngest, WaitingDart* parent, int upper) {
 
             
             discoveredMarkings++;
-            PData<TimeDart>::Result res = passed.Add(marking);
+            PData<LivenessDart>::Result res = passed.Add(marking);
 
                 if (!res.isNew) {
-                    TimeDart* td = res.encoding.GetMetaData();
+                    LivenessDart* td = res.encoding.GetMetaData();
                     td->setBase(marking);
-                    std::pair < TimeDart*, bool> result(td, false);
+                    std::pair < LivenessDart*, bool> result(td, false);
                     td->setWaiting(min(td->getWaiting(), youngest));
                            
                     if (td->getWaiting() < td->getPassed()) {
@@ -88,7 +88,7 @@ namespace VerifyTAPN {
                 }
             
             stored++;
-            TimeDart* dart = new TimeDart(marking, youngest, INT_MAX);
+            LivenessDart* dart = new LivenessDart(marking, youngest, INT_MAX);
             res.encoding.SetMetaData(dart);
             
             EncodingStructure<WaitingDart*> es(res.encoding.GetRaw(), res.encoding.Size());
@@ -96,14 +96,14 @@ namespace VerifyTAPN {
             ewp->encoding.SetMetaData(new WaitingDart(dart, parent, youngest, upper));
             
             waiting_list->Add(marking, ewp);
-            std::pair < TimeDart*, bool> result(dart, true);
+            std::pair < LivenessDart*, bool> result(dart, true);
             return result;
         }
 
         WaitingDart* TimeDartLivenessPWPData::GetNextUnexplored() {
             EncodingPointer<WaitingDart>* ewp =  waiting_list->Peek();
             WaitingDart* wd = ewp->encoding.GetMetaData();
-            NonStrictMarkingBase* base = passed.EnumerateDecode(*((EncodingPointer<TimeDart>*)ewp));
+            NonStrictMarkingBase* base = passed.EnumerateDecode(*((EncodingPointer<LivenessDart>*)ewp));
             wd->dart->setBase(base);
             return waiting_list->Peek()->encoding.GetMetaData();
         }

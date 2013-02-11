@@ -85,7 +85,7 @@ namespace VerifyTAPN {
                                 options,
                                 query);
                     } else {
-                        WaitingList<LivenessDart>* strategy = GetWaitingList<LivenessDart > (query, options);
+                        WaitingList<TimeDartBase>* strategy = GetWaitingList<TimeDartBase > (query, options);
                         VerifyAndPrint(
                                 new TimeDartReachabilitySearch(tapn, *initialMarking, query, options, strategy),
                                 options,
