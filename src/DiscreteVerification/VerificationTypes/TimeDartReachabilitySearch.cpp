@@ -13,10 +13,9 @@ namespace DiscreteVerification {
 bool TimeDartReachabilitySearch::Verify(){
 	if(options.GetTrace() == SOME){
 		initialMarking.SetGeneratedBy(NULL);
-		addToTrace(&initialMarking, NULL, 0);
 	}
 
-	if(addToPW(&initialMarking)){
+	if(addToPW(&initialMarking, NULL, INT_MAX)){
 		return true;
 		if(options.GetTrace() == SOME){
 			lastMarking = &initialMarking;
@@ -47,17 +46,13 @@ bool TimeDartReachabilitySearch::Verify(){
 					Mpp.incrementAge(start);
 					vector<NonStrictMarkingBase*> next = getPossibleNextMarkings(Mpp, transition);
 					for(vector<NonStrictMarkingBase*>::iterator it = next.begin(); it != next.end(); it++){
-						if(addToPW(*it)){
-							if(options.GetTrace() == SOME){
-								lastMarking = *it;
-								(*it)->SetGeneratedBy(&transition);
-								addToTrace(*it, dart.getBase(), start);
-							}
+                                                TraceDart* traceD = NULL;
+                                                if(options.GetTrace() == SOME){
+                                                    traceD = ((ReachabilityTraceableDart*)&dart)->trace;
+                                                    (*it)->SetGeneratedBy(&transition);
+                                                }
+						if(addToPW(*it, traceD, start)){
 							return true;
-						}
-						if(options.GetTrace() == SOME){
-							(*it)->SetGeneratedBy(&transition);
-							addToTrace(*it, dart.getBase(), start);
 						}
 					}
 				}else{
@@ -68,17 +63,13 @@ bool TimeDartReachabilitySearch::Verify(){
 
 						vector<NonStrictMarkingBase*> next = getPossibleNextMarkings(Mpp, transition);
 						for(vector<NonStrictMarkingBase*>::iterator it = next.begin(); it != next.end(); it++){
-							if(addToPW(*it)){
-								if(options.GetTrace() == SOME){
-									lastMarking = *it;
-									(*it)->SetGeneratedBy(&transition);
-									addToTrace(*it, dart.getBase(), n);
-								}
+                                                    TraceDart* traceD = NULL;
+                                                    if(options.GetTrace() == SOME){
+                                                        traceD = ((ReachabilityTraceableDart*)&dart)->trace;
+                                                        (*it)->SetGeneratedBy(&transition);
+                                                    }
+                                                        if(addToPW(*it, traceD, n)){
 								return true;
-							}
-							if(options.GetTrace() == SOME){
-								(*it)->SetGeneratedBy(&transition);
-								addToTrace(*it, dart.getBase(), n);
 							}
 						}
 					}
@@ -108,15 +99,8 @@ void TimeDartReachabilitySearch::GetTrace(){
 }
 
 
-void TimeDartReachabilitySearch::addToTrace(NonStrictMarkingBase* marking, NonStrictMarkingBase* parent, int d){
-	TraceList& m = trace[marking];
-	if(m.first == NULL){
-		m.first = parent;
-		m.second = d;
-	}
-}
 
-bool TimeDartReachabilitySearch::addToPW(NonStrictMarkingBase* marking){
+bool TimeDartReachabilitySearch::addToPW(NonStrictMarkingBase* marking, WaitingDart* parent, int upper){
 	marking->cut();
 
 	unsigned int size = marking->size();
@@ -127,8 +111,9 @@ bool TimeDartReachabilitySearch::addToPW(NonStrictMarkingBase* marking){
                 delete marking;
 		return false;
 	}
-
-	if(pwList->Add(tapn.get(), marking)){
+        int youngest = marking->makeBase(tapn.get());
+                                //int youngest, WaitingDart* parent, int upper
+	if(pwList->Add(tapn.get(), marking, youngest, parent, upper)){
 		QueryVisitor<NonStrictMarkingBase> checker(*marking);
 		boost::any context;
 		query->Accept(checker, context);

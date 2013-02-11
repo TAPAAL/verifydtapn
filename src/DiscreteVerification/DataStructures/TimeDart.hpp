@@ -46,9 +46,9 @@ private:
 class ReachabilityTraceableDart : public TimeDartBase {
 public:
     ReachabilityTraceableDart(NonStrictMarkingBase* base, int waiting, int passed)
-            : TimeDartBase(base, waiting, passed), parent(NULL){
+            : TimeDartBase(base, waiting, passed), trace(NULL){
     }
-    TraceDart* parent;
+    TraceDart* trace;
 };
 
 class LivenessDart : public TimeDartBase {
