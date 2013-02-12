@@ -178,12 +178,12 @@ namespace VerifyTAPN {
                     // if only transport-arcs
                     if (trace->parent != NULL) {
                         // find the initial age
-                        if (trace->parent->parent == NULL) {
+  //                      if (trace->parent->parent == NULL) {
                             // if parent is the initialMarking
                             lower = trace->w;
-                        } else {
-                            lower = trace->parent->upper;
-                        }
+  //                      } else {
+  //                          lower = trace->parent->upper;
+   //                     }
                     } else {
                         // if we have the initial marking
                         lower = 0;
@@ -198,7 +198,7 @@ namespace VerifyTAPN {
                     int diff = upper - lower;
                     while (diff) {
                         NonStrictMarkingBase* mc = new NonStrictMarkingBase(*(trace->dart->getBase()));
-                        mc->incrementAge(diff);
+                        mc->incrementAge(lower + diff);
                         mc->SetGeneratedBy(NULL);
                         if (last != NULL)
                             last->parent = mc;
@@ -213,6 +213,7 @@ namespace VerifyTAPN {
                     last->parent = m;
                 last = m;
                 cout << *m << endl;
+
                 traceStack.push(m);
 
                 upper = trace->upper;
