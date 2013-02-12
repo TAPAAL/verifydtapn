@@ -104,7 +104,7 @@ namespace VerifyTAPN {
             WaitingDart* wd = ewp->encoding.GetMetaData();
             NonStrictMarkingBase* base = passed.EnumerateDecode(*((EncodingPointer<LivenessDart>*)ewp));
             wd->dart->setBase(base);
-            return waiting_list->Peek()->encoding.GetMetaData();
+            return wd;
         }
 
         void TimeDartLivenessPWPData::PopWaiting() {

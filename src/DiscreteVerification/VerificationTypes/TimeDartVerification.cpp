@@ -170,40 +170,33 @@ namespace VerifyTAPN {
 
             while (trace != NULL) {
 
-                int lower;
-                if (trace->generatedBy != NULL && trace->generatedBy->NumberOfInputArcs() > 0) {
-                    // if there are consumed (and produced) tokens
-                    lower = 0;
-                } else {
+                int lower = 0;
+                if (!(trace->generatedBy != NULL && trace->generatedBy->NumberOfInputArcs() > 0)) {
                     // if only transport-arcs
                     if (trace->parent != NULL) {
-                        // find the initial age
-  //                      if (trace->parent->parent == NULL) {
-                            // if parent is the initialMarking
-                            lower = trace->w;
-  //                      } else {
-  //                          lower = trace->parent->upper;
-   //                     }
+                        lower = trace->w;
                     } else {
                         // if we have the initial marking
                         lower = 0;
                     }
                 }
 
+                // create "last delay marking"
                 NonStrictMarkingBase* m = new NonStrictMarkingBase(*(trace->dart->getBase()));
                 m->SetGeneratedBy(trace->generatedBy);
                 m->incrementAge(lower);
 
+                // create markings between transitions, one for each delay (exluding last one)
                 if (upper > lower) {
-                    int diff = upper - lower;
+                    int diff = upper - lower;   // amount to delay
                     while (diff) {
                         NonStrictMarkingBase* mc = new NonStrictMarkingBase(*(trace->dart->getBase()));
                         mc->incrementAge(lower + diff);
-                        mc->SetGeneratedBy(NULL);
+                        mc->SetGeneratedBy(NULL);       // NULL indicates that it is a delay transition
                         if (last != NULL)
-                            last->parent = mc;
+                            last->parent = mc;          // set the parent of the last marking
                         last = mc;
-                        traceStack.push(mc);
+                        traceStack.push(mc);            // add delay marking to the trace
                         diff--;
                     }
 
@@ -212,7 +205,7 @@ namespace VerifyTAPN {
                     last->parent = m;
                 last = m;
 
-                traceStack.push(m);
+                traceStack.push(m);     // add the marking to the trace
 
                 upper = trace->upper;
                 trace = (TraceDart*) trace->parent;
