@@ -203,7 +203,6 @@ namespace VerifyTAPN {
                         if (last != NULL)
                             last->parent = mc;
                         last = mc;
-                        cout << *mc << endl;
                         traceStack.push(mc);
                         diff--;
                     }
@@ -212,7 +211,6 @@ namespace VerifyTAPN {
                 if (last != NULL)
                     last->parent = m;
                 last = m;
-                cout << *m << endl;
 
                 traceStack.push(m);
 
