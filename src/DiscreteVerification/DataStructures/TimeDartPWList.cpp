@@ -25,6 +25,7 @@ bool TimeDartPWHashMap::Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* 
 					waiting_list->Add((*iter)->getBase(),(*iter));
                                         if(this->trace){
                                             ((ReachabilityTraceableDart*)(*iter))->trace = new TraceDart((*iter), parent, youngest, upper, marking->generatedBy);
+                                            this->last = ((ReachabilityTraceableDart*)(*iter))->trace;
                                         }
 				}
 
@@ -39,6 +40,7 @@ bool TimeDartPWHashMap::Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* 
 	m.push_back(dart);
         if(this->trace){
             ((ReachabilityTraceableDart*)dart)->trace = new TraceDart(dart, parent, youngest, upper, marking->generatedBy);
+            this->last = ((ReachabilityTraceableDart*)(dart))->trace;
         }
 	waiting_list->Add(dart->getBase(), dart);
 	return true;

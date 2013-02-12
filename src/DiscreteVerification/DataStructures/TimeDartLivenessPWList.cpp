@@ -22,7 +22,6 @@ namespace VerifyTAPN {
 
                     if ((*iter)->getWaiting() < (*iter)->getPassed()) {
                         if(options.GetTrace()){
-
                             waiting_list->Add((*iter)->getBase(), new TraceDart((*iter), parent, youngest, upper, marking->generatedBy));
 
                         } else {

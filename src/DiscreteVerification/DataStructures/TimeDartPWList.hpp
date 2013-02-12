@@ -25,7 +25,7 @@ namespace VerifyTAPN {
         class TimeDartPWBase {
         public:
 
-            TimeDartPWBase(bool trace) : trace(trace), discoveredMarkings(0), maxNumTokensInAnyMarking(-1), stored(0) {
+            TimeDartPWBase(bool trace) : trace(trace), discoveredMarkings(0), maxNumTokensInAnyMarking(-1), stored(0), last(NULL) {
             };
 
             virtual ~TimeDartPWBase() {
@@ -45,11 +45,17 @@ namespace VerifyTAPN {
             inline void SetMaxNumTokensIfGreater(int i) {
                 if (i > maxNumTokensInAnyMarking) maxNumTokensInAnyMarking = i;
             };
+            
+            TraceDart* GetLast() {
+                return last;
+            };
 
             bool trace;
             int discoveredMarkings;
             int maxNumTokensInAnyMarking;
             long long stored;
+        protected:
+            TraceDart* last;
         };
 
         class TimeDartPWHashMap : public TimeDartPWBase {

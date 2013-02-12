@@ -161,5 +161,68 @@ namespace VerifyTAPN {
         vector<NonStrictMarkingBase*> TimeDartVerification::getPossibleNextMarkings(NonStrictMarkingBase& marking, const TAPN::TimedTransition& transition) {
             return successorGenerator.generateSuccessors(marking, transition);
         }
+
+        void TimeDartVerification::GetTrace() {
+            stack<NonStrictMarkingBase*> traceStack;
+            int upper = lastMarking->w;
+            TraceDart* trace = (TraceDart*) lastMarking;
+            NonStrictMarkingBase* last = NULL;
+
+            while (trace != NULL) {
+
+                int lower;
+                if (trace->generatedBy != NULL && trace->generatedBy->NumberOfInputArcs() > 0) {
+                    // if there are consumed (and produced) tokens
+                    lower = 0;
+                } else {
+                    // if only transport-arcs
+                    if (trace->parent != NULL) {
+                        // find the initial age
+                        if (trace->parent->parent == NULL) {
+                            // if parent is the initialMarking
+                            lower = trace->w;
+                        } else {
+                            lower = trace->parent->upper;
+                        }
+                    } else {
+                        // if we have the initial marking
+                        lower = 0;
+                    }
+                }
+
+                NonStrictMarkingBase* m = new NonStrictMarkingBase(*(trace->dart->getBase()));
+                m->SetGeneratedBy(trace->generatedBy);
+                m->incrementAge(lower);
+
+                if (upper > lower) {
+                    int diff = upper - lower;
+                    while (diff) {
+                        NonStrictMarkingBase* mc = new NonStrictMarkingBase(*(trace->dart->getBase()));
+                        mc->incrementAge(diff);
+                        mc->SetGeneratedBy(NULL);
+                        if (last != NULL)
+                            last->parent = mc;
+                        last = mc;
+                        cout << *mc << endl;
+                        traceStack.push(mc);
+                        diff--;
+                    }
+
+                }
+                if (last != NULL)
+                    last->parent = m;
+                last = m;
+                cout << *m << endl;
+                traceStack.push(m);
+
+                upper = trace->upper;
+                trace = (TraceDart*) trace->parent;
+            }
+
+            last = new NonStrictMarkingBase(*lastMarking->dart->getBase());
+            last->incrementAge(lastMarking->w);
+            PrintXMLTrace(last, traceStack, query->GetQuantifier());
+        }
+
     }
 }

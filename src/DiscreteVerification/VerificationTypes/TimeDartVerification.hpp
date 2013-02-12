@@ -38,6 +38,8 @@ namespace VerifyTAPN {
             void PrintTransitionStatistics() const {
                 successorGenerator.PrintTransitionStatistics(std::cout);
             }
+            
+            void GetTrace();
 
         protected:
             AST::Query* query;
@@ -46,7 +48,8 @@ namespace VerifyTAPN {
             NonStrictMarkingBase& initialMarking;
             int exploredMarkings;
             vector<const TAPN::TimedTransition*> allwaysEnabled;
-            bool loop;            
+            bool loop;         
+            WaitingDart* lastMarking;
 
         private:
             TimeDartSuccessorGenerator successorGenerator;

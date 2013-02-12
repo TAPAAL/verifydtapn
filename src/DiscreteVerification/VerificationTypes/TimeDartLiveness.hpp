@@ -57,9 +57,6 @@ namespace VerifyTAPN {
             }
         public:
             void printStats();
-            void GetTrace();
-        private:
-            WaitingDart* lastMarking;
         };
 
         class TimeDartLivenessPData : public TimeDartLiveness {

@@ -38,7 +38,7 @@ public:
         };
         virtual ~TimeDartReachabilitySearch();
 	bool Verify();
-	NonStrictMarkingBase* GetLastMarking() { return lastMarking; }
+
 	inline unsigned int MaxUsedTokens(){ return pwList->maxNumTokensInAnyMarking; };
 
 protected:
@@ -54,10 +54,8 @@ protected:
         }
 public:
 	void printStats();
-	void GetTrace();
 private:
-	NonStrictMarkingBase* lastMarking;
-
+	WaitingDart* lastMarking;
 };
 
 class TimeDartReachabilitySearchPData : public TimeDartReachabilitySearch {
