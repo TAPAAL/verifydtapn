@@ -54,8 +54,8 @@ namespace VerifyTAPN {
 
         class TimeDartPWHashMap : public TimeDartPWBase {
         public:
-            typedef std::vector<TimeDartBase*> NonStrictMarkingList;
-            typedef google::sparse_hash_map<size_t, NonStrictMarkingList> HashMap;
+            typedef std::vector<TimeDartBase*> TimeDartList;
+            typedef google::sparse_hash_map<size_t, TimeDartList> HashMap;
         public:
 
             TimeDartPWHashMap() : TimeDartPWBase(false), waiting_list(), markings_storage(256000) {

@@ -12,8 +12,8 @@ namespace DiscreteVerification {
 
 bool TimeDartPWHashMap::Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* marking, int youngest, WaitingDart* parent, int upper){
 	discoveredMarkings++;
-	NonStrictMarkingList& m = markings_storage[marking->HashKey()];
-	for(NonStrictMarkingList::const_iterator iter = m.begin();
+	TimeDartList& m = markings_storage[marking->HashKey()];
+	for(TimeDartList::const_iterator iter = m.begin();
 			iter != m.end();
 			iter++){
 		if((*iter)->getBase()->equals(*marking)){
@@ -92,7 +92,7 @@ TimeDartPWHashMap::~TimeDartPWHashMap() {
 std::ostream& operator<<(std::ostream& out, TimeDartPWHashMap& x){
 	out << "Passed and waiting:" << std::endl;
 	for(TimeDartPWHashMap::HashMap::iterator iter = x.markings_storage.begin(); iter != x.markings_storage.end(); iter++){
-		for(TimeDartPWHashMap::NonStrictMarkingList::iterator m_iter = iter->second.begin(); m_iter != iter->second.end(); m_iter++){
+		for(TimeDartPWHashMap::TimeDartList::iterator m_iter = iter->second.begin(); m_iter != iter->second.end(); m_iter++){
 			out << "- "<< *m_iter << std::endl;
 		}
 	}
