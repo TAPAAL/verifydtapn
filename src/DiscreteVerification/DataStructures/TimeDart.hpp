@@ -59,12 +59,12 @@ public:
 
 class EncodedReachabilityTraceableDart : public ReachabilityTraceableDart {
 public:
-    EncodedReachabilityTraceableDart(NonStrictMarkingBase* base, int waiting, int passed, TimeDartEncodingPointer encoding) 
-        : ReachabilityTraceableDart(base, waiting, passed), encoding(encoding) {
+    EncodedReachabilityTraceableDart(NonStrictMarkingBase* base, int waiting, int passed) 
+        : ReachabilityTraceableDart(base, waiting, passed) {
         
         
     }
-    TimeDartEncodingPointer encoding;
+    TimeDartEncodingPointer* encoding;
 };
 
 class LivenessDart : public TimeDartBase {

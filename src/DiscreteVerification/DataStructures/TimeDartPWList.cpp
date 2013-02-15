@@ -34,14 +34,17 @@ bool TimeDartPWHashMap::Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* 
 			return false;
 		}
 	}
-
-	TimeDartBase* dart = new TimeDartBase(marking, youngest, INT_MAX);
+        TimeDartBase* dart;
+        if(this->trace){
+             dart = new ReachabilityTraceableDart(marking, youngest, INT_MAX);
+             ((ReachabilityTraceableDart*)dart)->trace = new TraceDart(dart, parent, youngest, upper, marking->generatedBy);
+            this->last = ((ReachabilityTraceableDart*)(dart))->trace;
+        } else {
+            dart = new TimeDartBase(marking, youngest, INT_MAX);
+        }
         stored++;
 	m.push_back(dart);
-        if(this->trace){
-            ((ReachabilityTraceableDart*)dart)->trace = new TraceDart(dart, parent, youngest, upper, marking->generatedBy);
-            this->last = ((ReachabilityTraceableDart*)(dart))->trace;
-        }
+
 	waiting_list->Add(dart->getBase(), dart);
 	return true;
 }
@@ -60,16 +63,33 @@ bool TimeDartPWPData::Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* ma
             t->setWaiting(min(t->getWaiting(),youngest));
 
             if(t->getWaiting() < t->getPassed() && !inWaiting){
+                    if(this->trace){
+                        ((EncodedReachabilityTraceableDart*)t)->trace = new TraceDart(t, parent, youngest, upper, marking->generatedBy);
+                        this->last = ((EncodedReachabilityTraceableDart*)t)->trace;
+                    }
                     waiting_list->Add(marking, new EncodingPointer<TimeDartBase>(res.encoding, res.pos));
  //               waiting_list->Add(t->getBase(), t);
             }
             return false;
         }
 
-	TimeDartBase* dart = new TimeDartBase(marking, youngest, INT_MAX);
+        
+	TimeDartBase* dart;
+         if (this->trace) {
+             dart = new EncodedReachabilityTraceableDart(marking, youngest, INT_MAX);
+            ((EncodedReachabilityTraceableDart*) dart)->trace = new TraceDart(dart, parent, youngest, upper, marking->generatedBy);
+            this->last = ((ReachabilityTraceableDart*) (dart))->trace;
+        } else {
+                dart = new TimeDartBase(marking, youngest, INT_MAX);
+        }
         stored++;
         res.encoding.SetMetaData(dart);
-	waiting_list->Add(marking, new EncodingPointer<TimeDartBase>(res.encoding, res.pos));
+        EncodingPointer<TimeDartBase>* ep = new EncodingPointer<TimeDartBase>(res.encoding, res.pos);
+	waiting_list->Add(marking, ep);
+        if (this->trace) {
+            // if trace, create new (persistent) encodingpointer as regular one gets deleted every time we pop from waiting.
+                ((EncodedReachabilityTraceableDart*) dart)->encoding = new EncodingPointer<TimeDartBase>(res.encoding, res.pos);
+        }
 //        waiting_list->Add(dart->getBase(), dart);
 	return true;
 }
