@@ -91,6 +91,10 @@ namespace VerifyTAPN {
             TimeDartPWPData(WaitingList<EncodingPointer<TimeDartBase> >* w_l, boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, int knumber, int nplaces, int mage, bool trace) :
             TimeDartPWBase(trace), waiting_list(w_l), passed(tapn, knumber, nplaces, mage) {
             };
+            
+            NonStrictMarkingBase* Decode(EncodingPointer<TimeDartBase> *ewp){
+                return passed.EnumerateDecode(*ewp);
+            }
         private:
             WaitingList<EncodingPointer<TimeDartBase> >* waiting_list;
             PData<TimeDartBase> passed;

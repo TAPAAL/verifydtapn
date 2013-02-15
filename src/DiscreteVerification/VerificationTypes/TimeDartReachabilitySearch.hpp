@@ -67,7 +67,12 @@ public:
 protected:
        virtual inline void deleteBase(NonStrictMarkingBase* base){
             delete base;
-        }
+        };
+        virtual inline NonStrictMarkingBase* getBase(TimeDartBase* dart){
+                EncodedReachabilityTraceableDart* erd = (EncodedReachabilityTraceableDart*)dart;
+
+                return ((TimeDartPWPData*)pwList)->Decode(erd->encoding);
+       };
 };
 
 } /* namespace DiscreteVerification */
