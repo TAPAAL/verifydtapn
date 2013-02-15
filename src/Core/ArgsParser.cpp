@@ -144,7 +144,7 @@ void ArgsParser::Initialize() {
     parsers.push_back(
             boost::make_shared<SwitchWithArg > ("p", MEMORY_OPTIMIZATION_OPTION,
             "Specify the desired memory optimization.\n - 0: None \n - 1: PData",
-            0)); // TODO change to 0!
+            1)); // TODO change to 0!
     parsers.push_back(
             boost::make_shared<SwitchWithArg > ("t", TRACE_OPTION,
             "Specify the desired trace option.\n - 0: none\n - 1: some",
@@ -370,11 +370,6 @@ VerificationOptions ArgsParser::CreateVerificationOptions(const option_map& map,
 	assert(map.find(XML_TRACE_OPTION) != map.end());
 	bool xml_trace = boost::lexical_cast<bool>(
 			map.find(XML_TRACE_OPTION)->second);
-
-        if(trace == SOME && memoptimization == PDATA){
-            std::cout << "Trace and PData memory optimization options are incompatible" << std::endl;
-            exit(1);
-        }
         
 	return VerificationOptions(modelFile, queryFile, search, verification, memoptimization, kbound, trace,
 			xml_trace, max_constant, keep_dead);

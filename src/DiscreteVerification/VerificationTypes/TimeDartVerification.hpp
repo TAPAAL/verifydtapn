@@ -41,6 +41,10 @@ namespace VerifyTAPN {
             
             void GetTrace();
 
+            virtual inline NonStrictMarkingBase* getBase(LivenessDart* dart){
+                return dart->getBase();
+            };
+            
         protected:
             AST::Query* query;
             VerificationOptions options;

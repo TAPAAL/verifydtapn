@@ -94,15 +94,21 @@ namespace VerifyTAPN {
                 }
             
             stored++;
-            LivenessDart* dart = new LivenessDart(marking, youngest, INT_MAX);
+            LivenessDart* dart;
+            if(options.GetTrace()){
+                dart= new EncodedLivenessDart(marking, youngest, INT_MAX);
+            } else {
+                dart = new LivenessDart(marking, youngest, INT_MAX);
+            }
             res.encoding.SetMetaData(dart);
             
             EncodingStructure<WaitingDart*> es(res.encoding.GetRaw(), res.encoding.Size());
             EncodingPointer<WaitingDart>* ewp = new EncodingPointer<WaitingDart > (es, res.pos);
+            
             WaitingDart *wd;
             if(options.GetTrace()){
                 wd =  new TraceDart(dart, parent, youngest, upper, marking->generatedBy);
-
+                ((EncodedLivenessDart*)dart)->encoding = ewp;
             } else {
                 wd = new WaitingDart(dart, parent, youngest, upper);
             }

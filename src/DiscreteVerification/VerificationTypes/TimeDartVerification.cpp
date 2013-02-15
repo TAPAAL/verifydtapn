@@ -182,7 +182,8 @@ namespace VerifyTAPN {
                 }
 
                 // create "last delay marking"
-                NonStrictMarkingBase* m = new NonStrictMarkingBase(*(trace->dart->getBase()));
+                NonStrictMarkingBase* base = getBase(trace->dart);
+                NonStrictMarkingBase* m = new NonStrictMarkingBase(*base);
                 m->SetGeneratedBy(trace->generatedBy);
                 m->incrementAge(lower);
 
@@ -190,7 +191,7 @@ namespace VerifyTAPN {
                 if (upper > lower) {
                     int diff = upper - lower;   // amount to delay
                     while (diff) {
-                        NonStrictMarkingBase* mc = new NonStrictMarkingBase(*(trace->dart->getBase()));
+                        NonStrictMarkingBase* mc = new NonStrictMarkingBase(*base);
                         mc->incrementAge(lower + diff);
                         mc->SetGeneratedBy(NULL);       // NULL indicates that it is a delay transition
                         if (last != NULL)
@@ -211,7 +212,7 @@ namespace VerifyTAPN {
                 trace = (TraceDart*) trace->parent;
             }
 
-            last = new NonStrictMarkingBase(*lastMarking->dart->getBase());
+            last = new NonStrictMarkingBase(*getBase(lastMarking->dart));
             last->incrementAge(lastMarking->w);
             PrintXMLTrace(last, traceStack, query->GetQuantifier());
         }

@@ -54,7 +54,9 @@ namespace VerifyTAPN {
 
             virtual inline void deleteBase(NonStrictMarkingBase* base) {
                 //
-            }
+            };
+           
+            
         public:
             void printStats();
         };
@@ -70,7 +72,13 @@ namespace VerifyTAPN {
 
             virtual inline void deleteBase(NonStrictMarkingBase* base) {
                 delete base;
-            }
+            };
+            
+            virtual inline NonStrictMarkingBase* getBase(LivenessDart* dart){
+                EncodedLivenessDart* eld = (EncodedLivenessDart*)dart;
+                EncodingPointer<LivenessDart>* ep = (EncodingPointer<LivenessDart>*)(eld->encoding);
+                return ((TimeDartLivenessPWPData*)pwList)->Decode(ep);
+            };
         };
 
     } /* namespace DiscreteVerification */

@@ -103,6 +103,10 @@ namespace VerifyTAPN {
                 return (waiting_list->Size() > 0);
             };
             virtual void flushBuffer();
+            NonStrictMarkingBase* Decode(EncodingPointer<LivenessDart> *ewp){
+                return passed.EnumerateDecode(*ewp);
+            }
+            
         private:
             VerificationOptions options;
             WaitingList<EncodingPointer<WaitingDart> >* waiting_list;

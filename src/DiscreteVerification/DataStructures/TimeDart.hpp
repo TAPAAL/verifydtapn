@@ -77,11 +77,11 @@ public:
 
 class EncodedLivenessDart : public LivenessDart {
 public:
-    EncodedLivenessDart(NonStrictMarkingBase* base, int waiting, int passed, WaitingDartEncodingPointer encoding) 
-        : LivenessDart(base, waiting, passed), encoding(encoding) {
+    EncodedLivenessDart(NonStrictMarkingBase* base, int waiting, int passed) 
+        : LivenessDart(base, waiting, passed) {
 
     }
-    WaitingDartEncodingPointer encoding;
+    WaitingDartEncodingPointer* encoding;
 };
 
 struct WaitingDart{
