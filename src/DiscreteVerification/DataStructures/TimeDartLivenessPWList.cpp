@@ -78,7 +78,14 @@ namespace VerifyTAPN {
                         EncodingStructure<WaitingDart*> es(res.encoding.GetRaw(), res.encoding.Size());
 
                         EncodingPointer<WaitingDart>* ewp = new EncodingPointer<WaitingDart > (es, res.pos);
-                        ewp->encoding.SetMetaData(new WaitingDart(td, parent, youngest, upper));
+                        WaitingDart *wd;
+                        if(options.GetTrace()){
+                            wd =  new TraceDart(td, parent, youngest, upper, marking->generatedBy);
+
+                        } else {
+                            wd = new WaitingDart(td, parent, youngest, upper);
+                        }
+                        ewp->encoding.SetMetaData(wd);
                         
                         waiting_list->Add(marking, ewp);
                         result.second = true;
@@ -92,7 +99,14 @@ namespace VerifyTAPN {
             
             EncodingStructure<WaitingDart*> es(res.encoding.GetRaw(), res.encoding.Size());
             EncodingPointer<WaitingDart>* ewp = new EncodingPointer<WaitingDart > (es, res.pos);
-            ewp->encoding.SetMetaData(new WaitingDart(dart, parent, youngest, upper));
+            WaitingDart *wd;
+            if(options.GetTrace()){
+                wd =  new TraceDart(dart, parent, youngest, upper, marking->generatedBy);
+
+            } else {
+                wd = new WaitingDart(dart, parent, youngest, upper);
+            }
+            ewp->encoding.SetMetaData(wd);
             
             waiting_list->Add(marking, ewp);
             std::pair < LivenessDart*, bool> result(dart, true);

@@ -57,12 +57,31 @@ public:
     TraceDart* trace;
 };
 
+class EncodedReachabilityTraceableDart : public ReachabilityTraceableDart {
+public:
+    EncodedReachabilityTraceableDart(NonStrictMarkingBase* base, int waiting, int passed, TimeDartEncodingPointer encoding) 
+        : ReachabilityTraceableDart(base, waiting, passed), encoding(encoding) {
+        
+        
+    }
+    TimeDartEncodingPointer encoding;
+};
+
 class LivenessDart : public TimeDartBase {
 public:
     LivenessDart(NonStrictMarkingBase* base, int waiting, int passed)
 		: TimeDartBase(base, waiting, passed), traceData(NULL){
         }
     TraceMetaDataList* traceData;
+};
+
+class EncodedLivenessDart : public LivenessDart {
+public:
+    EncodedLivenessDart(NonStrictMarkingBase* base, int waiting, int passed, WaitingDartEncodingPointer encoding) 
+        : LivenessDart(base, waiting, passed), encoding(encoding) {
+
+    }
+    WaitingDartEncodingPointer encoding;
 };
 
 struct WaitingDart{

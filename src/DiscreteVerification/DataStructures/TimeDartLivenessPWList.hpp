@@ -89,7 +89,7 @@ namespace VerifyTAPN {
 
 
             
-            TimeDartLivenessPWPData(WaitingList<EncodingPointer<WaitingDart> >* w_l, boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, int knumber, int nplaces, int mage) : TimeDartLivenessPWBase(), waiting_list(w_l), passed(tapn, knumber, nplaces, mage) {
+            TimeDartLivenessPWPData(VerificationOptions options, WaitingList<EncodingPointer<WaitingDart> >* w_l, boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, int nplaces, int mage) : TimeDartLivenessPWBase(), waiting_list(w_l), passed(tapn,  options.GetKBound(), nplaces, mage) {
             };
 
             ~TimeDartLivenessPWPData() {
@@ -104,6 +104,7 @@ namespace VerifyTAPN {
             };
             virtual void flushBuffer();
         private:
+            VerificationOptions options;
             WaitingList<EncodingPointer<WaitingDart> >* waiting_list;
             PData<LivenessDart> passed;
         };

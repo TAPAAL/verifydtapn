@@ -24,6 +24,8 @@ namespace VerifyTAPN {
             EncodingPointer() {
             };
 
+            EncodingPointer(EncodingPointer<T> &en) : encoding(en.encoding.Clone()), node(en.node) {};  // possible mem-leak?
+            
             EncodingPointer(EncodingStructure<T*> &en, unsigned int n) : encoding(en.Clone()), node(n) {
             }
         };
