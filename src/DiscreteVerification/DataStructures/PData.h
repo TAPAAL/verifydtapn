@@ -15,8 +15,7 @@
 namespace VerifyTAPN {
     namespace DiscreteVerification {
 
-        
-        
+        // pointer containing enough data to reconstruct the stored data at any time!
         template<typename T>
         struct EncodingPointer {
             EncodingStructure<T*> encoding;
@@ -28,9 +27,6 @@ namespace VerifyTAPN {
             EncodingPointer(EncodingStructure<T*> &en, unsigned int n) : encoding(en.Clone()), node(n) {
             }
         };
-        
-        typedef EncodingPointer<TimeDartBase> TimeDartEncodingPointer;
-        typedef EncodingPointer<WaitingDart> WaitingDartEncodingPointer;
         
         template<typename T>
         class PData {
