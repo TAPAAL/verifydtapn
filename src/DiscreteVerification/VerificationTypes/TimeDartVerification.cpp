@@ -194,6 +194,7 @@ namespace VerifyTAPN {
                         if (last != NULL)
                             last->parent = mc;          // set the parent of the last marking
                         last = mc;
+                        mc->cut();
                         traceStack.push(mc);            // add delay marking to the trace
                         diff--;
                     }
@@ -201,6 +202,7 @@ namespace VerifyTAPN {
                 }
                 if (last != NULL)
                     last->parent = m;
+                m->cut();
                 last = m;
 
                 traceStack.push(m);     // add the marking to the trace
@@ -211,6 +213,7 @@ namespace VerifyTAPN {
 
             last = new NonStrictMarkingBase(*getBase(lastMarking->dart));
             last->incrementAge(lastMarking->w);
+            last->cut();
             PrintXMLTrace(last, traceStack, query->GetQuantifier());
         }
 
