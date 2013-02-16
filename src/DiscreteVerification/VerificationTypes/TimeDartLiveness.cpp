@@ -19,14 +19,14 @@ namespace VerifyTAPN {
             while (pwList->HasWaitingStates()) {
                 WaitingDart& waitingDart = *pwList->GetNextUnexplored();
                 exploredMarkings++;
-
+                
                 // Add trace meta data ("add to trace")
                 if (waitingDart.parent != NULL) {
-                    if (waitingDart.parent->dart->traceData == NULL) {
+                    if (((LivenessDart*)waitingDart.parent->dart)->traceData == NULL) {
                         TraceMetaDataList* list = new TraceMetaDataList();
-                        waitingDart.parent->dart->traceData = list;
+                        ((LivenessDart*)waitingDart.parent->dart)->traceData = list;
                     }
-                    waitingDart.parent->dart->traceData->push_back(&waitingDart);
+                    ((LivenessDart*)waitingDart.parent->dart)->traceData->push_back(&waitingDart);
                 }
 
                 // Detect ability to delay forever
@@ -47,7 +47,7 @@ namespace VerifyTAPN {
                 // Skip if already passed
                 if (passed <= waitingDart.w) {
                     if (waitingDart.parent != NULL) {
-                        waitingDart.parent->dart->traceData->pop_back();
+                        ((LivenessDart*)waitingDart.parent->dart)->traceData->pop_back();
                     }
                     pwList->PopWaiting();
                     continue;
@@ -123,7 +123,7 @@ namespace VerifyTAPN {
 
         bool TimeDartLiveness::addToPW(NonStrictMarkingBase* marking, WaitingDart* parent, int upper) {
             marking->cut();
-            TimedTransition* transition = marking->generatedBy;
+            const TimedTransition* transition = marking->generatedBy;
             unsigned int size = marking->size();
 
             pwList->SetMaxNumTokensIfGreater(size);

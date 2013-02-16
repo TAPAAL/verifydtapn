@@ -41,7 +41,7 @@ namespace VerifyTAPN {
             
             void GetTrace();
 
-            virtual inline NonStrictMarkingBase* getBase(LivenessDart* dart){
+            virtual inline NonStrictMarkingBase* getBase(TimeDartBase* dart){
                 return dart->getBase();
             };
             

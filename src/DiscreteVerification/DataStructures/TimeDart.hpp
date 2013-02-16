@@ -85,37 +85,38 @@ public:
 };
 
 struct WaitingDart{
-	LivenessDart* dart;
+	TimeDartBase* dart;
 	WaitingDart* parent;
 	int w;
 	int upper;
 
-	WaitingDart(LivenessDart* dart, WaitingDart* parent, int w, int upper) : dart(dart), parent(parent), w(w), upper(upper){
+	WaitingDart(TimeDartBase* dart, WaitingDart* parent, int w, int upper) : dart(dart), parent(parent), w(w), upper(upper){
 
 	}
 
 	~WaitingDart(){
-			if(parent != NULL && parent->dart->traceData != NULL){
-				for(TraceMetaDataList::iterator iter = parent->dart->traceData->begin(); iter != parent->dart->traceData->end(); iter++){
+                        
+			if(parent != NULL && ((LivenessDart*)parent->dart)->traceData != NULL){
+				for(TraceMetaDataList::iterator iter = ((LivenessDart*)parent->dart)->traceData->begin(); iter != ((LivenessDart*)parent->dart)->traceData->end(); iter++){
 					if((*iter) == this){
-						parent->dart->traceData->erase(iter);
+						((LivenessDart*)parent->dart)->traceData->erase(iter);
 						break;
 					}
 				}
-				if(parent->dart->traceData->empty()){
-					delete parent->dart->traceData;
-					parent->dart->traceData = NULL;
+				if(((LivenessDart*)parent->dart)->traceData->empty()){
+					delete ((LivenessDart*)parent->dart)->traceData;
+					((LivenessDart*)parent->dart)->traceData = NULL;
 				}
 			}
 		}
 };
 
 struct TraceDart : WaitingDart {
-    TAPN::TimedTransition* generatedBy;
+    const TAPN::TimedTransition* generatedBy;
     TraceDart(TraceDart &t) : WaitingDart(t.dart, t.parent, t.w, t.upper), generatedBy(t.generatedBy){
         
     };
-    TraceDart(LivenessDart* dart, WaitingDart* parent, int w, int upper, TAPN::TimedTransition* GeneratedBy) : WaitingDart(dart, parent, w, upper), generatedBy(GeneratedBy){
+    TraceDart(TimeDartBase* dart, WaitingDart* parent, int w, int upper, const TAPN::TimedTransition* GeneratedBy) : WaitingDart(dart, parent, w, upper), generatedBy(GeneratedBy){
 
 	}
     
