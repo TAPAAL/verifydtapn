@@ -25,8 +25,6 @@ bool PWList::Add(NonStrictMarking* marking){
 	}
 	m.push_back(marking);
 	waiting_list->Add(marking, marking);
-        if(marking->passed)
-            cout << "error" << endl;
 	return true;
 }
 
