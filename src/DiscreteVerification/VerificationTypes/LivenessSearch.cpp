@@ -61,7 +61,9 @@ bool LivenessSearch::Verify(){
 				trace.top()->inTrace = false;
 				trace.pop();
 			}
-			if(trace.empty())	return false;
+			if(trace.empty()){
+                            return false;
+                        }
 			trace.top()->children--;
 		}else{
 			next_marking.children = validChildren;
@@ -100,7 +102,6 @@ vector<NonStrictMarking*> LivenessSearch::getPossibleNextMarkings(const NonStric
 bool LivenessSearch::addToPW(NonStrictMarking* marking, NonStrictMarking* parent){
 	cut(marking);
 	marking->SetParent(parent);
-
 	unsigned int size = marking->size();
 
 	pwList.SetMaxNumTokensIfGreater(size);

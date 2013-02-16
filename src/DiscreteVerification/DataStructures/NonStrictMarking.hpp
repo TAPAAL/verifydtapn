@@ -23,7 +23,12 @@ namespace DiscreteVerification {
     public:
         NonStrictMarking():NonStrictMarkingBase(), inTrace(false), passed(false){}
 	NonStrictMarking(const TAPN::TimedArcPetriNet& tapn, const std::vector<int>& v):NonStrictMarkingBase(tapn, v), inTrace(false), passed(false){}
-	NonStrictMarking(const NonStrictMarkingBase& nsm):NonStrictMarkingBase(nsm),inTrace(false), passed(false){}
+	NonStrictMarking(const NonStrictMarkingBase& nsm):NonStrictMarkingBase(nsm),inTrace(false), passed(false){
+
+        }
+        NonStrictMarking(const NonStrictMarking& nsm):NonStrictMarkingBase(nsm),inTrace(false), passed(false){
+
+        }
     public:
         bool inTrace;
         bool passed;
