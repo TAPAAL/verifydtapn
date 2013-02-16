@@ -174,10 +174,7 @@ namespace VerifyTAPN {
                 if (!(trace->generatedBy != NULL && trace->generatedBy->NumberOfInputArcs() > 0)) {
                     // if only transport-arcs
                     if (trace->parent != NULL) {
-                        lower = trace->w;
-                    } else {
-                        // if we have the initial marking
-                        lower = 0;
+                        lower = trace->upper;
                     }
                 }
 
