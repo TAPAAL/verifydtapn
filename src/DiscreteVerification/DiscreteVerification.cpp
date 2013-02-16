@@ -63,7 +63,7 @@ namespace VerifyTAPN {
                 }
             } else if (options.GetVerificationType() == TIMEDART) {
                 if (query->GetQuantifier() == EG || query->GetQuantifier() == AF) {
-                    if (options.GetMemoryOptimization() == PDATA) {
+                    if (options.GetMemoryOptimization() == PTRIE) {
                         WaitingList<EncodingPointer<WaitingDart> >* strategy = GetWaitingList<EncodingPointer<WaitingDart> > (query, options);
                         VerifyAndPrint(
                                 new TimeDartLivenessPData(tapn, *initialMarking, query, options, strategy),
@@ -78,7 +78,7 @@ namespace VerifyTAPN {
                     }
                 } else if (query->GetQuantifier() == EF || query->GetQuantifier() == AG) {
 
-                    if (options.GetMemoryOptimization() == PDATA) {
+                    if (options.GetMemoryOptimization() == PTRIE) {
                         WaitingList<TimeDartEncodingPointer>* strategy = GetWaitingList<TimeDartEncodingPointer > (query, options);
                         VerifyAndPrint(
                                 new TimeDartReachabilitySearchPData(tapn, *initialMarking, query, options, strategy),

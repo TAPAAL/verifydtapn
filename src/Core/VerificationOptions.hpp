@@ -9,7 +9,7 @@ namespace VerifyTAPN {
 	enum Trace { NONE, SOME };
 	enum SearchType { BREADTHFIRST, DEPTHFIRST, RANDOM, COVERMOST };
 	enum VerificationType { DISCRETE, TIMEDART };
-        enum MemoryOptimization { NO_MEMORY_OPTIMIZATION, PDATA };
+        enum MemoryOptimization { NO_MEMORY_OPTIMIZATION, PTRIE };
 
 	class VerificationOptions {
 		public:

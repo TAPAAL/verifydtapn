@@ -38,8 +38,8 @@ namespace VerifyTAPN {
             switch(m){
                 case NONE:
                     return "None";
-                case PDATA:
-                    return "Pdata ";
+                case PTRIE:
+                    return "PTrie ";
                 default:
                     return "None";
             }

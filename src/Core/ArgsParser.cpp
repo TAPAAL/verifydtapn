@@ -143,7 +143,7 @@ void ArgsParser::Initialize() {
             1)); // TODO change to 0!
     parsers.push_back(
             boost::make_shared<SwitchWithArg > ("p", MEMORY_OPTIMIZATION_OPTION,
-            "Specify the desired memory optimization.\n - 0: None \n - 1: PData",
+            "Specify the desired memory optimization.\n - 0: None \n - 1: PTrie",
             1)); // TODO change to 0!
     parsers.push_back(
             boost::make_shared<SwitchWithArg > ("t", TRACE_OPTION,
@@ -301,7 +301,7 @@ MemoryOptimization intToMemoryOptimizationEnum(int i) {
 	case 0:
 		return NO_MEMORY_OPTIMIZATION;
 	case 1:
-		return PDATA;
+		return PTRIE;
 	default:
 		std::cout << "Unknown memory optimization specified." << std::endl;
 		exit(1);
