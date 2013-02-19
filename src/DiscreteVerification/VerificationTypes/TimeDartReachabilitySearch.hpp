@@ -54,8 +54,6 @@ protected:
         }
 public:
 	void printStats();
-private:
-	WaitingDart* lastMarking;
 };
 
 class TimeDartReachabilitySearchPData : public TimeDartReachabilitySearch {
