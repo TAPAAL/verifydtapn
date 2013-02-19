@@ -174,7 +174,7 @@ namespace VerifyTAPN {
                 if (!(trace->generatedBy != NULL && trace->generatedBy->NumberOfInputArcs() > 0)) {
                     // if only transport-arcs
                     if (trace->parent != NULL) {
-                        lower = trace->upper;
+                        lower = trace->w;
                     }
                 }
 
@@ -183,7 +183,6 @@ namespace VerifyTAPN {
                 NonStrictMarkingBase* m = new NonStrictMarkingBase(*base);
                 m->SetGeneratedBy(trace->generatedBy);
                 m->incrementAge(lower);
-
                 // create markings between transitions, one for each delay (exluding last one)
                 if (upper > lower) {
                     int diff = upper - lower;   // amount to delay
@@ -198,7 +197,6 @@ namespace VerifyTAPN {
                         traceStack.push(mc);            // add delay marking to the trace
                         diff--;
                     }
-
                 }
                 if (last != NULL)
                     last->parent = m;
