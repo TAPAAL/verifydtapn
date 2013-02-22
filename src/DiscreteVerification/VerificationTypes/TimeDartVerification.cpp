@@ -171,12 +171,10 @@ namespace VerifyTAPN {
             while (trace != NULL) {
 
                 int lower = 0;
-                if (!(trace->generatedBy != NULL && trace->generatedBy->NumberOfInputArcs() > 0)) {
-                    // if only transport-arcs
-                    if (trace->parent != NULL) {
-                        lower = trace->w;
-                    }
+                if (trace->parent != NULL) {
+                    lower = trace->w;
                 }
+
 
                 // create "last delay marking"
                 NonStrictMarkingBase* base = getBase(trace->dart);
