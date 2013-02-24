@@ -17,13 +17,30 @@
 
 namespace VerifyTAPN {
 namespace DiscreteVerification {
-class PWList {
+    
+    class PWListBase {
+    public:
+        PWListBase() : stored(0), discoveredMarkings(0), maxNumTokensInAnyMarking(-1), isLiveness(false) {};
+        PWListBase(bool isLiveness) : stored(0), discoveredMarkings(0), maxNumTokensInAnyMarking(-1), isLiveness(isLiveness){};
+        int stored;
+    	int discoveredMarkings;
+	int maxNumTokensInAnyMarking;
+        bool isLiveness;
+        
+        virtual bool HasWaitingStates() = 0;
+        virtual long long Size() const = 0;
+        virtual bool Add(NonStrictMarking* marking) = 0;
+	virtual NonStrictMarking* GetNextUnexplored() = 0;
+	inline void SetMaxNumTokensIfGreater(int i){ if(i>maxNumTokensInAnyMarking) maxNumTokensInAnyMarking = i; };
+    };
+    
+class PWList : public PWListBase {
 public:
 	typedef std::vector<NonStrictMarking*> NonStrictMarkingList;
 	typedef google::sparse_hash_map<size_t, NonStrictMarkingList> HashMap;
 public:
-	PWList() : markings_storage(256000), waiting_list(), discoveredMarkings(0), maxNumTokensInAnyMarking(-1), isLiveness(false) {};
-	PWList(WaitingList<NonStrictMarking>* w_l, bool isLiveness) : markings_storage(256000), waiting_list(w_l), discoveredMarkings(0), maxNumTokensInAnyMarking(-1), isLiveness(isLiveness) {};
+	PWList() : PWListBase(false), markings_storage(256000), waiting_list(){};
+	PWList(WaitingList<NonStrictMarking>* w_l, bool isLiveness) :PWListBase(isLiveness), markings_storage(256000), waiting_list(w_l) {};
 	virtual ~PWList();
 	friend std::ostream& operator<<(std::ostream& out, PWList& x);
 
@@ -33,21 +50,62 @@ public: // inspectors
 	};
 
 	virtual long long Size() const {
-		return markings_storage.size();
+		return stored;
 	};
 
 public: // modifiers
 	virtual bool Add(NonStrictMarking* marking);
 	virtual NonStrictMarking* GetNextUnexplored();
-	inline void SetMaxNumTokensIfGreater(int i){ if(i>maxNumTokensInAnyMarking) maxNumTokensInAnyMarking = i; };
 
 public:
 	HashMap markings_storage;
 	WaitingList<NonStrictMarking>* waiting_list;
-	int discoveredMarkings;
-	int maxNumTokensInAnyMarking;
-        bool isLiveness;
 };
+
+class PWListHybrid : public PWListBase {
+        public:
+            typedef unsigned int uint;
+            //            typedef google::sparse_hash_map<size_t, EncodingList> HashMap;
+            PData<MetaData>* passed;
+
+        public:
+
+            PWListHybrid(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, WaitingList<EncodingPointer<MetaData> >* w_l, int knumber, int nplaces, int mage) :
+            waiting_list(w_l) {
+                discoveredMarkings = 0;
+                passed = new PData<MetaData>(tapn, knumber,nplaces,mage);
+            };
+            virtual ~PWListHybrid();
+            friend std::ostream& operator<<(std::ostream& out, PWListHybrid& x);
+
+        public: // inspectors
+
+            virtual bool HasWaitingStates() {
+                return (waiting_list->Size() > 0);
+            };
+
+            virtual long long Size() const {
+                return passed->stored;
+            };
+
+            void PrintMemStats() {
+                passed->PrintMemStats();
+            }
+
+        public: // modifiers
+            virtual bool Add(NonStrictMarking* marking);
+            virtual NonStrictMarking* GetNextUnexplored();
+
+            inline void SetMaxNumTokensIfGreater(int i) {
+                if (i > maxNumTokensInAnyMarking) maxNumTokensInAnyMarking = i;
+            };
+
+        public:
+
+             WaitingList<EncodingPointer<MetaData> >* waiting_list;
+            int discoveredMarkings;
+            int maxNumTokensInAnyMarking;
+        };
 
 std::ostream& operator<<(std::ostream& out, PWList& x);
 
