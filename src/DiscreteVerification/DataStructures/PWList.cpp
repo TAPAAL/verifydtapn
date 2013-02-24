@@ -19,6 +19,7 @@ bool PWList::Add(NonStrictMarking* marking){
 		if((*iter)->equals(*marking)){
 			if(!(*iter)->passed){
 				waiting_list->Add(*iter, *iter);
+                                return true;
 			}
 			return false;
 		}
