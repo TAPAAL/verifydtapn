@@ -62,8 +62,6 @@ std::ostream& operator<<(std::ostream& out, PWList& x){
             if(res.isNew){
                 if(isLiveness){
                     MetaData* meta = new MetaData();
-                    meta->inTrace = false;
-                    meta->passed = false;
                     res.encoding.SetMetaData(meta);
                     marking->meta = meta;
                 }

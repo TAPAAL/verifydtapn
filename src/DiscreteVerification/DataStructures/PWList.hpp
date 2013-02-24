@@ -100,15 +100,10 @@ class PWListHybrid : public PWListBase {
             virtual bool Add(NonStrictMarking* marking);
             virtual NonStrictMarking* GetNextUnexplored();
 
-            inline void SetMaxNumTokensIfGreater(int i) {
-                if (i > maxNumTokensInAnyMarking) maxNumTokensInAnyMarking = i;
-            };
-
         public:
 
              WaitingList<EncodingPointer<MetaData> >* waiting_list;
-            int discoveredMarkings;
-            int maxNumTokensInAnyMarking;
+
         };
 
 std::ostream& operator<<(std::ostream& out, PWList& x);

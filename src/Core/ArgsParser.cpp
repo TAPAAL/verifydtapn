@@ -144,7 +144,7 @@ void ArgsParser::Initialize() {
     parsers.push_back(
             boost::make_shared<SwitchWithArg > ("p", MEMORY_OPTIMIZATION_OPTION,
             "Specify the desired memory optimization.\n - 0: None \n - 1: PTrie",
-            0)); // TODO change to 0!
+            1)); // TODO change to 0!
     parsers.push_back(
             boost::make_shared<SwitchWithArg > ("t", TRACE_OPTION,
             "Specify the desired trace option.\n - 0: none\n - 1: some",
