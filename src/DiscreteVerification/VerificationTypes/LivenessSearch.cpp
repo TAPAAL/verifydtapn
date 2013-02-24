@@ -10,6 +10,10 @@
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
+LivenessSearch::LivenessSearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options)
+	: tapn(tapn), initialMarking(initialMarking), query(query), options(options), successorGenerator( *tapn.get() ){
+}
+    
 LivenessSearch::LivenessSearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list)
 	: pwList(new PWList(waiting_list, true)), tapn(tapn), initialMarking(initialMarking), query(query), options(options), successorGenerator( *tapn.get() ){
 }
@@ -166,7 +170,7 @@ void LivenessSearch::cut(NonStrictMarking* m){
 
 void LivenessSearch::printStats(){
 	std::cout << "  discovered markings:\t" << pwList->discoveredMarkings << std::endl;
-	std::cout << "  explored markings:\t" << pwList->Size()-pwList->waiting_list->Size() << std::endl;
+	std::cout << "  explored markings:\t" << pwList->Size()-pwList->Explored() << std::endl;
 	std::cout << "  stored markings:\t" << pwList->Size() << std::endl;
 }
 

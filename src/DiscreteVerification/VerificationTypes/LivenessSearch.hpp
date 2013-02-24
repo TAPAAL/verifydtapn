@@ -32,7 +32,8 @@ namespace DiscreteVerification {
 
 class LivenessSearch : public Verification<NonStrictMarking>{
 public:
-	LivenessSearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list);
+	LivenessSearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options);
+    LivenessSearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list);
 	virtual ~LivenessSearch();
 	bool Verify();
 	NonStrictMarking* GetLastMarking() { return lastMarking; }
@@ -46,7 +47,7 @@ protected:
 
 protected:
 	int validChildren;
-	PWList* pwList;
+	PWListBase* pwList;
 	boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn;
 	NonStrictMarking& initialMarking;
 	AST::Query* query;
@@ -58,7 +59,15 @@ public:
 private:
 	NonStrictMarking* lastMarking;
 };
+class LivenessSearchPTrie : public LivenessSearch{
+public:
+    LivenessSearchPTrie(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<EncodingPointer<MetaData> >* waiting_list) 
+    : LivenessSearch(tapn,initialMarking, query, options)
+    {
+        pwList = new PWListHybrid(tapn, waiting_list, options.GetKBound(), tapn->NumberOfPlaces(), tapn->MaxConstant(), false);
+    };
 
+};
 } /* namespace DiscreteVerification */
 } /* namespace VerifyTAPN */
 #endif /* NONSTRICTSEARCH_HPP_ */

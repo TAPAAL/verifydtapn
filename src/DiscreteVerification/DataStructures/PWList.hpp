@@ -31,6 +31,7 @@ namespace DiscreteVerification {
         virtual long long Size() const = 0;
         virtual bool Add(NonStrictMarking* marking) = 0;
 	virtual NonStrictMarking* GetNextUnexplored() = 0;
+        virtual long long Explored()= 0;
 	inline void SetMaxNumTokensIfGreater(int i){ if(i>maxNumTokensInAnyMarking) maxNumTokensInAnyMarking = i; };
     };
     
@@ -53,6 +54,8 @@ public: // inspectors
 		return stored;
 	};
 
+        virtual long long Explored() {return waiting_list->Size();};
+        
 public: // modifiers
 	virtual bool Add(NonStrictMarking* marking);
 	virtual NonStrictMarking* GetNextUnexplored();
@@ -70,7 +73,8 @@ class PWListHybrid : public PWListBase {
 
         public:
 
-            PWListHybrid(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, WaitingList<EncodingPointer<MetaData> >* w_l, int knumber, int nplaces, int mage) :
+            PWListHybrid(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, WaitingList<EncodingPointer<MetaData> >* w_l, int knumber, int nplaces, int mage, bool inTrace) :
+            PWListBase(inTrace),
             waiting_list(w_l) {
                 discoveredMarkings = 0;
                 passed = new PData<MetaData>(tapn, knumber,nplaces,mage);
@@ -87,7 +91,7 @@ class PWListHybrid : public PWListBase {
             virtual long long Size() const {
                 return passed->stored;
             };
-
+            virtual long long Explored() {return waiting_list->Size();};
             void PrintMemStats() {
                 passed->PrintMemStats();
             }

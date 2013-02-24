@@ -51,18 +51,18 @@ namespace VerifyTAPN {
                 
                 if (options.GetMemoryOptimization() == PTRIE) {
                     //TODO fix initialization
-                  /*  WaitingList<NonStrictMarking>* strategy = GetWaitingList<NonStrictMarking > (query, options);
+                    WaitingList<EncodingPointer<MetaData> >* strategy = GetWaitingList<EncodingPointer<MetaData> > (query, options);
                     if (query->GetQuantifier() == EG || query->GetQuantifier() == AF) {
                         VerifyAndPrint(
-                                new LivenessSearch(tapn, *initialMarking, query, options, strategy),
+                                new LivenessSearchPTrie(tapn, *initialMarking, query, options, strategy),
                                 options,
                                 query);
                     } else if (query->GetQuantifier() == EF || query->GetQuantifier() == AG) {
                         VerifyAndPrint(
-                                new ReachabilitySearch(tapn, *initialMarking, query, options, strategy),
+                                new ReachabilitySearchPTrie(tapn, *initialMarking, query, options, strategy),
                                 options,
                                 query);
-                    }*/
+                    }
                 } else {
                     WaitingList<NonStrictMarking>* strategy = GetWaitingList<NonStrictMarking > (query, options);
                     if (query->GetQuantifier() == EG || query->GetQuantifier() == AF) {
