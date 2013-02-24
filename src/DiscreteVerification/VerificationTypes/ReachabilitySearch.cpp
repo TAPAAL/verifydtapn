@@ -11,7 +11,7 @@ namespace VerifyTAPN {
 namespace DiscreteVerification {
 
 ReachabilitySearch::ReachabilitySearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list)
-	: pwList(waiting_list), tapn(tapn), initialMarking(initialMarking), query(query), options(options), successorGenerator( *tapn.get() ){
+	: pwList(waiting_list, false), tapn(tapn), initialMarking(initialMarking), query(query), options(options), successorGenerator( *tapn.get() ){
 }
 
 bool ReachabilitySearch::Verify(){
@@ -23,10 +23,7 @@ bool ReachabilitySearch::Verify(){
 	while(pwList.HasWaitingStates()){
 		NonStrictMarking& next_marking = *pwList.GetNextUnexplored();
 		bool endOfMaxRun;
-		NonStrictMarking marking(next_marking);
 		endOfMaxRun = true;
-		next_marking.meta->passed = true;
-		next_marking.meta->inTrace = true;
 		trace.push(&next_marking);
 		validChildren = 0;
 
@@ -89,7 +86,6 @@ bool ReachabilitySearch::addToPW(NonStrictMarking* marking, NonStrictMarking* pa
 		return false;
 	}
 
-	marking->meta->passed = true;
 	if(pwList.Add(marking)){
 		QueryVisitor<NonStrictMarking> checker(*marking);
 		boost::any context;

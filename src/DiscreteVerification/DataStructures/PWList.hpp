@@ -22,8 +22,8 @@ public:
 	typedef std::vector<NonStrictMarking*> NonStrictMarkingList;
 	typedef google::sparse_hash_map<size_t, NonStrictMarkingList> HashMap;
 public:
-	PWList() : markings_storage(256000), waiting_list(), discoveredMarkings(0), maxNumTokensInAnyMarking(-1) {};
-	PWList(WaitingList<NonStrictMarking>* w_l) : markings_storage(256000), waiting_list(w_l), discoveredMarkings(0), maxNumTokensInAnyMarking(-1) {};
+	PWList() : markings_storage(256000), waiting_list(), discoveredMarkings(0), maxNumTokensInAnyMarking(-1), isLiveness(false) {};
+	PWList(WaitingList<NonStrictMarking>* w_l, bool isLiveness) : markings_storage(256000), waiting_list(w_l), discoveredMarkings(0), maxNumTokensInAnyMarking(-1), isLiveness(isLiveness) {};
 	virtual ~PWList();
 	friend std::ostream& operator<<(std::ostream& out, PWList& x);
 
@@ -46,6 +46,7 @@ public:
 	WaitingList<NonStrictMarking>* waiting_list;
 	int discoveredMarkings;
 	int maxNumTokensInAnyMarking;
+        bool isLiveness;
 };
 
 std::ostream& operator<<(std::ostream& out, PWList& x);

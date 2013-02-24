@@ -17,7 +17,7 @@ bool PWList::Add(NonStrictMarking* marking){
 			iter != m.end();
 			iter++){
 		if((*iter)->equals(*marking)){
-			if(!(*iter)->meta->passed){
+			if(isLiveness && !(*iter)->meta->passed){
 				waiting_list->Add(*iter, *iter);
                                 return true;
 			}
@@ -25,6 +25,7 @@ bool PWList::Add(NonStrictMarking* marking){
 		}
 	}
 	m.push_back(marking);
+        marking->meta = new MetaData();
 	waiting_list->Add(marking, marking);
 	return true;
 }

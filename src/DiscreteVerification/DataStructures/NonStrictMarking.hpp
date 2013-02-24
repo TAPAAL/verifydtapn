@@ -30,11 +30,11 @@ namespace DiscreteVerification {
     class NonStrictMarking : public NonStrictMarkingBase{
     public:
         NonStrictMarking():NonStrictMarkingBase(), meta(new MetaData()){}
-	NonStrictMarking(const TAPN::TimedArcPetriNet& tapn, const std::vector<int>& v):NonStrictMarkingBase(tapn, v), meta(new MetaData()){}
-	NonStrictMarking(const NonStrictMarkingBase& nsm):NonStrictMarkingBase(nsm), meta(new MetaData()){
+	NonStrictMarking(const TAPN::TimedArcPetriNet& tapn, const std::vector<int>& v):NonStrictMarkingBase(tapn, v){}
+	NonStrictMarking(const NonStrictMarkingBase& nsm):NonStrictMarkingBase(nsm){
 
         }
-        NonStrictMarking(const NonStrictMarking& nsm):NonStrictMarkingBase(nsm), meta(new MetaData()){
+        NonStrictMarking(const NonStrictMarking& nsm):NonStrictMarkingBase(nsm){
 
         }
     public:
