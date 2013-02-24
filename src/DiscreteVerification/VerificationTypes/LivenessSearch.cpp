@@ -63,6 +63,7 @@ bool LivenessSearch::Verify(){
 		if(validChildren == 0){
 			while(!trace.empty() && trace.top()->children <= 1){
 				trace.top()->meta->inTrace = false;
+                                deleteMarking(trace.top());
 				trace.pop();
 			}
 			if(trace.empty()){
@@ -133,7 +134,7 @@ bool LivenessSearch::addToPW(NonStrictMarking* marking, NonStrictMarking* parent
 	}else{
 		validChildren++;
 	}
-
+        deleteMarking(marking);
 	return false;
 }
 

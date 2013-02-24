@@ -39,6 +39,9 @@ public:
 	NonStrictMarking* GetLastMarking() { return lastMarking; }
 	inline unsigned int MaxUsedTokens(){ return pwList->maxNumTokensInAnyMarking; };
 	void PrintTransitionStatistics() const { successorGenerator.PrintTransitionStatistics(std::cout); }
+        virtual void deleteMarking(NonStrictMarking* m) {
+            //dummy
+        };
 protected:
 	vector<NonStrictMarking*> getPossibleNextMarkings(const NonStrictMarking& marking);
 	bool addToPW(NonStrictMarking* marking, NonStrictMarking* parent);
@@ -65,6 +68,9 @@ public:
     : LivenessSearch(tapn,initialMarking, query, options)
     {
         pwList = new PWListHybrid(tapn, waiting_list, options.GetKBound(), tapn->NumberOfPlaces(), tapn->MaxConstant(), true);
+    };
+    virtual void deleteMarking(NonStrictMarking* m) {
+        delete m;
     };
 
 };

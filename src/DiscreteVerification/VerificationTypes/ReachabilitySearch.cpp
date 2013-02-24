@@ -47,6 +47,7 @@ bool ReachabilitySearch::Verify(){
 			}
 			endOfMaxRun = false;
 		}
+                deleteMarking(&next_marking);
 	}
 
 	return false;
@@ -98,6 +99,7 @@ bool ReachabilitySearch::addToPW(NonStrictMarking* marking, NonStrictMarking* pa
 			lastMarking = marking;
 			return true;
 		} else {
+                        deleteMarking(marking);
 			return false;
 		}
 	} else {

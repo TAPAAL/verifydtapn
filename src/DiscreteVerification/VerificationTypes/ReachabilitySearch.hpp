@@ -39,6 +39,9 @@ public:
 	NonStrictMarking* GetLastMarking() { return lastMarking; }
 	inline unsigned int MaxUsedTokens(){ return pwList->maxNumTokensInAnyMarking; };
 	void PrintTransitionStatistics() const { successorGenerator.PrintTransitionStatistics(std::cout); }
+        virtual void deleteMarking(NonStrictMarking* m) {
+            //dummy;
+        };
 
 protected:
 	vector<NonStrictMarking*> getPossibleNextMarkings(const NonStrictMarking& marking);
@@ -67,6 +70,10 @@ public:
     : ReachabilitySearch(tapn,initialMarking, query, options)
     {
         pwList = new PWListHybrid(tapn, waiting_list, options.GetKBound(), tapn->NumberOfPlaces(), tapn->MaxConstant(), false);
+    };
+    
+    virtual void deleteMarking(NonStrictMarking* m) {
+        delete m;
     };
 
 };
