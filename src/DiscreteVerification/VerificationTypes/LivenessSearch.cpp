@@ -117,22 +117,15 @@ bool LivenessSearch::addToPW(NonStrictMarking* marking, NonStrictMarking* parent
 	if(!boost::any_cast<bool>(context))	return false;
 	if(!pwList.Add(marking)){
 		//Test if collision is in trace
-		PWList::NonStrictMarkingList& cm = pwList.markings_storage[marking->HashKey()];
-		for(PWList::NonStrictMarkingList::iterator iter = cm.begin();
-				cm.end() != iter;
-				iter++){
-			if((*iter)->equals(*marking)){
-				if((*iter)->meta->inTrace){
-					//Make sure we can print trace
-					marking->children = 1;
-					trace.push(marking);
-					return true;
-				}else{
-					delete marking;
-					return false;
-				}
-			}
-		}
+            if(marking->meta->inTrace){
+                    //Make sure we can print trace
+                    marking->children = 1;
+                    trace.push(marking);
+                    return true;
+            }else{
+                    delete marking;
+                    return false;
+            }
 	}else{
 		validChildren++;
 	}

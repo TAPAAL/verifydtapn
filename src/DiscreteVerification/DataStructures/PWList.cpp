@@ -17,11 +17,14 @@ bool PWList::Add(NonStrictMarking* marking){
 			iter != m.end();
 			iter++){
 		if((*iter)->equals(*marking)){
-			if(isLiveness && !(*iter)->meta->passed){
-				waiting_list->Add(*iter, *iter);
+                    if(isLiveness){
+                        marking->meta = (*iter)->meta;
+                        if(!marking->meta->passed){
+                                waiting_list->Add(*iter, *iter);
                                 return true;
-			}
-			return false;
+                        }
+                    }
+                    return false;
 		}
 	}
 	m.push_back(marking);
