@@ -23,11 +23,11 @@ bool LivenessSearch::Verify(){
 	while(pwList.HasWaitingStates()){
 		NonStrictMarking& next_marking = *pwList.GetNextUnexplored();
 		bool endOfMaxRun;
-		if(!next_marking.passed){
+		if(!next_marking.meta->passed){
 			NonStrictMarking marking(next_marking);
 			endOfMaxRun = true;
-			next_marking.passed = true;
-			next_marking.inTrace = true;
+			next_marking.meta->passed = true;
+			next_marking.meta->inTrace = true;
 			trace.push(&next_marking);
 			validChildren = 0;
 
@@ -58,7 +58,7 @@ bool LivenessSearch::Verify(){
 		}
 		if(validChildren == 0){
 			while(!trace.empty() && trace.top()->children <= 1){
-				trace.top()->inTrace = false;
+				trace.top()->meta->inTrace = false;
 				trace.pop();
 			}
 			if(trace.empty()){
@@ -122,7 +122,7 @@ bool LivenessSearch::addToPW(NonStrictMarking* marking, NonStrictMarking* parent
 				cm.end() != iter;
 				iter++){
 			if((*iter)->equals(*marking)){
-				if((*iter)->inTrace){
+				if((*iter)->meta->inTrace){
 					//Make sure we can print trace
 					marking->children = 1;
 					trace.push(marking);

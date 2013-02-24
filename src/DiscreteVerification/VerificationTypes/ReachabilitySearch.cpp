@@ -25,8 +25,8 @@ bool ReachabilitySearch::Verify(){
 		bool endOfMaxRun;
 		NonStrictMarking marking(next_marking);
 		endOfMaxRun = true;
-		next_marking.passed = true;
-		next_marking.inTrace = true;
+		next_marking.meta->passed = true;
+		next_marking.meta->inTrace = true;
 		trace.push(&next_marking);
 		validChildren = 0;
 
@@ -89,7 +89,7 @@ bool ReachabilitySearch::addToPW(NonStrictMarking* marking, NonStrictMarking* pa
 		return false;
 	}
 
-	marking->passed = true;
+	marking->meta->passed = true;
 	if(pwList.Add(marking)){
 		QueryVisitor<NonStrictMarking> checker(*marking);
 		boost::any context;

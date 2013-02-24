@@ -19,19 +19,26 @@ using namespace std;
 
 namespace VerifyTAPN {
 namespace DiscreteVerification {
+    
+    struct MetaData {
+    public:
+        MetaData() : passed(false), inTrace(false) {};
+        bool passed;
+        bool inTrace;
+    };
+    
     class NonStrictMarking : public NonStrictMarkingBase{
     public:
-        NonStrictMarking():NonStrictMarkingBase(), inTrace(false), passed(false){}
-	NonStrictMarking(const TAPN::TimedArcPetriNet& tapn, const std::vector<int>& v):NonStrictMarkingBase(tapn, v), inTrace(false), passed(false){}
-	NonStrictMarking(const NonStrictMarkingBase& nsm):NonStrictMarkingBase(nsm),inTrace(false), passed(false){
+        NonStrictMarking():NonStrictMarkingBase(), meta(new MetaData()){}
+	NonStrictMarking(const TAPN::TimedArcPetriNet& tapn, const std::vector<int>& v):NonStrictMarkingBase(tapn, v), meta(new MetaData()){}
+	NonStrictMarking(const NonStrictMarkingBase& nsm):NonStrictMarkingBase(nsm), meta(new MetaData()){
 
         }
-        NonStrictMarking(const NonStrictMarking& nsm):NonStrictMarkingBase(nsm),inTrace(false), passed(false){
+        NonStrictMarking(const NonStrictMarking& nsm):NonStrictMarkingBase(nsm), meta(new MetaData()){
 
         }
     public:
-        bool inTrace;
-        bool passed;
+        MetaData* meta;
     };
     
 
