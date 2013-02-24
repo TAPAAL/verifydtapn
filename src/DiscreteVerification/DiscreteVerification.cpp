@@ -48,18 +48,34 @@ namespace VerifyTAPN {
             WaitingList<NonStrictMarking>* strategy = NULL;
             // Select verification method
             if (options.GetVerificationType() == DISCRETE) {
-                WaitingList<NonStrictMarking>* strategy = GetWaitingList<NonStrictMarking > (query, options);
-
-                if (query->GetQuantifier() == EG || query->GetQuantifier() == AF) {
-                    VerifyAndPrint(
-                            new LivenessSearch(tapn, *initialMarking, query, options, strategy),
-                            options,
-                            query);
-                } else if (query->GetQuantifier() == EF || query->GetQuantifier() == AG) {
-                    VerifyAndPrint(
-                            new ReachabilitySearch(tapn, *initialMarking, query, options, strategy),
-                            options,
-                            query);
+                
+                if (options.GetMemoryOptimization() == PTRIE) {
+                    //TODO fix initialization
+                  /*  WaitingList<NonStrictMarking>* strategy = GetWaitingList<NonStrictMarking > (query, options);
+                    if (query->GetQuantifier() == EG || query->GetQuantifier() == AF) {
+                        VerifyAndPrint(
+                                new LivenessSearch(tapn, *initialMarking, query, options, strategy),
+                                options,
+                                query);
+                    } else if (query->GetQuantifier() == EF || query->GetQuantifier() == AG) {
+                        VerifyAndPrint(
+                                new ReachabilitySearch(tapn, *initialMarking, query, options, strategy),
+                                options,
+                                query);
+                    }*/
+                } else {
+                    WaitingList<NonStrictMarking>* strategy = GetWaitingList<NonStrictMarking > (query, options);
+                    if (query->GetQuantifier() == EG || query->GetQuantifier() == AF) {
+                        VerifyAndPrint(
+                                new LivenessSearch(tapn, *initialMarking, query, options, strategy),
+                                options,
+                                query);
+                    } else if (query->GetQuantifier() == EF || query->GetQuantifier() == AG) {
+                        VerifyAndPrint(
+                                new ReachabilitySearch(tapn, *initialMarking, query, options, strategy),
+                                options,
+                                query);
+                    }
                 }
             } else if (options.GetVerificationType() == TIMEDART) {
                 if (query->GetQuantifier() == EG || query->GetQuantifier() == AF) {

@@ -36,7 +36,7 @@ public:
 	virtual ~LivenessSearch();
 	bool Verify();
 	NonStrictMarking* GetLastMarking() { return lastMarking; }
-	inline unsigned int MaxUsedTokens(){ return pwList.maxNumTokensInAnyMarking; };
+	inline unsigned int MaxUsedTokens(){ return pwList->maxNumTokensInAnyMarking; };
 	void PrintTransitionStatistics() const { successorGenerator.PrintTransitionStatistics(std::cout); }
 protected:
 	vector<NonStrictMarking*> getPossibleNextMarkings(const NonStrictMarking& marking);
@@ -46,7 +46,7 @@ protected:
 
 protected:
 	int validChildren;
-	PWList pwList;
+	PWList* pwList;
 	boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn;
 	NonStrictMarking& initialMarking;
 	AST::Query* query;

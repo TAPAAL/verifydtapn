@@ -11,7 +11,7 @@ namespace VerifyTAPN {
 namespace DiscreteVerification {
 
 LivenessSearch::LivenessSearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list)
-	: pwList(waiting_list, true), tapn(tapn), initialMarking(initialMarking), query(query), options(options), successorGenerator( *tapn.get() ){
+	: pwList(new PWList(waiting_list, true)), tapn(tapn), initialMarking(initialMarking), query(query), options(options), successorGenerator( *tapn.get() ){
 }
 
 bool LivenessSearch::Verify(){
@@ -20,8 +20,8 @@ bool LivenessSearch::Verify(){
 	}
 
 	//Main loop
-	while(pwList.HasWaitingStates()){
-		NonStrictMarking& next_marking = *pwList.GetNextUnexplored();
+	while(pwList->HasWaitingStates()){
+		NonStrictMarking& next_marking = *pwList->GetNextUnexplored();
 		bool endOfMaxRun;
 		if(!next_marking.meta->passed){
 			NonStrictMarking marking(next_marking);
@@ -104,7 +104,7 @@ bool LivenessSearch::addToPW(NonStrictMarking* marking, NonStrictMarking* parent
 	marking->SetParent(parent);
 	unsigned int size = marking->size();
 
-	pwList.SetMaxNumTokensIfGreater(size);
+	pwList->SetMaxNumTokensIfGreater(size);
 
 	if(size > options.GetKBound()) {
 		delete marking;
@@ -115,7 +115,7 @@ bool LivenessSearch::addToPW(NonStrictMarking* marking, NonStrictMarking* parent
 	boost::any context;
 	query->Accept(checker, context);
 	if(!boost::any_cast<bool>(context))	return false;
-	if(!pwList.Add(marking)){
+	if(!pwList->Add(marking)){
 		//Test if collision is in trace
             if(marking->meta->inTrace){
                     //Make sure we can print trace
@@ -165,9 +165,9 @@ void LivenessSearch::cut(NonStrictMarking* m){
 }
 
 void LivenessSearch::printStats(){
-	std::cout << "  discovered markings:\t" << pwList.discoveredMarkings << std::endl;
-	std::cout << "  explored markings:\t" << pwList.Size()-pwList.waiting_list->Size() << std::endl;
-	std::cout << "  stored markings:\t" << pwList.Size() << std::endl;
+	std::cout << "  discovered markings:\t" << pwList->discoveredMarkings << std::endl;
+	std::cout << "  explored markings:\t" << pwList->Size()-pwList->waiting_list->Size() << std::endl;
+	std::cout << "  stored markings:\t" << pwList->Size() << std::endl;
 }
 
 void LivenessSearch::GetTrace(){

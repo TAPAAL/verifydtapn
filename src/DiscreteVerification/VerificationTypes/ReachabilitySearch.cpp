@@ -11,7 +11,7 @@ namespace VerifyTAPN {
 namespace DiscreteVerification {
 
 ReachabilitySearch::ReachabilitySearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list)
-	: pwList(waiting_list, false), tapn(tapn), initialMarking(initialMarking), query(query), options(options), successorGenerator( *tapn.get() ){
+	: pwList(new PWList(waiting_list, false)), tapn(tapn), initialMarking(initialMarking), query(query), options(options), successorGenerator( *tapn.get() ){
 }
 
 bool ReachabilitySearch::Verify(){
@@ -20,8 +20,8 @@ bool ReachabilitySearch::Verify(){
 	}
 
 	//Main loop
-	while(pwList.HasWaitingStates()){
-		NonStrictMarking& next_marking = *pwList.GetNextUnexplored();
+	while(pwList->HasWaitingStates()){
+		NonStrictMarking& next_marking = *pwList->GetNextUnexplored();
 		bool endOfMaxRun;
 		endOfMaxRun = true;
 		trace.push(&next_marking);
@@ -79,14 +79,14 @@ bool ReachabilitySearch::addToPW(NonStrictMarking* marking, NonStrictMarking* pa
 
 	unsigned int size = marking->size();
 
-	pwList.SetMaxNumTokensIfGreater(size);
+	pwList->SetMaxNumTokensIfGreater(size);
 
 	if(size > options.GetKBound()) {
 		delete marking;
 		return false;
 	}
 
-	if(pwList.Add(marking)){
+	if(pwList->Add(marking)){
 		QueryVisitor<NonStrictMarking> checker(*marking);
 		boost::any context;
 		query->Accept(checker, context);
@@ -135,9 +135,9 @@ void ReachabilitySearch::cut(NonStrictMarking* m){
 }
 
 void ReachabilitySearch::printStats(){
-	std::cout << "  discovered markings:\t" << pwList.discoveredMarkings << std::endl;
-	std::cout << "  explored markings:\t" << pwList.Size()-pwList.waiting_list->Size() << std::endl;
-	std::cout << "  stored markings:\t" << pwList.Size() << std::endl;
+	std::cout << "  discovered markings:\t" << pwList->discoveredMarkings << std::endl;
+	std::cout << "  explored markings:\t" << pwList->Size()-pwList->waiting_list->Size() << std::endl;
+	std::cout << "  stored markings:\t" << pwList->Size() << std::endl;
 }
 
 void ReachabilitySearch::GetTrace(){

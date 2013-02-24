@@ -1,8 +1,8 @@
-/* A Bison parser, made by GNU Bison 2.5.  */
+/* A Bison parser, made by GNU Bison 2.6.5.  */
 
 /* Locations for Bison parsers in C++
    
-      Copyright (C) 2002-2007, 2009-2011 Free Software Foundation, Inc.
+      Copyright (C) 2002-2007, 2009-2012 Free Software Foundation, Inc.
    
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -31,41 +31,56 @@
    version 2.2 of Bison.  */
 
 /**
- ** \file location.hh
+ ** \file Core/QueryParser/Generated/location.hh
  ** Define the VerifyTAPN::location class.
  */
 
-#ifndef BISON_LOCATION_HH
-# define BISON_LOCATION_HH
+#ifndef YY_YY_CORE_QUERYPARSER_GENERATED_LOCATION_HH_INCLUDED
+# define YY_YY_CORE_QUERYPARSER_GENERATED_LOCATION_HH_INCLUDED
 
-# include <iostream>
-# include <string>
 # include "position.hh"
 
-
-/* Line 162 of location.cc  */
+/* Line 164 of location.cc  */
 #line 5 "Core/QueryParser/grammar.yy"
 namespace VerifyTAPN {
-
-/* Line 162 of location.cc  */
-#line 52 "Core/QueryParser/Generated/location.hh"
+/* Line 164 of location.cc  */
+#line 48 "Core/QueryParser/Generated/location.hh"
 
   /// Abstract a location.
   class location
   {
   public:
 
-    /// Construct a location.
-    location ()
-      : begin (), end ()
+    /// Construct a location from \a b to \a e.
+    location (const position& b, const position& e)
+      : begin (b)
+      , end (e)
+    {
+    }
+
+    /// Construct a 0-width location in \a p.
+    explicit location (const position& p = position ())
+      : begin (p)
+      , end (p)
+    {
+    }
+
+    /// Construct a 0-width location in \a f, \a l, \a c.
+    explicit location (std::string* f,
+                       unsigned int l = 1u,
+                       unsigned int c = 1u)
+      : begin (f, l, c)
+      , end (f, l, c)
     {
     }
 
 
     /// Initialization.
-    inline void initialize (std::string* fn)
+    void initialize (std::string* f = YY_NULL,
+                     unsigned int l = 1u,
+                     unsigned int c = 1u)
     {
-      begin.initialize (fn);
+      begin.initialize (f, l, c);
       end = begin;
     }
 
@@ -73,19 +88,19 @@ namespace VerifyTAPN {
      ** \{ */
   public:
     /// Reset initial location to final location.
-    inline void step ()
+    void step ()
     {
       begin = end;
     }
 
     /// Extend the current location to the COUNT next columns.
-    inline void columns (unsigned int count = 1)
+    void columns (unsigned int count = 1)
     {
       end += count;
     }
 
     /// Extend the current location to the COUNT next lines.
-    inline void lines (unsigned int count = 1)
+    void lines (unsigned int count = 1)
     {
       end.lines (count);
     }
@@ -157,12 +172,10 @@ namespace VerifyTAPN {
     return ostr;
   }
 
-
-/* Line 271 of location.cc  */
+/* Line 292 of location.cc  */
 #line 5 "Core/QueryParser/grammar.yy"
 } // VerifyTAPN
+/* Line 292 of location.cc  */
+#line 180 "Core/QueryParser/Generated/location.hh"
 
-/* Line 271 of location.cc  */
-#line 167 "Core/QueryParser/Generated/location.hh"
-
-#endif // not BISON_LOCATION_HH
+#endif /* !YY_YY_CORE_QUERYPARSER_GENERATED_LOCATION_HH_INCLUDED  */
