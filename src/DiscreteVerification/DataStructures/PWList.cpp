@@ -61,7 +61,13 @@ std::ostream& operator<<(std::ostream& out, PWList& x){
             PData<MetaData>::Result res = passed->Add(marking);
             if(res.isNew){
                 if(isLiveness){
-                    MetaData* meta = new MetaData();
+                    MetaData* meta;
+                    if(this->makeTrace){
+                        meta = new MetaDataWithTrace();   
+                        ((MetaDataWithTrace*)meta)->generatedBy = marking->generatedBy;
+                    } else {
+                        meta = new MetaData();
+                    }
                     res.encoding.SetMetaData(meta);
                     marking->meta = meta;
                 }
@@ -86,6 +92,11 @@ std::ostream& operator<<(std::ostream& out, PWList& x){
             delete base;
             
             m->meta = p->encoding.GetMetaData();
+            
+            if(this->makeTrace){
+                m->generatedBy = ((MetaDataWithTrace*)(m->meta))->generatedBy;
+            }
+            
             p->encoding.Release();
             return m;
         }

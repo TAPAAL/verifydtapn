@@ -27,6 +27,10 @@ namespace DiscreteVerification {
         bool inTrace;
     };
     
+    struct MetaDataWithTrace : public MetaData {
+        const TAPN::TimedTransition* generatedBy;
+    };
+    
     class NonStrictMarking : public NonStrictMarkingBase{
     public:
         NonStrictMarking():NonStrictMarkingBase(), meta(new MetaData()){}

@@ -69,7 +69,7 @@ public:
     ReachabilitySearchPTrie(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<EncodingPointer<MetaData> >* waiting_list) 
     : ReachabilitySearch(tapn,initialMarking, query, options)
     {
-        pwList = new PWListHybrid(tapn, waiting_list, options.GetKBound(), tapn->NumberOfPlaces(), tapn->MaxConstant(), false);
+        pwList = new PWListHybrid(tapn, waiting_list, options.GetKBound(), tapn->NumberOfPlaces(), tapn->MaxConstant(), false, options.GetTrace() == SOME);
     };
     
     virtual void deleteMarking(NonStrictMarking* m) {

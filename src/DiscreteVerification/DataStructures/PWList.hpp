@@ -73,9 +73,10 @@ class PWListHybrid : public PWListBase {
 
         public:
 
-            PWListHybrid(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, WaitingList<EncodingPointer<MetaData> >* w_l, int knumber, int nplaces, int mage, bool inTrace) :
-            PWListBase(inTrace),
-            waiting_list(w_l) {
+            PWListHybrid(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, WaitingList<EncodingPointer<MetaData> >* w_l, int knumber, int nplaces, int mage, bool isLiveness, bool makeTrace) :
+            PWListBase(isLiveness),
+            waiting_list(w_l),
+            makeTrace(makeTrace) {
                 discoveredMarkings = 0;
                 passed = new PData<MetaData>(tapn, knumber,nplaces,mage);
             };
@@ -103,7 +104,7 @@ class PWListHybrid : public PWListBase {
         public:
 
              WaitingList<EncodingPointer<MetaData> >* waiting_list;
-
+             bool makeTrace;
         };
 
 std::ostream& operator<<(std::ostream& out, PWList& x);
