@@ -85,7 +85,12 @@ class PWListHybrid : public PWListBase {
             friend std::ostream& operator<<(std::ostream& out, PWListHybrid& x);
 
         public: // inspectors
-
+            NonStrictMarking* Decode(EncodingPointer<MetaData>* ep){
+                NonStrictMarkingBase* base = this->passed->EnumerateDecode(*ep);
+                NonStrictMarking* m = new NonStrictMarking(*base);
+                delete base;
+                return m;
+            };
             virtual bool HasWaitingStates() {
                 return (waiting_list->Size() > 0);
             };

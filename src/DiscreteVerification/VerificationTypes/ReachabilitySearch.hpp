@@ -59,8 +59,8 @@ protected:
 	SuccessorGenerator<NonStrictMarking> successorGenerator;
 public:
 	void printStats();
-	void GetTrace();
-private:
+	virtual void GetTrace();
+protected:
 	NonStrictMarking* lastMarking;
 };
 
@@ -75,6 +75,8 @@ public:
     virtual void deleteMarking(NonStrictMarking* m) {
         delete m;
     };
+    
+   virtual void GetTrace();
 
 };
 

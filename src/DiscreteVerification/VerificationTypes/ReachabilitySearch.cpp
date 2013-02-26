@@ -156,6 +156,23 @@ void ReachabilitySearch::GetTrace(){
 	}
 }
 
+void ReachabilitySearchPTrie::GetTrace(){
+	stack < NonStrictMarking*> printStack;
+        PWListHybrid* pwhlist = (PWListHybrid*)(this->pwList);
+        MetaDataWithTraceAndEncoding* next = pwhlist->parent;
+        NonStrictMarking* last = lastMarking;
+        printStack.push(lastMarking);
+        while(next != NULL){
+            NonStrictMarking* m = pwhlist->Decode(next->ep);
+            m->generatedBy = next->generatedBy;
+            last->parent = m;
+            last = m;
+            printStack.push(m);
+            next = next->parent;
+        };
+        PrintXMLTrace(lastMarking, printStack, query->GetQuantifier());
+}
+
 ReachabilitySearch::~ReachabilitySearch() {
 	// TODO Auto-generated destructor stub
 }
