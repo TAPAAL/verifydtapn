@@ -70,6 +70,12 @@ std::ostream& operator<<(std::ostream& out, PWList& x){
                     }
                     res.encoding.SetMetaData(meta);
                     marking->meta = meta;
+                } else if(this->makeTrace){
+                    MetaDataWithTraceAndEncoding* meta = new MetaDataWithTraceAndEncoding();
+                    meta->generatedBy = marking->generatedBy;
+                    res.encoding.SetMetaData(meta);
+                    meta->ep = new EncodingPointer<MetaData > (res.encoding, res.pos);
+                    meta->parent = parent;
                 }
                 this->waiting_list->Add(marking, new EncodingPointer<MetaData > (res.encoding, res.pos));
             } else{
@@ -94,10 +100,14 @@ std::ostream& operator<<(std::ostream& out, PWList& x){
             m->meta = p->encoding.GetMetaData();
             
             if(this->makeTrace){
-                m->generatedBy = ((MetaDataWithTrace*)(m->meta))->generatedBy;
+                if(isLiveness){
+                        m->generatedBy = ((MetaDataWithTrace*)(m->meta))->generatedBy;
+                } else {
+                    this->parent = (MetaDataWithTraceAndEncoding*)(m->meta);
+                }
             }
-            
-            p->encoding.Release();
+            if(isLiveness || !this->makeTrace)
+                p->encoding.Release();
             return m;
         }
 

@@ -19,8 +19,8 @@ using namespace std;
 
 namespace VerifyTAPN {
 namespace DiscreteVerification {
-    
-    struct MetaData {
+ 
+   struct MetaData {
     public:
         MetaData() : passed(false), inTrace(false) {};
         bool passed;
@@ -29,6 +29,15 @@ namespace DiscreteVerification {
     
     struct MetaDataWithTrace : public MetaData {
         const TAPN::TimedTransition* generatedBy;
+    };
+    
+    // ugly forward declaration
+    template<class MetaData>
+    class EncodingPointer;
+    
+    struct MetaDataWithTraceAndEncoding : public MetaDataWithTrace {
+        EncodingPointer<MetaData>* ep;
+        MetaDataWithTraceAndEncoding* parent;
     };
     
     class NonStrictMarking : public NonStrictMarkingBase{

@@ -79,6 +79,7 @@ class PWListHybrid : public PWListBase {
             makeTrace(makeTrace) {
                 discoveredMarkings = 0;
                 passed = new PData<MetaData>(tapn, knumber,nplaces,mage);
+                parent = NULL;
             };
             virtual ~PWListHybrid();
             friend std::ostream& operator<<(std::ostream& out, PWListHybrid& x);
@@ -105,7 +106,9 @@ class PWListHybrid : public PWListBase {
 
              WaitingList<EncodingPointer<MetaData> >* waiting_list;
              bool makeTrace;
-        };
+            //ugly tracefix
+             MetaDataWithTraceAndEncoding* parent;
+};
 
 std::ostream& operator<<(std::ostream& out, PWList& x);
 
