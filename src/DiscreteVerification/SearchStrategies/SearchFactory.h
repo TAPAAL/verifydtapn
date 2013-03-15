@@ -49,7 +49,7 @@ WaitingList<T>* GetWaitingList(AST::Query* query, VerificationOptions& options){
 			break;
 		}
 		case COVERMOST: {
-			NonStrictDFSHeuristic<T> s;
+			NonStrictHeuristic<T> s;
 			strategy = s.CreateWaitingList(query);
 			break;
 		}

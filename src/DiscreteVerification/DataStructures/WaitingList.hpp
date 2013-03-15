@@ -294,7 +294,7 @@ template <class T>
 void HeuristicWaitingList<T>::Add(NonStrictMarkingBase* weight, T* payload)
 {
 	WeightedItem<T>* weighted_item = new WeightedItem<T>;
-	weighted_item->marking = payload;
+	weighted_item->item = payload;
 	weighted_item->weight = calculateWeight(weight);
 	queue.push(weighted_item);
 }
@@ -303,7 +303,7 @@ template <class T>
 T* HeuristicWaitingList<T>::Pop()
 {
 	WeightedItem<T>* weighted_item = queue.top();
-	T* marking = weighted_item->marking;
+	T* marking = weighted_item->item;
         delete queue.top();
 	queue.pop();
 	return marking;
@@ -313,7 +313,7 @@ template <class T>
 T* HeuristicWaitingList<T>::Peek()
 {
 	WeightedItem<T>* weighted_item = queue.top();
-	T* marking = weighted_item->marking;
+	T* marking = weighted_item->item;
 	return marking;
 }
 
