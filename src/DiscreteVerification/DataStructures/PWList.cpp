@@ -20,6 +20,7 @@ bool PWList::Add(NonStrictMarking* marking){
                     if(isLiveness){
                         marking->meta = (*iter)->meta;
                         if(!marking->meta->passed){
+                                (*iter)->SetGeneratedBy(marking->GetGeneratedBy());
                                 waiting_list->Add(*iter, *iter);
                                 return true;
                         }
@@ -81,6 +82,9 @@ std::ostream& operator<<(std::ostream& out, PWList& x){
             } else{
                 if(isLiveness){
                         marking->meta = res.encoding.GetMetaData();
+                        if(this->makeTrace){
+                            ((MetaDataWithTrace*)marking->meta)->generatedBy = marking->generatedBy;
+                        }
                 }
                 if(isLiveness && !marking->meta->passed){
                     this->waiting_list->Add(marking, new EncodingPointer<MetaData > (res.encoding, res.pos));
