@@ -79,6 +79,10 @@ bool TimeDartReachabilitySearch::Verify(){
 }
 
 bool TimeDartReachabilitySearch::addToPW(NonStrictMarkingBase* marking, WaitingDart* parent, int upper){
+        int start;
+        if(options.GetTrace() == SOME){
+            start = marking->makeBase(tapn.get());
+        }
 	marking->cut();
 
 	unsigned int size = marking->size();
@@ -91,7 +95,7 @@ bool TimeDartReachabilitySearch::addToPW(NonStrictMarkingBase* marking, WaitingD
 	}
         int youngest = marking->makeBase(tapn.get());
                                 //int youngest, WaitingDart* parent, int upper
-	if(pwList->Add(tapn.get(), marking, youngest, parent, upper)){
+	if(pwList->Add(tapn.get(), marking, youngest, parent, upper, start)){
 		QueryVisitor<NonStrictMarkingBase> checker(*marking);
 		boost::any context;
 		query->Accept(checker, context);

@@ -122,6 +122,10 @@ namespace VerifyTAPN {
         }
 
         bool TimeDartLiveness::addToPW(NonStrictMarkingBase* marking, WaitingDart* parent, int upper) {
+            int start;
+            if(options.GetTrace() == SOME){
+                start = marking->makeBase(this->tapn.get());
+            }
             marking->cut();
             const TimedTransition* transition = marking->generatedBy;
             unsigned int size = marking->size();
@@ -139,7 +143,7 @@ namespace VerifyTAPN {
             boost::any context;
             query->Accept(checker, context);
             if (boost::any_cast<bool>(context)) {
-                std::pair < LivenessDart*, bool> result = pwList->Add(tapn.get(), marking, youngest, parent, upper);
+                std::pair < LivenessDart*, bool> result = pwList->Add(tapn.get(), marking, youngest, parent, upper, start);
 
 
                 if (parent != NULL && parent->dart->getBase()->equals(*result.first->getBase()) && youngest <= upper) {
@@ -164,7 +168,7 @@ namespace VerifyTAPN {
                     //lastMarking = new TraceList(lm, upper);
                     if (options.GetTrace()) {
                         TraceDart* t = new TraceDart(*(TraceDart*) lastMarking);
-                        lastMarking = new TraceDart(result.first, parent, result.first->getWaiting(), upper, transition);
+                        lastMarking = new TraceDart(result.first, parent, result.first->getWaiting(), start, upper, transition);
                         t->parent = lastMarking;
                         lastMarking = t;
 

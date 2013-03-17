@@ -113,10 +113,11 @@ struct WaitingDart{
 
 struct TraceDart : WaitingDart {
     const TAPN::TimedTransition* generatedBy;
-    TraceDart(TraceDart &t) : WaitingDart(t.dart, t.parent, t.w, t.upper), generatedBy(t.generatedBy){
+    const int start;
+    TraceDart(TraceDart &t) : WaitingDart(t.dart, t.parent, t.w, t.upper), generatedBy(t.generatedBy), start(t.start){
         
     };
-    TraceDart(TimeDartBase* dart, WaitingDart* parent, int w, int upper, const TAPN::TimedTransition* GeneratedBy) : WaitingDart(dart, parent, w, upper), generatedBy(GeneratedBy){
+    TraceDart(TimeDartBase* dart, WaitingDart* parent, int w, int start, int upper, const TAPN::TimedTransition* GeneratedBy) : WaitingDart(dart, parent, w, upper), generatedBy(GeneratedBy), start(start){
 
 	}
     

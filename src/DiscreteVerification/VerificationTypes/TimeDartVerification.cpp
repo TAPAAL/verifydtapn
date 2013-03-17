@@ -164,17 +164,13 @@ namespace VerifyTAPN {
 
         void TimeDartVerification::GetTrace() {
             stack<NonStrictMarkingBase*> traceStack;
-            int upper = lastMarking->w;
+
             TraceDart* trace = (TraceDart*) lastMarking;
+            int upper = trace->start;
             NonStrictMarkingBase* last = NULL;
 
             while (trace != NULL) {
-
-                int lower = 0;
-                if (trace->parent != NULL) {
-                    lower = trace->w;
-                }
-
+                int lower = trace->start;
 
                 // create "last delay marking"
                 NonStrictMarkingBase* base = getBase(trace->dart);

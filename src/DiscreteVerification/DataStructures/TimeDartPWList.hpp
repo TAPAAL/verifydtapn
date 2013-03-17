@@ -39,7 +39,7 @@ namespace VerifyTAPN {
                 return stored;
             };
 
-            virtual bool Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* marking, int youngest, WaitingDart* parent, int upper) = 0;
+            virtual bool Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* marking, int youngest, WaitingDart* parent, int upper, int start) = 0;
             virtual TimeDartBase* GetNextUnexplored() = 0;
 
             inline void SetMaxNumTokensIfGreater(int i) {
@@ -71,7 +71,7 @@ namespace VerifyTAPN {
             };
             virtual ~TimeDartPWHashMap();
             friend std::ostream& operator<<(std::ostream& out, TimeDartPWHashMap& x);
-            virtual bool Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* marking,int youngest, WaitingDart* parent, int upper);
+            virtual bool Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* marking,int youngest, WaitingDart* parent, int upper, int start);
             virtual TimeDartBase* GetNextUnexplored();
 
             virtual bool HasWaitingStates() {
@@ -98,7 +98,7 @@ namespace VerifyTAPN {
         private:
             WaitingList<EncodingPointer<TimeDartBase> >* waiting_list;
             PData<TimeDartBase> passed;
-            virtual bool Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* marking, int youngest, WaitingDart* parent, int upper);
+            virtual bool Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* marking, int youngest, WaitingDart* parent, int upper, int start);
             virtual TimeDartBase* GetNextUnexplored();
 
             virtual bool HasWaitingStates() {
