@@ -294,11 +294,8 @@ void NonStrictMarkingBase::cut(){
 	#endif
 }
 
-int NonStrictMarkingBase::makeBase(TAPN::TimedArcPetriNet* tapn){
-	#ifdef DEBUG
-		std::cout << "Before makeBase: " << *this << std::endl;
-	#endif
-	int youngest = INT_MAX;
+int NonStrictMarkingBase::getYoungest(){
+    	int youngest = INT_MAX;
 	for(PlaceList::const_iterator place_iter = GetPlaceList().begin(); place_iter != GetPlaceList().end(); place_iter++){
 		if(youngest > place_iter->tokens.front().getAge() && place_iter->tokens.front().getAge() <= place_iter->place->GetMaxConstant()){
 			youngest = place_iter->tokens.front().getAge();
@@ -308,6 +305,14 @@ int NonStrictMarkingBase::makeBase(TAPN::TimedArcPetriNet* tapn){
 	if(youngest == INT_MAX){
 		youngest = 0;
 	}
+        return youngest;
+}
+
+int NonStrictMarkingBase::makeBase(TAPN::TimedArcPetriNet* tapn){
+	#ifdef DEBUG
+		std::cout << "Before makeBase: " << *this << std::endl;
+	#endif
+	int youngest = getYoungest();
 
 	for(PlaceList::iterator place_iter = places.begin(); place_iter != places.end(); place_iter++){
 		for(TokenList::iterator token_iter = place_iter->tokens.begin(); token_iter != place_iter->tokens.end(); token_iter++){

@@ -172,6 +172,7 @@ public:
 				}
 			}
 		}
+                int getYoungest();
 		int makeBase(TAPN::TimedArcPetriNet* tapn);
 
 	public:

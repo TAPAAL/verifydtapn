@@ -81,7 +81,7 @@ bool TimeDartReachabilitySearch::Verify(){
 bool TimeDartReachabilitySearch::addToPW(NonStrictMarkingBase* marking, WaitingDart* parent, int upper){
         int start;
         if(options.GetTrace() == SOME){
-            start = marking->makeBase(tapn.get());
+            start = marking->getYoungest();
         }
 	marking->cut();
 

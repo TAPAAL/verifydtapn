@@ -124,7 +124,7 @@ namespace VerifyTAPN {
         bool TimeDartLiveness::addToPW(NonStrictMarkingBase* marking, WaitingDart* parent, int upper) {
             int start;
             if(options.GetTrace() == SOME){
-                start = marking->makeBase(this->tapn.get());
+                start = marking->getYoungest();
             }
             marking->cut();
             const TimedTransition* transition = marking->generatedBy;
