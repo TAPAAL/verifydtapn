@@ -177,6 +177,9 @@ namespace VerifyTAPN {
                 NonStrictMarkingBase* m = new NonStrictMarkingBase(*base);
                 m->SetGeneratedBy(trace->generatedBy);
                 m->incrementAge(lower);
+                if(upper == INT_MAX){
+                    upper = tapn.get()->MaxConstant();
+                }
                 // create markings between transitions, one for each delay (exluding last one)
                 if (upper > lower) {
                     int diff = upper - lower;   // amount to delay
