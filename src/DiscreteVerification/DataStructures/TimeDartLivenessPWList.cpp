@@ -89,6 +89,12 @@ namespace VerifyTAPN {
                         
                         waiting_list->Add(marking, ewp);
                         result.second = true;
+                    } else {
+                        if(options.GetTrace() == SOME){
+                            EncodingStructure<WaitingDart*> es(res.encoding.GetRaw(), res.encoding.Size());
+                           ((EncodedLivenessDart*)td)->encoding = new EncodingPointer<WaitingDart > (es, res.pos);
+                           result.first = td;
+                        }
                     }
                     return result;
                 }
@@ -124,6 +130,9 @@ namespace VerifyTAPN {
             WaitingDart* wd = ewp->encoding.GetMetaData();
             NonStrictMarkingBase* base = passed.EnumerateDecode(*((EncodingPointer<LivenessDart>*)ewp));
             wd->dart->setBase(base);
+            if(options.GetTrace() == SOME){
+                ((EncodedLivenessDart*)wd->dart)->encoding = ewp;
+            }
             return wd;
         }
 

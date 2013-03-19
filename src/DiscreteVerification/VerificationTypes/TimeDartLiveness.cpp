@@ -17,24 +17,24 @@ namespace VerifyTAPN {
 
             //Main loop
             while (pwList->HasWaitingStates()) {
-                WaitingDart& waitingDart = *pwList->GetNextUnexplored();
+                WaitingDart* waitingDart = pwList->GetNextUnexplored();
                 exploredMarkings++;
                 
                 // Add trace meta data ("add to trace")
-                if (waitingDart.parent != NULL) {
-                    if (((LivenessDart*)waitingDart.parent->dart)->traceData == NULL) {
+                if (waitingDart->parent != NULL) {
+                    if (((LivenessDart*)waitingDart->parent->dart)->traceData == NULL) {
                         TraceMetaDataList* list = new TraceMetaDataList();
-                        ((LivenessDart*)waitingDart.parent->dart)->traceData = list;
+                        ((LivenessDart*)waitingDart->parent->dart)->traceData = list;
                     }
-                    ((LivenessDart*)waitingDart.parent->dart)->traceData->push_back(&waitingDart);
+                    ((LivenessDart*)waitingDart->parent->dart)->traceData->push_back(waitingDart);
                 }
 
                 // Detect ability to delay forever
-                if (canDelayForever(waitingDart.dart->getBase())) {
-                    NonStrictMarkingBase* lm = new NonStrictMarkingBase(*waitingDart.dart->getBase());
-                    lm->generatedBy = waitingDart.dart->getBase()->generatedBy;
+                if (canDelayForever(waitingDart->dart->getBase())) {
+                    NonStrictMarkingBase* lm = new NonStrictMarkingBase(*waitingDart->dart->getBase());
+                    lm->generatedBy = waitingDart->dart->getBase()->generatedBy;
                     // lastMarking = new TraceList(lm, waitingDart.upper);
-                    lastMarking = &waitingDart;
+                    lastMarking = waitingDart;
                     return true;
                 }
 
@@ -42,18 +42,18 @@ namespace VerifyTAPN {
                 int maxCalculatedEnd = -1;
 
                 // Set passed
-                int passed = waitingDart.dart->getPassed();
+                int passed = waitingDart->dart->getPassed();
 
                 // Skip if already passed
-                if (passed <= waitingDart.w) {
-                    if (waitingDart.parent != NULL) {
-                        ((LivenessDart*)waitingDart.parent->dart)->traceData->pop_back();
+                if (passed <= waitingDart->w) {
+                    if (waitingDart->parent != NULL) {
+                        ((LivenessDart*)waitingDart->parent->dart)->traceData->pop_back();
                     }
                     pwList->PopWaiting();
                     continue;
                 }
 
-                waitingDart.dart->setPassed(waitingDart.w);
+                waitingDart->dart->setPassed(waitingDart->w);
 
                 // Iterate over transitions
                 for (TimedTransition::Vector::const_iterator transition_iter = tapn->GetTransitions().begin();
@@ -61,7 +61,7 @@ namespace VerifyTAPN {
                     TimedTransition& transition = **transition_iter;
 
                     // Calculate enabled set
-                    pair<int, int> calculatedStart = calculateStart(transition, waitingDart.dart->getBase());
+                    pair<int, int> calculatedStart = calculateStart(transition, waitingDart->dart->getBase());
                     if (calculatedStart.first == -1) { // Transition cannot be enabled in marking
                         continue;
                     }
@@ -72,13 +72,13 @@ namespace VerifyTAPN {
                     }
 
                     // Calculate start and end
-                    int start = max(waitingDart.w, calculatedStart.first);
+                    int start = max(waitingDart->w, calculatedStart.first);
                     int end = min(passed - 1, calculatedStart.second);
                     if (start <= end) {
-                        int stop = max(start, calculateStop(transition, waitingDart.dart->getBase()));
+                        int stop = max(start, calculateStop(transition, waitingDart->dart->getBase()));
                         int finalStop = min(stop, end);
                         for (int n = start; n <= finalStop; n++) {
-                            NonStrictMarkingBase Mpp(*waitingDart.dart->getBase());
+                            NonStrictMarkingBase Mpp(*waitingDart->dart->getBase());
                             Mpp.incrementAge(n);
                             int _end = n;
                             if (n == stop) {
@@ -88,7 +88,7 @@ namespace VerifyTAPN {
                             vector<NonStrictMarkingBase*> next = getPossibleNextMarkings(Mpp, transition);
                             for (vector<NonStrictMarkingBase*>::iterator it = next.begin(); it != next.end(); it++) {
 
-                                if (addToPW(*it, &waitingDart, _end)) {
+                                if (addToPW(*it, waitingDart, _end)) {
                                     return true;
                                 }
                             }
@@ -99,12 +99,12 @@ namespace VerifyTAPN {
                 }
 
                 // Detect deadlock
-                if (maxCalculatedEnd < maxPossibleDelay(waitingDart.dart->getBase())) {
+                if (maxCalculatedEnd < maxPossibleDelay(waitingDart->dart->getBase())) {
                     //lastMarking = new TraceList(waitingDart.dart->getBase(), maxPossibleDelay(waitingDart.dart->getBase()));
-                    lastMarking = &waitingDart;
+                    lastMarking = waitingDart;
                     return true; /* DEADLOCK! */
                 }
-                deleteBase(waitingDart.dart->getBase());
+                deleteBase(waitingDart->dart->getBase());
             }
 
             return false;
@@ -157,6 +157,7 @@ namespace VerifyTAPN {
                         if ((*iter)->parent->dart->getBase()->equals(*result.first->getBase()) && youngest <= (*iter)->upper) {
                             lastMarking = (*iter);
                             loop = true;
+                            cout << "loop" << endl;
                             break;
                         }
                     }
