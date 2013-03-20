@@ -4,7 +4,10 @@ namespace VerifyTAPN {
 	namespace TAPN {
 		void TimedTransition::Print(std::ostream& out) const
 		{
-			out << GetName() << "(" << index << ")";
+			out << GetName();
+                        if(this->urgent)
+                            out << " urgent ";
+                        out << "(" << index << ")";
 		}
 
 		void TimedTransition::AddToPreset(const boost::shared_ptr<TimedInputArc>& arc)
