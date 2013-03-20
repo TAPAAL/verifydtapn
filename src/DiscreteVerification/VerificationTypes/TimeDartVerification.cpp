@@ -11,7 +11,7 @@ namespace VerifyTAPN {
             start.push_back(initial);
 
             if (transition.NumberOfInputArcs() + transition.NumberOfTransportArcs() == 0) { //always enabled
-                pair<int, int> p(0, INT_MAX);
+                pair<int, int> p(0, maxPossibleDelay(marking));
                 return p;
             }
 
