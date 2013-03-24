@@ -168,7 +168,24 @@ namespace VerifyTAPN {
             TraceDart* trace = (TraceDart*) lastMarking;
             int upper = trace->start;
             NonStrictMarkingBase* last = NULL;
-
+            if(deadlock){
+                NonStrictMarkingBase* base = getBase(trace->dart);
+                
+                int diff = this->maxPossibleDelay(base) - trace->start;
+                while (diff) {  // TODO loop seems to count the wrong way, not effecting anything, but wrong.
+                        NonStrictMarkingBase* mc = new NonStrictMarkingBase(*base);
+                        mc->incrementAge(trace->start + diff);
+                        mc->SetGeneratedBy(NULL);       // NULL indicates that it is a delay transition
+                        if (last != NULL)
+                            last->parent = mc;          // set the parent of the last marking
+                        last = mc;
+                        mc->cut();
+                        if(diff)
+                                traceStack.push(mc);            // add delay marking to the trace
+                        mc->SetParent(NULL);
+                        diff--;
+                    }
+            }
             while (trace != NULL) {
                 int lower = trace->start;
 
@@ -207,26 +224,9 @@ namespace VerifyTAPN {
             }
             last = new NonStrictMarkingBase(*getBase(lastMarking->dart));
             trace = ((TraceDart*)lastMarking);
-            last->incrementAge(trace->start);
+            last->incrementAge(trace->upper);
  
-           if(deadlock){
-                NonStrictMarkingBase* base = getBase(trace->dart);
-                
-                int diff = this->maxPossibleDelay(base) - trace->start;
-                while (diff) {  // TODO loop seems to count the wrong way, not effecting anything, but wrong.
-                        NonStrictMarkingBase* mc = new NonStrictMarkingBase(*base);
-                        mc->incrementAge(trace->start + diff);
-                        mc->SetGeneratedBy(NULL);       // NULL indicates that it is a delay transition
-                        if (last != NULL)
-                            last->parent = mc;          // set the parent of the last marking
-                        last = mc;
-                        mc->cut();
-                        if(diff)
-                                traceStack.push(mc);            // add delay marking to the trace
-                        mc->SetParent(NULL);
-                        diff--;
-                    }
-            }
+           
 
             PrintXMLTrace(last, traceStack, query->GetQuantifier());
         }
