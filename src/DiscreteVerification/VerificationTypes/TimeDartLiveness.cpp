@@ -102,6 +102,7 @@ namespace VerifyTAPN {
                 if (maxCalculatedEnd < maxPossibleDelay(waitingDart->dart->getBase())) {
                     //lastMarking = new TraceList(waitingDart.dart->getBase(), maxPossibleDelay(waitingDart.dart->getBase()));
                     lastMarking = waitingDart;
+                    deadlock = true;
                     return true; /* DEADLOCK! */
                 }
                 deleteBase(waitingDart->dart->getBase());

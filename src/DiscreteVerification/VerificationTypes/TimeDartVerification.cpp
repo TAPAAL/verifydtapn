@@ -205,10 +205,31 @@ namespace VerifyTAPN {
                 upper = trace->upper;
                 trace = (TraceDart*) trace->parent;
             }
-
             last = new NonStrictMarkingBase(*getBase(lastMarking->dart));
-            last->incrementAge(lastMarking->w);
-            last->cut();
+            trace = ((TraceDart*)lastMarking);
+            last->incrementAge(trace->start);
+ 
+           if(deadlock){
+                NonStrictMarkingBase* base = getBase(trace->dart);
+                NonStrictMarking* m = new NonStrictMarkingBase(*base);
+                m->incrementAge(trace->start);
+                
+                int diff = this->maxPossibleDelay(base) - trace->start;
+                while (diff) {
+                        NonStrictMarkingBase* mc = new NonStrictMarkingBase(*base);
+                        mc->incrementAge(trace->start + diff);
+                        mc->SetGeneratedBy(NULL);       // NULL indicates that it is a delay transition
+                        if (last != NULL)
+                            last->parent = mc;          // set the parent of the last marking
+                        last = mc;
+                        mc->cut();
+                        if(diff)
+                                traceStack.push(mc);            // add delay marking to the trace
+                        mc->SetParent(NULL);
+                        diff--;
+                    }
+            }
+
             PrintXMLTrace(last, traceStack, query->GetQuantifier());
         }
 
