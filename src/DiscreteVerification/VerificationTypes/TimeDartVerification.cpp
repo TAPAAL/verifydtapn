@@ -211,11 +211,9 @@ namespace VerifyTAPN {
  
            if(deadlock){
                 NonStrictMarkingBase* base = getBase(trace->dart);
-                NonStrictMarking* m = new NonStrictMarkingBase(*base);
-                m->incrementAge(trace->start);
                 
                 int diff = this->maxPossibleDelay(base) - trace->start;
-                while (diff) {
+                while (diff) {  // TODO loop seems to count the wrong way, not effecting anything, but wrong.
                         NonStrictMarkingBase* mc = new NonStrictMarkingBase(*base);
                         mc->incrementAge(trace->start + diff);
                         mc->SetGeneratedBy(NULL);       // NULL indicates that it is a delay transition
