@@ -133,12 +133,28 @@ namespace VerifyTAPN {
                         int i = 1;
                         old = stack.top();
                         stack.pop();
+                        bool delayloop = false;
                         while (!stack.empty() && stack.top()->GetGeneratedBy() == NULL) {
+                            // check if this marking is the start of a loop
+                            if (!foundLoop && (query == AST::EG || query == AST::AF)
+                                    && (stack.size() > 1 && old->equals(*m))
+                                    && (m->GetGeneratedBy() || old->parent)) {
+
+                                foundLoop = true;
+                                delayloop = true;
+                                xml_node<>* node = doc.allocate_node(node_element, "delay", doc.allocate_string(ToString(i).c_str()));
+                                root->append_node(node);
+                                root->append_node(doc.allocate_node(node_element, "loop"));
+                            }
+                            if(delayloop)
+                                break;
                             old = stack.top();
                             stack.pop();
                             i++;
+                            
                         }
-
+                        if(delayloop)
+                            continue;
                         if (stack.empty() && old->children > 0) {
                             xml_node<>* node = doc.allocate_node(node_element, "delay", doc.allocate_string("forever"));
                             root->append_node(node);
@@ -148,6 +164,7 @@ namespace VerifyTAPN {
                         xml_node<>* node = doc.allocate_node(node_element, "delay", doc.allocate_string(ToString(i).c_str()));
                         root->append_node(node);
                         stack.push(old);
+
                     }
                 }
                 
