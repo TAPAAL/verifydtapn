@@ -225,9 +225,8 @@ namespace VerifyTAPN {
             last = new NonStrictMarkingBase(*getBase(lastMarking->dart));
             trace = ((TraceDart*)lastMarking);
             last->incrementAge(trace->upper);
- 
+            last->SetGeneratedBy(trace->generatedBy);
            
-
             PrintXMLTrace(last, traceStack, query->GetQuantifier());
         }
 

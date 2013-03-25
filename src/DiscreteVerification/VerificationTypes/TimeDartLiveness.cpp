@@ -149,16 +149,15 @@ namespace VerifyTAPN {
 
                 if (parent != NULL && parent->dart->getBase()->equals(*result.first->getBase()) && youngest <= upper) {
                     loop = true;
-                    lastMarking = parent;
+//                    lastMarking = parent;     // removed to fix loop-detection delay
                 }
 
                 //Find the dart created in the PWList
                 if (result.first->traceData != NULL) {
                     for (TraceMetaDataList::const_iterator iter = result.first->traceData->begin(); iter != result.first->traceData->end(); iter++) {
                         if ((*iter)->parent->dart->getBase()->equals(*result.first->getBase()) && youngest <= (*iter)->upper) {
-                            lastMarking = (*iter);
+//                            lastMarking = (*iter); // removed to fix loop-detection delay
                             loop = true;
-                            cout << "loop" << endl;
                             break;
                         }
                     }
@@ -167,12 +166,12 @@ namespace VerifyTAPN {
                 if (loop) {
                     NonStrictMarkingBase* lm = new NonStrictMarkingBase(*result.first->getBase());
                     lm->parent = parent->dart->getBase();
-                    //lastMarking = new TraceList(lm, upper);
+                    //lastMarking = new TraceList(lm, upper);   
                     if (options.GetTrace()) {
-                        TraceDart* t = new TraceDart(*(TraceDart*) lastMarking);
+//                        TraceDart* t = new TraceDart(*(TraceDart*) lastMarking);      // removed to fix loop-detection delay
                         lastMarking = new TraceDart(result.first, parent, result.first->getWaiting(), start, upper, transition);
-                        t->parent = lastMarking;
-                        lastMarking = t;
+//                        t->parent = lastMarking;      // removed to fix loop-detection delay
+//                        lastMarking = t;              // removed to fix loop-detection delay
 
                     } else {
                         lastMarking = new WaitingDart(result.first, parent, result.first->getWaiting(), upper);
