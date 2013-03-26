@@ -130,7 +130,6 @@ namespace VerifyTAPN {
 
         int TimeDartVerification::calculateStop(const TAPN::TimedTransition& transition, NonStrictMarkingBase* marking) {
             int MC = -1;
-
             unsigned int i = 0;
             for (PlaceList::const_iterator iter = marking->GetPlaceList().begin(); iter != marking->GetPlaceList().end(); iter++) {
                 if (i < transition.GetPreset().size() && iter->place->GetIndex() == transition.GetPreset().at(i).lock()->InputPlace().GetIndex()) {
@@ -163,11 +162,13 @@ namespace VerifyTAPN {
         }
 
         void TimeDartVerification::GetTrace() {
+            
             stack<NonStrictMarkingBase*> traceStack;
 
             TraceDart* trace = (TraceDart*) lastMarking;
             int upper = trace->start;
             NonStrictMarkingBase* last = NULL;
+            NonStrictMarkingBase* l = NULL;
             if(deadlock){
                 NonStrictMarkingBase* base = getBase(trace->dart);
                 
@@ -178,13 +179,22 @@ namespace VerifyTAPN {
                         mc->SetGeneratedBy(NULL);       // NULL indicates that it is a delay transition
                         if (last != NULL)
                             last->parent = mc;          // set the parent of the last marking
+
                         last = mc;
                         mc->cut();
-                        if(diff)
+                        if(l == NULL)                   // set specific last marking to last marking in delay if deadlock
+                            l = mc;
+                        if(diff)                        // seems obsolete TODO check effect of remove.
                                 traceStack.push(mc);            // add delay marking to the trace
                         mc->SetParent(NULL);
                         diff--;
                     }
+            }
+            if (l == NULL) {                            // set last marking to first reached marking satisfying the prop if not set prior to this.
+                l = new NonStrictMarkingBase(*getBase(lastMarking->dart));
+                trace = ((TraceDart*) lastMarking);
+                l->incrementAge(trace->start);
+                l->cut();
             }
             while (trace != NULL) {
                 int lower = trace->start;
@@ -216,18 +226,13 @@ namespace VerifyTAPN {
                     last->parent = m;
                 m->cut();
                 last = m;
-
                 traceStack.push(m);     // add the marking to the trace
 
                 upper = trace->upper;
                 trace = (TraceDart*) trace->parent;
             }
-            last = new NonStrictMarkingBase(*getBase(lastMarking->dart));
-            trace = ((TraceDart*)lastMarking);
-            last->incrementAge(trace->upper);
-            last->SetGeneratedBy(trace->generatedBy);
-           
-            PrintXMLTrace(last, traceStack, query->GetQuantifier());
+            
+            PrintXMLTrace(l, traceStack, query->GetQuantifier());
         }
 
     }

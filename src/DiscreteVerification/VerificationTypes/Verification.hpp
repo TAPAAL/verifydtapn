@@ -137,8 +137,7 @@ namespace VerifyTAPN {
                         while (!stack.empty() && stack.top()->GetGeneratedBy() == NULL) {
                             // check if this marking is the start of a loop
                             if (!foundLoop && (query == AST::EG || query == AST::AF)
-                                    && (stack.size() > 1 && old->equals(*m))
-                                    && (m->GetGeneratedBy() || old->parent)) {
+                                    && (stack.size() > 1 && old->equals(*m))) {
 
                                 foundLoop = true;
                                 delayloop = true;
@@ -169,8 +168,7 @@ namespace VerifyTAPN {
                 }
                 
                 if ((query == AST::EG || query == AST::AF)
-                        && (stack.size() > 1 && stack.top()->equals(*m))
-                        && (m->GetGeneratedBy() || stack.top()->parent)) {
+                        && (stack.size() > 1 && stack.top()->equals(*m))) {
                     root->append_node(doc.allocate_node(node_element, "loop"));
                     foundLoop = true;
                 }

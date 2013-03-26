@@ -28,9 +28,8 @@ namespace VerifyTAPN {
                             waiting_list->Add((*iter)->getBase(), new WaitingDart((*iter), parent, youngest, upper));
                         }
                         result.second = true;
+                        delete marking;
                     }
-
-                    delete marking;
 
                     return result;
                 }
