@@ -55,7 +55,7 @@ namespace VerifyTAPN {
                             i++;
                         }
 
-                        if (stack.empty() && old->children > 0) {
+                        if ((!foundLoop) && stack.empty() && old->children > 0) {
                             std::cout << "\tDelay: Forever" << std::endl;
                             return;
                         }
@@ -154,7 +154,7 @@ namespace VerifyTAPN {
                         }
                         if(delayloop)
                             continue;
-                        if (stack.empty() && old->children > 0) {
+                        if ((!foundLoop) && stack.empty() && old->children > 0) {
                             xml_node<>* node = doc.allocate_node(node_element, "delay", doc.allocate_string("forever"));
                             root->append_node(node);
                             delayedForever = true;
