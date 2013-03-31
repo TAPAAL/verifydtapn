@@ -137,13 +137,14 @@ namespace VerifyTAPN {
                         while (!stack.empty() && stack.top()->GetGeneratedBy() == NULL) {
                             // check if this marking is the start of a loop
                             if (!foundLoop && (query == AST::EG || query == AST::AF)
-                                    && (stack.size() > 1 && old->equals(*m))) {
+                                    && (stack.size() > 2 && old->equals(*m))) {
 
                                 foundLoop = true;
                                 delayloop = true;
                                 xml_node<>* node = doc.allocate_node(node_element, "delay", doc.allocate_string(ToString(i).c_str()));
                                 root->append_node(node);
                                 root->append_node(doc.allocate_node(node_element, "loop"));
+                                
                             }
                             if(delayloop)
                                 break;
@@ -168,9 +169,24 @@ namespace VerifyTAPN {
                 }
                 
                 if ((query == AST::EG || query == AST::AF)
-                        && (stack.size() > 1 && stack.top()->equals(*m))) {
-                    root->append_node(doc.allocate_node(node_element, "loop"));
-                    foundLoop = true;
+                        && (stack.size() > 1 && stack.top()->equals(*m))
+                        && (m->GetGeneratedBy() || stack.top()->parent)) {
+                    T* temp = m;
+                    foundLoop = false;
+                    T* top = stack.top();
+                    do{
+                        if(temp == top)
+                            break;
+                        if(temp->GetGeneratedBy()){
+                            foundLoop = true;
+                            break;
+                        } 
+                        temp = (T*)temp->parent;
+                    } while(temp && temp->parent && temp->parent != top);
+                    if(foundLoop){
+                        root->append_node(doc.allocate_node(node_element, "loop"));
+                    }
+
                 }
                 old = stack.top();
                 stack.pop();
