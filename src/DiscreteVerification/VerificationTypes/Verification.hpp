@@ -169,12 +169,12 @@ namespace VerifyTAPN {
                 }
                 
                 if ((query == AST::EG || query == AST::AF)
-                        && (stack.size() > 1 && stack.top()->equals(*m))
-                        && (m->GetGeneratedBy() || stack.top()->parent)) {
+                        && (stack.size() > 1 && stack.top()->equals(*m))) {
                     T* temp = m;
                     foundLoop = false;
                     T* top = stack.top();
-                    do{
+
+                    do {
                         if(temp == top)
                             break;
                         if(temp->GetGeneratedBy()){

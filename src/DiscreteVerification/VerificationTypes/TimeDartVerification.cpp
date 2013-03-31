@@ -195,6 +195,7 @@ namespace VerifyTAPN {
                 trace = ((TraceDart*) lastMarking);
                 l->incrementAge(trace->start);
                 l->cut();
+                l->parent = NULL;
             }
             while (trace != NULL) {
                 int lower = trace->start;
@@ -204,6 +205,7 @@ namespace VerifyTAPN {
                 NonStrictMarkingBase* m = new NonStrictMarkingBase(*base);
                 m->SetGeneratedBy(trace->generatedBy);
                 m->incrementAge(lower);
+                m->SetParent(NULL);
                 if(upper == INT_MAX){
                     upper = tapn.get()->MaxConstant();
                 }
@@ -212,10 +214,13 @@ namespace VerifyTAPN {
                     int diff = upper - lower;   // amount to delay
                     while (diff) {
                         NonStrictMarkingBase* mc = new NonStrictMarkingBase(*base);
+                        mc->SetParent(NULL);
                         mc->incrementAge(lower + diff);
                         mc->SetGeneratedBy(NULL);       // NULL indicates that it is a delay transition
                         if (last != NULL)
                             last->parent = mc;          // set the parent of the last marking
+                        if(!l->parent)
+                            l->parent = mc;
                         last = mc;
                         mc->cut();
                         traceStack.push(mc);            // add delay marking to the trace
@@ -224,6 +229,8 @@ namespace VerifyTAPN {
                 }
                 if (last != NULL)
                     last->parent = m;
+                if(!l->parent)
+                            l->parent = m;
                 m->cut();
                 last = m;
                 traceStack.push(m);     // add the marking to the trace
