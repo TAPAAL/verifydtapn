@@ -263,17 +263,15 @@ void NonStrictMarkingBase::cut(){
 	std::cout << "Before cut: " << *this << std::endl;
 #endif
 	for(PlaceList::iterator place_iter = this->places.begin(); place_iter != this->places.end(); place_iter++){
-		//remove dead tokens
-		if (place_iter->place->GetType() ==  TAPN::Dead) {
-			for(TokenList::iterator token_iter = place_iter->tokens.begin(); token_iter != place_iter->tokens.end(); token_iter++){
-				if(token_iter->getAge() > place_iter->place->GetMaxConstant()){
-					token_iter->remove(token_iter->getCount());
-				}
-			}
-		}
 		//set age of too old tokens to max age
 		int count = 0;
-		for(TokenList::iterator token_iter = place_iter->tokens.begin(); token_iter != place_iter->tokens.end(); token_iter++){
+		for(TokenList::iterator token_iter = place_iter->tokens.begin(); token_iter != place_iter->tokens.end(); token_iter++) {
+                        //remove dead tokens
+                        if (place_iter->place->GetType() == TAPN::Dead) {
+                            if (token_iter->getAge() > place_iter->place->GetMaxConstant()) {
+                                token_iter->remove(token_iter->getCount());
+                            }
+                        }
 			if(token_iter->getAge() > place_iter->place->GetMaxConstant()){
 				TokenList::iterator beginDelete = token_iter;
 				if(place_iter->place->GetType() == TAPN::Std){
