@@ -47,7 +47,6 @@ protected:
 	vector<NonStrictMarking*> getPossibleNextMarkings(const NonStrictMarking& marking);
 	bool addToPW(NonStrictMarking* marking, NonStrictMarking* parent);
 	bool isDelayPossible(NonStrictMarking& marking);
-	void cut(NonStrictMarking* marking);
 
 protected:
 	int validChildren;
