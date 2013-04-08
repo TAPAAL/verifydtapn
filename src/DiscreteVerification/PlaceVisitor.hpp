@@ -29,6 +29,7 @@ class PlaceVisitor : public Visitor{
 		virtual void Visit(const OrExpression& expr, boost::any& context);
 		virtual void Visit(const AndExpression& expr, boost::any& context);
 		virtual void Visit(const AtomicProposition& expr, boost::any& context);
+		virtual void Visit(const DeadlockExpression& expr, boost::any& context);
 		virtual void Visit(const BoolExpression& expr, boost::any& context);
 		virtual void Visit(const Query& query, boost::any& context);
 };

@@ -34,6 +34,7 @@ namespace VerifyTAPN {
             virtual void Visit(const OrExpression& expr, boost::any& context);
             virtual void Visit(const AndExpression& expr, boost::any& context);
             virtual void Visit(const AtomicProposition& expr, boost::any& context);
+            virtual void Visit(const DeadlockExpression& expr, boost::any& context);
             virtual void Visit(const BoolExpression& expr, boost::any& context);
             virtual void Visit(const Query& query, boost::any& context);
         private:
@@ -77,6 +78,11 @@ namespace VerifyTAPN {
         void QueryVisitor<T>::Visit(const AtomicProposition& expr, boost::any& context) {
             int numberOfTokens = marking.NumberOfTokensInPlace(expr.Place());
             context = Compare(numberOfTokens, expr.Operator(), expr.N());
+        }
+        
+        template<typename T>
+        void QueryVisitor<T>::Visit(const DeadlockExpression& expr, boost::any& context) {
+            context = false; // todo, create real check
         }
 
         template<typename T>

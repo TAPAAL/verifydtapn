@@ -48,12 +48,17 @@ namespace DiscreteVerification {
 			}
 
 			context = l+r;
-		}
+		}//virtual void Visit(const DeadlockExpression& expr, boost::any& context);
 
 		void LivenessWeightQueryVisitor::Visit(const AtomicProposition& expr, boost::any& context)
 		{
 			int numberOfTokens = marking.NumberOfTokensInPlace(expr.Place());
 			context = Compare(numberOfTokens, expr.Operator(), expr.N());
+		}
+                
+                void LivenessWeightQueryVisitor::Visit(const DeadlockExpression& expr, boost::any& context)
+		{
+			// no weight
 		}
 
 		void LivenessWeightQueryVisitor::Visit(const BoolExpression& expr, boost::any& context)

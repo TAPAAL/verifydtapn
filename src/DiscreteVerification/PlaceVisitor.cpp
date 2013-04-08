@@ -39,6 +39,10 @@ namespace DiscreteVerification {
 			context = v;
 		}
 
+                void PlaceVisitor::Visit(const DeadlockExpression& expr, boost::any& context)
+		{
+		}
+                
 		void PlaceVisitor::Visit(const BoolExpression& expr, boost::any& context)
 		{
 		}

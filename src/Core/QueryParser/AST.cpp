@@ -24,8 +24,8 @@ namespace VerifyTAPN
 		}
 
                 void DeadlockExpression::Accept(Visitor& visitor, boost::any& context) const
-		{       //todo fix
-			//visitor.Visit(*this, context);
+		{      
+			visitor.Visit(*this, context);
 		}
 
 		DeadlockExpression* DeadlockExpression::clone() const

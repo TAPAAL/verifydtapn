@@ -55,6 +55,11 @@ namespace DiscreteVerification {
 			int numberOfTokens = marking.NumberOfTokensInPlace(expr.Place());
 			context = Compare(numberOfTokens, expr.Operator(), expr.N());
 		}
+                
+                void WeightQueryVisitor::Visit(const DeadlockExpression& expr, boost::any& context)
+		{
+                    // no weight for deadlock
+		}
 
 		void WeightQueryVisitor::Visit(const BoolExpression& expr, boost::any& context)
 		{
