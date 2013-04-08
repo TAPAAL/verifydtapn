@@ -45,6 +45,7 @@ or|\|\|						{ return token::OR; }
 and|&&						{ return token::AND; }
 true						{ return token::BOOL_TRUE; }
 false						{ return token::BOOL_FALSE; }
+deadlock                                        { return token::DEADLOCK; }
 "!"|not						{ return token::NOT; }
 "("							{ return token::LPARAN; }
 ")"							{ return token::RPARAN; }
