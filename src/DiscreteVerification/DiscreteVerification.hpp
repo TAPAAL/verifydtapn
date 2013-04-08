@@ -16,17 +16,17 @@
 #include "DataStructures/NonStrictMarking.hpp"
 #include "../../lib/rapidxml-1.13/rapidxml.hpp"
 #include "../../lib/rapidxml-1.13/rapidxml_print.hpp"
-#include "SearchStrategies/NonStrictDFS.hpp"
-#include "SearchStrategies/NonStrictBFS.hpp"
-#include "SearchStrategies/NonStrictHeuristic.hpp"
-#include "SearchStrategies/NonStrictRandom.hpp"
-#include "SearchStrategies/NonStrictDFSHeuristic.hpp"
-#include "SearchStrategies/NonStrictDFSRandom.hpp"
+#include "SearchStrategies/SearchStrategy.hpp"
 #include "../Core/TAPNParser/util.hpp"
 #include <stack>
 #include "VerificationTypes/Verification.hpp"
 #include "VerificationTypes/LivenessSearch.hpp"
 #include "VerificationTypes/ReachabilitySearch.hpp"
+#include "VerificationTypes/TimeDartReachabilitySearch.hpp"
+#include "VerificationTypes/TimeDartLiveness.hpp"
+#include "SearchStrategies/SearchFactory.h"
+#include "DataStructures/PData.h"
+
 
 namespace VerifyTAPN {
 
@@ -36,7 +36,7 @@ class DiscreteVerification {
 public:
 	DiscreteVerification();
 	virtual ~DiscreteVerification();
-	static int run(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, std::vector<int> initialPlacement, AST::Query* query, VerificationOptions options);
+	static int run(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, std::vector<int> initialPlacement, AST::Query* query, VerificationOptions& options);
 private:
 	static void PrintHumanTrace(bool result, NonStrictMarking* m, std::stack<NonStrictMarking*>& stack, AST::Quantifier query);
 	static void PrintXMLTrace(bool result, NonStrictMarking* m, std::stack<NonStrictMarking*>& stack, AST::Quantifier query);

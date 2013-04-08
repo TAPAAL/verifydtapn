@@ -25,22 +25,31 @@ namespace VerifyTAPN {
 		}
 	}
 
-	std::string FactoryEnumToString(Factory factory){
-		switch(factory)
-		{
-		case OLD_FACTORY:
-			return "old DBM";
-		case DISCRETE_INCLUSION:
-			return "discrete inclusion";
-		default:
-			return "default";
+	std::string VerificationTypeEnumToString(VerificationType s){
+			switch(s){
+			case TIMEDART:
+				return "Time darts";
+			default:
+				return "Default (discrete)";
+			}
 		}
-	}
 
-
+        std::string MemoryOptimizationEnumToString(MemoryOptimization m){
+            switch(m){
+                case NONE:
+                    return "None";
+                case PTRIE:
+                    return "PTrie ";
+                default:
+                    return "None";
+            }
+        }
+        
 	std::ostream& operator<<(std::ostream& out, const VerificationOptions& options)
 	{
-		out << "Using " << SearchTypeEnumToString(options.GetSearchType()) << std::endl;
+		out << "Search type: " << SearchTypeEnumToString(options.GetSearchType()) << std::endl;
+		out << "Verification method: " << VerificationTypeEnumToString(options.GetVerificationType()) << std::endl;
+                out << "Memory optimization: " << MemoryOptimizationEnumToString(options.GetMemoryOptimization()) << std::endl;
 		out << "k-bound is: " << options.GetKBound() << std::endl;
 		out << "Generating " << enumToString(options.GetTrace()) << " trace";
 		if(options.GetTrace() != NONE) out << " in " << (options.XmlTrace() ? "xml format" : "human readable format");

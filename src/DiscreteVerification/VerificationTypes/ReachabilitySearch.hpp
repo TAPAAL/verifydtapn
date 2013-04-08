@@ -25,18 +25,23 @@
 #include "../DataStructures/NonStrictMarking.hpp"
 #include <stack>
 #include "Verification.hpp"
+#include "../DataStructures/WaitingList.hpp"
 
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
-class ReachabilitySearch : public Verification{
+class ReachabilitySearch : public Verification<NonStrictMarking>{
 public:
-	ReachabilitySearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList* waiting_list);
+        ReachabilitySearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options);
+	ReachabilitySearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list);
 	virtual ~ReachabilitySearch();
 	bool Verify();
 	NonStrictMarking* GetLastMarking() { return lastMarking; }
-	inline unsigned int MaxUsedTokens(){ return pwList.maxNumTokensInAnyMarking; };
+	inline unsigned int MaxUsedTokens(){ return pwList->maxNumTokensInAnyMarking; };
 	void PrintTransitionStatistics() const { successorGenerator.PrintTransitionStatistics(std::cout); }
+        virtual void deleteMarking(NonStrictMarking* m) {
+            //dummy;
+        };
 
 protected:
 	vector<NonStrictMarking*> getPossibleNextMarkings(const NonStrictMarking& marking);
@@ -46,16 +51,33 @@ protected:
 
 protected:
 	int validChildren;
-	PWList pwList;
+	PWListBase* pwList;
 	boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn;
 	NonStrictMarking& initialMarking;
 	AST::Query* query;
 	VerificationOptions options;
-	SuccessorGenerator successorGenerator;
+	SuccessorGenerator<NonStrictMarking> successorGenerator;
 public:
 	void printStats();
-private:
+	virtual void GetTrace();
+protected:
 	NonStrictMarking* lastMarking;
+};
+
+class ReachabilitySearchPTrie : public ReachabilitySearch{
+public:
+    ReachabilitySearchPTrie(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<EncodingPointer<MetaData> >* waiting_list) 
+    : ReachabilitySearch(tapn,initialMarking, query, options)
+    {
+        pwList = new PWListHybrid(tapn, waiting_list, options.GetKBound(), tapn->NumberOfPlaces(), tapn->MaxConstant(), false, options.GetTrace() == SOME);
+    };
+    
+    virtual void deleteMarking(NonStrictMarking* m) {
+        delete m;
+    };
+    
+   virtual void GetTrace();
+
 };
 
 } /* namespace DiscreteVerification */

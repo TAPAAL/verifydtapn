@@ -25,18 +25,23 @@
 #include "../DataStructures/NonStrictMarking.hpp"
 #include <stack>
 #include "Verification.hpp"
+#include "../DataStructures/WaitingList.hpp"
 
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
-class LivenessSearch : public Verification{
+class LivenessSearch : public Verification<NonStrictMarking>{
 public:
-	LivenessSearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList* waiting_list);
+	LivenessSearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options);
+    LivenessSearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list);
 	virtual ~LivenessSearch();
 	bool Verify();
 	NonStrictMarking* GetLastMarking() { return lastMarking; }
-	inline unsigned int MaxUsedTokens(){ return pwList.maxNumTokensInAnyMarking; };
+	inline unsigned int MaxUsedTokens(){ return pwList->maxNumTokensInAnyMarking; };
 	void PrintTransitionStatistics() const { successorGenerator.PrintTransitionStatistics(std::cout); }
+        virtual void deleteMarking(NonStrictMarking* m) {
+            //dummy
+        };
 protected:
 	vector<NonStrictMarking*> getPossibleNextMarkings(const NonStrictMarking& marking);
 	bool addToPW(NonStrictMarking* marking, NonStrictMarking* parent);
@@ -45,18 +50,30 @@ protected:
 
 protected:
 	int validChildren;
-	PWList pwList;
+	PWListBase* pwList;
 	boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn;
 	NonStrictMarking& initialMarking;
 	AST::Query* query;
 	VerificationOptions options;
-	SuccessorGenerator successorGenerator;
+	SuccessorGenerator<NonStrictMarking> successorGenerator;
 public:
 	void printStats();
+	void GetTrace();
 private:
 	NonStrictMarking* lastMarking;
 };
+class LivenessSearchPTrie : public LivenessSearch{
+public:
+    LivenessSearchPTrie(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<EncodingPointer<MetaData> >* waiting_list) 
+    : LivenessSearch(tapn,initialMarking, query, options)
+    {
+        pwList = new PWListHybrid(tapn, waiting_list, options.GetKBound(), tapn->NumberOfPlaces(), tapn->MaxConstant(), true, options.GetTrace() == SOME);
+    };
+    virtual void deleteMarking(NonStrictMarking* m) {
+        delete m;
+    };
 
+};
 } /* namespace DiscreteVerification */
 } /* namespace VerifyTAPN */
 #endif /* NONSTRICTSEARCH_HPP_ */

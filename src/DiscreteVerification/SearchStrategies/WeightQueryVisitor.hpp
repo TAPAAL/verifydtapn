@@ -21,7 +21,7 @@ using namespace AST;
 
 class WeightQueryVisitor : public Visitor{
 	public:
-	WeightQueryVisitor(NonStrictMarking& marking) : marking(marking){};
+	WeightQueryVisitor(NonStrictMarkingBase& marking) : marking(marking){};
 		virtual ~WeightQueryVisitor(){};
 
 	public: // visitor methods
@@ -36,7 +36,7 @@ class WeightQueryVisitor : public Visitor{
 		int Compare(int numberOfTokensInPlace, const std::string& op, int n) const;
 
 	private:
-		const NonStrictMarking& marking;
+		const NonStrictMarkingBase& marking;
 };
 
 } /* namespace DiscreteVerification */

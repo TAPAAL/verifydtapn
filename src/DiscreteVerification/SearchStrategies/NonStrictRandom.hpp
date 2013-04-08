@@ -25,17 +25,18 @@
 
 #include "../QueryVisitor.hpp"
 #include "boost/any.hpp"
+#include "SearchStrategy.hpp"
 
 #include <stack>
-#include "SearchStrategy.hpp"
 
 namespace VerifyTAPN {
 
 namespace DiscreteVerification {
 
-class NonStrictRandom : public SearchStrategy {
+template <class T>
+class NonStrictRandom : public SearchStrategy<T> {
 public:
-	virtual WaitingList* CreateWaitingList(AST::Query* query) const { return new RandomWaitingList; };
+	virtual WaitingList<T>* CreateWaitingList(AST::Query* query) const { return new RandomWaitingList<T>; };
 };
 
 }

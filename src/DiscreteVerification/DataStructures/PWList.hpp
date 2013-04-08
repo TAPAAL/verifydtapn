@@ -17,13 +17,31 @@
 
 namespace VerifyTAPN {
 namespace DiscreteVerification {
-class PWList {
+    
+    class PWListBase {
+    public:
+        PWListBase() : stored(0), discoveredMarkings(0), maxNumTokensInAnyMarking(-1), isLiveness(false) {};
+        PWListBase(bool isLiveness) : stored(0), discoveredMarkings(0), maxNumTokensInAnyMarking(-1), isLiveness(isLiveness){};
+        int stored;
+    	int discoveredMarkings;
+	int maxNumTokensInAnyMarking;
+        bool isLiveness;
+        
+        virtual bool HasWaitingStates() = 0;
+        virtual long long Size() const = 0;
+        virtual bool Add(NonStrictMarking* marking) = 0;
+	virtual NonStrictMarking* GetNextUnexplored() = 0;
+        virtual long long Explored()= 0;
+	inline void SetMaxNumTokensIfGreater(int i){ if(i>maxNumTokensInAnyMarking) maxNumTokensInAnyMarking = i; };
+    };
+    
+class PWList : public PWListBase {
 public:
 	typedef std::vector<NonStrictMarking*> NonStrictMarkingList;
 	typedef google::sparse_hash_map<size_t, NonStrictMarkingList> HashMap;
 public:
-	PWList() : markings_storage(256000), waiting_list(), discoveredMarkings(0), maxNumTokensInAnyMarking(-1), stored(0) {};
-	PWList(WaitingList* w_l) : markings_storage(256000), waiting_list(w_l), discoveredMarkings(0), maxNumTokensInAnyMarking(-1), stored(0) {};
+	PWList() : PWListBase(false), markings_storage(256000), waiting_list(){};
+	PWList(WaitingList<NonStrictMarking>* w_l, bool isLiveness) :PWListBase(isLiveness), markings_storage(256000), waiting_list(w_l) {};
 	virtual ~PWList();
 	friend std::ostream& operator<<(std::ostream& out, PWList& x);
 
@@ -36,18 +54,65 @@ public: // inspectors
 		return stored;
 	};
 
+        virtual long long Explored() {return waiting_list->Size();};
+        
 public: // modifiers
 	virtual bool Add(NonStrictMarking* marking);
 	virtual NonStrictMarking* GetNextUnexplored();
-	inline void SetMaxNumTokensIfGreater(int i){ if(i>maxNumTokensInAnyMarking) maxNumTokensInAnyMarking = i; };
 
 public:
 	HashMap markings_storage;
-	WaitingList* waiting_list;
-	int discoveredMarkings;
-	int maxNumTokensInAnyMarking;
-private:
-        unsigned int stored;
+	WaitingList<NonStrictMarking>* waiting_list;
+};
+
+class PWListHybrid : public PWListBase {
+        public:
+            typedef unsigned int uint;
+            //            typedef google::sparse_hash_map<size_t, EncodingList> HashMap;
+            PData<MetaData>* passed;
+
+        public:
+
+            PWListHybrid(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, WaitingList<EncodingPointer<MetaData> >* w_l, int knumber, int nplaces, int mage, bool isLiveness, bool makeTrace) :
+            PWListBase(isLiveness),
+            waiting_list(w_l),
+            makeTrace(makeTrace) {
+                discoveredMarkings = 0;
+                passed = new PData<MetaData>(tapn, knumber,nplaces,mage);
+                parent = NULL;
+            };
+            virtual ~PWListHybrid();
+            friend std::ostream& operator<<(std::ostream& out, PWListHybrid& x);
+
+        public: // inspectors
+            NonStrictMarking* Decode(EncodingPointer<MetaData>* ep){
+                NonStrictMarkingBase* base = this->passed->EnumerateDecode(*ep);
+                NonStrictMarking* m = new NonStrictMarking(*base);
+                delete base;
+                return m;
+            };
+            virtual bool HasWaitingStates() {
+                return (waiting_list->Size() > 0);
+            };
+
+            virtual long long Size() const {
+                return passed->stored;
+            };
+            virtual long long Explored() {return waiting_list->Size();};
+            void PrintMemStats() {
+                passed->PrintMemStats();
+            }
+
+        public: // modifiers
+            virtual bool Add(NonStrictMarking* marking);
+            virtual NonStrictMarking* GetNextUnexplored();
+
+        public:
+
+             WaitingList<EncodingPointer<MetaData> >* waiting_list;
+             bool makeTrace;
+            //ugly tracefix
+             MetaDataWithTraceAndEncoding* parent;
 };
 
 std::ostream& operator<<(std::ostream& out, PWList& x);
