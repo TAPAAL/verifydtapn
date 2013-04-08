@@ -266,13 +266,7 @@ void NonStrictMarkingBase::cut(){
 		//set age of too old tokens to max age
 		int count = 0;
 		for(TokenList::iterator token_iter = place_iter->tokens.begin(); token_iter != place_iter->tokens.end(); token_iter++) {
-                        //remove dead tokens
-                        if (place_iter->place->GetType() == TAPN::Dead) {
-                            if (token_iter->getAge() > place_iter->place->GetMaxConstant()) {
-                                token_iter->remove(token_iter->getCount());
-                            }
-                        }
-			if(token_iter->getAge() > place_iter->place->GetMaxConstant()){
+                        if(token_iter->getAge() > place_iter->place->GetMaxConstant()){ // this will also removed dead tokens
 				TokenList::iterator beginDelete = token_iter;
 				if(place_iter->place->GetType() == TAPN::Std){
 					for(; token_iter != place_iter->tokens.end(); token_iter++){
@@ -283,8 +277,10 @@ void NonStrictMarkingBase::cut(){
 				break;
 			}
 		}
-		Token t(place_iter->place->GetMaxConstant()+1,count);
-		this->AddTokenInPlace(*place_iter, t);
+                if(count){
+                        Token t(place_iter->place->GetMaxConstant()+1,count);
+                        this->AddTokenInPlace(*place_iter, t);
+                }
 	}
 	this->CleanUp();
 	#ifdef DEBUG
