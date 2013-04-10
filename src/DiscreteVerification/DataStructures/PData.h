@@ -18,14 +18,17 @@ namespace VerifyTAPN {
         // pointer containing enough data to reconstruct the stored data at any time!
         template<typename T>
         struct EncodingPointer {
+            // The part of the encoding not being represented by the path in the PTrie
             EncodingStructure<T*> encoding;
+            // The coresponding node in the PTrie
             unsigned int node;
 
+            // empty constructor
             EncodingPointer() {
             };
-
-            EncodingPointer(EncodingPointer<T> &en) : encoding(en.encoding.Clone()), node(en.node) {};  // possible mem-leak?
             
+            // Construct a pointer with enough (persistent) data to recreate the marking. 
+            // The encoding is cloned as it is not persistant in the PTrie
             EncodingPointer(EncodingStructure<T*> &en, unsigned int n) : encoding(en.Clone()), node(n) {
             }
         };
