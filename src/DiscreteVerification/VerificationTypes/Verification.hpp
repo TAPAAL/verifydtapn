@@ -19,6 +19,7 @@ namespace VerifyTAPN {
             virtual void printStats() = 0;
             virtual void PrintTransitionStatistics() const = 0;
             virtual unsigned int MaxUsedTokens() = 0;
+            virtual inline bool addToPW(T* marking) = 0;
 
             virtual void GetTrace() {
                 std::cout << "Error generating trace" << std::endl;

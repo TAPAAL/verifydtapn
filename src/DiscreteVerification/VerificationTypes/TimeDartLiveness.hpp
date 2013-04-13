@@ -43,8 +43,12 @@ namespace VerifyTAPN {
             inline unsigned int MaxUsedTokens() {
                 return pwList->maxNumTokensInAnyMarking;
             };
-
+            virtual inline bool addToPW(NonStrictMarkingBase* m){
+                return addToPW(m,tmpdart, tmpupper);
+            };
         protected:
+            WaitingDart* tmpdart;
+            int tmpupper;
             bool addToPW(NonStrictMarkingBase* marking, WaitingDart* parent, int upper);
             bool canDelayForever(NonStrictMarkingBase* marking);
 
@@ -68,8 +72,10 @@ namespace VerifyTAPN {
             : TimeDartLiveness(tapn, initialMarking, query, options) {
                 pwList = new TimeDartLivenessPWPData(options, waiting_list, tapn, tapn->NumberOfPlaces(), tapn->MaxConstant());
             };
-        protected:
 
+        protected:
+            WaitingDart* tmpdart;
+            int tmpupper;
             virtual inline void deleteBase(NonStrictMarkingBase* base) {
                 delete base;
             };

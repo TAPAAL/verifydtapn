@@ -14,6 +14,7 @@
 #include <limits>
 #include "boost/tuple/tuple_io.hpp"
 #include "boost/ptr_container/ptr_vector.hpp"
+#include "VerificationTypes/Verification.hpp"
 
 namespace VerifyTAPN {
     namespace DiscreteVerification {
@@ -171,6 +172,7 @@ namespace VerifyTAPN {
 
             unsigned int numberoftransitions;
             unsigned int* transitionStatistics;
+            Verification<T>* verifier;
         };
 
         template<typename T>

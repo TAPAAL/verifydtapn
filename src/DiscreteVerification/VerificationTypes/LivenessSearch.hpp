@@ -42,6 +42,10 @@ public:
         virtual void deleteMarking(NonStrictMarking* m) {
             //dummy
         };
+         virtual inline bool addToPW(NonStrictMarking* m){
+            // todo correctly implement
+            return false;
+        };
 protected:
 	vector<NonStrictMarking*> getPossibleNextMarkings(const NonStrictMarking& marking);
 	bool addToPW(NonStrictMarking* marking, NonStrictMarking* parent);

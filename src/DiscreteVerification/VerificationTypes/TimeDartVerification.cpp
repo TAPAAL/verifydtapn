@@ -157,7 +157,7 @@ namespace VerifyTAPN {
             return invariantPart;
         }
 
-        vector<NonStrictMarkingBase*> TimeDartVerification::getPossibleNextMarkings(NonStrictMarkingBase& marking, const TAPN::TimedTransition& transition) {
+        bool TimeDartVerification::getPossibleNextMarkings(NonStrictMarkingBase& marking, const TAPN::TimedTransition& transition) {
             return successorGenerator.generateSuccessors(marking, transition);
         }
 

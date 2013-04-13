@@ -29,12 +29,13 @@ namespace VerifyTAPN {
                         allwaysEnabled.push_back(iter->get());
                     }
                 }
+                successorGenerator.verifier = this;
             }
 
             std::pair<int, int> calculateStart(const TAPN::TimedTransition& transition, NonStrictMarkingBase* marking);
             int calculateStop(const TAPN::TimedTransition& transition, NonStrictMarkingBase* marking);
             int maxPossibleDelay(NonStrictMarkingBase* marking);
-            vector<NonStrictMarkingBase*> getPossibleNextMarkings(NonStrictMarkingBase& marking, const TimedTransition& transition);
+            bool getPossibleNextMarkings(NonStrictMarkingBase& marking, const TimedTransition& transition);
 
             void PrintTransitionStatistics() const {
                 successorGenerator.PrintTransitionStatistics(std::cout);
@@ -44,6 +45,11 @@ namespace VerifyTAPN {
 
             virtual inline NonStrictMarkingBase* getBase(TimeDartBase* dart){
                 return dart->getBase();
+            };
+
+            virtual inline bool addToPW(NonStrictMarkingBase* m) {
+                // todo correctly implement
+                return false;
             };
             
         protected:
