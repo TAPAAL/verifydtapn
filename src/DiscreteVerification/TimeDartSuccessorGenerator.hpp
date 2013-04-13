@@ -33,7 +33,6 @@ public:
 	vector< NonStrictMarkingBase* > generateSuccessors(const NonStrictMarkingBase& marking, const TimedTransition& transition) const;
 	void PrintTransitionStatistics(std::ostream & out) const;
 private:
-	TokenList getPlaceFromMarking(const NonStrictMarkingBase& marking, int placeID) const;
 
 	void generateMarkings(vector<NonStrictMarkingBase* >& result, const NonStrictMarkingBase& init_marking, const TimedTransition& transition, ArcHashMap& enabledArcs) const;
 	void recursiveGenerateMarking(vector<NonStrictMarkingBase* >& result, NonStrictMarkingBase& init_marking, const TimedTransition& transition, unsigned int index, ArcHashMap& enabledArcs) const;

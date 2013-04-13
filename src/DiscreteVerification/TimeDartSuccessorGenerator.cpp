@@ -59,16 +59,6 @@ void TimeDartSuccessorGenerator::processArc(
 	}
 }
 
-
-TokenList TimeDartSuccessorGenerator::getPlaceFromMarking(const NonStrictMarkingBase& marking, int placeID) const{
-	for(PlaceList::const_iterator iter = marking.GetPlaceList().begin();
-			iter != marking.GetPlaceList().end();
-			iter++){
-		if(iter->place->GetIndex() == placeID) return iter->tokens;
-	}
-	return TokenList();
-}
-
 void TimeDartSuccessorGenerator::generateMarkings(vector<NonStrictMarkingBase*>& result, const NonStrictMarkingBase& init_marking,
 		const TimedTransition& transition, ArcHashMap& enabledArcs) const {
 

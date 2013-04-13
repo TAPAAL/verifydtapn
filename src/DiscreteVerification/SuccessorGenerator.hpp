@@ -143,7 +143,6 @@ namespace VerifyTAPN {
             vector< T *> generateSuccessors(const T& marking) const;
             void PrintTransitionStatistics(std::ostream & out) const;
         private:
-            TokenList getPlaceFromMarking(const T& marking, int placeID) const;
 
             void generateMarkings(vector<T* >& result, const T& init_marking, const std::vector< const TimedTransition* >& transitions, ArcHashMap& enabledArcs) const;
             void recursiveGenerateMarking(vector<T* >& result, T& init_marking, const TimedTransition& transition, ArcHashMap& enabledArcs, unsigned int index) const;
@@ -250,17 +249,7 @@ namespace VerifyTAPN {
                 enabledTransitions.push_back(&transition);
             }
         }
-
-        template<typename T>
-        TokenList SuccessorGenerator<T>::getPlaceFromMarking(const T& marking, int placeID) const {
-            for (PlaceList::const_iterator iter = marking.GetPlaceList().begin();
-                    iter != marking.GetPlaceList().end();
-                    iter++) {
-                if (iter->place->GetIndex() == placeID) return iter->tokens;
-            }
-            return TokenList();
-        }
-
+        
         template<typename T>
         void SuccessorGenerator<T>::generateMarkings(vector<T*>& result, const T& init_marking,
                 const std::vector< const TimedTransition* >& transitions, ArcHashMap& enabledArcs) const {
