@@ -40,9 +40,7 @@ NonStrictMarkingBase::NonStrictMarkingBase(const TAPN::TimedArcPetriNet& tapn, c
 }
 
 NonStrictMarkingBase::NonStrictMarkingBase(const NonStrictMarkingBase& nsm) : children(0), generatedBy(NULL){
-	//for(PlaceList::const_iterator it = nsm.places.begin(); it != nsm.places.end(); it++){
-	//	places.push_back(Place(*it));
-	//}
+
 
 	places = nsm.places;
 
@@ -59,14 +57,6 @@ unsigned int NonStrictMarkingBase::size(){
 	}
 	return count;
 }
-
-//int NonStrictMarkingBase::NumberOfTokensInPlace(const Place& place) const{
-//	int count = 0;
-//	for(TokenList::const_iterator it = place.tokens.begin(); it != place.tokens.end(); it++){
-//		count = count + it->getCount();
-//	}
-//	return count;
-//}
 
 int NonStrictMarkingBase::NumberOfTokensInPlace(int placeId) const{
 	int count = 0;
