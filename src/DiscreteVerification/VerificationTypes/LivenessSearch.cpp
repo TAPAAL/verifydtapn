@@ -12,10 +12,12 @@ namespace DiscreteVerification {
 
 LivenessSearch::LivenessSearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options)
 	: tapn(tapn), initialMarking(initialMarking), query(query), options(options), successorGenerator( *tapn.get() ){
+    successorGenerator.verifier = this;
 }
     
 LivenessSearch::LivenessSearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list)
 	: pwList(new PWList(waiting_list, true)), tapn(tapn), initialMarking(initialMarking), query(query), options(options), successorGenerator( *tapn.get() ){
+    successorGenerator.verifier = this;
 }
 
 bool LivenessSearch::Verify(){
@@ -26,31 +28,29 @@ bool LivenessSearch::Verify(){
 	//Main loop
 	while(pwList->HasWaitingStates()){
 		NonStrictMarking& next_marking = *pwList->GetNextUnexplored();
-		bool endOfMaxRun;
+                tmpParent = &next_marking;
+		endOfMaxRun = true;
 		if(!next_marking.meta->passed){
 			NonStrictMarking marking(next_marking);
-			endOfMaxRun = true;
 			next_marking.meta->passed = true;
 			next_marking.meta->inTrace = true;
 			trace.push(&next_marking);
 			validChildren = 0;
 
-			// Generate next markings
-			vector<NonStrictMarking*> next = getPossibleNextMarkings(next_marking);
 
 			if(isDelayPossible(next_marking)){
 				NonStrictMarking* marking = new NonStrictMarking(next_marking);
 				marking->incrementAge();
 				marking->SetGeneratedBy(NULL);
-				next.push_back(marking);
+                                if(addToPW(marking, &next_marking)){
+                                        return true;
+                                }
+                                endOfMaxRun = false;
 			}
+                        if(getPossibleNextMarkings(next_marking)){
+                                return true;
+                        }
 
-			for(vector<NonStrictMarking*>::iterator it = next.begin(); it != next.end(); it++){
-				if(addToPW(*it, &next_marking)){
-					return true;
-				}
-				endOfMaxRun = false;
-			}
 		} else {
 			endOfMaxRun = false;
 			validChildren = 0;
@@ -100,7 +100,7 @@ bool LivenessSearch::isDelayPossible(NonStrictMarking& marking){
 	return false;
 }
 
-vector<NonStrictMarking*> LivenessSearch::getPossibleNextMarkings(const NonStrictMarking& marking){
+bool LivenessSearch::getPossibleNextMarkings(const NonStrictMarking& marking){
 	return successorGenerator.generateSuccessors(marking);
 }
 

@@ -86,17 +86,11 @@ namespace VerifyTAPN {
                             }
 
                             this->tmpupper = _end;
-                            //vector<NonStrictMarkingBase*> next = getPossibleNextMarkings(Mpp, transition);
+
                             if(getPossibleNextMarkings(Mpp, transition)){
                                 return true;
                             }
-                            /*for (vector<NonStrictMarkingBase*>::iterator it = next.begin(); it != next.end(); it++) {
-
-                                if (addToPW(*it, waitingDart, _end)) {
-                                    return true;
-                                }
-                            }*/
-
+                            
                             pwList->flushBuffer();
                         }
                     }

@@ -42,12 +42,11 @@ public:
         virtual void deleteMarking(NonStrictMarking* m) {
             //dummy
         };
-         virtual inline bool addToPW(NonStrictMarking* m){
-            // todo correctly implement
-            return false;
+         virtual bool addToPW(NonStrictMarking* m){
+            return addToPW(m, tmpParent);
         };
 protected:
-	vector<NonStrictMarking*> getPossibleNextMarkings(const NonStrictMarking& marking);
+	bool getPossibleNextMarkings(const NonStrictMarking& marking);
 	bool addToPW(NonStrictMarking* marking, NonStrictMarking* parent);
 	bool isDelayPossible(NonStrictMarking& marking);
 
@@ -64,6 +63,8 @@ public:
 	void GetTrace();
 private:
 	NonStrictMarking* lastMarking;
+protected:
+    NonStrictMarking* tmpParent;
 };
 class LivenessSearchPTrie : public LivenessSearch{
 public:

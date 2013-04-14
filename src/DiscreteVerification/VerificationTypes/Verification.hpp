@@ -19,7 +19,7 @@ namespace VerifyTAPN {
             virtual void printStats() = 0;
             virtual void PrintTransitionStatistics() const = 0;
             virtual unsigned int MaxUsedTokens() = 0;
-            virtual inline bool addToPW(T* marking) = 0;
+            virtual bool addToPW(T* marking) = 0;
 
             virtual void GetTrace() {
                 std::cout << "Error generating trace" << std::endl;
@@ -32,6 +32,7 @@ namespace VerifyTAPN {
             rapidxml::xml_node<>* createTokenNode(rapidxml::xml_document<>& doc, const TAPN::TimedPlace& place, const Token& token);
             void GenerateTraceStack(T* m, std::stack<T*>* result, std::stack<T*>* liveness = NULL);
             stack< T* > trace;
+            bool endOfMaxRun;
         };
 
         template<typename T>
