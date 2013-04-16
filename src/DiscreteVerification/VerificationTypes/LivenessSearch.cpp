@@ -105,7 +105,7 @@ vector<NonStrictMarking*> LivenessSearch::getPossibleNextMarkings(const NonStric
 }
 
 bool LivenessSearch::addToPW(NonStrictMarking* marking, NonStrictMarking* parent){
-	cut(marking);
+	marking->cut();
 	marking->SetParent(parent);
 	unsigned int size = marking->size();
 
@@ -136,37 +136,6 @@ bool LivenessSearch::addToPW(NonStrictMarking* marking, NonStrictMarking* parent
 	}
         deleteMarking(marking);
 	return false;
-}
-
-void LivenessSearch::cut(NonStrictMarking* m){
-	for(PlaceList::iterator place_iter = m->places.begin(); place_iter != m->places.end(); place_iter++){
-		const TimedPlace& place = tapn->GetPlace(place_iter->place->GetIndex());
-		//remove dead tokens
-		if (place_iter->place->GetType() == Dead) {
-			for(TokenList::iterator token_iter = place_iter->tokens.begin(); token_iter != place_iter->tokens.end(); token_iter++){
-				if(token_iter->getAge() > place.GetMaxConstant()){
-					token_iter->remove(token_iter->getCount());
-				}
-			}
-		}
-		//set age of too old tokens to max age
-		int count = 0;
-		for(TokenList::iterator token_iter = place_iter->tokens.begin(); token_iter != place_iter->tokens.end(); token_iter++){
-			if(token_iter->getAge() > place.GetMaxConstant()){
-				TokenList::iterator beginDelete = token_iter;
-				if(place.GetType() == Std){
-					for(; token_iter != place_iter->tokens.end(); token_iter++){
-						count += token_iter->getCount();
-					}
-				}
-				m->RemoveRangeOfTokens(*place_iter, beginDelete, place_iter->tokens.end());
-				break;
-			}
-		}
-		Token t(place.GetMaxConstant()+1,count);
-		m->AddTokenInPlace(*place_iter, t);
-	}
-	m->CleanUp();
 }
 
 void LivenessSearch::printStats(){
