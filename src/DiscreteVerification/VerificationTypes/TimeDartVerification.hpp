@@ -47,10 +47,7 @@ namespace VerifyTAPN {
                 return dart->getBase();
             };
 
-            virtual inline bool addToPW(NonStrictMarkingBase* m) {
-                // todo correctly implement
-                return false;
-            };
+            virtual inline bool addToPW(NonStrictMarkingBase* m) = 0;
             
         protected:
             AST::Query* query;
