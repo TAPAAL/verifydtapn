@@ -47,7 +47,7 @@ bool LivenessSearch::Verify(){
                                 }
                                 endOfMaxRun = false;
 			}
-                        if(successorGenerator.generateSuccessors(next_marking)){
+                        if(successorGenerator.generateAnInsertSuccessors(next_marking)){
                                 return true;
                         }
                         // if no delay is possible, and no transition-based succecors are possible, we have reached a max run
