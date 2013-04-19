@@ -46,7 +46,7 @@ bool TimeDartReachabilitySearch::Verify(){
 					Mpp.incrementAge(start);
 
                                         this->tmpupper = start;
-                                        if(getPossibleNextMarkings(Mpp, transition)){
+                                        if(successorGenerator.generateSuccessors(Mpp, transition)){
                                             return true;
                                         }
 				}else{
@@ -55,7 +55,7 @@ bool TimeDartReachabilitySearch::Verify(){
 						NonStrictMarkingBase Mpp(*dart.getBase());
 						Mpp.incrementAge(n);
                                                 this->tmpupper = n;
-                                                if(getPossibleNextMarkings(Mpp, transition)){
+                                                if(successorGenerator.generateSuccessors(Mpp, transition)){
                                                     return true;
                                                 }
 					}

@@ -47,7 +47,7 @@ bool LivenessSearch::Verify(){
                                 }
                                 endOfMaxRun = false;
 			}
-                        if(getPossibleNextMarkings(next_marking)){
+                        if(successorGenerator.generateSuccessors(next_marking)){
                                 return true;
                         }
                         // if no delay is possible, and no transition-based succecors are possible, we have reached a max run
@@ -101,10 +101,6 @@ bool LivenessSearch::isDelayPossible(NonStrictMarking& marking){
 	}
 	assert(false);	// This happens if there are markings on places not in the TAPN
 	return false;
-}
-
-bool LivenessSearch::getPossibleNextMarkings(const NonStrictMarking& marking){
-	return successorGenerator.generateSuccessors(marking);
 }
 
 bool LivenessSearch::addToPW(NonStrictMarking* marking, NonStrictMarking* parent){

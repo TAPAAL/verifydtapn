@@ -46,7 +46,6 @@ public:
             return addToPW(m, tmpParent);
         };
 protected:
-	bool getPossibleNextMarkings(const NonStrictMarking& marking);
 	bool addToPW(NonStrictMarking* marking, NonStrictMarking* parent);
 	bool isDelayPossible(NonStrictMarking& marking);
 

@@ -34,7 +34,6 @@ namespace VerifyTAPN {
             std::pair<int, int> calculateStart(const TAPN::TimedTransition& transition, NonStrictMarkingBase* marking);
             int calculateStop(const TAPN::TimedTransition& transition, NonStrictMarkingBase* marking);
             int maxPossibleDelay(NonStrictMarkingBase* marking);
-            bool getPossibleNextMarkings(NonStrictMarkingBase& marking, const TimedTransition& transition);
 
             void PrintTransitionStatistics() const {
                 successorGenerator.PrintTransitionStatistics(std::cout);
@@ -58,8 +57,6 @@ namespace VerifyTAPN {
             bool loop;         
             bool deadlock;
             WaitingDart* lastMarking;
-
-        private:
             TimeDartSuccessorGenerator successorGenerator;
 
         };

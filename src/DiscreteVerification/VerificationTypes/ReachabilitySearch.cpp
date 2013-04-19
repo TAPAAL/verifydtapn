@@ -41,7 +41,7 @@ bool ReachabilitySearch::Verify(){
                             return true;
                         }
 		}
-                if(getPossibleNextMarkings(next_marking)){
+                if(successorGenerator.generateSuccessors(next_marking)){
                     return true;
                 }  
 
@@ -70,10 +70,6 @@ bool ReachabilitySearch::isDelayPossible(NonStrictMarking& marking){
 	}
 	assert(false);	// This happens if there are markings on places not in the TAPN
 	return false;
-}
-
-bool ReachabilitySearch::getPossibleNextMarkings(const NonStrictMarking& marking){
-	return successorGenerator.generateSuccessors(marking);
 }
 
 bool ReachabilitySearch::addToPW(NonStrictMarking* marking, NonStrictMarking* parent){
