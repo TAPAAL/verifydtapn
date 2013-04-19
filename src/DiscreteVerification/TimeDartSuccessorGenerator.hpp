@@ -28,11 +28,11 @@ class TimeDartSuccessorGenerator {
 	typedef boost::ptr_vector< ArcAndTokens<NonStrictMarkingBase> > ArcAndTokensVector;
 
 public:
-	TimeDartSuccessorGenerator(TAPN::TimedArcPetriNet& tapn);
+	TimeDartSuccessorGenerator(TAPN::TimedArcPetriNet& tapn, Verification<NonStrictMarkingBase>& verifier);
 	~TimeDartSuccessorGenerator();
 	bool generateSuccessors(const NonStrictMarkingBase& marking, const TimedTransition& transition) const;
 	void PrintTransitionStatistics(std::ostream & out) const;
-        Verification<NonStrictMarkingBase>* verifier;
+        
 private:
 	TokenList getPlaceFromMarking(const NonStrictMarkingBase& marking, int placeID) const;
 
@@ -58,7 +58,8 @@ private:
     }
 
     unsigned int numberoftransitions;
-	unsigned int* transitionStatistics;
+        unsigned int* transitionStatistics;
+        Verification<NonStrictMarkingBase>& verifier;
 };
 
 } /* namespace DiscreteVerification */

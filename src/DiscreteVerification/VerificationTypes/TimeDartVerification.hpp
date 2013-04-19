@@ -20,7 +20,7 @@ namespace VerifyTAPN {
         public:
 
             TimeDartVerification(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, VerificationOptions options, AST::Query* query, NonStrictMarkingBase& initialMarking) :
-            query(query), options(options), tapn(tapn), initialMarking(initialMarking), exploredMarkings(0), allwaysEnabled(), successorGenerator(*tapn.get()) {
+            query(query), options(options), tapn(tapn), initialMarking(initialMarking), exploredMarkings(0), allwaysEnabled(), successorGenerator(*tapn.get(), *this) {
                 loop = false;
                 deadlock = false;
                 //Find the transitions which don't have input arcs
@@ -29,7 +29,6 @@ namespace VerifyTAPN {
                         allwaysEnabled.push_back(iter->get());
                     }
                 }
-                successorGenerator.verifier = this;
             }
 
             std::pair<int, int> calculateStart(const TAPN::TimedTransition& transition, NonStrictMarkingBase* marking);

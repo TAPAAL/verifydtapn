@@ -11,13 +11,13 @@ namespace VerifyTAPN {
 namespace DiscreteVerification {
 
 ReachabilitySearch::ReachabilitySearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options)
-	: tapn(tapn), initialMarking(initialMarking), query(query), options(options), successorGenerator( *tapn.get() ){
-    successorGenerator.verifier = this;
+	: tapn(tapn), initialMarking(initialMarking), query(query), options(options), successorGenerator( *tapn.get(), *this ){
+
 }
     
 ReachabilitySearch::ReachabilitySearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list)
-	: pwList(new PWList(waiting_list, false)), tapn(tapn), initialMarking(initialMarking), query(query), options(options), successorGenerator( *tapn.get() ){
-    successorGenerator.verifier = this;
+	: pwList(new PWList(waiting_list, false)), tapn(tapn), initialMarking(initialMarking), query(query), options(options), successorGenerator( *tapn.get(), *this ){
+
 }
 
 bool ReachabilitySearch::Verify(){

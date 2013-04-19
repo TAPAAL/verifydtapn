@@ -139,7 +139,7 @@ namespace VerifyTAPN {
             typedef typename boost::ptr_vector< ArcAndTokenWithType > ArcAndTokensVector;
 
         public:
-            SuccessorGenerator(TAPN::TimedArcPetriNet& tapn);
+            SuccessorGenerator(TAPN::TimedArcPetriNet& tapn, Verification<T>& verifier);
             ~SuccessorGenerator();
             bool generateSuccessors(const T& marking) const;
             void PrintTransitionStatistics(std::ostream & out) const;
@@ -173,8 +173,7 @@ namespace VerifyTAPN {
 
             unsigned int numberoftransitions;
             unsigned int* transitionStatistics;
-        public:
-            Verification<T>* verifier;
+            Verification<T>& verifier;
         };
 
         template<typename T>
@@ -183,7 +182,7 @@ namespace VerifyTAPN {
         }
 
         template<typename T>
-        SuccessorGenerator<T>::SuccessorGenerator(TAPN::TimedArcPetriNet& tapn) : tapn(tapn), allwaysEnabled(), numberoftransitions(tapn.GetTransitions().size()), transitionStatistics() {
+        SuccessorGenerator<T>::SuccessorGenerator(TAPN::TimedArcPetriNet& tapn, Verification<T>& verifier) : tapn(tapn), allwaysEnabled(), numberoftransitions(tapn.GetTransitions().size()), transitionStatistics(), verifier(verifier) {
             //Find the transitions which don't have input arcs
             transitionStatistics = new unsigned int [numberoftransitions];
             ClearTransitionsArray();
@@ -318,7 +317,7 @@ namespace VerifyTAPN {
 
             // Generate permutations
             bool changedSomething = true;
-            verifier->endOfMaxRun = false;
+            verifier.endOfMaxRun = false;
             while (changedSomething) {
                 changedSomething = false;
                 if(addMarking(init_marking, transition, indicesOfCurrentPermutation)){
@@ -419,7 +418,7 @@ namespace VerifyTAPN {
                 Token t(0, postsetIter->lock()->GetWeight());
                 m->AddTokenInPlace(postsetIter->lock()->OutputPlace(), t);
             }
-            return verifier->addToPW(m);
+            return verifier.addToPW(m);
         }
 
         template<typename T>
