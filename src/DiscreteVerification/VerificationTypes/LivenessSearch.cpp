@@ -29,7 +29,7 @@ bool LivenessSearch::Verify(){
 	while(pwList->HasWaitingStates()){
 		NonStrictMarking& next_marking = *pwList->GetNextUnexplored();
                 tmpParent = &next_marking;
-		endOfMaxRun = true;
+		bool endOfMaxRun = true;
 		if(!next_marking.meta->passed){
 			NonStrictMarking marking(next_marking);
 			next_marking.meta->passed = true;
@@ -50,6 +50,9 @@ bool LivenessSearch::Verify(){
                         if(getPossibleNextMarkings(next_marking)){
                                 return true;
                         }
+                        // if no delay is possible, and no transition-based succecors are possible, we have reached a max run
+                        endOfMaxRun = endOfMaxRun && (!successorGenerator.doSuccessorsExist());
+
 
 		} else {
 			endOfMaxRun = false;

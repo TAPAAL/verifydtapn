@@ -32,7 +32,6 @@ namespace VerifyTAPN {
             rapidxml::xml_node<>* createTokenNode(rapidxml::xml_document<>& doc, const TAPN::TimedPlace& place, const Token& token);
             void GenerateTraceStack(T* m, std::stack<T*>* result, std::stack<T*>* liveness = NULL);
             stack< T* > trace;
-            bool endOfMaxRun;
         };
 
         template<typename T>
