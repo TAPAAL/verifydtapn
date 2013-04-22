@@ -54,7 +54,7 @@ namespace VerifyTAPN {
                 }
 
                 waitingDart->dart->setPassed(waitingDart->w);
-
+                this->tmpdart = waitingDart;
                 // Iterate over transitions
                 for (TimedTransition::Vector::const_iterator transition_iter = tapn->GetTransitions().begin();
                         transition_iter != tapn->GetTransitions().end(); transition_iter++) {
@@ -85,14 +85,12 @@ namespace VerifyTAPN {
                                 _end = calculatedStart.second;
                             }
 
-                            vector<NonStrictMarkingBase*> next = getPossibleNextMarkings(Mpp, transition);
-                            for (vector<NonStrictMarkingBase*>::iterator it = next.begin(); it != next.end(); it++) {
+                            this->tmpupper = _end;
 
-                                if (addToPW(*it, waitingDart, _end)) {
-                                    return true;
-                                }
+                            if(successorGenerator.generateAndInsertSuccessors(Mpp, transition)){
+                                return true;
                             }
-
+                            
                             pwList->flushBuffer();
                         }
                     }
