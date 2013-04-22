@@ -141,7 +141,7 @@ namespace VerifyTAPN {
         public:
             SuccessorGenerator(TAPN::TimedArcPetriNet& tapn, Verification<T>& verifier);
             ~SuccessorGenerator();
-            bool generateAnInsertSuccessors(const T& marking);
+            bool generateAndInsertSuccessors(const T& marking);
             void PrintTransitionStatistics(std::ostream & out) const;
             inline bool doSuccessorsExist();
             
@@ -201,7 +201,7 @@ namespace VerifyTAPN {
         }
         
         template<typename T>
-        bool SuccessorGenerator<T>::generateAnInsertSuccessors(const T& marking) {
+        bool SuccessorGenerator<T>::generateAndInsertSuccessors(const T& marking) {
             succesorsExist = false;
             
             ArcHashMap enabledArcs(tapn.GetInhibitorArcs().size() + tapn.GetInputArcs().size() + tapn.GetTransportArcs().size());

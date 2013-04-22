@@ -41,7 +41,7 @@ bool ReachabilitySearch::Verify(){
                             return true;
                         }
 		}
-                if(successorGenerator.generateAnInsertSuccessors(next_marking)){
+                if(successorGenerator.generateAndInsertSuccessors(next_marking)){
                     return true;
                 }  
 

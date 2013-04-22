@@ -87,7 +87,7 @@ namespace VerifyTAPN {
 
                             this->tmpupper = _end;
 
-                            if(successorGenerator.generateSuccessors(Mpp, transition)){
+                            if(successorGenerator.generateAndInsertSuccessors(Mpp, transition)){
                                 return true;
                             }
                             

@@ -30,7 +30,7 @@ class TimeDartSuccessorGenerator {
 public:
 	TimeDartSuccessorGenerator(TAPN::TimedArcPetriNet& tapn, Verification<NonStrictMarkingBase>& verifier);
 	~TimeDartSuccessorGenerator();
-	bool generateSuccessors(const NonStrictMarkingBase& marking, const TimedTransition& transition) const;
+	bool generateAndInsertSuccessors(const NonStrictMarkingBase& marking, const TimedTransition& transition) const;
 	void PrintTransitionStatistics(std::ostream & out) const;
         
 private:

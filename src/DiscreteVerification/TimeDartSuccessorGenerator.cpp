@@ -25,7 +25,7 @@ TimeDartSuccessorGenerator::TimeDartSuccessorGenerator(TAPN::TimedArcPetriNet& t
 	}
 }
 
-bool TimeDartSuccessorGenerator::generateSuccessors(const NonStrictMarkingBase& marking, const TimedTransition& transition) const{
+bool TimeDartSuccessorGenerator::generateAndInsertSuccessors(const NonStrictMarkingBase& marking, const TimedTransition& transition) const{
 
 	ArcHashMap enabledArcs(transition.GetPresetSize() + transition.GetTransportArcs().size());
 
