@@ -69,19 +69,19 @@ std::ostream& operator<<(std::ostream& out, PWList& x){
                     } else {
                         meta = new MetaData();
                     }
-                    res.encoding.SetMetaData(meta);
+                    res.encoding.setMetaData(meta);
                     marking->meta = meta;
                 } else if(this->makeTrace){
                     MetaDataWithTraceAndEncoding* meta = new MetaDataWithTraceAndEncoding();
                     meta->generatedBy = marking->getGeneratedBy();
-                    res.encoding.SetMetaData(meta);
+                    res.encoding.setMetaData(meta);
                     meta->ep = new EncodingPointer<MetaData > (res.encoding, res.pos);
                     meta->parent = parent;
                 }
                 this->waiting_list->Add(marking, new EncodingPointer<MetaData > (res.encoding, res.pos));
             } else{
                 if(isLiveness){
-                        marking->meta = res.encoding.GetMetaData();
+                        marking->meta = res.encoding.getMetaData();
                         if(this->makeTrace){
                             ((MetaDataWithTrace*)marking->meta)->generatedBy = marking->getGeneratedBy();
                         }
@@ -101,7 +101,7 @@ std::ostream& operator<<(std::ostream& out, PWList& x){
             NonStrictMarking* m = new NonStrictMarking(*base);
             delete base;
             
-            m->meta = p->encoding.GetMetaData();
+            m->meta = p->encoding.getMetaData();
             
             if(this->makeTrace){
                 if(isLiveness){
@@ -111,7 +111,7 @@ std::ostream& operator<<(std::ostream& out, PWList& x){
                 }
             }
             if(isLiveness || !this->makeTrace)
-                p->encoding.Release();
+                p->encoding.release();
             return m;
         }
 

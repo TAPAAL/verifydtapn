@@ -58,7 +58,7 @@ bool TimeDartPWPData::Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* ma
         PData<TimeDartBase>::Result res = passed.add(marking);
 
         if(!res.isNew){
-            TimeDartBase* t = res.encoding.GetMetaData();
+            TimeDartBase* t = res.encoding.getMetaData();
             bool inWaiting = t->getWaiting() < t->getPassed();
             t->setWaiting(min(t->getWaiting(),youngest));
 
@@ -83,7 +83,7 @@ bool TimeDartPWPData::Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* ma
                 dart = new TimeDartBase(marking, youngest, INT_MAX);
         }
         stored++;
-        res.encoding.SetMetaData(dart);
+        res.encoding.setMetaData(dart);
         EncodingPointer<TimeDartBase>* ep = new EncodingPointer<TimeDartBase>(res.encoding, res.pos);
 	waiting_list->Add(marking, ep);
         if (this->trace) {
@@ -98,10 +98,10 @@ TimeDartBase* TimeDartPWPData::GetNextUnexplored(){
   
     EncodingPointer<TimeDartBase>* p = waiting_list->Pop();
     NonStrictMarkingBase* m = passed.enumerateDecode(*p);
-    TimeDartBase* dart = p->encoding.GetMetaData();
+    TimeDartBase* dart = p->encoding.getMetaData();
     dart->setBase(m);
     
-    p->encoding.Release();
+    p->encoding.release();
     delete p;
     return dart;
 }

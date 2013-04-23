@@ -28,54 +28,73 @@ namespace VerifyTAPN {
             EncodingStructure(const EncodingStructure &other, uint size, uint offset, uint encsize);
             EncodingStructure(char* raw, uint size, uint offset, uint encsize);
             EncodingStructure(char* raw, uint size){
-                shadow = raw;
-                rsize = size;
+                binaryBlob = raw;
+                numberOfBytes = size;
             };
             virtual ~EncodingStructure();
 
-            EncodingStructure Clone() {
+            EncodingStructure clone() {
                 EncodingStructure s;
-                s.rsize = rsize;
-                s.shadow = new char[rsize + sizeof (T)];
-                memcpy(s.shadow, shadow, rsize + sizeof (T));
+                s.numberOfBytes = numberOfBytes;
+                s.binaryBlob = new char[numberOfBytes + sizeof (T)];
+                memcpy(s.binaryBlob, binaryBlob, numberOfBytes + sizeof (T));
                 return s;
             }
 
-            void Copy(const EncodingStructure &other, unsigned int offset) {
-                memcpy(&(shadow[offset / 8]), other.shadow, other.rsize);
+            inline void copy(const EncodingStructure &other, unsigned int offset) {
+                memcpy(&(binaryBlob[offset / 8]), other.binaryBlob, other.numberOfBytes);
             }
             
-            void Copy(const char* raw, unsigned int size){
-                shadow = new char[size + sizeof(T)];
-                memcpy(shadow, raw, size);
+            inline void copy(const char* raw, unsigned int size){
+                binaryBlob = new char[size + sizeof(T)];
+                memcpy(binaryBlob, raw, size);
             }
 
-            bool At(const uint place) const;
-            void Set(const uint place, const bool value) const;
+            inline bool at(const uint place) const {
+                uint offset = place % 8;
+                bool res2;
+                if (place / 8 < numberOfBytes)
+                    res2 = (binaryBlob[place / 8] & masks[offset]) != 0;
+                else
+                    res2 = false;
 
-            void Zero() const {
-                memset(shadow, 0x0, rsize);
+                return res2;
             }
 
-            unsigned short int Size() const {
-                return rsize;
+            inline void set(const uint place, const bool value) const {
+                uint offset = place % 8;
+                uint theplace = place / 8;
+                if (value) {
+                    binaryBlob[theplace] |= masks[offset];
+                } else {
+                    binaryBlob[theplace] &= ~masks[offset];
+                }
+
             }
 
-            void Release() const {
-                delete[] shadow;
+            inline void zero() const {
+                memset(binaryBlob, 0x0, numberOfBytes);
             }
 
-            char* GetRaw() const {
-                return shadow;
+            inline unsigned short int Size() const {
+                return numberOfBytes;
             }
 
-            void PrintEncoding() const {
-                for (unsigned short int i = 0; i < rsize * 8; i++)
-                    cout << this->At(i);
+            inline void release() const {
+                delete[] binaryBlob;
+            }
+
+            inline char* getRaw() const {
+                return binaryBlob;
+            }
+
+            void printEncoding() const {
+                for (unsigned short int i = 0; i < numberOfBytes * 8; i++)
+                    cout << this->at(i);
                 cout << endl;
             }
 
-            inline static uint Overhead(uint size) {
+            inline static uint overhead(uint size) {
                 size = size % 8;
                 if (size == 0)
                     return 0;
@@ -83,47 +102,47 @@ namespace VerifyTAPN {
                     return 8 - size;
             }
 
-            inline void SetMetaData(T data) const {
-                memcpy(&(shadow[rsize]), &data, sizeof (T));
+            inline void setMetaData(T data) const {
+                memcpy(&(binaryBlob[numberOfBytes]), &data, sizeof (T));
             }
 
-            inline T GetMetaData() const {
+            inline T getMetaData() const {
                 T res;
-                memcpy(&res, &(shadow[rsize]), sizeof (T));
+                memcpy(&res, &(binaryBlob[numberOfBytes]), sizeof (T));
                 return res;
             }
 
-            const char operator[](int i) {
+            inline const char operator[](int i) {
 
-                if (i >= rsize) {
+                if (i >= numberOfBytes) {
                     return 0x0;
                 }
-                return shadow[i];
+                return binaryBlob[i];
             }
             
-            friend bool operator==(const EncodingStructure &enc1, const EncodingStructure &enc2) {
-                if(enc1.rsize != enc2.rsize)
+            inline friend bool operator==(const EncodingStructure &enc1, const EncodingStructure &enc2) {
+                if(enc1.numberOfBytes != enc2.numberOfBytes)
                     return false;
-                for(int i = 0; i < enc1.rsize; i++)
-                    if(enc1.shadow[i] != enc2.shadow[i])
+                for(int i = 0; i < enc1.numberOfBytes; i++)
+                    if(enc1.binaryBlob[i] != enc2.binaryBlob[i])
                         return false;
                 return true;
             }
             
             
-            friend bool operator<(const EncodingStructure &enc1, const EncodingStructure &enc2) {
-                int count = enc1.rsize > enc2.rsize ? enc1.rsize : enc2.rsize;
+            inline friend bool operator<(const EncodingStructure &enc1, const EncodingStructure &enc2) {
+                int count = enc1.numberOfBytes > enc2.numberOfBytes ? enc1.numberOfBytes : enc2.numberOfBytes;
 
                 for (int i = 0; i < count; i++) {
-                    if (enc1.rsize > i && enc2.rsize > i && enc1.shadow[i] != enc2.shadow[i]) {
-                        return ((unsigned short int) enc1.shadow[i]) < ((unsigned short int) enc2.shadow[i]);
+                    if (enc1.numberOfBytes > i && enc2.numberOfBytes > i && enc1.binaryBlob[i] != enc2.binaryBlob[i]) {
+                        return ((unsigned short int) enc1.binaryBlob[i]) < ((unsigned short int) enc2.binaryBlob[i]);
                     }
 
                 }
-                if (enc1.rsize > enc2.rsize) {
+                if (enc1.numberOfBytes > enc2.numberOfBytes) {
                     return false;
 
-                } else if (enc1.rsize < enc2.rsize) {
+                } else if (enc1.numberOfBytes < enc2.numberOfBytes) {
                     return true;
                 }
 
@@ -131,8 +150,8 @@ namespace VerifyTAPN {
             }
 
         private:
-            char* shadow;
-            unsigned short rsize;
+            char* binaryBlob;
+            unsigned short numberOfBytes;
             const static char masks[8];
         };
 
@@ -150,25 +169,25 @@ namespace VerifyTAPN {
 
         template<class T>
         EncodingStructure<T>::EncodingStructure(uint size) {
-            rsize = (size + Overhead(size)) / 8;
-            shadow = new char[rsize + sizeof (T)];
-            memset(shadow, 0x0, rsize + sizeof (T));
+            numberOfBytes = (size + overhead(size)) / 8;
+            binaryBlob = new char[numberOfBytes + sizeof (T)];
+            memset(binaryBlob, 0x0, numberOfBytes + sizeof (T));
         }
 
         template<class T>
         EncodingStructure<T>::EncodingStructure(const EncodingStructure &other, uint offset) {
             offset = offset / 8;
 
-            rsize = other.rsize;
-            if (rsize > offset)
-                rsize -= offset;
+            numberOfBytes = other.numberOfBytes;
+            if (numberOfBytes > offset)
+                numberOfBytes -= offset;
             else {
-                rsize = 0;
+                numberOfBytes = 0;
             }
 
-            shadow = new char[rsize + sizeof (T)];
-            memcpy(shadow, &(other.shadow[offset]), rsize);
-            SetMetaData(other.GetMetaData());
+            binaryBlob = new char[numberOfBytes + sizeof (T)];
+            memcpy(binaryBlob, &(other.binaryBlob[offset]), numberOfBytes);
+            setMetaData(other.getMetaData());
         }
 
         template<class T>
@@ -177,16 +196,16 @@ namespace VerifyTAPN {
             uint so = size + offset;
             offset = ((so - 1) / 8) - ((size - 1) / 8);
 
-            rsize = ((encsize + this->Overhead(encsize)) / 8);
-            if (rsize > offset)
-                rsize -= offset;
+            numberOfBytes = ((encsize + this->overhead(encsize)) / 8);
+            if (numberOfBytes > offset)
+                numberOfBytes -= offset;
             else {
-                rsize = 0;
+                numberOfBytes = 0;
             }
 
-            shadow = new char[rsize + sizeof (T)];
-            memcpy(shadow, &(other.shadow[offset]), rsize);
-            SetMetaData(other.GetMetaData());
+            binaryBlob = new char[numberOfBytes + sizeof (T)];
+            memcpy(binaryBlob, &(other.binaryBlob[offset]), numberOfBytes);
+            setMetaData(other.getMetaData());
         }
 
         template<class T>
@@ -195,14 +214,14 @@ namespace VerifyTAPN {
             uint so = size + offset;
             offset = ((so - 1) / 8) - ((size - 1) / 8);
 
-            rsize = ((encsize + this->Overhead(encsize)) / 8);
-            if (rsize > offset)
-                rsize -= offset;
+            numberOfBytes = ((encsize + this->overhead(encsize)) / 8);
+            if (numberOfBytes > offset)
+                numberOfBytes -= offset;
             else {
-                rsize = 0;
+                numberOfBytes = 0;
             }
 
-            shadow = &(raw[offset]);
+            binaryBlob = &(raw[offset]);
         }
 
         template<class T>
@@ -210,30 +229,7 @@ namespace VerifyTAPN {
 
         }
 
-        template<class T>
-        bool EncodingStructure<T>::At(const uint place) const {
-            //    return data[place];
-            uint offset = place % 8;
-            bool res2;
-            if (place / 8 < rsize)
-                res2 = (shadow[place / 8] & masks[offset]) != 0;
-            else
-                res2 = false;
 
-            return res2;
-        }
-
-        template<class T>
-        void EncodingStructure<T>::Set(const uint place, const bool value) const {
-            uint offset = place % 8;
-            uint theplace = place / 8;
-            if (value) {
-                shadow[theplace] |= masks[offset];
-            } else {
-                shadow[theplace] &= ~masks[offset];
-            }
-
-        }
 
     }
 }

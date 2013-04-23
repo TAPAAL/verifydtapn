@@ -68,13 +68,13 @@ namespace VerifyTAPN {
             PData<LivenessDart>::Result res = passed.add(marking);
 
                 if (!res.isNew) {
-                    LivenessDart* td = res.encoding.GetMetaData();
+                    LivenessDart* td = res.encoding.getMetaData();
                     td->setBase(marking);
                     std::pair < LivenessDart*, bool> result(td, false);
                     td->setWaiting(min(td->getWaiting(), youngest));
                            
                     if (td->getWaiting() < td->getPassed()) {
-                        EncodingStructure<WaitingDart*> es(res.encoding.GetRaw(), res.encoding.Size());
+                        EncodingStructure<WaitingDart*> es(res.encoding.getRaw(), res.encoding.Size());
 
                         EncodingPointer<WaitingDart>* ewp = new EncodingPointer<WaitingDart > (es, res.pos);
                         WaitingDart *wd;
@@ -84,13 +84,13 @@ namespace VerifyTAPN {
                         } else {
                             wd = new WaitingDart(td, parent, youngest, upper);
                         }
-                        ewp->encoding.SetMetaData(wd);
+                        ewp->encoding.setMetaData(wd);
                         
                         waiting_list->Add(marking, ewp);
                         result.second = true;
                     } else {
                         if(options.GetTrace() == SOME){
-                            EncodingStructure<WaitingDart*> es(res.encoding.GetRaw(), res.encoding.Size());
+                            EncodingStructure<WaitingDart*> es(res.encoding.getRaw(), res.encoding.Size());
                            ((EncodedLivenessDart*)td)->encoding = new EncodingPointer<WaitingDart > (es, res.pos);
                            result.first = td;
                         }
@@ -105,9 +105,9 @@ namespace VerifyTAPN {
             } else {
                 dart = new LivenessDart(marking, youngest, INT_MAX);
             }
-            res.encoding.SetMetaData(dart);
+            res.encoding.setMetaData(dart);
             
-            EncodingStructure<WaitingDart*> es(res.encoding.GetRaw(), res.encoding.Size());
+            EncodingStructure<WaitingDart*> es(res.encoding.getRaw(), res.encoding.Size());
             EncodingPointer<WaitingDart>* ewp = new EncodingPointer<WaitingDart > (es, res.pos);
             
             WaitingDart *wd;
@@ -117,7 +117,7 @@ namespace VerifyTAPN {
             } else {
                 wd = new WaitingDart(dart, parent, youngest, upper);
             }
-            ewp->encoding.SetMetaData(wd);
+            ewp->encoding.setMetaData(wd);
             
             waiting_list->Add(marking, ewp);
             std::pair < LivenessDart*, bool> result(dart, true);
@@ -126,7 +126,7 @@ namespace VerifyTAPN {
 
         WaitingDart* TimeDartLivenessPWPData::GetNextUnexplored() {
             EncodingPointer<WaitingDart>* ewp =  waiting_list->Peek();
-            WaitingDart* wd = ewp->encoding.GetMetaData();
+            WaitingDart* wd = ewp->encoding.getMetaData();
             NonStrictMarkingBase* base = passed.enumerateDecode(*((EncodingPointer<LivenessDart>*)ewp));
             wd->dart->setBase(base);
             if(options.GetTrace() == SOME){
@@ -137,10 +137,10 @@ namespace VerifyTAPN {
 
         void TimeDartLivenessPWPData::PopWaiting() {
             EncodingPointer<WaitingDart>* ewp =  waiting_list->Pop();
-            WaitingDart* wd = ewp->encoding.GetMetaData();
+            WaitingDart* wd = ewp->encoding.getMetaData();
             delete wd->dart->getBase();
             delete wd;
-            ewp->encoding.Release();
+            ewp->encoding.release();
             delete ewp;
         }
 

@@ -29,7 +29,7 @@ namespace VerifyTAPN {
             
             // Construct a pointer with enough (persistent) data to recreate the marking. 
             // The encoding is cloned as it is not persistant in the PTrie
-            EncodingPointer(EncodingStructure<T*> &en, unsigned int n) : encoding(en.Clone()), node(n) {
+            EncodingPointer(EncodingStructure<T*> &en, unsigned int n) : encoding(en.clone()), node(n) {
             }
         };
         
@@ -58,7 +58,7 @@ namespace VerifyTAPN {
             numberOfVariables(enumeratedOffset * (knumber ? knumber : 1)),
             cachesize(128),
             tapn(tapn) {
-                overhead = MarkingEncoding::Overhead(this->numberOfVariables);
+                overhead = MarkingEncoding::overhead(this->numberOfVariables);
                 this->numberOfVariables += overhead;
                 stored = 0;
                 bddsize = cachesize;
@@ -137,7 +137,7 @@ namespace VerifyTAPN {
 
         template<typename T>
         int PData<T>::enumeratedEncoding(NonStrictMarkingBase* marking) {
-            encoding.Zero();
+            encoding.zero();
 
             int tc = 0;
             uint bitcount = 0;
@@ -158,7 +158,7 @@ namespace VerifyTAPN {
                     bitcount = 0;
                     while (number) { // set the vars while there are bits left
                         if (number & 1) {
-                            this->encoding.Set(overhead + offset + bitcount, true);
+                            this->encoding.set(overhead + offset + bitcount, true);
                         }
                         bitcount++;
                         number = number >> 1;
@@ -168,7 +168,7 @@ namespace VerifyTAPN {
                     /* binary */
                     while (pos) { // set the vars while there are bits left
                         if (pos & 1) {
-                            this->encoding.Set(overhead + offset + bitcount, true);
+                            this->encoding.set(overhead + offset + bitcount, true);
                         }
                         bitcount++;
                         pos = pos >> 1;
@@ -185,7 +185,7 @@ namespace VerifyTAPN {
         template<typename T>
         NonStrictMarkingBase* PData<T>::enumerateDecode(const EncodingPointer<T> &pointer) {
             NonStrictMarkingBase* m = new NonStrictMarkingBase();
-            this->encoding.Zero();
+            this->encoding.zero();
 
             uint var = 0;
             uint n = pointer.node;
@@ -195,7 +195,7 @@ namespace VerifyTAPN {
             }
             var += this->overhead;
 
-            this->encoding.Copy(pointer.encoding, var);
+            this->encoding.copy(pointer.encoding, var);
             uint nbits = (var - (var % 8)) + pointer.encoding.Size()*8;
             uint self = pointer.node;
 
@@ -203,7 +203,7 @@ namespace VerifyTAPN {
                 var--;
                 n = fetchNode(self)->parent;
                 bool branch = fetchNode(n)->highpos == self;
-                this->encoding.Set(var, branch);
+                this->encoding.set(var, branch);
                 self = n;
 
             }
@@ -217,7 +217,7 @@ namespace VerifyTAPN {
                 while (nbits >= offset) {
                     data = data << 1;
 
-                    if (encoding.At(nbits)) {
+                    if (encoding.at(nbits)) {
                         data = data | 1;
                     }
                     if (nbits == 0) {
@@ -229,7 +229,7 @@ namespace VerifyTAPN {
                 while (nbits >= offset) {
                     count = count << 1;
 
-                    if (encoding.At(nbits)) {
+                    if (encoding.at(nbits)) {
                         count = count | 1;
                     }
                     if (nbits == 0) {
@@ -261,7 +261,7 @@ namespace VerifyTAPN {
             do {
 
                 prev_count = c_count;
-                if (encoding.At(var)) {
+                if (encoding.at(var)) {
                     c_count = BDDArr[c_count / cachesize][c_count % cachesize].highpos;
 
                 } else {
@@ -284,7 +284,7 @@ namespace VerifyTAPN {
             }
 
             int size = this->numberOfVariables - var;
-            MarkingEncoding en = MarkingEncoding(encoding.GetRaw(), size, var, encsize);
+            MarkingEncoding en = MarkingEncoding(encoding.getRaw(), size, var, encsize);
 
             int ins = 0;
 
@@ -310,7 +310,7 @@ namespace VerifyTAPN {
             prev_node->shadow = nlist;
 
 
-            bool branch = encoding.At(var);
+            bool branch = encoding.at(var);
             if (branch) {
                 count = (++prev_node->highCount);
             } else {
@@ -351,17 +351,17 @@ namespace VerifyTAPN {
                 int clistcount = 0;
                 int nlistcount = 0;
                 for (int i = 0; i < listsize + 1; i++) {
-                    if (prev_node->shadow[i].At(npos) == branch) {
+                    if (prev_node->shadow[i].at(npos) == branch) {
                         if (!(size % 8)) {
                             nee = MarkingEncoding(prev_node->shadow[i], 8);
                             if (i == ins) {
                                 en = nee;
                             }
-                            prev_node->shadow[i].Release();
+                            prev_node->shadow[i].release();
                         } else {
                             nee = prev_node->shadow[i];
                         }
-                        if (nee.At((npos + 1) % 8)) {
+                        if (nee.at((npos + 1) % 8)) {
                             c_node->highCount++;
                         } else {
                             c_node->lowCount++;
