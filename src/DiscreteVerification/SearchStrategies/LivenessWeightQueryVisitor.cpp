@@ -52,7 +52,7 @@ namespace DiscreteVerification {
 
 		void LivenessWeightQueryVisitor::Visit(const AtomicProposition& expr, boost::any& context)
 		{
-			int numberOfTokens = marking.NumberOfTokensInPlace(expr.Place());
+			int numberOfTokens = marking.numberOfTokensInPlace(expr.Place());
 			context = Compare(numberOfTokens, expr.Operator(), expr.N());
 		}
 

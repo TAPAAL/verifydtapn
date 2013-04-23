@@ -32,7 +32,7 @@ namespace VerifyTAPN {
                 // Detect ability to delay forever
                 if (canDelayForever(waitingDart->dart->getBase())) {
                     NonStrictMarkingBase* lm = new NonStrictMarkingBase(*waitingDart->dart->getBase());
-                    lm->SetGeneratedBy(waitingDart->dart->getBase()->GetGeneratedBy());
+                    lm->setGeneratedBy(waitingDart->dart->getBase()->getGeneratedBy());
                     // lastMarking = new TraceList(lm, waitingDart.upper);
                     lastMarking = waitingDart;
                     return true;
@@ -112,7 +112,7 @@ namespace VerifyTAPN {
 
 
         bool TimeDartLiveness::canDelayForever(NonStrictMarkingBase* marking) {
-            for (PlaceList::const_iterator p_iter = marking->GetPlaceList().begin(); p_iter != marking->GetPlaceList().end(); p_iter++) {
+            for (PlaceList::const_iterator p_iter = marking->getPlaceList().begin(); p_iter != marking->getPlaceList().end(); p_iter++) {
                 if (p_iter->place->GetInvariant().GetBound() < INT_MAX) {
                     return false;
                 }
@@ -126,7 +126,7 @@ namespace VerifyTAPN {
                 start = marking->getYoungest();
             }
             marking->cut();
-            const TimedTransition* transition = marking->GetGeneratedBy();
+            const TimedTransition* transition = marking->getGeneratedBy();
             unsigned int size = marking->size();
 
             pwList->SetMaxNumTokensIfGreater(size);
@@ -163,7 +163,7 @@ namespace VerifyTAPN {
 
                 if (loop) {
                     NonStrictMarkingBase* lm = new NonStrictMarkingBase(*result.first->getBase());
-                    lm->SetParent(parent->dart->getBase());
+                    lm->setParent(parent->dart->getBase());
                     //lastMarking = new TraceList(lm, upper);   
                     if (options.GetTrace()) {
 //                        TraceDart* t = new TraceDart(*(TraceDart*) lastMarking);      // removed to fix loop-detection delay

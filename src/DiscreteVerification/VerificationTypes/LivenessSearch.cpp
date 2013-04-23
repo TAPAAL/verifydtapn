@@ -41,7 +41,7 @@ bool LivenessSearch::Verify(){
 			if(isDelayPossible(next_marking)){
 				NonStrictMarking* marking = new NonStrictMarking(next_marking);
 				marking->incrementAge();
-				marking->SetGeneratedBy(NULL);
+				marking->setGeneratedBy(NULL);
                                 if(addToPW(marking, &next_marking)){
                                         return true;
                                 }
@@ -64,7 +64,7 @@ bool LivenessSearch::Verify(){
 			return true;
 		}
 		if(validChildren == 0){
-			while(!trace.empty() && trace.top()->numberOfChildren() <= 1){
+			while(!trace.empty() && trace.top()->getNumberOfChildren() <= 1){
 				trace.top()->meta->inTrace = false;
                                 deleteMarking(trace.top());
 				trace.pop();
@@ -83,14 +83,14 @@ bool LivenessSearch::Verify(){
 }
 
 bool LivenessSearch::isDelayPossible(NonStrictMarking& marking){
-	const PlaceList& places = marking.GetPlaceList();
+	const PlaceList& places = marking.getPlaceList();
 	if(places.size() == 0) return true;	//Delay always possible in empty markings
 
 	PlaceList::const_iterator markedPlace_iter = places.begin();
 	for(TAPN::TimedPlace::Vector::const_iterator place_iter = tapn->GetPlaces().begin(); place_iter != tapn->GetPlaces().end(); place_iter++){
 		int inv = place_iter->get()->GetInvariant().GetBound();
 		if(*(place_iter->get()) == *(markedPlace_iter->place)){
-			if(markedPlace_iter->MaxTokenAge() > inv-1){
+			if(markedPlace_iter->maxTokenAge() > inv-1){
 				return false;
 			}
 
@@ -105,7 +105,7 @@ bool LivenessSearch::isDelayPossible(NonStrictMarking& marking){
 
 bool LivenessSearch::addToPW(NonStrictMarking* marking, NonStrictMarking* parent){
 	marking->cut();
-	marking->SetParent(parent);
+	marking->setParent(parent);
 	unsigned int size = marking->size();
 
 	pwList->SetMaxNumTokensIfGreater(size);

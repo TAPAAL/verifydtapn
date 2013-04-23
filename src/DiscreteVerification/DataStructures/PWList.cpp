@@ -12,7 +12,7 @@ namespace DiscreteVerification {
 
 bool PWList::Add(NonStrictMarking* marking){
 	discoveredMarkings++;
-	NonStrictMarkingList& m = markings_storage[marking->HashKey()];
+	NonStrictMarkingList& m = markings_storage[marking->getHashKey()];
 	for(NonStrictMarkingList::const_iterator iter = m.begin();
 			iter != m.end();
 			iter++){
@@ -20,7 +20,7 @@ bool PWList::Add(NonStrictMarking* marking){
                     if(isLiveness){
                         marking->meta = (*iter)->meta;
                         if(!marking->meta->passed){
-                                (*iter)->SetGeneratedBy(marking->GetGeneratedBy());
+                                (*iter)->setGeneratedBy(marking->getGeneratedBy());
                                 waiting_list->Add(*iter, *iter);
                                 return true;
                         }
@@ -59,13 +59,13 @@ std::ostream& operator<<(std::ostream& out, PWList& x){
             discoveredMarkings++;
             // reset the encoding array
 
-            PData<MetaData>::Result res = passed->Add(marking);
+            PData<MetaData>::Result res = passed->add(marking);
             if(res.isNew){
                 if(isLiveness){
                     MetaData* meta;
                     if(this->makeTrace){
                         meta = new MetaDataWithTrace();   
-                        ((MetaDataWithTrace*)meta)->generatedBy = marking->GetGeneratedBy();
+                        ((MetaDataWithTrace*)meta)->generatedBy = marking->getGeneratedBy();
                     } else {
                         meta = new MetaData();
                     }
@@ -73,7 +73,7 @@ std::ostream& operator<<(std::ostream& out, PWList& x){
                     marking->meta = meta;
                 } else if(this->makeTrace){
                     MetaDataWithTraceAndEncoding* meta = new MetaDataWithTraceAndEncoding();
-                    meta->generatedBy = marking->GetGeneratedBy();
+                    meta->generatedBy = marking->getGeneratedBy();
                     res.encoding.SetMetaData(meta);
                     meta->ep = new EncodingPointer<MetaData > (res.encoding, res.pos);
                     meta->parent = parent;
@@ -83,7 +83,7 @@ std::ostream& operator<<(std::ostream& out, PWList& x){
                 if(isLiveness){
                         marking->meta = res.encoding.GetMetaData();
                         if(this->makeTrace){
-                            ((MetaDataWithTrace*)marking->meta)->generatedBy = marking->GetGeneratedBy();
+                            ((MetaDataWithTrace*)marking->meta)->generatedBy = marking->getGeneratedBy();
                         }
                 }
                 if(isLiveness && !marking->meta->passed){
@@ -97,7 +97,7 @@ std::ostream& operator<<(std::ostream& out, PWList& x){
         NonStrictMarking* PWListHybrid::GetNextUnexplored() {
             // TODO: Is this really it?
             EncodingPointer<MetaData>* p = waiting_list->Pop();
-            NonStrictMarkingBase* base = passed->EnumerateDecode(*p);
+            NonStrictMarkingBase* base = passed->enumerateDecode(*p);
             NonStrictMarking* m = new NonStrictMarking(*base);
             delete base;
             
@@ -105,7 +105,7 @@ std::ostream& operator<<(std::ostream& out, PWList& x){
             
             if(this->makeTrace){
                 if(isLiveness){
-                        m->SetGeneratedBy(((MetaDataWithTrace*)(m->meta))->generatedBy);
+                        m->setGeneratedBy(((MetaDataWithTrace*)(m->meta))->generatedBy);
                 } else {
                     this->parent = (MetaDataWithTraceAndEncoding*)(m->meta);
                 }

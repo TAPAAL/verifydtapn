@@ -86,7 +86,7 @@ class PWListHybrid : public PWListBase {
 
         public: // inspectors
             NonStrictMarking* Decode(EncodingPointer<MetaData>* ep){
-                NonStrictMarkingBase* base = this->passed->EnumerateDecode(*ep);
+                NonStrictMarkingBase* base = this->passed->enumerateDecode(*ep);
                 NonStrictMarking* m = new NonStrictMarking(*base);
                 delete base;
                 return m;
@@ -100,7 +100,7 @@ class PWListHybrid : public PWListBase {
             };
             virtual long long Explored() {return waiting_list->Size();};
             void PrintMemStats() {
-                passed->PrintMemStats();
+                passed->printMemStats();
             }
 
         public: // modifiers

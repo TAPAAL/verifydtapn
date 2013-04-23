@@ -104,7 +104,7 @@ namespace VerifyTAPN {
             };
             virtual void flushBuffer();
             NonStrictMarkingBase* Decode(EncodingPointer<LivenessDart> *ewp){
-                return passed.EnumerateDecode(*ewp);
+                return passed.enumerateDecode(*ewp);
             }
             
         private:

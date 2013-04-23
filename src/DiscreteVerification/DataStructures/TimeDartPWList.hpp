@@ -93,7 +93,7 @@ namespace VerifyTAPN {
             };
             
             NonStrictMarkingBase* Decode(EncodingPointer<TimeDartBase> *ewp){
-                return passed.EnumerateDecode(*ewp);
+                return passed.enumerateDecode(*ewp);
             }
         private:
             WaitingList<EncodingPointer<TimeDartBase> >* waiting_list;

@@ -12,7 +12,7 @@ namespace DiscreteVerification {
 
 bool TimeDartPWHashMap::Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* marking, int youngest, WaitingDart* parent, int upper, int start){
 	discoveredMarkings++;
-	TimeDartList& m = markings_storage[marking->HashKey()];
+	TimeDartList& m = markings_storage[marking->getHashKey()];
 	for(TimeDartList::const_iterator iter = m.begin();
 			iter != m.end();
 			iter++){
@@ -24,7 +24,7 @@ bool TimeDartPWHashMap::Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* 
 				if((*iter)->getWaiting() < (*iter)->getPassed() && !inWaiting){
 					waiting_list->Add((*iter)->getBase(),(*iter));
                                         if(this->trace){
-                                            ((ReachabilityTraceableDart*)(*iter))->trace = new TraceDart((*iter), parent, youngest, start, upper, marking->GetGeneratedBy());
+                                            ((ReachabilityTraceableDart*)(*iter))->trace = new TraceDart((*iter), parent, youngest, start, upper, marking->getGeneratedBy());
                                             this->last = ((ReachabilityTraceableDart*)(*iter))->trace;
                                         }
 				}
@@ -37,7 +37,7 @@ bool TimeDartPWHashMap::Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* 
         TimeDartBase* dart;
         if(this->trace){
              dart = new ReachabilityTraceableDart(marking, youngest, INT_MAX);
-             ((ReachabilityTraceableDart*)dart)->trace = new TraceDart(dart, parent, youngest, start,  upper, marking->GetGeneratedBy());
+             ((ReachabilityTraceableDart*)dart)->trace = new TraceDart(dart, parent, youngest, start,  upper, marking->getGeneratedBy());
             this->last = ((ReachabilityTraceableDart*)(dart))->trace;
         } else {
             dart = new TimeDartBase(marking, youngest, INT_MAX);
@@ -55,7 +55,7 @@ TimeDartBase* TimeDartPWHashMap::GetNextUnexplored(){
 
 bool TimeDartPWPData::Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* marking, int youngest, WaitingDart* parent, int upper, int start){
 	discoveredMarkings++;
-        PData<TimeDartBase>::Result res = passed.Add(marking);
+        PData<TimeDartBase>::Result res = passed.add(marking);
 
         if(!res.isNew){
             TimeDartBase* t = res.encoding.GetMetaData();
@@ -64,7 +64,7 @@ bool TimeDartPWPData::Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* ma
 
             if(t->getWaiting() < t->getPassed() && !inWaiting){
                     if(this->trace){
-                        ((EncodedReachabilityTraceableDart*)t)->trace = new TraceDart(t, parent, youngest, start, upper, marking->GetGeneratedBy());
+                        ((EncodedReachabilityTraceableDart*)t)->trace = new TraceDart(t, parent, youngest, start, upper, marking->getGeneratedBy());
                         this->last = ((EncodedReachabilityTraceableDart*)t)->trace;
                     }
                     waiting_list->Add(marking, new EncodingPointer<TimeDartBase>(res.encoding, res.pos));
@@ -77,7 +77,7 @@ bool TimeDartPWPData::Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* ma
 	TimeDartBase* dart;
          if (this->trace) {
              dart = new EncodedReachabilityTraceableDart(marking, youngest, INT_MAX);
-            ((EncodedReachabilityTraceableDart*) dart)->trace = new TraceDart(dart, parent, youngest, start, upper, marking->GetGeneratedBy());
+            ((EncodedReachabilityTraceableDart*) dart)->trace = new TraceDart(dart, parent, youngest, start, upper, marking->getGeneratedBy());
             this->last = ((ReachabilityTraceableDart*) (dart))->trace;
         } else {
                 dart = new TimeDartBase(marking, youngest, INT_MAX);
@@ -97,7 +97,7 @@ bool TimeDartPWPData::Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* ma
 TimeDartBase* TimeDartPWPData::GetNextUnexplored(){
   
     EncodingPointer<TimeDartBase>* p = waiting_list->Pop();
-    NonStrictMarkingBase* m = passed.EnumerateDecode(*p);
+    NonStrictMarkingBase* m = passed.enumerateDecode(*p);
     TimeDartBase* dart = p->encoding.GetMetaData();
     dart->setBase(m);
     

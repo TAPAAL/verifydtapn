@@ -57,7 +57,7 @@ unsigned int NonStrictMarkingBase::size(){
 	return count;
 }
 
-int NonStrictMarkingBase::NumberOfTokensInPlace(int placeId) const{
+int NonStrictMarkingBase::numberOfTokensInPlace(int placeId) const{
 	int count = 0;
 	for(PlaceList::const_iterator iter = places.begin(); iter != places.end(); iter++){
 		if(iter->place->GetIndex() == placeId){
@@ -69,19 +69,19 @@ int NonStrictMarkingBase::NumberOfTokensInPlace(int placeId) const{
 	return count;
 }
 
-const TokenList& NonStrictMarkingBase::GetTokenList(int placeId) const{
+const TokenList& NonStrictMarkingBase::getTokenList(int placeId) const{
 	for(PlaceList::const_iterator iter = places.begin(); iter != places.end(); iter++){
 		if(iter->place->GetIndex() == placeId) return iter->tokens;
 	}
 	return emptyTokenList;
 }
 
-bool NonStrictMarkingBase::RemoveToken(int placeId, int age){
+bool NonStrictMarkingBase::removeToken(int placeId, int age){
 	for(PlaceList::iterator pit = places.begin(); pit != places.end(); pit++){
 		if(pit->place->GetIndex() == placeId){
 			for(TokenList::iterator tit = pit->tokens.begin(); tit != pit->tokens.end(); tit++){
 				if(tit->getAge() == age){
-					return RemoveToken(*pit, *tit);
+					return removeToken(*pit, *tit);
 				}
 			}
 		}
@@ -89,11 +89,11 @@ bool NonStrictMarkingBase::RemoveToken(int placeId, int age){
 	return false;
 }
 
-void NonStrictMarkingBase::RemoveRangeOfTokens(Place& place, TokenList::iterator begin, TokenList::iterator end){
+void NonStrictMarkingBase::removeRangeOfTokens(Place& place, TokenList::iterator begin, TokenList::iterator end){
 	place.tokens.erase(begin, end);
 }
 
-bool NonStrictMarkingBase::RemoveToken(Place& place, Token& token){
+bool NonStrictMarkingBase::removeToken(Place& place, Token& token){
 	if(token.getCount() > 1){
 		token.remove(1);
 		return true;
@@ -116,24 +116,24 @@ bool NonStrictMarkingBase::RemoveToken(Place& place, Token& token){
 	return false;
 }
 
-void NonStrictMarkingBase::AddTokenInPlace(TAPN::TimedPlace& place, int age){
+void NonStrictMarkingBase::addTokenInPlace(TAPN::TimedPlace& place, int age){
 	for(PlaceList::iterator pit = places.begin(); pit != places.end(); pit++){
 		if(pit->place->GetIndex() == place.GetIndex()){
 			for(TokenList::iterator tit = pit->tokens.begin(); tit != pit->tokens.end(); tit++){
 				if(tit->getAge() == age){
 					Token t(age, 1);
-					AddTokenInPlace(*pit, t);
+					addTokenInPlace(*pit, t);
 					return;
 				}
 			}
 			Token t(age,1);
-			AddTokenInPlace(*pit, t);
+			addTokenInPlace(*pit, t);
 			return;
 		}
 	}
 	Token t(age,1);
 	Place p(&place);
-	AddTokenInPlace(p,t);
+	addTokenInPlace(p,t);
 
 	// Insert place
 	bool inserted = false;
@@ -149,16 +149,16 @@ void NonStrictMarkingBase::AddTokenInPlace(TAPN::TimedPlace& place, int age){
 	}
 }
 
-void NonStrictMarkingBase::AddTokenInPlace(const TAPN::TimedPlace& place, Token& token){
+void NonStrictMarkingBase::addTokenInPlace(const TAPN::TimedPlace& place, Token& token){
 	for(PlaceList::iterator pit = places.begin(); pit != places.end(); pit++){
 		if(pit->place->GetIndex() == place.GetIndex()){
-			AddTokenInPlace(*pit, token);
+			addTokenInPlace(*pit, token);
 			return;
 		}
 	}
 
 	Place p(&place);
-	AddTokenInPlace(p,token);
+	addTokenInPlace(p,token);
 
 	// Insert place
 	bool inserted = false;
@@ -174,7 +174,7 @@ void NonStrictMarkingBase::AddTokenInPlace(const TAPN::TimedPlace& place, Token&
 	}
 }
 
-void NonStrictMarkingBase::AddTokenInPlace(Place& place, Token& token){
+void NonStrictMarkingBase::addTokenInPlace(Place& place, Token& token){
 	if(token.getCount() == 0) return;
 	for(TokenList::iterator iter = place.tokens.begin(); iter != place.tokens.end(); iter++){
 		if(iter->getAge() == token.getAge()){
@@ -244,16 +244,16 @@ void NonStrictMarkingBase::cut(){
 						count += token_iter->getCount();
 					}
 				}
-				this->RemoveRangeOfTokens(*place_iter, beginDelete, place_iter->tokens.end());
+				this->removeRangeOfTokens(*place_iter, beginDelete, place_iter->tokens.end());
 				break;
 			}
 		}
                 if(count){
                         Token t(place_iter->place->GetMaxConstant()+1,count);
-                        this->AddTokenInPlace(*place_iter, t);
+                        this->addTokenInPlace(*place_iter, t);
                 }
 	}
-	this->CleanUp();
+	this->cleanUp();
 	#ifdef DEBUG
 		std::cout << "After cut: " << *this << std::endl;
 	#endif
@@ -261,7 +261,7 @@ void NonStrictMarkingBase::cut(){
 
 int NonStrictMarkingBase::getYoungest(){
     	int youngest = INT_MAX;
-	for(PlaceList::const_iterator place_iter = GetPlaceList().begin(); place_iter != GetPlaceList().end(); place_iter++){
+	for(PlaceList::const_iterator place_iter = getPlaceList().begin(); place_iter != getPlaceList().end(); place_iter++){
 		if(youngest > place_iter->tokens.front().getAge() && place_iter->tokens.front().getAge() <= place_iter->place->GetMaxConstant()){
 			youngest = place_iter->tokens.front().getAge();
 		}

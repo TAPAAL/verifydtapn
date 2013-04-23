@@ -12,7 +12,7 @@ namespace VerifyTAPN {
 
         std::pair<LivenessDart*, bool> TimeDartLivenessPWHashMap::Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* marking, int youngest, WaitingDart* parent, int upper, int start) {
             discoveredMarkings++;
-            TimeDartList& m = markings_storage[marking->HashKey()];
+            TimeDartList& m = markings_storage[marking->getHashKey()];
             for (TimeDartList::const_iterator iter = m.begin();
                     iter != m.end();
                     iter++) {
@@ -22,7 +22,7 @@ namespace VerifyTAPN {
 
                     if ((*iter)->getWaiting() < (*iter)->getPassed()) {
                         if(options.GetTrace()){
-                            waiting_list->Add((*iter)->getBase(), new TraceDart((*iter), parent, youngest, start, upper, marking->GetGeneratedBy()));
+                            waiting_list->Add((*iter)->getBase(), new TraceDart((*iter), parent, youngest, start, upper, marking->getGeneratedBy()));
 
                         } else {
                             waiting_list->Add((*iter)->getBase(), new WaitingDart((*iter), parent, youngest, upper));
@@ -39,7 +39,7 @@ namespace VerifyTAPN {
             m.push_back(dart);
             if(options.GetTrace()){
 
-                waiting_list->Add(dart->getBase(), new TraceDart(dart, parent, youngest, start, upper, marking->GetGeneratedBy()));
+                waiting_list->Add(dart->getBase(), new TraceDart(dart, parent, youngest, start, upper, marking->getGeneratedBy()));
 
             } else {
                 waiting_list->Add(dart->getBase(), new WaitingDart(dart, parent, youngest, upper));                
@@ -65,7 +65,7 @@ namespace VerifyTAPN {
 
             
             discoveredMarkings++;
-            PData<LivenessDart>::Result res = passed.Add(marking);
+            PData<LivenessDart>::Result res = passed.add(marking);
 
                 if (!res.isNew) {
                     LivenessDart* td = res.encoding.GetMetaData();
@@ -79,7 +79,7 @@ namespace VerifyTAPN {
                         EncodingPointer<WaitingDart>* ewp = new EncodingPointer<WaitingDart > (es, res.pos);
                         WaitingDart *wd;
                         if(options.GetTrace()){
-                            wd =  new TraceDart(td, parent, youngest, start, upper, marking->GetGeneratedBy());
+                            wd =  new TraceDart(td, parent, youngest, start, upper, marking->getGeneratedBy());
 
                         } else {
                             wd = new WaitingDart(td, parent, youngest, upper);
@@ -112,7 +112,7 @@ namespace VerifyTAPN {
             
             WaitingDart *wd;
             if(options.GetTrace()){
-                wd =  new TraceDart(dart, parent, youngest, start, upper, marking->GetGeneratedBy());
+                wd =  new TraceDart(dart, parent, youngest, start, upper, marking->getGeneratedBy());
                 ((EncodedLivenessDart*)dart)->encoding = ewp;
             } else {
                 wd = new WaitingDart(dart, parent, youngest, upper);
@@ -127,7 +127,7 @@ namespace VerifyTAPN {
         WaitingDart* TimeDartLivenessPWPData::GetNextUnexplored() {
             EncodingPointer<WaitingDart>* ewp =  waiting_list->Peek();
             WaitingDart* wd = ewp->encoding.GetMetaData();
-            NonStrictMarkingBase* base = passed.EnumerateDecode(*((EncodingPointer<LivenessDart>*)ewp));
+            NonStrictMarkingBase* base = passed.enumerateDecode(*((EncodingPointer<LivenessDart>*)ewp));
             wd->dart->setBase(base);
             if(options.GetTrace() == SOME){
                 ((EncodedLivenessDart*)wd->dart)->encoding = ewp;

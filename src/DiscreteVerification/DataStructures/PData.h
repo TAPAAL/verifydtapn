@@ -96,30 +96,21 @@ namespace VerifyTAPN {
                 }
                 return false;
             }
-            /*            bool equal(MarkingEncoding* arr, EncodingList* lst){
-                            EncodingList::const_iterator it = lst->begin();
-                            while(it != lst->end()){
-                                if(!search(arr, *it, lst->size()))
-                                    return false;
-                                it++;
-                            }
-                            return true;
-                        }*/
 
-            Result Add(NonStrictMarkingBase* marking);
+            Result add(NonStrictMarkingBase* marking);
 
             unsigned int size() {
                 return stored;
             }
-            void PrintMemStats();
-            void PrintEncoding(bool* encoding, int length);
+            void printMemStats();
+            void printEncoding(bool* encoding, int length);
 
-            inline PNode* FetchNode(uint i) {
+            inline PNode* fetchNode(uint i) {
                 return &BDDArr[i / cachesize][i % cachesize];
             }
-            NonStrictMarkingBase* EnumerateDecode(const EncodingPointer<T>& pointer);
+            NonStrictMarkingBase* enumerateDecode(const EncodingPointer<T>& pointer);
 
-            int EnumeratedEncoding(NonStrictMarkingBase* marking);
+            int enumeratedEncoding(NonStrictMarkingBase* marking);
             const uint k;
             const uint maxAge;
             const uint numberOfPlaces;
@@ -145,14 +136,14 @@ namespace VerifyTAPN {
 
 
         template<typename T>
-        int PData<T>::EnumeratedEncoding(NonStrictMarkingBase* marking) {
+        int PData<T>::enumeratedEncoding(NonStrictMarkingBase* marking) {
             encoding.Zero();
 
             int tc = 0;
             uint bitcount = 0;
 
-            for (vector<Place>::const_iterator pi = marking->GetPlaceList().begin();
-                    pi != marking->GetPlaceList().end();
+            for (vector<Place>::const_iterator pi = marking->getPlaceList().begin();
+                    pi != marking->getPlaceList().end();
                     pi++) { // for each place
 
                 int pc = pi->place->GetIndex();
@@ -161,8 +152,7 @@ namespace VerifyTAPN {
                         ti != pi->tokens.end();
                         ti++) {
 
-                    //                   for (int i = 0; i < ti->getCount(); i++) // for each ACTUAL token
-                    //                   {
+
                     int offset = tc * this->enumeratedOffset; // the offset of the variables for this token
                     uint number = ti->getCount();
                     bitcount = 0;
@@ -184,8 +174,6 @@ namespace VerifyTAPN {
                         pos = pos >> 1;
                     }
                     tc++;
-                    //                    }
-
                 }
             }
             if (tc == 0)
@@ -195,27 +183,26 @@ namespace VerifyTAPN {
         }
 
         template<typename T>
-        NonStrictMarkingBase* PData<T>::EnumerateDecode(const EncodingPointer<T> &pointer) {
+        NonStrictMarkingBase* PData<T>::enumerateDecode(const EncodingPointer<T> &pointer) {
             NonStrictMarkingBase* m = new NonStrictMarkingBase();
             this->encoding.Zero();
 
             uint var = 0;
             uint n = pointer.node;
             while (n) {
-                n = FetchNode(n)->parent;
+                n = fetchNode(n)->parent;
                 var++;
             }
             var += this->overhead;
 
-            //            m->meta = pointer.encoding.GetMetaData();
             this->encoding.Copy(pointer.encoding, var);
             uint nbits = (var - (var % 8)) + pointer.encoding.Size()*8;
             uint self = pointer.node;
 
             while (self) {
                 var--;
-                n = FetchNode(self)->parent;
-                bool branch = FetchNode(n)->highpos == self;
+                n = fetchNode(self)->parent;
+                bool branch = fetchNode(n)->highpos == self;
                 this->encoding.Set(var, branch);
                 self = n;
 
@@ -255,7 +242,7 @@ namespace VerifyTAPN {
                     int age = floor(data / this->numberOfPlaces);
                     uint place = (data % this->numberOfPlaces);
                     Token t = Token(age, count);
-                    m->AddTokenInPlace(tapn->GetPlace(place), t);
+                    m->addTokenInPlace(tapn->GetPlace(place), t);
                     data = 0;
                     count = 0;
                 }
@@ -264,10 +251,10 @@ namespace VerifyTAPN {
         }
 
         template<typename T>
-        typename PData<T>::Result PData<T>::Add(NonStrictMarkingBase* marking) {
+        typename PData<T>::Result PData<T>::add(NonStrictMarkingBase* marking) {
 
-            int encsize = this->EnumeratedEncoding(marking) + overhead;
-            // go through the BDD as far as possible with the encoding of the marking
+            int encsize = this->enumeratedEncoding(marking) + overhead;
+            // go through the PTrie as far as possible with the encoding of the marking
             uint c_count = 0;
             uint prev_count = 0;
             int var = overhead;
@@ -286,7 +273,7 @@ namespace VerifyTAPN {
             } while (c_count != 0);
             var--;
 
-            PNode* prev_node = FetchNode(prev_count);
+            PNode* prev_node = fetchNode(prev_count);
 
             int listsize = 0;
             if (prev_node->highCount >= 0) {
@@ -409,7 +396,7 @@ namespace VerifyTAPN {
         }
 
         template<typename T>
-        void PData<T>::PrintMemStats() {
+        void PData<T>::printMemStats() {
             cout << endl << "Encoding size;" << endl <<
                     "\t\t\t" << this->numberOfVariables << endl;
             cout << "Lists:" << endl <<
@@ -419,7 +406,7 @@ namespace VerifyTAPN {
         }
 
         template<typename T>
-        void PData<T>::PrintEncoding(bool* encoding, int length) {
+        void PData<T>::printEncoding(bool* encoding, int length) {
             for (int i = 0; i < length; i++)
                 cout << encoding[i];
             cout << endl;
