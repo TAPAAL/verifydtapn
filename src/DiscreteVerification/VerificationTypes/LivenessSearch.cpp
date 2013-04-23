@@ -26,8 +26,8 @@ bool LivenessSearch::Verify(){
 	}
 
 	//Main loop
-	while(pwList->HasWaitingStates()){
-		NonStrictMarking& next_marking = *pwList->GetNextUnexplored();
+	while(pwList->hasWaitingStates()){
+		NonStrictMarking& next_marking = *pwList->getNextUnexplored();
                 tmpParent = &next_marking;
 		bool endOfMaxRun = true;
 		if(!next_marking.meta->passed){
@@ -108,7 +108,7 @@ bool LivenessSearch::addToPW(NonStrictMarking* marking, NonStrictMarking* parent
 	marking->setParent(parent);
 	unsigned int size = marking->size();
 
-	pwList->SetMaxNumTokensIfGreater(size);
+	pwList->setMaxNumTokensIfGreater(size);
 
 	if(size > options.GetKBound()) {
 		delete marking;
@@ -119,7 +119,7 @@ bool LivenessSearch::addToPW(NonStrictMarking* marking, NonStrictMarking* parent
 	boost::any context;
 	query->Accept(checker, context);
 	if(!boost::any_cast<bool>(context))	return false;
-	if(!pwList->Add(marking)){
+	if(!pwList->add(marking)){
 		//Test if collision is in trace
             if(marking->meta->inTrace){
                     //Make sure we can print trace
@@ -139,8 +139,8 @@ bool LivenessSearch::addToPW(NonStrictMarking* marking, NonStrictMarking* parent
 
 void LivenessSearch::printStats(){
 	std::cout << "  discovered markings:\t" << pwList->discoveredMarkings << std::endl;
-	std::cout << "  explored markings:\t" << pwList->Size()-pwList->Explored() << std::endl;
-	std::cout << "  stored markings:\t" << pwList->Size() << std::endl;
+	std::cout << "  explored markings:\t" << pwList->size()-pwList->explored() << std::endl;
+	std::cout << "  stored markings:\t" << pwList->size() << std::endl;
 }
 
 void LivenessSearch::GetTrace(){

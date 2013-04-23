@@ -26,8 +26,8 @@ bool ReachabilitySearch::Verify(){
 	}
 
 	//Main loop
-	while(pwList->HasWaitingStates()){
-		NonStrictMarking& next_marking = *pwList->GetNextUnexplored();
+	while(pwList->hasWaitingStates()){
+		NonStrictMarking& next_marking = *pwList->getNextUnexplored();
                 tmpParent = &next_marking;
 		trace.push(&next_marking);
 		validChildren = 0;
@@ -78,14 +78,14 @@ bool ReachabilitySearch::addToPW(NonStrictMarking* marking, NonStrictMarking* pa
 
 	unsigned int size = marking->size();
 
-	pwList->SetMaxNumTokensIfGreater(size);
+	pwList->setMaxNumTokensIfGreater(size);
 
 	if(size > options.GetKBound()) {
 		delete marking;
 		return false;
 	}
 
-	if(pwList->Add(marking)){
+	if(pwList->add(marking)){
 		QueryVisitor<NonStrictMarking> checker(*marking);
 		boost::any context;
 		query->Accept(checker, context);
@@ -105,8 +105,8 @@ bool ReachabilitySearch::addToPW(NonStrictMarking* marking, NonStrictMarking* pa
 
 void ReachabilitySearch::printStats(){
 	std::cout << "  discovered markings:\t" << pwList->discoveredMarkings << std::endl;
-	std::cout << "  explored markings:\t" << pwList->Size()-pwList->Explored() << std::endl;
-	std::cout << "  stored markings:\t" << pwList->Size() << std::endl;
+	std::cout << "  explored markings:\t" << pwList->size()-pwList->explored() << std::endl;
+	std::cout << "  stored markings:\t" << pwList->size() << std::endl;
 }
 
 void ReachabilitySearch::GetTrace(){
@@ -126,7 +126,7 @@ void ReachabilitySearchPTrie::GetTrace(){
         NonStrictMarking* last = lastMarking;
         printStack.push(lastMarking);
         while(next != NULL){
-            NonStrictMarking* m = pwhlist->Decode(next->ep);
+            NonStrictMarking* m = pwhlist->decode(next->ep);
             m->setGeneratedBy(next->generatedBy);
             last->setParent(m);
             last = m;

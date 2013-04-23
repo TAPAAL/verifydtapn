@@ -10,7 +10,7 @@
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
-bool PWList::Add(NonStrictMarking* marking){
+bool PWList::add(NonStrictMarking* marking){
 	discoveredMarkings++;
 	NonStrictMarkingList& m = markings_storage[marking->getHashKey()];
 	for(NonStrictMarkingList::const_iterator iter = m.begin();
@@ -35,12 +35,12 @@ bool PWList::Add(NonStrictMarking* marking){
 	return true;
 }
 
-NonStrictMarking* PWList::GetNextUnexplored(){
+NonStrictMarking* PWList::getNextUnexplored(){
 	return waiting_list->Pop();
 }
 
 PWList::~PWList() {
-	// TODO Auto-generated destructor stub
+    // We don't care, it is deallocated on program execution done
 }
 
 std::ostream& operator<<(std::ostream& out, PWList& x){
@@ -54,7 +54,7 @@ std::ostream& operator<<(std::ostream& out, PWList& x){
 	return out;
 }
 
-        bool PWListHybrid::Add(NonStrictMarking* marking) {
+        bool PWListHybrid::add(NonStrictMarking* marking) {
 
             discoveredMarkings++;
             // reset the encoding array
@@ -94,8 +94,7 @@ std::ostream& operator<<(std::ostream& out, PWList& x){
             return res.isNew;
         }
 
-        NonStrictMarking* PWListHybrid::GetNextUnexplored() {
-            // TODO: Is this really it?
+        NonStrictMarking* PWListHybrid::getNextUnexplored() {
             EncodingPointer<MetaData>* p = waiting_list->Pop();
             NonStrictMarkingBase* base = passed->enumerateDecode(*p);
             NonStrictMarking* m = new NonStrictMarking(*base);
@@ -116,7 +115,7 @@ std::ostream& operator<<(std::ostream& out, PWList& x){
         }
 
         PWListHybrid::~PWListHybrid() {
-            // TODO Auto-generated destructor stub
+        // We don't care, it is deallocated on program execution done
         }
 
 } /* namespace DiscreteVerification */

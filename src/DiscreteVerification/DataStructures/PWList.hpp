@@ -27,12 +27,12 @@ namespace DiscreteVerification {
 	int maxNumTokensInAnyMarking;
         bool isLiveness;
         
-        virtual bool HasWaitingStates() = 0;
-        virtual long long Size() const = 0;
-        virtual bool Add(NonStrictMarking* marking) = 0;
-	virtual NonStrictMarking* GetNextUnexplored() = 0;
-        virtual long long Explored()= 0;
-	inline void SetMaxNumTokensIfGreater(int i){ if(i>maxNumTokensInAnyMarking) maxNumTokensInAnyMarking = i; };
+        virtual bool hasWaitingStates() = 0;
+        virtual long long size() const = 0;
+        virtual bool add(NonStrictMarking* marking) = 0;
+	virtual NonStrictMarking* getNextUnexplored() = 0;
+        virtual long long explored()= 0;
+	inline void setMaxNumTokensIfGreater(int i){ if(i>maxNumTokensInAnyMarking) maxNumTokensInAnyMarking = i; };
     };
     
 class PWList : public PWListBase {
@@ -46,19 +46,19 @@ public:
 	friend std::ostream& operator<<(std::ostream& out, PWList& x);
 
 public: // inspectors
-	virtual bool HasWaitingStates() {
+	virtual bool hasWaitingStates() {
 		return (waiting_list->Size() > 0);
 	};
 
-	virtual long long Size() const {
+	virtual long long size() const {
 		return stored;
 	};
 
-        virtual long long Explored() {return waiting_list->Size();};
+        virtual long long explored() {return waiting_list->Size();};
         
 public: // modifiers
-	virtual bool Add(NonStrictMarking* marking);
-	virtual NonStrictMarking* GetNextUnexplored();
+	virtual bool add(NonStrictMarking* marking);
+	virtual NonStrictMarking* getNextUnexplored();
 
 public:
 	HashMap markings_storage;
@@ -68,7 +68,6 @@ public:
 class PWListHybrid : public PWListBase {
         public:
             typedef unsigned int uint;
-            //            typedef google::sparse_hash_map<size_t, EncodingList> HashMap;
             PData<MetaData>* passed;
 
         public:
@@ -85,33 +84,32 @@ class PWListHybrid : public PWListBase {
             friend std::ostream& operator<<(std::ostream& out, PWListHybrid& x);
 
         public: // inspectors
-            NonStrictMarking* Decode(EncodingPointer<MetaData>* ep){
+            NonStrictMarking* decode(EncodingPointer<MetaData>* ep){
                 NonStrictMarkingBase* base = this->passed->enumerateDecode(*ep);
                 NonStrictMarking* m = new NonStrictMarking(*base);
                 delete base;
                 return m;
             };
-            virtual bool HasWaitingStates() {
+            virtual bool hasWaitingStates() {
                 return (waiting_list->Size() > 0);
             };
 
-            virtual long long Size() const {
+            virtual long long size() const {
                 return passed->stored;
             };
-            virtual long long Explored() {return waiting_list->Size();};
-            void PrintMemStats() {
+            virtual long long explored() {return waiting_list->Size();};
+            void printMemStats() {
                 passed->printMemStats();
             }
 
         public: // modifiers
-            virtual bool Add(NonStrictMarking* marking);
-            virtual NonStrictMarking* GetNextUnexplored();
+            virtual bool add(NonStrictMarking* marking);
+            virtual NonStrictMarking* getNextUnexplored();
 
         public:
 
              WaitingList<EncodingPointer<MetaData> >* waiting_list;
              bool makeTrace;
-            //ugly tracefix
              MetaDataWithTraceAndEncoding* parent;
 };
 
