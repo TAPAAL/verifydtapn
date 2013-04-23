@@ -20,7 +20,7 @@ typedef boost::numeric::interval_lib::checking_no_nan< int > checking_policy;
 typedef boost::numeric::interval_lib::policies< rounding_policy, checking_policy > interval_policies;
 typedef boost::numeric::interval< int, interval_policies > interval;
 
-void set_add(std::vector< interval >& first, const interval& element);
+void setAdd(std::vector< interval >& first, const interval& element);
 std::vector<interval > setIntersection(const std::vector<interval >& first,
 		const std::vector<interval >& second);
 

@@ -58,7 +58,7 @@ namespace VerifyTAPN {
 
                         Util::interval element(low < 0 ? 0 : low,
                                 arc->lock()->Interval().GetUpperBound() == INT_MAX ? INT_MAX : heigh);
-                        Util::set_add(intervals, element);
+                        Util::setAdd(intervals, element);
                     }
                     numberOfTokensAvailable -= tokens.at(i).getCount();
                 }
@@ -100,7 +100,7 @@ namespace VerifyTAPN {
                     if (numberOfTokensAvailable >= weight && tokens.at(j).getAge() - tokens.at(i).getAge() <= range) { //This span is interesting
                         Util::interval element(arcInterval.lower() - tokens.at(i).getAge(),
                                 arcInterval.upper() - tokens.at(j).getAge());
-                        Util::set_add(intervals, element);
+                        Util::setAdd(intervals, element);
                     }
                     numberOfTokensAvailable -= tokens.at(i).getCount();
                 }
