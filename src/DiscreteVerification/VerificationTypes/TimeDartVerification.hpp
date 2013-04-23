@@ -35,11 +35,11 @@ namespace VerifyTAPN {
             int calculateStop(const TAPN::TimedTransition& transition, NonStrictMarkingBase* marking);
             int maxPossibleDelay(NonStrictMarkingBase* marking);
 
-            void PrintTransitionStatistics() const {
+            void printTransitionStatistics() const {
                 successorGenerator.PrintTransitionStatistics(std::cout);
             }
             
-            void GetTrace();
+            void getTrace();
 
             virtual inline NonStrictMarkingBase* getBase(TimeDartBase* dart){
                 return dart->getBase();

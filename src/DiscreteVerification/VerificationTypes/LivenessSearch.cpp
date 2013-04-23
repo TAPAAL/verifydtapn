@@ -143,14 +143,14 @@ void LivenessSearch::printStats(){
 	std::cout << "  stored markings:\t" << pwList->size() << std::endl;
 }
 
-void LivenessSearch::GetTrace(){
+void LivenessSearch::getTrace(){
 	stack < NonStrictMarking*> printStack;
 	NonStrictMarking* m = trace.top();
-	GenerateTraceStack(m, &printStack, &trace);
+	generateTraceStack(m, &printStack, &trace);
 	if(options.XmlTrace()){
-		PrintXMLTrace(m, printStack, query->GetQuantifier());
+		printXMLTrace(m, printStack, query->GetQuantifier());
 	} else {
-		PrintHumanTrace(m, printStack, query->GetQuantifier());
+		printHumanTrace(m, printStack, query->GetQuantifier());
 	}
 }
 

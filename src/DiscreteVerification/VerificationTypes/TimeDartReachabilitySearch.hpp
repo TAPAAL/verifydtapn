@@ -39,7 +39,7 @@ public:
         virtual ~TimeDartReachabilitySearch();
 	bool Verify();
 
-	inline unsigned int MaxUsedTokens(){ return pwList->maxNumTokensInAnyMarking; };
+	inline unsigned int maxUsedTokens(){ return pwList->maxNumTokensInAnyMarking; };
         virtual inline bool addToPW(NonStrictMarkingBase* m){
             return addToPW(m,tmpdart, tmpupper);
         };

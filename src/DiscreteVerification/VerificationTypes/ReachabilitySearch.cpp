@@ -109,17 +109,17 @@ void ReachabilitySearch::printStats(){
 	std::cout << "  stored markings:\t" << pwList->size() << std::endl;
 }
 
-void ReachabilitySearch::GetTrace(){
+void ReachabilitySearch::getTrace(){
 	stack < NonStrictMarking*> printStack;
-	GenerateTraceStack(lastMarking, &printStack);
+	generateTraceStack(lastMarking, &printStack);
 	if(options.XmlTrace()){
-		PrintXMLTrace(lastMarking, printStack, query->GetQuantifier());
+		printXMLTrace(lastMarking, printStack, query->GetQuantifier());
 	} else {
-		PrintHumanTrace(lastMarking, printStack, query->GetQuantifier());
+		printHumanTrace(lastMarking, printStack, query->GetQuantifier());
 	}
 }
 
-void ReachabilitySearchPTrie::GetTrace(){
+void ReachabilitySearchPTrie::getTrace(){
 	stack < NonStrictMarking*> printStack;
         PWListHybrid* pwhlist = (PWListHybrid*)(this->pwList);
         MetaDataWithTraceAndEncoding* next = pwhlist->parent;
@@ -133,7 +133,7 @@ void ReachabilitySearchPTrie::GetTrace(){
             printStack.push(m);
             next = next->parent;
         };
-        PrintXMLTrace(lastMarking, printStack, query->GetQuantifier());
+        printXMLTrace(lastMarking, printStack, query->GetQuantifier());
 }
 
 ReachabilitySearch::~ReachabilitySearch() {

@@ -40,7 +40,7 @@ namespace VerifyTAPN {
             virtual ~TimeDartLiveness();
             bool Verify();
 
-            inline unsigned int MaxUsedTokens() {
+            inline unsigned int maxUsedTokens() {
                 return pwList->maxNumTokensInAnyMarking;
             };
             virtual inline bool addToPW(NonStrictMarkingBase* m){

@@ -120,18 +120,18 @@ namespace VerifyTAPN {
             bool result = (query->GetQuantifier() == AG || query->GetQuantifier() == AF) ? !verifier->Verify() : verifier->Verify();
 
             verifier->printStats();
-            verifier->PrintTransitionStatistics();
+            verifier->printTransitionStatistics();
 
             std::cout << "Query is " << (result ? "satisfied" : "NOT satisfied") << "." << std::endl;
             std::cout << "Max number of tokens found in any reachable marking: ";
-            if (verifier->MaxUsedTokens() > options.GetKBound())
+            if (verifier->maxUsedTokens() > options.GetKBound())
                 std::cout << ">" << options.GetKBound() << std::endl;
             else
-                std::cout << verifier->MaxUsedTokens() << std::endl;
+                std::cout << verifier->maxUsedTokens() << std::endl;
 
             if (options.GetTrace() == SOME) {
                 if ((query->GetQuantifier() == EF && result) || (query->GetQuantifier() == AG && !result) || (query->GetQuantifier() == EG && result) || (query->GetQuantifier() == AF && !result)) {
-                    verifier->GetTrace();
+                    verifier->getTrace();
                 } else {
                     std::cout << "A trace could not be generated due to the query result" << std::endl;
                 }

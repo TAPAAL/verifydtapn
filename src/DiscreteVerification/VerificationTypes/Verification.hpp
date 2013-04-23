@@ -17,25 +17,25 @@ namespace VerifyTAPN {
             virtual ~Verification() {
             };
             virtual void printStats() = 0;
-            virtual void PrintTransitionStatistics() const = 0;
-            virtual unsigned int MaxUsedTokens() = 0;
+            virtual void printTransitionStatistics() const = 0;
+            virtual unsigned int maxUsedTokens() = 0;
             virtual bool addToPW(T* marking) = 0;
 
-            virtual void GetTrace() {
+            virtual void getTrace() {
                 std::cout << "Error generating trace" << std::endl;
             }
 
-            void PrintHumanTrace(T* m, std::stack<T*>& stack, AST::Quantifier query);
-            void PrintXMLTrace(T* m, std::stack<T*>& stack, AST::Quantifier query);
-            rapidxml::xml_node<>* CreateTransitionNode(T* old, T* current, rapidxml::xml_document<>& doc);
+            void printHumanTrace(T* m, std::stack<T*>& stack, AST::Quantifier query);
+            void printXMLTrace(T* m, std::stack<T*>& stack, AST::Quantifier query);
+            rapidxml::xml_node<>* createTransitionNode(T* old, T* current, rapidxml::xml_document<>& doc);
             void createTransitionSubNodes(T* old, T* current, rapidxml::xml_document<>& doc, rapidxml::xml_node<>* transitionNode, const TAPN::TimedPlace& place, const TAPN::TimeInterval& interval, const int weight);
             rapidxml::xml_node<>* createTokenNode(rapidxml::xml_document<>& doc, const TAPN::TimedPlace& place, const Token& token);
-            void GenerateTraceStack(T* m, std::stack<T*>* result, std::stack<T*>* liveness = NULL);
+            void generateTraceStack(T* m, std::stack<T*>* result, std::stack<T*>* liveness = NULL);
             stack< T* > trace;
         };
 
         template<typename T>
-        void Verification<T>::PrintHumanTrace(T* m, std::stack<T*>& stack, AST::Quantifier query) {
+        void Verification<T>::printHumanTrace(T* m, std::stack<T*>& stack, AST::Quantifier query) {
             std::cout << "Trace: " << std::endl;
             bool isFirst = true;
             bool foundLoop = false;
@@ -112,7 +112,7 @@ namespace VerifyTAPN {
         }
 
         template<typename T>
-        void Verification<T>::PrintXMLTrace(T* m, std::stack<T*>& stack, AST::Quantifier query) {
+        void Verification<T>::printXMLTrace(T* m, std::stack<T*>& stack, AST::Quantifier query) {
             using namespace rapidxml;
             std::cerr << "Trace: " << std::endl;
             bool isFirst = true;
@@ -129,7 +129,7 @@ namespace VerifyTAPN {
                     isFirst = false;
                 } else {
                     if (stack.top()->getGeneratedBy()) {
-                        root->append_node(CreateTransitionNode(old, stack.top(), doc));
+                        root->append_node(createTransitionNode(old, stack.top(), doc));
                     } else {
                         int i = 1;
                         old = stack.top();
@@ -217,7 +217,7 @@ namespace VerifyTAPN {
         }
         
         template<typename T>
-        rapidxml::xml_node<>* Verification<T>::CreateTransitionNode(T* old, T* current, rapidxml::xml_document<>& doc) {
+        rapidxml::xml_node<>* Verification<T>::createTransitionNode(T* old, T* current, rapidxml::xml_document<>& doc) {
             using namespace rapidxml;
             xml_node<>* transitionNode = doc.allocate_node(node_element, "transition");
             xml_attribute<>* id = doc.allocate_attribute("id", current->getGeneratedBy()->GetId().c_str());
@@ -297,7 +297,7 @@ namespace VerifyTAPN {
         }
 
         template<typename T>
-        void Verification<T>::GenerateTraceStack(T* m, std::stack<T*>* result, std::stack<T*>* liveness) {
+        void Verification<T>::generateTraceStack(T* m, std::stack<T*>* result, std::stack<T*>* liveness) {
             if (liveness == NULL) {
                 T* next = m;
                 do {

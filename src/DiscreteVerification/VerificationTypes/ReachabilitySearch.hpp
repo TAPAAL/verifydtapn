@@ -37,8 +37,8 @@ public:
 	virtual ~ReachabilitySearch();
 	bool Verify();
 	NonStrictMarking* GetLastMarking() { return lastMarking; }
-	inline unsigned int MaxUsedTokens(){ return pwList->maxNumTokensInAnyMarking; };
-	void PrintTransitionStatistics() const { successorGenerator.PrintTransitionStatistics(std::cout); }
+	inline unsigned int maxUsedTokens(){ return pwList->maxNumTokensInAnyMarking; };
+	void printTransitionStatistics() const { successorGenerator.PrintTransitionStatistics(std::cout); }
         virtual void deleteMarking(NonStrictMarking* m) {
             //dummy;
         };
@@ -59,7 +59,7 @@ protected:
 	SuccessorGenerator<NonStrictMarking> successorGenerator;
 public:
 	void printStats();
-	virtual void GetTrace();
+	virtual void getTrace();
 protected:
 	NonStrictMarking* lastMarking;
     NonStrictMarking* tmpParent;
@@ -77,7 +77,7 @@ public:
         delete m;
     };
     
-   virtual void GetTrace();
+   virtual void getTrace();
 
 };
 

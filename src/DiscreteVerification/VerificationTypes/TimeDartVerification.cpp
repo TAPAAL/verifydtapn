@@ -157,7 +157,7 @@ namespace VerifyTAPN {
             return invariantPart;
         }
 
-        void TimeDartVerification::GetTrace() {
+        void TimeDartVerification::getTrace() {
             
             stack<NonStrictMarkingBase*> traceStack;
 
@@ -235,7 +235,7 @@ namespace VerifyTAPN {
                 trace = (TraceDart*) trace->parent;
             }
             
-            PrintXMLTrace(l, traceStack, query->GetQuantifier());
+            printXMLTrace(l, traceStack, query->GetQuantifier());
         }
 
     }
