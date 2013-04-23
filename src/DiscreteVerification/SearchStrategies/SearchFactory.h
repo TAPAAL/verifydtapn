@@ -15,29 +15,29 @@ namespace VerifyTAPN {
 namespace DiscreteVerification {
 
 template <class T>
-WaitingList<T>* GetWaitingList(AST::Query* query, VerificationOptions& options){
+WaitingList<T>* getWaitingList(AST::Query* query, VerificationOptions& options){
 	WaitingList<T>* strategy = NULL;
 	if(query->GetQuantifier() == EG || query->GetQuantifier() == AF){
 		//Liveness query, force DFS
 		switch(options.GetSearchType()){
 		case DEPTHFIRST: {
 			NonStrictDFS<T> s;
-			strategy = s.CreateWaitingList(query);
+			strategy = s.createWaitingList(query);
 			break;
 		}
 		case RANDOM:{
 			NonStrictDFSRandom<T> s;
-			strategy = s.CreateWaitingList(query);
+			strategy = s.createWaitingList(query);
 			break;
 		}
 		case COVERMOST: {
 			NonStrictDFSHeuristic<T> s;
-			strategy = s.CreateWaitingList(query);
+			strategy = s.createWaitingList(query);
 			break;
 		}
 		default: {
 			NonStrictDFSHeuristic<T> s;
-			strategy = s.CreateWaitingList(query);
+			strategy = s.createWaitingList(query);
 			break;
 		}
 		}
@@ -45,22 +45,22 @@ WaitingList<T>* GetWaitingList(AST::Query* query, VerificationOptions& options){
 		switch(options.GetSearchType()){
 		case DEPTHFIRST: {
 			NonStrictDFS<T> s;
-			strategy = s.CreateWaitingList(query);
+			strategy = s.createWaitingList(query);
 			break;
 		}
 		case COVERMOST: {
 			NonStrictHeuristic<T> s;
-			strategy = s.CreateWaitingList(query);
+			strategy = s.createWaitingList(query);
 			break;
 		}
 		case BREADTHFIRST: {
 			NonStrictBFS<T> s;
-			strategy = s.CreateWaitingList(query);
+			strategy = s.createWaitingList(query);
 			break;
 		}
 		case RANDOM: {
 			NonStrictDFSRandom<T> s;
-			strategy = s.CreateWaitingList(query);
+			strategy = s.createWaitingList(query);
 			break;
 		}
 		}

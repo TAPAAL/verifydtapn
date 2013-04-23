@@ -51,7 +51,7 @@ namespace VerifyTAPN {
                 
                 if (options.GetMemoryOptimization() == PTRIE) {
                     //TODO fix initialization
-                    WaitingList<EncodingPointer<MetaData> >* strategy = GetWaitingList<EncodingPointer<MetaData> > (query, options);
+                    WaitingList<EncodingPointer<MetaData> >* strategy = getWaitingList<EncodingPointer<MetaData> > (query, options);
                     if (query->GetQuantifier() == EG || query->GetQuantifier() == AF) {
                         VerifyAndPrint(
                                 new LivenessSearchPTrie(tapn, *initialMarking, query, options, strategy),
@@ -64,7 +64,7 @@ namespace VerifyTAPN {
                                 query);
                     }
                 } else {
-                    WaitingList<NonStrictMarking>* strategy = GetWaitingList<NonStrictMarking > (query, options);
+                    WaitingList<NonStrictMarking>* strategy = getWaitingList<NonStrictMarking > (query, options);
                     if (query->GetQuantifier() == EG || query->GetQuantifier() == AF) {
                         VerifyAndPrint(
                                 new LivenessSearch(tapn, *initialMarking, query, options, strategy),
@@ -80,13 +80,13 @@ namespace VerifyTAPN {
             } else if (options.GetVerificationType() == TIMEDART) {
                 if (query->GetQuantifier() == EG || query->GetQuantifier() == AF) {
                     if (options.GetMemoryOptimization() == PTRIE) {
-                        WaitingList<EncodingPointer<WaitingDart> >* strategy = GetWaitingList<EncodingPointer<WaitingDart> > (query, options);
+                        WaitingList<EncodingPointer<WaitingDart> >* strategy = getWaitingList<EncodingPointer<WaitingDart> > (query, options);
                         VerifyAndPrint(
                                 new TimeDartLivenessPData(tapn, *initialMarking, query, options, strategy),
                                 options,
                                 query);
                     } else {
-                        WaitingList<WaitingDart>* strategy = GetWaitingList<WaitingDart > (query, options);
+                        WaitingList<WaitingDart>* strategy = getWaitingList<WaitingDart > (query, options);
                         VerifyAndPrint(
                                 new TimeDartLiveness(tapn, *initialMarking, query, options, strategy),
                                 options,
@@ -95,13 +95,13 @@ namespace VerifyTAPN {
                 } else if (query->GetQuantifier() == EF || query->GetQuantifier() == AG) {
 
                     if (options.GetMemoryOptimization() == PTRIE) {
-                        WaitingList<TimeDartEncodingPointer>* strategy = GetWaitingList<TimeDartEncodingPointer > (query, options);
+                        WaitingList<TimeDartEncodingPointer>* strategy = getWaitingList<TimeDartEncodingPointer > (query, options);
                         VerifyAndPrint(
                                 new TimeDartReachabilitySearchPData(tapn, *initialMarking, query, options, strategy),
                                 options,
                                 query);
                     } else {
-                        WaitingList<TimeDartBase>* strategy = GetWaitingList<TimeDartBase > (query, options);
+                        WaitingList<TimeDartBase>* strategy = getWaitingList<TimeDartBase > (query, options);
                         VerifyAndPrint(
                                 new TimeDartReachabilitySearch(tapn, *initialMarking, query, options, strategy),
                                 options,
