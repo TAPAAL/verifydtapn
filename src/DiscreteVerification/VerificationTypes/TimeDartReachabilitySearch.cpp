@@ -26,6 +26,10 @@ bool TimeDartReachabilitySearch::Verify(){
 		int passed = dart.getPassed();
 		dart.setPassed(dart.getWaiting());
 		tapn->GetTransitions();
+                this->tmpdart = NULL;
+                if(options.GetTrace() == SOME){
+                    this->tmpdart = ((ReachabilityTraceableDart*)&dart)->trace;
+                }
 		for(TimedTransition::Vector::const_iterator transition_iter = tapn->GetTransitions().begin();
 				transition_iter != tapn->GetTransitions().end(); transition_iter++){
 			TimedTransition& transition = **transition_iter;
@@ -40,34 +44,20 @@ bool TimeDartReachabilitySearch::Verify(){
 				if(transition.hasUntimedPostset()){
 					NonStrictMarkingBase Mpp(*dart.getBase());
 					Mpp.incrementAge(start);
-					vector<NonStrictMarkingBase*> next = getPossibleNextMarkings(Mpp, transition);
-					for(vector<NonStrictMarkingBase*>::iterator it = next.begin(); it != next.end(); it++){
-                                                TraceDart* traceD = NULL;
-                                                if(options.GetTrace() == SOME){
-                                                    traceD = ((ReachabilityTraceableDart*)&dart)->trace;
-                                                    (*it)->SetGeneratedBy(&transition);
-                                                }
-						if(addToPW(*it, traceD, start)){
-							return true;
-						}
-					}
+
+                                        this->tmpupper = start;
+                                        if(successorGenerator.generateAndInsertSuccessors(Mpp, transition)){
+                                            return true;
+                                        }
 				}else{
 					int stop = min(max(start, calculateStop(transition, dart.getBase())), end);
 					for(int n = start; n <= stop; n++){
 						NonStrictMarkingBase Mpp(*dart.getBase());
 						Mpp.incrementAge(n);
-
-						vector<NonStrictMarkingBase*> next = getPossibleNextMarkings(Mpp, transition);
-						for(vector<NonStrictMarkingBase*>::iterator it = next.begin(); it != next.end(); it++){
-                                                    TraceDart* traceD = NULL;
-                                                    if(options.GetTrace() == SOME){
-                                                        traceD = ((ReachabilityTraceableDart*)&dart)->trace;
-                                                        (*it)->SetGeneratedBy(&transition);
-                                                    }
-                                                        if(addToPW(*it, traceD, n)){
-								return true;
-							}
-						}
+                                                this->tmpupper = n;
+                                                if(successorGenerator.generateAndInsertSuccessors(Mpp, transition)){
+                                                    return true;
+                                                }
 					}
 				}
 			}

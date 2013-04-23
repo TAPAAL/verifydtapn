@@ -14,7 +14,7 @@ TimeDartSuccessorGenerator::~TimeDartSuccessorGenerator(){
 
 }
 
-TimeDartSuccessorGenerator::TimeDartSuccessorGenerator(TAPN::TimedArcPetriNet& tapn)  : tapn(tapn), allwaysEnabled(), numberoftransitions(tapn.GetTransitions().size()), transitionStatistics(){
+TimeDartSuccessorGenerator::TimeDartSuccessorGenerator(TAPN::TimedArcPetriNet& tapn, Verification<NonStrictMarkingBase>& verifier)  : tapn(tapn), allwaysEnabled(), numberoftransitions(tapn.GetTransitions().size()), transitionStatistics(), verifier(verifier){
 	//Find the transitions which don't have input arcs
 	transitionStatistics = new unsigned int [numberoftransitions];
 	ClearTransitionsArray();
@@ -25,8 +25,8 @@ TimeDartSuccessorGenerator::TimeDartSuccessorGenerator(TAPN::TimedArcPetriNet& t
 	}
 }
 
-vector< NonStrictMarkingBase* > TimeDartSuccessorGenerator::generateSuccessors(const NonStrictMarkingBase& marking, const TimedTransition& transition) const{
-	vector< NonStrictMarkingBase* > result;
+bool TimeDartSuccessorGenerator::generateAndInsertSuccessors(const NonStrictMarkingBase& marking, const TimedTransition& transition) const{
+
 	ArcHashMap enabledArcs(transition.GetPresetSize() + transition.GetTransportArcs().size());
 
 	// Calculate enabling tokens
@@ -40,8 +40,8 @@ vector< NonStrictMarkingBase* > TimeDartSuccessorGenerator::generateSuccessors(c
 			processArc(enabledArcs,	marking.GetTokenList( arc_iter->lock()->Source().GetIndex() ), arc_iter->lock()->Interval(), arc_iter->lock().get(), transition, arc_iter->lock()->Destination().GetInvariant().GetBound());
 	}
 
-	generateMarkings(result, marking, transition, enabledArcs);
-	return result;
+	return generateMarkings(marking, transition, enabledArcs);
+
 }
 
 void TimeDartSuccessorGenerator::processArc(
@@ -59,7 +59,7 @@ void TimeDartSuccessorGenerator::processArc(
 	}
 }
 
-void TimeDartSuccessorGenerator::generateMarkings(vector<NonStrictMarkingBase*>& result, const NonStrictMarkingBase& init_marking,
+bool TimeDartSuccessorGenerator::generateMarkings( const NonStrictMarkingBase& init_marking,
 		const TimedTransition& transition, ArcHashMap& enabledArcs) const {
 
 		bool inhibited = false;
@@ -72,16 +72,16 @@ void TimeDartSuccessorGenerator::generateMarkings(vector<NonStrictMarkingBase*>&
 				break;
 			}
 		}
-		if (inhibited) return;
+		if (inhibited) return false;
 
 		NonStrictMarkingBase m(init_marking);
 		m.SetGeneratedBy(&transition);
 		//Generate markings for transition
-		recursiveGenerateMarking(result, m, transition, 0, enabledArcs);
+		return generatePermutations( m, transition, 0, enabledArcs);
 }
 
 
-void TimeDartSuccessorGenerator::recursiveGenerateMarking(vector<NonStrictMarkingBase*>& result, NonStrictMarkingBase& init_marking, const TimedTransition& transition, unsigned int index, ArcHashMap& enabledArcs) const{
+bool TimeDartSuccessorGenerator::generatePermutations(NonStrictMarkingBase& init_marking, const TimedTransition& transition, unsigned int index, ArcHashMap& enabledArcs) const{
 
 	// Initialize vectors
 	ArcAndTokensVector indicesOfCurrentPermutation;
@@ -90,7 +90,7 @@ void TimeDartSuccessorGenerator::recursiveGenerateMarking(vector<NonStrictMarkin
 		if(arcAndTokens->isOK){
 			indicesOfCurrentPermutation.push_back(arcAndTokens);
 		}else{
-			return;
+			return false;
 		}
 	}
 	// Transport arcs
@@ -99,7 +99,7 @@ void TimeDartSuccessorGenerator::recursiveGenerateMarking(vector<NonStrictMarkin
 		if(arcAndTokens->isOK){
 			indicesOfCurrentPermutation.push_back(arcAndTokens);
 		}else{
-			return;
+			return false;
 		}
 	}
 
@@ -110,7 +110,9 @@ void TimeDartSuccessorGenerator::recursiveGenerateMarking(vector<NonStrictMarkin
 	bool changedSomething = true;
 	while(changedSomething){
 		changedSomething = false;
-		addMarking(result, init_marking, transition, indicesOfCurrentPermutation);
+		if(insertMarking(init_marking, transition, indicesOfCurrentPermutation)){
+                    return true;
+                }
 
 		//Loop through arc indexes from the back
 		for(int arcAndTokenIndex = indicesOfCurrentPermutation.size()-1; arcAndTokenIndex >= 0; arcAndTokenIndex--){
@@ -122,7 +124,8 @@ void TimeDartSuccessorGenerator::recursiveGenerateMarking(vector<NonStrictMarkin
 			}
 		}
 	}
-}
+        return false;
+}       
 
 bool TimeDartSuccessorGenerator::incrementModificationVector(vector<unsigned int >& modificationVector, TokenList& enabledTokens) const{
 	unsigned int numOfTokenIndices = enabledTokens.size();
@@ -188,7 +191,7 @@ bool TimeDartSuccessorGenerator::incrementModificationVector(vector<unsigned int
 	return false;
 }
 
-void TimeDartSuccessorGenerator::addMarking(vector<NonStrictMarkingBase* >& result, NonStrictMarkingBase& init_marking, const TimedTransition& transition, ArcAndTokensVector& indicesOfCurrentPermutation) const{
+bool TimeDartSuccessorGenerator::insertMarking(NonStrictMarkingBase& init_marking, const TimedTransition& transition, ArcAndTokensVector& indicesOfCurrentPermutation) const{
 	NonStrictMarkingBase* m = new NonStrictMarkingBase(init_marking);
 	for(ArcAndTokensVector::iterator iter = indicesOfCurrentPermutation.begin(); iter != indicesOfCurrentPermutation.end(); iter++){
 		vector<unsigned int>& tokens = iter->modificationVector;
@@ -203,8 +206,8 @@ void TimeDartSuccessorGenerator::addMarking(vector<NonStrictMarkingBase* >& resu
 		Token t(0, postsetIter->lock()->GetWeight());
 		m->AddTokenInPlace(postsetIter->lock()->OutputPlace(), t);
 	}
-
-	result.push_back(m);
+        return this->verifier.addToPW(m);
+	
 }
 
 void TimeDartSuccessorGenerator::PrintTransitionStatistics(std::ostream& out) const {

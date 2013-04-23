@@ -28,16 +28,17 @@ class TimeDartSuccessorGenerator {
 	typedef boost::ptr_vector< ArcAndTokens<NonStrictMarkingBase> > ArcAndTokensVector;
 
 public:
-	TimeDartSuccessorGenerator(TAPN::TimedArcPetriNet& tapn);
+	TimeDartSuccessorGenerator(TAPN::TimedArcPetriNet& tapn, Verification<NonStrictMarkingBase>& verifier);
 	~TimeDartSuccessorGenerator();
-	vector< NonStrictMarkingBase* > generateSuccessors(const NonStrictMarkingBase& marking, const TimedTransition& transition) const;
+	bool generateAndInsertSuccessors(const NonStrictMarkingBase& marking, const TimedTransition& transition) const;
 	void PrintTransitionStatistics(std::ostream & out) const;
+        
 private:
 
-	void generateMarkings(vector<NonStrictMarkingBase* >& result, const NonStrictMarkingBase& init_marking, const TimedTransition& transition, ArcHashMap& enabledArcs) const;
-	void recursiveGenerateMarking(vector<NonStrictMarkingBase* >& result, NonStrictMarkingBase& init_marking, const TimedTransition& transition, unsigned int index, ArcHashMap& enabledArcs) const;
+	bool generateMarkings(const NonStrictMarkingBase& init_marking, const TimedTransition& transition, ArcHashMap& enabledArcs) const;
+	bool generatePermutations(NonStrictMarkingBase& init_marking, const TimedTransition& transition, unsigned int index, ArcHashMap& enabledArcs) const;
 
-	void addMarking(vector<NonStrictMarkingBase* >& result, NonStrictMarkingBase& init_marking, const TimedTransition& transition, ArcAndTokensVector& indicesOfCurrentPermutation) const;
+	bool insertMarking(NonStrictMarkingBase& init_marking, const TimedTransition& transition, ArcAndTokensVector& indicesOfCurrentPermutation) const;
 	bool incrementModificationVector(vector<unsigned int >& modificationVector, TokenList& enabledTokens) const;
 
 	const TAPN::TimedArcPetriNet& tapn;
@@ -56,7 +57,8 @@ private:
     }
 
     unsigned int numberoftransitions;
-	unsigned int* transitionStatistics;
+        unsigned int* transitionStatistics;
+        Verification<NonStrictMarkingBase>& verifier;
 };
 
 } /* namespace DiscreteVerification */

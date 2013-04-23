@@ -14,6 +14,7 @@
 #include <limits>
 #include "boost/tuple/tuple_io.hpp"
 #include "boost/ptr_container/ptr_vector.hpp"
+#include "VerificationTypes/Verification.hpp"
 
 namespace VerifyTAPN {
     namespace DiscreteVerification {
@@ -138,16 +139,18 @@ namespace VerifyTAPN {
             typedef typename boost::ptr_vector< ArcAndTokenWithType > ArcAndTokensVector;
 
         public:
-            SuccessorGenerator(TAPN::TimedArcPetriNet& tapn);
+            SuccessorGenerator(TAPN::TimedArcPetriNet& tapn, Verification<T>& verifier);
             ~SuccessorGenerator();
-            vector< T *> generateSuccessors(const T& marking) const;
+            bool generateAndInsertSuccessors(const T& marking);
             void PrintTransitionStatistics(std::ostream & out) const;
+            inline bool doSuccessorsExist();
+            
         private:
 
-            void generateMarkings(vector<T* >& result, const T& init_marking, const std::vector< const TimedTransition* >& transitions, ArcHashMap& enabledArcs) const;
-            void recursiveGenerateMarking(vector<T* >& result, T& init_marking, const TimedTransition& transition, ArcHashMap& enabledArcs, unsigned int index) const;
+            bool generateMarkings(const T& init_marking, const std::vector< const TimedTransition* >& transitions, ArcHashMap& enabledArcs);
+            bool generatePermutations(T& init_marking, const TimedTransition& transition, ArcHashMap& enabledArcs, unsigned int index);
 
-            void addMarking(vector<T* >& result, T& init_marking, const TimedTransition& transition, ArcAndTokensVector& indicesOfCurrentPermutation) const;
+            bool insertMarking(T& init_marking, const TimedTransition& transition, ArcAndTokensVector& indicesOfCurrentPermutation) const;
             bool incrementModificationVector(vector<unsigned int >& modificationVector, TokenList& enabledTokens) const;
 
             const TAPN::TimedArcPetriNet& tapn;
@@ -170,15 +173,17 @@ namespace VerifyTAPN {
 
             unsigned int numberoftransitions;
             unsigned int* transitionStatistics;
+            Verification<T>& verifier;
+            bool succesorsExist;
         };
 
         template<typename T>
         SuccessorGenerator<T>::~SuccessorGenerator() {
 
         }
-
+        
         template<typename T>
-        SuccessorGenerator<T>::SuccessorGenerator(TAPN::TimedArcPetriNet& tapn) : tapn(tapn), allwaysEnabled(), numberoftransitions(tapn.GetTransitions().size()), transitionStatistics() {
+        SuccessorGenerator<T>::SuccessorGenerator(TAPN::TimedArcPetriNet& tapn, Verification<T>& verifier) : tapn(tapn), allwaysEnabled(), numberoftransitions(tapn.GetTransitions().size()), transitionStatistics(), verifier(verifier), succesorsExist(true) {
             //Find the transitions which don't have input arcs
             transitionStatistics = new unsigned int [numberoftransitions];
             ClearTransitionsArray();
@@ -190,8 +195,14 @@ namespace VerifyTAPN {
         }
 
         template<typename T>
-        vector< T* > SuccessorGenerator<T>::generateSuccessors(const T& marking) const {
-            vector< T* > result;
+        bool SuccessorGenerator<T>::doSuccessorsExist(){
+            return this->succesorsExist;
+        }
+        
+        template<typename T>
+        bool SuccessorGenerator<T>::generateAndInsertSuccessors(const T& marking) {
+            succesorsExist = false;
+            
             ArcHashMap enabledArcs(tapn.GetInhibitorArcs().size() + tapn.GetInputArcs().size() + tapn.GetTransportArcs().size());
             std::vector<unsigned int> enabledTransitionArcs(tapn.GetTransitions().size(), 0);
             std::vector<const TAPN::TimedTransition* > enabledTransitions;
@@ -219,8 +230,7 @@ namespace VerifyTAPN {
             }
 
             enabledTransitions.insert(enabledTransitions.end(), allwaysEnabled.begin(), allwaysEnabled.end());
-            generateMarkings(result, marking, enabledTransitions, enabledArcs);
-            return result;
+            return generateMarkings(marking, enabledTransitions, enabledArcs);
         }
 
         template<typename T>
@@ -251,8 +261,8 @@ namespace VerifyTAPN {
         }
         
         template<typename T>
-        void SuccessorGenerator<T>::generateMarkings(vector<T*>& result, const T& init_marking,
-                const std::vector< const TimedTransition* >& transitions, ArcHashMap& enabledArcs) const {
+        bool SuccessorGenerator<T>::generateMarkings(const T& init_marking,
+                const std::vector< const TimedTransition* >& transitions, ArcHashMap& enabledArcs) {
 
             //Iterate over transitions
             for (std::vector< const TimedTransition* >::const_iterator iter = transitions.begin(); iter != transitions.end(); iter++) {
@@ -270,12 +280,15 @@ namespace VerifyTAPN {
                 T m(init_marking);
                 m.SetGeneratedBy(*iter);
                 //Generate markings for transition
-                recursiveGenerateMarking(result, m, *(*iter), enabledArcs, 0);
+                if(generatePermutations(m, *(*iter), enabledArcs, 0)){
+                    return true;
+                }
             }
+            return false;
         }
 
         template<typename T>
-        void SuccessorGenerator<T>::recursiveGenerateMarking(vector<T*>& result, T& init_marking, const TimedTransition& transition, ArcHashMap& enabledArcs, unsigned int index) const {
+        bool SuccessorGenerator<T>::generatePermutations(T& init_marking, const TimedTransition& transition, ArcHashMap& enabledArcs, unsigned int index) {
 
             // Initialize vectors
             ArcAndTokensVector indicesOfCurrentPermutation;
@@ -284,7 +297,7 @@ namespace VerifyTAPN {
                 if (arcAndTokens->isOK) {
                     indicesOfCurrentPermutation.push_back(arcAndTokens);
                 } else {
-                    return;
+                    return false;
                 }
             }
             // Transport arcs
@@ -293,7 +306,7 @@ namespace VerifyTAPN {
                 if (arcAndTokens->isOK) {
                     indicesOfCurrentPermutation.push_back(arcAndTokens);
                 } else {
-                    return;
+                    return false;
                 }
             }
 
@@ -302,9 +315,12 @@ namespace VerifyTAPN {
 
             // Generate permutations
             bool changedSomething = true;
+            succesorsExist = true;
             while (changedSomething) {
                 changedSomething = false;
-                addMarking(result, init_marking, transition, indicesOfCurrentPermutation);
+                if(insertMarking(init_marking, transition, indicesOfCurrentPermutation)){
+                    return true;
+                }
 
                 //Loop through arc indexes from the back
                 for (int arcAndTokenIndex = indicesOfCurrentPermutation.size() - 1; arcAndTokenIndex >= 0; arcAndTokenIndex--) {
@@ -316,6 +332,7 @@ namespace VerifyTAPN {
                     }
                 }
             }
+            return false;
         }
 
         template<typename T>
@@ -384,7 +401,7 @@ namespace VerifyTAPN {
         }
 
         template<typename T>
-        void SuccessorGenerator<T>::addMarking(vector<T *>& result, T& init_marking, const TimedTransition& transition, ArcAndTokensVector& indicesOfCurrentPermutation) const {
+        bool SuccessorGenerator<T>::insertMarking(T& init_marking, const TimedTransition& transition, ArcAndTokensVector& indicesOfCurrentPermutation) const {
             T* m = new T(init_marking);
             for (typename ArcAndTokensVector::iterator iter = indicesOfCurrentPermutation.begin(); iter != indicesOfCurrentPermutation.end(); iter++) {
                 vector<unsigned int>& tokens = iter->modificationVector;
@@ -399,8 +416,7 @@ namespace VerifyTAPN {
                 Token t(0, postsetIter->lock()->GetWeight());
                 m->AddTokenInPlace(postsetIter->lock()->OutputPlace(), t);
             }
-
-            result.push_back(m);
+            return verifier.addToPW(m);
         }
 
         template<typename T>

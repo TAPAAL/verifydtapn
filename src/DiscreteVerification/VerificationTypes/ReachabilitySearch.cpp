@@ -11,11 +11,13 @@ namespace VerifyTAPN {
 namespace DiscreteVerification {
 
 ReachabilitySearch::ReachabilitySearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options)
-	: tapn(tapn), initialMarking(initialMarking), query(query), options(options), successorGenerator( *tapn.get() ){
+	: tapn(tapn), initialMarking(initialMarking), query(query), options(options), successorGenerator( *tapn.get(), *this ){
+
 }
     
 ReachabilitySearch::ReachabilitySearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list)
-	: pwList(new PWList(waiting_list, false)), tapn(tapn), initialMarking(initialMarking), query(query), options(options), successorGenerator( *tapn.get() ){
+	: pwList(new PWList(waiting_list, false)), tapn(tapn), initialMarking(initialMarking), query(query), options(options), successorGenerator( *tapn.get(), *this ){
+
 }
 
 bool ReachabilitySearch::Verify(){
@@ -26,27 +28,23 @@ bool ReachabilitySearch::Verify(){
 	//Main loop
 	while(pwList->HasWaitingStates()){
 		NonStrictMarking& next_marking = *pwList->GetNextUnexplored();
-		bool endOfMaxRun;
-		endOfMaxRun = true;
+                tmpParent = &next_marking;
 		trace.push(&next_marking);
 		validChildren = 0;
 
 		// Generate next markings
-		vector<NonStrictMarking*> next = getPossibleNextMarkings(next_marking);
-
 		if(isDelayPossible(next_marking)){
 			NonStrictMarking* marking = new NonStrictMarking(next_marking);
 			marking->incrementAge();
 			marking->SetGeneratedBy(NULL);
-			next.push_back(marking);
+                        if(addToPW(marking, &next_marking)){
+                            return true;
+                        }
 		}
+                if(successorGenerator.generateAndInsertSuccessors(next_marking)){
+                    return true;
+                }  
 
-		for(vector<NonStrictMarking*>::iterator it = next.begin(); it != next.end(); it++){
-			if(addToPW(*it, &next_marking)){
-				return true;
-			}
-			endOfMaxRun = false;
-		}
                 deleteMarking(&next_marking);
 	}
 
@@ -72,10 +70,6 @@ bool ReachabilitySearch::isDelayPossible(NonStrictMarking& marking){
 	}
 	assert(false);	// This happens if there are markings on places not in the TAPN
 	return false;
-}
-
-vector<NonStrictMarking*> ReachabilitySearch::getPossibleNextMarkings(const NonStrictMarking& marking){
-	return successorGenerator.generateSuccessors(marking);
 }
 
 bool ReachabilitySearch::addToPW(NonStrictMarking* marking, NonStrictMarking* parent){

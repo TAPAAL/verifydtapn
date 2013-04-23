@@ -20,7 +20,7 @@ namespace VerifyTAPN {
         public:
 
             TimeDartVerification(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, VerificationOptions options, AST::Query* query, NonStrictMarkingBase& initialMarking) :
-            query(query), options(options), tapn(tapn), initialMarking(initialMarking), exploredMarkings(0), allwaysEnabled(), successorGenerator(*tapn.get()) {
+            query(query), options(options), tapn(tapn), initialMarking(initialMarking), exploredMarkings(0), allwaysEnabled(), successorGenerator(*tapn.get(), *this) {
                 loop = false;
                 deadlock = false;
                 //Find the transitions which don't have input arcs
@@ -34,7 +34,6 @@ namespace VerifyTAPN {
             std::pair<int, int> calculateStart(const TAPN::TimedTransition& transition, NonStrictMarkingBase* marking);
             int calculateStop(const TAPN::TimedTransition& transition, NonStrictMarkingBase* marking);
             int maxPossibleDelay(NonStrictMarkingBase* marking);
-            vector<NonStrictMarkingBase*> getPossibleNextMarkings(NonStrictMarkingBase& marking, const TimedTransition& transition);
 
             void PrintTransitionStatistics() const {
                 successorGenerator.PrintTransitionStatistics(std::cout);
@@ -45,6 +44,8 @@ namespace VerifyTAPN {
             virtual inline NonStrictMarkingBase* getBase(TimeDartBase* dart){
                 return dart->getBase();
             };
+
+            virtual inline bool addToPW(NonStrictMarkingBase* m) = 0;
             
         protected:
             AST::Query* query;
@@ -56,8 +57,6 @@ namespace VerifyTAPN {
             bool loop;         
             bool deadlock;
             WaitingDart* lastMarking;
-
-        private:
             TimeDartSuccessorGenerator successorGenerator;
 
         };
