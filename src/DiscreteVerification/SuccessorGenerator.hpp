@@ -196,7 +196,7 @@ namespace VerifyTAPN {
             std::vector<unsigned int> enabledTransitionArcs(tapn.GetTransitions().size(), 0);
             std::vector<const TAPN::TimedTransition* > enabledTransitions;
 
-            for (PlaceList::const_iterator iter = marking.places.begin(); iter < marking.places.end(); iter++) {
+            for (PlaceList::const_iterator iter = marking.GetPlaceList().begin(); iter < marking.GetPlaceList().end(); iter++) {
                 for (TAPN::TimedInputArc::WeakPtrVector::const_iterator arc_iter = iter->place->GetInputArcs().begin();
                         arc_iter != iter->place->GetInputArcs().end(); arc_iter++) {
                     processArc(enabledArcs, enabledTransitionArcs, enabledTransitions,

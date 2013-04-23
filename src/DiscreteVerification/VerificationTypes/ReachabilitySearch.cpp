@@ -54,7 +54,7 @@ bool ReachabilitySearch::Verify(){
 }
 
 bool ReachabilitySearch::isDelayPossible(NonStrictMarking& marking){
-	PlaceList& places = marking.places;
+	const PlaceList& places = marking.GetPlaceList();
 	if(places.size() == 0) return true;	//Delay always possible in empty markings
 
 	PlaceList::const_iterator markedPlace_iter = places.begin();
@@ -133,8 +133,8 @@ void ReachabilitySearchPTrie::GetTrace(){
         printStack.push(lastMarking);
         while(next != NULL){
             NonStrictMarking* m = pwhlist->Decode(next->ep);
-            m->generatedBy = next->generatedBy;
-            last->parent = m;
+            m->SetGeneratedBy(next->generatedBy);
+            last->SetParent(m);
             last = m;
             printStack.push(m);
             next = next->parent;

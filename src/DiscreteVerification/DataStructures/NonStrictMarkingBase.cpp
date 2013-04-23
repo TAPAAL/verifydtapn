@@ -12,9 +12,10 @@ using namespace std;
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
+TokenList NonStrictMarkingBase::emptyTokenList = TokenList();
+    
 NonStrictMarkingBase::NonStrictMarkingBase() : children(0), generatedBy(NULL){
-	// TODO Auto-generated constructor stub
-
+    // empty constructor
 }
 
 NonStrictMarkingBase::NonStrictMarkingBase(const TAPN::TimedArcPetriNet& tapn, const std::vector<int>& v) :children(0), generatedBy(NULL){
@@ -41,9 +42,7 @@ NonStrictMarkingBase::NonStrictMarkingBase(const TAPN::TimedArcPetriNet& tapn, c
 
 NonStrictMarkingBase::NonStrictMarkingBase(const NonStrictMarkingBase& nsm) : children(0), generatedBy(NULL){
 
-
 	places = nsm.places;
-
 	parent = nsm.parent;
 	generatedBy = nsm.generatedBy;
 }

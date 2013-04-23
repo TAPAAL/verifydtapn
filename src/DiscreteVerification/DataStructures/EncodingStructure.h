@@ -1,6 +1,6 @@
 /* 
  * File:   Encoding.h
- * Author: Peter Gjøl Jense
+ * Author: Peter Gjøl Jensen
  *
  * Created on 27. oktober 2012, 12:36
  */

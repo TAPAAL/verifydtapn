@@ -22,7 +22,7 @@ namespace VerifyTAPN {
 
                     if ((*iter)->getWaiting() < (*iter)->getPassed()) {
                         if(options.GetTrace()){
-                            waiting_list->Add((*iter)->getBase(), new TraceDart((*iter), parent, youngest, start, upper, marking->generatedBy));
+                            waiting_list->Add((*iter)->getBase(), new TraceDart((*iter), parent, youngest, start, upper, marking->GetGeneratedBy()));
 
                         } else {
                             waiting_list->Add((*iter)->getBase(), new WaitingDart((*iter), parent, youngest, upper));
@@ -39,7 +39,7 @@ namespace VerifyTAPN {
             m.push_back(dart);
             if(options.GetTrace()){
 
-                waiting_list->Add(dart->getBase(), new TraceDart(dart, parent, youngest, start, upper, marking->generatedBy));
+                waiting_list->Add(dart->getBase(), new TraceDart(dart, parent, youngest, start, upper, marking->GetGeneratedBy()));
 
             } else {
                 waiting_list->Add(dart->getBase(), new WaitingDart(dart, parent, youngest, upper));                
@@ -79,7 +79,7 @@ namespace VerifyTAPN {
                         EncodingPointer<WaitingDart>* ewp = new EncodingPointer<WaitingDart > (es, res.pos);
                         WaitingDart *wd;
                         if(options.GetTrace()){
-                            wd =  new TraceDart(td, parent, youngest, start, upper, marking->generatedBy);
+                            wd =  new TraceDart(td, parent, youngest, start, upper, marking->GetGeneratedBy());
 
                         } else {
                             wd = new WaitingDart(td, parent, youngest, upper);
@@ -112,7 +112,7 @@ namespace VerifyTAPN {
             
             WaitingDart *wd;
             if(options.GetTrace()){
-                wd =  new TraceDart(dart, parent, youngest, start, upper, marking->generatedBy);
+                wd =  new TraceDart(dart, parent, youngest, start, upper, marking->GetGeneratedBy());
                 ((EncodedLivenessDart*)dart)->encoding = ewp;
             } else {
                 wd = new WaitingDart(dart, parent, youngest, upper);

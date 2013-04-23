@@ -178,7 +178,7 @@ namespace VerifyTAPN {
                         mc->incrementAge(trace->start + diff);
                         mc->SetGeneratedBy(NULL);       // NULL indicates that it is a delay transition
                         if (last != NULL)
-                            last->parent = mc;          // set the parent of the last marking
+                            last->SetParent(mc);          // set the parent of the last marking
 
                         last = mc;
                         mc->cut();
@@ -195,7 +195,7 @@ namespace VerifyTAPN {
                 trace = ((TraceDart*) lastMarking);
                 l->incrementAge(trace->start);
                 l->cut();
-                l->parent = NULL;
+                l->SetParent(NULL);
             }
             while (trace != NULL) {
                 int lower = trace->start;
@@ -218,9 +218,9 @@ namespace VerifyTAPN {
                         mc->incrementAge(lower + diff);
                         mc->SetGeneratedBy(NULL);       // NULL indicates that it is a delay transition
                         if (last != NULL)
-                            last->parent = mc;          // set the parent of the last marking
-                        if(!l->parent)
-                            l->parent = mc;
+                            last->SetParent(mc);          // set the parent of the last marking
+                        if(!l->GetParent())
+                            l->SetParent(mc);
                         last = mc;
                         mc->cut();
                         traceStack.push(mc);            // add delay marking to the trace
@@ -228,9 +228,9 @@ namespace VerifyTAPN {
                     }
                 }
                 if (last != NULL)
-                    last->parent = m;
-                if(!l->parent)
-                            l->parent = m;
+                    last->SetParent(m);
+                if(!l->GetParent())
+                            l->SetParent(m);
                 m->cut();
                 last = m;
                 traceStack.push(m);     // add the marking to the trace

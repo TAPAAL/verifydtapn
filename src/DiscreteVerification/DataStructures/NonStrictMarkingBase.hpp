@@ -133,14 +133,6 @@ public:
 
 	virtual ~NonStrictMarkingBase();
 
-	virtual size_t HashKey() const { return boost::hash_range(places.begin(), places.end()); };
-
-	virtual NonStrictMarkingBase& Clone()
-		{
-			NonStrictMarkingBase* clone = new NonStrictMarkingBase(*this);
-			return *clone;
-		};
-
 	public: // inspectors
 		int NumberOfTokensInPlace(int placeId) const;
 		const TokenList& GetTokenList(int placeId) const;
@@ -148,10 +140,14 @@ public:
 		unsigned int size();
 		const NonStrictMarkingBase* GetParent() const { return parent; }
 		const TAPN::TimedTransition* GetGeneratedBy() const { return generatedBy; }
-
+		bool equals(const NonStrictMarkingBase &m1) const;
+                int numberOfChildren(){
+                    return children;
+                }
 
 	public: // modifiers
-		void cut();
+                virtual size_t HashKey() const { return boost::hash_range(places.begin(), places.end()); };
+                void cut();
 		bool RemoveToken(int placeId, int age);
 		bool RemoveToken(Place& place, Token& token);
 		void AddTokenInPlace(TAPN::TimedPlace& place, int age);
@@ -163,6 +159,15 @@ public:
 		void RemoveRangeOfTokens(Place& place, TokenList::iterator begin, TokenList::iterator end);
 		void SetParent(NonStrictMarkingBase* parent) { this->parent = parent; }
 		void SetGeneratedBy(const TAPN::TimedTransition* generatedBy) { this->generatedBy = generatedBy; }
+                void setNumberOfChildren(int i){
+                    children = i;
+                }
+                void incrementNumberOfChildren(){
+                    ++children;
+                }
+                void decrementNumberOfChildren(){
+                    --children;
+                }
 		void CleanUp() {
 			for(unsigned int i = 0; i < places.size(); i++){
 				if(places[i].tokens.empty()){
@@ -173,18 +178,19 @@ public:
 		}
                 int getYoungest();
 		int makeBase(TAPN::TimedArcPetriNet* tapn);
+                virtual NonStrictMarkingBase& Clone()
+                {
+                        NonStrictMarkingBase* clone = new NonStrictMarkingBase(*this);
+                        return *clone;
+                };
 
-	public:
-		bool equals(const NonStrictMarkingBase &m1) const;
-
-	public:
+	private:
 		int children;
 		PlaceList places;
-		TokenList emptyTokenList;
-
-	public:
 		NonStrictMarkingBase* parent;
 		const TAPN::TimedTransition* generatedBy;
+
+        static TokenList emptyTokenList;
 };
 
 std::ostream& operator<<(std::ostream& out, NonStrictMarkingBase& x);

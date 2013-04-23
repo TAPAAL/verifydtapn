@@ -61,7 +61,7 @@ bool LivenessSearch::Verify(){
 			return true;
 		}
 		if(validChildren == 0){
-			while(!trace.empty() && trace.top()->children <= 1){
+			while(!trace.empty() && trace.top()->numberOfChildren() <= 1){
 				trace.top()->meta->inTrace = false;
                                 deleteMarking(trace.top());
 				trace.pop();
@@ -69,9 +69,9 @@ bool LivenessSearch::Verify(){
 			if(trace.empty()){
                             return false;
                         }
-			trace.top()->children--;
+                        trace.top()->decrementNumberOfChildren();
 		}else{
-			next_marking.children = validChildren;
+			next_marking.setNumberOfChildren(validChildren);
 
 		}
 	}
@@ -80,7 +80,7 @@ bool LivenessSearch::Verify(){
 }
 
 bool LivenessSearch::isDelayPossible(NonStrictMarking& marking){
-	PlaceList& places = marking.places;
+	const PlaceList& places = marking.GetPlaceList();
 	if(places.size() == 0) return true;	//Delay always possible in empty markings
 
 	PlaceList::const_iterator markedPlace_iter = places.begin();
@@ -124,7 +124,7 @@ bool LivenessSearch::addToPW(NonStrictMarking* marking, NonStrictMarking* parent
 		//Test if collision is in trace
             if(marking->meta->inTrace){
                     //Make sure we can print trace
-                    marking->children = 1;
+                    marking->setNumberOfChildren(1);
                     trace.push(marking);
                     return true;
             }else{

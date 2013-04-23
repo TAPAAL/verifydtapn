@@ -151,8 +151,8 @@ namespace VerifyTAPN {
             int tc = 0;
             uint bitcount = 0;
 
-            for (vector<Place>::const_iterator pi = marking->places.begin();
-                    pi != marking->places.end();
+            for (vector<Place>::const_iterator pi = marking->GetPlaceList().begin();
+                    pi != marking->GetPlaceList().end();
                     pi++) { // for each place
 
                 int pc = pi->place->GetIndex();

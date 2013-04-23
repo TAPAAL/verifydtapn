@@ -55,7 +55,7 @@ namespace VerifyTAPN {
                             i++;
                         }
 
-                        if ((!foundLoop) && stack.empty() && old->children > 0) {
+                        if ((!foundLoop) && stack.empty() && old->numberOfChildren() > 0) {
                             std::cout << "\tDelay: Forever" << std::endl;
                             return;
                         }
@@ -67,7 +67,7 @@ namespace VerifyTAPN {
 
                 if ((query == AST::EG || query == AST::AF)
                         && (stack.size() > 1 && stack.top()->equals(*m))
-                        && (m->GetGeneratedBy() || stack.top()->parent)) {
+                        && (m->GetGeneratedBy() || stack.top()->GetParent())) {
                     std::cout << "\t* ";
                     foundLoop = true;
                 } else {
@@ -76,7 +76,7 @@ namespace VerifyTAPN {
 
                 //Print marking
                 std::cout << "Marking: ";
-                for (PlaceList::const_iterator iter = stack.top()->places.begin(); iter != stack.top()->places.end(); iter++) {
+                for (PlaceList::const_iterator iter = stack.top()->GetPlaceList().begin(); iter != stack.top()->GetPlaceList().end(); iter++) {
                     for (TokenList::const_iterator titer = iter->tokens.begin(); titer != iter->tokens.end(); titer++) {
                         for (int i = 0; i < titer->getCount(); i++) {
                             std::cout << "(" << iter->place->GetName() << "," << titer->getAge() << ") ";
@@ -93,10 +93,10 @@ namespace VerifyTAPN {
                 if (foundLoop) {
                     std::cout << "\tgoto *" << std::endl;
                 } else {
-                    if (m->children > 0) {
+                    if (m->numberOfChildren() > 0) {
                         std::cout << "\tDeadlock" << std::endl;
                     } else {
-                        for (PlaceList::const_iterator iter = m->places.begin(); iter != m->places.end(); iter++) {
+                        for (PlaceList::const_iterator iter = m->GetPlaceList().begin(); iter != m->GetPlaceList().end(); iter++) {
                             if (iter->place->GetInvariant().GetBound() != std::numeric_limits<int>::max()) {
                                 //Invariant, deadlock
                                 std::cout << "\tDeadlock" << std::endl;
@@ -155,7 +155,7 @@ namespace VerifyTAPN {
                         }
                         if(delayloop)
                             continue;
-                        if ((!foundLoop) && stack.empty() && old->children > 0) {
+                        if ((!foundLoop) && stack.empty() && old->numberOfChildren() > 0) {
                             xml_node<>* node = doc.allocate_node(node_element, "delay", doc.allocate_string("forever"));
                             root->append_node(node);
                             delayedForever = true;
@@ -181,8 +181,8 @@ namespace VerifyTAPN {
                             foundLoop = true;
                             break;
                         } 
-                        temp = (T*)temp->parent;
-                    } while(temp && temp->parent && temp->parent != top);
+                        temp = (T*)temp->GetParent();
+                    } while(temp && temp->GetParent() && temp->GetParent() != top);
                     if(foundLoop){
                         root->append_node(doc.allocate_node(node_element, "loop"));
                     }
@@ -195,12 +195,12 @@ namespace VerifyTAPN {
             //Trace ended, goto * or deadlock
             if (query == AST::EG || query == AST::AF) {
                 if (!foundLoop && !delayedForever) {
-                    if (m->children > 0) {
+                    if (m->numberOfChildren() > 0) {
                         root->append_node(doc.allocate_node(node_element, "deadlock"));
                     } else {
                         // By default delay forever
                         xml_node<>* node = doc.allocate_node(node_element, "delay", doc.allocate_string("forever"));
-                        for (PlaceList::const_iterator iter = m->places.begin(); iter != m->places.end(); iter++) {
+                        for (PlaceList::const_iterator iter = m->GetPlaceList().begin(); iter != m->GetPlaceList().end(); iter++) {
                             if (iter->place->GetInvariant().GetBound() != std::numeric_limits<int>::max()) {
                                 //Invariant, deadlock instead of delay forever
                                 node = doc.allocate_node(node_element, "deadlock");
@@ -219,14 +219,14 @@ namespace VerifyTAPN {
         rapidxml::xml_node<>* Verification<T>::CreateTransitionNode(T* old, T* current, rapidxml::xml_document<>& doc) {
             using namespace rapidxml;
             xml_node<>* transitionNode = doc.allocate_node(node_element, "transition");
-            xml_attribute<>* id = doc.allocate_attribute("id", current->generatedBy->GetId().c_str());
+            xml_attribute<>* id = doc.allocate_attribute("id", current->GetGeneratedBy()->GetId().c_str());
             transitionNode->append_attribute(id);
 
-            for (TAPN::TimedInputArc::WeakPtrVector::const_iterator arc_iter = current->generatedBy->GetPreset().begin(); arc_iter != current->generatedBy->GetPreset().end(); arc_iter++) {
+            for (TAPN::TimedInputArc::WeakPtrVector::const_iterator arc_iter = current->GetGeneratedBy()->GetPreset().begin(); arc_iter != current->GetGeneratedBy()->GetPreset().end(); arc_iter++) {
                 createTransitionSubNodes(old, current, doc, transitionNode, arc_iter->lock()->InputPlace(), arc_iter->lock()->Interval(), arc_iter->lock()->GetWeight());
             }
 
-            for (TAPN::TransportArc::WeakPtrVector::const_iterator arc_iter = current->generatedBy->GetTransportArcs().begin(); arc_iter != current->generatedBy->GetTransportArcs().end(); arc_iter++) {
+            for (TAPN::TransportArc::WeakPtrVector::const_iterator arc_iter = current->GetGeneratedBy()->GetTransportArcs().begin(); arc_iter != current->GetGeneratedBy()->GetTransportArcs().end(); arc_iter++) {
                 createTransitionSubNodes(old, current, doc, transitionNode, arc_iter->lock()->Source(), arc_iter->lock()->Interval(), arc_iter->lock()->GetWeight());
             }
 
@@ -302,7 +302,7 @@ namespace VerifyTAPN {
                 do {
                     
                     result->push((T*)next);
-                } while ((next = ((T*)next->parent)) != NULL);
+                } while ((next = ((T*)next->GetParent())) != NULL);
             } else {
                 do {
                     result->push(liveness->top());

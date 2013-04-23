@@ -65,7 +65,7 @@ std::ostream& operator<<(std::ostream& out, PWList& x){
                     MetaData* meta;
                     if(this->makeTrace){
                         meta = new MetaDataWithTrace();   
-                        ((MetaDataWithTrace*)meta)->generatedBy = marking->generatedBy;
+                        ((MetaDataWithTrace*)meta)->generatedBy = marking->GetGeneratedBy();
                     } else {
                         meta = new MetaData();
                     }
@@ -73,7 +73,7 @@ std::ostream& operator<<(std::ostream& out, PWList& x){
                     marking->meta = meta;
                 } else if(this->makeTrace){
                     MetaDataWithTraceAndEncoding* meta = new MetaDataWithTraceAndEncoding();
-                    meta->generatedBy = marking->generatedBy;
+                    meta->generatedBy = marking->GetGeneratedBy();
                     res.encoding.SetMetaData(meta);
                     meta->ep = new EncodingPointer<MetaData > (res.encoding, res.pos);
                     meta->parent = parent;
@@ -83,7 +83,7 @@ std::ostream& operator<<(std::ostream& out, PWList& x){
                 if(isLiveness){
                         marking->meta = res.encoding.GetMetaData();
                         if(this->makeTrace){
-                            ((MetaDataWithTrace*)marking->meta)->generatedBy = marking->generatedBy;
+                            ((MetaDataWithTrace*)marking->meta)->generatedBy = marking->GetGeneratedBy();
                         }
                 }
                 if(isLiveness && !marking->meta->passed){
@@ -105,7 +105,7 @@ std::ostream& operator<<(std::ostream& out, PWList& x){
             
             if(this->makeTrace){
                 if(isLiveness){
-                        m->generatedBy = ((MetaDataWithTrace*)(m->meta))->generatedBy;
+                        m->SetGeneratedBy(((MetaDataWithTrace*)(m->meta))->generatedBy);
                 } else {
                     this->parent = (MetaDataWithTraceAndEncoding*)(m->meta);
                 }

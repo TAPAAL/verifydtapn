@@ -32,7 +32,7 @@ namespace VerifyTAPN {
                 // Detect ability to delay forever
                 if (canDelayForever(waitingDart->dart->getBase())) {
                     NonStrictMarkingBase* lm = new NonStrictMarkingBase(*waitingDart->dart->getBase());
-                    lm->generatedBy = waitingDart->dart->getBase()->generatedBy;
+                    lm->SetGeneratedBy(waitingDart->dart->getBase()->GetGeneratedBy());
                     // lastMarking = new TraceList(lm, waitingDart.upper);
                     lastMarking = waitingDart;
                     return true;
@@ -128,7 +128,7 @@ namespace VerifyTAPN {
                 start = marking->getYoungest();
             }
             marking->cut();
-            const TimedTransition* transition = marking->generatedBy;
+            const TimedTransition* transition = marking->GetGeneratedBy();
             unsigned int size = marking->size();
 
             pwList->SetMaxNumTokensIfGreater(size);
@@ -165,7 +165,7 @@ namespace VerifyTAPN {
 
                 if (loop) {
                     NonStrictMarkingBase* lm = new NonStrictMarkingBase(*result.first->getBase());
-                    lm->parent = parent->dart->getBase();
+                    lm->SetParent(parent->dart->getBase());
                     //lastMarking = new TraceList(lm, upper);   
                     if (options.GetTrace()) {
 //                        TraceDart* t = new TraceDart(*(TraceDart*) lastMarking);      // removed to fix loop-detection delay

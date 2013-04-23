@@ -24,7 +24,7 @@ bool TimeDartPWHashMap::Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* 
 				if((*iter)->getWaiting() < (*iter)->getPassed() && !inWaiting){
 					waiting_list->Add((*iter)->getBase(),(*iter));
                                         if(this->trace){
-                                            ((ReachabilityTraceableDart*)(*iter))->trace = new TraceDart((*iter), parent, youngest, start, upper, marking->generatedBy);
+                                            ((ReachabilityTraceableDart*)(*iter))->trace = new TraceDart((*iter), parent, youngest, start, upper, marking->GetGeneratedBy());
                                             this->last = ((ReachabilityTraceableDart*)(*iter))->trace;
                                         }
 				}
@@ -37,7 +37,7 @@ bool TimeDartPWHashMap::Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* 
         TimeDartBase* dart;
         if(this->trace){
              dart = new ReachabilityTraceableDart(marking, youngest, INT_MAX);
-             ((ReachabilityTraceableDart*)dart)->trace = new TraceDart(dart, parent, youngest, start,  upper, marking->generatedBy);
+             ((ReachabilityTraceableDart*)dart)->trace = new TraceDart(dart, parent, youngest, start,  upper, marking->GetGeneratedBy());
             this->last = ((ReachabilityTraceableDart*)(dart))->trace;
         } else {
             dart = new TimeDartBase(marking, youngest, INT_MAX);
@@ -64,7 +64,7 @@ bool TimeDartPWPData::Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* ma
 
             if(t->getWaiting() < t->getPassed() && !inWaiting){
                     if(this->trace){
-                        ((EncodedReachabilityTraceableDart*)t)->trace = new TraceDart(t, parent, youngest, start, upper, marking->generatedBy);
+                        ((EncodedReachabilityTraceableDart*)t)->trace = new TraceDart(t, parent, youngest, start, upper, marking->GetGeneratedBy());
                         this->last = ((EncodedReachabilityTraceableDart*)t)->trace;
                     }
                     waiting_list->Add(marking, new EncodingPointer<TimeDartBase>(res.encoding, res.pos));
@@ -77,7 +77,7 @@ bool TimeDartPWPData::Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* ma
 	TimeDartBase* dart;
          if (this->trace) {
              dart = new EncodedReachabilityTraceableDart(marking, youngest, INT_MAX);
-            ((EncodedReachabilityTraceableDart*) dart)->trace = new TraceDart(dart, parent, youngest, start, upper, marking->generatedBy);
+            ((EncodedReachabilityTraceableDart*) dart)->trace = new TraceDart(dart, parent, youngest, start, upper, marking->GetGeneratedBy());
             this->last = ((ReachabilityTraceableDart*) (dart))->trace;
         } else {
                 dart = new TimeDartBase(marking, youngest, INT_MAX);
