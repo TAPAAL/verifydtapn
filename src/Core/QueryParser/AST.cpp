@@ -10,12 +10,12 @@ namespace VerifyTAPN
 
 		void NotExpression::Accept(Visitor& visitor, boost::any& context) const
 		{
-			visitor.Visit(*this, context);
+			visitor.visit(*this, context);
 		}
 
 		void BoolExpression::Accept(Visitor& visitor, boost::any& context) const
 		{
-			visitor.Visit(*this, context);
+			visitor.visit(*this, context);
 		}
 
 		BoolExpression* BoolExpression::clone() const
@@ -25,7 +25,7 @@ namespace VerifyTAPN
 
 		void AtomicProposition::Accept(Visitor& visitor, boost::any& context) const
 		{
-			visitor.Visit(*this, context);
+			visitor.visit(*this, context);
 		}
 
 		AtomicProposition* AtomicProposition::clone() const
@@ -40,7 +40,7 @@ namespace VerifyTAPN
 
 		void AndExpression::Accept(Visitor& visitor, boost::any& context) const
 		{
-			visitor.Visit(*this, context);
+			visitor.visit(*this, context);
 		}
 
 		OrExpression* OrExpression::clone() const
@@ -50,7 +50,7 @@ namespace VerifyTAPN
 
 		void OrExpression::Accept(Visitor& visitor, boost::any& context) const
 		{
-			visitor.Visit(*this, context);
+			visitor.visit(*this, context);
 		}
 
 		ParExpression* ParExpression::clone() const
@@ -60,7 +60,7 @@ namespace VerifyTAPN
 
 		void ParExpression::Accept(Visitor& visitor, boost::any& context) const
 		{
-			visitor.Visit(*this, context);
+			visitor.visit(*this, context);
 		}
 
 		Query* Query::clone() const
@@ -70,7 +70,7 @@ namespace VerifyTAPN
 
 		void Query::Accept(Visitor& visitor, boost::any& context) const
 		{
-			visitor.Visit(*this, context);
+			visitor.visit(*this, context);
 		}
 	}
 }

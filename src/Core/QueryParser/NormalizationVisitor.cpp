@@ -13,7 +13,7 @@ namespace VerifyTAPN
 			Tuple(bool negate, Expression* expr) : negate(negate), returnExpr(expr) {};
 		};
 
-		void NormalizationVisitor::Visit(const NotExpression& expr, boost::any& context)
+		void NormalizationVisitor::visit(const NotExpression& expr, boost::any& context)
 		{
 			Tuple& tuple = boost::any_cast<Tuple&>(context);
 			boost::any any = Tuple(!tuple.negate, NULL);
@@ -21,7 +21,7 @@ namespace VerifyTAPN
 			tuple.returnExpr = boost::any_cast<Tuple&>(any).returnExpr;
 		}
 
-		void NormalizationVisitor::Visit(const ParExpression& expr, boost::any& context)
+		void NormalizationVisitor::visit(const ParExpression& expr, boost::any& context)
 		{
 			Tuple& tuple = boost::any_cast<Tuple&>(context);
 			boost::any any = Tuple(tuple.negate, NULL);
@@ -29,7 +29,7 @@ namespace VerifyTAPN
 			tuple.returnExpr = new ParExpression(boost::any_cast<Tuple&>(any).returnExpr);
 		}
 
-		void NormalizationVisitor::Visit(const OrExpression& expr, boost::any& context)
+		void NormalizationVisitor::visit(const OrExpression& expr, boost::any& context)
 		{
 			Tuple& tuple = boost::any_cast<Tuple&>(context);
 			boost::any left = Tuple(tuple.negate, NULL), right = Tuple(tuple.negate, NULL);
@@ -44,7 +44,7 @@ namespace VerifyTAPN
 			}
 		}
 
-		void NormalizationVisitor::Visit(const AndExpression& expr, boost::any& context)
+		void NormalizationVisitor::visit(const AndExpression& expr, boost::any& context)
 		{
 			Tuple& tuple = boost::any_cast<Tuple&>(context);
 			boost::any left = Tuple(tuple.negate, NULL), right = Tuple(tuple.negate, NULL);
@@ -59,7 +59,7 @@ namespace VerifyTAPN
 			}
 		}
 
-		void NormalizationVisitor::Visit(const AtomicProposition& expr, boost::any& context)
+		void NormalizationVisitor::visit(const AtomicProposition& expr, boost::any& context)
 		{
 			Tuple& tuple = boost::any_cast<Tuple&>(context);
 			std::string op;
@@ -71,7 +71,7 @@ namespace VerifyTAPN
 			tuple.returnExpr = new AtomicProposition(expr.Place(), &op, expr.N());
 		}
 
-		void NormalizationVisitor::Visit(const BoolExpression& expr, boost::any& context)
+		void NormalizationVisitor::visit(const BoolExpression& expr, boost::any& context)
 		{
 			Tuple& tuple = boost::any_cast<Tuple&>(context);
 			if(tuple.negate){
@@ -81,7 +81,7 @@ namespace VerifyTAPN
 			}
 		}
 
-		void NormalizationVisitor::Visit(const Query& query, boost::any& context)
+		void NormalizationVisitor::visit(const Query& query, boost::any& context)
 		{
 			boost::any any = Tuple(false, NULL);
 			query.Child().Accept(*this, any);

@@ -10,17 +10,17 @@
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
-		void WeightQueryVisitor::Visit(const NotExpression& expr, boost::any& context)
+		void WeightQueryVisitor::visit(const NotExpression& expr, boost::any& context)
 		{
 			assert(false);
 		}
 
-		void WeightQueryVisitor::Visit(const ParExpression& expr, boost::any& context)
+		void WeightQueryVisitor::visit(const ParExpression& expr, boost::any& context)
 		{
 			expr.Child().Accept(*this, context);
 		}
 
-		void WeightQueryVisitor::Visit(const OrExpression& expr, boost::any& context)
+		void WeightQueryVisitor::visit(const OrExpression& expr, boost::any& context)
 		{
 			boost::any left, right;
 			expr.Left().Accept(*this, left);
@@ -29,7 +29,7 @@ namespace DiscreteVerification {
 			context = min(boost::any_cast<int>(left), boost::any_cast<int>(right));
 		}
 
-		void WeightQueryVisitor::Visit(const AndExpression& expr, boost::any& context)
+		void WeightQueryVisitor::visit(const AndExpression& expr, boost::any& context)
 		{
 			boost::any left, right;
 			expr.Left().Accept(*this, left);
@@ -50,23 +50,23 @@ namespace DiscreteVerification {
 			context = l+r;
 		}
 
-		void WeightQueryVisitor::Visit(const AtomicProposition& expr, boost::any& context)
+		void WeightQueryVisitor::visit(const AtomicProposition& expr, boost::any& context)
 		{
 			int numberOfTokens = marking.numberOfTokensInPlace(expr.Place());
-			context = Compare(numberOfTokens, expr.Operator(), expr.N());
+			context = compare(numberOfTokens, expr.Operator(), expr.N());
 		}
 
-		void WeightQueryVisitor::Visit(const BoolExpression& expr, boost::any& context)
+		void WeightQueryVisitor::visit(const BoolExpression& expr, boost::any& context)
 		{
 			context = expr.GetValue()? 0 : std::numeric_limits<int>::max();
 		}
 
-		void WeightQueryVisitor::Visit(const Query& query, boost::any& context)
+		void WeightQueryVisitor::visit(const Query& query, boost::any& context)
 		{
 			query.Child().Accept(*this, context);
 		}
 
-		int WeightQueryVisitor::Compare(int numberOfTokensInPlace, const std::string& op, int n) const
+		int WeightQueryVisitor::compare(int numberOfTokensInPlace, const std::string& op, int n) const
 		{
 			if(op == "<") return numberOfTokensInPlace < n? 0:abs(n-numberOfTokensInPlace);
 			else if(op == "<=") return numberOfTokensInPlace <= n? 0:abs(n-numberOfTokensInPlace);

@@ -20,13 +20,13 @@ namespace VerifyTAPN {
 		public:
 			NormalizationVisitor() : normalizedQuery() { };
 			virtual ~NormalizationVisitor() {};
-			virtual void Visit(const NotExpression& expr, boost::any& context);
-			virtual void Visit(const ParExpression& expr, boost::any& context);
-			virtual void Visit(const OrExpression& expr, boost::any& context);
-			virtual void Visit(const AndExpression& expr, boost::any& context);
-			virtual void Visit(const AtomicProposition& expr, boost::any& context);
-			virtual void Visit(const BoolExpression& expr, boost::any& context);
-			virtual void Visit(const Query& query, boost::any& context);
+			virtual void visit(const NotExpression& expr, boost::any& context);
+			virtual void visit(const ParExpression& expr, boost::any& context);
+			virtual void visit(const OrExpression& expr, boost::any& context);
+			virtual void visit(const AndExpression& expr, boost::any& context);
+			virtual void visit(const AtomicProposition& expr, boost::any& context);
+			virtual void visit(const BoolExpression& expr, boost::any& context);
+			virtual void visit(const Query& query, boost::any& context);
 
 			AST::Query* Normalize(const AST::Query& query) { boost::any any; query.Accept(*this, any); return normalizedQuery; };
 		private:
