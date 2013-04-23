@@ -17,7 +17,7 @@ TimeDartSuccessorGenerator::~TimeDartSuccessorGenerator(){
 TimeDartSuccessorGenerator::TimeDartSuccessorGenerator(TAPN::TimedArcPetriNet& tapn, Verification<NonStrictMarkingBase>& verifier)  : tapn(tapn), allwaysEnabled(), numberoftransitions(tapn.GetTransitions().size()), transitionStatistics(), verifier(verifier){
 	//Find the transitions which don't have input arcs
 	transitionStatistics = new unsigned int [numberoftransitions];
-	ClearTransitionsArray();
+	clearTransitionsArray();
 	for(TimedTransition::Vector::const_iterator iter = tapn.GetTransitions().begin(); iter != tapn.GetTransitions().end(); iter++){
 		if((*iter)->GetPreset().size() + (*iter)->GetTransportArcs().size() == 0){
 			allwaysEnabled.push_back(iter->get());
@@ -210,7 +210,7 @@ bool TimeDartSuccessorGenerator::insertMarking(NonStrictMarkingBase& init_markin
 	
 }
 
-void TimeDartSuccessorGenerator::PrintTransitionStatistics(std::ostream& out) const {
+void TimeDartSuccessorGenerator::printTransitionStatistics(std::ostream& out) const {
 		out << std::endl << "TRANSITION STATISTICS";
 		for (unsigned int i=0;i<numberoftransitions;i++) {
 			if ((i) % 6 == 0) {

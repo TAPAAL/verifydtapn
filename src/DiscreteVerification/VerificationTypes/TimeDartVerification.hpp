@@ -36,7 +36,7 @@ namespace VerifyTAPN {
             int maxPossibleDelay(NonStrictMarkingBase* marking);
 
             void printTransitionStatistics() const {
-                successorGenerator.PrintTransitionStatistics(std::cout);
+                successorGenerator.printTransitionStatistics(std::cout);
             }
             
             void getTrace();

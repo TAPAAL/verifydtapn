@@ -142,7 +142,7 @@ namespace VerifyTAPN {
             SuccessorGenerator(TAPN::TimedArcPetriNet& tapn, Verification<T>& verifier);
             ~SuccessorGenerator();
             bool generateAndInsertSuccessors(const T& marking);
-            void PrintTransitionStatistics(std::ostream & out) const;
+            void printTransitionStatistics(std::ostream & out) const;
             inline bool doSuccessorsExist();
             
         private:
@@ -167,7 +167,7 @@ namespace VerifyTAPN {
                     bool isInhib = false
                     ) const;
 
-            inline void ClearTransitionsArray() {
+            inline void clearTransitionsArray() {
                 memset(transitionStatistics, 0, numberoftransitions * sizeof (transitionStatistics[0]));
             }
 
@@ -186,7 +186,7 @@ namespace VerifyTAPN {
         SuccessorGenerator<T>::SuccessorGenerator(TAPN::TimedArcPetriNet& tapn, Verification<T>& verifier) : tapn(tapn), allwaysEnabled(), numberoftransitions(tapn.GetTransitions().size()), transitionStatistics(), verifier(verifier), succesorsExist(true) {
             //Find the transitions which don't have input arcs
             transitionStatistics = new unsigned int [numberoftransitions];
-            ClearTransitionsArray();
+            clearTransitionsArray();
             for (TimedTransition::Vector::const_iterator iter = tapn.GetTransitions().begin(); iter != tapn.GetTransitions().end(); iter++) {
                 if ((*iter)->GetPreset().size() + (*iter)->GetTransportArcs().size() == 0) {
                     allwaysEnabled.push_back(iter->get());
@@ -420,7 +420,7 @@ namespace VerifyTAPN {
         }
 
         template<typename T>
-        void SuccessorGenerator<T>::PrintTransitionStatistics(std::ostream& out) const {
+        void SuccessorGenerator<T>::printTransitionStatistics(std::ostream& out) const {
             out << std::endl << "TRANSITION STATISTICS";
             for (unsigned int i = 0; i < numberoftransitions; i++) {
                 if ((i) % 6 == 0) {

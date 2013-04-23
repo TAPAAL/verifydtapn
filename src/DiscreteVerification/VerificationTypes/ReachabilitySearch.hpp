@@ -38,7 +38,7 @@ public:
 	bool verify();
 	NonStrictMarking* getLastMarking() { return lastMarking; }
 	inline unsigned int maxUsedTokens(){ return pwList->maxNumTokensInAnyMarking; };
-	void printTransitionStatistics() const { successorGenerator.PrintTransitionStatistics(std::cout); }
+	void printTransitionStatistics() const { successorGenerator.printTransitionStatistics(std::cout); }
         virtual void deleteMarking(NonStrictMarking* m) {
             //dummy;
         };
