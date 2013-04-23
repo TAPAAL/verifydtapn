@@ -22,10 +22,10 @@ namespace VerifyTAPN {
 
                     if ((*iter)->getWaiting() < (*iter)->getPassed()) {
                         if(options.GetTrace()){
-                            waiting_list->Add((*iter)->getBase(), new TraceDart((*iter), parent, youngest, start, upper, marking->getGeneratedBy()));
+                            waiting_list->add((*iter)->getBase(), new TraceDart((*iter), parent, youngest, start, upper, marking->getGeneratedBy()));
 
                         } else {
-                            waiting_list->Add((*iter)->getBase(), new WaitingDart((*iter), parent, youngest, upper));
+                            waiting_list->add((*iter)->getBase(), new WaitingDart((*iter), parent, youngest, upper));
                         }
                         result.second = true;
                         delete marking;
@@ -39,21 +39,21 @@ namespace VerifyTAPN {
             m.push_back(dart);
             if(options.GetTrace()){
 
-                waiting_list->Add(dart->getBase(), new TraceDart(dart, parent, youngest, start, upper, marking->getGeneratedBy()));
+                waiting_list->add(dart->getBase(), new TraceDart(dart, parent, youngest, start, upper, marking->getGeneratedBy()));
 
             } else {
-                waiting_list->Add(dart->getBase(), new WaitingDart(dart, parent, youngest, upper));                
+                waiting_list->add(dart->getBase(), new WaitingDart(dart, parent, youngest, upper));                
             }
             std::pair < LivenessDart*, bool> result(dart, true);
             return result;
         }
 
         WaitingDart* TimeDartLivenessPWHashMap::getNextUnexplored() {
-            return waiting_list->Peek();
+            return waiting_list->peek();
         }
 
         void TimeDartLivenessPWHashMap::popWaiting() {
-            delete waiting_list->Pop();
+            delete waiting_list->pop();
         }
 
         void TimeDartLivenessPWHashMap::flushBuffer() {
@@ -86,7 +86,7 @@ namespace VerifyTAPN {
                         }
                         ewp->encoding.setMetaData(wd);
                         
-                        waiting_list->Add(marking, ewp);
+                        waiting_list->add(marking, ewp);
                         result.second = true;
                     } else {
                         if(options.GetTrace() == SOME){
@@ -119,13 +119,13 @@ namespace VerifyTAPN {
             }
             ewp->encoding.setMetaData(wd);
             
-            waiting_list->Add(marking, ewp);
+            waiting_list->add(marking, ewp);
             std::pair < LivenessDart*, bool> result(dart, true);
             return result;
         }
 
         WaitingDart* TimeDartLivenessPWPData::getNextUnexplored() {
-            EncodingPointer<WaitingDart>* ewp =  waiting_list->Peek();
+            EncodingPointer<WaitingDart>* ewp =  waiting_list->peek();
             WaitingDart* wd = ewp->encoding.getMetaData();
             NonStrictMarkingBase* base = passed.enumerateDecode(*((EncodingPointer<LivenessDart>*)ewp));
             wd->dart->setBase(base);
@@ -136,7 +136,7 @@ namespace VerifyTAPN {
         }
 
         void TimeDartLivenessPWPData::popWaiting() {
-            EncodingPointer<WaitingDart>* ewp =  waiting_list->Pop();
+            EncodingPointer<WaitingDart>* ewp =  waiting_list->pop();
             WaitingDart* wd = ewp->encoding.getMetaData();
             delete wd->dart->getBase();
             delete wd;

@@ -74,7 +74,7 @@ namespace VerifyTAPN {
             virtual void popWaiting();
 
             virtual bool hasWaitingStates() {
-                return (waiting_list->Size() > 0);
+                return (waiting_list->size() > 0);
             };
             virtual void flushBuffer();
         private:
@@ -99,7 +99,7 @@ namespace VerifyTAPN {
             virtual void popWaiting();
 
             virtual bool hasWaitingStates() {
-                return (waiting_list->Size() > 0);
+                return (waiting_list->size() > 0);
             };
             virtual void flushBuffer();
             NonStrictMarkingBase* decode(EncodingPointer<LivenessDart> *ewp){

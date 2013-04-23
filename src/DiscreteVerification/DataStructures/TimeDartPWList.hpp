@@ -75,7 +75,7 @@ namespace VerifyTAPN {
             virtual TimeDartBase* getNextUnexplored();
 
             virtual bool hasWaitingStates() {
-                return (waiting_list->Size() > 0);
+                return (waiting_list->size() > 0);
             };
         protected:
             WaitingList<TimeDartBase>* waiting_list;
@@ -102,7 +102,7 @@ namespace VerifyTAPN {
             virtual TimeDartBase* getNextUnexplored();
 
             virtual bool hasWaitingStates() {
-                return (waiting_list->Size() > 0);
+                return (waiting_list->size() > 0);
             };
 
         };

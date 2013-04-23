@@ -47,14 +47,14 @@ public:
 
 public: // inspectors
 	virtual bool hasWaitingStates() {
-		return (waiting_list->Size() > 0);
+		return (waiting_list->size() > 0);
 	};
 
 	virtual long long size() const {
 		return stored;
 	};
 
-        virtual long long explored() {return waiting_list->Size();};
+        virtual long long explored() {return waiting_list->size();};
         
 public: // modifiers
 	virtual bool add(NonStrictMarking* marking);
@@ -91,13 +91,13 @@ class PWListHybrid : public PWListBase {
                 return m;
             };
             virtual bool hasWaitingStates() {
-                return (waiting_list->Size() > 0);
+                return (waiting_list->size() > 0);
             };
 
             virtual long long size() const {
                 return passed->stored;
             };
-            virtual long long explored() {return waiting_list->Size();};
+            virtual long long explored() {return waiting_list->size();};
             void printMemStats() {
                 passed->printMemStats();
             }

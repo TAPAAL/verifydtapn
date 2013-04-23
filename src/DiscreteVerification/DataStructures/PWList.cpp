@@ -21,7 +21,7 @@ bool PWList::add(NonStrictMarking* marking){
                         marking->meta = (*iter)->meta;
                         if(!marking->meta->passed){
                                 (*iter)->setGeneratedBy(marking->getGeneratedBy());
-                                waiting_list->Add(*iter, *iter);
+                                waiting_list->add(*iter, *iter);
                                 return true;
                         }
                     }
@@ -31,12 +31,12 @@ bool PWList::add(NonStrictMarking* marking){
         stored++;
 	m.push_back(marking);
         marking->meta = new MetaData();
-	waiting_list->Add(marking, marking);
+	waiting_list->add(marking, marking);
 	return true;
 }
 
 NonStrictMarking* PWList::getNextUnexplored(){
-	return waiting_list->Pop();
+	return waiting_list->pop();
 }
 
 PWList::~PWList() {
@@ -78,7 +78,7 @@ std::ostream& operator<<(std::ostream& out, PWList& x){
                     meta->ep = new EncodingPointer<MetaData > (res.encoding, res.pos);
                     meta->parent = parent;
                 }
-                this->waiting_list->Add(marking, new EncodingPointer<MetaData > (res.encoding, res.pos));
+                this->waiting_list->add(marking, new EncodingPointer<MetaData > (res.encoding, res.pos));
             } else{
                 if(isLiveness){
                         marking->meta = res.encoding.getMetaData();
@@ -87,7 +87,7 @@ std::ostream& operator<<(std::ostream& out, PWList& x){
                         }
                 }
                 if(isLiveness && !marking->meta->passed){
-                    this->waiting_list->Add(marking, new EncodingPointer<MetaData > (res.encoding, res.pos));
+                    this->waiting_list->add(marking, new EncodingPointer<MetaData > (res.encoding, res.pos));
                     return true;
                 }
             }
@@ -95,7 +95,7 @@ std::ostream& operator<<(std::ostream& out, PWList& x){
         }
 
         NonStrictMarking* PWListHybrid::getNextUnexplored() {
-            EncodingPointer<MetaData>* p = waiting_list->Pop();
+            EncodingPointer<MetaData>* p = waiting_list->pop();
             NonStrictMarkingBase* base = passed->enumerateDecode(*p);
             NonStrictMarking* m = new NonStrictMarking(*base);
             delete base;
