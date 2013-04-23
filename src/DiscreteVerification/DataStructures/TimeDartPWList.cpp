@@ -10,7 +10,7 @@
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
-bool TimeDartPWHashMap::Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* marking, int youngest, WaitingDart* parent, int upper, int start){
+bool TimeDartPWHashMap::add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* marking, int youngest, WaitingDart* parent, int upper, int start){
 	discoveredMarkings++;
 	TimeDartList& m = markings_storage[marking->getHashKey()];
 	for(TimeDartList::const_iterator iter = m.begin();
@@ -49,11 +49,11 @@ bool TimeDartPWHashMap::Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* 
 	return true;
 }
 
-TimeDartBase* TimeDartPWHashMap::GetNextUnexplored(){
+TimeDartBase* TimeDartPWHashMap::getNextUnexplored(){
 	return waiting_list->Pop();
 }
 
-bool TimeDartPWPData::Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* marking, int youngest, WaitingDart* parent, int upper, int start){
+bool TimeDartPWPData::add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* marking, int youngest, WaitingDart* parent, int upper, int start){
 	discoveredMarkings++;
         PData<TimeDartBase>::Result res = passed.add(marking);
 
@@ -94,7 +94,7 @@ bool TimeDartPWPData::Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* ma
 	return true;
 }
 
-TimeDartBase* TimeDartPWPData::GetNextUnexplored(){
+TimeDartBase* TimeDartPWPData::getNextUnexplored(){
   
     EncodingPointer<TimeDartBase>* p = waiting_list->Pop();
     NonStrictMarkingBase* m = passed.enumerateDecode(*p);
