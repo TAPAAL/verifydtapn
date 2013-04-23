@@ -20,7 +20,7 @@ LivenessSearch::LivenessSearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, 
 
 }
 
-bool LivenessSearch::Verify(){
+bool LivenessSearch::verify(){
 	if(addToPW(&initialMarking, NULL)){
 		return true;
 	}

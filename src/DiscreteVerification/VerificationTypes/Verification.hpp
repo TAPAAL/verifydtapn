@@ -12,7 +12,7 @@ namespace VerifyTAPN {
         template<typename T>
         class Verification {
         public:
-            virtual bool Verify() = 0;
+            virtual bool verify() = 0;
 
             virtual ~Verification() {
             };

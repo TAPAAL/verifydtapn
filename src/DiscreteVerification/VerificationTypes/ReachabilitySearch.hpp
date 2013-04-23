@@ -35,8 +35,8 @@ public:
         ReachabilitySearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options);
 	ReachabilitySearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list);
 	virtual ~ReachabilitySearch();
-	bool Verify();
-	NonStrictMarking* GetLastMarking() { return lastMarking; }
+	bool verify();
+	NonStrictMarking* getLastMarking() { return lastMarking; }
 	inline unsigned int maxUsedTokens(){ return pwList->maxNumTokensInAnyMarking; };
 	void printTransitionStatistics() const { successorGenerator.PrintTransitionStatistics(std::cout); }
         virtual void deleteMarking(NonStrictMarking* m) {

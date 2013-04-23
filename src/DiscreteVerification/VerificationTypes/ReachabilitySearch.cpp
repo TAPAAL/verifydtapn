@@ -20,7 +20,7 @@ ReachabilitySearch::ReachabilitySearch(boost::shared_ptr<TAPN::TimedArcPetriNet>
 
 }
 
-bool ReachabilitySearch::Verify(){
+bool ReachabilitySearch::verify(){
 	if(addToPW(&initialMarking, NULL)){
 		return true;
 	}

@@ -37,7 +37,7 @@ public:
             pwList = new TimeDartPWHashMap(waiting_list, options.GetTrace());
         };
         virtual ~TimeDartReachabilitySearch();
-	bool Verify();
+	bool verify();
 
 	inline unsigned int maxUsedTokens(){ return pwList->maxNumTokensInAnyMarking; };
         virtual inline bool addToPW(NonStrictMarkingBase* m){

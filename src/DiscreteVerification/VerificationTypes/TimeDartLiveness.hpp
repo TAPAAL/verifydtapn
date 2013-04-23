@@ -38,7 +38,7 @@ namespace VerifyTAPN {
                 pwList = new TimeDartLivenessPWHashMap( options, waiting_list);
             };
             virtual ~TimeDartLiveness();
-            bool Verify();
+            bool verify();
 
             inline unsigned int maxUsedTokens() {
                 return pwList->maxNumTokensInAnyMarking;
