@@ -16,8 +16,8 @@ namespace VerifyTAPN {
             }
 
             //Main loop
-            while (pwList->HasWaitingStates()) {
-                WaitingDart* waitingDart = pwList->GetNextUnexplored();
+            while (pwList->hasWaitingStates()) {
+                WaitingDart* waitingDart = pwList->getNextUnexplored();
                 exploredMarkings++;
                 
                 // Add trace meta data ("add to trace")
@@ -49,7 +49,7 @@ namespace VerifyTAPN {
                     if (waitingDart->parent != NULL) {
                         ((LivenessDart*)waitingDart->parent->dart)->traceData->pop_back();
                     }
-                    pwList->PopWaiting();
+                    pwList->popWaiting();
                     continue;
                 }
 
@@ -129,7 +129,7 @@ namespace VerifyTAPN {
             const TimedTransition* transition = marking->getGeneratedBy();
             unsigned int size = marking->size();
 
-            pwList->SetMaxNumTokensIfGreater(size);
+            pwList->setMaxNumTokensIfGreater(size);
 
             if (size > options.GetKBound()) {
                 delete marking;
@@ -142,7 +142,7 @@ namespace VerifyTAPN {
             boost::any context;
             query->Accept(checker, context);
             if (boost::any_cast<bool>(context)) {
-                std::pair < LivenessDart*, bool> result = pwList->Add(tapn.get(), marking, youngest, parent, upper, start);
+                std::pair < LivenessDart*, bool> result = pwList->add(tapn.get(), marking, youngest, parent, upper, start);
 
 
                 if (parent != NULL && parent->dart->getBase()->equals(*result.first->getBase()) && youngest <= upper) {
@@ -184,7 +184,7 @@ namespace VerifyTAPN {
         void TimeDartLiveness::printStats() {
             std::cout << "  discovered markings:\t" << pwList->discoveredMarkings << std::endl;
             std::cout << "  explored markings:\t" << exploredMarkings << std::endl;
-            std::cout << "  stored markings:\t" << pwList->Size() << std::endl;
+            std::cout << "  stored markings:\t" << pwList->size() << std::endl;
         }
 
         TimeDartLiveness::~TimeDartLiveness() {

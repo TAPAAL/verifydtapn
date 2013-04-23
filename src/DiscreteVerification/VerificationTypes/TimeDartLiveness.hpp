@@ -83,7 +83,7 @@ namespace VerifyTAPN {
             virtual inline NonStrictMarkingBase* getBase(TimeDartBase* dart){
                 EncodedLivenessDart* eld = (EncodedLivenessDart*)dart;
                 EncodingPointer<LivenessDart>* ep = (EncodingPointer<LivenessDart>*)(eld->encoding);
-                return ((TimeDartLivenessPWPData*)pwList)->Decode(ep);
+                return ((TimeDartLivenessPWPData*)pwList)->decode(ep);
             };
         };
 

@@ -10,7 +10,7 @@
 namespace VerifyTAPN {
     namespace DiscreteVerification {
 
-        std::pair<LivenessDart*, bool> TimeDartLivenessPWHashMap::Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* marking, int youngest, WaitingDart* parent, int upper, int start) {
+        std::pair<LivenessDart*, bool> TimeDartLivenessPWHashMap::add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* marking, int youngest, WaitingDart* parent, int upper, int start) {
             discoveredMarkings++;
             TimeDartList& m = markings_storage[marking->getHashKey()];
             for (TimeDartList::const_iterator iter = m.begin();
@@ -48,11 +48,11 @@ namespace VerifyTAPN {
             return result;
         }
 
-        WaitingDart* TimeDartLivenessPWHashMap::GetNextUnexplored() {
+        WaitingDart* TimeDartLivenessPWHashMap::getNextUnexplored() {
             return waiting_list->Peek();
         }
 
-        void TimeDartLivenessPWHashMap::PopWaiting() {
+        void TimeDartLivenessPWHashMap::popWaiting() {
             delete waiting_list->Pop();
         }
 
@@ -61,7 +61,7 @@ namespace VerifyTAPN {
             waiting_list->flushBuffer();
         }
 
-        std::pair<LivenessDart*, bool> TimeDartLivenessPWPData::Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* marking, int youngest, WaitingDart* parent, int upper, int start) {
+        std::pair<LivenessDart*, bool> TimeDartLivenessPWPData::add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* marking, int youngest, WaitingDart* parent, int upper, int start) {
 
             
             discoveredMarkings++;
@@ -124,7 +124,7 @@ namespace VerifyTAPN {
             return result;
         }
 
-        WaitingDart* TimeDartLivenessPWPData::GetNextUnexplored() {
+        WaitingDart* TimeDartLivenessPWPData::getNextUnexplored() {
             EncodingPointer<WaitingDart>* ewp =  waiting_list->Peek();
             WaitingDart* wd = ewp->encoding.getMetaData();
             NonStrictMarkingBase* base = passed.enumerateDecode(*((EncodingPointer<LivenessDart>*)ewp));
@@ -135,7 +135,7 @@ namespace VerifyTAPN {
             return wd;
         }
 
-        void TimeDartLivenessPWPData::PopWaiting() {
+        void TimeDartLivenessPWPData::popWaiting() {
             EncodingPointer<WaitingDart>* ewp =  waiting_list->Pop();
             WaitingDart* wd = ewp->encoding.getMetaData();
             delete wd->dart->getBase();
