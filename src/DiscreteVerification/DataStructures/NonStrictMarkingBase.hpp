@@ -32,14 +32,14 @@ public:
 	Token(int age, int count) : age(age), count(count) {  };
 	Token(const Token& t) : age(t.age), count(t.count) {  };
 
-	bool equals(const Token &t) const { return (this->age == t.age && this->count == t.count); };
+	inline bool equals(const Token &t) const { return (this->age == t.age && this->count == t.count); };
 
-	void add(int num){ count = count + num; };
-	int getCount() const { return count; };
-	int getAge() const { return age; };
-	void setAge(int i) { age = i; };
-	void setCount(int i) { count = i; };
-	void remove(int num){ count = count - num; };
+	inline void add(int num){ count = count + num; };
+	inline int getCount() const { return count; };
+	inline int getAge() const { return age; };
+	inline void setAge(int i) { age = i; };
+	inline void setCount(int i) { count = i; };
+	inline void remove(int num){ count = count - num; };
 
 	// Ages all tokens by 1
 	inline void incrementAge(){
@@ -83,7 +83,7 @@ public:
 		return seed;
 	}
 
-	int NumberOfTokens() const{
+	inline int NumberOfTokens() const{
 		int count = 0;
 		for(TokenList::const_iterator iter = tokens.begin(); iter != tokens.end(); iter++){
 			count += iter->getCount();
@@ -91,7 +91,7 @@ public:
 		return count;
 	}
 
-	int MaxTokenAge() const{
+	inline int MaxTokenAge() const{
 		int max = -1;
 		for(TokenList::const_iterator iter = tokens.begin(); iter != tokens.end(); iter++){
 			if(iter->getAge() > max) max = iter->getAge();
@@ -100,19 +100,19 @@ public:
 	}
 
 	// Ages all tokens by 1
-	void incrementAge(){
+	inline void incrementAge(){
 		for(TokenList::iterator iter = tokens.begin(); iter != tokens.end(); iter++){
 			iter->incrementAge();
 		}
 	}
 
-	void incrementAge(int age){
+	inline void incrementAge(int age){
 		for(TokenList::iterator iter = tokens.begin(); iter != tokens.end(); iter++){
 			iter->incrementAge(age);
 		}
 	}
 
-	void decrementAge(){
+	inline void decrementAge(){
 		for(TokenList::iterator iter = tokens.begin(); iter != tokens.end(); iter++){
 			iter->decrementAge();
 		}
@@ -136,12 +136,12 @@ public:
 	public: // inspectors
 		int NumberOfTokensInPlace(int placeId) const;
 		const TokenList& GetTokenList(int placeId) const;
-		const PlaceList& GetPlaceList() const{ return places; }
+		inline const PlaceList& GetPlaceList() const{ return places; }
 		unsigned int size();
-		const NonStrictMarkingBase* GetParent() const { return parent; }
-		const TAPN::TimedTransition* GetGeneratedBy() const { return generatedBy; }
+		inline const NonStrictMarkingBase* GetParent() const { return parent; }
+		inline const TAPN::TimedTransition* GetGeneratedBy() const { return generatedBy; }
 		bool equals(const NonStrictMarkingBase &m1) const;
-                int numberOfChildren(){
+                inline int numberOfChildren(){
                     return children;
                 }
 
@@ -153,22 +153,36 @@ public:
 		void AddTokenInPlace(TAPN::TimedPlace& place, int age);
 		void AddTokenInPlace(Place& place, Token& token);
 		void AddTokenInPlace(const TAPN::TimedPlace& place, Token& token);
-		void incrementAge();	// increment
-		void incrementAge(int age);
-		void decrementAge();	// decrement
+                inline void incrementAge(){
+                        for(PlaceList::iterator iter = places.begin(); iter != places.end(); iter++){
+                                iter->incrementAge();
+                        }
+                }
+
+                inline void incrementAge(int age){
+                        for(PlaceList::iterator iter = places.begin(); iter != places.end(); iter++){
+                                iter->incrementAge(age);
+                        }
+                }
+
+                inline void decrementAge(){
+                        for(PlaceList::iterator iter = places.begin(); iter != places.end(); iter++){
+                                iter->decrementAge();
+                        }
+                }
 		void RemoveRangeOfTokens(Place& place, TokenList::iterator begin, TokenList::iterator end);
-		void SetParent(NonStrictMarkingBase* parent) { this->parent = parent; }
-		void SetGeneratedBy(const TAPN::TimedTransition* generatedBy) { this->generatedBy = generatedBy; }
-                void setNumberOfChildren(int i){
+		inline void SetParent(NonStrictMarkingBase* parent) { this->parent = parent; }
+		inline void SetGeneratedBy(const TAPN::TimedTransition* generatedBy) { this->generatedBy = generatedBy; }
+                inline void setNumberOfChildren(int i){
                     children = i;
                 }
-                void incrementNumberOfChildren(){
+                inline  void incrementNumberOfChildren(){
                     ++children;
                 }
-                void decrementNumberOfChildren(){
+                inline void decrementNumberOfChildren(){
                     --children;
                 }
-		void CleanUp() {
+		inline void CleanUp() {
 			for(unsigned int i = 0; i < places.size(); i++){
 				if(places[i].tokens.empty()){
 					places.erase(places.begin()+i);

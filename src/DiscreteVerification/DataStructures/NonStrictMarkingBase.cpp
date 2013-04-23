@@ -196,24 +196,6 @@ void NonStrictMarkingBase::AddTokenInPlace(Place& place, Token& token){
 	}
 }
 
-void NonStrictMarkingBase::incrementAge(){
-	for(PlaceList::iterator iter = places.begin(); iter != places.end(); iter++){
-		iter->incrementAge();
-	}
-}
-
-void NonStrictMarkingBase::incrementAge(int age){
-	for(PlaceList::iterator iter = places.begin(); iter != places.end(); iter++){
-		iter->incrementAge(age);
-	}
-}
-
-void NonStrictMarkingBase::decrementAge(){
-	for(PlaceList::iterator iter = places.begin(); iter != places.end(); iter++){
-		iter->decrementAge();
-	}
-}
-
 NonStrictMarkingBase::~NonStrictMarkingBase() { }
 
 bool NonStrictMarkingBase::equals(const NonStrictMarkingBase &m1) const{
