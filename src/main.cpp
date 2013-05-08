@@ -17,7 +17,7 @@ int main(int argc, char* argv[])
 	srand ( time(NULL) );
 
 	ArgsParser parser;
-	VerificationOptions options = parser.Parse(argc, argv);
+	VerificationOptions options = parser.parse(argc, argv);
 
 	TAPNXmlParser modelParser;
 	boost::shared_ptr<TAPN::TimedArcPetriNet> tapn;
