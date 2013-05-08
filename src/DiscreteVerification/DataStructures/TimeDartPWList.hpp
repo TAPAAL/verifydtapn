@@ -14,7 +14,7 @@
 #include "NonStrictMarkingBase.hpp"
 #include "WaitingList.hpp"
 #include "TimeDart.hpp"
-#include "PData.h"
+#include "PTrie.h"
 
 namespace VerifyTAPN {
     namespace DiscreteVerification {
@@ -97,7 +97,7 @@ namespace VerifyTAPN {
             }
         private:
             WaitingList<EncodingPointer<TimeDartBase> >* waiting_list;
-            PData<TimeDartBase> passed;
+            PTrie<TimeDartBase> passed;
             virtual bool add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* marking, int youngest, WaitingDart* parent, int upper, int start);
             virtual TimeDartBase* getNextUnexplored();
 

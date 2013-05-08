@@ -59,7 +59,7 @@ std::ostream& operator<<(std::ostream& out, PWList& x){
             discoveredMarkings++;
             // reset the encoding array
 
-            PData<MetaData>::Result res = passed->add(marking);
+            PTrie<MetaData>::Result res = passed->add(marking);
             if(res.isNew){
                 if(isLiveness){
                     MetaData* meta;

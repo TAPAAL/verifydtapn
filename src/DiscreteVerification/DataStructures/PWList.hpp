@@ -68,7 +68,7 @@ public:
 class PWListHybrid : public PWListBase {
         public:
             typedef unsigned int uint;
-            PData<MetaData>* passed;
+            PTrie<MetaData>* passed;
 
         public:
 
@@ -77,7 +77,7 @@ class PWListHybrid : public PWListBase {
             waiting_list(w_l),
             makeTrace(makeTrace) {
                 discoveredMarkings = 0;
-                passed = new PData<MetaData>(tapn, knumber,nplaces,mage);
+                passed = new PTrie<MetaData>(tapn, knumber,nplaces,mage);
                 parent = NULL;
             };
             virtual ~PWListHybrid();

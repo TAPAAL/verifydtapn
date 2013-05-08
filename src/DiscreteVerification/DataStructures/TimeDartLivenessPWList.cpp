@@ -65,7 +65,7 @@ namespace VerifyTAPN {
 
             
             discoveredMarkings++;
-            PData<LivenessDart>::Result res = passed.add(marking);
+            PTrie<LivenessDart>::Result res = passed.add(marking);
 
                 if (!res.isNew) {
                     LivenessDart* td = res.encoding.getMetaData();

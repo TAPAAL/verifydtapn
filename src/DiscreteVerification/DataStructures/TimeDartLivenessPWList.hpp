@@ -14,7 +14,7 @@
 #include "NonStrictMarkingBase.hpp"
 #include "WaitingList.hpp"
 #include "TimeDart.hpp"
-#include "PData.h"
+#include "PTrie.h"
 
 namespace VerifyTAPN {
     namespace DiscreteVerification {
@@ -109,7 +109,7 @@ namespace VerifyTAPN {
         private:
             VerificationOptions options;
             WaitingList<EncodingPointer<WaitingDart> >* waiting_list;
-            PData<LivenessDart> passed;
+            PTrie<LivenessDart> passed;
         };
 
     } /* namespace DiscreteVerification */

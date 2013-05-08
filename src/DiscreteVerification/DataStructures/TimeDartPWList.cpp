@@ -55,7 +55,7 @@ TimeDartBase* TimeDartPWHashMap::getNextUnexplored(){
 
 bool TimeDartPWPData::add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* marking, int youngest, WaitingDart* parent, int upper, int start){
 	discoveredMarkings++;
-        PData<TimeDartBase>::Result res = passed.add(marking);
+        PTrie<TimeDartBase>::Result res = passed.add(marking);
 
         if(!res.isNew){
             TimeDartBase* t = res.encoding.getMetaData();

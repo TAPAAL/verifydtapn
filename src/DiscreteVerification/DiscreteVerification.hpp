@@ -25,7 +25,7 @@
 #include "VerificationTypes/TimeDartReachabilitySearch.hpp"
 #include "VerificationTypes/TimeDartLiveness.hpp"
 #include "SearchStrategies/SearchFactory.h"
-#include "DataStructures/PData.h"
+#include "DataStructures/PTrie.h"
 
 
 namespace VerifyTAPN {

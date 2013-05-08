@@ -24,7 +24,7 @@
 #include <deque>
 #include <stack>
 #include <vector>
-#include "PData.h"
+#include "PTrie.h"
 
 namespace VerifyTAPN {
 namespace DiscreteVerification {
