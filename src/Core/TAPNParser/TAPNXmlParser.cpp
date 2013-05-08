@@ -9,7 +9,7 @@
 namespace VerifyTAPN {
 using namespace rapidxml;
 
-boost::shared_ptr<TimedArcPetriNet> TAPNXmlParser::Parse(const std::string & filename) const
+boost::shared_ptr<TimedArcPetriNet> TAPNXmlParser::parse(const std::string & filename) const
 {
 	const std::string contents = VerifyTAPN::ReadFile(filename);
 	std::vector<char> charArray(contents.begin(), contents.end());
@@ -24,10 +24,10 @@ boost::shared_ptr<TimedArcPetriNet> TAPNXmlParser::Parse(const std::string & fil
 	xml_node<>* root = pnml->first_node("net");
 	if(root == 0) throw std::string("invalid file.");
 
-	return ParseTAPN(*root);
+	return parseTAPN(*root);
 }
 
-std::vector<int> TAPNXmlParser::ParseMarking(const std::string & filename, const TimedArcPetriNet& tapn) const
+std::vector<int> TAPNXmlParser::parseMarking(const std::string & filename, const TimedArcPetriNet& tapn) const
 {
 	const std::string contents = VerifyTAPN::ReadFile(filename); // not sure if this is a good idea, because it copies to string? Maybe the compiler is smart enough not to make a copy
 	std::vector<char> charArray(contents.begin(), contents.end());
@@ -38,28 +38,28 @@ std::vector<int> TAPNXmlParser::ParseMarking(const std::string & filename, const
 
 	xml_node<>* pnml = xmldoc.first_node("pnml"); // we don't need error handling here, since we are parsing the same file as above
 	xml_node<>* root = pnml->first_node("net");
-	return ParseInitialMarking(*root, tapn);
+	return parseInitialMarking(*root, tapn);
 }
 
-boost::shared_ptr<TimedArcPetriNet> TAPNXmlParser::ParseTAPN(const xml_node<>& root) const
+boost::shared_ptr<TimedArcPetriNet> TAPNXmlParser::parseTAPN(const xml_node<>& root) const
 {
-	TimedPlace::Vector places = ParsePlaces(root);
-	TimedTransition::Vector transitions = ParseTransitions(root);
+	TimedPlace::Vector places = parsePlaces(root);
+	TimedTransition::Vector transitions = parseTransitions(root);
 
-	TAPNXmlParser::ArcCollections arcs = ParseArcs(root, places, transitions);
+	TAPNXmlParser::ArcCollections arcs = parseArcs(root, places, transitions);
 
 	boost::shared_ptr<TimedArcPetriNet> tapn = boost::make_shared<TimedArcPetriNet>(places, transitions, arcs.inputArcs, arcs.outputArcs, arcs.transportArcs, arcs.inhibitorArcs);
 
 	return tapn;
 }
 
-TimedPlace::Vector TAPNXmlParser::ParsePlaces(const xml_node<>& root) const
+TimedPlace::Vector TAPNXmlParser::parsePlaces(const xml_node<>& root) const
 {
 	TimedPlace::Vector places;
 
 	xml_node<>* placeNode = root.first_node("place");
 	while(placeNode != NULL){
-		boost::shared_ptr<TimedPlace> place = ParsePlace(*placeNode);
+		boost::shared_ptr<TimedPlace> place = parsePlace(*placeNode);
 		places.push_back(place);
 		placeNode = placeNode->next_sibling("place");
 	}
@@ -67,7 +67,7 @@ TimedPlace::Vector TAPNXmlParser::ParsePlaces(const xml_node<>& root) const
 	return places;
 }
 
-boost::shared_ptr<TimedPlace> TAPNXmlParser::ParsePlace(const xml_node<>& placeNode) const
+boost::shared_ptr<TimedPlace> TAPNXmlParser::parsePlace(const xml_node<>& placeNode) const
 {
 	std::string id(placeNode.first_attribute("id")->value());
 	std::string name(placeNode.first_attribute("name")->value());
@@ -77,13 +77,13 @@ boost::shared_ptr<TimedPlace> TAPNXmlParser::ParsePlace(const xml_node<>& placeN
 	return boost::make_shared<TimedPlace>(name, id, timeInvariant);
 }
 
-TimedTransition::Vector TAPNXmlParser::ParseTransitions(const xml_node<>& root) const
+TimedTransition::Vector TAPNXmlParser::parseTransitions(const xml_node<>& root) const
 {
 	TimedTransition::Vector transitions;
 
 	xml_node<>* transitionNode = root.first_node("transition");
 	while(transitionNode != NULL){
-		boost::shared_ptr<TimedTransition> transition = ParseTransition(*transitionNode);
+		boost::shared_ptr<TimedTransition> transition = parseTransition(*transitionNode);
 		transitions.push_back(transition);
 		transitionNode = transitionNode->next_sibling("transition");
 	}
@@ -91,71 +91,71 @@ TimedTransition::Vector TAPNXmlParser::ParseTransitions(const xml_node<>& root) 
 	return transitions;
 }
 
-boost::shared_ptr<TimedTransition> TAPNXmlParser::ParseTransition(const xml_node<>& transitionNode) const
+boost::shared_ptr<TimedTransition> TAPNXmlParser::parseTransition(const xml_node<>& transitionNode) const
 {
 	std::string id(transitionNode.first_attribute("id")->value());
 	std::string name(transitionNode.first_attribute("name")->value());
 	return boost::make_shared<TimedTransition>(name, id);
 }
 
-TAPNXmlParser::ArcCollections TAPNXmlParser::ParseArcs(const xml_node<>& root, const TimedPlace::Vector& places, const TimedTransition::Vector& transitions) const
+TAPNXmlParser::ArcCollections TAPNXmlParser::parseArcs(const xml_node<>& root, const TimedPlace::Vector& places, const TimedTransition::Vector& transitions) const
 {
 
-	TimedInputArc::Vector inputArcs = ParseInputArcs(root, places, transitions);
-	TransportArc::Vector transportArcs = ParseTransportArcs(root, places, transitions);
-	InhibitorArc::Vector inhibitorArcs = ParseInhibitorArcs(root,places,transitions);
-	OutputArc::Vector outputArcs = ParseOutputArcs(root, places, transitions);
+	TimedInputArc::Vector inputArcs = parseInputArcs(root, places, transitions);
+	TransportArc::Vector transportArcs = parseTransportArcs(root, places, transitions);
+	InhibitorArc::Vector inhibitorArcs = parseInhibitorArcs(root,places,transitions);
+	OutputArc::Vector outputArcs = parseOutputArcs(root, places, transitions);
 
 	return ArcCollections(inputArcs, outputArcs, transportArcs, inhibitorArcs);
 }
 
-TransportArc::Vector TAPNXmlParser::ParseTransportArcs(const rapidxml::xml_node<>& root, const TimedPlace::Vector& places, const TimedTransition::Vector& transitions) const
+TransportArc::Vector TAPNXmlParser::parseTransportArcs(const rapidxml::xml_node<>& root, const TimedPlace::Vector& places, const TimedTransition::Vector& transitions) const
 {
 	TransportArc::Vector transportArcs;
 	xml_node<>* arcNode = root.first_node("transportArc");
 	while(arcNode != NULL){
-		transportArcs.push_back(ParseTransportArc(*arcNode, places, transitions));
+		transportArcs.push_back(parseTransportArc(*arcNode, places, transitions));
 		arcNode = arcNode->next_sibling("transportArc");
 	}
 	return transportArcs;
 }
 
-InhibitorArc::Vector TAPNXmlParser::ParseInhibitorArcs(const rapidxml::xml_node<>& root, const TimedPlace::Vector& places, const TimedTransition::Vector& transitions) const
+InhibitorArc::Vector TAPNXmlParser::parseInhibitorArcs(const rapidxml::xml_node<>& root, const TimedPlace::Vector& places, const TimedTransition::Vector& transitions) const
 {
 	InhibitorArc::Vector inhibitorArcs;
 	xml_node<>* arcNode = root.first_node("inhibitorArc");
 	while(arcNode != NULL){
-		inhibitorArcs.push_back(ParseInhibitorArc(*arcNode, places, transitions));
+		inhibitorArcs.push_back(parseInhibitorArc(*arcNode, places, transitions));
 		arcNode = arcNode->next_sibling("inhibitorArc");
 	}
 	return inhibitorArcs;
 }
 
-TimedInputArc::Vector TAPNXmlParser::ParseInputArcs(const xml_node<>& root, const TimedPlace::Vector& places, const TimedTransition::Vector& transitions) const
+TimedInputArc::Vector TAPNXmlParser::parseInputArcs(const xml_node<>& root, const TimedPlace::Vector& places, const TimedTransition::Vector& transitions) const
 {
 	TimedInputArc::Vector inputArcs;
 	xml_node<>* arcNode = root.first_node("inputArc");
 	while(arcNode != NULL){
-		inputArcs.push_back(ParseInputArc(*arcNode, places, transitions));
+		inputArcs.push_back(parseInputArc(*arcNode, places, transitions));
 		arcNode = arcNode->next_sibling("inputArc");
 	}
 
 	return inputArcs;
 }
 
-OutputArc::Vector TAPNXmlParser::ParseOutputArcs(const xml_node<>& root, const TimedPlace::Vector& places, const TimedTransition::Vector& transitions) const
+OutputArc::Vector TAPNXmlParser::parseOutputArcs(const xml_node<>& root, const TimedPlace::Vector& places, const TimedTransition::Vector& transitions) const
 {
 	OutputArc::Vector outputArcs;
 	xml_node<>* arcNode = root.first_node("outputArc");
 	while(arcNode != NULL){
-		outputArcs.push_back(ParseOutputArc(*arcNode, places, transitions));
+		outputArcs.push_back(parseOutputArc(*arcNode, places, transitions));
 		arcNode = arcNode->next_sibling("outputArc");
 	}
 
 	return outputArcs;
 }
 
-boost::shared_ptr<TimedInputArc> TAPNXmlParser::ParseInputArc(const rapidxml::xml_node<>& arcNode, const TimedPlace::Vector& places, const TimedTransition::Vector& transitions) const
+boost::shared_ptr<TimedInputArc> TAPNXmlParser::parseInputArc(const rapidxml::xml_node<>& arcNode, const TimedPlace::Vector& places, const TimedTransition::Vector& transitions) const
 {
 	std::string source = arcNode.first_attribute("source")->value();
 	std::string target = arcNode.first_attribute("target")->value();
@@ -172,7 +172,7 @@ boost::shared_ptr<TimedInputArc> TAPNXmlParser::ParseInputArc(const rapidxml::xm
 	return boost::make_shared<TimedInputArc>(*place, *transition, weight, TimeInterval::createFor(interval));
 }
 
-boost::shared_ptr<TransportArc> TAPNXmlParser::ParseTransportArc(const rapidxml::xml_node<>& arcNode, const TimedPlace::Vector& places, const TimedTransition::Vector& transitions) const
+boost::shared_ptr<TransportArc> TAPNXmlParser::parseTransportArc(const rapidxml::xml_node<>& arcNode, const TimedPlace::Vector& places, const TimedTransition::Vector& transitions) const
 {
 	std::string sourceName = arcNode.first_attribute("source")->value();
 	std::string transitionName = arcNode.first_attribute("transition")->value();
@@ -190,7 +190,7 @@ boost::shared_ptr<TransportArc> TAPNXmlParser::ParseTransportArc(const rapidxml:
 	return boost::make_shared<TransportArc>(*source, *transition, *target, TimeInterval::createFor(interval), weight);
 }
 
-boost::shared_ptr<InhibitorArc> TAPNXmlParser::ParseInhibitorArc(const rapidxml::xml_node<>& arcNode, const TimedPlace::Vector& places, const TimedTransition::Vector& transitions) const
+boost::shared_ptr<InhibitorArc> TAPNXmlParser::parseInhibitorArc(const rapidxml::xml_node<>& arcNode, const TimedPlace::Vector& places, const TimedTransition::Vector& transitions) const
 {
 	std::string source = arcNode.first_attribute("source")->value();
 	std::string target = arcNode.first_attribute("target")->value();
@@ -206,7 +206,7 @@ boost::shared_ptr<InhibitorArc> TAPNXmlParser::ParseInhibitorArc(const rapidxml:
 	return boost::make_shared<InhibitorArc>(*place, *transition, weight);
 }
 
-boost::shared_ptr<OutputArc> TAPNXmlParser::ParseOutputArc(const rapidxml::xml_node<>& arcNode, const TimedPlace::Vector& places, const TimedTransition::Vector& transitions) const
+boost::shared_ptr<OutputArc> TAPNXmlParser::parseOutputArc(const rapidxml::xml_node<>& arcNode, const TimedPlace::Vector& places, const TimedTransition::Vector& transitions) const
 {
 	std::string source = arcNode.first_attribute("source")->value();
 	std::string target = arcNode.first_attribute("target")->value();
@@ -223,7 +223,7 @@ boost::shared_ptr<OutputArc> TAPNXmlParser::ParseOutputArc(const rapidxml::xml_n
 
 }
 
-std::vector<int> TAPNXmlParser::ParseInitialMarking(const rapidxml::xml_node<>& root, const TimedArcPetriNet& tapn) const
+std::vector<int> TAPNXmlParser::parseInitialMarking(const rapidxml::xml_node<>& root, const TimedArcPetriNet& tapn) const
 {
 	std::vector<int> markedPlaces;
 	xml_node<>* placeNode = root.first_node("place");
