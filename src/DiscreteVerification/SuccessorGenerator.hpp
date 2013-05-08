@@ -225,7 +225,7 @@ namespace VerifyTAPN {
                         arc_iter != iter->place->GetInhibitorArcs().end(); arc_iter++) {
                     TimeInterval t(false, 0, std::numeric_limits<int>().max(), true);
                     processArc(enabledArcs, enabledTransitionArcs, enabledTransitions,
-                            *iter, t, arc_iter->lock().get(), arc_iter->lock()->OutputTransition(), std::numeric_limits<int>().max(), true);
+                            *iter, t, arc_iter->lock().get(), arc_iter->lock()->getOutputTransition(), std::numeric_limits<int>().max(), true);
                 }
             }
 
@@ -271,7 +271,7 @@ namespace VerifyTAPN {
 
                 for (TAPN::InhibitorArc::WeakPtrVector::const_iterator inhib_iter = (*iter)->GetInhibitorArcs().begin(); inhib_iter != (*iter)->GetInhibitorArcs().end(); inhib_iter++) {
                     // Maybe this could be done more efficiently using ArcHashMap? Dunno exactly how it works
-                    if (init_marking.numberOfTokensInPlace(inhib_iter->lock().get()->InputPlace().GetIndex()) >= inhib_iter->lock().get()->GetWeight()) {
+                    if (init_marking.numberOfTokensInPlace(inhib_iter->lock().get()->getInputPlace().GetIndex()) >= inhib_iter->lock().get()->getWeight()) {
                         inhibited = true;
                         break;
                     }

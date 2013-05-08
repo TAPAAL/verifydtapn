@@ -19,7 +19,7 @@ namespace VerifyTAPN {
             for (TAPN::InhibitorArc::WeakPtrVector::const_iterator arc = transition.GetInhibitorArcs().begin();
                     arc != transition.GetInhibitorArcs().end();
                     arc++) {
-                if (marking->numberOfTokensInPlace(arc->lock()->InputPlace().GetIndex()) >= arc->lock()->GetWeight()) {
+                if (marking->numberOfTokensInPlace(arc->lock()->getInputPlace().GetIndex()) >= arc->lock()->getWeight()) {
                     pair<int, int> p(-1, -1);
                     return p;
                 }

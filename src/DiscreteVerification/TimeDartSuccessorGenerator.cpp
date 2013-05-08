@@ -67,7 +67,7 @@ bool TimeDartSuccessorGenerator::generateMarkings( const NonStrictMarkingBase& i
 
 		for(TAPN::InhibitorArc::WeakPtrVector::const_iterator inhib_iter = transition.GetInhibitorArcs().begin(); inhib_iter != transition.GetInhibitorArcs().end(); inhib_iter++){
 			// Maybe this could be done more efficiently using ArcHashMap? Dunno exactly how it works
-			if(init_marking.numberOfTokensInPlace(inhib_iter->lock().get()->InputPlace().GetIndex()) >= inhib_iter->lock().get()->GetWeight()){
+			if(init_marking.numberOfTokensInPlace(inhib_iter->lock().get()->getInputPlace().GetIndex()) >= inhib_iter->lock().get()->getWeight()){
 				inhibited = true;
 				break;
 			}

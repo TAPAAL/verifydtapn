@@ -34,9 +34,9 @@ namespace VerifyTAPN {
 
 			for(InhibitorArc::Vector::const_iterator iter = inhibitorArcs.begin(); iter != inhibitorArcs.end(); ++iter) {
 				const boost::shared_ptr<InhibitorArc>& arc = *iter;
-				arc->OutputTransition().AddIncomingInhibitorArc(arc);
-				arc->InputPlace().AddInhibitorArc(arc);
-				arc->InputPlace().SetHasInhibitorArcs(true);
+				arc->getOutputTransition().AddIncomingInhibitorArc(arc);
+				arc->getInputPlace().AddInhibitorArc(arc);
+				arc->getInputPlace().SetHasInhibitorArcs(true);
 			}
 
 			for(OutputArc::Vector::const_iterator iter = outputArcs.begin(); iter != outputArcs.end(); ++iter)
@@ -172,7 +172,7 @@ namespace VerifyTAPN {
 					(*iter)->SetMaxConstant(maxConstant);
 
 					for(InhibitorArc::Vector::const_iterator inhib_iter = inhibitorArcs.begin(); inhib_iter != inhibitorArcs.end(); inhib_iter++){
-						if((*inhib_iter)->InputPlace().GetIndex() == (*iter)->GetIndex() && (*iter)->GetType() == Dead){
+						if((*inhib_iter)->getInputPlace().GetIndex() == (*iter)->GetIndex() && (*iter)->GetType() == Dead){
 							(*iter)->SetType(Std);
 						}
 					}
