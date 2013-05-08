@@ -6,7 +6,7 @@
 namespace VerifyTAPN {
 	namespace TAPN {
 		using namespace boost::algorithm;
-		TimeInterval TimeInterval::CreateFor(const std::string& interval)
+		TimeInterval TimeInterval::createFor(const std::string& interval)
 		{
 			bool leftStrict = boost::algorithm::icontains(interval, "(");
 			bool rightStrict = boost::algorithm::icontains(interval,")");
@@ -30,7 +30,7 @@ namespace VerifyTAPN {
 			return TimeInterval(leftStrict, lowerBound, upperBound, rightStrict);
 		}
 
-		void TimeInterval::Print(std::ostream& out) const
+		void TimeInterval::print(std::ostream& out) const
 		{
 			std::string leftParenthesis = leftStrict ? "(" : "[";
 			std::string rightParenthesis = rightStrict ? ")" : "]";

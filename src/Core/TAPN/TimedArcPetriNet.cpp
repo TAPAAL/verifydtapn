@@ -99,7 +99,7 @@ namespace VerifyTAPN {
 					{
 						if((*arcIter)->InputPlace() == **iter)
 						{
-							isUntimedPlace = isUntimedPlace && (*arcIter)->Interval().IsZeroInfinity();
+							isUntimedPlace = isUntimedPlace && (*arcIter)->Interval().isZeroInfinity();
 						}
 					}
 				}
@@ -127,8 +127,8 @@ namespace VerifyTAPN {
 							boost::shared_ptr<TimedInputArc> ia = *arcIter;
 							const TAPN::TimeInterval& interval = ia->Interval();
 
-							const int lowerBound = interval.GetLowerBound();
-							const int upperBound = interval.GetUpperBound();
+							const int lowerBound = interval.getLowerBound();
+							const int upperBound = interval.getUpperBound();
 
 							if(upperBound != std::numeric_limits<int>().max() || lowerBound != 0){
 								if(upperBound == std::numeric_limits<int>().max()){
@@ -149,8 +149,8 @@ namespace VerifyTAPN {
 							int maxArc = -1;
 							boost::shared_ptr<TransportArc> ta = *transport_iter;
 							const TAPN::TimeInterval& interval = ta->Interval();
-							const int lowerBound = interval.GetLowerBound();
-							const int upperBound = interval.GetUpperBound();
+							const int lowerBound = interval.getLowerBound();
+							const int upperBound = interval.getUpperBound();
 
 							if(upperBound != std::numeric_limits<int>().max() || lowerBound != 0){
 								if(upperBound == std::numeric_limits<int>().max()){
@@ -208,7 +208,7 @@ namespace VerifyTAPN {
 			result->push_back(&p);
 			for(TransportArc::Vector::const_iterator iter = this->GetTransportArcs().begin(); iter != this->GetTransportArcs().end(); iter++){
 				if((*iter)->Source() == p){
-					if((*iter)->Interval().GetUpperBound() == std::numeric_limits<int>().max()){
+					if((*iter)->Interval().getUpperBound() == std::numeric_limits<int>().max()){
 						calculateCausality((*iter)->Destination(), result);
 					}
 				}
@@ -238,8 +238,8 @@ namespace VerifyTAPN {
 
 		void TimedArcPetriNet::UpdateMaxConstant(const TimeInterval& interval)
 		{
-			int lowerBound = interval.GetLowerBound();
-			int upperBound = interval.GetUpperBound();
+			int lowerBound = interval.getLowerBound();
+			int upperBound = interval.getUpperBound();
 			if(lowerBound < std::numeric_limits<int>().max() && lowerBound > maxConstant)
 			{
 				maxConstant = lowerBound;
@@ -330,7 +330,7 @@ namespace VerifyTAPN {
 
 			for(TimedInputArc::Vector::const_iterator iter = inputArcs.begin(); iter != inputArcs.end(); iter++){
 				TimedInputArc& ia = *(*iter);
-				if(ia.Interval().IsLowerBoundStrict() || (ia.Interval().IsUpperBoundStrict() && ia.Interval().GetUpperBound() != std::numeric_limits<int>().max())){
+				if(ia.Interval().isLowerBoundStrict() || (ia.Interval().isUpperBoundStrict() && ia.Interval().getUpperBound() != std::numeric_limits<int>().max())){
 					return false;
 				}
 			}
@@ -338,7 +338,7 @@ namespace VerifyTAPN {
 
 			for(TransportArc::Vector::const_iterator iter = transportArcs.begin(); iter != transportArcs.end(); iter++){
 				TransportArc& ta = *(*iter);
-				if(ta.Interval().IsLowerBoundStrict() || (ta.Interval().IsUpperBoundStrict() && ta.Interval().GetUpperBound() != std::numeric_limits<int>().max())){
+				if(ta.Interval().isLowerBoundStrict() || (ta.Interval().isUpperBoundStrict() && ta.Interval().getUpperBound() != std::numeric_limits<int>().max())){
 					return false;
 				}
 			}

@@ -268,7 +268,7 @@ namespace VerifyTAPN {
             }
 
             for (TokenList::const_iterator iter = old_tokens.begin(); iter != old_tokens.end() && tokensFound < weight; iter++) {
-                if (iter->getAge() >= interval.GetLowerBound()) {
+                if (iter->getAge() >= interval.getLowerBound()) {
                     for (int i = 0; i < iter->getCount() && tokensFound < weight; i++) {
                         transitionNode->append_node(createTokenNode(doc, place, *iter));
                         tokensFound++;

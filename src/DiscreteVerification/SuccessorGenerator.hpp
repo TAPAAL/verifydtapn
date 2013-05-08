@@ -247,7 +247,7 @@ namespace VerifyTAPN {
                 ) const {
             bool arcIsEnabled = false;
             for (TokenList::const_iterator token_iter = place.tokens.begin(); token_iter != place.tokens.end(); token_iter++) {
-                if (interval.GetLowerBound() <= token_iter->getAge() && token_iter->getAge() <= interval.GetUpperBound() && token_iter->getAge() <= bound) {
+                if (interval.getLowerBound() <= token_iter->getAge() && token_iter->getAge() <= interval.getUpperBound() && token_iter->getAge() <= bound) {
                     enabledArcs[arcAddress].push_back(*token_iter);
                     arcIsEnabled = true;
                 }

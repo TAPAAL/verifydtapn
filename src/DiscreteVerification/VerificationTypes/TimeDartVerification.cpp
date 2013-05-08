@@ -30,10 +30,10 @@ namespace VerifyTAPN {
             for (TAPN::TimedInputArc::WeakPtrVector::const_iterator arc = transition.GetPreset().begin(); arc != transition.GetPreset().end(); arc++) {
                 vector<Util::interval > intervals;
                 int range;
-                if (arc->lock()->Interval().GetUpperBound() == INT_MAX) {
+                if (arc->lock()->Interval().getUpperBound() == INT_MAX) {
                     range = INT_MAX;
                 } else {
-                    range = arc->lock()->Interval().GetUpperBound() - arc->lock()->Interval().GetLowerBound();
+                    range = arc->lock()->Interval().getUpperBound() - arc->lock()->Interval().getLowerBound();
                 }
                 int weight = arc->lock()->GetWeight();
 
@@ -53,11 +53,11 @@ namespace VerifyTAPN {
                         j--;
                     }
                     if (numberOfTokensAvailable >= weight && tokens.at(j).getAge() - tokens.at(i).getAge() <= range) { //This span is interesting
-                        int low = arc->lock()->Interval().GetLowerBound() - tokens.at(i).getAge();
-                        int heigh = arc->lock()->Interval().GetUpperBound() - tokens.at(j).getAge();
+                        int low = arc->lock()->Interval().getLowerBound() - tokens.at(i).getAge();
+                        int heigh = arc->lock()->Interval().getUpperBound() - tokens.at(j).getAge();
 
                         Util::interval element(low < 0 ? 0 : low,
-                                arc->lock()->Interval().GetUpperBound() == INT_MAX ? INT_MAX : heigh);
+                                arc->lock()->Interval().getUpperBound() == INT_MAX ? INT_MAX : heigh);
                         Util::setAdd(intervals, element);
                     }
                     numberOfTokensAvailable -= tokens.at(i).getCount();
@@ -68,7 +68,7 @@ namespace VerifyTAPN {
 
             // Transport arcs
             for (TAPN::TransportArc::WeakPtrVector::const_iterator arc = transition.GetTransportArcs().begin(); arc != transition.GetTransportArcs().end(); arc++) {
-                Util::interval arcGuard(arc->lock()->Interval().GetLowerBound(), arc->lock()->Interval().GetUpperBound());
+                Util::interval arcGuard(arc->lock()->Interval().getLowerBound(), arc->lock()->Interval().getUpperBound());
                 Util::interval invGuard(0, arc->lock()->Destination().GetInvariant().GetBound());
 
                 Util::interval arcInterval = boost::numeric::intersect(arcGuard, invGuard);
