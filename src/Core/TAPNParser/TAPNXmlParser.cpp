@@ -11,7 +11,7 @@ using namespace rapidxml;
 
 boost::shared_ptr<TimedArcPetriNet> TAPNXmlParser::parse(const std::string & filename) const
 {
-	const std::string contents = VerifyTAPN::ReadFile(filename);
+	const std::string contents = VerifyTAPN::readFile(filename);
 	std::vector<char> charArray(contents.begin(), contents.end());
 	charArray.push_back('\0');
 
@@ -29,7 +29,7 @@ boost::shared_ptr<TimedArcPetriNet> TAPNXmlParser::parse(const std::string & fil
 
 std::vector<int> TAPNXmlParser::parseMarking(const std::string & filename, const TimedArcPetriNet& tapn) const
 {
-	const std::string contents = VerifyTAPN::ReadFile(filename); // not sure if this is a good idea, because it copies to string? Maybe the compiler is smart enough not to make a copy
+	const std::string contents = VerifyTAPN::readFile(filename); // not sure if this is a good idea, because it copies to string? Maybe the compiler is smart enough not to make a copy
 	std::vector<char> charArray(contents.begin(), contents.end());
 	charArray.push_back('\0');
 
