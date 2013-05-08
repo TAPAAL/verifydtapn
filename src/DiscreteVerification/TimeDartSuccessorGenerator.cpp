@@ -203,8 +203,8 @@ bool TimeDartSuccessorGenerator::insertMarking(NonStrictMarkingBase& init_markin
 	}
 
 	for(OutputArc::WeakPtrVector::const_iterator postsetIter = transition.GetPostset().begin(); postsetIter != transition.GetPostset().end(); postsetIter++){
-		Token t(0, postsetIter->lock()->GetWeight());
-		m->addTokenInPlace(postsetIter->lock()->OutputPlace(), t);
+		Token t(0, postsetIter->lock()->getWeight());
+		m->addTokenInPlace(postsetIter->lock()->getOutputPlace(), t);
 	}
         return this->verifier.addToPW(m);
 	

@@ -23,7 +23,7 @@ using namespace TAPN;
 				boost::shared_ptr<OutputArc> oaPtr = postset[i].lock();
 
 				inputPlace = tapn.GetPlaceIndex(tiaPtr->InputPlace());
-				outputPlace = tapn.GetPlaceIndex(oaPtr->OutputPlace());
+				outputPlace = tapn.GetPlaceIndex(oaPtr->getOutputPlace());
 
 				Add(inputPlace, outputPlace);
 			}
@@ -37,7 +37,7 @@ using namespace TAPN;
 			{
 				boost::shared_ptr<OutputArc> oaPtr = postset[i].lock();
 
-				outputPlace = tapn.GetPlaceIndex(oaPtr->OutputPlace());
+				outputPlace = tapn.GetPlaceIndex(oaPtr->getOutputPlace());
 
 				Add(TimedPlace::BottomIndex(),outputPlace);
 			}

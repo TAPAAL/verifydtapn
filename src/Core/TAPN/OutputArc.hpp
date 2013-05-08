@@ -20,12 +20,12 @@ namespace VerifyTAPN {
 			virtual ~OutputArc() { /* empty */ }
 
 		public: // modifiers
-			TimedPlace& OutputPlace();
-			TimedTransition& InputTransition();
+			TimedPlace& getOutputPlace();
+			TimedTransition& getInputTransition();
 
 		public: // inspectors
-			void Print(std::ostream& out) const;
-			inline const int GetWeight() const { return weight; }
+			void print(std::ostream& out) const;
+			inline const int getWeight() const { return weight; }
 		private:
 			const boost::shared_ptr<TimedTransition> transition;
 			const boost::shared_ptr<TimedPlace> place;
@@ -34,7 +34,7 @@ namespace VerifyTAPN {
 
 		inline std::ostream& operator<<(std::ostream& out, const OutputArc& arc)
 		{
-			arc.Print(out);
+			arc.print(out);
 			return out;
 		}
 	}

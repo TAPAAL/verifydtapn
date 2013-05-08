@@ -42,8 +42,8 @@ namespace VerifyTAPN {
 			for(OutputArc::Vector::const_iterator iter = outputArcs.begin(); iter != outputArcs.end(); ++iter)
 			{
 				const boost::shared_ptr<OutputArc>& arc = *iter;
-				arc->InputTransition().AddToPostset(arc);
-				arc->OutputPlace().AddOutputArc(arc);
+				arc->getInputTransition().AddToPostset(arc);
+				arc->getOutputPlace().AddOutputArc(arc);
 			}
 
 			GeneratePairings();
@@ -192,7 +192,7 @@ namespace VerifyTAPN {
 
 			for(TimedTransition::Vector::iterator iter = transitions.begin(); iter != transitions.end(); iter++){
 				for(OutputArc::WeakPtrVector::const_iterator place_iter = iter->get()->GetPostset().begin(); place_iter != iter->get()->GetPostset().end(); place_iter++){
-					if(place_iter->lock()->OutputPlace().GetMaxConstant() > -1){
+					if(place_iter->lock()->getOutputPlace().GetMaxConstant() > -1){
 						iter->get()->setUntimedPostset(false);
 						break;
 					}
