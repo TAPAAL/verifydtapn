@@ -17,14 +17,14 @@ namespace DiscreteVerification {
 
 		void LivenessWeightQueryVisitor::visit(const ParExpression& expr, boost::any& context)
 		{
-			expr.Child().Accept(*this, context);
+			expr.getChild().accept(*this, context);
 		}
 
 		void LivenessWeightQueryVisitor::visit(const OrExpression& expr, boost::any& context)
 		{
 			boost::any left, right;
-			expr.Left().Accept(*this, left);
-			expr.Right().Accept(*this, right);
+			expr.getLeft().accept(*this, left);
+			expr.getRight().accept(*this, right);
 
 			context = min(boost::any_cast<int>(left), boost::any_cast<int>(right));
 		}
@@ -32,8 +32,8 @@ namespace DiscreteVerification {
 		void LivenessWeightQueryVisitor::visit(const AndExpression& expr, boost::any& context)
 		{
 			boost::any left, right;
-			expr.Left().Accept(*this, left);
-			expr.Right().Accept(*this, right);
+			expr.getLeft().accept(*this, left);
+			expr.getRight().accept(*this, right);
 
 			int l = boost::any_cast<int>(left);
 			if(l == std::numeric_limits<int>::max()){
@@ -52,18 +52,18 @@ namespace DiscreteVerification {
 
 		void LivenessWeightQueryVisitor::visit(const AtomicProposition& expr, boost::any& context)
 		{
-			int numberOfTokens = marking.numberOfTokensInPlace(expr.Place());
-			context = compare(numberOfTokens, expr.Operator(), expr.N());
+			int numberOfTokens = marking.numberOfTokensInPlace(expr.getPlace());
+			context = compare(numberOfTokens, expr.getOperator(), expr.getNumberOfTokens());
 		}
 
 		void LivenessWeightQueryVisitor::visit(const BoolExpression& expr, boost::any& context)
 		{
-			context = expr.GetValue()? 0 : std::numeric_limits<int>::max();
+			context = expr.getValue()? 0 : std::numeric_limits<int>::max();
 		}
 
 		void LivenessWeightQueryVisitor::visit(const Query& query, boost::any& context)
 		{
-			query.Child().Accept(*this, context);
+			query.getChild().accept(*this, context);
 		}
 
 		int LivenessWeightQueryVisitor::compare(int numberOfTokensInPlace, const std::string& op, int n) const

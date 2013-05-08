@@ -88,7 +88,7 @@ bool TimeDartReachabilitySearch::addToPW(NonStrictMarkingBase* marking, WaitingD
 	if(pwList->add(tapn.get(), marking, youngest, parent, upper, start)){
 		QueryVisitor<NonStrictMarkingBase> checker(*marking);
 		boost::any context;
-		query->Accept(checker, context);
+		query->accept(checker, context);
 		if(boost::any_cast<bool>(context)) {
                         if (options.getTrace()) {
                             lastMarking = pwList->getLast();

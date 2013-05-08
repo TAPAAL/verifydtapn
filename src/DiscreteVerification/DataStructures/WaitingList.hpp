@@ -238,7 +238,7 @@ int HeuristicStackWaitingList<T>::calculateWeight(NonStrictMarkingBase* marking)
 {
 	LivenessWeightQueryVisitor weight(*marking);
 	boost::any weight_c;
-	query->Accept(weight, weight_c);
+	query->accept(weight, weight_c);
 	return boost::any_cast<int>(weight_c);
 }
 
@@ -322,7 +322,7 @@ int HeuristicWaitingList<T>::calculateWeight(NonStrictMarkingBase* marking)
 {
 	WeightQueryVisitor weight(*marking);
 	boost::any weight_c;
-	query->Accept(weight, weight_c);
+	query->accept(weight, weight_c);
 	return boost::any_cast<int>(weight_c);
 }
 

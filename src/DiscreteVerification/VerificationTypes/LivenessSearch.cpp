@@ -117,7 +117,7 @@ bool LivenessSearch::addToPW(NonStrictMarking* marking, NonStrictMarking* parent
 
 	QueryVisitor<NonStrictMarking> checker(*marking);
 	boost::any context;
-	query->Accept(checker, context);
+	query->accept(checker, context);
 	if(!boost::any_cast<bool>(context))	return false;
 	if(!pwList->add(marking)){
 		//Test if collision is in trace
@@ -148,9 +148,9 @@ void LivenessSearch::getTrace(){
 	NonStrictMarking* m = trace.top();
 	generateTraceStack(m, &printStack, &trace);
 	if(options.getXmlTrace()){
-		printXMLTrace(m, printStack, query->GetQuantifier());
+		printXMLTrace(m, printStack, query->getQuantifier());
 	} else {
-		printHumanTrace(m, printStack, query->GetQuantifier());
+		printHumanTrace(m, printStack, query->getQuantifier());
 	}
 }
 

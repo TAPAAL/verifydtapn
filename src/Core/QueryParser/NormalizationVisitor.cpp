@@ -17,7 +17,7 @@ namespace VerifyTAPN
 		{
 			Tuple& tuple = boost::any_cast<Tuple&>(context);
 			boost::any any = Tuple(!tuple.negate, NULL);
-			expr.Child().Accept(*this, any);
+			expr.getChild().accept(*this, any);
 			tuple.returnExpr = boost::any_cast<Tuple&>(any).returnExpr;
 		}
 
@@ -25,7 +25,7 @@ namespace VerifyTAPN
 		{
 			Tuple& tuple = boost::any_cast<Tuple&>(context);
 			boost::any any = Tuple(tuple.negate, NULL);
-			expr.Child().Accept(*this, any);
+			expr.getChild().accept(*this, any);
 			tuple.returnExpr = new ParExpression(boost::any_cast<Tuple&>(any).returnExpr);
 		}
 
@@ -34,12 +34,12 @@ namespace VerifyTAPN
 			Tuple& tuple = boost::any_cast<Tuple&>(context);
 			boost::any left = Tuple(tuple.negate, NULL), right = Tuple(tuple.negate, NULL);
 			if(tuple.negate){
-				expr.Left().Accept(*this, left);
-				expr.Right().Accept(*this, right);
+				expr.getLeft().accept(*this, left);
+				expr.getRight().accept(*this, right);
 				tuple.returnExpr = new AndExpression(boost::any_cast<Tuple&>(left).returnExpr, boost::any_cast<Tuple&>(right).returnExpr);
 			}else{
-				expr.Left().Accept(*this, left);
-				expr.Right().Accept(*this, right);
+				expr.getLeft().accept(*this, left);
+				expr.getRight().accept(*this, right);
 				tuple.returnExpr = new OrExpression(boost::any_cast<Tuple&>(left).returnExpr, boost::any_cast<Tuple&>(right).returnExpr);
 			}
 		}
@@ -49,12 +49,12 @@ namespace VerifyTAPN
 			Tuple& tuple = boost::any_cast<Tuple&>(context);
 			boost::any left = Tuple(tuple.negate, NULL), right = Tuple(tuple.negate, NULL);
 			if(tuple.negate){
-				expr.Left().Accept(*this, left);
-				expr.Right().Accept(*this, right);
+				expr.getLeft().accept(*this, left);
+				expr.getRight().accept(*this, right);
 				tuple.returnExpr = new OrExpression(boost::any_cast<Tuple&>(left).returnExpr, boost::any_cast<Tuple&>(right).returnExpr);
 			}else{
-				expr.Left().Accept(*this, left);
-				expr.Right().Accept(*this, right);
+				expr.getLeft().accept(*this, left);
+				expr.getRight().accept(*this, right);
 				tuple.returnExpr = new AndExpression(boost::any_cast<Tuple&>(left).returnExpr, boost::any_cast<Tuple&>(right).returnExpr);
 			}
 		}
@@ -64,29 +64,29 @@ namespace VerifyTAPN
 			Tuple& tuple = boost::any_cast<Tuple&>(context);
 			std::string op;
 			if(tuple.negate){
-				op = NegateOperator(expr.Operator());
+				op = NegateOperator(expr.getOperator());
 			}else{
-				op = expr.Operator();
+				op = expr.getOperator();
 			}
-			tuple.returnExpr = new AtomicProposition(expr.Place(), &op, expr.N());
+			tuple.returnExpr = new AtomicProposition(expr.getPlace(), &op, expr.getNumberOfTokens());
 		}
 
 		void NormalizationVisitor::visit(const BoolExpression& expr, boost::any& context)
 		{
 			Tuple& tuple = boost::any_cast<Tuple&>(context);
 			if(tuple.negate){
-				tuple.returnExpr = new BoolExpression(!expr.GetValue());
+				tuple.returnExpr = new BoolExpression(!expr.getValue());
 			}else{
-				tuple.returnExpr = new BoolExpression(expr.GetValue());
+				tuple.returnExpr = new BoolExpression(expr.getValue());
 			}
 		}
 
 		void NormalizationVisitor::visit(const Query& query, boost::any& context)
 		{
 			boost::any any = Tuple(false, NULL);
-			query.Child().Accept(*this, any);
+			query.getChild().accept(*this, any);
 
-			normalizedQuery = new AST::Query(query.GetQuantifier(), boost::any_cast<Tuple&>(any).returnExpr);
+			normalizedQuery = new AST::Query(query.getQuantifier(), boost::any_cast<Tuple&>(any).returnExpr);
 		}
 
 		std::string NormalizationVisitor::NegateOperator(const std::string& op) const{

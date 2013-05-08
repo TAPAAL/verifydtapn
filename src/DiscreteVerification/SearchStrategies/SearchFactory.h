@@ -17,7 +17,7 @@ namespace DiscreteVerification {
 template <class T>
 WaitingList<T>* getWaitingList(AST::Query* query, VerificationOptions& options){
 	WaitingList<T>* strategy = NULL;
-	if(query->GetQuantifier() == EG || query->GetQuantifier() == AF){
+	if(query->getQuantifier() == EG || query->getQuantifier() == AF){
 		//Liveness query, force DFS
 		switch(options.getSearchType()){
 		case VerificationOptions::DEPTHFIRST: {
@@ -41,7 +41,7 @@ WaitingList<T>* getWaitingList(AST::Query* query, VerificationOptions& options){
 			break;
 		}
 		}
-	}else if(query->GetQuantifier() == EF || query->GetQuantifier() == AG){
+	}else if(query->getQuantifier() == EF || query->getQuantifier() == AG){
 		switch(options.getSearchType()){
 		case VerificationOptions::DEPTHFIRST: {
 			NonStrictDFS<T> s;

@@ -235,7 +235,7 @@ namespace VerifyTAPN {
                 trace = (TraceDart*) trace->parent;
             }
             
-            printXMLTrace(l, traceStack, query->GetQuantifier());
+            printXMLTrace(l, traceStack, query->getQuantifier());
         }
 
     }

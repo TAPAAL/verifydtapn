@@ -12,30 +12,30 @@ namespace DiscreteVerification {
 
 		void PlaceVisitor::visit(const NotExpression& expr, boost::any& context)
 		{
-			expr.Child().Accept(*this, context);
+			expr.getChild().accept(*this, context);
 		}
 
 		void PlaceVisitor::visit(const ParExpression& expr, boost::any& context)
 		{
-			expr.Child().Accept(*this, context);
+			expr.getChild().accept(*this, context);
 		}
 
 		void PlaceVisitor::visit(const OrExpression& expr, boost::any& context)
 		{
-			expr.Left().Accept(*this, context);
-			expr.Right().Accept(*this, context);
+			expr.getLeft().accept(*this, context);
+			expr.getRight().accept(*this, context);
 		}
 
 		void PlaceVisitor::visit(const AndExpression& expr, boost::any& context)
 		{
-			expr.Left().Accept(*this, context);
-			expr.Right().Accept(*this, context);
+			expr.getLeft().accept(*this, context);
+			expr.getRight().accept(*this, context);
 		}
 
 		void PlaceVisitor::visit(const AtomicProposition& expr, boost::any& context)
 		{
 			std::vector<int> v = boost::any_cast< std::vector< int > >(context);
-			v.push_back(expr.Place());
+			v.push_back(expr.getPlace());
 			context = v;
 		}
 
@@ -45,7 +45,7 @@ namespace DiscreteVerification {
 
 		void PlaceVisitor::visit(const Query& query, boost::any& context)
 		{
-			query.Child().Accept(*this, context);
+			query.getChild().accept(*this, context);
 		}
 } /* namespace DiscreteVerification */
 } /* namespace VerifyTAPN */

@@ -43,7 +43,7 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
-	if(query->GetQuantifier() == AST::EF || query->GetQuantifier() == AST::AG){
+	if(query->getQuantifier() == AST::EF || query->getQuantifier() == AST::AG){
 		tapn->removeOrphantedTransitions();
 	}
 

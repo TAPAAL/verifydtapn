@@ -8,12 +8,12 @@ namespace VerifyTAPN
 			return new NotExpression(*this);
 		}
 
-		void NotExpression::Accept(Visitor& visitor, boost::any& context) const
+		void NotExpression::accept(Visitor& visitor, boost::any& context) const
 		{
 			visitor.visit(*this, context);
 		}
 
-		void BoolExpression::Accept(Visitor& visitor, boost::any& context) const
+		void BoolExpression::accept(Visitor& visitor, boost::any& context) const
 		{
 			visitor.visit(*this, context);
 		}
@@ -23,7 +23,7 @@ namespace VerifyTAPN
 			return new BoolExpression(*this);
 		}
 
-		void AtomicProposition::Accept(Visitor& visitor, boost::any& context) const
+		void AtomicProposition::accept(Visitor& visitor, boost::any& context) const
 		{
 			visitor.visit(*this, context);
 		}
@@ -38,7 +38,7 @@ namespace VerifyTAPN
 			return new AndExpression(*this);
 		}
 
-		void AndExpression::Accept(Visitor& visitor, boost::any& context) const
+		void AndExpression::accept(Visitor& visitor, boost::any& context) const
 		{
 			visitor.visit(*this, context);
 		}
@@ -48,7 +48,7 @@ namespace VerifyTAPN
 			return new OrExpression(*this);
 		}
 
-		void OrExpression::Accept(Visitor& visitor, boost::any& context) const
+		void OrExpression::accept(Visitor& visitor, boost::any& context) const
 		{
 			visitor.visit(*this, context);
 		}
@@ -58,7 +58,7 @@ namespace VerifyTAPN
 			return new ParExpression(*this);
 		}
 
-		void ParExpression::Accept(Visitor& visitor, boost::any& context) const
+		void ParExpression::accept(Visitor& visitor, boost::any& context) const
 		{
 			visitor.visit(*this, context);
 		}
@@ -68,7 +68,7 @@ namespace VerifyTAPN
 			return new Query(*this);
 		}
 
-		void Query::Accept(Visitor& visitor, boost::any& context) const
+		void Query::accept(Visitor& visitor, boost::any& context) const
 		{
 			visitor.visit(*this, context);
 		}

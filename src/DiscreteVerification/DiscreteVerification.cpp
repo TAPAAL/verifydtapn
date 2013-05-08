@@ -52,12 +52,12 @@ namespace VerifyTAPN {
                 if (options.getMemoryOptimization() == VerificationOptions::PTRIE) {
                     //TODO fix initialization
                     WaitingList<EncodingPointer<MetaData> >* strategy = getWaitingList<EncodingPointer<MetaData> > (query, options);
-                    if (query->GetQuantifier() == EG || query->GetQuantifier() == AF) {
+                    if (query->getQuantifier() == EG || query->getQuantifier() == AF) {
                         VerifyAndPrint(
                                 new LivenessSearchPTrie(tapn, *initialMarking, query, options, strategy),
                                 options,
                                 query);
-                    } else if (query->GetQuantifier() == EF || query->GetQuantifier() == AG) {
+                    } else if (query->getQuantifier() == EF || query->getQuantifier() == AG) {
                         VerifyAndPrint(
                                 new ReachabilitySearchPTrie(tapn, *initialMarking, query, options, strategy),
                                 options,
@@ -65,12 +65,12 @@ namespace VerifyTAPN {
                     }
                 } else {
                     WaitingList<NonStrictMarking>* strategy = getWaitingList<NonStrictMarking > (query, options);
-                    if (query->GetQuantifier() == EG || query->GetQuantifier() == AF) {
+                    if (query->getQuantifier() == EG || query->getQuantifier() == AF) {
                         VerifyAndPrint(
                                 new LivenessSearch(tapn, *initialMarking, query, options, strategy),
                                 options,
                                 query);
-                    } else if (query->GetQuantifier() == EF || query->GetQuantifier() == AG) {
+                    } else if (query->getQuantifier() == EF || query->getQuantifier() == AG) {
                         VerifyAndPrint(
                                 new ReachabilitySearch(tapn, *initialMarking, query, options, strategy),
                                 options,
@@ -78,7 +78,7 @@ namespace VerifyTAPN {
                     }
                 }
             } else if (options.getVerificationType() == VerificationOptions::TIMEDART) {
-                if (query->GetQuantifier() == EG || query->GetQuantifier() == AF) {
+                if (query->getQuantifier() == EG || query->getQuantifier() == AF) {
                     if (options.getMemoryOptimization() == VerificationOptions::PTRIE) {
                         WaitingList<EncodingPointer<WaitingDart> >* strategy = getWaitingList<EncodingPointer<WaitingDart> > (query, options);
                         VerifyAndPrint(
@@ -92,7 +92,7 @@ namespace VerifyTAPN {
                                 options,
                                 query);
                     }
-                } else if (query->GetQuantifier() == EF || query->GetQuantifier() == AG) {
+                } else if (query->getQuantifier() == EF || query->getQuantifier() == AG) {
 
                     if (options.getMemoryOptimization() == VerificationOptions::PTRIE) {
                         WaitingList<TimeDartEncodingPointer>* strategy = getWaitingList<TimeDartEncodingPointer > (query, options);
@@ -117,7 +117,7 @@ namespace VerifyTAPN {
         }
 
         template<typename T> void VerifyAndPrint(Verification<T>* verifier, VerificationOptions& options, AST::Query* query) {
-            bool result = (query->GetQuantifier() == AG || query->GetQuantifier() == AF) ? !verifier->verify() : verifier->verify();
+            bool result = (query->getQuantifier() == AG || query->getQuantifier() == AF) ? !verifier->verify() : verifier->verify();
 
             verifier->printStats();
             verifier->printTransitionStatistics();
@@ -130,7 +130,7 @@ namespace VerifyTAPN {
                 std::cout << verifier->maxUsedTokens() << std::endl;
 
             if (options.getTrace() == VerificationOptions::SOME_TRACE) {
-                if ((query->GetQuantifier() == EF && result) || (query->GetQuantifier() == AG && !result) || (query->GetQuantifier() == EG && result) || (query->GetQuantifier() == AF && !result)) {
+                if ((query->getQuantifier() == EF && result) || (query->getQuantifier() == AG && !result) || (query->getQuantifier() == EG && result) || (query->getQuantifier() == AF && !result)) {
                     verifier->getTrace();
                 } else {
                     std::cout << "A trace could not be generated due to the query result" << std::endl;

@@ -219,7 +219,7 @@ namespace VerifyTAPN {
 			std::vector< int > placeNumbers;
 			boost::any context = placeNumbers;
 			DiscreteVerification::PlaceVisitor visitor;
-			query->Accept(visitor, context);
+			query->accept(visitor, context);
 			placeNumbers = boost::any_cast< std::vector< int > >(context);
 
 			for(TimedPlace::Vector::const_iterator iter = places.begin(); iter != places.end(); ++iter){
