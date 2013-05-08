@@ -64,7 +64,7 @@ namespace VerifyTAPN
 			Tuple& tuple = boost::any_cast<Tuple&>(context);
 			std::string op;
 			if(tuple.negate){
-				op = NegateOperator(expr.getOperator());
+				op = negateOperator(expr.getOperator());
 			}else{
 				op = expr.getOperator();
 			}
@@ -89,7 +89,7 @@ namespace VerifyTAPN
 			normalizedQuery = new AST::Query(query.getQuantifier(), boost::any_cast<Tuple&>(any).returnExpr);
 		}
 
-		std::string NormalizationVisitor::NegateOperator(const std::string& op) const{
+		std::string NormalizationVisitor::negateOperator(const std::string& op) const{
 			if(op == "=" || op == "=="){
 				return "!=";
 			}else if(op == ">"){

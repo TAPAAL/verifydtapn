@@ -28,9 +28,9 @@ namespace VerifyTAPN {
 			virtual void visit(const BoolExpression& expr, boost::any& context);
 			virtual void visit(const Query& query, boost::any& context);
 
-			AST::Query* Normalize(const AST::Query& query) { boost::any any; query.accept(*this, any); return normalizedQuery; };
+			AST::Query* normalize(const AST::Query& query) { boost::any any; query.accept(*this, any); return normalizedQuery; };
 		private:
-			std::string NegateOperator(const std::string& op) const;
+			std::string negateOperator(const std::string& op) const;
 		private:
 			AST::Query* normalizedQuery;
 		};

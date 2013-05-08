@@ -258,7 +258,7 @@ int HeuristicStackWaitingList<T>::calculateWeight(WaitingDart* dart)
 template <class T>
 AST::Query* HeuristicStackWaitingList<T>::normalizeQuery(AST::Query* q){
 	AST::NormalizationVisitor visitor;
-	return visitor.Normalize(*q);
+	return visitor.normalize(*q);
 }
 
 template <class T>
@@ -335,7 +335,7 @@ int HeuristicWaitingList<T>::calculateWeight(LivenessDart* dart)
 template <class T>
 AST::Query* HeuristicWaitingList<T>::normalizeQuery(AST::Query* q){
 	AST::NormalizationVisitor visitor;
-	return visitor.Normalize(*q);
+	return visitor.normalize(*q);
 }
 
 template <class T>
