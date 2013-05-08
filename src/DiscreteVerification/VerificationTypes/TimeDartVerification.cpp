@@ -30,14 +30,14 @@ namespace VerifyTAPN {
             for (TAPN::TimedInputArc::WeakPtrVector::const_iterator arc = transition.GetPreset().begin(); arc != transition.GetPreset().end(); arc++) {
                 vector<Util::interval > intervals;
                 int range;
-                if (arc->lock()->Interval().getUpperBound() == INT_MAX) {
+                if (arc->lock()->getInterval().getUpperBound() == INT_MAX) {
                     range = INT_MAX;
                 } else {
-                    range = arc->lock()->Interval().getUpperBound() - arc->lock()->Interval().getLowerBound();
+                    range = arc->lock()->getInterval().getUpperBound() - arc->lock()->getInterval().getLowerBound();
                 }
-                int weight = arc->lock()->GetWeight();
+                int weight = arc->lock()->getWeight();
 
-                TokenList tokens = marking->getTokenList(arc->lock()->InputPlace().GetIndex());
+                TokenList tokens = marking->getTokenList(arc->lock()->getInputPlace().GetIndex());
                 if (tokens.size() == 0) {
                     pair<int, int> p(-1, -1);
                     return p;
@@ -53,11 +53,11 @@ namespace VerifyTAPN {
                         j--;
                     }
                     if (numberOfTokensAvailable >= weight && tokens.at(j).getAge() - tokens.at(i).getAge() <= range) { //This span is interesting
-                        int low = arc->lock()->Interval().getLowerBound() - tokens.at(i).getAge();
-                        int heigh = arc->lock()->Interval().getUpperBound() - tokens.at(j).getAge();
+                        int low = arc->lock()->getInterval().getLowerBound() - tokens.at(i).getAge();
+                        int heigh = arc->lock()->getInterval().getUpperBound() - tokens.at(j).getAge();
 
                         Util::interval element(low < 0 ? 0 : low,
-                                arc->lock()->Interval().getUpperBound() == INT_MAX ? INT_MAX : heigh);
+                                arc->lock()->getInterval().getUpperBound() == INT_MAX ? INT_MAX : heigh);
                         Util::setAdd(intervals, element);
                     }
                     numberOfTokensAvailable -= tokens.at(i).getCount();
@@ -132,8 +132,8 @@ namespace VerifyTAPN {
             int MC = -1;
             unsigned int i = 0;
             for (PlaceList::const_iterator iter = marking->getPlaceList().begin(); iter != marking->getPlaceList().end(); iter++) {
-                if (i < transition.GetPreset().size() && iter->place->GetIndex() == transition.GetPreset().at(i).lock()->InputPlace().GetIndex()) {
-                    if (transition.GetPreset().at(i).lock()->GetWeight() < iter->numberOfTokens()) {
+                if (i < transition.GetPreset().size() && iter->place->GetIndex() == transition.GetPreset().at(i).lock()->getInputPlace().GetIndex()) {
+                    if (transition.GetPreset().at(i).lock()->getWeight() < iter->numberOfTokens()) {
                         MC = max(MC, iter->place->GetMaxConstant() - iter->tokens.front().getAge());
                     }
                     i++;

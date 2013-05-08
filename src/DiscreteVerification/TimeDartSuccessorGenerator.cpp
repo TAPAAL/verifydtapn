@@ -32,7 +32,7 @@ bool TimeDartSuccessorGenerator::generateAndInsertSuccessors(const NonStrictMark
 	// Calculate enabling tokens
 	for(TAPN::TimedInputArc::WeakPtrVector::const_iterator arc_iter = transition.GetPreset().begin();
 			arc_iter != transition.GetPreset().end(); arc_iter++){
-			processArc(enabledArcs,	marking.getTokenList( arc_iter->lock()->InputPlace().GetIndex() ), arc_iter->lock()->Interval(), arc_iter->lock().get(), transition);
+			processArc(enabledArcs,	marking.getTokenList( arc_iter->lock()->getInputPlace().GetIndex() ), arc_iter->lock()->getInterval(), arc_iter->lock().get(), transition);
 	}
 
 	for(TAPN::TransportArc::WeakPtrVector::const_iterator arc_iter = transition.GetTransportArcs().begin();

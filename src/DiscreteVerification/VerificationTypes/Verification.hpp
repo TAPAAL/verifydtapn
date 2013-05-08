@@ -224,7 +224,7 @@ namespace VerifyTAPN {
             transitionNode->append_attribute(id);
 
             for (TAPN::TimedInputArc::WeakPtrVector::const_iterator arc_iter = current->getGeneratedBy()->GetPreset().begin(); arc_iter != current->getGeneratedBy()->GetPreset().end(); arc_iter++) {
-                createTransitionSubNodes(old, current, doc, transitionNode, arc_iter->lock()->InputPlace(), arc_iter->lock()->Interval(), arc_iter->lock()->GetWeight());
+                createTransitionSubNodes(old, current, doc, transitionNode, arc_iter->lock()->getInputPlace(), arc_iter->lock()->getInterval(), arc_iter->lock()->getWeight());
             }
 
             for (TAPN::TransportArc::WeakPtrVector::const_iterator arc_iter = current->getGeneratedBy()->GetTransportArcs().begin(); arc_iter != current->getGeneratedBy()->GetTransportArcs().end(); arc_iter++) {

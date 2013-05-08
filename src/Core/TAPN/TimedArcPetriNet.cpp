@@ -19,9 +19,9 @@ namespace VerifyTAPN {
 			for(TimedInputArc::Vector::const_iterator iter = inputArcs.begin(); iter != inputArcs.end(); ++iter)
 			{
 				const boost::shared_ptr<TimedInputArc>& arc = *iter;
-				arc->OutputTransition().AddToPreset(arc);
-				arc->InputPlace().AddInputArc(arc);
-				updateMaxConstant(arc->Interval());
+				arc->getOutputTransition().AddToPreset(arc);
+				arc->getInputPlace().AddInputArc(arc);
+				updateMaxConstant(arc->getInterval());
 			}
 
 			for(TransportArc::Vector::const_iterator iter = transportArcs.begin(); iter != transportArcs.end(); ++iter)
@@ -97,9 +97,9 @@ namespace VerifyTAPN {
 				{
 					for(TimedInputArc::Vector::const_iterator arcIter = inputArcs.begin(); arcIter != inputArcs.end(); ++arcIter)
 					{
-						if((*arcIter)->InputPlace() == **iter)
+						if((*arcIter)->getInputPlace() == **iter)
 						{
-							isUntimedPlace = isUntimedPlace && (*arcIter)->Interval().isZeroInfinity();
+							isUntimedPlace = isUntimedPlace && (*arcIter)->getInterval().isZeroInfinity();
 						}
 					}
 				}
@@ -122,10 +122,10 @@ namespace VerifyTAPN {
 					(*iter)->SetType(Dead);
 					for(TimedInputArc::Vector::const_iterator arcIter = inputArcs.begin(); arcIter != inputArcs.end(); ++arcIter)
 					{
-						if((*arcIter)->InputPlace() == **iter)
+						if((*arcIter)->getInputPlace() == **iter)
 						{
 							boost::shared_ptr<TimedInputArc> ia = *arcIter;
-							const TAPN::TimeInterval& interval = ia->Interval();
+							const TAPN::TimeInterval& interval = ia->getInterval();
 
 							const int lowerBound = interval.getLowerBound();
 							const int upperBound = interval.getUpperBound();
@@ -330,7 +330,7 @@ namespace VerifyTAPN {
 
 			for(TimedInputArc::Vector::const_iterator iter = inputArcs.begin(); iter != inputArcs.end(); iter++){
 				TimedInputArc& ia = *(*iter);
-				if(ia.Interval().isLowerBoundStrict() || (ia.Interval().isUpperBoundStrict() && ia.Interval().getUpperBound() != std::numeric_limits<int>().max())){
+				if(ia.getInterval().isLowerBoundStrict() || (ia.getInterval().isUpperBoundStrict() && ia.getInterval().getUpperBound() != std::numeric_limits<int>().max())){
 					return false;
 				}
 			}

@@ -105,11 +105,11 @@ namespace VerifyTAPN {
             }
 
             InputArcAndTokens(boost::weak_ptr<TimedInputArc> arc, TokenList enabledBy)
-            : ArcAndTokens<T>(enabledBy, arc.lock()->GetWeight()), arc(arc) {
+            : ArcAndTokens<T>(enabledBy, arc.lock()->getWeight()), arc(arc) {
             }
 
             void moveToken(Token& token, T& m) {
-                m.removeToken(arc.lock()->InputPlace().GetIndex(), token.getAge());
+                m.removeToken(arc.lock()->getInputPlace().GetIndex(), token.getAge());
             }
         };
 
@@ -211,7 +211,7 @@ namespace VerifyTAPN {
                 for (TAPN::TimedInputArc::WeakPtrVector::const_iterator arc_iter = iter->place->GetInputArcs().begin();
                         arc_iter != iter->place->GetInputArcs().end(); arc_iter++) {
                     processArc(enabledArcs, enabledTransitionArcs, enabledTransitions,
-                            *iter, arc_iter->lock()->Interval(), arc_iter->lock().get(), arc_iter->lock()->OutputTransition());
+                            *iter, arc_iter->lock()->getInterval(), arc_iter->lock().get(), arc_iter->lock()->getOutputTransition());
                 }
 
                 for (TAPN::TransportArc::WeakPtrVector::const_iterator arc_iter = iter->place->GetTransportArcs().begin();
