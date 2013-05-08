@@ -46,7 +46,7 @@ namespace VerifyTAPN {
 				arc->getOutputPlace().AddOutputArc(arc);
 			}
 
-			GeneratePairings();
+
 			FindMaxConstants();
 
 			if(useGlobalMaxConstant){
@@ -324,17 +324,6 @@ namespace VerifyTAPN {
 			}
 
 			out << std::endl;
-		}
-
-
-		void TimedArcPetriNet::GeneratePairings()
-		{
-			for(TimedTransition::Vector::const_iterator iter = transitions.begin(); iter != transitions.end(); ++iter)
-			{
-				const TimedTransition& t = *(*iter);
-				Pairing p(*this, t);
-				pairings.insert(std::pair<TimedTransition, Pairing>(t, p));
-			}
 		}
 
 		bool TimedArcPetriNet::IsNonStrict() const{

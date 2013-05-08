@@ -11,7 +11,6 @@
 #include "boost/make_shared.hpp"
 #include "google/sparse_hash_map"
 #include "boost/functional/hash.hpp"
-#include "Pairing.hpp"
 #include "../QueryParser/AST.hpp"
 #include "../../DiscreteVerification/PlaceVisitor.hpp"
 #include "../VerificationOptions.hpp"
@@ -22,8 +21,7 @@ namespace VerifyTAPN {
 
 		class TimedArcPetriNet
 		{
-		public: // typedefs
-			typedef google::sparse_hash_map<TimedTransition, VerifyTAPN::Pairing, boost::hash<TAPN::TimedTransition> > HashMap;
+
 		public:// construction
 			TimedArcPetriNet(const TimedPlace::Vector& places,
 				const TimedTransition::Vector& transitions,
@@ -48,7 +46,6 @@ namespace VerifyTAPN {
 			const OutputArc::Vector& GetOutputArcs() const { return outputArcs; }
 			const int GetNumberOfOutputArcs() const { return outputArcs.size(); }
 			int NumberOfPlaces() const { return places.size(); };
-			const Pairing& GetPairing(const TimedTransition& t) const { return pairings.find(t)->second; }
 			inline int MaxConstant() const { return maxConstant; };
 			inline const bool IsPlaceUntimed(int index) const { return places[index]->IsUntimed(); }
 			bool IsNonStrict() const;
@@ -74,7 +71,6 @@ namespace VerifyTAPN {
 			const OutputArc::Vector outputArcs;
 			const TransportArc::Vector transportArcs;
 			const InhibitorArc::Vector inhibitorArcs;
-			mutable HashMap pairings;
 			int maxConstant;
 		};
 
