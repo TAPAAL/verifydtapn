@@ -6,7 +6,7 @@ namespace VerifyTAPN {
 
 using namespace TAPN;
 
-	void Pairing::GeneratePairingFor(const TimedArcPetriNet& tapn, const TAPN::TimedTransition& t) {
+	void Pairing::generatePairingFor(const TimedArcPetriNet& tapn, const TAPN::TimedTransition& t) {
 		TimedInputArc::WeakPtrVector preset = t.GetPreset();
 		OutputArc::WeakPtrVector postset = t.GetPostset();
 
@@ -25,13 +25,13 @@ using namespace TAPN;
 				inputPlace = tapn.GetPlaceIndex(tiaPtr->InputPlace());
 				outputPlace = tapn.GetPlaceIndex(oaPtr->getOutputPlace());
 
-				Add(inputPlace, outputPlace);
+				add(inputPlace, outputPlace);
 			}
 			else if(i < preset.size() && i >= postset.size()){
 				boost::shared_ptr<TimedInputArc> tiaPtr = preset[i].lock();
 
 				inputPlace = tapn.GetPlaceIndex(tiaPtr->InputPlace());
-				Add(inputPlace, TimedPlace::BottomIndex());
+				add(inputPlace, TimedPlace::BottomIndex());
 			}
 			else if(i >= preset.size() && i < postset.size())
 			{
@@ -39,24 +39,24 @@ using namespace TAPN;
 
 				outputPlace = tapn.GetPlaceIndex(oaPtr->getOutputPlace());
 
-				Add(TimedPlace::BottomIndex(),outputPlace);
+				add(TimedPlace::BottomIndex(),outputPlace);
 			}
 		}
 	}
 
-	const std::list<int>& Pairing::GetOutputPlacesFor(int inputPlace) const
+	const std::list<int>& Pairing::getOutputPlacesFor(int inputPlace) const
 	{
 		return pairing[inputPlace];
 	}
 
-	void Pairing::Add(int inputPlace, int outputPlace)
+	void Pairing::add(int inputPlace, int outputPlace)
 	{
 		std::list<int>& outPlaces = pairing[inputPlace];
 
 		outPlaces.push_back(outputPlace);
 	}
 
-	void Pairing::Print(std::ostream& out) const
+	void Pairing::print(std::ostream& out) const
 	{
 		out << "( INPUT PLACE, OUTPUT PLACE )\n";
 		out << "-------------------------------\n";

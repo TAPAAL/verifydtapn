@@ -16,17 +16,17 @@ namespace VerifyTAPN {
 		public:
 			typedef google::sparse_hash_map<int, std::list<int>, boost::hash<int> > HashMap;
 		public: // construction
-			Pairing(const TAPN::TimedArcPetriNet& tapn, const TAPN::TimedTransition& t) : pairing() { GeneratePairingFor(tapn, t); };
+			Pairing(const TAPN::TimedArcPetriNet& tapn, const TAPN::TimedTransition& t) : pairing() { generatePairingFor(tapn, t); };
 			Pairing() : pairing() { };
 
 		public: // inspectors
-			const std::list<int>& GetOutputPlacesFor(int inputPlace) const;
-			inline bool IsPairingEmpty() const { return pairing.empty(); }
-			void Print(std::ostream& out) const;
+			const std::list<int>& getOutputPlacesFor(int inputPlace) const;
+			inline bool isPairingEmpty() const { return pairing.empty(); }
+			void print(std::ostream& out) const;
 
 		private: // initializers
-			void GeneratePairingFor(const TAPN::TimedArcPetriNet& tapn, const TAPN::TimedTransition& t);
-			void Add(int inputPlace, int outputPlace);
+			void generatePairingFor(const TAPN::TimedArcPetriNet& tapn, const TAPN::TimedTransition& t);
+			void add(int inputPlace, int outputPlace);
 
 		private: // data
 			mutable HashMap pairing;
@@ -35,7 +35,7 @@ namespace VerifyTAPN {
 
 	inline std::ostream& operator<<(std::ostream& out, const Pairing& pairing)
 	{
-		pairing.Print(out);
+		pairing.print(out);
 		return out;
 	}
 
