@@ -13,13 +13,13 @@ namespace VerifyTAPN {
 			}
 
 			for(unsigned int i = 0; i < transitions.size(); i++){
-				transitions[i]->SetIndex(i);
+				transitions[i]->setIndex(i);
 			}
 
 			for(TimedInputArc::Vector::const_iterator iter = inputArcs.begin(); iter != inputArcs.end(); ++iter)
 			{
 				const boost::shared_ptr<TimedInputArc>& arc = *iter;
-				arc->getOutputTransition().AddToPreset(arc);
+				arc->getOutputTransition().addToPreset(arc);
 				arc->getInputPlace().addInputArc(arc);
 				updateMaxConstant(arc->getInterval());
 			}
@@ -27,14 +27,14 @@ namespace VerifyTAPN {
 			for(TransportArc::Vector::const_iterator iter = transportArcs.begin(); iter != transportArcs.end(); ++iter)
 			{
 				const boost::shared_ptr<TransportArc>& arc = *iter;
-				arc->Transition().AddTransportArcGoingThrough(arc);
-				arc->Source().addTransportArc(arc);
-				updateMaxConstant(arc->Interval());
+				arc->getTransition().addTransportArcGoingThrough(arc);
+				arc->getSource().addTransportArc(arc);
+				updateMaxConstant(arc->getInterval());
 			}
 
 			for(InhibitorArc::Vector::const_iterator iter = inhibitorArcs.begin(); iter != inhibitorArcs.end(); ++iter) {
 				const boost::shared_ptr<InhibitorArc>& arc = *iter;
-				arc->getOutputTransition().AddIncomingInhibitorArc(arc);
+				arc->getOutputTransition().addIncomingInhibitorArc(arc);
 				arc->getInputPlace().addInhibitorArc(arc);
 				arc->getInputPlace().setHasInhibitorArcs(true);
 			}
@@ -42,7 +42,7 @@ namespace VerifyTAPN {
 			for(OutputArc::Vector::const_iterator iter = outputArcs.begin(); iter != outputArcs.end(); ++iter)
 			{
 				const boost::shared_ptr<OutputArc>& arc = *iter;
-				arc->getInputTransition().AddToPostset(arc);
+				arc->getInputTransition().addToPostset(arc);
 				arc->getOutputPlace().addOutputArc(arc);
 			}
 
@@ -69,7 +69,7 @@ namespace VerifyTAPN {
 				TimedTransition::Vector::iterator iter = transitions.begin();
 				while(iter != transitions.end())
 				{
-					if((*iter)->GetPresetSize() == 0 && (*iter)->GetPostsetSize() == 0){
+					if((*iter)->getPresetSize() == 0 && (*iter)->getPostsetSize() == 0){
 						iter = transitions.erase(iter);
 						if(!hasShownMessage){
 							std::cout << "Orphaned transitions have been removed." << std::endl << std::endl;
@@ -90,7 +90,7 @@ namespace VerifyTAPN {
 
 				for(TransportArc::Vector::const_iterator arcIter = transportArcs.begin(); arcIter != transportArcs.end(); ++arcIter)
 				{
-					isUntimedPlace = isUntimedPlace && (*arcIter)->Source() != **iter;
+					isUntimedPlace = isUntimedPlace && (*arcIter)->getSource() != **iter;
 				}
 
 				if(isUntimedPlace)
@@ -144,11 +144,11 @@ namespace VerifyTAPN {
 					}
 					for(TransportArc::Vector::const_iterator transport_iter = transportArcs.begin(); transport_iter != transportArcs.end(); transport_iter++)
 					{
-						if((*transport_iter)->Source() == **iter)
+						if((*transport_iter)->getSource() == **iter)
 						{
 							int maxArc = -1;
 							boost::shared_ptr<TransportArc> ta = *transport_iter;
-							const TAPN::TimeInterval& interval = ta->Interval();
+							const TAPN::TimeInterval& interval = ta->getInterval();
 							const int lowerBound = interval.getLowerBound();
 							const int upperBound = interval.getUpperBound();
 
@@ -162,7 +162,7 @@ namespace VerifyTAPN {
 							} else {
 								(*iter)->setType(Std);
 							}
-							int destinationInvariant = ta->Destination().getInvariant().getBound();
+							int destinationInvariant = ta->getDestination().getInvariant().getBound();
 							if(destinationInvariant != std::numeric_limits<int>().max()){
 								maxArc = maxArc < destinationInvariant ? maxArc : destinationInvariant;
 							}
@@ -191,7 +191,7 @@ namespace VerifyTAPN {
 			}
 
 			for(TimedTransition::Vector::iterator iter = transitions.begin(); iter != transitions.end(); iter++){
-				for(OutputArc::WeakPtrVector::const_iterator place_iter = iter->get()->GetPostset().begin(); place_iter != iter->get()->GetPostset().end(); place_iter++){
+				for(OutputArc::WeakPtrVector::const_iterator place_iter = iter->get()->getPostset().begin(); place_iter != iter->get()->getPostset().end(); place_iter++){
 					if(place_iter->lock()->getOutputPlace().getMaxConstant() > -1){
 						iter->get()->setUntimedPostset(false);
 						break;
@@ -207,9 +207,9 @@ namespace VerifyTAPN {
 			}
 			result->push_back(&p);
 			for(TransportArc::Vector::const_iterator iter = this->getTransportArcs().begin(); iter != this->getTransportArcs().end(); iter++){
-				if((*iter)->Source() == p){
-					if((*iter)->Interval().getUpperBound() == std::numeric_limits<int>().max()){
-						calculateCausality((*iter)->Destination(), result);
+				if((*iter)->getSource() == p){
+					if((*iter)->getInterval().getUpperBound() == std::numeric_limits<int>().max()){
+						calculateCausality((*iter)->getDestination(), result);
 					}
 				}
 			}
@@ -338,7 +338,7 @@ namespace VerifyTAPN {
 
 			for(TransportArc::Vector::const_iterator iter = transportArcs.begin(); iter != transportArcs.end(); iter++){
 				TransportArc& ta = *(*iter);
-				if(ta.Interval().isLowerBoundStrict() || (ta.Interval().isUpperBoundStrict() && ta.Interval().getUpperBound() != std::numeric_limits<int>().max())){
+				if(ta.getInterval().isLowerBoundStrict() || (ta.getInterval().isUpperBoundStrict() && ta.getInterval().getUpperBound() != std::numeric_limits<int>().max())){
 					return false;
 				}
 			}

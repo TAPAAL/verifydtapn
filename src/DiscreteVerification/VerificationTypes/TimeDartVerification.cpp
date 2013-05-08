@@ -10,14 +10,14 @@ namespace VerifyTAPN {
             Util::interval initial(0, INT_MAX);
             start.push_back(initial);
 
-            if (transition.NumberOfInputArcs() + transition.NumberOfTransportArcs() == 0) { //always enabled
+            if (transition.getNumberOfInputArcs() + transition.getNumberOfTransportArcs() == 0) { //always enabled
                 pair<int, int> p(0, maxPossibleDelay(marking));
                 return p;
             }
 
             // Inhibitor arcs
-            for (TAPN::InhibitorArc::WeakPtrVector::const_iterator arc = transition.GetInhibitorArcs().begin();
-                    arc != transition.GetInhibitorArcs().end();
+            for (TAPN::InhibitorArc::WeakPtrVector::const_iterator arc = transition.getInhibitorArcs().begin();
+                    arc != transition.getInhibitorArcs().end();
                     arc++) {
                 if (marking->numberOfTokensInPlace(arc->lock()->getInputPlace().getIndex()) >= arc->lock()->getWeight()) {
                     pair<int, int> p(-1, -1);
@@ -27,7 +27,7 @@ namespace VerifyTAPN {
 
 
             // Standard arcs
-            for (TAPN::TimedInputArc::WeakPtrVector::const_iterator arc = transition.GetPreset().begin(); arc != transition.GetPreset().end(); arc++) {
+            for (TAPN::TimedInputArc::WeakPtrVector::const_iterator arc = transition.getPreset().begin(); arc != transition.getPreset().end(); arc++) {
                 vector<Util::interval > intervals;
                 int range;
                 if (arc->lock()->getInterval().getUpperBound() == INT_MAX) {
@@ -67,9 +67,9 @@ namespace VerifyTAPN {
             }
 
             // Transport arcs
-            for (TAPN::TransportArc::WeakPtrVector::const_iterator arc = transition.GetTransportArcs().begin(); arc != transition.GetTransportArcs().end(); arc++) {
-                Util::interval arcGuard(arc->lock()->Interval().getLowerBound(), arc->lock()->Interval().getUpperBound());
-                Util::interval invGuard(0, arc->lock()->Destination().getInvariant().getBound());
+            for (TAPN::TransportArc::WeakPtrVector::const_iterator arc = transition.getTransportArcs().begin(); arc != transition.getTransportArcs().end(); arc++) {
+                Util::interval arcGuard(arc->lock()->getInterval().getLowerBound(), arc->lock()->getInterval().getUpperBound());
+                Util::interval invGuard(0, arc->lock()->getDestination().getInvariant().getBound());
 
                 Util::interval arcInterval = boost::numeric::intersect(arcGuard, invGuard);
                 vector<Util::interval > intervals;
@@ -79,9 +79,9 @@ namespace VerifyTAPN {
                 } else {
                     range = arcInterval.upper() - arcInterval.lower();
                 }
-                int weight = arc->lock()->GetWeight();
+                int weight = arc->lock()->getWeight();
 
-                TokenList tokens = marking->getTokenList(arc->lock()->Source().getIndex());
+                TokenList tokens = marking->getTokenList(arc->lock()->getSource().getIndex());
 
                 if (tokens.size() == 0) {
                     pair<int, int> p(-1, -1);
@@ -132,8 +132,8 @@ namespace VerifyTAPN {
             int MC = -1;
             unsigned int i = 0;
             for (PlaceList::const_iterator iter = marking->getPlaceList().begin(); iter != marking->getPlaceList().end(); iter++) {
-                if (i < transition.GetPreset().size() && iter->place->getIndex() == transition.GetPreset().at(i).lock()->getInputPlace().getIndex()) {
-                    if (transition.GetPreset().at(i).lock()->getWeight() < iter->numberOfTokens()) {
+                if (i < transition.getPreset().size() && iter->place->getIndex() == transition.getPreset().at(i).lock()->getInputPlace().getIndex()) {
+                    if (transition.getPreset().at(i).lock()->getWeight() < iter->numberOfTokens()) {
                         MC = max(MC, iter->place->getMaxConstant() - iter->tokens.front().getAge());
                     }
                     i++;

@@ -82,7 +82,7 @@ namespace VerifyTAPN {
 		inline std::size_t getHashValue(const TimedTransition& transition)
 		{
 			boost::hash<std::string> hasher;
-			return hasher(transition.GetName());
+			return hasher(transition.getName());
 		}
 	}
 }

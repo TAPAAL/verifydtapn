@@ -123,12 +123,12 @@ namespace VerifyTAPN {
             }
 
             TransportArcAndTokens(boost::weak_ptr<TransportArc> arc, TokenList enabledBy)
-            : ArcAndTokens<T>(enabledBy, arc.lock()->GetWeight()), arc(arc) {
+            : ArcAndTokens<T>(enabledBy, arc.lock()->getWeight()), arc(arc) {
             }
 
             void moveToken(Token& token, T& m) {
-                m.removeToken(arc.lock()->Source().getIndex(), token.getAge());
-                m.addTokenInPlace(arc.lock()->Destination(), token);
+                m.removeToken(arc.lock()->getSource().getIndex(), token.getAge());
+                m.addTokenInPlace(arc.lock()->getDestination(), token);
             }
         };
 
@@ -188,7 +188,7 @@ namespace VerifyTAPN {
             transitionStatistics = new unsigned int [numberoftransitions];
             clearTransitionsArray();
             for (TimedTransition::Vector::const_iterator iter = tapn.getTransitions().begin(); iter != tapn.getTransitions().end(); iter++) {
-                if ((*iter)->GetPreset().size() + (*iter)->GetTransportArcs().size() == 0) {
+                if ((*iter)->getPreset().size() + (*iter)->getTransportArcs().size() == 0) {
                     allwaysEnabled.push_back(iter->get());
                 }
             }
@@ -217,8 +217,8 @@ namespace VerifyTAPN {
                 for (TAPN::TransportArc::WeakPtrVector::const_iterator arc_iter = iter->place->getTransportArcs().begin();
                         arc_iter != iter->place->getTransportArcs().end(); arc_iter++) {
                     processArc(enabledArcs, enabledTransitionArcs, enabledTransitions,
-                            *iter, arc_iter->lock()->Interval(), arc_iter->lock().get(),
-                            arc_iter->lock()->Transition(), arc_iter->lock()->Destination().getInvariant().getBound());
+                            *iter, arc_iter->lock()->getInterval(), arc_iter->lock().get(),
+                            arc_iter->lock()->getTransition(), arc_iter->lock()->getDestination().getInvariant().getBound());
                 }
 
                 for (TAPN::InhibitorArc::WeakPtrVector::const_iterator arc_iter = iter->place->getInhibitorArcs().begin();
@@ -253,9 +253,9 @@ namespace VerifyTAPN {
                 }
             }
             if (arcIsEnabled && !isInhib) {
-                enabledTransitionArcs[transition.GetIndex()]++;
+                enabledTransitionArcs[transition.getIndex()]++;
             }
-            if (enabledTransitionArcs[transition.GetIndex()] == transition.GetPreset().size() + transition.GetTransportArcs().size() && !isInhib) {
+            if (enabledTransitionArcs[transition.getIndex()] == transition.getPreset().size() + transition.getTransportArcs().size() && !isInhib) {
                 enabledTransitions.push_back(&transition);
             }
         }
@@ -269,7 +269,7 @@ namespace VerifyTAPN {
                 bool inhibited = false;
                 //Check that no inhibitors is enabled;
 
-                for (TAPN::InhibitorArc::WeakPtrVector::const_iterator inhib_iter = (*iter)->GetInhibitorArcs().begin(); inhib_iter != (*iter)->GetInhibitorArcs().end(); inhib_iter++) {
+                for (TAPN::InhibitorArc::WeakPtrVector::const_iterator inhib_iter = (*iter)->getInhibitorArcs().begin(); inhib_iter != (*iter)->getInhibitorArcs().end(); inhib_iter++) {
                     // Maybe this could be done more efficiently using ArcHashMap? Dunno exactly how it works
                     if (init_marking.numberOfTokensInPlace(inhib_iter->lock().get()->getInputPlace().getIndex()) >= inhib_iter->lock().get()->getWeight()) {
                         inhibited = true;
@@ -292,7 +292,7 @@ namespace VerifyTAPN {
 
             // Initialize vectors
             ArcAndTokensVector indicesOfCurrentPermutation;
-            for (TimedInputArc::WeakPtrVector::const_iterator iter = transition.GetPreset().begin(); iter != transition.GetPreset().end(); iter++) {
+            for (TimedInputArc::WeakPtrVector::const_iterator iter = transition.getPreset().begin(); iter != transition.getPreset().end(); iter++) {
                 InputArcAndTokens<T>* arcAndTokens = new InputArcAndTokens<T > (*iter, enabledArcs[iter->lock().get()]);
                 if (arcAndTokens->isOK) {
                     indicesOfCurrentPermutation.push_back(arcAndTokens);
@@ -301,7 +301,7 @@ namespace VerifyTAPN {
                 }
             }
             // Transport arcs
-            for (TransportArc::WeakPtrVector::const_iterator iter = transition.GetTransportArcs().begin(); iter != transition.GetTransportArcs().end(); iter++) {
+            for (TransportArc::WeakPtrVector::const_iterator iter = transition.getTransportArcs().begin(); iter != transition.getTransportArcs().end(); iter++) {
                 TransportArcAndTokens<T>* arcAndTokens = new TransportArcAndTokens<T > (*iter, enabledArcs[iter->lock().get()]);
                 if (arcAndTokens->isOK) {
                     indicesOfCurrentPermutation.push_back(arcAndTokens);
@@ -311,7 +311,7 @@ namespace VerifyTAPN {
             }
 
             // Write statistics
-            transitionStatistics[transition.GetIndex()]++;
+            transitionStatistics[transition.getIndex()]++;
 
             // Generate permutations
             bool changedSomething = true;
@@ -412,7 +412,7 @@ namespace VerifyTAPN {
                 }
             }
 
-            for (OutputArc::WeakPtrVector::const_iterator postsetIter = transition.GetPostset().begin(); postsetIter != transition.GetPostset().end(); postsetIter++) {
+            for (OutputArc::WeakPtrVector::const_iterator postsetIter = transition.getPostset().begin(); postsetIter != transition.getPostset().end(); postsetIter++) {
                 Token t(0, postsetIter->lock()->getWeight());
                 m->addTokenInPlace(postsetIter->lock()->getOutputPlace(), t);
             }
@@ -425,9 +425,9 @@ namespace VerifyTAPN {
             for (unsigned int i = 0; i < numberoftransitions; i++) {
                 if ((i) % 6 == 0) {
                     out << std::endl;
-                    out << "<" << tapn.getTransitions()[i]->GetName() << ":" << transitionStatistics[i] << ">";
+                    out << "<" << tapn.getTransitions()[i]->getName() << ":" << transitionStatistics[i] << ">";
                 } else {
-                    out << " <" << tapn.getTransitions()[i]->GetName() << ":" << transitionStatistics[i] << ">";
+                    out << " <" << tapn.getTransitions()[i]->getName() << ":" << transitionStatistics[i] << ">";
                 }
             }
             out << std::endl;

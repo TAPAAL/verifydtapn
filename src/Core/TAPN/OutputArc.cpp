@@ -6,7 +6,7 @@ namespace VerifyTAPN {
 	namespace TAPN {
 		void OutputArc::print(std::ostream& out) const
 		{
-			out << "From " << transition->GetName() << " to " << place->getName() << " weight: " << weight;
+			out << "From " << transition->getName() << " to " << place->getName() << " weight: " << weight;
 		}
 
 		TimedPlace& OutputArc::getOutputPlace()

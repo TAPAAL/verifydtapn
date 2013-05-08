@@ -45,7 +45,7 @@ namespace VerifyTAPN {
                     isFirst = false;
                 } else {
                     if (stack.top()->getGeneratedBy()) {
-                        std::cout << "\tTransistion: " << stack.top()->getGeneratedBy()->GetName() << std::endl;
+                        std::cout << "\tTransistion: " << stack.top()->getGeneratedBy()->getName() << std::endl;
                     } else {
                         int i = 1;
                         T* old = stack.top();
@@ -220,15 +220,15 @@ namespace VerifyTAPN {
         rapidxml::xml_node<>* Verification<T>::createTransitionNode(T* old, T* current, rapidxml::xml_document<>& doc) {
             using namespace rapidxml;
             xml_node<>* transitionNode = doc.allocate_node(node_element, "transition");
-            xml_attribute<>* id = doc.allocate_attribute("id", current->getGeneratedBy()->GetId().c_str());
+            xml_attribute<>* id = doc.allocate_attribute("id", current->getGeneratedBy()->getId().c_str());
             transitionNode->append_attribute(id);
 
-            for (TAPN::TimedInputArc::WeakPtrVector::const_iterator arc_iter = current->getGeneratedBy()->GetPreset().begin(); arc_iter != current->getGeneratedBy()->GetPreset().end(); arc_iter++) {
+            for (TAPN::TimedInputArc::WeakPtrVector::const_iterator arc_iter = current->getGeneratedBy()->getPreset().begin(); arc_iter != current->getGeneratedBy()->getPreset().end(); arc_iter++) {
                 createTransitionSubNodes(old, current, doc, transitionNode, arc_iter->lock()->getInputPlace(), arc_iter->lock()->getInterval(), arc_iter->lock()->getWeight());
             }
 
-            for (TAPN::TransportArc::WeakPtrVector::const_iterator arc_iter = current->getGeneratedBy()->GetTransportArcs().begin(); arc_iter != current->getGeneratedBy()->GetTransportArcs().end(); arc_iter++) {
-                createTransitionSubNodes(old, current, doc, transitionNode, arc_iter->lock()->Source(), arc_iter->lock()->Interval(), arc_iter->lock()->GetWeight());
+            for (TAPN::TransportArc::WeakPtrVector::const_iterator arc_iter = current->getGeneratedBy()->getTransportArcs().begin(); arc_iter != current->getGeneratedBy()->getTransportArcs().end(); arc_iter++) {
+                createTransitionSubNodes(old, current, doc, transitionNode, arc_iter->lock()->getSource(), arc_iter->lock()->getInterval(), arc_iter->lock()->getWeight());
             }
 
             return transitionNode;
