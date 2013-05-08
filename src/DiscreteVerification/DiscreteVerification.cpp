@@ -23,17 +23,17 @@ namespace VerifyTAPN {
         }
 
         int DiscreteVerification::run(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, std::vector<int> initialPlacement, AST::Query* query, VerificationOptions& options) {
-            if (!(*tapn).IsNonStrict()) {
+            if (!(*tapn).isNonStrict()) {
                 std::cout << "The supplied net contains strict intervals." << std::endl;
                 return -1;
             }
 
             NonStrictMarking* initialMarking = new NonStrictMarking(*tapn, initialPlacement);
 
-            std::cout << "MC: " << tapn->MaxConstant() << std::endl;
+            std::cout << "MC: " << tapn->getMaxConstant() << std::endl;
 #if DEBUG
             std::cout << "Places: " << std::endl;
-            for (TAPN::TimedPlace::Vector::const_iterator iter = tapn.get()->GetPlaces().begin(); iter != tapn.get()->GetPlaces().end(); iter++) {
+            for (TAPN::TimedPlace::Vector::const_iterator iter = tapn.get()->getPlaces().begin(); iter != tapn.get()->getPlaces().end(); iter++) {
                 std::cout << "Place " << iter->get()->GetIndex() << " has category " << iter->get()->GetType() << std::endl;
             }
 #endif

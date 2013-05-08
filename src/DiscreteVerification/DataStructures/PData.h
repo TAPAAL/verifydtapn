@@ -242,7 +242,7 @@ namespace VerifyTAPN {
                     int age = floor(data / this->numberOfPlaces);
                     uint place = (data % this->numberOfPlaces);
                     Token t = Token(age, count);
-                    m->addTokenInPlace(tapn->GetPlace(place), t);
+                    m->addTokenInPlace(tapn->getPlace(place), t);
                     data = 0;
                     count = 0;
                 }

@@ -31,7 +31,7 @@ NonStrictMarkingBase::NonStrictMarkingBase(const TAPN::TimedArcPetriNet& tapn, c
 			}
 		}else{
 
-			Place p(&tapn.GetPlace(*iter));
+			Place p(&tapn.getPlace(*iter));
 			Token t(0,1);
 			p.tokens.push_back(t);
 			places.push_back(p);

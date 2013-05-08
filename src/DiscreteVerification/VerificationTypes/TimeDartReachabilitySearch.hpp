@@ -64,7 +64,7 @@ class TimeDartReachabilitySearchPData : public TimeDartReachabilitySearch {
 public:
     TimeDartReachabilitySearchPData(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarkingBase& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<TimeDartEncodingPointer >* waiting_list)
     :TimeDartReachabilitySearch(tapn, initialMarking, query, options){
-        pwList = new TimeDartPWPData(waiting_list, tapn, options.getKBound(), tapn->NumberOfPlaces(), tapn->MaxConstant(), options.getTrace());
+        pwList = new TimeDartPWPData(waiting_list, tapn, options.getKBound(), tapn->getNumberOfPlaces(), tapn->getMaxConstant(), options.getTrace());
     };
 protected:
        virtual inline void deleteBase(NonStrictMarkingBase* base){

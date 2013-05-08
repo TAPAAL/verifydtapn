@@ -183,11 +183,11 @@ namespace VerifyTAPN {
         }
         
         template<typename T>
-        SuccessorGenerator<T>::SuccessorGenerator(TAPN::TimedArcPetriNet& tapn, Verification<T>& verifier) : tapn(tapn), allwaysEnabled(), numberoftransitions(tapn.GetTransitions().size()), transitionStatistics(), verifier(verifier), succesorsExist(true) {
+        SuccessorGenerator<T>::SuccessorGenerator(TAPN::TimedArcPetriNet& tapn, Verification<T>& verifier) : tapn(tapn), allwaysEnabled(), numberoftransitions(tapn.getTransitions().size()), transitionStatistics(), verifier(verifier), succesorsExist(true) {
             //Find the transitions which don't have input arcs
             transitionStatistics = new unsigned int [numberoftransitions];
             clearTransitionsArray();
-            for (TimedTransition::Vector::const_iterator iter = tapn.GetTransitions().begin(); iter != tapn.GetTransitions().end(); iter++) {
+            for (TimedTransition::Vector::const_iterator iter = tapn.getTransitions().begin(); iter != tapn.getTransitions().end(); iter++) {
                 if ((*iter)->GetPreset().size() + (*iter)->GetTransportArcs().size() == 0) {
                     allwaysEnabled.push_back(iter->get());
                 }
@@ -203,8 +203,8 @@ namespace VerifyTAPN {
         bool SuccessorGenerator<T>::generateAndInsertSuccessors(const T& marking) {
             succesorsExist = false;
             
-            ArcHashMap enabledArcs(tapn.GetInhibitorArcs().size() + tapn.GetInputArcs().size() + tapn.GetTransportArcs().size());
-            std::vector<unsigned int> enabledTransitionArcs(tapn.GetTransitions().size(), 0);
+            ArcHashMap enabledArcs(tapn.getInhibitorArcs().size() + tapn.getInputArcs().size() + tapn.getTransportArcs().size());
+            std::vector<unsigned int> enabledTransitionArcs(tapn.getTransitions().size(), 0);
             std::vector<const TAPN::TimedTransition* > enabledTransitions;
 
             for (PlaceList::const_iterator iter = marking.getPlaceList().begin(); iter < marking.getPlaceList().end(); iter++) {
@@ -218,7 +218,7 @@ namespace VerifyTAPN {
                         arc_iter != iter->place->GetTransportArcs().end(); arc_iter++) {
                     processArc(enabledArcs, enabledTransitionArcs, enabledTransitions,
                             *iter, arc_iter->lock()->Interval(), arc_iter->lock().get(),
-                            arc_iter->lock()->Transition(), arc_iter->lock()->Destination().GetInvariant().GetBound());
+                            arc_iter->lock()->Transition(), arc_iter->lock()->Destination().GetInvariant().getBound());
                 }
 
                 for (TAPN::InhibitorArc::WeakPtrVector::const_iterator arc_iter = iter->place->GetInhibitorArcs().begin();
@@ -425,9 +425,9 @@ namespace VerifyTAPN {
             for (unsigned int i = 0; i < numberoftransitions; i++) {
                 if ((i) % 6 == 0) {
                     out << std::endl;
-                    out << "<" << tapn.GetTransitions()[i]->GetName() << ":" << transitionStatistics[i] << ">";
+                    out << "<" << tapn.getTransitions()[i]->GetName() << ":" << transitionStatistics[i] << ">";
                 } else {
-                    out << " <" << tapn.GetTransitions()[i]->GetName() << ":" << transitionStatistics[i] << ">";
+                    out << " <" << tapn.getTransitions()[i]->GetName() << ":" << transitionStatistics[i] << ">";
                 }
             }
             out << std::endl;

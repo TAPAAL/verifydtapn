@@ -56,8 +56,8 @@ bool ReachabilitySearch::isDelayPossible(NonStrictMarking& marking){
 	if(places.size() == 0) return true;	//Delay always possible in empty markings
 
 	PlaceList::const_iterator markedPlace_iter = places.begin();
-	for(TAPN::TimedPlace::Vector::const_iterator place_iter = tapn->GetPlaces().begin(); place_iter != tapn->GetPlaces().end(); place_iter++){
-		int inv = place_iter->get()->GetInvariant().GetBound();
+	for(TAPN::TimedPlace::Vector::const_iterator place_iter = tapn->getPlaces().begin(); place_iter != tapn->getPlaces().end(); place_iter++){
+		int inv = place_iter->get()->GetInvariant().getBound();
 		if(*(place_iter->get()) == *(markedPlace_iter->place)){
 			if(markedPlace_iter->maxTokenAge() > inv-1){
 				return false;

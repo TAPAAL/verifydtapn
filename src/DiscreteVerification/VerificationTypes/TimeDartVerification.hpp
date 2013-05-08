@@ -24,7 +24,7 @@ namespace VerifyTAPN {
                 loop = false;
                 deadlock = false;
                 //Find the transitions which don't have input arcs
-                for (TimedTransition::Vector::const_iterator iter = tapn->GetTransitions().begin(); iter != tapn->GetTransitions().end(); iter++) {
+                for (TimedTransition::Vector::const_iterator iter = tapn->getTransitions().begin(); iter != tapn->getTransitions().end(); iter++) {
                     if ((*iter)->GetPreset().size() + (*iter)->GetTransportArcs().size() == 0) {
                         allwaysEnabled.push_back(iter->get());
                     }

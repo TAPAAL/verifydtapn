@@ -73,7 +73,7 @@ boost::shared_ptr<TimedPlace> TAPNXmlParser::ParsePlace(const xml_node<>& placeN
 	std::string name(placeNode.first_attribute("name")->value());
 
 	std::string invariantNode = placeNode.first_attribute("invariant")->value();
-	TimeInvariant timeInvariant = TimeInvariant::CreateFor(invariantNode);
+	TimeInvariant timeInvariant = TimeInvariant::createFor(invariantNode);
 	return boost::make_shared<TimedPlace>(name, id, timeInvariant);
 }
 
@@ -241,7 +241,7 @@ std::vector<int> TAPNXmlParser::ParseInitialMarking(const rapidxml::xml_node<>& 
 		if(nTokens > 0)
 		{
 			for(int i = 0; i < nTokens; i++) {
-				markedPlaces.push_back(tapn.GetPlaceIndex(placeName));
+				markedPlaces.push_back(tapn.getPlaceIndex(placeName));
 			}
 		}
 

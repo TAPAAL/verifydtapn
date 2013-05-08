@@ -29,7 +29,7 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
-	tapn->Initialize(options.getGlobalMaxConstantsEnabled());
+	tapn->initialize(options.getGlobalMaxConstantsEnabled());
 
 	std::vector<int> initialPlacement(modelParser.ParseMarking(options.getInputFile(), *tapn));
 

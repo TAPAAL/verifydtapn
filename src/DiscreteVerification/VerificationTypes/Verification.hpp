@@ -98,7 +98,7 @@ namespace VerifyTAPN {
                         std::cout << "\tDeadlock" << std::endl;
                     } else {
                         for (PlaceList::const_iterator iter = m->getPlaceList().begin(); iter != m->getPlaceList().end(); iter++) {
-                            if (iter->place->GetInvariant().GetBound() != std::numeric_limits<int>::max()) {
+                            if (iter->place->GetInvariant().getBound() != std::numeric_limits<int>::max()) {
                                 //Invariant, deadlock
                                 std::cout << "\tDeadlock" << std::endl;
                                 return;
@@ -202,7 +202,7 @@ namespace VerifyTAPN {
                         // By default delay forever
                         xml_node<>* node = doc.allocate_node(node_element, "delay", doc.allocate_string("forever"));
                         for (PlaceList::const_iterator iter = m->getPlaceList().begin(); iter != m->getPlaceList().end(); iter++) {
-                            if (iter->place->GetInvariant().GetBound() != std::numeric_limits<int>::max()) {
+                            if (iter->place->GetInvariant().getBound() != std::numeric_limits<int>::max()) {
                                 //Invariant, deadlock instead of delay forever
                                 node = doc.allocate_node(node_element, "deadlock");
                                 break;

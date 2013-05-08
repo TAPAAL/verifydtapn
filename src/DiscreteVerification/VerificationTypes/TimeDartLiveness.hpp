@@ -70,7 +70,7 @@ namespace VerifyTAPN {
 
             TimeDartLivenessPData(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarkingBase& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<EncodingPointer<WaitingDart> >* waiting_list)
             : TimeDartLiveness(tapn, initialMarking, query, options) {
-                pwList = new TimeDartLivenessPWPData(options, waiting_list, tapn, tapn->NumberOfPlaces(), tapn->MaxConstant());
+                pwList = new TimeDartLivenessPWPData(options, waiting_list, tapn, tapn->getNumberOfPlaces(), tapn->getMaxConstant());
             };
 
         protected:

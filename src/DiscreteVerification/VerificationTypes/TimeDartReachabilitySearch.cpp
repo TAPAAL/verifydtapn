@@ -25,13 +25,13 @@ bool TimeDartReachabilitySearch::verify(){
 
 		int passed = dart.getPassed();
 		dart.setPassed(dart.getWaiting());
-		tapn->GetTransitions();
+		tapn->getTransitions();
                 this->tmpdart = NULL;
                 if(options.getTrace() == VerificationOptions::SOME_TRACE){
                     this->tmpdart = ((ReachabilityTraceableDart*)&dart)->trace;
                 }
-		for(TimedTransition::Vector::const_iterator transition_iter = tapn->GetTransitions().begin();
-				transition_iter != tapn->GetTransitions().end(); transition_iter++){
+		for(TimedTransition::Vector::const_iterator transition_iter = tapn->getTransitions().begin();
+				transition_iter != tapn->getTransitions().end(); transition_iter++){
 			TimedTransition& transition = **transition_iter;
 			pair<int,int> calculatedStart = calculateStart(transition, dart.getBase());
 			if(calculatedStart.first == -1){	// Transition cannot be enabled in marking

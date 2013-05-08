@@ -69,7 +69,7 @@ namespace VerifyTAPN {
             // Transport arcs
             for (TAPN::TransportArc::WeakPtrVector::const_iterator arc = transition.GetTransportArcs().begin(); arc != transition.GetTransportArcs().end(); arc++) {
                 Util::interval arcGuard(arc->lock()->Interval().getLowerBound(), arc->lock()->Interval().getUpperBound());
-                Util::interval invGuard(0, arc->lock()->Destination().GetInvariant().GetBound());
+                Util::interval invGuard(0, arc->lock()->Destination().GetInvariant().getBound());
 
                 Util::interval arcInterval = boost::numeric::intersect(arcGuard, invGuard);
                 vector<Util::interval > intervals;
@@ -149,8 +149,8 @@ namespace VerifyTAPN {
             int invariantPart = INT_MAX;
 
             for (PlaceList::const_iterator iter = marking->getPlaceList().begin(); iter != marking->getPlaceList().end(); iter++) {
-                if (iter->place->GetInvariant().GetBound() != std::numeric_limits<int>::max() && iter->place->GetInvariant().GetBound() - iter->tokens.back().getAge() < invariantPart) {
-                    invariantPart = iter->place->GetInvariant().GetBound() - iter->tokens.back().getAge();
+                if (iter->place->GetInvariant().getBound() != std::numeric_limits<int>::max() && iter->place->GetInvariant().getBound() - iter->tokens.back().getAge() < invariantPart) {
+                    invariantPart = iter->place->GetInvariant().getBound() - iter->tokens.back().getAge();
                 }
             }
 
@@ -203,7 +203,7 @@ namespace VerifyTAPN {
                 m->incrementAge(lower);
                 m->setParent(NULL);
                 if(upper == INT_MAX){
-                    upper = tapn.get()->MaxConstant();
+                    upper = tapn.get()->getMaxConstant();
                 }
                 // create markings between transitions, one for each delay (exluding last one)
                 if (upper > lower) {

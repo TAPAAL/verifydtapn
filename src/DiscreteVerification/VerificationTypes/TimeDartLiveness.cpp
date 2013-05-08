@@ -56,8 +56,8 @@ namespace VerifyTAPN {
                 waitingDart->dart->setPassed(waitingDart->w);
                 this->tmpdart = waitingDart;
                 // Iterate over transitions
-                for (TimedTransition::Vector::const_iterator transition_iter = tapn->GetTransitions().begin();
-                        transition_iter != tapn->GetTransitions().end(); transition_iter++) {
+                for (TimedTransition::Vector::const_iterator transition_iter = tapn->getTransitions().begin();
+                        transition_iter != tapn->getTransitions().end(); transition_iter++) {
                     TimedTransition& transition = **transition_iter;
 
                     // Calculate enabled set
@@ -113,7 +113,7 @@ namespace VerifyTAPN {
 
         bool TimeDartLiveness::canDelayForever(NonStrictMarkingBase* marking) {
             for (PlaceList::const_iterator p_iter = marking->getPlaceList().begin(); p_iter != marking->getPlaceList().end(); p_iter++) {
-                if (p_iter->place->GetInvariant().GetBound() < INT_MAX) {
+                if (p_iter->place->GetInvariant().getBound() < INT_MAX) {
                     return false;
                 }
             }

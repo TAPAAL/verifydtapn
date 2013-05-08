@@ -705,7 +705,7 @@ namespace VerifyTAPN {
 /* Line 690 of lalr1.cc  */
 #line 82 "Core/QueryParser/grammar.yy"
     { 
-		int placeIndex = driver.getTAPN().GetPlaceIndex(*(yysemantic_stack_[(3) - (1)].string));
+		int placeIndex = driver.getTAPN().getPlaceIndex(*(yysemantic_stack_[(3) - (1)].string));
 		if(placeIndex == -1) error((yylocation_stack_[(3) - (1)]), "unknown place"); 
 		(yyval.expr) = new VerifyTAPN::AST::AtomicProposition(placeIndex, (yysemantic_stack_[(3) - (2)].string), (yysemantic_stack_[(3) - (3)].number)); 
 	}

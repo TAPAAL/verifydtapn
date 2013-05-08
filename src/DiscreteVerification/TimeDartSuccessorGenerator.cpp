@@ -14,11 +14,11 @@ TimeDartSuccessorGenerator::~TimeDartSuccessorGenerator(){
 
 }
 
-TimeDartSuccessorGenerator::TimeDartSuccessorGenerator(TAPN::TimedArcPetriNet& tapn, Verification<NonStrictMarkingBase>& verifier)  : tapn(tapn), allwaysEnabled(), numberoftransitions(tapn.GetTransitions().size()), transitionStatistics(), verifier(verifier){
+TimeDartSuccessorGenerator::TimeDartSuccessorGenerator(TAPN::TimedArcPetriNet& tapn, Verification<NonStrictMarkingBase>& verifier)  : tapn(tapn), allwaysEnabled(), numberoftransitions(tapn.getTransitions().size()), transitionStatistics(), verifier(verifier){
 	//Find the transitions which don't have input arcs
 	transitionStatistics = new unsigned int [numberoftransitions];
 	clearTransitionsArray();
-	for(TimedTransition::Vector::const_iterator iter = tapn.GetTransitions().begin(); iter != tapn.GetTransitions().end(); iter++){
+	for(TimedTransition::Vector::const_iterator iter = tapn.getTransitions().begin(); iter != tapn.getTransitions().end(); iter++){
 		if((*iter)->GetPreset().size() + (*iter)->GetTransportArcs().size() == 0){
 			allwaysEnabled.push_back(iter->get());
 		}
@@ -37,7 +37,7 @@ bool TimeDartSuccessorGenerator::generateAndInsertSuccessors(const NonStrictMark
 
 	for(TAPN::TransportArc::WeakPtrVector::const_iterator arc_iter = transition.GetTransportArcs().begin();
 			arc_iter != transition.GetTransportArcs().end(); arc_iter++){
-			processArc(enabledArcs,	marking.getTokenList( arc_iter->lock()->Source().GetIndex() ), arc_iter->lock()->Interval(), arc_iter->lock().get(), transition, arc_iter->lock()->Destination().GetInvariant().GetBound());
+			processArc(enabledArcs,	marking.getTokenList( arc_iter->lock()->Source().GetIndex() ), arc_iter->lock()->Interval(), arc_iter->lock().get(), transition, arc_iter->lock()->Destination().GetInvariant().getBound());
 	}
 
 	return generateMarkings(marking, transition, enabledArcs);
@@ -215,10 +215,10 @@ void TimeDartSuccessorGenerator::printTransitionStatistics(std::ostream& out) co
 		for (unsigned int i=0;i<numberoftransitions;i++) {
 			if ((i) % 6 == 0) {
 				out << std::endl;
-				out << "<" << tapn.GetTransitions()[i]->GetName() << ":" << transitionStatistics[i] << ">";
+				out << "<" << tapn.getTransitions()[i]->GetName() << ":" << transitionStatistics[i] << ">";
 			}
 			else {
-				out << " <"  <<tapn.GetTransitions()[i]->GetName() << ":" << transitionStatistics[i] << ">";
+				out << " <"  <<tapn.getTransitions()[i]->GetName() << ":" << transitionStatistics[i] << ">";
 			}
 		}
 		out << std::endl;

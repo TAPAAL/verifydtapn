@@ -25,12 +25,12 @@ namespace VerifyTAPN {
 
 			virtual ~TimeInvariant() { /* Empty */ };
 		public: // inspectors
-			void Print(std::ostream& out) const;
-			inline const int GetBound() const { return bound; }
-			inline const bool IsBoundStrict() const { return strictComparison; }
+			void print(std::ostream& out) const;
+			inline const int getBound() const { return bound; }
+			inline const bool isBoundStrict() const { return strictComparison; }
 
 		public: // statics
-			static TimeInvariant CreateFor(const std::string& invariant);
+			static TimeInvariant createFor(const std::string& invariant);
 
 		private: // data
 			bool strictComparison;
@@ -39,7 +39,7 @@ namespace VerifyTAPN {
 
 		inline bool operator==(const TimeInvariant& a, const TimeInvariant& b)
 		{
-			return a.GetBound() == b.GetBound() && a.IsBoundStrict() == b.IsBoundStrict();
+			return a.getBound() == b.getBound() && a.isBoundStrict() == b.isBoundStrict();
 		}
 
 		inline bool operator!=(const TimeInvariant& a, const TimeInvariant& b)
@@ -49,7 +49,7 @@ namespace VerifyTAPN {
 
 		inline std::ostream& operator<<(std::ostream& out, const TimeInvariant& invariant)
 		{
-			invariant.Print(out);
+			invariant.print(out);
 			return out;
 		}
 	}
