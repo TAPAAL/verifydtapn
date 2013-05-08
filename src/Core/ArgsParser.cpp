@@ -312,9 +312,9 @@ VerificationOptions::MemoryOptimization intToMemoryOptimizationEnum(int i) {
 VerificationOptions::Trace intToEnum(int i) {
 	switch (i) {
 	case 0:
-		return VerificationOptions::NONE;
+		return VerificationOptions::NO_TRACE;
 	case 1:
-		return VerificationOptions::SOME;
+		return VerificationOptions::SOME_TRACE;
 	default:
 		std::cout << "Unknown trace option specified." << std::endl;
 		exit(1);

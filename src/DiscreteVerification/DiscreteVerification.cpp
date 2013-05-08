@@ -129,7 +129,7 @@ namespace VerifyTAPN {
             else
                 std::cout << verifier->maxUsedTokens() << std::endl;
 
-            if (options.getTrace() == VerificationOptions::SOME) {
+            if (options.getTrace() == VerificationOptions::SOME_TRACE) {
                 if ((query->GetQuantifier() == EF && result) || (query->GetQuantifier() == AG && !result) || (query->GetQuantifier() == EG && result) || (query->GetQuantifier() == AF && !result)) {
                     verifier->getTrace();
                 } else {

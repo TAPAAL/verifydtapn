@@ -11,7 +11,7 @@ namespace VerifyTAPN {
     public:
 
         enum Trace {
-            NONE, SOME
+            NO_TRACE, SOME_TRACE
         };
 
         enum SearchType {

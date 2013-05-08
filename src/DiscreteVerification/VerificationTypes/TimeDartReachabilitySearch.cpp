@@ -27,7 +27,7 @@ bool TimeDartReachabilitySearch::verify(){
 		dart.setPassed(dart.getWaiting());
 		tapn->GetTransitions();
                 this->tmpdart = NULL;
-                if(options.getTrace() == VerificationOptions::SOME){
+                if(options.getTrace() == VerificationOptions::SOME_TRACE){
                     this->tmpdart = ((ReachabilityTraceableDart*)&dart)->trace;
                 }
 		for(TimedTransition::Vector::const_iterator transition_iter = tapn->GetTransitions().begin();
@@ -70,7 +70,7 @@ bool TimeDartReachabilitySearch::verify(){
 
 bool TimeDartReachabilitySearch::addToPW(NonStrictMarkingBase* marking, WaitingDart* parent, int upper){
         int start = 0;
-        if(options.getTrace() == VerificationOptions::SOME){
+        if(options.getTrace() == VerificationOptions::SOME_TRACE){
             start = marking->getYoungest();
         }
 	marking->cut();

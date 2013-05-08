@@ -89,7 +89,7 @@ namespace VerifyTAPN {
                         waiting_list->add(marking, ewp);
                         result.second = true;
                     } else {
-                        if(options.getTrace() == VerificationOptions::SOME){
+                        if(options.getTrace() == VerificationOptions::SOME_TRACE){
                             EncodingStructure<WaitingDart*> es(res.encoding.getRaw(), res.encoding.Size());
                            ((EncodedLivenessDart*)td)->encoding = new EncodingPointer<WaitingDart > (es, res.pos);
                            result.first = td;
@@ -129,7 +129,7 @@ namespace VerifyTAPN {
             WaitingDart* wd = ewp->encoding.getMetaData();
             NonStrictMarkingBase* base = passed.enumerateDecode(*((EncodingPointer<LivenessDart>*)ewp));
             wd->dart->setBase(base);
-            if(options.getTrace() == VerificationOptions::SOME){
+            if(options.getTrace() == VerificationOptions::SOME_TRACE){
                 ((EncodedLivenessDart*)wd->dart)->encoding = ewp;
             }
             return wd;
