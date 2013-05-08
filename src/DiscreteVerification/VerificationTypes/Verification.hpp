@@ -80,7 +80,7 @@ namespace VerifyTAPN {
                 for (PlaceList::const_iterator iter = stack.top()->getPlaceList().begin(); iter != stack.top()->getPlaceList().end(); iter++) {
                     for (TokenList::const_iterator titer = iter->tokens.begin(); titer != iter->tokens.end(); titer++) {
                         for (int i = 0; i < titer->getCount(); i++) {
-                            std::cout << "(" << iter->place->GetName() << "," << titer->getAge() << ") ";
+                            std::cout << "(" << iter->place->getName() << "," << titer->getAge() << ") ";
                         }
                     }
                 }
@@ -98,7 +98,7 @@ namespace VerifyTAPN {
                         std::cout << "\tDeadlock" << std::endl;
                     } else {
                         for (PlaceList::const_iterator iter = m->getPlaceList().begin(); iter != m->getPlaceList().end(); iter++) {
-                            if (iter->place->GetInvariant().getBound() != std::numeric_limits<int>::max()) {
+                            if (iter->place->getInvariant().getBound() != std::numeric_limits<int>::max()) {
                                 //Invariant, deadlock
                                 std::cout << "\tDeadlock" << std::endl;
                                 return;
@@ -202,7 +202,7 @@ namespace VerifyTAPN {
                         // By default delay forever
                         xml_node<>* node = doc.allocate_node(node_element, "delay", doc.allocate_string("forever"));
                         for (PlaceList::const_iterator iter = m->getPlaceList().begin(); iter != m->getPlaceList().end(); iter++) {
-                            if (iter->place->GetInvariant().getBound() != std::numeric_limits<int>::max()) {
+                            if (iter->place->getInvariant().getBound() != std::numeric_limits<int>::max()) {
                                 //Invariant, deadlock instead of delay forever
                                 node = doc.allocate_node(node_element, "deadlock");
                                 break;
@@ -235,8 +235,8 @@ namespace VerifyTAPN {
         }
         template<typename T>
         void Verification<T>::createTransitionSubNodes(T* old, T* current, rapidxml::xml_document<>& doc, rapidxml::xml_node<>* transitionNode, const TAPN::TimedPlace& place, const TAPN::TimeInterval& interval, const int weight) {
-            TokenList current_tokens = current->getTokenList(place.GetIndex());
-            TokenList old_tokens = old->getTokenList(place.GetIndex());
+            TokenList current_tokens = current->getTokenList(place.getIndex());
+            TokenList old_tokens = old->getTokenList(place.getIndex());
             int tokensFound = 0;
 
             TokenList::const_iterator n_iter = current_tokens.begin();
@@ -281,11 +281,11 @@ namespace VerifyTAPN {
         rapidxml::xml_node<>* Verification<T>::createTokenNode(rapidxml::xml_document<>& doc, const TAPN::TimedPlace& place, const Token& token) {
             using namespace rapidxml;
             xml_node<>* tokenNode = doc.allocate_node(node_element, "token");
-            xml_attribute<>* placeAttribute = doc.allocate_attribute("place", doc.allocate_string(place.GetName().c_str()));
+            xml_attribute<>* placeAttribute = doc.allocate_attribute("place", doc.allocate_string(place.getName().c_str()));
             tokenNode->append_attribute(placeAttribute);
             xml_attribute<>* ageAttribute = doc.allocate_attribute("age", doc.allocate_string(ToString(token.getAge()).c_str()));
             tokenNode->append_attribute(ageAttribute);
-            if (place.GetMaxConstant() < token.getAge()) {
+            if (place.getMaxConstant() < token.getAge()) {
                 xml_attribute<>* gtAttribute = doc.allocate_attribute("greaterThanOrEqual", doc.allocate_string("true"));
                 tokenNode->append_attribute(gtAttribute);
             } else {

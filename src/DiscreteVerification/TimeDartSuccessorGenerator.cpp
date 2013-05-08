@@ -32,12 +32,12 @@ bool TimeDartSuccessorGenerator::generateAndInsertSuccessors(const NonStrictMark
 	// Calculate enabling tokens
 	for(TAPN::TimedInputArc::WeakPtrVector::const_iterator arc_iter = transition.GetPreset().begin();
 			arc_iter != transition.GetPreset().end(); arc_iter++){
-			processArc(enabledArcs,	marking.getTokenList( arc_iter->lock()->getInputPlace().GetIndex() ), arc_iter->lock()->getInterval(), arc_iter->lock().get(), transition);
+			processArc(enabledArcs,	marking.getTokenList( arc_iter->lock()->getInputPlace().getIndex() ), arc_iter->lock()->getInterval(), arc_iter->lock().get(), transition);
 	}
 
 	for(TAPN::TransportArc::WeakPtrVector::const_iterator arc_iter = transition.GetTransportArcs().begin();
 			arc_iter != transition.GetTransportArcs().end(); arc_iter++){
-			processArc(enabledArcs,	marking.getTokenList( arc_iter->lock()->Source().GetIndex() ), arc_iter->lock()->Interval(), arc_iter->lock().get(), transition, arc_iter->lock()->Destination().GetInvariant().getBound());
+			processArc(enabledArcs,	marking.getTokenList( arc_iter->lock()->Source().getIndex() ), arc_iter->lock()->Interval(), arc_iter->lock().get(), transition, arc_iter->lock()->Destination().getInvariant().getBound());
 	}
 
 	return generateMarkings(marking, transition, enabledArcs);
@@ -67,7 +67,7 @@ bool TimeDartSuccessorGenerator::generateMarkings( const NonStrictMarkingBase& i
 
 		for(TAPN::InhibitorArc::WeakPtrVector::const_iterator inhib_iter = transition.GetInhibitorArcs().begin(); inhib_iter != transition.GetInhibitorArcs().end(); inhib_iter++){
 			// Maybe this could be done more efficiently using ArcHashMap? Dunno exactly how it works
-			if(init_marking.numberOfTokensInPlace(inhib_iter->lock().get()->getInputPlace().GetIndex()) >= inhib_iter->lock().get()->getWeight()){
+			if(init_marking.numberOfTokensInPlace(inhib_iter->lock().get()->getInputPlace().getIndex()) >= inhib_iter->lock().get()->getWeight()){
 				inhibited = true;
 				break;
 			}

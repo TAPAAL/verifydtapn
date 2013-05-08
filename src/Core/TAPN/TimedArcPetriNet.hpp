@@ -34,7 +34,7 @@ namespace VerifyTAPN {
 
 		public: // inspectors
 			void print(std::ostream& out) const;
-			inline int getPlaceIndex(const TimedPlace& p) const { return p.GetIndex(); };
+			inline int getPlaceIndex(const TimedPlace& p) const { return p.getIndex(); };
 			int getPlaceIndex(const std::string& placeName) const;
 			const TimedPlace& getPlace(const int placeIndex) const { return *places[placeIndex]; }
 			const TimedTransition::Vector& getTransitions() const { return transitions; }
@@ -47,7 +47,7 @@ namespace VerifyTAPN {
 			const int getNumberOfOutputArcs() const { return outputArcs.size(); }
 			int getNumberOfPlaces() const { return places.size(); };
 			inline int getMaxConstant() const { return maxConstant; };
-			inline const bool isPlaceAtIndexUntimed(int index) const { return places[index]->IsUntimed(); }
+			inline const bool isPlaceAtIndexUntimed(int index) const { return places[index]->isUntimed(); }
 			bool isNonStrict() const;
 			void calculateCausality(TimedPlace& p, std::vector< TimedPlace* >* result) const;
 			void updatePlaceTypes(const AST::Query* query, VerificationOptions options);

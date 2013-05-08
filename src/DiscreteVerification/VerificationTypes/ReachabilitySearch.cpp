@@ -57,7 +57,7 @@ bool ReachabilitySearch::isDelayPossible(NonStrictMarking& marking){
 
 	PlaceList::const_iterator markedPlace_iter = places.begin();
 	for(TAPN::TimedPlace::Vector::const_iterator place_iter = tapn->getPlaces().begin(); place_iter != tapn->getPlaces().end(); place_iter++){
-		int inv = place_iter->get()->GetInvariant().getBound();
+		int inv = place_iter->get()->getInvariant().getBound();
 		if(*(place_iter->get()) == *(markedPlace_iter->place)){
 			if(markedPlace_iter->maxTokenAge() > inv-1){
 				return false;

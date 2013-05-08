@@ -109,7 +109,7 @@ namespace VerifyTAPN {
             }
 
             void moveToken(Token& token, T& m) {
-                m.removeToken(arc.lock()->getInputPlace().GetIndex(), token.getAge());
+                m.removeToken(arc.lock()->getInputPlace().getIndex(), token.getAge());
             }
         };
 
@@ -127,7 +127,7 @@ namespace VerifyTAPN {
             }
 
             void moveToken(Token& token, T& m) {
-                m.removeToken(arc.lock()->Source().GetIndex(), token.getAge());
+                m.removeToken(arc.lock()->Source().getIndex(), token.getAge());
                 m.addTokenInPlace(arc.lock()->Destination(), token);
             }
         };
@@ -208,21 +208,21 @@ namespace VerifyTAPN {
             std::vector<const TAPN::TimedTransition* > enabledTransitions;
 
             for (PlaceList::const_iterator iter = marking.getPlaceList().begin(); iter < marking.getPlaceList().end(); iter++) {
-                for (TAPN::TimedInputArc::WeakPtrVector::const_iterator arc_iter = iter->place->GetInputArcs().begin();
-                        arc_iter != iter->place->GetInputArcs().end(); arc_iter++) {
+                for (TAPN::TimedInputArc::WeakPtrVector::const_iterator arc_iter = iter->place->getInputArcs().begin();
+                        arc_iter != iter->place->getInputArcs().end(); arc_iter++) {
                     processArc(enabledArcs, enabledTransitionArcs, enabledTransitions,
                             *iter, arc_iter->lock()->getInterval(), arc_iter->lock().get(), arc_iter->lock()->getOutputTransition());
                 }
 
-                for (TAPN::TransportArc::WeakPtrVector::const_iterator arc_iter = iter->place->GetTransportArcs().begin();
-                        arc_iter != iter->place->GetTransportArcs().end(); arc_iter++) {
+                for (TAPN::TransportArc::WeakPtrVector::const_iterator arc_iter = iter->place->getTransportArcs().begin();
+                        arc_iter != iter->place->getTransportArcs().end(); arc_iter++) {
                     processArc(enabledArcs, enabledTransitionArcs, enabledTransitions,
                             *iter, arc_iter->lock()->Interval(), arc_iter->lock().get(),
-                            arc_iter->lock()->Transition(), arc_iter->lock()->Destination().GetInvariant().getBound());
+                            arc_iter->lock()->Transition(), arc_iter->lock()->Destination().getInvariant().getBound());
                 }
 
-                for (TAPN::InhibitorArc::WeakPtrVector::const_iterator arc_iter = iter->place->GetInhibitorArcs().begin();
-                        arc_iter != iter->place->GetInhibitorArcs().end(); arc_iter++) {
+                for (TAPN::InhibitorArc::WeakPtrVector::const_iterator arc_iter = iter->place->getInhibitorArcs().begin();
+                        arc_iter != iter->place->getInhibitorArcs().end(); arc_iter++) {
                     TimeInterval t(false, 0, std::numeric_limits<int>().max(), true);
                     processArc(enabledArcs, enabledTransitionArcs, enabledTransitions,
                             *iter, t, arc_iter->lock().get(), arc_iter->lock()->getOutputTransition(), std::numeric_limits<int>().max(), true);
@@ -271,7 +271,7 @@ namespace VerifyTAPN {
 
                 for (TAPN::InhibitorArc::WeakPtrVector::const_iterator inhib_iter = (*iter)->GetInhibitorArcs().begin(); inhib_iter != (*iter)->GetInhibitorArcs().end(); inhib_iter++) {
                     // Maybe this could be done more efficiently using ArcHashMap? Dunno exactly how it works
-                    if (init_marking.numberOfTokensInPlace(inhib_iter->lock().get()->getInputPlace().GetIndex()) >= inhib_iter->lock().get()->getWeight()) {
+                    if (init_marking.numberOfTokensInPlace(inhib_iter->lock().get()->getInputPlace().getIndex()) >= inhib_iter->lock().get()->getWeight()) {
                         inhibited = true;
                         break;
                     }

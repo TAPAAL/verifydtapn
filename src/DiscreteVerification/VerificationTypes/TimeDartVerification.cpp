@@ -19,7 +19,7 @@ namespace VerifyTAPN {
             for (TAPN::InhibitorArc::WeakPtrVector::const_iterator arc = transition.GetInhibitorArcs().begin();
                     arc != transition.GetInhibitorArcs().end();
                     arc++) {
-                if (marking->numberOfTokensInPlace(arc->lock()->getInputPlace().GetIndex()) >= arc->lock()->getWeight()) {
+                if (marking->numberOfTokensInPlace(arc->lock()->getInputPlace().getIndex()) >= arc->lock()->getWeight()) {
                     pair<int, int> p(-1, -1);
                     return p;
                 }
@@ -37,7 +37,7 @@ namespace VerifyTAPN {
                 }
                 int weight = arc->lock()->getWeight();
 
-                TokenList tokens = marking->getTokenList(arc->lock()->getInputPlace().GetIndex());
+                TokenList tokens = marking->getTokenList(arc->lock()->getInputPlace().getIndex());
                 if (tokens.size() == 0) {
                     pair<int, int> p(-1, -1);
                     return p;
@@ -69,7 +69,7 @@ namespace VerifyTAPN {
             // Transport arcs
             for (TAPN::TransportArc::WeakPtrVector::const_iterator arc = transition.GetTransportArcs().begin(); arc != transition.GetTransportArcs().end(); arc++) {
                 Util::interval arcGuard(arc->lock()->Interval().getLowerBound(), arc->lock()->Interval().getUpperBound());
-                Util::interval invGuard(0, arc->lock()->Destination().GetInvariant().getBound());
+                Util::interval invGuard(0, arc->lock()->Destination().getInvariant().getBound());
 
                 Util::interval arcInterval = boost::numeric::intersect(arcGuard, invGuard);
                 vector<Util::interval > intervals;
@@ -81,7 +81,7 @@ namespace VerifyTAPN {
                 }
                 int weight = arc->lock()->GetWeight();
 
-                TokenList tokens = marking->getTokenList(arc->lock()->Source().GetIndex());
+                TokenList tokens = marking->getTokenList(arc->lock()->Source().getIndex());
 
                 if (tokens.size() == 0) {
                     pair<int, int> p(-1, -1);
@@ -132,14 +132,14 @@ namespace VerifyTAPN {
             int MC = -1;
             unsigned int i = 0;
             for (PlaceList::const_iterator iter = marking->getPlaceList().begin(); iter != marking->getPlaceList().end(); iter++) {
-                if (i < transition.GetPreset().size() && iter->place->GetIndex() == transition.GetPreset().at(i).lock()->getInputPlace().GetIndex()) {
+                if (i < transition.GetPreset().size() && iter->place->getIndex() == transition.GetPreset().at(i).lock()->getInputPlace().getIndex()) {
                     if (transition.GetPreset().at(i).lock()->getWeight() < iter->numberOfTokens()) {
-                        MC = max(MC, iter->place->GetMaxConstant() - iter->tokens.front().getAge());
+                        MC = max(MC, iter->place->getMaxConstant() - iter->tokens.front().getAge());
                     }
                     i++;
                     continue;
                 }
-                MC = max(MC, iter->place->GetMaxConstant() - iter->tokens.front().getAge());
+                MC = max(MC, iter->place->getMaxConstant() - iter->tokens.front().getAge());
             }
 
             return MC + 1;
@@ -149,8 +149,8 @@ namespace VerifyTAPN {
             int invariantPart = INT_MAX;
 
             for (PlaceList::const_iterator iter = marking->getPlaceList().begin(); iter != marking->getPlaceList().end(); iter++) {
-                if (iter->place->GetInvariant().getBound() != std::numeric_limits<int>::max() && iter->place->GetInvariant().getBound() - iter->tokens.back().getAge() < invariantPart) {
-                    invariantPart = iter->place->GetInvariant().getBound() - iter->tokens.back().getAge();
+                if (iter->place->getInvariant().getBound() != std::numeric_limits<int>::max() && iter->place->getInvariant().getBound() - iter->tokens.back().getAge() < invariantPart) {
+                    invariantPart = iter->place->getInvariant().getBound() - iter->tokens.back().getAge();
                 }
             }
 

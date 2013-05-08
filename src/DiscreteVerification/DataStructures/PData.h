@@ -146,7 +146,7 @@ namespace VerifyTAPN {
                     pi != marking->getPlaceList().end();
                     pi++) { // for each place
 
-                int pc = pi->place->GetIndex();
+                int pc = pi->place->getIndex();
 
                 for (TokenList::const_iterator ti = pi->tokens.begin(); // for each token-element
                         ti != pi->tokens.end();

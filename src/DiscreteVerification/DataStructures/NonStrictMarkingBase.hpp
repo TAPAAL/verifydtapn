@@ -78,7 +78,7 @@ public:
 	friend std::size_t hash_value(Place const& p)
 	{
 		std::size_t seed = boost::hash_range(p.tokens.begin(), p.tokens.end());
-		boost::hash_combine(seed, p.place->GetIndex());
+		boost::hash_combine(seed, p.place->getIndex());
 
 		return seed;
 	}

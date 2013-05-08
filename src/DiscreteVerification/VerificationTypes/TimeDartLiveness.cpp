@@ -113,7 +113,7 @@ namespace VerifyTAPN {
 
         bool TimeDartLiveness::canDelayForever(NonStrictMarkingBase* marking) {
             for (PlaceList::const_iterator p_iter = marking->getPlaceList().begin(); p_iter != marking->getPlaceList().end(); p_iter++) {
-                if (p_iter->place->GetInvariant().getBound() < INT_MAX) {
+                if (p_iter->place->getInvariant().getBound() < INT_MAX) {
                     return false;
                 }
             }
