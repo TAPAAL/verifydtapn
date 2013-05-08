@@ -37,7 +37,7 @@ int main(int argc, char* argv[])
 	try{
 		TAPNQueryParser queryParser(*tapn);
 		queryParser.parse(options.getQueryFile());
-		query = queryParser.GetAST();
+		query = queryParser.getAST();
 	}catch(...){
 		std::cout << "There was an error parsing the query file." << std::endl;
 		return 1;
