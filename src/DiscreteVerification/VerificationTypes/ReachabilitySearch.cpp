@@ -80,7 +80,7 @@ bool ReachabilitySearch::addToPW(NonStrictMarking* marking, NonStrictMarking* pa
 
 	pwList->setMaxNumTokensIfGreater(size);
 
-	if(size > options.GetKBound()) {
+	if(size > options.getKBound()) {
 		delete marking;
 		return false;
 	}
@@ -112,7 +112,7 @@ void ReachabilitySearch::printStats(){
 void ReachabilitySearch::getTrace(){
 	stack < NonStrictMarking*> printStack;
 	generateTraceStack(lastMarking, &printStack);
-	if(options.XmlTrace()){
+	if(options.getXmlTrace()){
 		printXMLTrace(lastMarking, printStack, query->GetQuantifier());
 	} else {
 		printHumanTrace(lastMarking, printStack, query->GetQuantifier());

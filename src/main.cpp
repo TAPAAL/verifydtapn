@@ -23,20 +23,20 @@ int main(int argc, char* argv[])
 	boost::shared_ptr<TAPN::TimedArcPetriNet> tapn;
 
 	try{
-		tapn = modelParser.Parse(options.GetInputFile());
+		tapn = modelParser.Parse(options.getInputFile());
 	}catch(const std::string& e){
 		std::cout << "There was an error parsing the model file: " << e << std::endl;
 		return 1;
 	}
 
-	tapn->Initialize(options.GetGlobalMaxConstantsEnabled());
+	tapn->Initialize(options.getGlobalMaxConstantsEnabled());
 
-	std::vector<int> initialPlacement(modelParser.ParseMarking(options.GetInputFile(), *tapn));
+	std::vector<int> initialPlacement(modelParser.ParseMarking(options.getInputFile(), *tapn));
 
 	AST::Query* query;
 	try{
 		TAPNQueryParser queryParser(*tapn);
-		queryParser.parse(options.QueryFile());
+		queryParser.parse(options.getQueryFile());
 		query = queryParser.GetAST();
 	}catch(...){
 		std::cout << "There was an error parsing the query file." << std::endl;

@@ -19,18 +19,18 @@ WaitingList<T>* getWaitingList(AST::Query* query, VerificationOptions& options){
 	WaitingList<T>* strategy = NULL;
 	if(query->GetQuantifier() == EG || query->GetQuantifier() == AF){
 		//Liveness query, force DFS
-		switch(options.GetSearchType()){
-		case DEPTHFIRST: {
+		switch(options.getSearchType()){
+		case VerificationOptions::DEPTHFIRST: {
 			NonStrictDFS<T> s;
 			strategy = s.createWaitingList(query);
 			break;
 		}
-		case RANDOM:{
+		case VerificationOptions::RANDOM:{
 			NonStrictDFSRandom<T> s;
 			strategy = s.createWaitingList(query);
 			break;
 		}
-		case COVERMOST: {
+		case VerificationOptions::COVERMOST: {
 			NonStrictDFSHeuristic<T> s;
 			strategy = s.createWaitingList(query);
 			break;
@@ -42,23 +42,23 @@ WaitingList<T>* getWaitingList(AST::Query* query, VerificationOptions& options){
 		}
 		}
 	}else if(query->GetQuantifier() == EF || query->GetQuantifier() == AG){
-		switch(options.GetSearchType()){
-		case DEPTHFIRST: {
+		switch(options.getSearchType()){
+		case VerificationOptions::DEPTHFIRST: {
 			NonStrictDFS<T> s;
 			strategy = s.createWaitingList(query);
 			break;
 		}
-		case COVERMOST: {
+		case VerificationOptions::COVERMOST: {
 			NonStrictHeuristic<T> s;
 			strategy = s.createWaitingList(query);
 			break;
 		}
-		case BREADTHFIRST: {
+		case VerificationOptions::BREADTHFIRST: {
 			NonStrictBFS<T> s;
 			strategy = s.createWaitingList(query);
 			break;
 		}
-		case RANDOM: {
+		case VerificationOptions::RANDOM: {
 			NonStrictDFSRandom<T> s;
 			strategy = s.createWaitingList(query);
 			break;

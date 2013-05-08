@@ -110,7 +110,7 @@ bool LivenessSearch::addToPW(NonStrictMarking* marking, NonStrictMarking* parent
 
 	pwList->setMaxNumTokensIfGreater(size);
 
-	if(size > options.GetKBound()) {
+	if(size > options.getKBound()) {
 		delete marking;
 		return false;
 	}
@@ -147,7 +147,7 @@ void LivenessSearch::getTrace(){
 	stack < NonStrictMarking*> printStack;
 	NonStrictMarking* m = trace.top();
 	generateTraceStack(m, &printStack, &trace);
-	if(options.XmlTrace()){
+	if(options.getXmlTrace()){
 		printXMLTrace(m, printStack, query->GetQuantifier());
 	} else {
 		printHumanTrace(m, printStack, query->GetQuantifier());

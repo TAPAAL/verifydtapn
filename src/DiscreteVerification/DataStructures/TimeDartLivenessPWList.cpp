@@ -21,7 +21,7 @@ namespace VerifyTAPN {
                     (*iter)->setWaiting(min((*iter)->getWaiting(), youngest));
 
                     if ((*iter)->getWaiting() < (*iter)->getPassed()) {
-                        if(options.GetTrace()){
+                        if(options.getTrace()){
                             waiting_list->add((*iter)->getBase(), new TraceDart((*iter), parent, youngest, start, upper, marking->getGeneratedBy()));
 
                         } else {
@@ -37,7 +37,7 @@ namespace VerifyTAPN {
             stored++;
             LivenessDart* dart = new LivenessDart(marking, youngest, INT_MAX);
             m.push_back(dart);
-            if(options.GetTrace()){
+            if(options.getTrace()){
 
                 waiting_list->add(dart->getBase(), new TraceDart(dart, parent, youngest, start, upper, marking->getGeneratedBy()));
 
@@ -78,7 +78,7 @@ namespace VerifyTAPN {
 
                         EncodingPointer<WaitingDart>* ewp = new EncodingPointer<WaitingDart > (es, res.pos);
                         WaitingDart *wd;
-                        if(options.GetTrace()){
+                        if(options.getTrace()){
                             wd =  new TraceDart(td, parent, youngest, start, upper, marking->getGeneratedBy());
 
                         } else {
@@ -89,7 +89,7 @@ namespace VerifyTAPN {
                         waiting_list->add(marking, ewp);
                         result.second = true;
                     } else {
-                        if(options.GetTrace() == SOME){
+                        if(options.getTrace() == VerificationOptions::SOME){
                             EncodingStructure<WaitingDart*> es(res.encoding.getRaw(), res.encoding.Size());
                            ((EncodedLivenessDart*)td)->encoding = new EncodingPointer<WaitingDart > (es, res.pos);
                            result.first = td;
@@ -100,7 +100,7 @@ namespace VerifyTAPN {
             
             stored++;
             LivenessDart* dart;
-            if(options.GetTrace()){
+            if(options.getTrace()){
                 dart= new EncodedLivenessDart(marking, youngest, INT_MAX);
             } else {
                 dart = new LivenessDart(marking, youngest, INT_MAX);
@@ -111,7 +111,7 @@ namespace VerifyTAPN {
             EncodingPointer<WaitingDart>* ewp = new EncodingPointer<WaitingDart > (es, res.pos);
             
             WaitingDart *wd;
-            if(options.GetTrace()){
+            if(options.getTrace()){
                 wd =  new TraceDart(dart, parent, youngest, start, upper, marking->getGeneratedBy());
                 ((EncodedLivenessDart*)dart)->encoding = ewp;
             } else {
@@ -129,7 +129,7 @@ namespace VerifyTAPN {
             WaitingDart* wd = ewp->encoding.getMetaData();
             NonStrictMarkingBase* base = passed.enumerateDecode(*((EncodingPointer<LivenessDart>*)ewp));
             wd->dart->setBase(base);
-            if(options.GetTrace() == SOME){
+            if(options.getTrace() == VerificationOptions::SOME){
                 ((EncodedLivenessDart*)wd->dart)->encoding = ewp;
             }
             return wd;

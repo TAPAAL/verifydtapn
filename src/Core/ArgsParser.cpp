@@ -268,40 +268,40 @@ VerificationOptions ArgsParser::Parse(int argc, char* argv[]) const {
 	return CreateVerificationOptions(options, model_file, query_file);
 }
 
-SearchType intToSearchTypeEnum(int i) {
+VerificationOptions::SearchType intToSearchTypeEnum(int i) {
 	switch (i) {
 	case 0:
-		return BREADTHFIRST;
+		return VerificationOptions::BREADTHFIRST;
 	case 1:
-		return DEPTHFIRST;
+		return VerificationOptions::DEPTHFIRST;
 	case 2:
-		return RANDOM;
+		return VerificationOptions::RANDOM;
 	case 3:
-		return COVERMOST;
+		return VerificationOptions::COVERMOST;
 	default:
 		std::cout << "Unknown search strategy specified." << std::endl;
 		exit(1);
 	}
 }
 
-VerificationType intToVerificationTypeEnum(int i) {
+VerificationOptions::VerificationType intToVerificationTypeEnum(int i) {
 	switch (i) {
 	case 0:
-		return DISCRETE;
+		return VerificationOptions::DISCRETE;
 	case 1:
-		return TIMEDART;
+		return VerificationOptions::TIMEDART;
 	default:
 		std::cout << "Unknown verification method specified." << std::endl;
 		exit(1);
 	}
 }
 
-MemoryOptimization intToMemoryOptimizationEnum(int i) {
+VerificationOptions::MemoryOptimization intToMemoryOptimizationEnum(int i) {
 	switch (i) {
 	case 0:
-		return NO_MEMORY_OPTIMIZATION;
+		return VerificationOptions::NO_MEMORY_OPTIMIZATION;
 	case 1:
-		return PTRIE;
+		return VerificationOptions::PTRIE;
 	default:
 		std::cout << "Unknown memory optimization specified." << std::endl;
 		exit(1);
@@ -309,12 +309,12 @@ MemoryOptimization intToMemoryOptimizationEnum(int i) {
 }
 
 
-Trace intToEnum(int i) {
+VerificationOptions::Trace intToEnum(int i) {
 	switch (i) {
 	case 0:
-		return NONE;
+		return VerificationOptions::NONE;
 	case 1:
-		return SOME;
+		return VerificationOptions::SOME;
 	default:
 		std::cout << "Unknown trace option specified." << std::endl;
 		exit(1);
@@ -346,19 +346,19 @@ VerificationOptions ArgsParser::CreateVerificationOptions(const option_map& map,
 	unsigned int kbound = TryParseInt(*map.find(KBOUND_OPTION));
 
 	assert(map.find(SEARCH_OPTION) != map.end());
-	SearchType search = intToSearchTypeEnum(
+	VerificationOptions::SearchType search = intToSearchTypeEnum(
 			TryParseInt(*map.find(SEARCH_OPTION)));
 
 	assert(map.find(VERIFICATION_OPTION) != map.end());
-	VerificationType verification = intToVerificationTypeEnum(
+	VerificationOptions::VerificationType verification = intToVerificationTypeEnum(
 			TryParseInt(*map.find(VERIFICATION_OPTION)));
         
 	assert(map.find(MEMORY_OPTIMIZATION_OPTION) != map.end());
-	MemoryOptimization memoptimization = intToMemoryOptimizationEnum(
+	VerificationOptions::MemoryOptimization memoptimization = intToMemoryOptimizationEnum(
 			TryParseInt(*map.find(MEMORY_OPTIMIZATION_OPTION)));
         
 	assert(map.find(TRACE_OPTION) != map.end());
-	Trace trace = intToEnum(TryParseInt(*map.find(TRACE_OPTION)));
+	VerificationOptions::Trace trace = intToEnum(TryParseInt(*map.find(TRACE_OPTION)));
 
 	assert(map.find(MAX_CONSTANT_OPTION) != map.end());
 	bool max_constant = boost::lexical_cast<bool>(

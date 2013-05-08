@@ -34,7 +34,7 @@ public:
         :TimeDartVerification(tapn, options, query, initialMarking), trace(10000){};
         TimeDartReachabilitySearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarkingBase& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<TimeDartBase>* waiting_list)
         :TimeDartVerification(tapn, options, query, initialMarking), trace(10000){
-            pwList = new TimeDartPWHashMap(waiting_list, options.GetTrace());
+            pwList = new TimeDartPWHashMap(waiting_list, options.getTrace());
         };
         virtual ~TimeDartReachabilitySearch();
 	bool verify();
@@ -64,7 +64,7 @@ class TimeDartReachabilitySearchPData : public TimeDartReachabilitySearch {
 public:
     TimeDartReachabilitySearchPData(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarkingBase& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<TimeDartEncodingPointer >* waiting_list)
     :TimeDartReachabilitySearch(tapn, initialMarking, query, options){
-        pwList = new TimeDartPWPData(waiting_list, tapn, options.GetKBound(), tapn->NumberOfPlaces(), tapn->MaxConstant(), options.GetTrace());
+        pwList = new TimeDartPWPData(waiting_list, tapn, options.getKBound(), tapn->NumberOfPlaces(), tapn->MaxConstant(), options.getTrace());
     };
 protected:
        virtual inline void deleteBase(NonStrictMarkingBase* base){

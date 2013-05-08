@@ -223,7 +223,7 @@ namespace VerifyTAPN {
 			placeNumbers = boost::any_cast< std::vector< int > >(context);
 
 			for(TimedPlace::Vector::const_iterator iter = places.begin(); iter != places.end(); ++iter){
-				if(options.GetKeepDeadTokens() && (*iter)->GetType() == Dead){
+				if(options.getKeepDeadTokens() && (*iter)->GetType() == Dead){
 					(*iter)->SetType(Std);
 					continue;
 				}

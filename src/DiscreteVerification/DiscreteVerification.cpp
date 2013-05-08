@@ -38,7 +38,7 @@ namespace VerifyTAPN {
             }
 #endif
 
-            if (initialMarking->size() > options.GetKBound()) {
+            if (initialMarking->size() > options.getKBound()) {
                 std::cout << "The specified k-bound is less than the number of tokens in the initial markings.";
                 return 1;
             }
@@ -47,9 +47,9 @@ namespace VerifyTAPN {
 
             WaitingList<NonStrictMarking>* strategy = NULL;
             // Select verification method
-            if (options.GetVerificationType() == DISCRETE) {
+            if (options.getVerificationType() == VerificationOptions::DISCRETE) {
                 
-                if (options.GetMemoryOptimization() == PTRIE) {
+                if (options.getMemoryOptimization() == VerificationOptions::PTRIE) {
                     //TODO fix initialization
                     WaitingList<EncodingPointer<MetaData> >* strategy = getWaitingList<EncodingPointer<MetaData> > (query, options);
                     if (query->GetQuantifier() == EG || query->GetQuantifier() == AF) {
@@ -77,9 +77,9 @@ namespace VerifyTAPN {
                                 query);
                     }
                 }
-            } else if (options.GetVerificationType() == TIMEDART) {
+            } else if (options.getVerificationType() == VerificationOptions::TIMEDART) {
                 if (query->GetQuantifier() == EG || query->GetQuantifier() == AF) {
-                    if (options.GetMemoryOptimization() == PTRIE) {
+                    if (options.getMemoryOptimization() == VerificationOptions::PTRIE) {
                         WaitingList<EncodingPointer<WaitingDart> >* strategy = getWaitingList<EncodingPointer<WaitingDart> > (query, options);
                         VerifyAndPrint(
                                 new TimeDartLivenessPData(tapn, *initialMarking, query, options, strategy),
@@ -94,7 +94,7 @@ namespace VerifyTAPN {
                     }
                 } else if (query->GetQuantifier() == EF || query->GetQuantifier() == AG) {
 
-                    if (options.GetMemoryOptimization() == PTRIE) {
+                    if (options.getMemoryOptimization() == VerificationOptions::PTRIE) {
                         WaitingList<TimeDartEncodingPointer>* strategy = getWaitingList<TimeDartEncodingPointer > (query, options);
                         VerifyAndPrint(
                                 new TimeDartReachabilitySearchPData(tapn, *initialMarking, query, options, strategy),
@@ -124,12 +124,12 @@ namespace VerifyTAPN {
 
             std::cout << "Query is " << (result ? "satisfied" : "NOT satisfied") << "." << std::endl;
             std::cout << "Max number of tokens found in any reachable marking: ";
-            if (verifier->maxUsedTokens() > options.GetKBound())
-                std::cout << ">" << options.GetKBound() << std::endl;
+            if (verifier->maxUsedTokens() > options.getKBound())
+                std::cout << ">" << options.getKBound() << std::endl;
             else
                 std::cout << verifier->maxUsedTokens() << std::endl;
 
-            if (options.GetTrace() == SOME) {
+            if (options.getTrace() == VerificationOptions::SOME) {
                 if ((query->GetQuantifier() == EF && result) || (query->GetQuantifier() == AG && !result) || (query->GetQuantifier() == EG && result) || (query->GetQuantifier() == AF && !result)) {
                     verifier->getTrace();
                 } else {

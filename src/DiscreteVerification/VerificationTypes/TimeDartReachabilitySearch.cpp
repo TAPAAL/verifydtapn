@@ -27,7 +27,7 @@ bool TimeDartReachabilitySearch::verify(){
 		dart.setPassed(dart.getWaiting());
 		tapn->GetTransitions();
                 this->tmpdart = NULL;
-                if(options.GetTrace() == SOME){
+                if(options.getTrace() == VerificationOptions::SOME){
                     this->tmpdart = ((ReachabilityTraceableDart*)&dart)->trace;
                 }
 		for(TimedTransition::Vector::const_iterator transition_iter = tapn->GetTransitions().begin();
@@ -70,7 +70,7 @@ bool TimeDartReachabilitySearch::verify(){
 
 bool TimeDartReachabilitySearch::addToPW(NonStrictMarkingBase* marking, WaitingDart* parent, int upper){
         int start = 0;
-        if(options.GetTrace() == SOME){
+        if(options.getTrace() == VerificationOptions::SOME){
             start = marking->getYoungest();
         }
 	marking->cut();
@@ -79,7 +79,7 @@ bool TimeDartReachabilitySearch::addToPW(NonStrictMarkingBase* marking, WaitingD
 
 	pwList->setMaxNumTokensIfGreater(size);
 
-	if(size > options.GetKBound()) {
+	if(size > options.getKBound()) {
                 delete marking;
 		return false;
 	}
@@ -90,7 +90,7 @@ bool TimeDartReachabilitySearch::addToPW(NonStrictMarkingBase* marking, WaitingD
 		boost::any context;
 		query->Accept(checker, context);
 		if(boost::any_cast<bool>(context)) {
-                        if (options.GetTrace()) {
+                        if (options.getTrace()) {
                             lastMarking = pwList->getLast();
                         }
 			return true;

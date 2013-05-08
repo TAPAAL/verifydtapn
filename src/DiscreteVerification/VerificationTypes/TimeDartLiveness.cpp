@@ -122,7 +122,7 @@ namespace VerifyTAPN {
 
         bool TimeDartLiveness::addToPW(NonStrictMarkingBase* marking, WaitingDart* parent, int upper) {
             int start;
-            if(options.GetTrace() == SOME){
+            if(options.getTrace() == VerificationOptions::SOME){
                 start = marking->getYoungest();
             }
             marking->cut();
@@ -131,7 +131,7 @@ namespace VerifyTAPN {
 
             pwList->setMaxNumTokensIfGreater(size);
 
-            if (size > options.GetKBound()) {
+            if (size > options.getKBound()) {
                 delete marking;
                 return false;
             }
@@ -165,7 +165,7 @@ namespace VerifyTAPN {
                     NonStrictMarkingBase* lm = new NonStrictMarkingBase(*result.first->getBase());
                     lm->setParent(parent->dart->getBase());
                     //lastMarking = new TraceList(lm, upper);   
-                    if (options.GetTrace()) {
+                    if (options.getTrace()) {
 //                        TraceDart* t = new TraceDart(*(TraceDart*) lastMarking);      // removed to fix loop-detection delay
                         lastMarking = new TraceDart(result.first, parent, result.first->getWaiting(), start, upper, transition);
 //                        t->parent = lastMarking;      // removed to fix loop-detection delay
