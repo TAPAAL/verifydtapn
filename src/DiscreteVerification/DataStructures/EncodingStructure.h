@@ -157,14 +157,14 @@ namespace VerifyTAPN {
 
         template<class T>
         const char EncodingStructure<T>::masks[8] = {
-            0x01,
-            0x02,
-            0x04,
-            0x08,
-            0x10,
-            0x20,
-            0x40,
-            0x80
+            static_cast <char>(0x01),
+            static_cast <char>(0x02),
+            static_cast <char>(0x04),
+            static_cast <char>(0x08),
+            static_cast <char>(0x10),
+            static_cast <char>(0x20),
+            static_cast <char>(0x40),
+            static_cast <char>(0x80)
         };
 
         template<class T>

@@ -121,7 +121,7 @@ namespace VerifyTAPN {
         }
 
         bool TimeDartLiveness::addToPW(NonStrictMarkingBase* marking, WaitingDart* parent, int upper) {
-            int start;
+            int start = 0; // overwritten later if used
             if(options.getTrace() == VerificationOptions::SOME_TRACE){
                 start = marking->getYoungest();
             }
