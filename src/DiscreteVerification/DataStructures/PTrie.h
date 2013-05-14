@@ -48,6 +48,15 @@ namespace VerifyTAPN {
                 };
             };
 
+            struct PNode {
+                MarkingEncoding* data;
+                uint highpos;
+                uint lowpos;
+                short int highCount;
+                short int lowCount;
+                uint parent;
+            };
+
 
             PTrie(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, int knumber, int nplaces, int mage) :
             maxNumberOfTokens(knumber),
@@ -77,15 +86,6 @@ namespace VerifyTAPN {
             virtual ~PTrie();
 
             uint splitThreshold;
-
-            struct PNode {
-                MarkingEncoding* data;
-                uint highpos;
-                uint lowpos;
-                short int highCount;
-                short int lowCount;
-                uint parent;
-            };
 
             bool search(MarkingEncoding* arr, MarkingEncoding en, int size) {
                 for (int i = 0; i < size; i++) {
