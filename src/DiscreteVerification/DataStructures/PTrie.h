@@ -71,7 +71,8 @@ namespace VerifyTAPN {
                 nextFree = 1;
                 encoding = MarkingEncoding(this->markingBitSize);
                 blockCount = 0;
-                splitThreshold = sizeof (PNode) * 4 + sizeof (std::list<PNode, allocator<PNode> >) * 4;
+                splitThreshold = sizeof (PNode) * 8;
+                //+ sizeof (std::list<PNode, allocator<PNode> >) * 4;
 
             };
             virtual ~PTrie();
