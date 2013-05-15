@@ -118,7 +118,7 @@ namespace VerifyTAPN {
             bool isFirst = true;
             bool foundLoop = false;
             bool delayedForever = false;
-            T* old;
+            T* old = NULL;
 
             xml_document<> doc;
             xml_node<>* root = doc.allocate_node(node_element, "trace");
