@@ -19,6 +19,7 @@ namespace VerifyTAPN {
             virtual void printStats() = 0;
             virtual void PrintTransitionStatistics() const = 0;
             virtual unsigned int MaxUsedTokens() = 0;
+            virtual bool addToPW(T* marking) = 0;
 
             virtual void GetTrace() {
                 std::cout << "Error generating trace" << std::endl;
@@ -55,7 +56,7 @@ namespace VerifyTAPN {
                             i++;
                         }
 
-                        if (stack.empty() && old->children > 0) {
+                        if ((!foundLoop) && stack.empty() && old->children > 0) {
                             std::cout << "\tDelay: Forever" << std::endl;
                             return;
                         }
@@ -133,13 +134,29 @@ namespace VerifyTAPN {
                         int i = 1;
                         old = stack.top();
                         stack.pop();
+                        bool delayloop = false;
                         while (!stack.empty() && stack.top()->GetGeneratedBy() == NULL) {
+                            // check if this marking is the start of a loop
+                            if (!foundLoop && (query == AST::EG || query == AST::AF)
+                                    && (stack.size() > 2 && old->equals(*m))) {
+
+                                foundLoop = true;
+                                delayloop = true;
+                                xml_node<>* node = doc.allocate_node(node_element, "delay", doc.allocate_string(ToString(i).c_str()));
+                                root->append_node(node);
+                                root->append_node(doc.allocate_node(node_element, "loop"));
+                                
+                            }
+                            if(delayloop)
+                                break;
                             old = stack.top();
                             stack.pop();
                             i++;
+                            
                         }
-
-                        if (stack.empty() && old->children > 0) {
+                        if(delayloop)
+                            continue;
+                        if ((!foundLoop) && stack.empty() && old->children > 0) {
                             xml_node<>* node = doc.allocate_node(node_element, "delay", doc.allocate_string("forever"));
                             root->append_node(node);
                             delayedForever = true;
@@ -148,14 +165,29 @@ namespace VerifyTAPN {
                         xml_node<>* node = doc.allocate_node(node_element, "delay", doc.allocate_string(ToString(i).c_str()));
                         root->append_node(node);
                         stack.push(old);
+
                     }
                 }
                 
                 if ((query == AST::EG || query == AST::AF)
-                        && (stack.size() > 1 && stack.top()->equals(*m))
-                        && (m->GetGeneratedBy() || stack.top()->parent)) {
-                    root->append_node(doc.allocate_node(node_element, "loop"));
-                    foundLoop = true;
+                        && (stack.size() > 1 && stack.top()->equals(*m))) {
+                    T* temp = m;
+                    foundLoop = false;
+                    T* top = stack.top();
+
+                    do {
+                        if(temp == top)
+                            break;
+                        if(temp->GetGeneratedBy()){
+                            foundLoop = true;
+                            break;
+                        } 
+                        temp = (T*)temp->parent;
+                    } while(temp && temp->parent && temp->parent != top);
+                    if(foundLoop){
+                        root->append_node(doc.allocate_node(node_element, "loop"));
+                    }
+
                 }
                 old = stack.top();
                 stack.pop();

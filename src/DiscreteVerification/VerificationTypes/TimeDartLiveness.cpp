@@ -54,7 +54,7 @@ namespace VerifyTAPN {
                 }
 
                 waitingDart->dart->setPassed(waitingDart->w);
-
+                this->tmpdart = waitingDart;
                 // Iterate over transitions
                 for (TimedTransition::Vector::const_iterator transition_iter = tapn->GetTransitions().begin();
                         transition_iter != tapn->GetTransitions().end(); transition_iter++) {
@@ -85,14 +85,12 @@ namespace VerifyTAPN {
                                 _end = calculatedStart.second;
                             }
 
-                            vector<NonStrictMarkingBase*> next = getPossibleNextMarkings(Mpp, transition);
-                            for (vector<NonStrictMarkingBase*>::iterator it = next.begin(); it != next.end(); it++) {
+                            this->tmpupper = _end;
 
-                                if (addToPW(*it, waitingDart, _end)) {
-                                    return true;
-                                }
+                            if(successorGenerator.generateAndInsertSuccessors(Mpp, transition)){
+                                return true;
                             }
-
+                            
                             pwList->flushBuffer();
                         }
                     }
@@ -102,6 +100,7 @@ namespace VerifyTAPN {
                 if (maxCalculatedEnd < maxPossibleDelay(waitingDart->dart->getBase())) {
                     //lastMarking = new TraceList(waitingDart.dart->getBase(), maxPossibleDelay(waitingDart.dart->getBase()));
                     lastMarking = waitingDart;
+                    deadlock = true;
                     return true; /* DEADLOCK! */
                 }
                 deleteBase(waitingDart->dart->getBase());
@@ -148,16 +147,15 @@ namespace VerifyTAPN {
 
                 if (parent != NULL && parent->dart->getBase()->equals(*result.first->getBase()) && youngest <= upper) {
                     loop = true;
-                    lastMarking = parent;
+//                    lastMarking = parent;     // removed to fix loop-detection delay
                 }
 
                 //Find the dart created in the PWList
                 if (result.first->traceData != NULL) {
                     for (TraceMetaDataList::const_iterator iter = result.first->traceData->begin(); iter != result.first->traceData->end(); iter++) {
                         if ((*iter)->parent->dart->getBase()->equals(*result.first->getBase()) && youngest <= (*iter)->upper) {
-                            lastMarking = (*iter);
+//                            lastMarking = (*iter); // removed to fix loop-detection delay
                             loop = true;
-                            cout << "loop" << endl;
                             break;
                         }
                     }
@@ -166,12 +164,12 @@ namespace VerifyTAPN {
                 if (loop) {
                     NonStrictMarkingBase* lm = new NonStrictMarkingBase(*result.first->getBase());
                     lm->parent = parent->dart->getBase();
-                    //lastMarking = new TraceList(lm, upper);
+                    //lastMarking = new TraceList(lm, upper);   
                     if (options.GetTrace()) {
-                        TraceDart* t = new TraceDart(*(TraceDart*) lastMarking);
+//                        TraceDart* t = new TraceDart(*(TraceDart*) lastMarking);      // removed to fix loop-detection delay
                         lastMarking = new TraceDart(result.first, parent, result.first->getWaiting(), start, upper, transition);
-                        t->parent = lastMarking;
-                        lastMarking = t;
+//                        t->parent = lastMarking;      // removed to fix loop-detection delay
+//                        lastMarking = t;              // removed to fix loop-detection delay
 
                     } else {
                         lastMarking = new WaitingDart(result.first, parent, result.first->getWaiting(), upper);

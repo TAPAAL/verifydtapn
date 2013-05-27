@@ -42,12 +42,12 @@ public:
         virtual void deleteMarking(NonStrictMarking* m) {
             //dummy;
         };
-
+         virtual bool addToPW(NonStrictMarking* m){
+            return addToPW(m, tmpParent);
+        };
 protected:
-	vector<NonStrictMarking*> getPossibleNextMarkings(const NonStrictMarking& marking);
 	bool addToPW(NonStrictMarking* marking, NonStrictMarking* parent);
 	bool isDelayPossible(NonStrictMarking& marking);
-	void cut(NonStrictMarking* marking);
 
 protected:
 	int validChildren;
@@ -62,6 +62,7 @@ public:
 	virtual void GetTrace();
 protected:
 	NonStrictMarking* lastMarking;
+    NonStrictMarking* tmpParent;
 };
 
 class ReachabilitySearchPTrie : public ReachabilitySearch{

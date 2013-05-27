@@ -40,8 +40,12 @@ public:
 	bool Verify();
 
 	inline unsigned int MaxUsedTokens(){ return pwList->maxNumTokensInAnyMarking; };
-
+        virtual inline bool addToPW(NonStrictMarkingBase* m){
+            return addToPW(m,tmpdart, tmpupper);
+        };
 protected:
+    WaitingDart* tmpdart;
+    int tmpupper;
 	bool addToPW(NonStrictMarkingBase* marking, WaitingDart* parent, int upper);
 
 protected:
