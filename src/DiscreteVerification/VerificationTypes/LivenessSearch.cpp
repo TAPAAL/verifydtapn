@@ -37,8 +37,16 @@ bool LivenessSearch::Verify(){
 			trace.push(&next_marking);
 			validChildren = 0;
 
-
-			if(isDelayPossible(next_marking)){
+                        bool noDelay = false;
+                        Result res = successorGenerator.generateAndInsertSuccessors(next_marking);
+                        if (res == QUERY_SATISFIED) {
+                            return true;
+                        } else if (res == URGENT_ENABLED) {
+                            noDelay = true;
+                        }
+                        
+                        
+			if(!noDelay && isDelayPossible(next_marking)){
 				NonStrictMarking* marking = new NonStrictMarking(next_marking);
 				marking->incrementAge();
 				marking->SetGeneratedBy(NULL);
@@ -47,9 +55,6 @@ bool LivenessSearch::Verify(){
                                 }
                                 endOfMaxRun = false;
 			}
-                        if(successorGenerator.generateAndInsertSuccessors(next_marking)){
-                                return true;
-                        }
                         // if no delay is possible, and no transition-based succecors are possible, we have reached a max run
                         endOfMaxRun = endOfMaxRun && (!successorGenerator.doSuccessorsExist());
 

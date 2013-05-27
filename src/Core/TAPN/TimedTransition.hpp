@@ -49,6 +49,9 @@ class SymMarking;
 			inline unsigned int GetIndex() const { return index; }
 			inline const bool hasUntimedPostset() const { return untimedPostset; }
 			inline void setUntimedPostset(bool untimed){ untimedPostset = untimed; }
+                        inline const bool isUrgent() const {
+                            return urgent;
+                        }
 
 		private: // data
 			std::string name;
