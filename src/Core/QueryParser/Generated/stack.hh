@@ -1,8 +1,8 @@
-/* A Bison parser, made by GNU Bison 2.6.5.  */
+/* A Bison parser, made by GNU Bison 2.7.12-4996.  */
 
 /* Stack handling for Bison parsers in C++
    
-      Copyright (C) 2002-2012 Free Software Foundation, Inc.
+      Copyright (C) 2002-2013 Free Software Foundation, Inc.
    
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -40,10 +40,10 @@
 
 # include <deque>
 
-/* Line 37 of stack.hh  */
+/* Line 34 of stack.hh  */
 #line 5 "Core/QueryParser/grammar.yy"
 namespace VerifyTAPN {
-/* Line 37 of stack.hh  */
+/* Line 34 of stack.hh  */
 #line 48 "Core/QueryParser/Generated/stack.hh"
   template <class T, class S = std::deque<T> >
   class stack
@@ -90,6 +90,12 @@ namespace VerifyTAPN {
         seq_.pop_front ();
     }
 
+    void
+    clear ()
+    {
+      seq_.clear ();
+    }
+
     inline
     unsigned int
     height () const
@@ -101,6 +107,8 @@ namespace VerifyTAPN {
     inline const_iterator end () const { return seq_.rend (); }
 
   private:
+    stack (const stack&);
+    stack& operator= (const stack&);
     S seq_;
   };
 
@@ -126,10 +134,10 @@ namespace VerifyTAPN {
     const S& stack_;
     unsigned int range_;
   };
-/* Line 119 of stack.hh  */
+/* Line 124 of stack.hh  */
 #line 5 "Core/QueryParser/grammar.yy"
 } // VerifyTAPN
-/* Line 119 of stack.hh  */
-#line 134 "Core/QueryParser/Generated/stack.hh"
+/* Line 124 of stack.hh  */
+#line 142 "Core/QueryParser/Generated/stack.hh"
 
 #endif /* !YY_YY_CORE_QUERYPARSER_GENERATED_STACK_HH_INCLUDED  */

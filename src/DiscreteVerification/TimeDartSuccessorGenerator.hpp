@@ -31,10 +31,9 @@ public:
 	TimeDartSuccessorGenerator(TAPN::TimedArcPetriNet& tapn, Verification<NonStrictMarkingBase>& verifier);
 	~TimeDartSuccessorGenerator();
 	bool generateAndInsertSuccessors(const NonStrictMarkingBase& marking, const TimedTransition& transition) const;
-	void PrintTransitionStatistics(std::ostream & out) const;
+	void printTransitionStatistics(std::ostream & out) const;
         
 private:
-	TokenList getPlaceFromMarking(const NonStrictMarkingBase& marking, int placeID) const;
 
 	bool generateMarkings(const NonStrictMarkingBase& init_marking, const TimedTransition& transition, ArcHashMap& enabledArcs) const;
 	bool generatePermutations(NonStrictMarkingBase& init_marking, const TimedTransition& transition, unsigned int index, ArcHashMap& enabledArcs) const;
@@ -53,7 +52,7 @@ private:
 					int bound = INT_MAX
 			) const;
 
-    inline void ClearTransitionsArray() {
+    inline void clearTransitionsArray() {
     	memset(transitionStatistics, 0, numberoftransitions * sizeof (transitionStatistics[0]));
     }
 

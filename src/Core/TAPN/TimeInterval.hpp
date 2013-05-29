@@ -25,16 +25,16 @@ namespace VerifyTAPN {
 			virtual ~TimeInterval() { /* empty */ }
 
 		public: // inspectors
-			void Print(std::ostream& out) const;
-			inline const int GetLowerBound() const { return lowerBound; }
-			inline const int GetUpperBound() const { return upperBound; }
-			inline const bool IsLowerBoundStrict() const { return leftStrict; }
-			inline const bool IsUpperBoundStrict() const { return rightStrict; }
+			void print(std::ostream& out) const;
+			inline const int getLowerBound() const { return lowerBound; }
+			inline const int getUpperBound() const { return upperBound; }
+			inline const bool isLowerBoundStrict() const { return leftStrict; }
+			inline const bool isUpperBoundStrict() const { return rightStrict; }
 
-			inline const bool IsZeroInfinity() const { return !leftStrict && lowerBound == 0 && upperBound == std::numeric_limits<int>().max() && rightStrict; }
+			inline const bool isZeroInfinity() const { return !leftStrict && lowerBound == 0 && upperBound == std::numeric_limits<int>().max() && rightStrict; }
 
 		public: // statics
-			static TimeInterval CreateFor(const std::string& interval);
+			static TimeInterval createFor(const std::string& interval);
 
 
 		private: // data
@@ -46,7 +46,7 @@ namespace VerifyTAPN {
 
 		inline std::ostream& operator<<(std::ostream& out, const TimeInterval& interval)
 		{
-			interval.Print(out);
+			interval.print(out);
 			return out;
 		}
 	}

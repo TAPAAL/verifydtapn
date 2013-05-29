@@ -19,7 +19,7 @@ static const std::string LEGACY = "legacy";
 static const std::string KEEP_DEAD = "keep-dead-tokens";
 
 std::ostream& operator<<(std::ostream& out, const Switch& flag) {
-	flag.Print(out);
+	flag.print(out);
 	return out;
 }
 
@@ -43,36 +43,36 @@ void PrintIndentedDescription(std::ostream& out,
 	}
 }
 
-void Switch::Print(std::ostream& out) const {
+void Switch::print(std::ostream& out) const {
 	std::stringstream s;
-	s << "-" << ShortName();
-	s << " [ --" << LongName() << " ]";
+	s << "-" << getShortName();
+	s << " [ --" << getLongName() << " ]";
 	out << std::setw(WIDTH) << std::left << s.str();
-	PrintIndentedDescription(out, Description());
+	PrintIndentedDescription(out, getDescription());
 }
 ;
 
-void SwitchWithArg::Print(std::ostream& out) const {
+void SwitchWithArg::print(std::ostream& out) const {
 	std::stringstream s;
-	s << "-" << ShortName();
-	s << " [ --" << LongName() << " ] ";
+	s << "-" << getShortName();
+	s << " [ --" << getLongName() << " ] ";
 	s << " arg (=" << default_value << ")";
 	out << std::setw(WIDTH) << std::left << s.str();
-	PrintIndentedDescription(out, Description());
+	PrintIndentedDescription(out, getDescription());
 }
 ;
 
-void SwitchWithStringArg::Print(std::ostream& out) const {
+void SwitchWithStringArg::print(std::ostream& out) const {
 	std::stringstream s;
-	s << "-" << ShortName();
-	s << " [ --" << LongName() << " ] ";
+	s << "-" << getShortName();
+	s << " [ --" << getLongName() << " ] ";
 	s << " a1,a2,.. (=" << default_value << ")";
 	out << std::setw(WIDTH) << std::left << s.str();
-	PrintIndentedDescription(out, Description());
+	PrintIndentedDescription(out, getDescription());
 }
 ;
 
-bool Switch::Handles(const std::string& flag) const {
+bool Switch::handles(const std::string& flag) const {
 	std::stringstream stream;
 	stream << "-" << name << " ";
 	if (flag.find(stream.str()) != std::string::npos)
@@ -83,50 +83,50 @@ bool Switch::Handles(const std::string& flag) const {
 }
 ;
 
-option Switch::Parse(const std::string& flag) {
-	assert(Handles(flag));
+option Switch::parse(const std::string& flag) {
+	assert(handles(flag));
 	handled_option = true;
-	return option(LongName(), "1");
+	return option(getLongName(), "1");
 }
 ;
 
-option SwitchWithArg::Parse(const std::string& flag) {
-	assert(Handles(flag));
+option SwitchWithArg::parse(const std::string& flag) {
+	assert(handles(flag));
 	handled_option = true;
 	std::string copy(flag);
 	std::stringstream stream;
-	stream << "-" << ShortName() << " ";
+	stream << "-" << getShortName() << " ";
 	if (flag.find(stream.str()) != std::string::npos) {
 		boost::erase_all(copy, stream.str());
 	} else {
 		std::stringstream long_name_stream;
-		long_name_stream << "--" << LongName() << " ";
+		long_name_stream << "--" << getLongName() << " ";
 		boost::erase_all(copy, long_name_stream.str());
 	}
 	boost::trim(copy);
-	return option(LongName(), copy);
+	return option(getLongName(), copy);
 }
 ;
 
-option SwitchWithStringArg::Parse(const std::string& flag) {
-	assert(Handles(flag));
+option SwitchWithStringArg::parse(const std::string& flag) {
+	assert(handles(flag));
 	handled_option = true;
 	std::string copy(flag);
 	std::stringstream stream;
-	stream << "-" << ShortName() << " ";
+	stream << "-" << getShortName() << " ";
 	if (flag.find(stream.str()) != std::string::npos) {
 		boost::erase_all(copy, stream.str());
 	} else {
 		std::stringstream long_name_stream;
-		long_name_stream << "--" << LongName() << " ";
+		long_name_stream << "--" << getLongName() << " ";
 		boost::erase_all(copy, long_name_stream.str());
 	}
 	boost::trim(copy);
-	return option(LongName(), copy);
+	return option(getLongName(), copy);
 }
 ;
 
-void ArgsParser::Initialize() {
+void ArgsParser::initialize() {
     // NOTE: The Help() function only splits and indents descriptions based on newlines.
     //       Each line in the description is assumed to fit within the remaining width
     //       of the console, so keep descriptions short, or implement manual word-wrapping :).
@@ -164,7 +164,7 @@ void ArgsParser::Initialize() {
             "Output trace in xml format for TAPAAL."));
 };
 
-void ArgsParser::Help() const {
+void ArgsParser::printHelp() const {
 	std::cout
 			<< "Usage: verifydtapn -k <number> [optional arguments] model-file query-file"
 			<< std::endl;
@@ -180,20 +180,20 @@ void ArgsParser::Help() const {
 }
 ;
 
-void ArgsParser::Version() const {
+void ArgsParser::printVersion() const {
 	std::cout << "VerifyDTAPN " << version << std::endl;
 	std::cout << "Licensed under BSD." << std::endl;
 }
 
-VerificationOptions ArgsParser::Parse(int argc, char* argv[]) const {
+VerificationOptions ArgsParser::parse(int argc, char* argv[]) const {
 	if (argc == 1 || std::string(argv[1]) == "-h"
 			|| std::string(argv[1]) == "--help") {
-		Help();
+		printHelp();
 		exit(0);
 	}
 
 	if (std::string(argv[1]) == "-v" || std::string(argv[1]) == "--version") {
-		Version();
+		printVersion();
 		exit(0);
 	}
 
@@ -244,8 +244,8 @@ VerificationOptions ArgsParser::Parse(int argc, char* argv[]) const {
 		bool handled = false;
 		for (parser_vec::const_iterator it = parsers.begin();
 				it != parsers.end(); it++) {
-			if ((*it)->Handles(*flag)) {
-				options.insert((*it)->Parse(*flag));
+			if ((*it)->handles(*flag)) {
+				options.insert((*it)->parse(*flag));
 				handled = true;
 			}
 		}
@@ -260,48 +260,48 @@ VerificationOptions ArgsParser::Parse(int argc, char* argv[]) const {
 	// Put in default values for non-specified options
 	for (parser_vec::const_iterator it = parsers.begin(); it != parsers.end();
 			it++) {
-		if (!(*it)->HandledOption()) {
-			options.insert((*it)->DefaultOption());
+		if (!(*it)->handledOption()) {
+			options.insert((*it)->getDefaultOption());
 		}
 	}
 
-	return CreateVerificationOptions(options, model_file, query_file);
+	return createVerificationOptions(options, model_file, query_file);
 }
 
-SearchType intToSearchTypeEnum(int i) {
+VerificationOptions::SearchType intToSearchTypeEnum(int i) {
 	switch (i) {
 	case 0:
-		return BREADTHFIRST;
+		return VerificationOptions::BREADTHFIRST;
 	case 1:
-		return DEPTHFIRST;
+		return VerificationOptions::DEPTHFIRST;
 	case 2:
-		return RANDOM;
+		return VerificationOptions::RANDOM;
 	case 3:
-		return COVERMOST;
+		return VerificationOptions::COVERMOST;
 	default:
 		std::cout << "Unknown search strategy specified." << std::endl;
 		exit(1);
 	}
 }
 
-VerificationType intToVerificationTypeEnum(int i) {
+VerificationOptions::VerificationType intToVerificationTypeEnum(int i) {
 	switch (i) {
 	case 0:
-		return DISCRETE;
+		return VerificationOptions::DISCRETE;
 	case 1:
-		return TIMEDART;
+		return VerificationOptions::TIMEDART;
 	default:
 		std::cout << "Unknown verification method specified." << std::endl;
 		exit(1);
 	}
 }
 
-MemoryOptimization intToMemoryOptimizationEnum(int i) {
+VerificationOptions::MemoryOptimization intToMemoryOptimizationEnum(int i) {
 	switch (i) {
 	case 0:
-		return NO_MEMORY_OPTIMIZATION;
+		return VerificationOptions::NO_MEMORY_OPTIMIZATION;
 	case 1:
-		return PTRIE;
+		return VerificationOptions::PTRIE;
 	default:
 		std::cout << "Unknown memory optimization specified." << std::endl;
 		exit(1);
@@ -309,19 +309,19 @@ MemoryOptimization intToMemoryOptimizationEnum(int i) {
 }
 
 
-Trace intToEnum(int i) {
+VerificationOptions::Trace intToEnum(int i) {
 	switch (i) {
 	case 0:
-		return NONE;
+		return VerificationOptions::NO_TRACE;
 	case 1:
-		return SOME;
+		return VerificationOptions::SOME_TRACE;
 	default:
 		std::cout << "Unknown trace option specified." << std::endl;
 		exit(1);
 	}
 }
 
-unsigned int ArgsParser::TryParseInt(const option& option) const {
+unsigned int ArgsParser::tryParseInt(const option& option) const {
 	unsigned int result = 0;
 	try {
 		result = boost::lexical_cast<unsigned int>(option.second);
@@ -333,32 +333,32 @@ unsigned int ArgsParser::TryParseInt(const option& option) const {
 	return result;
 }
 
-std::vector<std::string> ArgsParser::ParseIncPlaces(
+std::vector<std::string> ArgsParser::parseIncPlaces(
 		const std::string& string) const {
 	std::vector<std::string> vec;
 	boost::split(vec, string, boost::is_any_of(","));
 	return vec;
 }
 
-VerificationOptions ArgsParser::CreateVerificationOptions(const option_map& map,
+VerificationOptions ArgsParser::createVerificationOptions(const option_map& map,
 		const std::string& modelFile, const std::string& queryFile) const {
 	assert(map.find(KBOUND_OPTION) != map.end());
-	unsigned int kbound = TryParseInt(*map.find(KBOUND_OPTION));
+	unsigned int kbound = tryParseInt(*map.find(KBOUND_OPTION));
 
 	assert(map.find(SEARCH_OPTION) != map.end());
-	SearchType search = intToSearchTypeEnum(
-			TryParseInt(*map.find(SEARCH_OPTION)));
+	VerificationOptions::SearchType search = intToSearchTypeEnum(
+			tryParseInt(*map.find(SEARCH_OPTION)));
 
 	assert(map.find(VERIFICATION_OPTION) != map.end());
-	VerificationType verification = intToVerificationTypeEnum(
-			TryParseInt(*map.find(VERIFICATION_OPTION)));
+	VerificationOptions::VerificationType verification = intToVerificationTypeEnum(
+			tryParseInt(*map.find(VERIFICATION_OPTION)));
         
 	assert(map.find(MEMORY_OPTIMIZATION_OPTION) != map.end());
-	MemoryOptimization memoptimization = intToMemoryOptimizationEnum(
-			TryParseInt(*map.find(MEMORY_OPTIMIZATION_OPTION)));
+	VerificationOptions::MemoryOptimization memoptimization = intToMemoryOptimizationEnum(
+			tryParseInt(*map.find(MEMORY_OPTIMIZATION_OPTION)));
         
 	assert(map.find(TRACE_OPTION) != map.end());
-	Trace trace = intToEnum(TryParseInt(*map.find(TRACE_OPTION)));
+	VerificationOptions::Trace trace = intToEnum(tryParseInt(*map.find(TRACE_OPTION)));
 
 	assert(map.find(MAX_CONSTANT_OPTION) != map.end());
 	bool max_constant = boost::lexical_cast<bool>(

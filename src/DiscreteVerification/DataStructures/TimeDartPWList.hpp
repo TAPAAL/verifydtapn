@@ -14,7 +14,7 @@
 #include "NonStrictMarkingBase.hpp"
 #include "WaitingList.hpp"
 #include "TimeDart.hpp"
-#include "PData.h"
+#include "PTrie.h"
 
 namespace VerifyTAPN {
     namespace DiscreteVerification {
@@ -33,20 +33,20 @@ namespace VerifyTAPN {
 
         public:
 
-            virtual bool HasWaitingStates() = 0;
+            virtual bool hasWaitingStates() = 0;
 
-            long long Size() const {
+            long long size() const {
                 return stored;
             };
 
-            virtual bool Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* marking, int youngest, WaitingDart* parent, int upper, int start) = 0;
-            virtual TimeDartBase* GetNextUnexplored() = 0;
+            virtual bool add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* marking, int youngest, WaitingDart* parent, int upper, int start) = 0;
+            virtual TimeDartBase* getNextUnexplored() = 0;
 
-            inline void SetMaxNumTokensIfGreater(int i) {
+            inline void setMaxNumTokensIfGreater(int i) {
                 if (i > maxNumTokensInAnyMarking) maxNumTokensInAnyMarking = i;
             };
             
-            TraceDart* GetLast() {
+            TraceDart* getLast() {
                 return last;
             };
 
@@ -71,11 +71,11 @@ namespace VerifyTAPN {
             };
             virtual ~TimeDartPWHashMap();
             friend std::ostream& operator<<(std::ostream& out, TimeDartPWHashMap& x);
-            virtual bool Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* marking,int youngest, WaitingDart* parent, int upper, int start);
-            virtual TimeDartBase* GetNextUnexplored();
+            virtual bool add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* marking,int youngest, WaitingDart* parent, int upper, int start);
+            virtual TimeDartBase* getNextUnexplored();
 
-            virtual bool HasWaitingStates() {
-                return (waiting_list->Size() > 0);
+            virtual bool hasWaitingStates() {
+                return (waiting_list->size() > 0);
             };
         protected:
             WaitingList<TimeDartBase>* waiting_list;
@@ -92,17 +92,17 @@ namespace VerifyTAPN {
             TimeDartPWBase(trace), waiting_list(w_l), passed(tapn, knumber, nplaces, mage) {
             };
             
-            NonStrictMarkingBase* Decode(EncodingPointer<TimeDartBase> *ewp){
-                return passed.EnumerateDecode(*ewp);
+            NonStrictMarkingBase* decode(EncodingPointer<TimeDartBase> *ewp){
+                return passed.enumerateDecode(*ewp);
             }
         private:
             WaitingList<EncodingPointer<TimeDartBase> >* waiting_list;
-            PData<TimeDartBase> passed;
-            virtual bool Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* marking, int youngest, WaitingDart* parent, int upper, int start);
-            virtual TimeDartBase* GetNextUnexplored();
+            PTrie<TimeDartBase> passed;
+            virtual bool add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* marking, int youngest, WaitingDart* parent, int upper, int start);
+            virtual TimeDartBase* getNextUnexplored();
 
-            virtual bool HasWaitingStates() {
-                return (waiting_list->Size() > 0);
+            virtual bool hasWaitingStates() {
+                return (waiting_list->size() > 0);
             };
 
         };

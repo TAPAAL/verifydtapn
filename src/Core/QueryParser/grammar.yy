@@ -55,10 +55,10 @@ namespace VerifyTAPN{
 
 %%
 %start query;
-query				: EF expression { $$ = new VerifyTAPN::AST::Query(VerifyTAPN::AST::EF, $2); driver.SetAST($$); }
-					| AG expression { $$ = new VerifyTAPN::AST::Query(VerifyTAPN::AST::AG, $2); driver.SetAST($$); }
-					| EG expression { $$ = new VerifyTAPN::AST::Query(VerifyTAPN::AST::EG, $2); driver.SetAST($$); }
-					| AF expression { $$ = new VerifyTAPN::AST::Query(VerifyTAPN::AST::AF, $2); driver.SetAST($$); }
+query				: EF expression { $$ = new VerifyTAPN::AST::Query(VerifyTAPN::AST::EF, $2); driver.setAST($$); }
+					| AG expression { $$ = new VerifyTAPN::AST::Query(VerifyTAPN::AST::AG, $2); driver.setAST($$); }
+					| EG expression { $$ = new VerifyTAPN::AST::Query(VerifyTAPN::AST::EG, $2); driver.setAST($$); }
+					| AF expression { $$ = new VerifyTAPN::AST::Query(VerifyTAPN::AST::AF, $2); driver.setAST($$); }
 ;
 
 expression			: parExpression { $$ = $1; }
@@ -80,7 +80,7 @@ boolExpression		: BOOL_TRUE { $$ = new VerifyTAPN::AST::BoolExpression(true); }
 					| BOOL_FALSE { $$ = new VerifyTAPN::AST::BoolExpression(false); };
 atomicProposition	: IDENTIFIER compareOp NUMBER 
 	{ 
-		int placeIndex = driver.tapn().GetPlaceIndex(*$1);
+		int placeIndex = driver.getTAPN().getPlaceIndex(*$1);
 		if(placeIndex == -1) error(@1, "unknown place"); 
 		$$ = new VerifyTAPN::AST::AtomicProposition(placeIndex, $2, $3); 
 	};

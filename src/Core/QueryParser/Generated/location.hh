@@ -1,8 +1,8 @@
-/* A Bison parser, made by GNU Bison 2.6.5.  */
+/* A Bison parser, made by GNU Bison 2.7.12-4996.  */
 
 /* Locations for Bison parsers in C++
    
-      Copyright (C) 2002-2007, 2009-2012 Free Software Foundation, Inc.
+      Copyright (C) 2002-2007, 2009-2013 Free Software Foundation, Inc.
    
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -40,10 +40,10 @@
 
 # include "position.hh"
 
-/* Line 164 of location.cc  */
+/* Line 166 of location.cc  */
 #line 5 "Core/QueryParser/grammar.yy"
 namespace VerifyTAPN {
-/* Line 164 of location.cc  */
+/* Line 166 of location.cc  */
 #line 48 "Core/QueryParser/Generated/location.hh"
 
   /// Abstract a location.
@@ -157,7 +157,9 @@ namespace VerifyTAPN {
    **
    ** Avoid duplicate information.
    */
-  inline std::ostream& operator<< (std::ostream& ostr, const location& loc)
+  template <typename YYChar>
+  inline std::basic_ostream<YYChar>&
+  operator<< (std::basic_ostream<YYChar>& ostr, const location& loc)
   {
     position last = loc.end - 1;
     ostr << loc.begin;
@@ -172,10 +174,10 @@ namespace VerifyTAPN {
     return ostr;
   }
 
-/* Line 292 of location.cc  */
+/* Line 296 of location.cc  */
 #line 5 "Core/QueryParser/grammar.yy"
 } // VerifyTAPN
-/* Line 292 of location.cc  */
-#line 180 "Core/QueryParser/Generated/location.hh"
+/* Line 296 of location.cc  */
+#line 182 "Core/QueryParser/Generated/location.hh"
 
 #endif /* !YY_YY_CORE_QUERYPARSER_GENERATED_LOCATION_HH_INCLUDED  */

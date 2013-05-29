@@ -44,7 +44,7 @@ vector<interval > setIntersection(const vector<interval >& first, const vector<i
 	return result;
 }
 
-void set_add(vector< interval >& first, const interval& element){
+void setAdd(vector< interval >& first, const interval& element){
 
 	for(unsigned int i = 0; i < first.size(); i++){
 

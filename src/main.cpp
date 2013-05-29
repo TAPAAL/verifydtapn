@@ -17,33 +17,33 @@ int main(int argc, char* argv[])
 	srand ( time(NULL) );
 
 	ArgsParser parser;
-	VerificationOptions options = parser.Parse(argc, argv);
+	VerificationOptions options = parser.parse(argc, argv);
 
 	TAPNXmlParser modelParser;
 	boost::shared_ptr<TAPN::TimedArcPetriNet> tapn;
 
 	try{
-		tapn = modelParser.Parse(options.GetInputFile());
+		tapn = modelParser.parse(options.getInputFile());
 	}catch(const std::string& e){
 		std::cout << "There was an error parsing the model file: " << e << std::endl;
 		return 1;
 	}
 
-	tapn->Initialize(options.GetGlobalMaxConstantsEnabled());
+	tapn->initialize(options.getGlobalMaxConstantsEnabled());
 
-	std::vector<int> initialPlacement(modelParser.ParseMarking(options.GetInputFile(), *tapn));
+	std::vector<int> initialPlacement(modelParser.parseMarking(options.getInputFile(), *tapn));
 
 	AST::Query* query;
 	try{
 		TAPNQueryParser queryParser(*tapn);
-		queryParser.parse(options.QueryFile());
-		query = queryParser.GetAST();
+		queryParser.parse(options.getQueryFile());
+		query = queryParser.getAST();
 	}catch(...){
 		std::cout << "There was an error parsing the query file." << std::endl;
 		return 1;
 	}
 
-	if(query->GetQuantifier() == AST::EF || query->GetQuantifier() == AST::AG){
+	if(query->getQuantifier() == AST::EF || query->getQuantifier() == AST::AG){
 		tapn->removeOrphantedTransitions();
 	}
 

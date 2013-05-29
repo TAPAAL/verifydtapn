@@ -35,10 +35,10 @@ public:
         ReachabilitySearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options);
 	ReachabilitySearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list);
 	virtual ~ReachabilitySearch();
-	bool Verify();
-	NonStrictMarking* GetLastMarking() { return lastMarking; }
-	inline unsigned int MaxUsedTokens(){ return pwList->maxNumTokensInAnyMarking; };
-	void PrintTransitionStatistics() const { successorGenerator.PrintTransitionStatistics(std::cout); }
+	bool verify();
+	NonStrictMarking* getLastMarking() { return lastMarking; }
+	inline unsigned int maxUsedTokens(){ return pwList->maxNumTokensInAnyMarking; };
+	void printTransitionStatistics() const { successorGenerator.printTransitionStatistics(std::cout); }
         virtual void deleteMarking(NonStrictMarking* m) {
             //dummy;
         };
@@ -59,7 +59,7 @@ protected:
 	SuccessorGenerator<NonStrictMarking> successorGenerator;
 public:
 	void printStats();
-	virtual void GetTrace();
+	virtual void getTrace();
 protected:
 	NonStrictMarking* lastMarking;
     NonStrictMarking* tmpParent;
@@ -70,14 +70,14 @@ public:
     ReachabilitySearchPTrie(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<EncodingPointer<MetaData> >* waiting_list) 
     : ReachabilitySearch(tapn,initialMarking, query, options)
     {
-        pwList = new PWListHybrid(tapn, waiting_list, options.GetKBound(), tapn->NumberOfPlaces(), tapn->MaxConstant(), false, options.GetTrace() == SOME);
+        pwList = new PWListHybrid(tapn, waiting_list, options.getKBound(), tapn->getNumberOfPlaces(), tapn->getMaxConstant(), false, options.getTrace() == VerificationOptions::SOME_TRACE);
     };
     
     virtual void deleteMarking(NonStrictMarking* m) {
         delete m;
     };
     
-   virtual void GetTrace();
+   virtual void getTrace();
 
 };
 

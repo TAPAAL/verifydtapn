@@ -14,13 +14,12 @@
 #include "NonStrictMarkingBase.hpp"
 #include "WaitingList.hpp"
 #include "TimeDart.hpp"
-#include "PData.h"
+#include "PTrie.h"
 
 namespace VerifyTAPN {
     namespace DiscreteVerification {
         class TimeDartLivenessPWBase;
         class TimeDartLivenessPWHashMap;
-        //       class TimeDartPWPData;
 
         class TimeDartLivenessPWBase {
         public:
@@ -37,19 +36,19 @@ namespace VerifyTAPN {
 
 
         public: // inspectors
-            virtual bool HasWaitingStates() = 0;
+            virtual bool hasWaitingStates() = 0;
 
-            virtual long long Size() const {
+            virtual long long size() const {
                 return stored;
             };
 
         public: // modifiers
-            virtual std::pair<LivenessDart*, bool> Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* base, int youngest, WaitingDart* parent, int upper, int start) = 0;
-            virtual WaitingDart* GetNextUnexplored() = 0;
-            virtual void PopWaiting() = 0;
+            virtual std::pair<LivenessDart*, bool> add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* base, int youngest, WaitingDart* parent, int upper, int start) = 0;
+            virtual WaitingDart* getNextUnexplored() = 0;
+            virtual void popWaiting() = 0;
             virtual void flushBuffer() = 0;
 
-            inline void SetMaxNumTokensIfGreater(int i) {
+            inline void setMaxNumTokensIfGreater(int i) {
                 if (i > maxNumTokensInAnyMarking) maxNumTokensInAnyMarking = i;
             };
 
@@ -70,12 +69,12 @@ namespace VerifyTAPN {
             ~TimeDartLivenessPWHashMap() {
             };
             friend std::ostream& operator<<(std::ostream& out, TimeDartLivenessPWHashMap& x);
-            virtual std::pair<LivenessDart*, bool> Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* base, int youngest, WaitingDart* parent, int upper, int start);
-            virtual WaitingDart* GetNextUnexplored();
-            virtual void PopWaiting();
+            virtual std::pair<LivenessDart*, bool> add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* base, int youngest, WaitingDart* parent, int upper, int start);
+            virtual WaitingDart* getNextUnexplored();
+            virtual void popWaiting();
 
-            virtual bool HasWaitingStates() {
-                return (waiting_list->Size() > 0);
+            virtual bool hasWaitingStates() {
+                return (waiting_list->size() > 0);
             };
             virtual void flushBuffer();
         private:
@@ -89,28 +88,28 @@ namespace VerifyTAPN {
 
 
             
-            TimeDartLivenessPWPData(VerificationOptions options, WaitingList<EncodingPointer<WaitingDart> >* w_l, boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, int nplaces, int mage) : TimeDartLivenessPWBase(), options(options), waiting_list(w_l), passed(tapn,  options.GetKBound(), nplaces, mage) {
+            TimeDartLivenessPWPData(VerificationOptions options, WaitingList<EncodingPointer<WaitingDart> >* w_l, boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, int nplaces, int mage) : TimeDartLivenessPWBase(), options(options), waiting_list(w_l), passed(tapn,  options.getKBound(), nplaces, mage) {
             };
 
             ~TimeDartLivenessPWPData() {
             };
             friend std::ostream& operator<<(std::ostream& out, TimeDartLivenessPWHashMap& x);
-            virtual std::pair<LivenessDart*, bool> Add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* base, int youngest, WaitingDart* parent, int upper, int start);
-            virtual WaitingDart* GetNextUnexplored();
-            virtual void PopWaiting();
+            virtual std::pair<LivenessDart*, bool> add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* base, int youngest, WaitingDart* parent, int upper, int start);
+            virtual WaitingDart* getNextUnexplored();
+            virtual void popWaiting();
 
-            virtual bool HasWaitingStates() {
-                return (waiting_list->Size() > 0);
+            virtual bool hasWaitingStates() {
+                return (waiting_list->size() > 0);
             };
             virtual void flushBuffer();
-            NonStrictMarkingBase* Decode(EncodingPointer<LivenessDart> *ewp){
-                return passed.EnumerateDecode(*ewp);
+            NonStrictMarkingBase* decode(EncodingPointer<LivenessDart> *ewp){
+                return passed.enumerateDecode(*ewp);
             }
             
         private:
             VerificationOptions options;
             WaitingList<EncodingPointer<WaitingDart> >* waiting_list;
-            PData<LivenessDart> passed;
+            PTrie<LivenessDart> passed;
         };
 
     } /* namespace DiscreteVerification */

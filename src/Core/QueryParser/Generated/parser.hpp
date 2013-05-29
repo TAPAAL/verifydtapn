@@ -1,8 +1,8 @@
-/* A Bison parser, made by GNU Bison 2.6.5.  */
+/* A Bison parser, made by GNU Bison 2.7.12-4996.  */
 
 /* Skeleton interface for Bison LALR(1) parsers in C++
    
-      Copyright (C) 2002-2012 Free Software Foundation, Inc.
+      Copyright (C) 2002-2013 Free Software Foundation, Inc.
    
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -41,7 +41,7 @@
 # define YY_YY_CORE_QUERYPARSER_GENERATED_PARSER_HPP_INCLUDED
 
 /* "%code requires" blocks.  */
-/* Line 36 of lalr1.cc  */
+/* Line 33 of lalr1.cc  */
 #line 7 "Core/QueryParser/grammar.yy"
 
 # include <string>
@@ -51,7 +51,7 @@ namespace VerifyTAPN{
 }
 
 
-/* Line 36 of lalr1.cc  */
+/* Line 33 of lalr1.cc  */
 #line 56 "Core/QueryParser/Generated/parser.hpp"
 
 
@@ -65,10 +65,10 @@ namespace VerifyTAPN{
 # define YYDEBUG 0
 #endif
 
-/* Line 36 of lalr1.cc  */
+/* Line 33 of lalr1.cc  */
 #line 5 "Core/QueryParser/grammar.yy"
 namespace VerifyTAPN {
-/* Line 36 of lalr1.cc  */
+/* Line 33 of lalr1.cc  */
 #line 73 "Core/QueryParser/Generated/parser.hpp"
 
   /// A Bison parser.
@@ -79,7 +79,7 @@ namespace VerifyTAPN {
 #ifndef YYSTYPE
     union semantic_type
     {
-/* Line 36 of lalr1.cc  */
+/* Line 33 of lalr1.cc  */
 #line 30 "Core/QueryParser/grammar.yy"
 
 	int          					number;
@@ -88,7 +88,7 @@ namespace VerifyTAPN {
 	VerifyTAPN::AST::Query*		 	query;
 
 
-/* Line 36 of lalr1.cc  */
+/* Line 33 of lalr1.cc  */
 #line 93 "Core/QueryParser/Generated/parser.hpp"
     };
 #else
@@ -149,6 +149,10 @@ namespace VerifyTAPN {
 #endif
 
   private:
+    /// This class is not copyable.
+    Parser (const Parser&);
+    Parser& operator= (const Parser&);
+
     /// Report a syntax error.
     /// \param loc    where the syntax error is found.
     /// \param msg    a description of the syntax error.
@@ -266,6 +270,7 @@ namespace VerifyTAPN {
 
     /// \brief Reclaim the memory associated to a symbol.
     /// \param yymsg        Why this token is reclaimed.
+    ///                     If null, do not display the symbol, just free it.
     /// \param yytype       The symbol type.
     /// \param yyvaluep     Its semantic value.
     /// \param yylocationp  Its location.
@@ -293,11 +298,11 @@ namespace VerifyTAPN {
     /* User arguments.  */
     VerifyTAPN::TAPNQueryParser& driver;
   };
-/* Line 36 of lalr1.cc  */
+/* Line 33 of lalr1.cc  */
 #line 5 "Core/QueryParser/grammar.yy"
 } // VerifyTAPN
-/* Line 36 of lalr1.cc  */
-#line 301 "Core/QueryParser/Generated/parser.hpp"
+/* Line 33 of lalr1.cc  */
+#line 306 "Core/QueryParser/Generated/parser.hpp"
 
 
 

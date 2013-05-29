@@ -6,10 +6,10 @@
 
 namespace VerifyTAPN
 {
-	const std::string ReadFile(const std::string& filename);
+	const std::string readFile(const std::string& filename);
 
 	template<class T>
-	const std::string ToString(T t)
+	const std::string toString(T t)
 	{
 		std::stringstream s;
 		s << t;

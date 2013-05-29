@@ -10,9 +10,9 @@
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
-bool PWList::Add(NonStrictMarking* marking){
+bool PWList::add(NonStrictMarking* marking){
 	discoveredMarkings++;
-	NonStrictMarkingList& m = markings_storage[marking->HashKey()];
+	NonStrictMarkingList& m = markings_storage[marking->getHashKey()];
 	for(NonStrictMarkingList::const_iterator iter = m.begin();
 			iter != m.end();
 			iter++){
@@ -20,8 +20,8 @@ bool PWList::Add(NonStrictMarking* marking){
                     if(isLiveness){
                         marking->meta = (*iter)->meta;
                         if(!marking->meta->passed){
-                                (*iter)->SetGeneratedBy(marking->GetGeneratedBy());
-                                waiting_list->Add(*iter, *iter);
+                                (*iter)->setGeneratedBy(marking->getGeneratedBy());
+                                waiting_list->add(*iter, *iter);
                                 return true;
                         }
                     }
@@ -31,16 +31,16 @@ bool PWList::Add(NonStrictMarking* marking){
         stored++;
 	m.push_back(marking);
         marking->meta = new MetaData();
-	waiting_list->Add(marking, marking);
+	waiting_list->add(marking, marking);
 	return true;
 }
 
-NonStrictMarking* PWList::GetNextUnexplored(){
-	return waiting_list->Pop();
+NonStrictMarking* PWList::getNextUnexplored(){
+	return waiting_list->pop();
 }
 
 PWList::~PWList() {
-	// TODO Auto-generated destructor stub
+    // We don't care, it is deallocated on program execution done
 }
 
 std::ostream& operator<<(std::ostream& out, PWList& x){
@@ -54,69 +54,68 @@ std::ostream& operator<<(std::ostream& out, PWList& x){
 	return out;
 }
 
-        bool PWListHybrid::Add(NonStrictMarking* marking) {
+        bool PWListHybrid::add(NonStrictMarking* marking) {
 
             discoveredMarkings++;
             // reset the encoding array
 
-            PData<MetaData>::Result res = passed->Add(marking);
+            PTrie<MetaData>::Result res = passed->add(marking);
             if(res.isNew){
                 if(isLiveness){
                     MetaData* meta;
                     if(this->makeTrace){
                         meta = new MetaDataWithTrace();   
-                        ((MetaDataWithTrace*)meta)->generatedBy = marking->generatedBy;
+                        ((MetaDataWithTrace*)meta)->generatedBy = marking->getGeneratedBy();
                     } else {
                         meta = new MetaData();
                     }
-                    res.encoding.SetMetaData(meta);
+                    res.encoding.setMetaData(meta);
                     marking->meta = meta;
                 } else if(this->makeTrace){
                     MetaDataWithTraceAndEncoding* meta = new MetaDataWithTraceAndEncoding();
-                    meta->generatedBy = marking->generatedBy;
-                    res.encoding.SetMetaData(meta);
+                    meta->generatedBy = marking->getGeneratedBy();
+                    res.encoding.setMetaData(meta);
                     meta->ep = new EncodingPointer<MetaData > (res.encoding, res.pos);
                     meta->parent = parent;
                 }
-                this->waiting_list->Add(marking, new EncodingPointer<MetaData > (res.encoding, res.pos));
+                this->waiting_list->add(marking, new EncodingPointer<MetaData > (res.encoding, res.pos));
             } else{
                 if(isLiveness){
-                        marking->meta = res.encoding.GetMetaData();
+                        marking->meta = res.encoding.getMetaData();
                         if(this->makeTrace){
-                            ((MetaDataWithTrace*)marking->meta)->generatedBy = marking->generatedBy;
+                            ((MetaDataWithTrace*)marking->meta)->generatedBy = marking->getGeneratedBy();
                         }
                 }
                 if(isLiveness && !marking->meta->passed){
-                    this->waiting_list->Add(marking, new EncodingPointer<MetaData > (res.encoding, res.pos));
+                    this->waiting_list->add(marking, new EncodingPointer<MetaData > (res.encoding, res.pos));
                     return true;
                 }
             }
             return res.isNew;
         }
 
-        NonStrictMarking* PWListHybrid::GetNextUnexplored() {
-            // TODO: Is this really it?
-            EncodingPointer<MetaData>* p = waiting_list->Pop();
-            NonStrictMarkingBase* base = passed->EnumerateDecode(*p);
+        NonStrictMarking* PWListHybrid::getNextUnexplored() {
+            EncodingPointer<MetaData>* p = waiting_list->pop();
+            NonStrictMarkingBase* base = passed->enumerateDecode(*p);
             NonStrictMarking* m = new NonStrictMarking(*base);
             delete base;
             
-            m->meta = p->encoding.GetMetaData();
+            m->meta = p->encoding.getMetaData();
             
             if(this->makeTrace){
                 if(isLiveness){
-                        m->generatedBy = ((MetaDataWithTrace*)(m->meta))->generatedBy;
+                        m->setGeneratedBy(((MetaDataWithTrace*)(m->meta))->generatedBy);
                 } else {
                     this->parent = (MetaDataWithTraceAndEncoding*)(m->meta);
                 }
             }
             if(isLiveness || !this->makeTrace)
-                p->encoding.Release();
+                p->encoding.release();
             return m;
         }
 
         PWListHybrid::~PWListHybrid() {
-            // TODO Auto-generated destructor stub
+        // We don't care, it is deallocated on program execution done
         }
 
 } /* namespace DiscreteVerification */

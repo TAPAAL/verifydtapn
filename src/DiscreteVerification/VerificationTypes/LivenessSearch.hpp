@@ -35,10 +35,10 @@ public:
 	LivenessSearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options);
     LivenessSearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list);
 	virtual ~LivenessSearch();
-	bool Verify();
+	bool verify();
 	NonStrictMarking* GetLastMarking() { return lastMarking; }
-	inline unsigned int MaxUsedTokens(){ return pwList->maxNumTokensInAnyMarking; };
-	void PrintTransitionStatistics() const { successorGenerator.PrintTransitionStatistics(std::cout); }
+	inline unsigned int maxUsedTokens(){ return pwList->maxNumTokensInAnyMarking; };
+	void printTransitionStatistics() const { successorGenerator.printTransitionStatistics(std::cout); }
         virtual void deleteMarking(NonStrictMarking* m) {
             //dummy
         };
@@ -59,7 +59,7 @@ protected:
 	SuccessorGenerator<NonStrictMarking> successorGenerator;
 public:
 	void printStats();
-	void GetTrace();
+	void getTrace();
 private:
 	NonStrictMarking* lastMarking;
 protected:
@@ -70,7 +70,7 @@ public:
     LivenessSearchPTrie(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<EncodingPointer<MetaData> >* waiting_list) 
     : LivenessSearch(tapn,initialMarking, query, options)
     {
-        pwList = new PWListHybrid(tapn, waiting_list, options.GetKBound(), tapn->NumberOfPlaces(), tapn->MaxConstant(), true, options.GetTrace() == SOME);
+        pwList = new PWListHybrid(tapn, waiting_list, options.getKBound(), tapn->getNumberOfPlaces(), tapn->getMaxConstant(), true, options.getTrace() == VerificationOptions::SOME_TRACE);
     };
     virtual void deleteMarking(NonStrictMarking* m) {
         delete m;
