@@ -5,58 +5,58 @@
 
 namespace VerifyTAPN {
 	namespace TAPN {
-		void TimedArcPetriNet::Initialize(bool useGlobalMaxConstant)
+		void TimedArcPetriNet::initialize(bool useGlobalMaxConstant)
 		{
 			for(unsigned int i = 0; i < places.size(); i++){
-				places[i]->SetIndex(i);
-				UpdateMaxConstant(places[i]->GetInvariant());
+				places[i]->setIndex(i);
+				updateMaxConstant(places[i]->getInvariant());
 			}
 
 			for(unsigned int i = 0; i < transitions.size(); i++){
-				transitions[i]->SetIndex(i);
+				transitions[i]->setIndex(i);
 			}
 
 			for(TimedInputArc::Vector::const_iterator iter = inputArcs.begin(); iter != inputArcs.end(); ++iter)
 			{
 				const boost::shared_ptr<TimedInputArc>& arc = *iter;
-				arc->OutputTransition().AddToPreset(arc);
-				arc->InputPlace().AddInputArc(arc);
-				UpdateMaxConstant(arc->Interval());
+				arc->getOutputTransition().addToPreset(arc);
+				arc->getInputPlace().addInputArc(arc);
+				updateMaxConstant(arc->getInterval());
 			}
 
 			for(TransportArc::Vector::const_iterator iter = transportArcs.begin(); iter != transportArcs.end(); ++iter)
 			{
 				const boost::shared_ptr<TransportArc>& arc = *iter;
-				arc->Transition().AddTransportArcGoingThrough(arc);
-				arc->Source().AddTransportArc(arc);
-				UpdateMaxConstant(arc->Interval());
+				arc->getTransition().addTransportArcGoingThrough(arc);
+				arc->getSource().addTransportArc(arc);
+				updateMaxConstant(arc->getInterval());
 			}
 
 			for(InhibitorArc::Vector::const_iterator iter = inhibitorArcs.begin(); iter != inhibitorArcs.end(); ++iter) {
 				const boost::shared_ptr<InhibitorArc>& arc = *iter;
-				arc->OutputTransition().AddIncomingInhibitorArc(arc);
-				arc->InputPlace().AddInhibitorArc(arc);
-				arc->InputPlace().SetHasInhibitorArcs(true);
+				arc->getOutputTransition().addIncomingInhibitorArc(arc);
+				arc->getInputPlace().addInhibitorArc(arc);
+				arc->getInputPlace().setHasInhibitorArcs(true);
 			}
 
 			for(OutputArc::Vector::const_iterator iter = outputArcs.begin(); iter != outputArcs.end(); ++iter)
 			{
 				const boost::shared_ptr<OutputArc>& arc = *iter;
-				arc->InputTransition().AddToPostset(arc);
-				arc->OutputPlace().AddOutputArc(arc);
+				arc->getInputTransition().addToPostset(arc);
+				arc->getOutputPlace().addOutputArc(arc);
 			}
 
-			GeneratePairings();
-			FindMaxConstants();
+
+			findMaxConstants();
 
 			if(useGlobalMaxConstant){
 				for(TimedPlace::Vector::const_iterator place_iter = places.begin(); place_iter != places.end(); ++place_iter)
 				{
-					(*place_iter)->SetMaxConstant(MaxConstant()==0? -1:MaxConstant());
+					(*place_iter)->setMaxConstant(getMaxConstant()==0? -1:getMaxConstant());
 				}
 			}
 
-			MarkUntimedPlaces();
+			markUntimedPlaces();
 		}
 
 		void TimedArcPetriNet::removeOrphantedTransitions(){
@@ -69,7 +69,7 @@ namespace VerifyTAPN {
 				TimedTransition::Vector::iterator iter = transitions.begin();
 				while(iter != transitions.end())
 				{
-					if((*iter)->GetPresetSize() == 0 && (*iter)->GetPostsetSize() == 0){
+					if((*iter)->getPresetSize() == 0 && (*iter)->getPostsetSize() == 0){
 						iter = transitions.erase(iter);
 						if(!hasShownMessage){
 							std::cout << "Orphaned transitions have been removed." << std::endl << std::endl;
@@ -82,98 +82,98 @@ namespace VerifyTAPN {
 			}
 		}
 
-		void TimedArcPetriNet::MarkUntimedPlaces()
+		void TimedArcPetriNet::markUntimedPlaces()
 		{
 			for(TimedPlace::Vector::const_iterator iter = places.begin(); iter != places.end(); ++iter)
 			{
-				bool isUntimedPlace = (*iter)->GetInvariant() == TimeInvariant::LS_INF;
+				bool isUntimedPlace = (*iter)->getInvariant() == TimeInvariant::LS_INF;
 
 				for(TransportArc::Vector::const_iterator arcIter = transportArcs.begin(); arcIter != transportArcs.end(); ++arcIter)
 				{
-					isUntimedPlace = isUntimedPlace && (*arcIter)->Source() != **iter;
+					isUntimedPlace = isUntimedPlace && (*arcIter)->getSource() != **iter;
 				}
 
 				if(isUntimedPlace)
 				{
 					for(TimedInputArc::Vector::const_iterator arcIter = inputArcs.begin(); arcIter != inputArcs.end(); ++arcIter)
 					{
-						if((*arcIter)->InputPlace() == **iter)
+						if((*arcIter)->getInputPlace() == **iter)
 						{
-							isUntimedPlace = isUntimedPlace && (*arcIter)->Interval().IsZeroInfinity();
+							isUntimedPlace = isUntimedPlace && (*arcIter)->getInterval().isZeroInfinity();
 						}
 					}
 				}
 
-				if(isUntimedPlace) (*iter)->MarkPlaceAsUntimed();
+				if(isUntimedPlace) (*iter)->markPlaceAsUntimed();
 			}
 		}
 
-		void TimedArcPetriNet::FindMaxConstants()
+		void TimedArcPetriNet::findMaxConstants()
 		{
 			for(TimedPlace::Vector::const_iterator iter = places.begin(); iter != places.end(); ++iter)
 			{
 				int maxConstant = -1;
-				if((*iter)->GetInvariant() != TimeInvariant::LS_INF){
-					maxConstant = (*iter)->GetInvariant().GetBound();
-					(*iter)->SetMaxConstant(maxConstant);
-					(*iter)->SetType(Inv);
+				if((*iter)->getInvariant() != TimeInvariant::LS_INF){
+					maxConstant = (*iter)->getInvariant().getBound();
+					(*iter)->setMaxConstant(maxConstant);
+					(*iter)->setType(Inv);
 				}
 				else {
-					(*iter)->SetType(Dead);
+					(*iter)->setType(Dead);
 					for(TimedInputArc::Vector::const_iterator arcIter = inputArcs.begin(); arcIter != inputArcs.end(); ++arcIter)
 					{
-						if((*arcIter)->InputPlace() == **iter)
+						if((*arcIter)->getInputPlace() == **iter)
 						{
 							boost::shared_ptr<TimedInputArc> ia = *arcIter;
-							const TAPN::TimeInterval& interval = ia->Interval();
+							const TAPN::TimeInterval& interval = ia->getInterval();
 
-							const int lowerBound = interval.GetLowerBound();
-							const int upperBound = interval.GetUpperBound();
+							const int lowerBound = interval.getLowerBound();
+							const int upperBound = interval.getUpperBound();
 
 							if(upperBound != std::numeric_limits<int>().max() || lowerBound != 0){
 								if(upperBound == std::numeric_limits<int>().max()){
 									maxConstant = (maxConstant < lowerBound ? lowerBound : maxConstant);
-									(*iter)->SetType(Std);
+									(*iter)->setType(Std);
 								} else {
 									maxConstant = (maxConstant < upperBound ? upperBound : maxConstant);
 								}
 							} else {
-								(*iter)->SetType(Std);
+								(*iter)->setType(Std);
 							}
 						}
 					}
 					for(TransportArc::Vector::const_iterator transport_iter = transportArcs.begin(); transport_iter != transportArcs.end(); transport_iter++)
 					{
-						if((*transport_iter)->Source() == **iter)
+						if((*transport_iter)->getSource() == **iter)
 						{
 							int maxArc = -1;
 							boost::shared_ptr<TransportArc> ta = *transport_iter;
-							const TAPN::TimeInterval& interval = ta->Interval();
-							const int lowerBound = interval.GetLowerBound();
-							const int upperBound = interval.GetUpperBound();
+							const TAPN::TimeInterval& interval = ta->getInterval();
+							const int lowerBound = interval.getLowerBound();
+							const int upperBound = interval.getUpperBound();
 
 							if(upperBound != std::numeric_limits<int>().max() || lowerBound != 0){
 								if(upperBound == std::numeric_limits<int>().max()){
 									maxArc = lowerBound;
-									(*iter)->SetType(Std);
+									(*iter)->setType(Std);
 								} else {
 									maxArc = upperBound;
 								}
 							} else {
-								(*iter)->SetType(Std);
+								(*iter)->setType(Std);
 							}
-							int destinationInvariant = ta->Destination().GetInvariant().GetBound();
+							int destinationInvariant = ta->getDestination().getInvariant().getBound();
 							if(destinationInvariant != std::numeric_limits<int>().max()){
 								maxArc = maxArc < destinationInvariant ? maxArc : destinationInvariant;
 							}
 							maxConstant = maxConstant < maxArc ? maxArc : maxConstant;
 						}
 					}
-					(*iter)->SetMaxConstant(maxConstant);
+					(*iter)->setMaxConstant(maxConstant);
 
 					for(InhibitorArc::Vector::const_iterator inhib_iter = inhibitorArcs.begin(); inhib_iter != inhibitorArcs.end(); inhib_iter++){
-						if((*inhib_iter)->InputPlace().GetIndex() == (*iter)->GetIndex() && (*iter)->GetType() == Dead){
-							(*iter)->SetType(Std);
+						if((*inhib_iter)->getInputPlace().getIndex() == (*iter)->getIndex() && (*iter)->getType() == Dead){
+							(*iter)->setType(Std);
 						}
 					}
 				}
@@ -184,15 +184,15 @@ namespace VerifyTAPN {
 				std::vector< TimedPlace* > causalitySet;
 				calculateCausality(**place_iter, &causalitySet);
 				for(std::vector< TimedPlace* >::const_iterator cau_iter = causalitySet.begin(); cau_iter != causalitySet.end(); cau_iter++){
-					if((*cau_iter)->GetMaxConstant() > (*place_iter)->GetMaxConstant()){
-						(*place_iter)->SetMaxConstant((*cau_iter)->GetMaxConstant());
+					if((*cau_iter)->getMaxConstant() > (*place_iter)->getMaxConstant()){
+						(*place_iter)->setMaxConstant((*cau_iter)->getMaxConstant());
 					}
 				}
 			}
 
 			for(TimedTransition::Vector::iterator iter = transitions.begin(); iter != transitions.end(); iter++){
-				for(OutputArc::WeakPtrVector::const_iterator place_iter = iter->get()->GetPostset().begin(); place_iter != iter->get()->GetPostset().end(); place_iter++){
-					if(place_iter->lock()->OutputPlace().GetMaxConstant() > -1){
+				for(OutputArc::WeakPtrVector::const_iterator place_iter = iter->get()->getPostset().begin(); place_iter != iter->get()->getPostset().end(); place_iter++){
+					if(place_iter->lock()->getOutputPlace().getMaxConstant() > -1){
 						iter->get()->setUntimedPostset(false);
 						break;
 					}
@@ -206,10 +206,10 @@ namespace VerifyTAPN {
 				if(**iter == p) return;
 			}
 			result->push_back(&p);
-			for(TransportArc::Vector::const_iterator iter = this->GetTransportArcs().begin(); iter != this->GetTransportArcs().end(); iter++){
-				if((*iter)->Source() == p){
-					if((*iter)->Interval().GetUpperBound() == std::numeric_limits<int>().max()){
-						calculateCausality((*iter)->Destination(), result);
+			for(TransportArc::Vector::const_iterator iter = this->getTransportArcs().begin(); iter != this->getTransportArcs().end(); iter++){
+				if((*iter)->getSource() == p){
+					if((*iter)->getInterval().getUpperBound() == std::numeric_limits<int>().max()){
+						calculateCausality((*iter)->getDestination(), result);
 					}
 				}
 			}
@@ -219,27 +219,27 @@ namespace VerifyTAPN {
 			std::vector< int > placeNumbers;
 			boost::any context = placeNumbers;
 			DiscreteVerification::PlaceVisitor visitor;
-			query->Accept(visitor, context);
+			query->accept(visitor, context);
 			placeNumbers = boost::any_cast< std::vector< int > >(context);
 
 			for(TimedPlace::Vector::const_iterator iter = places.begin(); iter != places.end(); ++iter){
-				if(options.GetKeepDeadTokens() && (*iter)->GetType() == Dead){
-					(*iter)->SetType(Std);
+				if(options.getKeepDeadTokens() && (*iter)->getType() == Dead){
+					(*iter)->setType(Std);
 					continue;
 				}
 				for(std::vector<int>::const_iterator id_iter = placeNumbers.begin(); id_iter != placeNumbers.end(); id_iter++){
-					if((*id_iter) == (*iter)->GetIndex() && (*iter)->GetType() == Dead){
-						(*iter)->SetType(Std);
+					if((*id_iter) == (*iter)->getIndex() && (*iter)->getType() == Dead){
+						(*iter)->setType(Std);
 						break;
 					}
 				}
 			}
 		}
 
-		void TimedArcPetriNet::UpdateMaxConstant(const TimeInterval& interval)
+		void TimedArcPetriNet::updateMaxConstant(const TimeInterval& interval)
 		{
-			int lowerBound = interval.GetLowerBound();
-			int upperBound = interval.GetUpperBound();
+			int lowerBound = interval.getLowerBound();
+			int upperBound = interval.getUpperBound();
 			if(lowerBound < std::numeric_limits<int>().max() && lowerBound > maxConstant)
 			{
 				maxConstant = lowerBound;
@@ -250,21 +250,21 @@ namespace VerifyTAPN {
 			}
 		}
 
-		void TimedArcPetriNet::UpdateMaxConstant(const TimeInvariant& invariant)
+		void TimedArcPetriNet::updateMaxConstant(const TimeInvariant& invariant)
 		{
-			int bound = invariant.GetBound();
+			int bound = invariant.getBound();
 			if(bound < std::numeric_limits<int>().max() && bound > maxConstant)
 			{
 				maxConstant = bound;
 			}
 		}
 
-		int TimedArcPetriNet::GetPlaceIndex(const std::string& placeName) const
+		int TimedArcPetriNet::getPlaceIndex(const std::string& placeName) const
 		{
 				int idx = TimedPlace::BottomIndex();
 				for(unsigned int i = 0; i < places.size(); ++i)
 				{
-					if(places[i]->GetName() == placeName)
+					if(places[i]->getName() == placeName)
 					{
 						idx = i;
 						break;
@@ -274,7 +274,7 @@ namespace VerifyTAPN {
 				return idx;
 		}
 
-		void TimedArcPetriNet::Print(std::ostream & out) const
+		void TimedArcPetriNet::print(std::ostream & out) const
 		{
 			out << "TAPN:" << std::endl << "  Places: ";
 			for(TimedPlace::Vector::const_iterator iter = places.begin();iter != places.end();iter++)
@@ -326,22 +326,11 @@ namespace VerifyTAPN {
 			out << std::endl;
 		}
 
-
-		void TimedArcPetriNet::GeneratePairings()
-		{
-			for(TimedTransition::Vector::const_iterator iter = transitions.begin(); iter != transitions.end(); ++iter)
-			{
-				const TimedTransition& t = *(*iter);
-				Pairing p(*this, t);
-				pairings.insert(std::pair<TimedTransition, Pairing>(t, p));
-			}
-		}
-
-		bool TimedArcPetriNet::IsNonStrict() const{
+		bool TimedArcPetriNet::isNonStrict() const{
 
 			for(TimedInputArc::Vector::const_iterator iter = inputArcs.begin(); iter != inputArcs.end(); iter++){
 				TimedInputArc& ia = *(*iter);
-				if(ia.Interval().IsLowerBoundStrict() || (ia.Interval().IsUpperBoundStrict() && ia.Interval().GetUpperBound() != std::numeric_limits<int>().max())){
+				if(ia.getInterval().isLowerBoundStrict() || (ia.getInterval().isUpperBoundStrict() && ia.getInterval().getUpperBound() != std::numeric_limits<int>().max())){
 					return false;
 				}
 			}
@@ -349,14 +338,14 @@ namespace VerifyTAPN {
 
 			for(TransportArc::Vector::const_iterator iter = transportArcs.begin(); iter != transportArcs.end(); iter++){
 				TransportArc& ta = *(*iter);
-				if(ta.Interval().IsLowerBoundStrict() || (ta.Interval().IsUpperBoundStrict() && ta.Interval().GetUpperBound() != std::numeric_limits<int>().max())){
+				if(ta.getInterval().isLowerBoundStrict() || (ta.getInterval().isUpperBoundStrict() && ta.getInterval().getUpperBound() != std::numeric_limits<int>().max())){
 					return false;
 				}
 			}
 
 			for(TimedPlace::Vector::const_iterator iter = places.begin(); iter != places.end(); iter++){
 				const TimedPlace& p = *(*iter);
-				if(p.GetInvariant().IsBoundStrict() && p.GetInvariant().GetBound() != std::numeric_limits<int>().max()){
+				if(p.getInvariant().isBoundStrict() && p.getInvariant().getBound() != std::numeric_limits<int>().max()){
 					return false;
 				}
 			}

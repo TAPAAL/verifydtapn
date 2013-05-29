@@ -24,13 +24,13 @@ class PlaceVisitor : public Visitor{
 		virtual ~PlaceVisitor(){};
 
 	public: // visitor methods
-		virtual void Visit(const NotExpression& expr, boost::any& context);
-		virtual void Visit(const ParExpression& expr, boost::any& context);
-		virtual void Visit(const OrExpression& expr, boost::any& context);
-		virtual void Visit(const AndExpression& expr, boost::any& context);
-		virtual void Visit(const AtomicProposition& expr, boost::any& context);
-		virtual void Visit(const BoolExpression& expr, boost::any& context);
-		virtual void Visit(const Query& query, boost::any& context);
+		virtual void visit(const NotExpression& expr, boost::any& context);
+		virtual void visit(const ParExpression& expr, boost::any& context);
+		virtual void visit(const OrExpression& expr, boost::any& context);
+		virtual void visit(const AndExpression& expr, boost::any& context);
+		virtual void visit(const AtomicProposition& expr, boost::any& context);
+		virtual void visit(const BoolExpression& expr, boost::any& context);
+		virtual void visit(const Query& query, boost::any& context);
 };
 
 } /* namespace DiscreteVerification */

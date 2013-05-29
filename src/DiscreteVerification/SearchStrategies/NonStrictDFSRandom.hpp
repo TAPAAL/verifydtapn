@@ -36,7 +36,7 @@ namespace DiscreteVerification {
 template <class T>
 class NonStrictDFSRandom : public SearchStrategy<T> {
 public:
-	virtual WaitingList<T>* CreateWaitingList(AST::Query* query) const { return new RandomStackWaitingList<T>; };
+	virtual WaitingList<T>* createWaitingList(AST::Query* query) const { return new RandomStackWaitingList<T>; };
 };
 
 }

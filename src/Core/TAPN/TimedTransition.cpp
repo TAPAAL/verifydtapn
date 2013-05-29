@@ -2,15 +2,15 @@
 
 namespace VerifyTAPN {
 	namespace TAPN {
-		void TimedTransition::Print(std::ostream& out) const
+		void TimedTransition::print(std::ostream& out) const
 		{
-			out << GetName();
+			out << getName();
                         if(this->urgent)
                             out << " urgent ";
                         out << "(" << index << ")";
 		}
 
-		void TimedTransition::AddToPreset(const boost::shared_ptr<TimedInputArc>& arc)
+		void TimedTransition::addToPreset(const boost::shared_ptr<TimedInputArc>& arc)
 		{
 			if(arc)
 			{
@@ -18,7 +18,7 @@ namespace VerifyTAPN {
 			}
 		}
 
-		void TimedTransition::AddTransportArcGoingThrough(const boost::shared_ptr<TransportArc>& arc)
+		void TimedTransition::addTransportArcGoingThrough(const boost::shared_ptr<TransportArc>& arc)
 		{
 			if(arc)
 			{
@@ -26,7 +26,7 @@ namespace VerifyTAPN {
 			}
 		}
 
-		void TimedTransition::AddIncomingInhibitorArc(const boost::shared_ptr<InhibitorArc>& arc)
+		void TimedTransition::addIncomingInhibitorArc(const boost::shared_ptr<InhibitorArc>& arc)
 		{
 			if(arc)
 			{
@@ -34,7 +34,7 @@ namespace VerifyTAPN {
 			}
 		}
 
-		void TimedTransition::AddToPostset(const boost::shared_ptr<OutputArc>& arc)
+		void TimedTransition::addToPostset(const boost::shared_ptr<OutputArc>& arc)
 		{
 			if(arc)
 			{

@@ -28,14 +28,14 @@ namespace VerifyTAPN
 
 			virtual ~TransportArc() {};
 		public:
-			inline TimedPlace& Source() { return *source; }
-			inline TimedTransition& Transition() { return *transition; }
-			inline TimedPlace& Destination() { return *destination; }
-			inline const TimeInterval& Interval() { return interval; }
+			inline TimedPlace& getSource() { return *source; }
+			inline TimedTransition& getTransition() { return *transition; }
+			inline TimedPlace& getDestination() { return *destination; }
+			inline const TimeInterval& getInterval() { return interval; }
 
 		public: // Inspectors
-				void Print(std::ostream& out) const;
-				inline const int GetWeight() const { return weight; }
+				void print(std::ostream& out) const;
+				inline const int getWeight() const { return weight; }
 		private:
 			const TAPN::TimeInterval interval;
 			const boost::shared_ptr<TimedPlace> source;
@@ -46,7 +46,7 @@ namespace VerifyTAPN
 
 		inline std::ostream& operator<<(std::ostream& out, const TransportArc& arc)
 		{
-			arc.Print(out);
+			arc.print(out);
 			return out;
 		}
 	}

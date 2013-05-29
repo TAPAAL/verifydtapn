@@ -14,11 +14,11 @@ namespace VerifyTAPN
 		return result;
 	}
 
-	void TAPNQueryParser::SetAST(AST::Query* query){
+	void TAPNQueryParser::setAST(AST::Query* query){
 		ast = query->clone();
 	}
 
-	AST::Query* TAPNQueryParser::GetAST(){
+	AST::Query* TAPNQueryParser::getAST(){
 		return ast;
 	}
 

@@ -12,7 +12,7 @@ namespace VerifyTAPN{
 		class Visitable
 		{
 		public:
-			virtual void Accept(Visitor& visitor, boost::any& context) const = 0;
+			virtual void accept(Visitor& visitor, boost::any& context) const = 0;
 		};
 
 		class Expression : public Visitable
@@ -43,9 +43,9 @@ namespace VerifyTAPN{
 			};
 
 			virtual NotExpression* clone() const;
-			virtual void Accept(Visitor& visitor, boost::any& context) const;
+			virtual void accept(Visitor& visitor, boost::any& context) const;
 
-			const Expression& Child() const { return *expr; }
+			const Expression& getChild() const { return *expr; }
 		private:
 			Expression* expr;
 		};
@@ -57,9 +57,9 @@ namespace VerifyTAPN{
 			virtual ~BoolExpression() { };
 
 			virtual BoolExpression* clone() const;
-			virtual void Accept(Visitor& visitor, boost::any& context) const;
+			virtual void accept(Visitor& visitor, boost::any& context) const;
 
-			bool GetValue() const { return value; };
+			bool getValue() const { return value; };
 		private:
 			bool value;
 		};
@@ -82,11 +82,11 @@ namespace VerifyTAPN{
 			virtual ~AtomicProposition() { };
 
 			virtual AtomicProposition* clone() const;
-			virtual void Accept(Visitor& visitor, boost::any& context) const;
+			virtual void accept(Visitor& visitor, boost::any& context) const;
 
-			const int Place() const { return place; }
-			const std::string& Operator() const { return op; }
-			int N() const { return n; }
+			const int getPlace() const { return place; }
+			const std::string& getOperator() const { return op; }
+			int getNumberOfTokens() const { return n; }
 		private:
 			int place;
 			std::string op;
@@ -116,10 +116,10 @@ namespace VerifyTAPN{
 			}
 
 			virtual AndExpression* clone() const;
-			void Accept(Visitor& visitor, boost::any& context) const;
+			void accept(Visitor& visitor, boost::any& context) const;
 
-			const Expression& Left() const { return *left; }
-			const Expression& Right() const { return *right; }
+			const Expression& getLeft() const { return *left; }
+			const Expression& getRight() const { return *right; }
 		private:
 			Expression* left;
 			Expression* right;
@@ -151,10 +151,10 @@ namespace VerifyTAPN{
 
 
 			virtual OrExpression* clone() const;
-			virtual void Accept(Visitor& visitor, boost::any& context) const;
+			virtual void accept(Visitor& visitor, boost::any& context) const;
 
-			const Expression& Left() const { return *left; }
-			const Expression& Right() const { return *right; }
+			const Expression& getLeft() const { return *left; }
+			const Expression& getRight() const { return *right; }
 		private:
 			Expression* left;
 			Expression* right;
@@ -180,9 +180,9 @@ namespace VerifyTAPN{
 			};
 
 			virtual ParExpression* clone() const;
-			virtual void Accept(Visitor& visitor, boost::any& context) const;
+			virtual void accept(Visitor& visitor, boost::any& context) const;
 
-			const Expression& Child() const { return *expr; }
+			const Expression& getChild() const { return *expr; }
 		private:
 			Expression* expr;
 		};
@@ -206,10 +206,10 @@ namespace VerifyTAPN{
 			virtual ~Query() { if( expr ) delete expr; }
 
 			virtual Query* clone() const;
-			virtual void Accept(Visitor& visitor, boost::any& context) const;
+			virtual void accept(Visitor& visitor, boost::any& context) const;
 
-			Quantifier GetQuantifier() const { return quantifier; }
-			const Expression& Child() const { return *expr; }
+			Quantifier getQuantifier() const { return quantifier; }
+			const Expression& getChild() const { return *expr; }
 		private:
 			Quantifier quantifier;
 			Expression* expr;

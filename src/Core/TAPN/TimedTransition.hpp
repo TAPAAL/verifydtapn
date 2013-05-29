@@ -26,27 +26,27 @@ class SymMarking;
 			virtual ~TimedTransition() { /* empty */ }
 
 		public: // modifiers
-			void AddToPreset(const boost::shared_ptr<TimedInputArc>& arc);
-			void AddToPostset(const boost::shared_ptr<OutputArc>& arc);
-			void AddTransportArcGoingThrough(const boost::shared_ptr<TransportArc>& arc);
-			void AddIncomingInhibitorArc(const boost::shared_ptr<InhibitorArc>& arc);
+			void addToPreset(const boost::shared_ptr<TimedInputArc>& arc);
+			void addToPostset(const boost::shared_ptr<OutputArc>& arc);
+			void addTransportArcGoingThrough(const boost::shared_ptr<TransportArc>& arc);
+			void addIncomingInhibitorArc(const boost::shared_ptr<InhibitorArc>& arc);
 
-			inline void SetIndex(int i) { index = i; };
+			inline void setIndex(int i) { index = i; };
 		public: // inspectors
-			inline const std::string& GetName() const { return name; };
-			inline const std::string& GetId() const { return id; };
-			void Print(std::ostream&) const;
-			inline const TimedInputArc::WeakPtrVector& GetPreset() const { return preset; }
-			inline const TransportArc::WeakPtrVector& GetTransportArcs() const { return transportArcs; }
-			inline const InhibitorArc::WeakPtrVector& GetInhibitorArcs() const { return inhibitorArcs; }
-			inline const unsigned int GetPresetSize() const { return NumberOfInputArcs() + NumberOfTransportArcs(); }
-			inline const OutputArc::WeakPtrVector& GetPostset() const { return postset; }
-			inline const unsigned int GetPostsetSize() const { return postset.size() + transportArcs.size(); }
-			inline unsigned int NumberOfInputArcs() const { return preset.size(); };
-			inline unsigned int NumberOfTransportArcs() const { return transportArcs.size(); };
-		//	bool isEnabledBy(const TimedArcPetriNet& tapn, const VerifyTAPN::SymMarking& marking) const;
+			inline const std::string& getName() const { return name; };
+			inline const std::string& getId() const { return id; };
+			void print(std::ostream&) const;
+			inline const TimedInputArc::WeakPtrVector& getPreset() const { return preset; }
+			inline const TransportArc::WeakPtrVector& getTransportArcs() const { return transportArcs; }
+			inline const InhibitorArc::WeakPtrVector& getInhibitorArcs() const { return inhibitorArcs; }
+			inline const unsigned int getPresetSize() const { return getNumberOfInputArcs() + getNumberOfTransportArcs(); }
+			inline const OutputArc::WeakPtrVector& getPostset() const { return postset; }
+			inline const unsigned int getPostsetSize() const { return postset.size() + transportArcs.size(); }
+			inline unsigned int getNumberOfInputArcs() const { return preset.size(); };
+			inline unsigned int getNumberOfTransportArcs() const { return transportArcs.size(); };
+
 			inline const bool isConservative() const { return preset.size() == postset.size(); }
-			inline unsigned int GetIndex() const { return index; }
+			inline unsigned int getIndex() const { return index; }
 			inline const bool hasUntimedPostset() const { return untimedPostset; }
 			inline void setUntimedPostset(bool untimed){ untimedPostset = untimed; }
                         inline const bool isUrgent() const {
@@ -67,7 +67,7 @@ class SymMarking;
 
 		inline std::ostream& operator<<(std::ostream& out, const TimedTransition& transition)
 		{
-			transition.Print(out);
+			transition.print(out);
 			return out;
 		}
 
@@ -75,7 +75,7 @@ class SymMarking;
 		// thus it is enough to use the name to determine equality.
 		inline bool operator==(TimedTransition const& a, TimedTransition const& b)
 		{
-			return a.GetName() == b.GetName();
+			return a.getName() == b.getName();
 		}
 	}
 }

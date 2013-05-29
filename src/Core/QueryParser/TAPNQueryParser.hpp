@@ -31,17 +31,18 @@ namespace VerifyTAPN
 
 	public:
 		int parse(const std::string& file);
-		void SetAST(VerifyTAPN::AST::Query* ast);
-		AST::Query* GetAST();
+		void setAST(VerifyTAPN::AST::Query* ast);
+		AST::Query* getAST();
 
-		const VerifyTAPN::TAPN::TimedArcPetriNet& tapn() { return net; };
+		const VerifyTAPN::TAPN::TimedArcPetriNet& getTAPN() { return net; };
 
 	public: // error handling
 		void error(const location& l, const std::string& m);
 		void error(const std::string& m);
 
-	public:
+                // must be public for the generated lexer and parser to work!
 		std::string file;
+        private:
 		VerifyTAPN::AST::Query* ast;
 		const VerifyTAPN::TAPN::TimedArcPetriNet& net;
 	};

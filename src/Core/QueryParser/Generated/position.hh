@@ -1,8 +1,8 @@
-/* A Bison parser, made by GNU Bison 2.6.5.  */
+/* A Bison parser, made by GNU Bison 2.7.12-4996.  */
 
 /* Positions for Bison parsers in C++
    
-      Copyright (C) 2002-2007, 2009-2012 Free Software Foundation, Inc.
+      Copyright (C) 2002-2007, 2009-2013 Free Software Foundation, Inc.
    
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -50,10 +50,10 @@
 #  endif
 # endif
 
-/* Line 38 of location.cc  */
+/* Line 36 of location.cc  */
 #line 5 "Core/QueryParser/grammar.yy"
 namespace VerifyTAPN {
-/* Line 38 of location.cc  */
+/* Line 36 of location.cc  */
 #line 58 "Core/QueryParser/Generated/position.hh"
   /// Abstract a position.
   class position
@@ -157,17 +157,18 @@ namespace VerifyTAPN {
    ** \param ostr the destination output stream
    ** \param pos a reference to the position to redirect
    */
-  inline std::ostream&
-  operator<< (std::ostream& ostr, const position& pos)
+  template <typename YYChar>
+  inline std::basic_ostream<YYChar>&
+  operator<< (std::basic_ostream<YYChar>& ostr, const position& pos)
   {
     if (pos.filename)
       ostr << *pos.filename << ':';
     return ostr << pos.line << '.' << pos.column;
   }
 
-/* Line 149 of location.cc  */
+/* Line 148 of location.cc  */
 #line 5 "Core/QueryParser/grammar.yy"
 } // VerifyTAPN
-/* Line 149 of location.cc  */
-#line 173 "Core/QueryParser/Generated/position.hh"
+/* Line 148 of location.cc  */
+#line 174 "Core/QueryParser/Generated/position.hh"
 #endif /* !YY_YY_CORE_QUERYPARSER_GENERATED_POSITION_HH_INCLUDED  */

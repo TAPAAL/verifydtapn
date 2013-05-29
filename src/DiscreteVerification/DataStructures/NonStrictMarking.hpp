@@ -33,7 +33,7 @@ namespace DiscreteVerification {
     
     // ugly forward declaration
     template<class MetaData>
-    class EncodingPointer;
+    struct EncodingPointer;
     
     struct MetaDataWithTraceAndEncoding : public MetaDataWithTrace {
         EncodingPointer<MetaData>* ep;

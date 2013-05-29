@@ -20,14 +20,14 @@ LivenessSearch::LivenessSearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, 
 
 }
 
-bool LivenessSearch::Verify(){
+bool LivenessSearch::verify(){
 	if(addToPW(&initialMarking, NULL)){
 		return true;
 	}
 
 	//Main loop
-	while(pwList->HasWaitingStates()){
-		NonStrictMarking& next_marking = *pwList->GetNextUnexplored();
+	while(pwList->hasWaitingStates()){
+		NonStrictMarking& next_marking = *pwList->getNextUnexplored();
                 tmpParent = &next_marking;
 		bool endOfMaxRun = true;
 		if(!next_marking.meta->passed){
@@ -49,7 +49,7 @@ bool LivenessSearch::Verify(){
 			if(!noDelay && isDelayPossible(next_marking)){
 				NonStrictMarking* marking = new NonStrictMarking(next_marking);
 				marking->incrementAge();
-				marking->SetGeneratedBy(NULL);
+				marking->setGeneratedBy(NULL);
                                 if(addToPW(marking, &next_marking)){
                                         return true;
                                 }
@@ -69,7 +69,7 @@ bool LivenessSearch::Verify(){
 			return true;
 		}
 		if(validChildren == 0){
-			while(!trace.empty() && trace.top()->children <= 1){
+			while(!trace.empty() && trace.top()->getNumberOfChildren() <= 1){
 				trace.top()->meta->inTrace = false;
                                 deleteMarking(trace.top());
 				trace.pop();
@@ -77,9 +77,9 @@ bool LivenessSearch::Verify(){
 			if(trace.empty()){
                             return false;
                         }
-			trace.top()->children--;
+                        trace.top()->decrementNumberOfChildren();
 		}else{
-			next_marking.children = validChildren;
+			next_marking.setNumberOfChildren(validChildren);
 
 		}
 	}
@@ -88,14 +88,14 @@ bool LivenessSearch::Verify(){
 }
 
 bool LivenessSearch::isDelayPossible(NonStrictMarking& marking){
-	PlaceList& places = marking.places;
+	const PlaceList& places = marking.getPlaceList();
 	if(places.size() == 0) return true;	//Delay always possible in empty markings
 
 	PlaceList::const_iterator markedPlace_iter = places.begin();
-	for(TAPN::TimedPlace::Vector::const_iterator place_iter = tapn->GetPlaces().begin(); place_iter != tapn->GetPlaces().end(); place_iter++){
-		int inv = place_iter->get()->GetInvariant().GetBound();
+	for(TAPN::TimedPlace::Vector::const_iterator place_iter = tapn->getPlaces().begin(); place_iter != tapn->getPlaces().end(); place_iter++){
+		int inv = place_iter->get()->getInvariant().getBound();
 		if(*(place_iter->get()) == *(markedPlace_iter->place)){
-			if(markedPlace_iter->MaxTokenAge() > inv-1){
+			if(markedPlace_iter->maxTokenAge() > inv-1){
 				return false;
 			}
 
@@ -110,25 +110,25 @@ bool LivenessSearch::isDelayPossible(NonStrictMarking& marking){
 
 bool LivenessSearch::addToPW(NonStrictMarking* marking, NonStrictMarking* parent){
 	marking->cut();
-	marking->SetParent(parent);
+	marking->setParent(parent);
 	unsigned int size = marking->size();
 
-	pwList->SetMaxNumTokensIfGreater(size);
+	pwList->setMaxNumTokensIfGreater(size);
 
-	if(size > options.GetKBound()) {
+	if(size > options.getKBound()) {
 		delete marking;
 		return false;
 	}
 
 	QueryVisitor<NonStrictMarking> checker(*marking);
 	boost::any context;
-	query->Accept(checker, context);
+	query->accept(checker, context);
 	if(!boost::any_cast<bool>(context))	return false;
-	if(!pwList->Add(marking)){
+	if(!pwList->add(marking)){
 		//Test if collision is in trace
             if(marking->meta->inTrace){
                     //Make sure we can print trace
-                    marking->children = 1;
+                    marking->setNumberOfChildren(1);
                     trace.push(marking);
                     return true;
             }else{
@@ -144,18 +144,18 @@ bool LivenessSearch::addToPW(NonStrictMarking* marking, NonStrictMarking* parent
 
 void LivenessSearch::printStats(){
 	std::cout << "  discovered markings:\t" << pwList->discoveredMarkings << std::endl;
-	std::cout << "  explored markings:\t" << pwList->Size()-pwList->Explored() << std::endl;
-	std::cout << "  stored markings:\t" << pwList->Size() << std::endl;
+	std::cout << "  explored markings:\t" << pwList->size()-pwList->explored() << std::endl;
+	std::cout << "  stored markings:\t" << pwList->size() << std::endl;
 }
 
-void LivenessSearch::GetTrace(){
+void LivenessSearch::getTrace(){
 	stack < NonStrictMarking*> printStack;
 	NonStrictMarking* m = trace.top();
-	GenerateTraceStack(m, &printStack, &trace);
-	if(options.XmlTrace()){
-		PrintXMLTrace(m, printStack, query->GetQuantifier());
+	generateTraceStack(m, &printStack, &trace);
+	if(options.getXmlTrace()){
+		printXMLTrace(m, printStack, query->getQuantifier());
 	} else {
-		PrintHumanTrace(m, printStack, query->GetQuantifier());
+		printHumanTrace(m, printStack, query->getQuantifier());
 	}
 }
 

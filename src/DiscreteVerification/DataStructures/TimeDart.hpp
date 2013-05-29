@@ -9,7 +9,7 @@
 #define TIMEDART_HPP_
 
 #include "NonStrictMarking.hpp"
-#include "PData.h"
+#include "PTrie.h"
 
 namespace VerifyTAPN {
 namespace DiscreteVerification {

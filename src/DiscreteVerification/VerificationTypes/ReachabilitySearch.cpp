@@ -20,14 +20,14 @@ ReachabilitySearch::ReachabilitySearch(boost::shared_ptr<TAPN::TimedArcPetriNet>
 
 }
 
-bool ReachabilitySearch::Verify(){
+bool ReachabilitySearch::verify(){
 	if(addToPW(&initialMarking, NULL)){
 		return true;
 	}
 
 	//Main loop
-	while(pwList->HasWaitingStates()){
-		NonStrictMarking& next_marking = *pwList->GetNextUnexplored();
+	while(pwList->hasWaitingStates()){
+		NonStrictMarking& next_marking = *pwList->getNextUnexplored();
                 tmpParent = &next_marking;
 		trace.push(&next_marking);
 		validChildren = 0;
@@ -44,7 +44,7 @@ bool ReachabilitySearch::Verify(){
 		if(!noDelay && isDelayPossible(next_marking)){
 			NonStrictMarking* marking = new NonStrictMarking(next_marking);
 			marking->incrementAge();
-			marking->SetGeneratedBy(NULL);
+			marking->setGeneratedBy(NULL);
                         if(addToPW(marking, &next_marking)){
                             return true;
                         }
@@ -57,14 +57,14 @@ bool ReachabilitySearch::Verify(){
 }
 
 bool ReachabilitySearch::isDelayPossible(NonStrictMarking& marking){
-	PlaceList& places = marking.places;
+	const PlaceList& places = marking.getPlaceList();
 	if(places.size() == 0) return true;	//Delay always possible in empty markings
 
 	PlaceList::const_iterator markedPlace_iter = places.begin();
-	for(TAPN::TimedPlace::Vector::const_iterator place_iter = tapn->GetPlaces().begin(); place_iter != tapn->GetPlaces().end(); place_iter++){
-		int inv = place_iter->get()->GetInvariant().GetBound();
+	for(TAPN::TimedPlace::Vector::const_iterator place_iter = tapn->getPlaces().begin(); place_iter != tapn->getPlaces().end(); place_iter++){
+		int inv = place_iter->get()->getInvariant().getBound();
 		if(*(place_iter->get()) == *(markedPlace_iter->place)){
-			if(markedPlace_iter->MaxTokenAge() > inv-1){
+			if(markedPlace_iter->maxTokenAge() > inv-1){
 				return false;
 			}
 
@@ -79,21 +79,21 @@ bool ReachabilitySearch::isDelayPossible(NonStrictMarking& marking){
 
 bool ReachabilitySearch::addToPW(NonStrictMarking* marking, NonStrictMarking* parent){
 	marking->cut();
-	marking->SetParent(parent);
+	marking->setParent(parent);
 
 	unsigned int size = marking->size();
 
-	pwList->SetMaxNumTokensIfGreater(size);
+	pwList->setMaxNumTokensIfGreater(size);
 
-	if(size > options.GetKBound()) {
+	if(size > options.getKBound()) {
 		delete marking;
 		return false;
 	}
 
-	if(pwList->Add(marking)){
+	if(pwList->add(marking)){
 		QueryVisitor<NonStrictMarking> checker(*marking);
 		boost::any context;
-		query->Accept(checker, context);
+		query->accept(checker, context);
 		if(boost::any_cast<bool>(context)) {
 			lastMarking = marking;
 			return true;
@@ -110,35 +110,35 @@ bool ReachabilitySearch::addToPW(NonStrictMarking* marking, NonStrictMarking* pa
 
 void ReachabilitySearch::printStats(){
 	std::cout << "  discovered markings:\t" << pwList->discoveredMarkings << std::endl;
-	std::cout << "  explored markings:\t" << pwList->Size()-pwList->Explored() << std::endl;
-	std::cout << "  stored markings:\t" << pwList->Size() << std::endl;
+	std::cout << "  explored markings:\t" << pwList->size()-pwList->explored() << std::endl;
+	std::cout << "  stored markings:\t" << pwList->size() << std::endl;
 }
 
-void ReachabilitySearch::GetTrace(){
+void ReachabilitySearch::getTrace(){
 	stack < NonStrictMarking*> printStack;
-	GenerateTraceStack(lastMarking, &printStack);
-	if(options.XmlTrace()){
-		PrintXMLTrace(lastMarking, printStack, query->GetQuantifier());
+	generateTraceStack(lastMarking, &printStack);
+	if(options.getXmlTrace()){
+		printXMLTrace(lastMarking, printStack, query->getQuantifier());
 	} else {
-		PrintHumanTrace(lastMarking, printStack, query->GetQuantifier());
+		printHumanTrace(lastMarking, printStack, query->getQuantifier());
 	}
 }
 
-void ReachabilitySearchPTrie::GetTrace(){
+void ReachabilitySearchPTrie::getTrace(){
 	stack < NonStrictMarking*> printStack;
         PWListHybrid* pwhlist = (PWListHybrid*)(this->pwList);
         MetaDataWithTraceAndEncoding* next = pwhlist->parent;
         NonStrictMarking* last = lastMarking;
         printStack.push(lastMarking);
         while(next != NULL){
-            NonStrictMarking* m = pwhlist->Decode(next->ep);
-            m->generatedBy = next->generatedBy;
-            last->parent = m;
+            NonStrictMarking* m = pwhlist->decode(next->ep);
+            m->setGeneratedBy(next->generatedBy);
+            last->setParent(m);
             last = m;
             printStack.push(m);
             next = next->parent;
         };
-        PrintXMLTrace(lastMarking, printStack, query->GetQuantifier());
+        printXMLTrace(lastMarking, printStack, query->getQuantifier());
 }
 
 ReachabilitySearch::~ReachabilitySearch() {

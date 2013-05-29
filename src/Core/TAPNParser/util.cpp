@@ -3,7 +3,7 @@
 
 namespace VerifyTAPN
 {
-	const std::string ReadFile(const std::string& filename)
+	const std::string readFile(const std::string& filename)
 	{
 		std::ifstream file (filename.c_str());
 		if(!file){

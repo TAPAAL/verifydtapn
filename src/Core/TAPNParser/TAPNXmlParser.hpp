@@ -27,27 +27,27 @@ namespace VerifyTAPN {
 		virtual ~TAPNXmlParser() { /* empty */ };
 
 	public:
-		boost::shared_ptr<TimedArcPetriNet> Parse(const std::string & filename) const;
-		std::vector<int> ParseMarking(const std::string & filename, const TimedArcPetriNet& tapn) const;
+		boost::shared_ptr<TimedArcPetriNet> parse(const std::string & filename) const;
+		std::vector<int> parseMarking(const std::string & filename, const TimedArcPetriNet& tapn) const;
 	private:
-		boost::shared_ptr<TimedArcPetriNet> ParseTAPN(const rapidxml::xml_node<> & root) const;
+		boost::shared_ptr<TimedArcPetriNet> parseTAPN(const rapidxml::xml_node<> & root) const;
 
-		TimedPlace::Vector ParsePlaces(const rapidxml::xml_node<>& root) const;
-		boost::shared_ptr<TimedPlace> ParsePlace(const rapidxml::xml_node<>& placeNode) const;
+		TimedPlace::Vector parsePlaces(const rapidxml::xml_node<>& root) const;
+		boost::shared_ptr<TimedPlace> parsePlace(const rapidxml::xml_node<>& placeNode) const;
 
-		TimedTransition::Vector ParseTransitions(const rapidxml::xml_node<>& root) const;
-		boost::shared_ptr<TimedTransition> ParseTransition(const rapidxml::xml_node<>& transitionNode) const;
+		TimedTransition::Vector parseTransitions(const rapidxml::xml_node<>& root) const;
+		boost::shared_ptr<TimedTransition> parseTransition(const rapidxml::xml_node<>& transitionNode) const;
 
-		ArcCollections ParseArcs(const rapidxml::xml_node<>& root, const TimedPlace::Vector& places, const TimedTransition::Vector& transitions) const;
-		TransportArc::Vector ParseTransportArcs(const rapidxml::xml_node<>& root, const TimedPlace::Vector& places, const TimedTransition::Vector& transitions) const;
-		InhibitorArc::Vector ParseInhibitorArcs(const rapidxml::xml_node<>& root, const TimedPlace::Vector& places, const TimedTransition::Vector& transitions) const;
-		TimedInputArc::Vector ParseInputArcs(const rapidxml::xml_node<>& root, const TimedPlace::Vector& places, const TimedTransition::Vector& transitions) const;
-		OutputArc::Vector ParseOutputArcs(const rapidxml::xml_node<>& root, const TimedPlace::Vector& places, const TimedTransition::Vector& transitions) const;
-		boost::shared_ptr<TimedInputArc> ParseInputArc(const rapidxml::xml_node<>& arcNode, const TimedPlace::Vector& places, const TimedTransition::Vector& transitions) const;
-		boost::shared_ptr<InhibitorArc> ParseInhibitorArc(const rapidxml::xml_node<>& arcNode, const TimedPlace::Vector& places, const TimedTransition::Vector& transitions) const;
-		boost::shared_ptr<TransportArc> ParseTransportArc(const rapidxml::xml_node<>& arcNode, const TimedPlace::Vector& places, const TimedTransition::Vector& transitions) const;
-		boost::shared_ptr<OutputArc> ParseOutputArc(const rapidxml::xml_node<>& arcNode, const TimedPlace::Vector& places, const TimedTransition::Vector& transitions) const;
-		std::vector<int> ParseInitialMarking(const rapidxml::xml_node<>& root, const TimedArcPetriNet& tapn) const;
+		ArcCollections parseArcs(const rapidxml::xml_node<>& root, const TimedPlace::Vector& places, const TimedTransition::Vector& transitions) const;
+		TransportArc::Vector parseTransportArcs(const rapidxml::xml_node<>& root, const TimedPlace::Vector& places, const TimedTransition::Vector& transitions) const;
+		InhibitorArc::Vector parseInhibitorArcs(const rapidxml::xml_node<>& root, const TimedPlace::Vector& places, const TimedTransition::Vector& transitions) const;
+		TimedInputArc::Vector parseInputArcs(const rapidxml::xml_node<>& root, const TimedPlace::Vector& places, const TimedTransition::Vector& transitions) const;
+		OutputArc::Vector parseOutputArcs(const rapidxml::xml_node<>& root, const TimedPlace::Vector& places, const TimedTransition::Vector& transitions) const;
+		boost::shared_ptr<TimedInputArc> parseInputArc(const rapidxml::xml_node<>& arcNode, const TimedPlace::Vector& places, const TimedTransition::Vector& transitions) const;
+		boost::shared_ptr<InhibitorArc> parseInhibitorArc(const rapidxml::xml_node<>& arcNode, const TimedPlace::Vector& places, const TimedTransition::Vector& transitions) const;
+		boost::shared_ptr<TransportArc> parseTransportArc(const rapidxml::xml_node<>& arcNode, const TimedPlace::Vector& places, const TimedTransition::Vector& transitions) const;
+		boost::shared_ptr<OutputArc> parseOutputArc(const rapidxml::xml_node<>& arcNode, const TimedPlace::Vector& places, const TimedTransition::Vector& transitions) const;
+		std::vector<int> parseInitialMarking(const rapidxml::xml_node<>& root, const TimedArcPetriNet& tapn) const;
 	};
 }
 
