@@ -15,52 +15,52 @@ namespace VerifyTAPN {
 namespace DiscreteVerification {
 
 template <class T>
-WaitingList<T>* GetWaitingList(AST::Query* query, VerificationOptions& options){
+WaitingList<T>* getWaitingList(AST::Query* query, VerificationOptions& options){
 	WaitingList<T>* strategy = NULL;
-	if(query->GetQuantifier() == EG || query->GetQuantifier() == AF){
+	if(query->getQuantifier() == EG || query->getQuantifier() == AF){
 		//Liveness query, force DFS
-		switch(options.GetSearchType()){
-		case DEPTHFIRST: {
+		switch(options.getSearchType()){
+		case VerificationOptions::DEPTHFIRST: {
 			NonStrictDFS<T> s;
-			strategy = s.CreateWaitingList(query);
+			strategy = s.createWaitingList(query);
 			break;
 		}
-		case RANDOM:{
+		case VerificationOptions::RANDOM:{
 			NonStrictDFSRandom<T> s;
-			strategy = s.CreateWaitingList(query);
+			strategy = s.createWaitingList(query);
 			break;
 		}
-		case COVERMOST: {
+		case VerificationOptions::COVERMOST: {
 			NonStrictDFSHeuristic<T> s;
-			strategy = s.CreateWaitingList(query);
+			strategy = s.createWaitingList(query);
 			break;
 		}
 		default: {
 			NonStrictDFSHeuristic<T> s;
-			strategy = s.CreateWaitingList(query);
+			strategy = s.createWaitingList(query);
 			break;
 		}
 		}
-	}else if(query->GetQuantifier() == EF || query->GetQuantifier() == AG){
-		switch(options.GetSearchType()){
-		case DEPTHFIRST: {
+	}else if(query->getQuantifier() == EF || query->getQuantifier() == AG){
+		switch(options.getSearchType()){
+		case VerificationOptions::DEPTHFIRST: {
 			NonStrictDFS<T> s;
-			strategy = s.CreateWaitingList(query);
+			strategy = s.createWaitingList(query);
 			break;
 		}
-		case COVERMOST: {
+		case VerificationOptions::COVERMOST: {
 			NonStrictHeuristic<T> s;
-			strategy = s.CreateWaitingList(query);
+			strategy = s.createWaitingList(query);
 			break;
 		}
-		case BREADTHFIRST: {
+		case VerificationOptions::BREADTHFIRST: {
 			NonStrictBFS<T> s;
-			strategy = s.CreateWaitingList(query);
+			strategy = s.createWaitingList(query);
 			break;
 		}
-		case RANDOM: {
+		case VerificationOptions::RANDOM: {
 			NonStrictDFSRandom<T> s;
-			strategy = s.CreateWaitingList(query);
+			strategy = s.createWaitingList(query);
 			break;
 		}
 		}

@@ -38,13 +38,17 @@ namespace VerifyTAPN {
                 pwList = new TimeDartLivenessPWHashMap( options, waiting_list);
             };
             virtual ~TimeDartLiveness();
-            bool Verify();
+            bool verify();
 
-            inline unsigned int MaxUsedTokens() {
+            inline unsigned int maxUsedTokens() {
                 return pwList->maxNumTokensInAnyMarking;
             };
-
+            virtual inline bool addToPW(NonStrictMarkingBase* m){
+                return addToPW(m,tmpdart, tmpupper);
+            };
         protected:
+            WaitingDart* tmpdart;
+            int tmpupper;
             bool addToPW(NonStrictMarkingBase* marking, WaitingDart* parent, int upper);
             bool canDelayForever(NonStrictMarkingBase* marking);
 
@@ -66,10 +70,12 @@ namespace VerifyTAPN {
 
             TimeDartLivenessPData(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarkingBase& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<EncodingPointer<WaitingDart> >* waiting_list)
             : TimeDartLiveness(tapn, initialMarking, query, options) {
-                pwList = new TimeDartLivenessPWPData(options, waiting_list, tapn, tapn->NumberOfPlaces(), tapn->MaxConstant());
+                pwList = new TimeDartLivenessPWPData(options, waiting_list, tapn, tapn->getNumberOfPlaces(), tapn->getMaxConstant());
             };
-        protected:
 
+        protected:
+            WaitingDart* tmpdart;
+            int tmpupper;
             virtual inline void deleteBase(NonStrictMarkingBase* base) {
                 delete base;
             };
@@ -77,7 +83,7 @@ namespace VerifyTAPN {
             virtual inline NonStrictMarkingBase* getBase(TimeDartBase* dart){
                 EncodedLivenessDart* eld = (EncodedLivenessDart*)dart;
                 EncodingPointer<LivenessDart>* ep = (EncodingPointer<LivenessDart>*)(eld->encoding);
-                return ((TimeDartLivenessPWPData*)pwList)->Decode(ep);
+                return ((TimeDartLivenessPWPData*)pwList)->decode(ep);
             };
         };
 

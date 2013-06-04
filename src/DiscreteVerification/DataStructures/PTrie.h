@@ -29,12 +29,12 @@ namespace VerifyTAPN {
             
             // Construct a pointer with enough (persistent) data to recreate the marking. 
             // The encoding is cloned as it is not persistant in the PTrie
-            EncodingPointer(EncodingStructure<T*> &en, unsigned int n) : encoding(en.Clone()), node(n) {
+            EncodingPointer(EncodingStructure<T*> &en, unsigned int n) : encoding(en.clone()), node(n) {
             }
         };
         
         template<typename T>
-        class PData {
+        class PTrie {
         public:
             typedef unsigned int uint;
             typedef EncodingStructure<T*> MarkingEncoding;
@@ -48,46 +48,45 @@ namespace VerifyTAPN {
                 };
             };
 
-
-            PData(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, int knumber, int nplaces, int mage) :
-            k(knumber),
-            maxAge(mage + 1),
-            numberOfPlaces(nplaces),
-            countSize(ceil(log2((knumber ? knumber : 1)) + 1)),
-            enumeratedOffset(ceil(log2((nplaces * (mage + 1))) + 1) + countSize),
-            numberOfVariables(enumeratedOffset * (knumber ? knumber : 1)),
-            cachesize(128),
-            tapn(tapn) {
-                overhead = MarkingEncoding::Overhead(this->numberOfVariables);
-                this->numberOfVariables += overhead;
-                stored = 0;
-                bddsize = cachesize;
-                this->BDDArr.push_back(new PNode[this->bddsize]);
-                memset(this->BDDArr[0], 0xffffffff, this->bddsize * sizeof (PNode));
-                BDDArr[0][0].shadow = NULL;
-                BDDArr[0][0].highCount = BDDArr[0][0].lowCount = 0;
-                BDDArr[0][0].lowpos = BDDArr[0][0].highpos = 0;
-                BDDArr[0][0].parent = 0;
-                bddnext = 1;
-                encoding = MarkingEncoding(this->numberOfVariables);
-                listcount = 0;
-                maxCount = sizeof (PNode) * 4 + sizeof (std::list<PNode>) * 4;
-
-            };
-            virtual ~PData();
-
-            uint maxCount;
-
             struct PNode {
-                MarkingEncoding* shadow;
+                MarkingEncoding* data;
                 uint highpos;
-
                 uint lowpos;
-
                 short int highCount;
                 short int lowCount;
                 uint parent;
             };
+
+
+            PTrie(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, int knumber, int nplaces, int mage) :
+            maxNumberOfTokens(knumber),
+            maxAge(mage + 1),
+            numberOfPlaces(nplaces),
+            countBitSize(ceil(log2((knumber ? knumber : 1)) + 1)),
+            offsetBitSize(ceil(log2((nplaces * (mage + 1))) + 1) + countBitSize),
+            markingBitSize(offsetBitSize * (knumber ? knumber : 1)),
+            blockSize(128),
+            tapn(tapn) {
+                overhead = MarkingEncoding::overhead(this->markingBitSize);
+                this->markingBitSize += overhead;
+                stored = 0;
+                totalSize = blockSize;
+                this->pnodeArray.push_back(new PNode[this->totalSize]);
+                memset(this->pnodeArray[0], 0xffffffff, this->totalSize * sizeof (PNode));
+                pnodeArray[0][0].data = NULL;
+                pnodeArray[0][0].highCount = pnodeArray[0][0].lowCount = 0;
+                pnodeArray[0][0].lowpos = pnodeArray[0][0].highpos = 0;
+                pnodeArray[0][0].parent = 0;
+                nextFree = 1;
+                encoding = MarkingEncoding(this->markingBitSize);
+                blockCount = 0;
+                splitThreshold = sizeof (PNode) * 8;
+                //+ sizeof (std::list<PNode, allocator<PNode> >) * 4;
+
+            };
+            virtual ~PTrie();
+
+            uint splitThreshold;
 
             bool search(MarkingEncoding* arr, MarkingEncoding en, int size) {
                 for (int i = 0; i < size; i++) {
@@ -96,141 +95,128 @@ namespace VerifyTAPN {
                 }
                 return false;
             }
-            /*            bool equal(MarkingEncoding* arr, EncodingList* lst){
-                            EncodingList::const_iterator it = lst->begin();
-                            while(it != lst->end()){
-                                if(!search(arr, *it, lst->size()))
-                                    return false;
-                                it++;
-                            }
-                            return true;
-                        }*/
 
-            Result Add(NonStrictMarkingBase* marking);
+            Result add(NonStrictMarkingBase* marking);
 
             unsigned int size() {
                 return stored;
             }
-            void PrintMemStats();
-            void PrintEncoding(bool* encoding, int length);
+            void printMemStats();
+            void printEncoding(bool* encoding, int length);
 
-            inline PNode* FetchNode(uint i) {
-                return &BDDArr[i / cachesize][i % cachesize];
+            inline PNode* fetchNode(uint i) {
+                return &pnodeArray[i / blockSize][i % blockSize];
             }
-            NonStrictMarkingBase* EnumerateDecode(const EncodingPointer<T>& pointer);
+            NonStrictMarkingBase* enumerateDecode(const EncodingPointer<T>& pointer);
 
-            int EnumeratedEncoding(NonStrictMarkingBase* marking);
-            const uint k;
+            int enumeratedEncoding(NonStrictMarkingBase* marking);
+            const uint maxNumberOfTokens;
             const uint maxAge;
             const uint numberOfPlaces;
-            const uint countSize;
-            const uint enumeratedOffset;
-            uint numberOfVariables;
-            const uint cachesize;
+            const uint countBitSize;
+            const uint offsetBitSize;
+            uint markingBitSize;
+            const uint blockSize;
 
             boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn;
 
             MarkingEncoding encoding;
-            vector<PNode*> BDDArr;
-            uint bddsize;
+            vector<PNode*> pnodeArray;
+            uint totalSize;
             uint stored;
-            uint bddnext;
+            uint nextFree;
             uint overhead;
-            uint listcount;
+            uint blockCount;
         };
 
         template<typename T>
-        PData<T>::~PData() {
+        PTrie<T>::~PTrie() {
         }
 
 
         template<typename T>
-        int PData<T>::EnumeratedEncoding(NonStrictMarkingBase* marking) {
-            encoding.Zero();
+        int PTrie<T>::enumeratedEncoding(NonStrictMarkingBase* marking) {
+            encoding.zero();
 
             int tc = 0;
             uint bitcount = 0;
 
-            for (vector<Place>::const_iterator pi = marking->places.begin();
-                    pi != marking->places.end();
+            for (vector<Place>::const_iterator pi = marking->getPlaceList().begin();
+                    pi != marking->getPlaceList().end();
                     pi++) { // for each place
 
-                int pc = pi->place->GetIndex();
+                int pc = pi->place->getIndex();
 
                 for (TokenList::const_iterator ti = pi->tokens.begin(); // for each token-element
                         ti != pi->tokens.end();
                         ti++) {
 
-                    //                   for (int i = 0; i < ti->getCount(); i++) // for each ACTUAL token
-                    //                   {
-                    int offset = tc * this->enumeratedOffset; // the offset of the variables for this token
+
+                    int offset = tc * this->offsetBitSize; // the offset of the variables for this token
                     uint number = ti->getCount();
                     bitcount = 0;
                     while (number) { // set the vars while there are bits left
                         if (number & 1) {
-                            this->encoding.Set(overhead + offset + bitcount, true);
+                            this->encoding.set(overhead + offset + bitcount, true);
                         }
                         bitcount++;
                         number = number >> 1;
                     }
                     uint pos = pc + this->numberOfPlaces * ti->getAge(); // the enumerated configuration of the token
-                    bitcount = countSize;
+                    bitcount = countBitSize;
                     /* binary */
                     while (pos) { // set the vars while there are bits left
                         if (pos & 1) {
-                            this->encoding.Set(overhead + offset + bitcount, true);
+                            this->encoding.set(overhead + offset + bitcount, true);
                         }
                         bitcount++;
                         pos = pos >> 1;
                     }
                     tc++;
-                    //                    }
-
                 }
             }
             if (tc == 0)
                 return 0;
             else
-                return ((tc - 1) * this->enumeratedOffset) + bitcount;
+                return ((tc - 1) * this->offsetBitSize) + bitcount;
         }
 
         template<typename T>
-        NonStrictMarkingBase* PData<T>::EnumerateDecode(const EncodingPointer<T> &pointer) {
+        NonStrictMarkingBase* PTrie<T>::enumerateDecode(const EncodingPointer<T> &pointer) {
             NonStrictMarkingBase* m = new NonStrictMarkingBase();
-            this->encoding.Zero();
+            this->encoding.zero();
 
             uint var = 0;
             uint n = pointer.node;
             while (n) {
-                n = FetchNode(n)->parent;
+                n = fetchNode(n)->parent;
                 var++;
             }
             var += this->overhead;
 
-            //            m->meta = pointer.encoding.GetMetaData();
-            this->encoding.Copy(pointer.encoding, var);
+            this->encoding.copy(pointer.encoding, var);
             uint nbits = (var - (var % 8)) + pointer.encoding.Size()*8;
             uint self = pointer.node;
 
             while (self) {
                 var--;
-                n = FetchNode(self)->parent;
-                bool branch = FetchNode(n)->highpos == self;
-                this->encoding.Set(var, branch);
+                n = fetchNode(self)->parent;
+                bool branch = fetchNode(n)->highpos == self;
+                this->encoding.set(var, branch);
                 self = n;
 
             }
 
-            var = this->numberOfVariables - 1;
+            var = this->markingBitSize - 1;
             // foreach token
             uint data = 0;
             uint count = 0;
-            for (int i = this->k - 1; i >= 0; i--) {
-                uint offset = (this->enumeratedOffset * i) + this->overhead + this->countSize;
+            for (int i = this->maxNumberOfTokens - 1; i >= 0; i--) {
+                uint offset = (this->offsetBitSize * i) + this->overhead + this->countBitSize;
                 while (nbits >= offset) {
                     data = data << 1;
 
-                    if (encoding.At(nbits)) {
+                    if (encoding.at(nbits)) {
                         data = data | 1;
                     }
                     if (nbits == 0) {
@@ -238,11 +224,11 @@ namespace VerifyTAPN {
                     }
                     nbits--;
                 }
-                offset -= this->countSize;
+                offset -= this->countBitSize;
                 while (nbits >= offset) {
                     count = count << 1;
 
-                    if (encoding.At(nbits)) {
+                    if (encoding.at(nbits)) {
                         count = count | 1;
                     }
                     if (nbits == 0) {
@@ -255,7 +241,7 @@ namespace VerifyTAPN {
                     int age = floor(data / this->numberOfPlaces);
                     uint place = (data % this->numberOfPlaces);
                     Token t = Token(age, count);
-                    m->AddTokenInPlace(tapn->GetPlace(place), t);
+                    m->addTokenInPlace(tapn->getPlace(place), t);
                     data = 0;
                     count = 0;
                 }
@@ -264,21 +250,21 @@ namespace VerifyTAPN {
         }
 
         template<typename T>
-        typename PData<T>::Result PData<T>::Add(NonStrictMarkingBase* marking) {
+        typename PTrie<T>::Result PTrie<T>::add(NonStrictMarkingBase* marking) {
 
-            int encsize = this->EnumeratedEncoding(marking) + overhead;
-            // go through the BDD as far as possible with the encoding of the marking
+            int encsize = this->enumeratedEncoding(marking) + overhead;
+            // go through the PTrie as far as possible with the encoding of the marking
             uint c_count = 0;
             uint prev_count = 0;
             int var = overhead;
             do {
 
                 prev_count = c_count;
-                if (encoding.At(var)) {
-                    c_count = BDDArr[c_count / cachesize][c_count % cachesize].highpos;
+                if (encoding.at(var)) {
+                    c_count = pnodeArray[c_count / blockSize][c_count % blockSize].highpos;
 
                 } else {
-                    c_count = BDDArr[c_count / cachesize][c_count % cachesize].lowpos;
+                    c_count = pnodeArray[c_count / blockSize][c_count % blockSize].lowpos;
                 }
 
                 var++;
@@ -286,7 +272,7 @@ namespace VerifyTAPN {
             } while (c_count != 0);
             var--;
 
-            PNode* prev_node = FetchNode(prev_count);
+            PNode* prev_node = fetchNode(prev_count);
 
             int listsize = 0;
             if (prev_node->highCount >= 0) {
@@ -296,18 +282,18 @@ namespace VerifyTAPN {
                 listsize += prev_node->lowCount;
             }
 
-            int size = this->numberOfVariables - var;
-            MarkingEncoding en = MarkingEncoding(encoding.GetRaw(), size, var, encsize);
+            int size = this->markingBitSize - var;
+            MarkingEncoding en = MarkingEncoding(encoding.getRaw(), size, var, encsize);
 
             int ins = 0;
 
             for (; ins < listsize; ins++) {
-                if (prev_node->shadow[ins] == en) {
+                if (prev_node->data[ins] == en) {
                     break;
                 }
             }
             if (ins != listsize) {
-                return Result(false, prev_node->shadow[ins], prev_count);
+                return Result(false, prev_node->data[ins], prev_count);
             }
 
             en = MarkingEncoding(encoding, size, var, encsize);
@@ -317,36 +303,36 @@ namespace VerifyTAPN {
             nlist[listsize] = en;
 
             for (int i = 0; i < listsize; i++) {
-                nlist[i] = prev_node->shadow[i];
+                nlist[i] = prev_node->data[i];
             }
-            delete[] prev_node->shadow;
-            prev_node->shadow = nlist;
+            delete[] prev_node->data;
+            prev_node->data = nlist;
 
 
-            bool branch = encoding.At(var);
+            bool branch = encoding.at(var);
             if (branch) {
                 count = (++prev_node->highCount);
             } else {
                 count = (++prev_node->lowCount);
             }
 
-            if (count > maxCount) {
+            if (count > splitThreshold) {
 
                 size--;
                 int testclist = 0;
                 int testnlist = 0;
-                PNode* c_node = &this->BDDArr[floor(this->bddnext / this->cachesize)][this->bddnext % this->cachesize];
+                PNode* c_node = &this->pnodeArray[floor(this->nextFree / this->blockSize)][this->nextFree % this->blockSize];
                 if (branch) {
-                    prev_node->highpos = this->bddnext;
-                    c_node->shadow = new MarkingEncoding[testclist = prev_node->highCount];
+                    prev_node->highpos = this->nextFree;
+                    c_node->data = new MarkingEncoding[testclist = prev_node->highCount];
                     prev_node->highCount = -1;
                     if (prev_node->lowCount > 0)
                         nlist = new MarkingEncoding[testnlist = prev_node->lowCount];
                     else
                         nlist = NULL;
                 } else {
-                    prev_node->lowpos = this->bddnext;
-                    c_node->shadow = new MarkingEncoding[testclist = prev_node->lowCount];
+                    prev_node->lowpos = this->nextFree;
+                    c_node->data = new MarkingEncoding[testclist = prev_node->lowCount];
                     prev_node->lowCount = -1;
                     if (prev_node->highCount > 0)
                         nlist = new MarkingEncoding[testnlist = prev_node->highCount];
@@ -354,52 +340,52 @@ namespace VerifyTAPN {
                         nlist = NULL;
                 }
                 c_node->parent = prev_count;
-                prev_count = this->bddnext;
-                listcount++;
+                prev_count = this->nextFree;
+                blockCount++;
                 c_node->lowCount = c_node->highCount = 0;
                 c_node->lowpos = c_node->highpos = 0;
-                uint npos = ((this->numberOfVariables - (size + 1)) % 8);
+                uint npos = ((this->markingBitSize - (size + 1)) % 8);
 
                 MarkingEncoding nee;
                 int clistcount = 0;
                 int nlistcount = 0;
                 for (int i = 0; i < listsize + 1; i++) {
-                    if (prev_node->shadow[i].At(npos) == branch) {
+                    if (prev_node->data[i].at(npos) == branch) {
                         if (!(size % 8)) {
-                            nee = MarkingEncoding(prev_node->shadow[i], 8);
+                            nee = MarkingEncoding(prev_node->data[i], 8);
                             if (i == ins) {
                                 en = nee;
                             }
-                            prev_node->shadow[i].Release();
+                            prev_node->data[i].release();
                         } else {
-                            nee = prev_node->shadow[i];
+                            nee = prev_node->data[i];
                         }
-                        if (nee.At((npos + 1) % 8)) {
+                        if (nee.at((npos + 1) % 8)) {
                             c_node->highCount++;
                         } else {
                             c_node->lowCount++;
                         }
-                        c_node->shadow[clistcount] = nee;
+                        c_node->data[clistcount] = nee;
                         clistcount++;
                     } else {
-                        nlist[nlistcount] = prev_node->shadow[i];
+                        nlist[nlistcount] = prev_node->data[i];
                         nlistcount++;
                     }
 
                 }
-                delete[] prev_node->shadow;
-                prev_node->shadow = nlist;
+                delete[] prev_node->data;
+                prev_node->data = nlist;
 
                 if (prev_node->highCount == -1 && prev_node->lowCount == -1) {
-                    listcount--;
-                    delete[] prev_node->shadow;
+                    blockCount--;
+                    delete[] prev_node->data;
                 }
 
-                this->bddnext++;
-                if (this->bddnext == this->bddsize) {
-                    this->bddsize += this->cachesize;
-                    this->BDDArr.push_back(new PNode[this->cachesize]);
-                    memset(this->BDDArr[floor(this->bddsize / this->cachesize) - 1], 0xffffffff, (this->cachesize) * sizeof (PNode));
+                this->nextFree++;
+                if (this->nextFree == this->totalSize) {
+                    this->totalSize += this->blockSize;
+                    this->pnodeArray.push_back(new PNode[this->blockSize]);
+                    memset(this->pnodeArray[floor(this->totalSize / this->blockSize) - 1], 0xffffffff, (this->blockSize) * sizeof (PNode));
                 }
             }
 
@@ -409,17 +395,17 @@ namespace VerifyTAPN {
         }
 
         template<typename T>
-        void PData<T>::PrintMemStats() {
+        void PTrie<T>::printMemStats() {
             cout << endl << "Encoding size;" << endl <<
-                    "\t\t\t" << this->numberOfVariables << endl;
+                    "\t\t\t" << this->markingBitSize << endl;
             cout << "Lists:" << endl <<
-                    "\t count \t\t" << this->listcount << endl;
+                    "\t count \t\t" << this->blockCount << endl;
             cout << "Nodes:" << endl <<
-                    "\t count \t\t" << this->bddnext - 1 << endl;
+                    "\t count \t\t" << this->nextFree - 1 << endl;
         }
 
         template<typename T>
-        void PData<T>::PrintEncoding(bool* encoding, int length) {
+        void PTrie<T>::printEncoding(bool* encoding, int length) {
             for (int i = 0; i < length; i++)
                 cout << encoding[i];
             cout << endl;

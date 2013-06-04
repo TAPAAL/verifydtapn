@@ -37,11 +37,11 @@
 
 
 /* Line 1149 of lalr1.cc  */
-#line 5 "grammar.yy"
+#line 5 "Core/QueryParser/grammar.yy"
 namespace VerifyTAPN {
 
 /* Line 1149 of lalr1.cc  */
-#line 45 "Generated/stack.hh"
+#line 45 "Core/QueryParser/Generated/stack.hh"
   template <class T, class S = std::deque<T> >
   class stack
   {
@@ -129,11 +129,11 @@ namespace VerifyTAPN {
   };
 
 /* Line 1235 of lalr1.cc  */
-#line 5 "grammar.yy"
+#line 5 "Core/QueryParser/grammar.yy"
 } // VerifyTAPN
 
 /* Line 1235 of lalr1.cc  */
-#line 137 "Generated/stack.hh"
+#line 137 "Core/QueryParser/Generated/stack.hh"
 
 #endif // not BISON_STACK_HH[]dnl
 

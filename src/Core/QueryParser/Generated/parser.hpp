@@ -38,7 +38,7 @@
 /* "%code requires" blocks.  */
 
 /* Line 35 of lalr1.cc  */
-#line 7 "grammar.yy"
+#line 7 "Core/QueryParser/grammar.yy"
 
 # include <string>
 #include "../AST.hpp"
@@ -49,7 +49,7 @@ namespace VerifyTAPN{
 
 
 /* Line 35 of lalr1.cc  */
-#line 53 "Generated/parser.hpp"
+#line 53 "Core/QueryParser/Generated/parser.hpp"
 
 
 #include <string>
@@ -77,11 +77,11 @@ namespace VerifyTAPN{
 
 
 /* Line 35 of lalr1.cc  */
-#line 5 "grammar.yy"
+#line 5 "Core/QueryParser/grammar.yy"
 namespace VerifyTAPN {
 
 /* Line 35 of lalr1.cc  */
-#line 85 "Generated/parser.hpp"
+#line 85 "Core/QueryParser/Generated/parser.hpp"
 
   /// A Bison parser.
   class Parser
@@ -93,7 +93,7 @@ namespace VerifyTAPN {
     {
 
 /* Line 35 of lalr1.cc  */
-#line 30 "grammar.yy"
+#line 30 "Core/QueryParser/grammar.yy"
 
 	int          					number;
 	std::string* 					string;
@@ -103,7 +103,7 @@ namespace VerifyTAPN {
 
 
 /* Line 35 of lalr1.cc  */
-#line 107 "Generated/parser.hpp"
+#line 107 "Core/QueryParser/Generated/parser.hpp"
     };
 #else
     typedef YYSTYPE semantic_type;
@@ -312,11 +312,11 @@ namespace VerifyTAPN {
   };
 
 /* Line 35 of lalr1.cc  */
-#line 5 "grammar.yy"
+#line 5 "Core/QueryParser/grammar.yy"
 } // VerifyTAPN
 
 /* Line 35 of lalr1.cc  */
-#line 320 "Generated/parser.hpp"
+#line 320 "Core/QueryParser/Generated/parser.hpp"
 
 
 

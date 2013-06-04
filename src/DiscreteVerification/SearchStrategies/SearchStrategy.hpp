@@ -17,7 +17,7 @@ template <class T>
 class SearchStrategy{
 public:
 	virtual ~SearchStrategy(){};
-	virtual WaitingList<T>* CreateWaitingList(AST::Query* query) const = 0;
+	virtual WaitingList<T>* createWaitingList(AST::Query* query) const = 0;
 };
 
 }

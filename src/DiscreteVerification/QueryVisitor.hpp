@@ -29,77 +29,79 @@ namespace VerifyTAPN {
             };
 
         public: // visitor methods
-            virtual void Visit(const NotExpression& expr, boost::any& context);
-            virtual void Visit(const ParExpression& expr, boost::any& context);
-            virtual void Visit(const OrExpression& expr, boost::any& context);
-            virtual void Visit(const AndExpression& expr, boost::any& context);
-            virtual void Visit(const AtomicProposition& expr, boost::any& context);
-            virtual void Visit(const DeadlockExpression& expr, boost::any& context);
-            virtual void Visit(const BoolExpression& expr, boost::any& context);
-            virtual void Visit(const Query& query, boost::any& context);
+
+            virtual void visit(const NotExpression& expr, boost::any& context);
+            virtual void visit(const ParExpression& expr, boost::any& context);
+            virtual void visit(const OrExpression& expr, boost::any& context);
+            virtual void visit(const AndExpression& expr, boost::any& context);
+            virtual void visit(const AtomicProposition& expr, boost::any& context);
+            virtual void visit(const BoolExpression& expr, boost::any& context);
+            virtual void visit(const Query& query, boost::any& context);
+            virtual void visit(const DeadlockExpression& expr, boost::any& context);
         private:
-            bool Compare(int numberOfTokensInPlace, const std::string& op, int n) const;
+            bool compare(int numberOfTokensInPlace, const std::string& op, int n) const;
 
         private:
             const T& marking;
         };
         
         template<typename T>
-        void QueryVisitor<T>::Visit(const NotExpression& expr, boost::any& context) {
+        void QueryVisitor<T>::visit(const NotExpression& expr, boost::any& context) {
             boost::any c;
-            expr.Child().Accept(*this, c);
+            expr.getChild().accept(*this, c);
             context = !boost::any_cast<bool>(c);
         }
 
         template<typename T>
-        void QueryVisitor<T>::Visit(const ParExpression& expr, boost::any& context) {
-            expr.Child().Accept(*this, context);
+        void QueryVisitor<T>::visit(const ParExpression& expr, boost::any& context) {
+            expr.getChild().accept(*this, context);
         }
 
         template<typename T>
-        void QueryVisitor<T>::Visit(const OrExpression& expr, boost::any& context) {
+        void QueryVisitor<T>::visit(const OrExpression& expr, boost::any& context) {
             boost::any left, right;
-            expr.Left().Accept(*this, left);
-            expr.Right().Accept(*this, right);
+            expr.getLeft().accept(*this, left);
+            expr.getRight().accept(*this, right);
 
             context = boost::any_cast<bool>(left) || boost::any_cast<bool>(right);
         }
 
         template<typename T>
-        void QueryVisitor<T>::Visit(const AndExpression& expr, boost::any& context) {
+        void QueryVisitor<T>::visit(const AndExpression& expr, boost::any& context) {
             boost::any left, right;
-            expr.Left().Accept(*this, left);
-            expr.Right().Accept(*this, right);
+            expr.getLeft().accept(*this, left);
+            expr.getRight().accept(*this, right);
 
             context = boost::any_cast<bool>(left) && boost::any_cast<bool>(right);
         }
 
         template<typename T>
-        void QueryVisitor<T>::Visit(const AtomicProposition& expr, boost::any& context) {
-            int numberOfTokens = marking.NumberOfTokensInPlace(expr.Place());
-            context = Compare(numberOfTokens, expr.Operator(), expr.N());
+
+        void QueryVisitor<T>::visit(const AtomicProposition& expr, boost::any& context) {
+            int numberOfTokens = marking.numberOfTokensInPlace(expr.getPlace());
+            context = compare(numberOfTokens, expr.getOperator(), expr.getNumberOfTokens());
+        }
+
+        template<typename T>
+        void QueryVisitor<T>::visit(const BoolExpression& expr, boost::any& context) {
+            context = expr.getValue();
+        }
+
+        template<typename T>
+        void QueryVisitor<T>::visit(const Query& query, boost::any& context) {
+            query.getChild().accept(*this, context);
+            if (query.getQuantifier() == AG || query.getQuantifier() == AF) {
+                context = !boost::any_cast<bool>(context);
+            }
         }
         
         template<typename T>
-        void QueryVisitor<T>::Visit(const DeadlockExpression& expr, boost::any& context) {
+        void QueryVisitor<T>::visit(const DeadlockExpression& expr, boost::any& context) {
             context = false; // todo, create real check
         }
 
         template<typename T>
-        void QueryVisitor<T>::Visit(const BoolExpression& expr, boost::any& context) {
-            context = expr.GetValue();
-        }
-
-        template<typename T>
-        void QueryVisitor<T>::Visit(const Query& query, boost::any& context) {
-            query.Child().Accept(*this, context);
-            if (query.GetQuantifier() == AG || query.GetQuantifier() == AF) {
-                context = !boost::any_cast<bool>(context);
-            }
-        }
-
-        template<typename T>
-        bool QueryVisitor<T>::Compare(int numberOfTokensInPlace, const std::string& op, int n) const {
+        bool QueryVisitor<T>::compare(int numberOfTokensInPlace, const std::string& op, int n) const {
             if (op == "<") return numberOfTokensInPlace < n;
             else if (op == "<=") return numberOfTokensInPlace <= n;
             else if (op == "=" || op == "==") return numberOfTokensInPlace == n;

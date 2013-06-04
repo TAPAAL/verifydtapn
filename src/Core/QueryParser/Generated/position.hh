@@ -44,11 +44,11 @@
 
 
 /* Line 37 of location.cc  */
-#line 5 "grammar.yy"
+#line 5 "Core/QueryParser/grammar.yy"
 namespace VerifyTAPN {
 
 /* Line 37 of location.cc  */
-#line 52 "Generated/position.hh"
+#line 52 "Core/QueryParser/Generated/position.hh"
   /// Abstract a position.
   class position
   {
@@ -157,9 +157,9 @@ namespace VerifyTAPN {
 
 
 /* Line 144 of location.cc  */
-#line 5 "grammar.yy"
+#line 5 "Core/QueryParser/grammar.yy"
 } // VerifyTAPN
 
 /* Line 144 of location.cc  */
-#line 165 "Generated/position.hh"
+#line 165 "Core/QueryParser/Generated/position.hh"
 #endif // not BISON_POSITION_HH

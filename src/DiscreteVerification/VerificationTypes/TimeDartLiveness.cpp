@@ -10,14 +10,14 @@
 namespace VerifyTAPN {
     namespace DiscreteVerification {
 
-        bool TimeDartLiveness::Verify() {
+        bool TimeDartLiveness::verify() {
             if (addToPW(&initialMarking, NULL, INT_MAX)) {
                 return true;
             }
 
             //Main loop
-            while (pwList->HasWaitingStates()) {
-                WaitingDart* waitingDart = pwList->GetNextUnexplored();
+            while (pwList->hasWaitingStates()) {
+                WaitingDart* waitingDart = pwList->getNextUnexplored();
                 exploredMarkings++;
                 
                 // Add trace meta data ("add to trace")
@@ -32,7 +32,7 @@ namespace VerifyTAPN {
                 // Detect ability to delay forever
                 if (canDelayForever(waitingDart->dart->getBase())) {
                     NonStrictMarkingBase* lm = new NonStrictMarkingBase(*waitingDart->dart->getBase());
-                    lm->generatedBy = waitingDart->dart->getBase()->generatedBy;
+                    lm->setGeneratedBy(waitingDart->dart->getBase()->getGeneratedBy());
                     // lastMarking = new TraceList(lm, waitingDart.upper);
                     lastMarking = waitingDart;
                     return true;
@@ -49,15 +49,15 @@ namespace VerifyTAPN {
                     if (waitingDart->parent != NULL) {
                         ((LivenessDart*)waitingDart->parent->dart)->traceData->pop_back();
                     }
-                    pwList->PopWaiting();
+                    pwList->popWaiting();
                     continue;
                 }
 
                 waitingDart->dart->setPassed(waitingDart->w);
-
+                this->tmpdart = waitingDart;
                 // Iterate over transitions
-                for (TimedTransition::Vector::const_iterator transition_iter = tapn->GetTransitions().begin();
-                        transition_iter != tapn->GetTransitions().end(); transition_iter++) {
+                for (TimedTransition::Vector::const_iterator transition_iter = tapn->getTransitions().begin();
+                        transition_iter != tapn->getTransitions().end(); transition_iter++) {
                     TimedTransition& transition = **transition_iter;
 
                     // Calculate enabled set
@@ -85,14 +85,12 @@ namespace VerifyTAPN {
                                 _end = calculatedStart.second;
                             }
 
-                            vector<NonStrictMarkingBase*> next = getPossibleNextMarkings(Mpp, transition);
-                            for (vector<NonStrictMarkingBase*>::iterator it = next.begin(); it != next.end(); it++) {
+                            this->tmpupper = _end;
 
-                                if (addToPW(*it, waitingDart, _end)) {
-                                    return true;
-                                }
+                            if(successorGenerator.generateAndInsertSuccessors(Mpp, transition)){
+                                return true;
                             }
-
+                            
                             pwList->flushBuffer();
                         }
                     }
@@ -114,8 +112,8 @@ namespace VerifyTAPN {
 
 
         bool TimeDartLiveness::canDelayForever(NonStrictMarkingBase* marking) {
-            for (PlaceList::const_iterator p_iter = marking->GetPlaceList().begin(); p_iter != marking->GetPlaceList().end(); p_iter++) {
-                if (p_iter->place->GetInvariant().GetBound() < INT_MAX) {
+            for (PlaceList::const_iterator p_iter = marking->getPlaceList().begin(); p_iter != marking->getPlaceList().end(); p_iter++) {
+                if (p_iter->place->getInvariant().getBound() < INT_MAX) {
                     return false;
                 }
             }
@@ -123,17 +121,17 @@ namespace VerifyTAPN {
         }
 
         bool TimeDartLiveness::addToPW(NonStrictMarkingBase* marking, WaitingDart* parent, int upper) {
-            int start;
-            if(options.GetTrace() == SOME){
+            int start = 0; // overwritten later if used
+            if(options.getTrace() == VerificationOptions::SOME_TRACE){
                 start = marking->getYoungest();
             }
             marking->cut();
-            const TimedTransition* transition = marking->generatedBy;
+            const TimedTransition* transition = marking->getGeneratedBy();
             unsigned int size = marking->size();
 
-            pwList->SetMaxNumTokensIfGreater(size);
+            pwList->setMaxNumTokensIfGreater(size);
 
-            if (size > options.GetKBound()) {
+            if (size > options.getKBound()) {
                 delete marking;
                 return false;
             }
@@ -142,9 +140,9 @@ namespace VerifyTAPN {
 
             QueryVisitor<NonStrictMarkingBase> checker(*marking);
             boost::any context;
-            query->Accept(checker, context);
+            query->accept(checker, context);
             if (boost::any_cast<bool>(context)) {
-                std::pair < LivenessDart*, bool> result = pwList->Add(tapn.get(), marking, youngest, parent, upper, start);
+                std::pair < LivenessDart*, bool> result = pwList->add(tapn.get(), marking, youngest, parent, upper, start);
 
 
                 if (parent != NULL && parent->dart->getBase()->equals(*result.first->getBase()) && youngest <= upper) {
@@ -165,9 +163,9 @@ namespace VerifyTAPN {
 
                 if (loop) {
                     NonStrictMarkingBase* lm = new NonStrictMarkingBase(*result.first->getBase());
-                    lm->parent = parent->dart->getBase();
+                    lm->setParent(parent->dart->getBase());
                     //lastMarking = new TraceList(lm, upper);   
-                    if (options.GetTrace()) {
+                    if (options.getTrace()) {
 //                        TraceDart* t = new TraceDart(*(TraceDart*) lastMarking);      // removed to fix loop-detection delay
                         lastMarking = new TraceDart(result.first, parent, result.first->getWaiting(), start, upper, transition);
 //                        t->parent = lastMarking;      // removed to fix loop-detection delay
@@ -186,7 +184,7 @@ namespace VerifyTAPN {
         void TimeDartLiveness::printStats() {
             std::cout << "  discovered markings:\t" << pwList->discoveredMarkings << std::endl;
             std::cout << "  explored markings:\t" << exploredMarkings << std::endl;
-            std::cout << "  stored markings:\t" << pwList->Size() << std::endl;
+            std::cout << "  stored markings:\t" << pwList->size() << std::endl;
         }
 
         TimeDartLiveness::~TimeDartLiveness() {

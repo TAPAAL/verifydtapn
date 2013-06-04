@@ -10,16 +10,16 @@ namespace VerifyTAPN {
             Util::interval initial(0, INT_MAX);
             start.push_back(initial);
 
-            if (transition.NumberOfInputArcs() + transition.NumberOfTransportArcs() == 0) { //always enabled
+            if (transition.getNumberOfInputArcs() + transition.getNumberOfTransportArcs() == 0) { //always enabled
                 pair<int, int> p(0, maxPossibleDelay(marking));
                 return p;
             }
 
             // Inhibitor arcs
-            for (TAPN::InhibitorArc::WeakPtrVector::const_iterator arc = transition.GetInhibitorArcs().begin();
-                    arc != transition.GetInhibitorArcs().end();
+            for (TAPN::InhibitorArc::WeakPtrVector::const_iterator arc = transition.getInhibitorArcs().begin();
+                    arc != transition.getInhibitorArcs().end();
                     arc++) {
-                if (marking->NumberOfTokensInPlace(arc->lock()->InputPlace().GetIndex()) >= arc->lock()->GetWeight()) {
+                if (marking->numberOfTokensInPlace(arc->lock()->getInputPlace().getIndex()) >= arc->lock()->getWeight()) {
                     pair<int, int> p(-1, -1);
                     return p;
                 }
@@ -27,17 +27,17 @@ namespace VerifyTAPN {
 
 
             // Standard arcs
-            for (TAPN::TimedInputArc::WeakPtrVector::const_iterator arc = transition.GetPreset().begin(); arc != transition.GetPreset().end(); arc++) {
+            for (TAPN::TimedInputArc::WeakPtrVector::const_iterator arc = transition.getPreset().begin(); arc != transition.getPreset().end(); arc++) {
                 vector<Util::interval > intervals;
                 int range;
-                if (arc->lock()->Interval().GetUpperBound() == INT_MAX) {
+                if (arc->lock()->getInterval().getUpperBound() == INT_MAX) {
                     range = INT_MAX;
                 } else {
-                    range = arc->lock()->Interval().GetUpperBound() - arc->lock()->Interval().GetLowerBound();
+                    range = arc->lock()->getInterval().getUpperBound() - arc->lock()->getInterval().getLowerBound();
                 }
-                int weight = arc->lock()->GetWeight();
+                int weight = arc->lock()->getWeight();
 
-                TokenList tokens = marking->GetTokenList(arc->lock()->InputPlace().GetIndex());
+                TokenList tokens = marking->getTokenList(arc->lock()->getInputPlace().getIndex());
                 if (tokens.size() == 0) {
                     pair<int, int> p(-1, -1);
                     return p;
@@ -53,12 +53,12 @@ namespace VerifyTAPN {
                         j--;
                     }
                     if (numberOfTokensAvailable >= weight && tokens.at(j).getAge() - tokens.at(i).getAge() <= range) { //This span is interesting
-                        int low = arc->lock()->Interval().GetLowerBound() - tokens.at(i).getAge();
-                        int heigh = arc->lock()->Interval().GetUpperBound() - tokens.at(j).getAge();
+                        int low = arc->lock()->getInterval().getLowerBound() - tokens.at(i).getAge();
+                        int heigh = arc->lock()->getInterval().getUpperBound() - tokens.at(j).getAge();
 
                         Util::interval element(low < 0 ? 0 : low,
-                                arc->lock()->Interval().GetUpperBound() == INT_MAX ? INT_MAX : heigh);
-                        Util::set_add(intervals, element);
+                                arc->lock()->getInterval().getUpperBound() == INT_MAX ? INT_MAX : heigh);
+                        Util::setAdd(intervals, element);
                     }
                     numberOfTokensAvailable -= tokens.at(i).getCount();
                 }
@@ -67,9 +67,9 @@ namespace VerifyTAPN {
             }
 
             // Transport arcs
-            for (TAPN::TransportArc::WeakPtrVector::const_iterator arc = transition.GetTransportArcs().begin(); arc != transition.GetTransportArcs().end(); arc++) {
-                Util::interval arcGuard(arc->lock()->Interval().GetLowerBound(), arc->lock()->Interval().GetUpperBound());
-                Util::interval invGuard(0, arc->lock()->Destination().GetInvariant().GetBound());
+            for (TAPN::TransportArc::WeakPtrVector::const_iterator arc = transition.getTransportArcs().begin(); arc != transition.getTransportArcs().end(); arc++) {
+                Util::interval arcGuard(arc->lock()->getInterval().getLowerBound(), arc->lock()->getInterval().getUpperBound());
+                Util::interval invGuard(0, arc->lock()->getDestination().getInvariant().getBound());
 
                 Util::interval arcInterval = boost::numeric::intersect(arcGuard, invGuard);
                 vector<Util::interval > intervals;
@@ -79,9 +79,9 @@ namespace VerifyTAPN {
                 } else {
                     range = arcInterval.upper() - arcInterval.lower();
                 }
-                int weight = arc->lock()->GetWeight();
+                int weight = arc->lock()->getWeight();
 
-                TokenList tokens = marking->GetTokenList(arc->lock()->Source().GetIndex());
+                TokenList tokens = marking->getTokenList(arc->lock()->getSource().getIndex());
 
                 if (tokens.size() == 0) {
                     pair<int, int> p(-1, -1);
@@ -100,7 +100,7 @@ namespace VerifyTAPN {
                     if (numberOfTokensAvailable >= weight && tokens.at(j).getAge() - tokens.at(i).getAge() <= range) { //This span is interesting
                         Util::interval element(arcInterval.lower() - tokens.at(i).getAge(),
                                 arcInterval.upper() - tokens.at(j).getAge());
-                        Util::set_add(intervals, element);
+                        Util::setAdd(intervals, element);
                     }
                     numberOfTokensAvailable -= tokens.at(i).getCount();
                 }
@@ -131,15 +131,15 @@ namespace VerifyTAPN {
         int TimeDartVerification::calculateStop(const TAPN::TimedTransition& transition, NonStrictMarkingBase* marking) {
             int MC = -1;
             unsigned int i = 0;
-            for (PlaceList::const_iterator iter = marking->GetPlaceList().begin(); iter != marking->GetPlaceList().end(); iter++) {
-                if (i < transition.GetPreset().size() && iter->place->GetIndex() == transition.GetPreset().at(i).lock()->InputPlace().GetIndex()) {
-                    if (transition.GetPreset().at(i).lock()->GetWeight() < iter->NumberOfTokens()) {
-                        MC = max(MC, iter->place->GetMaxConstant() - iter->tokens.front().getAge());
+            for (PlaceList::const_iterator iter = marking->getPlaceList().begin(); iter != marking->getPlaceList().end(); iter++) {
+                if (i < transition.getPreset().size() && iter->place->getIndex() == transition.getPreset().at(i).lock()->getInputPlace().getIndex()) {
+                    if (transition.getPreset().at(i).lock()->getWeight() < iter->numberOfTokens()) {
+                        MC = max(MC, iter->place->getMaxConstant() - iter->tokens.front().getAge());
                     }
                     i++;
                     continue;
                 }
-                MC = max(MC, iter->place->GetMaxConstant() - iter->tokens.front().getAge());
+                MC = max(MC, iter->place->getMaxConstant() - iter->tokens.front().getAge());
             }
 
             return MC + 1;
@@ -148,20 +148,16 @@ namespace VerifyTAPN {
         int TimeDartVerification::maxPossibleDelay(NonStrictMarkingBase* marking) {
             int invariantPart = INT_MAX;
 
-            for (PlaceList::const_iterator iter = marking->GetPlaceList().begin(); iter != marking->GetPlaceList().end(); iter++) {
-                if (iter->place->GetInvariant().GetBound() != std::numeric_limits<int>::max() && iter->place->GetInvariant().GetBound() - iter->tokens.back().getAge() < invariantPart) {
-                    invariantPart = iter->place->GetInvariant().GetBound() - iter->tokens.back().getAge();
+            for (PlaceList::const_iterator iter = marking->getPlaceList().begin(); iter != marking->getPlaceList().end(); iter++) {
+                if (iter->place->getInvariant().getBound() != std::numeric_limits<int>::max() && iter->place->getInvariant().getBound() - iter->tokens.back().getAge() < invariantPart) {
+                    invariantPart = iter->place->getInvariant().getBound() - iter->tokens.back().getAge();
                 }
             }
 
             return invariantPart;
         }
 
-        vector<NonStrictMarkingBase*> TimeDartVerification::getPossibleNextMarkings(NonStrictMarkingBase& marking, const TAPN::TimedTransition& transition) {
-            return successorGenerator.generateSuccessors(marking, transition);
-        }
-
-        void TimeDartVerification::GetTrace() {
+        void TimeDartVerification::getTrace() {
             
             stack<NonStrictMarkingBase*> traceStack;
 
@@ -176,9 +172,9 @@ namespace VerifyTAPN {
                 while (diff) {  // TODO loop seems to count the wrong way, not effecting anything, but wrong.
                         NonStrictMarkingBase* mc = new NonStrictMarkingBase(*base);
                         mc->incrementAge(trace->start + diff);
-                        mc->SetGeneratedBy(NULL);       // NULL indicates that it is a delay transition
+                        mc->setGeneratedBy(NULL);       // NULL indicates that it is a delay transition
                         if (last != NULL)
-                            last->parent = mc;          // set the parent of the last marking
+                            last->setParent(mc);          // set the parent of the last marking
 
                         last = mc;
                         mc->cut();
@@ -186,7 +182,7 @@ namespace VerifyTAPN {
                             l = mc;
                         if(diff)                        // seems obsolete TODO check effect of remove.
                                 traceStack.push(mc);            // add delay marking to the trace
-                        mc->SetParent(NULL);
+                        mc->setParent(NULL);
                         diff--;
                     }
             }
@@ -195,7 +191,7 @@ namespace VerifyTAPN {
                 trace = ((TraceDart*) lastMarking);
                 l->incrementAge(trace->start);
                 l->cut();
-                l->parent = NULL;
+                l->setParent(NULL);
             }
             while (trace != NULL) {
                 int lower = trace->start;
@@ -203,24 +199,24 @@ namespace VerifyTAPN {
                 // create "last delay marking"
                 NonStrictMarkingBase* base = getBase(trace->dart);
                 NonStrictMarkingBase* m = new NonStrictMarkingBase(*base);
-                m->SetGeneratedBy(trace->generatedBy);
+                m->setGeneratedBy(trace->generatedBy);
                 m->incrementAge(lower);
-                m->SetParent(NULL);
+                m->setParent(NULL);
                 if(upper == INT_MAX){
-                    upper = tapn.get()->MaxConstant();
+                    upper = tapn.get()->getMaxConstant();
                 }
                 // create markings between transitions, one for each delay (exluding last one)
                 if (upper > lower) {
                     int diff = upper - lower;   // amount to delay
                     while (diff) {
                         NonStrictMarkingBase* mc = new NonStrictMarkingBase(*base);
-                        mc->SetParent(NULL);
+                        mc->setParent(NULL);
                         mc->incrementAge(lower + diff);
-                        mc->SetGeneratedBy(NULL);       // NULL indicates that it is a delay transition
+                        mc->setGeneratedBy(NULL);       // NULL indicates that it is a delay transition
                         if (last != NULL)
-                            last->parent = mc;          // set the parent of the last marking
-                        if(!l->parent)
-                            l->parent = mc;
+                            last->setParent(mc);          // set the parent of the last marking
+                        if(!l->getParent())
+                            l->setParent(mc);
                         last = mc;
                         mc->cut();
                         traceStack.push(mc);            // add delay marking to the trace
@@ -228,9 +224,9 @@ namespace VerifyTAPN {
                     }
                 }
                 if (last != NULL)
-                    last->parent = m;
-                if(!l->parent)
-                            l->parent = m;
+                    last->setParent(m);
+                if(!l->getParent())
+                            l->setParent(m);
                 m->cut();
                 last = m;
                 traceStack.push(m);     // add the marking to the trace
@@ -239,7 +235,7 @@ namespace VerifyTAPN {
                 trace = (TraceDart*) trace->parent;
             }
             
-            PrintXMLTrace(l, traceStack, query->GetQuantifier());
+            printXMLTrace(l, traceStack, query->getQuantifier());
         }
 
     }

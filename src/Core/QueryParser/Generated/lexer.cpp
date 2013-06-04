@@ -1,6 +1,6 @@
-#line 2 "Generated/lexer.cpp"
+#line 2 "Core/QueryParser/Generated/lexer.cpp"
 
-#line 4 "Generated/lexer.cpp"
+#line 4 "Core/QueryParser/Generated/lexer.cpp"
 
 #define  YY_INT_ALIGNED short int
 
@@ -494,8 +494,8 @@ int yy_flex_debug = 0;
 #define YY_MORE_ADJ 0
 #define YY_RESTORE_YY_MORE_OFFSET
 char *yytext;
-#line 1 "flex.ll"
-#line 2 "flex.ll"
+#line 1 "Core/QueryParser/flex.ll"
+#line 2 "Core/QueryParser/flex.ll"
 # include <string>
 # include "../TAPNQueryParser.hpp"
 # include "parser.hpp"
@@ -511,9 +511,9 @@ char *yytext;
    Unfortunately yyterminate by default returns 0, which is
    not of token_type.  */
 #define yyterminate() return token::END
-#line 26 "flex.ll"
+#line 26 "Core/QueryParser/flex.ll"
 # define YY_USER_ACTION  yylloc->columns (yyleng);
-#line 517 "Generated/lexer.cpp"
+#line 517 "Core/QueryParser/Generated/lexer.cpp"
 
 #define INITIAL 0
 
@@ -701,12 +701,12 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
     
-#line 28 "flex.ll"
+#line 28 "Core/QueryParser/flex.ll"
 
 
   yylloc->step ();
 
-#line 710 "Generated/lexer.cpp"
+#line 710 "Core/QueryParser/Generated/lexer.cpp"
 
 	if ( !(yy_init) )
 		{
@@ -788,13 +788,13 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 32 "flex.ll"
+#line 32 "Core/QueryParser/flex.ll"
 { yylloc->step (); }
 	YY_BREAK
 case 2:
 /* rule 2 can match eol */
 YY_RULE_SETUP
-#line 33 "flex.ll"
+#line 33 "Core/QueryParser/flex.ll"
 { yylloc->lines (yyleng); yylloc->step (); }
 	YY_BREAK
 
@@ -802,110 +802,110 @@ YY_RULE_SETUP
 
 case 3:
 YY_RULE_SETUP
-#line 39 "flex.ll"
+#line 39 "Core/QueryParser/flex.ll"
 { yylval->number = atoi(yytext); return token::NUMBER; }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 40 "flex.ll"
+#line 40 "Core/QueryParser/flex.ll"
 { return token::EF; }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 41 "flex.ll"
+#line 41 "Core/QueryParser/flex.ll"
 { return token::AG; }
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 42 "flex.ll"
+#line 42 "Core/QueryParser/flex.ll"
 { return token::AF; }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 43 "flex.ll"
+#line 43 "Core/QueryParser/flex.ll"
 { return token::EG; }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 44 "flex.ll"
+#line 44 "Core/QueryParser/flex.ll"
 { return token::OR; }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 45 "flex.ll"
+#line 45 "Core/QueryParser/flex.ll"
 { return token::AND; }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 46 "flex.ll"
+#line 46 "Core/QueryParser/flex.ll"
 { return token::BOOL_TRUE; }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 47 "flex.ll"
+#line 47 "Core/QueryParser/flex.ll"
 { return token::BOOL_FALSE; }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 48 "flex.ll"
+#line 48 "Core/QueryParser/flex.ll"
 { return token::DEADLOCK; }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 49 "flex.ll"
+#line 49 "Core/QueryParser/flex.ll"
 { return token::NOT; }
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 50 "flex.ll"
+#line 50 "Core/QueryParser/flex.ll"
 { return token::LPARAN; }
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 51 "flex.ll"
+#line 51 "Core/QueryParser/flex.ll"
 { return token::RPARAN; }
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 52 "flex.ll"
+#line 52 "Core/QueryParser/flex.ll"
 { yylval->string = new std::string(yytext); return token::LESS; }
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 53 "flex.ll"
+#line 53 "Core/QueryParser/flex.ll"
 { yylval->string = new std::string(yytext); return token::LESSEQUAL; }
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 54 "flex.ll"
+#line 54 "Core/QueryParser/flex.ll"
 { yylval->string = new std::string(yytext); return token::EQUAL; }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 55 "flex.ll"
+#line 55 "Core/QueryParser/flex.ll"
 { yylval->string = new std::string(yytext); return token::EQUAL; }
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 56 "flex.ll"
+#line 56 "Core/QueryParser/flex.ll"
 { yylval->string = new std::string(yytext); return token::GREATEREQUAL; }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 57 "flex.ll"
+#line 57 "Core/QueryParser/flex.ll"
 { yylval->string = new std::string(yytext); return token::GREATER; }
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 58 "flex.ll"
+#line 58 "Core/QueryParser/flex.ll"
 { yylval->string = new std::string(yytext); return token::IDENTIFIER; }
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 60 "flex.ll"
+#line 60 "Core/QueryParser/flex.ll"
 ECHO;
 	YY_BREAK
-#line 909 "Generated/lexer.cpp"
+#line 909 "Core/QueryParser/Generated/lexer.cpp"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1870,7 +1870,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 60 "flex.ll"
+#line 60 "Core/QueryParser/flex.ll"
 
 
 namespace VerifyTAPN
