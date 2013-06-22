@@ -115,7 +115,7 @@ bool LivenessSearch::addToPW(NonStrictMarking* marking, NonStrictMarking* parent
 		return false;
 	}
 
-	QueryVisitor<NonStrictMarking> checker(*marking);
+	QueryVisitor<NonStrictMarking> checker(*marking, *tapn.get());
 	boost::any context;
 	query->accept(checker, context);
 	if(!boost::any_cast<bool>(context))	return false;

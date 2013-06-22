@@ -134,6 +134,7 @@ public:
 	virtual ~NonStrictMarkingBase();
 
 	public: // inspectors
+                const bool canDeadlock(const TAPN::TimedArcPetriNet& tapn) const;
 		int numberOfTokensInPlace(int placeId) const;
 		const TokenList& getTokenList(int placeId) const;
 		inline const PlaceList& getPlaceList() const{ return places; }

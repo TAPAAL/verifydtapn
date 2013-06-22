@@ -69,7 +69,7 @@ namespace DiscreteVerification {
 
                 void LivenessWeightQueryVisitor::visit(const DeadlockExpression& expr, boost::any& context)
 		{
-			// no weight
+                        context = 0;
 		}
                 
 		int LivenessWeightQueryVisitor::compare(int numberOfTokensInPlace, const std::string& op, int n) const

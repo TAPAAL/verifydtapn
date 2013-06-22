@@ -86,7 +86,7 @@ bool ReachabilitySearch::addToPW(NonStrictMarking* marking, NonStrictMarking* pa
 	}
 
 	if(pwList->add(marking)){
-		QueryVisitor<NonStrictMarking> checker(*marking);
+		QueryVisitor<NonStrictMarking> checker(*marking, *tapn.get());
 		boost::any context;
 		query->accept(checker, context);
 		if(boost::any_cast<bool>(context)) {
