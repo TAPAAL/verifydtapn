@@ -1,4 +1,5 @@
 #include "TimedTransition.hpp"
+#include "TimedPlace.hpp"
 
 namespace VerifyTAPN {
 	namespace TAPN {
