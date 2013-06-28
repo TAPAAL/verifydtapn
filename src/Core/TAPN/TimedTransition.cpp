@@ -14,7 +14,14 @@ namespace VerifyTAPN {
 		{
 			if(arc)
 			{
-				preset.push_back(arc);
+                                if(this->urgent){   // all urgency in discrete time must have untimed 
+                                                    //inputarcs to not break semantics
+                                    if(!arc.get()->getInterval().isZeroInfinity()){
+                                        std::cout << "Urgent transitions must have untimed input arcs" << std::endl;
+                                        exit(1);
+                                    }
+                                }
+                                preset.push_back(arc);
 			}
 		}
 
@@ -22,6 +29,13 @@ namespace VerifyTAPN {
 		{
 			if(arc)
 			{
+                            if(this->urgent){   // all urgency in discrete time must have untimed 
+                                                //inputarcs to not break semantics
+                                if(!arc.get()->getInterval().isZeroInfinity()){
+                                    std::cout << "Urgent transitions must have untimed transportarcs" << std::endl;
+                                    exit(1);
+                                }
+                            }
 				transportArcs.push_back(arc);
 			}
 		}
