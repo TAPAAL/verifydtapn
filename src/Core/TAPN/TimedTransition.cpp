@@ -34,6 +34,10 @@ namespace VerifyTAPN {
                                 if(!arc.get()->getInterval().isZeroInfinity()){
                                     std::cout << "Urgent transitions must have untimed transportarcs" << std::endl;
                                     exit(1);
+                                } else if(!arc.get()->getDestination().isUntimed()){
+                                    // urgency breaks if we have invariant at destination
+                                    std::cout << "Transportarcs going through an urgent transition cannot have invariants at destination-places." << std::endl;
+                                    exit(1);                                    
                                 }
                             }
 				transportArcs.push_back(arc);
