@@ -72,7 +72,9 @@ namespace VerifyTAPN
 		}
 
                void NormalizationVisitor::visit(const DeadlockExpression& expr, boost::any& context) {
-                    
+                        // this needs review by Mathias and Jakob
+			Tuple& tuple = boost::any_cast<Tuple&>(context);
+			tuple.returnExpr = new DeadlockExpression();                  
                 }
                 
 
