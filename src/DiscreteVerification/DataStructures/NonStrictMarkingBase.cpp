@@ -244,6 +244,7 @@ namespace VerifyTAPN {
                 int presetSize = (*tit)->getPresetSize();
                 int index = (*tit)->getIndex();
                 if (presetSize == 0) {
+                    delete[] status;
                     return false; // if empty preset, we can always fire a transition
                 }
                 // set to preset-size so we know when all arcs have been enabled
@@ -339,10 +340,11 @@ namespace VerifyTAPN {
             // if any transition is enabled there is no deadlock
             for(int i = 0; i < count; ++i){
                 if(status[i] == 0){
+                    delete[] status;
                     return false;
                 }
             }
-
+            delete[] status;
             // if we can delay there is no deadlock (needs something with check for possible delay)
             if(canDelay){       // for sure we have a deadlock if all tokens are at MC +1 and we can delay
                                 // If the tokens are not aged yet, they will eventually reach it but no deadlock reported
