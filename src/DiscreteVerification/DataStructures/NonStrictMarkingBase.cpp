@@ -240,34 +240,79 @@ namespace VerifyTAPN {
 
             for (vector<boost::shared_ptr<TAPN::TimedTransition> >::const_iterator tit = tapn.getTransitions().begin();
                     tit != tapn.getTransitions().end(); ++tit) {
-                if ((*tit)->getPresetSize() == 0) {
+                int presetSize = (*tit)->getPresetSize();
+                int index = (*tit)->getIndex();
+                if (presetSize == 0) {
                     return false; // if empty preset, we can always fire a transition
                 }
-                status[(*tit)->getIndex()] = 0;
+                cout << "[" << index << "] -> " << *(*tit) << endl;
+                // set to preset-size so we know when all arcs have been enabled
+                // we decrement it in the next three loops
+                status[index] = presetSize; 
             }
 
             for (PlaceList::const_iterator place_iter = this->places.begin(); place_iter != this->places.end(); ++place_iter) {
                 int numtokens = place_iter->numberOfTokens();
 
-                // just untimed checks right now
                 // for regular input arcs
                 for (TAPN::TimedInputArc::WeakPtrVector::const_iterator arc_iter = place_iter->place->getInputArcs().begin();
                         arc_iter != place_iter->place->getInputArcs().end(); ++arc_iter) {
                     int id = arc_iter->lock().get()->getOutputTransition().getIndex();
-                    if(numtokens < arc_iter->lock().get()->getWeight())
-                        status[id] = 2;
-                    else if(status[id] != 2)
-                        status[id] = 1;
+                    int weight = arc_iter->lock().get()->getWeight();
+                    if(numtokens < weight) {
+                        status[id] = -1;        // -1 for impossible to enable
+                    } else if(status[id] != -1) {
+                        int lb = arc_iter->lock().get()->getInterval().getLowerBound();
+                        int ub = arc_iter->lock().get()->getInterval().getUpperBound();
+                        // decrement if token can satisfy the bounds
+                        for (TokenList::const_iterator tokenit = place_iter->tokens.begin();
+                                tokenit != place_iter->tokens.end(); ++tokenit){
+                            int age = tokenit->getAge();
+                            if(age >= lb){
+                                if(age <= ub){
+                                weight -= tokenit->getCount(); // decrement weight      
+                                } else {
+                                    break; // sorted array, if > ub then no following will satisfy it
+                                }
+                            }
+                        }
+                        if (weight <= 0) {
+                            --status[id];
+                        } else {
+                            status[id] = -1; // unless we can satisfy the weight, transition not enabled                            
+                        }
+                    }
                 }
 
                 // for transport arcs
                 for (TAPN::TransportArc::WeakPtrVector::const_iterator arc_iter = place_iter->place->getTransportArcs().begin();
                         arc_iter != place_iter->place->getTransportArcs().end(); ++arc_iter) {
                     int id = arc_iter->lock().get()->getTransition().getIndex();
+                    int weight = arc_iter->lock().get()->getWeight();
                     if(numtokens < arc_iter->lock().get()->getWeight())
-                        status[id] = 2;
-                    else if(status[id] != 2)
-                        status[id] = 1;
+                        status[id] = -1; // impossible to enable
+                    else if(status[id] != -1) { // if enableable so far
+                        int lb = arc_iter->lock().get()->getInterval().getLowerBound();
+                        int ub = arc_iter->lock().get()->getInterval().getUpperBound();
+                        // decrement if token can satisfy the bounds
+                        for (TokenList::const_iterator tokenit = place_iter->tokens.begin();
+                                tokenit != place_iter->tokens.end(); ++tokenit){
+                            int age = tokenit->getAge();
+                            if(age >= lb ){
+                                if(age <= ub){
+                                        weight -= tokenit->getCount();
+                                } else {
+                                    break; // sorted array, if > ub then no following will satisfy it
+                                }
+                            }
+                        }
+                        if (weight <= 0) {
+                            --status[id];       // arc can be satisfied
+                            break;
+                        } else {
+                            status[id] = -1; // unless we can satisfy the weight, transition not enabled
+                        }
+                    }
                 }
 
                 // for inhibitor arcs
@@ -275,10 +320,7 @@ namespace VerifyTAPN {
                         arc_iter != place_iter->place->getInhibitorArcs().end(); ++arc_iter) {
                     int id = arc_iter->lock().get()->getOutputTransition().getIndex();
                     if(numtokens >= arc_iter->lock().get()->getWeight())
-                        status[id] = 2;
-                    else if(status[id] != 2)
-                        status[id] = 1;
-                    
+                        status[id] = -1;
                 }
 
 /*                for (TokenList::const_iterator tokenit = place_iter->tokens.begin(); tokenit != place_iter->tokens.end(); ++tokenit) {
@@ -294,11 +336,14 @@ namespace VerifyTAPN {
 
                 }
             }
+            cout << *((NonStrictMarkingBase*)this) << endl;
             
             // if any transition is enabled there is no deadlock
             for(int i = 0; i < count; ++i){
-                if(status[i] == 1)
+                if(status[i] == 0){
+                    cout << i << endl;
                     return false;
+                }
             }
 
             // if we can delay there is no deadlock (not interiely true)
