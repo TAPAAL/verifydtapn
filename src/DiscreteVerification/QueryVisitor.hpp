@@ -23,6 +23,8 @@ namespace VerifyTAPN {
         public:
             
             QueryVisitor(T& marking, TAPN::TimedArcPetriNet& tapn) : marking(marking), tapn(tapn) {
+                deadlockChecked = false;
+                deadlocked = false;
             };
 
             virtual ~QueryVisitor() {
@@ -44,6 +46,8 @@ namespace VerifyTAPN {
         private:
             const T& marking;
             const TAPN::TimedArcPetriNet& tapn;
+            bool deadlockChecked;
+            bool deadlocked;
         };
         
         template<typename T>
@@ -98,7 +102,11 @@ namespace VerifyTAPN {
         
         template<typename T>
         void QueryVisitor<T>::visit(const DeadlockExpression& expr, boost::any& context) {
-            context = marking.canDeadlock(tapn);
+            if(!deadlockChecked){
+                deadlockChecked = true;
+                deadlocked = marking.canDeadlock(tapn);
+            }
+            context = deadlocked;
         }
 
         template<typename T>
