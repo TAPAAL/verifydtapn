@@ -117,6 +117,14 @@ public:
 			iter->decrementAge();
 		}
 	}
+        inline bool allMaximumConstant() const {
+            if(tokens.size() > 1){      // if more than one symetry-reduced token
+                return false;           // they must have different ages
+            }                           // ie; not all is mc+1
+                                        
+                                        // else just check on the one remaning
+            return tokens[0].getAge() == (place->getMaxConstant() + 1);
+        }
 };
 
 typedef vector<Place> PlaceList;

@@ -232,6 +232,7 @@ namespace VerifyTAPN {
 
         const bool NonStrictMarkingBase::canDeadlock(const TAPN::TimedArcPetriNet& tapn) const {
             bool canDelay = true;
+            bool allMC = true;
 
             // this should be static and only allocated once!
             
@@ -277,7 +278,7 @@ namespace VerifyTAPN {
                             }
                         }
                         if (weight <= 0) {
-                            --status[id];
+                            --status[id];    // decrement counter, arc satisfied 
                         } else {
                             status[id] = -1; // unless we can satisfy the weight, transition not enabled                            
                         }
@@ -319,21 +320,20 @@ namespace VerifyTAPN {
                 for (TAPN::InhibitorArc::WeakPtrVector::const_iterator arc_iter = place_iter->place->getInhibitorArcs().begin();
                         arc_iter != place_iter->place->getInhibitorArcs().end(); ++arc_iter) {
                     int id = arc_iter->lock().get()->getOutputTransition().getIndex();
-                    if(numtokens >= arc_iter->lock().get()->getWeight())
-                        status[id] = -1;
+                    // no precheck if it was disabled, actual calculation is just as fast
+                    if(numtokens >= arc_iter->lock().get()->getWeight())        // we satisfy the inhibitor
+                        status[id] = -1;                                        // transition cannot fire
                 }
-
-/*                for (TokenList::const_iterator tokenit = place_iter->tokens.begin(); tokenit != place_iter->tokens.end(); ++tokenit) {
-
-                */
-
-                // simple checks if all the places have untimed invariants
-                if (!canDelay) {
+                
+                if (canDelay) { // if delay is still possible
                     int invariant = place_iter->place->getInvariant().getBound();
-                    if (invariant == place_iter->maxTokenAge()) {
-                        canDelay = false;
+                    if (invariant == place_iter->maxTokenAge()) {       // if we have reached the invariant
+                        canDelay = false;                               // we cannot delay
+                    } else {
+                        if(allMC){                                      // if all up till now have been equal MC
+                            allMC = place_iter->allMaximumConstant();   // check if this one is to
+                        }
                     }
-
                 }
             }
             cout << *((NonStrictMarkingBase*)this) << endl;
@@ -346,8 +346,13 @@ namespace VerifyTAPN {
                 }
             }
 
-            // if we can delay there is no deadlock (not interiely true)
-            return !canDelay;
+            // if we can delay there is no deadlock (needs something with check for possible delay)
+            if(canDelay){       // for sure we have a deadlock if all tokens are at MC +1 and we can delay
+                                // If the tokens are not aged yet, they will eventually reach it but no deadlock reported
+                return allMC;
+            } else {
+                return true;    // we cannot delay, no deadlock
+            }
         }
 
         void NonStrictMarkingBase::cut() {
