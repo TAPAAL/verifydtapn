@@ -246,7 +246,6 @@ namespace VerifyTAPN {
                 if (presetSize == 0) {
                     return false; // if empty preset, we can always fire a transition
                 }
-                cout << "[" << index << "] -> " << *(*tit) << endl;
                 // set to preset-size so we know when all arcs have been enabled
                 // we decrement it in the next three loops
                 status[index] = presetSize; 
@@ -336,12 +335,10 @@ namespace VerifyTAPN {
                     }
                 }
             }
-            cout << *((NonStrictMarkingBase*)this) << endl;
             
             // if any transition is enabled there is no deadlock
             for(int i = 0; i < count; ++i){
                 if(status[i] == 0){
-                    cout << i << endl;
                     return false;
                 }
             }
