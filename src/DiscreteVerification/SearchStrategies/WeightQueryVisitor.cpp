@@ -52,7 +52,7 @@ namespace DiscreteVerification {
 
                 void WeightQueryVisitor::visit(const DeadlockExpression& expr, boost::any& context)
 		{
-                    // no weight for deadlock
+                    context = 0;
 		}
 
 		void WeightQueryVisitor::visit(const AtomicProposition& expr, boost::any& context)
