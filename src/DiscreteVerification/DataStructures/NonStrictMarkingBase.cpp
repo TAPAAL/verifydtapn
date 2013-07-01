@@ -238,8 +238,6 @@ namespace VerifyTAPN {
             
             int count = tapn.getTransitions().size();
             int* status = new int[count];
-            
-            cout << *(NonStrictMarkingBase*)this << endl;
 
             for (vector<boost::shared_ptr<TAPN::TimedTransition> >::const_iterator tit = tapn.getTransitions().begin();
                     tit != tapn.getTransitions().end(); ++tit) {

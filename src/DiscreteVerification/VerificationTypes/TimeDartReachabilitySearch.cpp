@@ -39,8 +39,6 @@ bool TimeDartReachabilitySearch::verify(){
 			}
 			int start = max(dart.getWaiting(), calculatedStart.first);
 			int end = min(passed-1, calculatedStart.second);
-                        cout << "start " << start << endl;
-                        cout << "end " << *dart.getBase() << endl;
 
 			if(start <= end){
 
