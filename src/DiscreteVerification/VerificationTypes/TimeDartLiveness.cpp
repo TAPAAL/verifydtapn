@@ -125,7 +125,7 @@ namespace VerifyTAPN {
             if(options.getTrace() == VerificationOptions::SOME_TRACE){
                 start = marking->getYoungest();
             }
-            marking->cut();
+            int maxDelay = marking->cut();
             const TimedTransition* transition = marking->getGeneratedBy();
             unsigned int size = marking->size();
 
@@ -136,9 +136,15 @@ namespace VerifyTAPN {
                 return false;
             }
 
+            // very curde way of doing this, integers could be passed as arguments for querychecker instead
+            // this is only needed for deadlock-checks, should possibly be contained in if-structure (huge overhead)
+            NonStrictMarkingBase maxed = NonStrictMarkingBase(*marking);
+            maxed.incrementAge(maxDelay);        // delay to maximum possible age (for deadlock query)
+            maxed.cut();
+            
             int youngest = marking->makeBase(tapn.get());
 
-            QueryVisitor<NonStrictMarkingBase> checker(*marking, *tapn.get());
+            QueryVisitor<NonStrictMarkingBase> checker(maxed, *tapn.get());
             boost::any context;
             query->accept(checker, context);
             if (boost::any_cast<bool>(context)) {
