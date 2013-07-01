@@ -39,6 +39,9 @@ bool TimeDartReachabilitySearch::verify(){
 			}
 			int start = max(dart.getWaiting(), calculatedStart.first);
 			int end = min(passed-1, calculatedStart.second);
+                        cout << "start " << start << endl;
+                        cout << "end " << *dart.getBase() << endl;
+
 			if(start <= end){
 
 				if(transition.hasUntimedPostset()){
@@ -73,7 +76,7 @@ bool TimeDartReachabilitySearch::addToPW(NonStrictMarkingBase* marking, WaitingD
         if(options.getTrace() == VerificationOptions::SOME_TRACE){
             start = marking->getYoungest();
         }
-	marking->cut();
+	int maxDelay = marking->cut();
 
 	unsigned int size = marking->size();
 
@@ -83,10 +86,17 @@ bool TimeDartReachabilitySearch::addToPW(NonStrictMarkingBase* marking, WaitingD
                 delete marking;
 		return false;
 	}
+        
+        // very curde way of doing this, integers could be passed as arguments for querychecker instead
+        NonStrictMarkingBase maxed = NonStrictMarkingBase(*marking);
+        maxed.incrementAge(maxDelay);        // delay to maximum possible age (for deadlock query)
+        maxed.cut();
+        
         int youngest = marking->makeBase(tapn.get());
-                                //int youngest, WaitingDart* parent, int upper
+        
+        cout << *marking << endl;
 	if(pwList->add(tapn.get(), marking, youngest, parent, upper, start)){
-		QueryVisitor<NonStrictMarkingBase> checker(*marking, *tapn.get());
+		QueryVisitor<NonStrictMarkingBase> checker(maxed, *tapn.get());
 		boost::any context;
 		query->accept(checker, context);
 		if(boost::any_cast<bool>(context)) {

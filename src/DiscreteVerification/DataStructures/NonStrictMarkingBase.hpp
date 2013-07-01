@@ -157,7 +157,7 @@ public:
                 
 	public: // modifiers
 
-                void cut();
+                int cut();
 		bool removeToken(int placeId, int age);
 		bool removeToken(Place& place, Token& token);
 		void addTokenInPlace(TAPN::TimedPlace& place, int age);

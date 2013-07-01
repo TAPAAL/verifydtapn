@@ -238,6 +238,8 @@ namespace VerifyTAPN {
             
             int count = tapn.getTransitions().size();
             int* status = new int[count];
+            
+            cout << *(NonStrictMarkingBase*)this << endl;
 
             for (vector<boost::shared_ptr<TAPN::TimedTransition> >::const_iterator tit = tapn.getTransitions().begin();
                     tit != tapn.getTransitions().end(); ++tit) {
@@ -354,11 +356,22 @@ namespace VerifyTAPN {
             }
         }
 
-        void NonStrictMarkingBase::cut() {
+        
+        int NonStrictMarkingBase::cut() {
 #ifdef DEBUG
             std::cout << "Before cut: " << *this << std::endl;
 #endif
+            int maxDelay = std::numeric_limits<int>::max();
             for (PlaceList::iterator place_iter = this->places.begin(); place_iter != this->places.end(); place_iter++) {
+                // calculate maximum possible delay - used for deadlock query
+                int invariant = place_iter->place->getInvariant().getBound();
+                // this also handles case where invariant = inf
+                if(invariant < maxDelay){
+                    // it should not be possible for a pre-cut marking to acheive an age above the invariant
+                    int candidate = invariant - place_iter->maxTokenAge();
+                    // maximum possible delay for tokens seen so far
+                    maxDelay = min(maxDelay, candidate);
+                }
                 //set age of too old tokens to max age
                 int count = 0;
                 for (TokenList::iterator token_iter = place_iter->tokens.begin(); token_iter != place_iter->tokens.end(); token_iter++) {
@@ -379,6 +392,7 @@ namespace VerifyTAPN {
                 }
             }
             this->cleanUp();
+            return maxDelay;
 #ifdef DEBUG
             std::cout << "After cut: " << *this << std::endl;
 #endif
