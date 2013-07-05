@@ -147,7 +147,7 @@ namespace VerifyTAPN {
             
             int youngest = marking->makeBase(tapn.get());
 
-            QueryVisitor<NonStrictMarkingBase> checker(marking, *tapn.get());
+            QueryVisitor<NonStrictMarkingBase> checker(*marking, *tapn.get());
             boost::any context;
             query->accept(checker, context);
             if (boost::any_cast<bool>(context)) {

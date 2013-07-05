@@ -88,14 +88,15 @@ bool TimeDartReachabilitySearch::addToPW(NonStrictMarkingBase* marking, WaitingD
         int youngest = marking->makeBase(tapn.get());
         
 	if(pwList->add(tapn.get(), marking, youngest, parent, upper, start)){
-                // very curde way of doing this, integers could be passed as arguments for querychecker instead
-                // this is only needed for deadlock-checks, should possibly be contained in if-structure (huge overhead)
-                NonStrictMarkingBase maxed = NonStrictMarkingBase(*marking);
+
+
                 if(maxDelay != std::numeric_limits<int>::max())
                     maxDelay += youngest;
-                maxed.incrementAge(maxDelay);        // delay to maximum possible age (for deadlock query)
-                maxed.cut();
-		QueryVisitor<NonStrictMarkingBase> checker(maxed, *tapn.get());
+                if(maxDelay > tapn->getMaxConstant()){
+                    maxDelay = tapn->getMaxConstant() +1;
+                }
+                
+		QueryVisitor<NonStrictMarkingBase> checker(*marking, *tapn.get(), maxDelay);
 		boost::any context;
 		query->accept(checker, context);
 		if(boost::any_cast<bool>(context)) {

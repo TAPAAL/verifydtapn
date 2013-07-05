@@ -230,7 +230,7 @@ namespace VerifyTAPN {
             return out;
         }
 
-        const bool NonStrictMarkingBase::canDeadlock(const TAPN::TimedArcPetriNet& tapn) const {
+        const bool NonStrictMarkingBase::canDeadlock(const TAPN::TimedArcPetriNet& tapn, const int maxDelay) const {
             bool canDelay = true;
             bool allMC = true;
 
@@ -268,7 +268,7 @@ namespace VerifyTAPN {
                         // decrement if token can satisfy the bounds
                         for (TokenList::const_iterator tokenit = place_iter->tokens.begin();
                                 tokenit != place_iter->tokens.end(); ++tokenit){
-                            int age = tokenit->getAge();
+                            int age = tokenit->getAge() + maxDelay;
                             if(age >= lb){
                                 if(age <= ub){
                                 weight -= tokenit->getCount(); // decrement weight      
@@ -298,7 +298,7 @@ namespace VerifyTAPN {
                         // decrement if token can satisfy the bounds
                         for (TokenList::const_iterator tokenit = place_iter->tokens.begin();
                                 tokenit != place_iter->tokens.end(); ++tokenit){
-                            int age = tokenit->getAge();
+                            int age = tokenit->getAge() + maxDelay;
                             if(age >= lb ){
                                 if(age <= ub){
                                         weight -= tokenit->getCount();
@@ -327,7 +327,7 @@ namespace VerifyTAPN {
                 
                 if (canDelay) { // if delay is still possible
                     int invariant = place_iter->place->getInvariant().getBound();
-                    if (invariant == place_iter->maxTokenAge()) {       // if we have reached the invariant
+                    if (invariant == place_iter->maxTokenAge() + maxDelay) {       // if we have reached the invariant
                         canDelay = false;                               // we cannot delay
                     } else {
                         if(allMC){                                      // if all up till now have been equal MC
