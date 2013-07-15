@@ -1,4 +1,5 @@
 #include "TimeDartVerification.hpp"
+#include "../DeadlockVisitor.hpp"
 
 namespace VerifyTAPN {
     namespace DiscreteVerification {
@@ -166,10 +167,15 @@ namespace VerifyTAPN {
             NonStrictMarkingBase* last = NULL;
             NonStrictMarkingBase* l = NULL;
             
+            DeadlockVisitor deadlockVisitor = DeadlockVisitor();
+            boost::any c;
+            deadlockVisitor.visit(*query, c);
+            bool queryContainsDeadlock = boost::any_cast<bool>(c);
+            
             // only if we have reached a deadlock (liveness) or 
             // have a reachability query (for delay when deadlock prop is used) then
             // we want to create some end-delay
-            if(deadlock || query->getQuantifier() == EF || query->getQuantifier() == AG){
+            if(deadlock || queryContainsDeadlock){
                 NonStrictMarkingBase* base = getBase(trace->dart);
                 
                 int diff = this->maxPossibleDelay(base) - trace->start;
