@@ -165,10 +165,17 @@ namespace VerifyTAPN {
             int upper = trace->start;
             NonStrictMarkingBase* last = NULL;
             NonStrictMarkingBase* l = NULL;
-            if(deadlock){
+            
+            // only if we have reached a deadlock (liveness) or 
+            // have a reachability query (for delay when deadlock prop is used) then
+            // we want to create some end-delay
+            if(deadlock || query->getQuantifier() == EF || query->getQuantifier() == AG){
                 NonStrictMarkingBase* base = getBase(trace->dart);
                 
                 int diff = this->maxPossibleDelay(base) - trace->start;
+                // fix for when max possible delay = inf
+                if(diff > this->tapn->getMaxConstant())
+                    diff = (this->tapn->getMaxConstant() + 1) - trace->start;
                 while (diff) {  // TODO loop seems to count the wrong way, not effecting anything, but wrong.
                         NonStrictMarkingBase* mc = new NonStrictMarkingBase(*base);
                         mc->incrementAge(trace->start + diff);
