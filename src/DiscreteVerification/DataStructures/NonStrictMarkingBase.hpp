@@ -117,13 +117,11 @@ public:
 			iter->decrementAge();
 		}
 	}
-        inline bool allMaximumConstant() const {
-            if(tokens.size() > 1){      // if more than one symetry-reduced token
-                return false;           // they must have different ages
-            }                           // ie; not all is mc+1
-                                        
-                                        // else just check on the one remaning
-            return tokens[0].getAge() == (place->getMaxConstant() + 1);
+        inline bool allMaximumConstant(const int delay) const {                                       
+            // assume the list is sorted, first token must be lowest, 
+            // and thus we only need to check this token to the max constant.
+            // also assume no place-object is "empty"
+            return (tokens[0].getAge() + delay) >= (place->getMaxConstant() + 1);
         }
 };
 

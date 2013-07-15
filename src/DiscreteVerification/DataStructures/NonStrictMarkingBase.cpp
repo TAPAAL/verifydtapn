@@ -234,8 +234,7 @@ namespace VerifyTAPN {
             bool canDelay = true;
             bool allMC = true;
 
-            // this should be static and only allocated once!
-            
+            // this should be allocated only once!            
             int count = tapn.getTransitions().size();
             int* status = new int[count];
 
@@ -292,7 +291,7 @@ namespace VerifyTAPN {
                     int weight = arc_iter->lock().get()->getWeight();
                     if(numtokens < arc_iter->lock().get()->getWeight())
                         status[id] = -1; // impossible to enable
-                    else if(status[id] != -1) { // if enableable so far
+                    else if(status[id] != -1) { // if enable able so far
                         int lb = arc_iter->lock().get()->getInterval().getLowerBound();
                         int ub = arc_iter->lock().get()->getInterval().getUpperBound();
                         // decrement if token can satisfy the bounds
@@ -331,7 +330,7 @@ namespace VerifyTAPN {
                         canDelay = false;                               // we cannot delay
                     } else {
                         if(allMC){                                      // if all up till now have been equal MC
-                            allMC = place_iter->allMaximumConstant();   // check if this one is to
+                            allMC = place_iter->allMaximumConstant(maxDelay);   // check if this one is to
                         }
                     }
                 }

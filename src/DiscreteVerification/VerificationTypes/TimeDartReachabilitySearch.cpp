@@ -93,7 +93,7 @@ bool TimeDartReachabilitySearch::addToPW(NonStrictMarkingBase* marking, WaitingD
                 if(maxDelay != std::numeric_limits<int>::max())
                     maxDelay += youngest;
                 if(maxDelay > tapn->getMaxConstant()){
-                    maxDelay = tapn->getMaxConstant() +1;
+                    maxDelay = tapn->getMaxConstant() + 1;
                 }
                 
 		QueryVisitor<NonStrictMarkingBase> checker(*marking, *tapn.get(), maxDelay);
