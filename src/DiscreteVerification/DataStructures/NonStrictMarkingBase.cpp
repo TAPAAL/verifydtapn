@@ -233,8 +233,8 @@ namespace VerifyTAPN {
         const bool NonStrictMarkingBase::canDeadlock(const TAPN::TimedArcPetriNet& tapn, const int maxDelay) const {
             bool canDelay = true;
             bool allMC = true;
-
-            // this should be allocated only once!            
+            
+            // this should be allocated only once!   
             int count = tapn.getTransitions().size();
             int* status = new int[count];
 
@@ -326,7 +326,7 @@ namespace VerifyTAPN {
                 
                 if (canDelay) { // if delay is still possible
                     int invariant = place_iter->place->getInvariant().getBound();
-                    if (invariant == place_iter->maxTokenAge() + maxDelay) {       // if we have reached the invariant
+                    if (invariant <= place_iter->maxTokenAge() + maxDelay) {       // if we have reached the invariant
                         canDelay = false;                               // we cannot delay
                     } else {
                         if(allMC){                                      // if all up till now have been equal MC
@@ -349,7 +349,7 @@ namespace VerifyTAPN {
                                 // If the tokens are not aged yet, they will eventually reach it but no deadlock reported
                 return allMC;
             } else {
-                return true;    // we cannot delay, no deadlock
+                return true;    // we cannot delay, deadlock
             }
         }
 
@@ -362,8 +362,8 @@ namespace VerifyTAPN {
             for (PlaceList::iterator place_iter = this->places.begin(); place_iter != this->places.end(); place_iter++) {
                 // calculate maximum possible delay - used for deadlock query
                 int invariant = place_iter->place->getInvariant().getBound();
-                // this also handles case where invariant = inf
-                if(invariant < maxDelay){
+                // this handles case where invariant = inf
+                if(invariant != std::numeric_limits<int>::max()){
                     // it should not be possible for a pre-cut marking to acheive an age above the invariant
                     int candidate = invariant - place_iter->maxTokenAge();
                     // maximum possible delay for tokens seen so far
