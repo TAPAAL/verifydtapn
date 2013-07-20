@@ -148,7 +148,7 @@ void LivenessSearch::getTrace(){
 	NonStrictMarking* m = trace.top();
 	generateTraceStack(m, &printStack, &trace);
 	if(options.getXmlTrace()){
-		printXMLTrace(m, printStack, query->getQuantifier());
+		printXMLTrace(m, printStack, query, *this->tapn.get());
 	} else {
 		printHumanTrace(m, printStack, query->getQuantifier());
 	}

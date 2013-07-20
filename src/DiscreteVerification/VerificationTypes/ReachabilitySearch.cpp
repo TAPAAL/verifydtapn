@@ -113,7 +113,7 @@ void ReachabilitySearch::getTrace(){
 	stack < NonStrictMarking*> printStack;
 	generateTraceStack(lastMarking, &printStack);
 	if(options.getXmlTrace()){
-		printXMLTrace(lastMarking, printStack, query->getQuantifier());
+		printXMLTrace(lastMarking, printStack, query, *this->tapn.get());
 	} else {
 		printHumanTrace(lastMarking, printStack, query->getQuantifier());
 	}
@@ -133,7 +133,7 @@ void ReachabilitySearchPTrie::getTrace(){
             printStack.push(m);
             next = next->parent;
         };
-        printXMLTrace(lastMarking, printStack, query->getQuantifier());
+        printXMLTrace(lastMarking, printStack, query, *this->tapn.get());
 }
 
 ReachabilitySearch::~ReachabilitySearch() {

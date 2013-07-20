@@ -230,7 +230,7 @@ namespace VerifyTAPN {
             return out;
         }
 
-        const bool NonStrictMarkingBase::canDeadlock(const TAPN::TimedArcPetriNet& tapn, const int maxDelay) const {
+        const bool NonStrictMarkingBase::canDeadlock(const TAPN::TimedArcPetriNet& tapn, const int maxDelay, bool ignoreCanDelay) const {
             bool canDelay = true;
             bool allMC = true;
             
@@ -345,7 +345,7 @@ namespace VerifyTAPN {
             }
             delete[] status;
             // if we can delay there is no deadlock (needs something with check for possible delay)
-            if(canDelay){       // for sure we have a deadlock if all tokens are at MC +1 and we can delay
+            if(canDelay && !ignoreCanDelay){       // for sure we have a deadlock if all tokens are at MC +1 and we can delay
                                 // If the tokens are not aged yet, they will eventually reach it but no deadlock reported
                 return allMC;
             } else {

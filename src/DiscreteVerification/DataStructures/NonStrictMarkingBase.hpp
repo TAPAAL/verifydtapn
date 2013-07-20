@@ -140,7 +140,11 @@ public:
 	virtual ~NonStrictMarkingBase();
 
 	public: // inspectors
-                const bool canDeadlock(const TAPN::TimedArcPetriNet& tapn, const int maxDelay) const;
+
+                const bool canDeadlock(const TAPN::TimedArcPetriNet& tapn, const int maxDelay, bool ignoreCanDelay) const;
+                inline const bool canDeadlock(const TAPN::TimedArcPetriNet& tapn, const int maxDelay) const {
+                    return canDeadlock(tapn, maxDelay, false);
+                };
 		int numberOfTokensInPlace(int placeId) const;
 		const TokenList& getTokenList(int placeId) const;
 		inline const PlaceList& getPlaceList() const{ return places; }

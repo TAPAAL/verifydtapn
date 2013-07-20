@@ -6,6 +6,7 @@
 #include "../DataStructures/NonStrictMarking.hpp"
 #include <stack>
 #include "../../Core/TAPNParser/util.hpp"
+#include "../DeadlockVisitor.hpp"
 
 namespace VerifyTAPN {
     namespace DiscreteVerification {
@@ -26,7 +27,7 @@ namespace VerifyTAPN {
             }
 
             void printHumanTrace(T* m, std::stack<T*>& stack, AST::Quantifier query);
-            void printXMLTrace(T* m, std::stack<T*>& stack, AST::Quantifier query);
+            void printXMLTrace(T* m, std::stack<T*>& stack, AST::Query* query, TAPN::TimedArcPetriNet& tapn);
             rapidxml::xml_node<>* createTransitionNode(T* old, T* current, rapidxml::xml_document<>& doc);
             void createTransitionSubNodes(T* old, T* current, rapidxml::xml_document<>& doc, rapidxml::xml_node<>* transitionNode, const TAPN::TimedPlace& place, const TAPN::TimeInterval& interval, const int weight);
             rapidxml::xml_node<>* createTokenNode(rapidxml::xml_document<>& doc, const TAPN::TimedPlace& place, const Token& token);
@@ -112,7 +113,7 @@ namespace VerifyTAPN {
         }
 
         template<typename T>
-        void Verification<T>::printXMLTrace(T* m, std::stack<T*>& stack, AST::Quantifier query) {
+        void Verification<T>::printXMLTrace(T* m, std::stack<T*>& stack, AST::Query* query, TAPN::TimedArcPetriNet& tapn) {
             using namespace rapidxml;
             std::cerr << "Trace: " << std::endl;
             bool isFirst = true;
@@ -137,7 +138,7 @@ namespace VerifyTAPN {
                         bool delayloop = false;
                         while (!stack.empty() && stack.top()->getGeneratedBy() == NULL) {
                             // check if this marking is the start of a loop
-                            if (!foundLoop && (query == AST::EG || query == AST::AF)
+                            if (!foundLoop && (query->getQuantifier() == AST::EG || query->getQuantifier() == AST::AF)
                                     && (stack.size() > 2 && old->equals(*m))) {
 
                                 foundLoop = true;
@@ -162,6 +163,31 @@ namespace VerifyTAPN {
                             delayedForever = true;
                             break;
                         }
+                        // if we are looking at the last marking and we have some delay
+                        // then in case of deadlock we want to find the earliest point
+                        // with a transition enabled, and add one (such that we have a 
+                        // deadlock with no end-delay).
+                        if((!foundLoop) && old->getNumberOfChildren() == 0 && i > 0){
+                            // make sure query contains deadlock
+                            DeadlockVisitor deadlockVisitor = DeadlockVisitor();
+                            boost::any c;
+                            deadlockVisitor.visit(*query, c);
+                            bool queryContainsDeadlock = boost::any_cast<bool>(c);
+                            if(queryContainsDeadlock){
+                                //if query contains deadlock, decrement i until last delay with a transition enabled.
+                                int delay = old->makeBase(&tapn);
+                                while(delay > 0 && old->canDeadlock(tapn, delay, true)){
+                                    delay--;
+                                    i--;
+                                }
+                                // add one to make a deadlock again
+                                i++;
+                                delay++;
+                                // increment old marking
+                                old->incrementAge(delay);
+                            }
+
+                        }
                         xml_node<>* node = doc.allocate_node(node_element, "delay", doc.allocate_string(toString(i).c_str()));
                         root->append_node(node);
                         stack.push(old);
@@ -169,7 +195,7 @@ namespace VerifyTAPN {
                     }
                 }
                 
-                if ((query == AST::EG || query == AST::AF)
+                if ((query->getQuantifier() == AST::EG || query->getQuantifier() == AST::AF)
                         && (stack.size() > 1 && stack.top()->equals(*m))) {
                     T* temp = m;
                     foundLoop = false;
@@ -194,7 +220,7 @@ namespace VerifyTAPN {
             }
 
             //Trace ended, goto * or deadlock
-            if (query == AST::EG || query == AST::AF) {
+            if (query->getQuantifier() == AST::EG || query->getQuantifier() == AST::AF) {
                 if (!foundLoop && !delayedForever) {
                     if (m->getNumberOfChildren() > 0) {
                         root->append_node(doc.allocate_node(node_element, "deadlock"));
