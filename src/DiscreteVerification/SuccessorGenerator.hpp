@@ -209,7 +209,6 @@ namespace VerifyTAPN {
         Result SuccessorGenerator<T>::generateAndInsertSuccessors(const T& marking) {
             succesorsExist = false;
             urgentEnabled = false;
-            
             ArcHashMap enabledArcs(tapn.getInhibitorArcs().size() + tapn.getInputArcs().size() + tapn.getTransportArcs().size());
             std::vector<unsigned int> enabledTransitionArcs(tapn.getTransitions().size(), 0);
 
@@ -274,9 +273,6 @@ namespace VerifyTAPN {
             }
             if (enabledTransitionArcs[transition.getIndex()] == transition.getPreset().size() + transition.getTransportArcs().size() && !isInhib) {
                 enabledTransitions.push_back(&transition);
-                if(transition.isUrgent()){
-                    urgentEnabled = true;
-                }
             }
         }
         
@@ -330,6 +326,11 @@ namespace VerifyTAPN {
                 }
             }
 
+            // only here the weights have been properly checked.
+            if(transition.isUrgent()){
+                this->urgentEnabled = true;
+            }
+            
             // Write statistics
             transitionStatistics[transition.getIndex()]++;
 
