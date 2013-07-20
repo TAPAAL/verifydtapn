@@ -182,17 +182,7 @@ namespace VerifyTAPN {
                 // fix for when max possible delay = inf
                 if(diff > this->tapn->getMaxConstant())
                     diff = (this->tapn->getMaxConstant() + 1) - trace->start;
-/*               // this has been moved to trace-generator for both pointwice and time-darts
-                // iterative implementation of min delay to reach a deadlock (only for deadlock proposition)
-                int tmpDiff = diff;
-                while(queryContainsDeadlock && diff && base->canDeadlock(*this->tapn.get(), diff, true)){
-                    diff--;
-                }
-                // make sure that we were actually looking for a deadlock, or else reset diff to previous value.
-                if(queryContainsDeadlock && !base->canDeadlock(*this->tapn.get(), diff + 1, true)){
-                    diff = tmpDiff;
-                }
- */
+
                 while (diff) {  // TODO loop seems to count the wrong way, not effecting anything, but wrong.
                         NonStrictMarkingBase* mc = new NonStrictMarkingBase(*base);
                         mc->incrementAge(trace->start + diff);
