@@ -180,9 +180,11 @@ namespace VerifyTAPN {
                                     delay--;
                                     i--;
                                 }
-                                // add one to make a deadlock again
-                                i++;
-                                delay++;
+                                // add one to make a deadlock again if we have not reached zero delay and zero delay is a deadlock
+                                if(!old->canDeadlock(tapn, delay, true)){
+                                    i++;
+                                    delay++;
+                                }
                                 // increment old marking
                                 old->incrementAge(delay);
                             }
