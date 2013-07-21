@@ -167,33 +167,37 @@ namespace VerifyTAPN {
                         // then in case of deadlock we want to find the earliest point
                         // with a transition enabled, and add one (such that we have a 
                         // deadlock with no end-delay).
-                        if((!foundLoop) && old->getNumberOfChildren() == 0 && i > 0){
+                        if((!foundLoop) && stack.empty()){
                             // make sure query contains deadlock
                             DeadlockVisitor deadlockVisitor = DeadlockVisitor();
                             boost::any c;
                             deadlockVisitor.visit(*query, c);
                             bool queryContainsDeadlock = boost::any_cast<bool>(c);
                             if(queryContainsDeadlock){
-                                //if query contains deadlock, decrement i until last delay with a transition enabled.
-                                int delay = old->makeBase(&tapn);
-                                while(delay > 0 && old->canDeadlock(tapn, delay, true)){
-                                    delay--;
+                                // find the marking from which a delay gave a deadlock
+                                NonStrictMarkingBase* base = old;
+                                while(base->getGeneratedBy() == NULL && base->getParent() != NULL){
+                                    base = base->getParent();
+                                }
+                                // max the delay out
+                                base->incrementAge(i);
+                                // decrement the last marking until earliest delay with a transition enabled.
+                                while(i > 0 && base->canDeadlock(tapn, 0, true)){
+                                    base->decrementAge();
                                     i--;
                                 }
                                 // add one to make a deadlock again if we have not reached zero delay and zero delay is a deadlock
-                                if(!old->canDeadlock(tapn, delay, true)){
+                                if(!base->canDeadlock(tapn, 0, true)){
                                     i++;
-                                    delay++;
+                                    base->incrementAge();
                                 }
                                 // increment old marking
-                                old->incrementAge(delay);
                             }
 
                         }
                         xml_node<>* node = doc.allocate_node(node_element, "delay", doc.allocate_string(toString(i).c_str()));
                         root->append_node(node);
                         stack.push(old);
-
                     }
                 }
                 

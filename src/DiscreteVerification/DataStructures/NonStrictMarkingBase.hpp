@@ -149,7 +149,7 @@ public:
 		const TokenList& getTokenList(int placeId) const;
 		inline const PlaceList& getPlaceList() const{ return places; }
 		unsigned int size();
-		inline const NonStrictMarkingBase* getParent() const { return parent; }
+		inline NonStrictMarkingBase* getParent() const { return parent; }
 		inline const TAPN::TimedTransition* getGeneratedBy() const { return generatedBy; }
 		bool equals(const NonStrictMarkingBase &m1) const;
                 inline int getNumberOfChildren(){
