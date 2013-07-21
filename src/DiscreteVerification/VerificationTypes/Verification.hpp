@@ -179,20 +179,16 @@ namespace VerifyTAPN {
                                 while(base->getGeneratedBy() == NULL && base->getParent() != NULL){
                                     base = base->getParent();
                                 }
-                                // max the delay out
-                                base->incrementAge(i);
+
                                 // decrement the last marking until earliest delay with a transition enabled.
-                                while(i > 0 && base->canDeadlock(tapn, 0, true)){
-                                    base->decrementAge();
+                                while(i > 0 && base->canDeadlock(tapn, i, true)){
                                     i--;
                                 }
                                 // add one to make a deadlock again if we have not reached zero delay and zero delay is a deadlock
-                                if(!base->canDeadlock(tapn, 0, true)){
+                                if(!base->canDeadlock(tapn, i, true)){
                                     i++;
-                                    base->incrementAge();
                                 }
                             }
-
                         }
                         if(i > 0){
                             xml_node<>* node = doc.allocate_node(node_element, "delay", doc.allocate_string(toString(i).c_str()));

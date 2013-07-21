@@ -308,7 +308,6 @@ namespace VerifyTAPN {
                         }
                         if (weight <= 0) {
                             --status[id];       // arc can be satisfied
-                            break;
                         } else {
                             status[id] = -1; // unless we can satisfy the weight, transition not enabled
                         }
