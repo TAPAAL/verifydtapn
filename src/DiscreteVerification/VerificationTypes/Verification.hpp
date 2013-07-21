@@ -194,8 +194,10 @@ namespace VerifyTAPN {
                             }
 
                         }
-                        xml_node<>* node = doc.allocate_node(node_element, "delay", doc.allocate_string(toString(i).c_str()));
-                        root->append_node(node);
+                        if(i > 0){
+                            xml_node<>* node = doc.allocate_node(node_element, "delay", doc.allocate_string(toString(i).c_str()));
+                            root->append_node(node);
+                        }
                         stack.push(old);
                     }
                 }
