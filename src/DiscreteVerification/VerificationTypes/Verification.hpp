@@ -191,7 +191,6 @@ namespace VerifyTAPN {
                                     i++;
                                     base->incrementAge();
                                 }
-                                // increment old marking
                             }
 
                         }
