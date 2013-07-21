@@ -14,11 +14,11 @@ namespace VerifyTAPN {
 
         TokenList NonStrictMarkingBase::emptyTokenList = TokenList();
 
-        NonStrictMarkingBase::NonStrictMarkingBase() : children(0), generatedBy(NULL), parent(NULL) {
+        NonStrictMarkingBase::NonStrictMarkingBase() : children(0), parent(NULL), generatedBy(NULL) {
             // empty constructor
         }
 
-        NonStrictMarkingBase::NonStrictMarkingBase(const TAPN::TimedArcPetriNet& tapn, const std::vector<int>& v) : children(0), generatedBy(NULL), parent(NULL) {
+        NonStrictMarkingBase::NonStrictMarkingBase(const TAPN::TimedArcPetriNet& tapn, const std::vector<int>& v) : children(0), parent(NULL), generatedBy(NULL) {
             int prevPlaceId = -1;
             for (std::vector<int>::const_iterator iter = v.begin(); iter != v.end(); iter++) {
                 if (*iter == prevPlaceId) {
