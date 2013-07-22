@@ -32,8 +32,16 @@ bool ReachabilitySearch::verify(){
 		trace.push(&next_marking);
 		validChildren = 0;
 
+                bool noDelay = false;
+                Result res = successorGenerator.generateAndInsertSuccessors(next_marking);
+                if(res == QUERY_SATISFIED){
+                    return true;
+                }  else if (res == URGENT_ENABLED) {
+                    noDelay = true;
+                }
+
 		// Generate next markings
-		if(isDelayPossible(next_marking)){
+		if(!noDelay && isDelayPossible(next_marking)){
 			NonStrictMarking* marking = new NonStrictMarking(next_marking);
 			marking->incrementAge();
 			marking->setGeneratedBy(NULL);
@@ -41,11 +49,8 @@ bool ReachabilitySearch::verify(){
                             return true;
                         }
 		}
-                if(successorGenerator.generateAndInsertSuccessors(next_marking)){
-                    return true;
-                }  
-
                 deleteMarking(&next_marking);
+
 	}
 
 	return false;

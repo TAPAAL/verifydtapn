@@ -21,8 +21,8 @@ class SymMarking;
 		public: // typedefs
 			typedef std::vector< boost::shared_ptr<TimedTransition> > Vector;
 		public:
-			TimedTransition(const std::string& name, const std::string& id) : name(name), id(id), preset(), postset(), transportArcs(), index(-1), untimedPostset(true) { };
-			TimedTransition() : name("*EMPTY*"), id("-1"), preset(), postset(), transportArcs(), index(-1), untimedPostset(true) { };
+			TimedTransition(const std::string& name, const std::string& id, bool urgent) : name(name), id(id), preset(), postset(), transportArcs(), index(-1), untimedPostset(true), urgent(urgent) { };
+			TimedTransition() : name("*EMPTY*"), id("-1"), preset(), postset(), transportArcs(), index(-1), untimedPostset(true),urgent(false) { };
 			virtual ~TimedTransition() { /* empty */ }
 
 		public: // modifiers
@@ -49,6 +49,9 @@ class SymMarking;
 			inline unsigned int getIndex() const { return index; }
 			inline const bool hasUntimedPostset() const { return untimedPostset; }
 			inline void setUntimedPostset(bool untimed){ untimedPostset = untimed; }
+                        inline const bool isUrgent() const {
+                            return urgent;
+                        }
 
 		private: // data
 			std::string name;
@@ -59,6 +62,7 @@ class SymMarking;
 			InhibitorArc::WeakPtrVector inhibitorArcs;
 			unsigned int index;
 			bool untimedPostset;
+                        bool urgent;
 		};
 
 		inline std::ostream& operator<<(std::ostream& out, const TimedTransition& transition)

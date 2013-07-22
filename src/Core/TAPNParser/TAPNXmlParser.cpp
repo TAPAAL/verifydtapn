@@ -95,7 +95,15 @@ boost::shared_ptr<TimedTransition> TAPNXmlParser::parseTransition(const xml_node
 {
 	std::string id(transitionNode.first_attribute("id")->value());
 	std::string name(transitionNode.first_attribute("name")->value());
-	return boost::make_shared<TimedTransition>(name, id);
+        xml_attribute<char>* urgenatt = transitionNode.first_attribute("urgent");
+        bool urgent = false;
+        if(urgenatt != NULL){
+            std::string urgentStr = urgenatt->value();
+            if(urgentStr.compare("true") == 0){
+                urgent = true;
+            }
+        }
+	return boost::make_shared<TimedTransition>(name, id,urgent );
 }
 
 TAPNXmlParser::ArcCollections TAPNXmlParser::parseArcs(const xml_node<>& root, const TimedPlace::Vector& places, const TimedTransition::Vector& transitions) const
