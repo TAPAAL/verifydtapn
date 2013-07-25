@@ -23,12 +23,12 @@ namespace VerifyTAPN {
 		{
 
 		public:// construction
-			TimedArcPetriNet(const TimedPlace::Vector& places,
-				const TimedTransition::Vector& transitions,
-				const TimedInputArc::Vector& inputArcs,
-				const OutputArc::Vector& outputArcs,
-				const TransportArc::Vector& transportArcs,
-				const InhibitorArc::Vector& inhibitorArcs)
+			TimedArcPetriNet(TimedPlace::Vector& places,
+				TimedTransition::Vector& transitions,
+				TimedInputArc::Vector& inputArcs,
+				OutputArc::Vector& outputArcs,
+				TransportArc::Vector& transportArcs,
+				InhibitorArc::Vector& inhibitorArcs)
 				: places(places), transitions(transitions), inputArcs(inputArcs), outputArcs(outputArcs), transportArcs(transportArcs), inhibitorArcs(inhibitorArcs), maxConstant(0) { };
 			virtual ~TimedArcPetriNet() { /* empty */ }
 
@@ -64,12 +64,12 @@ namespace VerifyTAPN {
 			void findMaxConstants();
 
 		private: // data
-			const TimedPlace::Vector places;
+			TimedPlace::Vector places;
 			TimedTransition::Vector transitions;
-			const TimedInputArc::Vector inputArcs;
-			const OutputArc::Vector outputArcs;
-			const TransportArc::Vector transportArcs;
-			const InhibitorArc::Vector inhibitorArcs;
+			TimedInputArc::Vector inputArcs;
+			OutputArc::Vector outputArcs;
+			TransportArc::Vector transportArcs;
+			InhibitorArc::Vector inhibitorArcs;
 			int maxConstant;
 		};
 

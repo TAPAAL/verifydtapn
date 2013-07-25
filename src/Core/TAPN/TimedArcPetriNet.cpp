@@ -16,34 +16,34 @@ namespace VerifyTAPN {
 				transitions[i]->setIndex(i);
 			}
 
-			for(TimedInputArc::Vector::const_iterator iter = inputArcs.begin(); iter != inputArcs.end(); ++iter)
+			for(TimedInputArc::Vector::iterator iter = inputArcs.begin(); iter != inputArcs.end(); ++iter)
 			{
-				const boost::shared_ptr<TimedInputArc>& arc = *iter;
-				arc->getOutputTransition().addToPreset(arc);
-				arc->getInputPlace().addInputArc(arc);
+                                TimedInputArc* arc = *iter;
+				arc->getOutputTransition().addToPreset(*arc);
+				arc->getInputPlace().addInputArc(*arc);
 				updateMaxConstant(arc->getInterval());
 			}
 
-			for(TransportArc::Vector::const_iterator iter = transportArcs.begin(); iter != transportArcs.end(); ++iter)
+			for(TransportArc::Vector::iterator iter = transportArcs.begin(); iter != transportArcs.end(); ++iter)
 			{
-				const boost::shared_ptr<TransportArc>& arc = *iter;
-				arc->getTransition().addTransportArcGoingThrough(arc);
-				arc->getSource().addTransportArc(arc);
+				TransportArc* arc = *iter;
+				arc->getTransition().addTransportArcGoingThrough(*arc);
+				arc->getSource().addTransportArc(*arc);
 				updateMaxConstant(arc->getInterval());
 			}
 
-			for(InhibitorArc::Vector::const_iterator iter = inhibitorArcs.begin(); iter != inhibitorArcs.end(); ++iter) {
-				const boost::shared_ptr<InhibitorArc>& arc = *iter;
-				arc->getOutputTransition().addIncomingInhibitorArc(arc);
-				arc->getInputPlace().addInhibitorArc(arc);
+			for(InhibitorArc::Vector::iterator iter = inhibitorArcs.begin(); iter != inhibitorArcs.end(); ++iter) {
+				InhibitorArc* arc = *iter;
+				arc->getOutputTransition().addIncomingInhibitorArc(*arc);
+				arc->getInputPlace().addInhibitorArc(*arc);
 				arc->getInputPlace().setHasInhibitorArcs(true);
 			}
 
-			for(OutputArc::Vector::const_iterator iter = outputArcs.begin(); iter != outputArcs.end(); ++iter)
+			for(OutputArc::Vector::iterator iter = outputArcs.begin(); iter != outputArcs.end(); ++iter)
 			{
-				const boost::shared_ptr<OutputArc>& arc = *iter;
-				arc->getInputTransition().addToPostset(arc);
-				arc->getOutputPlace().addOutputArc(arc);
+				OutputArc* arc = *iter;
+				arc->getInputTransition().addToPostset(*arc);
+				arc->getOutputPlace().addOutputArc(*arc);
 			}
 
 
@@ -124,7 +124,7 @@ namespace VerifyTAPN {
 					{
 						if((*arcIter)->getInputPlace() == **iter)
 						{
-							boost::shared_ptr<TimedInputArc> ia = *arcIter;
+							TimedInputArc* ia = *arcIter;
 							const TAPN::TimeInterval& interval = ia->getInterval();
 
 							const int lowerBound = interval.getLowerBound();
@@ -147,7 +147,7 @@ namespace VerifyTAPN {
 						if((*transport_iter)->getSource() == **iter)
 						{
 							int maxArc = -1;
-							boost::shared_ptr<TransportArc> ta = *transport_iter;
+							TransportArc* ta = *transport_iter;
 							const TAPN::TimeInterval& interval = ta->getInterval();
 							const int lowerBound = interval.getLowerBound();
 							const int upperBound = interval.getUpperBound();
@@ -191,9 +191,9 @@ namespace VerifyTAPN {
 			}
 
 			for(TimedTransition::Vector::iterator iter = transitions.begin(); iter != transitions.end(); iter++){
-				for(OutputArc::WeakPtrVector::const_iterator place_iter = iter->get()->getPostset().begin(); place_iter != iter->get()->getPostset().end(); place_iter++){
-					if(place_iter->lock()->getOutputPlace().getMaxConstant() > -1){
-						iter->get()->setUntimedPostset(false);
+				for(OutputArc::Vector::iterator place_iter = (*iter)->getPostset().begin(); place_iter != (*iter)->getPostset().end(); place_iter++){
+					if((*place_iter)->getOutputPlace().getMaxConstant() > -1){
+						(*iter)->setUntimedPostset(false);
 						break;
 					}
 				}
@@ -202,7 +202,7 @@ namespace VerifyTAPN {
 
 		void TimedArcPetriNet::calculateCausality(TimedPlace& p, std::vector< TimedPlace* >* result) const
 		{
-			for(std::vector< TimedPlace* >::const_iterator iter = result->begin(); iter != result->end(); iter++){
+			for(TimedPlace::Vector::const_iterator iter = result->begin(); iter != result->end(); iter++){
 				if(**iter == p) return;
 			}
 			result->push_back(&p);

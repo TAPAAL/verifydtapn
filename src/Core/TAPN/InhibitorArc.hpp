@@ -3,7 +3,6 @@
 
 #include <vector>
 #include "TimeInterval.hpp"
-#include "boost/smart_ptr.hpp"
 
 namespace VerifyTAPN {
 	namespace TAPN {
@@ -12,22 +11,21 @@ namespace VerifyTAPN {
 
 		class InhibitorArc {
 			public: // typedefs
-				typedef std::vector< boost::shared_ptr<InhibitorArc> > Vector;
-				typedef std::vector< boost::weak_ptr<InhibitorArc> > WeakPtrVector;
+				typedef std::vector<InhibitorArc*> Vector;
 			public:
-				InhibitorArc(const boost::shared_ptr<TimedPlace>& place, const boost::shared_ptr<TimedTransition>& transition, const int weight) : place(place), transition(transition), weight(weight) { };
+				InhibitorArc(TimedPlace& place, TimedTransition& transition, const int weight) : place(place), transition(transition), weight(weight) { };
 				virtual ~InhibitorArc() { /* empty */ }
 
 			public: // modifiers
-				inline TimedPlace& getInputPlace() { return *place; }
-				inline TimedTransition& getOutputTransition() { return *transition; }
+				inline TimedPlace& getInputPlace() const { return place; }
+				inline TimedTransition& getOutputTransition() const { return transition; }
 
 			public: // Inspectors
 				void print(std::ostream& out) const;
 				inline const int getWeight() const { return weight; }
 			private:
-				const boost::shared_ptr<TimedPlace> place;
-				const boost::shared_ptr<TimedTransition> transition;
+				TimedPlace& place;
+				TimedTransition& transition;
 				const int weight;
 		};
 
