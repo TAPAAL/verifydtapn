@@ -180,8 +180,8 @@ namespace VerifyTAPN {
                 
                 int diff = this->maxPossibleDelay(base) - trace->start;
                 // fix for when max possible delay = inf
-                if(diff > this->tapn->getMaxConstant())
-                    diff = (this->tapn->getMaxConstant() + 1) - trace->start;
+                if(diff > tapn.getMaxConstant())
+                    diff = (tapn.getMaxConstant() + 1) - trace->start;
 
                 while (diff) {  // TODO loop seems to count the wrong way, not effecting anything, but wrong.
                         NonStrictMarkingBase* mc = new NonStrictMarkingBase(*base);
@@ -217,7 +217,7 @@ namespace VerifyTAPN {
                 m->incrementAge(lower);
                 m->setParent(NULL);
                 if(upper == INT_MAX){
-                    upper = tapn.get()->getMaxConstant();
+                    upper = tapn.getMaxConstant();
                 }
                 // create markings between transitions, one for each delay (exluding last one)
                 if (upper > lower) {
@@ -249,7 +249,7 @@ namespace VerifyTAPN {
                 trace = (TraceDart*) trace->parent;
             }
             
-            printXMLTrace(l, traceStack, query, *this->tapn.get());
+            printXMLTrace(l, traceStack, query, tapn);
         }
 
     }

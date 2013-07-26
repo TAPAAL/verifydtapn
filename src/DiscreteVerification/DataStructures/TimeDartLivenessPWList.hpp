@@ -43,7 +43,7 @@ namespace VerifyTAPN {
             };
 
         public: // modifiers
-            virtual std::pair<LivenessDart*, bool> add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* base, int youngest, WaitingDart* parent, int upper, int start) = 0;
+            virtual std::pair<LivenessDart*, bool> add( NonStrictMarkingBase* base, int youngest, WaitingDart* parent, int upper, int start) = 0;
             virtual WaitingDart* getNextUnexplored() = 0;
             virtual void popWaiting() = 0;
             virtual void flushBuffer() = 0;
@@ -69,7 +69,7 @@ namespace VerifyTAPN {
             ~TimeDartLivenessPWHashMap() {
             };
             friend std::ostream& operator<<(std::ostream& out, TimeDartLivenessPWHashMap& x);
-            virtual std::pair<LivenessDart*, bool> add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* base, int youngest, WaitingDart* parent, int upper, int start);
+            virtual std::pair<LivenessDart*, bool> add(NonStrictMarkingBase* base, int youngest, WaitingDart* parent, int upper, int start);
             virtual WaitingDart* getNextUnexplored();
             virtual void popWaiting();
 
@@ -88,13 +88,13 @@ namespace VerifyTAPN {
 
 
             
-            TimeDartLivenessPWPData(VerificationOptions options, WaitingList<EncodingPointer<WaitingDart> >* w_l, boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, int nplaces, int mage) : TimeDartLivenessPWBase(), options(options), waiting_list(w_l), passed(tapn,  options.getKBound(), nplaces, mage) {
+            TimeDartLivenessPWPData(VerificationOptions options, WaitingList<EncodingPointer<WaitingDart> >* w_l, TAPN::TimedArcPetriNet& tapn, int nplaces, int mage) : TimeDartLivenessPWBase(), options(options), waiting_list(w_l), passed(tapn,  options.getKBound(), nplaces, mage) {
             };
 
             ~TimeDartLivenessPWPData() {
             };
             friend std::ostream& operator<<(std::ostream& out, TimeDartLivenessPWHashMap& x);
-            virtual std::pair<LivenessDart*, bool> add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* base, int youngest, WaitingDart* parent, int upper, int start);
+            virtual std::pair<LivenessDart*, bool> add(NonStrictMarkingBase* base, int youngest, WaitingDart* parent, int upper, int start);
             virtual WaitingDart* getNextUnexplored();
             virtual void popWaiting();
 

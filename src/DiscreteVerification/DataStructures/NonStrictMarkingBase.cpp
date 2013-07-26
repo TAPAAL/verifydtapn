@@ -408,7 +408,7 @@ namespace VerifyTAPN {
             return youngest;
         }
 
-        int NonStrictMarkingBase::makeBase(TAPN::TimedArcPetriNet* tapn) {
+        int NonStrictMarkingBase::makeBase() {
 #ifdef DEBUG
             std::cout << "Before makeBase: " << *this << std::endl;
 #endif

@@ -23,15 +23,15 @@ namespace VerifyTAPN {
             // TODO Auto-generated destructor stub
         }
 
-        int DiscreteVerification::run(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, std::vector<int> initialPlacement, AST::Query* query, VerificationOptions& options) {
-            if (!(*tapn).isNonStrict()) {
+        int DiscreteVerification::run(TAPN::TimedArcPetriNet& tapn, std::vector<int> initialPlacement, AST::Query* query, VerificationOptions& options) {
+            if (!tapn.isNonStrict()) {
                 std::cout << "The supplied net contains strict intervals." << std::endl;
                 return -1;
             }
 
-            NonStrictMarking* initialMarking = new NonStrictMarking(*tapn, initialPlacement);
+            NonStrictMarking* initialMarking = new NonStrictMarking(tapn, initialPlacement);
 
-            std::cout << "MC: " << tapn->getMaxConstant() << std::endl;
+            std::cout << "MC: " << tapn.getMaxConstant() << std::endl;
 #if DEBUG
             std::cout << "Places: " << std::endl;
             for (TAPN::TimedPlace::Vector::const_iterator iter = tapn.get()->getPlaces().begin(); iter != tapn.get()->getPlaces().end(); iter++) {

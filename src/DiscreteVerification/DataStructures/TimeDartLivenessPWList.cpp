@@ -10,7 +10,7 @@
 namespace VerifyTAPN {
     namespace DiscreteVerification {
 
-        std::pair<LivenessDart*, bool> TimeDartLivenessPWHashMap::add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* marking, int youngest, WaitingDart* parent, int upper, int start) {
+        std::pair<LivenessDart*, bool> TimeDartLivenessPWHashMap::add(NonStrictMarkingBase* marking, int youngest, WaitingDart* parent, int upper, int start) {
             discoveredMarkings++;
             TimeDartList& m = markings_storage[marking->getHashKey()];
             for (TimeDartList::const_iterator iter = m.begin();
@@ -61,7 +61,7 @@ namespace VerifyTAPN {
             waiting_list->flushBuffer();
         }
 
-        std::pair<LivenessDart*, bool> TimeDartLivenessPWPData::add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* marking, int youngest, WaitingDart* parent, int upper, int start) {
+        std::pair<LivenessDart*, bool> TimeDartLivenessPWPData::add(NonStrictMarkingBase* marking, int youngest, WaitingDart* parent, int upper, int start) {
 
             
             discoveredMarkings++;

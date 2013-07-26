@@ -9,7 +9,6 @@
 #define REACHABILITYSEARCH_HPP_
 
 #include "../DataStructures/PWList.hpp"
-#include "boost/smart_ptr.hpp"
 #include "../../Core/TAPN/TAPN.hpp"
 #include "../../Core/QueryParser/AST.hpp"
 #include "../../Core/VerificationOptions.hpp"
@@ -32,8 +31,8 @@ namespace DiscreteVerification {
 
 class ReachabilitySearch : public Verification<NonStrictMarking>{
 public:
-        ReachabilitySearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options);
-	ReachabilitySearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list);
+        ReachabilitySearch(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options);
+	ReachabilitySearch(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list);
 	virtual ~ReachabilitySearch();
 	bool verify();
 	NonStrictMarking* getLastMarking() { return lastMarking; }
@@ -52,7 +51,7 @@ protected:
 protected:
 	int validChildren;
 	PWListBase* pwList;
-	boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn;
+	TAPN::TimedArcPetriNet& tapn;
 	NonStrictMarking& initialMarking;
 	AST::Query* query;
 	VerificationOptions options;
@@ -67,10 +66,10 @@ protected:
 
 class ReachabilitySearchPTrie : public ReachabilitySearch{
 public:
-    ReachabilitySearchPTrie(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<EncodingPointer<MetaData> >* waiting_list) 
+    ReachabilitySearchPTrie(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<EncodingPointer<MetaData> >* waiting_list) 
     : ReachabilitySearch(tapn,initialMarking, query, options)
     {
-        pwList = new PWListHybrid(tapn, waiting_list, options.getKBound(), tapn->getNumberOfPlaces(), tapn->getMaxConstant(), false, options.getTrace() == VerificationOptions::SOME_TRACE);
+        pwList = new PWListHybrid(tapn, waiting_list, options.getKBound(), tapn.getNumberOfPlaces(), tapn.getMaxConstant(), false, options.getTrace() == VerificationOptions::SOME_TRACE);
     };
     
     virtual void deleteMarking(NonStrictMarking* m) {

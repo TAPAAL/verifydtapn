@@ -56,8 +56,8 @@ namespace VerifyTAPN {
                 waitingDart->dart->setPassed(waitingDart->w);
                 this->tmpdart = waitingDart;
                 // Iterate over transitions
-                for (TimedTransition::Vector::const_iterator transition_iter = tapn->getTransitions().begin();
-                        transition_iter != tapn->getTransitions().end(); transition_iter++) {
+                for (TimedTransition::Vector::const_iterator transition_iter = tapn.getTransitions().begin();
+                        transition_iter != tapn.getTransitions().end(); transition_iter++) {
                     TimedTransition& transition = **transition_iter;
 
                     // Calculate enabled set
@@ -145,13 +145,13 @@ namespace VerifyTAPN {
             maxed.cut();
             */
             
-            int youngest = marking->makeBase(tapn.get());
+            int youngest = marking->makeBase();
 
-            QueryVisitor<NonStrictMarkingBase> checker(*marking, *tapn.get());
+            QueryVisitor<NonStrictMarkingBase> checker(*marking, tapn);
             boost::any context;
             query->accept(checker, context);
             if (boost::any_cast<bool>(context)) {
-                std::pair < LivenessDart*, bool> result = pwList->add(tapn.get(), marking, youngest, parent, upper, start);
+                std::pair < LivenessDart*, bool> result = pwList->add(marking, youngest, parent, upper, start);
 
 
                 if (parent != NULL && parent->dart->getBase()->equals(*result.first->getBase()) && youngest <= upper) {

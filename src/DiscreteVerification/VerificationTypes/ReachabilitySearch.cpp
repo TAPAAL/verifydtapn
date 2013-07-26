@@ -10,13 +10,13 @@
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
-ReachabilitySearch::ReachabilitySearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options)
-	: tapn(tapn), initialMarking(initialMarking), query(query), options(options), successorGenerator( *tapn.get(), *this ){
+ReachabilitySearch::ReachabilitySearch(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options)
+	: tapn(tapn), initialMarking(initialMarking), query(query), options(options), successorGenerator( tapn, *this ){
 
 }
     
-ReachabilitySearch::ReachabilitySearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list)
-	: pwList(new PWList(waiting_list, false)), tapn(tapn), initialMarking(initialMarking), query(query), options(options), successorGenerator( *tapn.get(), *this ){
+ReachabilitySearch::ReachabilitySearch(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list)
+	: pwList(new PWList(waiting_list, false)), tapn(tapn), initialMarking(initialMarking), query(query), options(options), successorGenerator( tapn, *this ){
 
 }
 
@@ -61,7 +61,7 @@ bool ReachabilitySearch::isDelayPossible(NonStrictMarking& marking){
 	if(places.size() == 0) return true;	//Delay always possible in empty markings
 
 	PlaceList::const_iterator markedPlace_iter = places.begin();
-	for(TAPN::TimedPlace::Vector::const_iterator place_iter = tapn->getPlaces().begin(); place_iter != tapn->getPlaces().end(); place_iter++){
+	for(TAPN::TimedPlace::Vector::const_iterator place_iter = tapn.getPlaces().begin(); place_iter != tapn.getPlaces().end(); place_iter++){
 		int inv = (*place_iter)->getInvariant().getBound();
 		if(**place_iter == *(markedPlace_iter->place)){
 			if(markedPlace_iter->maxTokenAge() > inv-1){
@@ -91,7 +91,7 @@ bool ReachabilitySearch::addToPW(NonStrictMarking* marking, NonStrictMarking* pa
 	}
 
 	if(pwList->add(marking)){
-		QueryVisitor<NonStrictMarking> checker(*marking, *tapn.get());
+		QueryVisitor<NonStrictMarking> checker(*marking, tapn);
 		boost::any context;
 		query->accept(checker, context);
 		if(boost::any_cast<bool>(context)) {
@@ -118,7 +118,7 @@ void ReachabilitySearch::getTrace(){
 	stack < NonStrictMarking*> printStack;
 	generateTraceStack(lastMarking, &printStack);
 	if(options.getXmlTrace()){
-		printXMLTrace(lastMarking, printStack, query, *this->tapn.get());
+		printXMLTrace(lastMarking, printStack, query, tapn);
 	} else {
 		printHumanTrace(lastMarking, printStack, query->getQuantifier());
 	}
@@ -138,7 +138,7 @@ void ReachabilitySearchPTrie::getTrace(){
             printStack.push(m);
             next = next->parent;
         };
-        printXMLTrace(lastMarking, printStack, query, *this->tapn.get());
+        printXMLTrace(lastMarking, printStack, query, tapn);
 }
 
 ReachabilitySearch::~ReachabilitySearch() {

@@ -10,7 +10,6 @@
 
 #include "../DataStructures/TimeDart.hpp"
 #include "../DataStructures/TimeDartLivenessPWList.hpp"
-#include "boost/smart_ptr.hpp"
 #include "boost/numeric/interval.hpp"
 #include "../../Core/TAPN/TAPN.hpp"
 #include "../../Core/QueryParser/AST.hpp"
@@ -29,11 +28,11 @@ namespace VerifyTAPN {
         class TimeDartLiveness : public TimeDartVerification {
         public:
 
-            TimeDartLiveness(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarkingBase& initialMarking, AST::Query* query, VerificationOptions options)
+            TimeDartLiveness(TAPN::TimedArcPetriNet& tapn, NonStrictMarkingBase& initialMarking, AST::Query* query, VerificationOptions options)
             : TimeDartVerification(tapn, options, query, initialMarking) {
             };
 
-            TimeDartLiveness(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarkingBase& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<WaitingDart>* waiting_list)
+            TimeDartLiveness(TAPN::TimedArcPetriNet& tapn, NonStrictMarkingBase& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<WaitingDart>* waiting_list)
             : TimeDartVerification(tapn, options, query, initialMarking) {
                 pwList = new TimeDartLivenessPWHashMap( options, waiting_list);
             };
@@ -68,9 +67,9 @@ namespace VerifyTAPN {
         class TimeDartLivenessPData : public TimeDartLiveness {
         public:
 
-            TimeDartLivenessPData(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarkingBase& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<EncodingPointer<WaitingDart> >* waiting_list)
+            TimeDartLivenessPData(TAPN::TimedArcPetriNet& tapn, NonStrictMarkingBase& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<EncodingPointer<WaitingDart> >* waiting_list)
             : TimeDartLiveness(tapn, initialMarking, query, options) {
-                pwList = new TimeDartLivenessPWPData(options, waiting_list, tapn, tapn->getNumberOfPlaces(), tapn->getMaxConstant());
+                pwList = new TimeDartLivenessPWPData(options, waiting_list, tapn, tapn.getNumberOfPlaces(), tapn.getMaxConstant());
             };
 
         protected:

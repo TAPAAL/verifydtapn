@@ -58,7 +58,7 @@ namespace VerifyTAPN {
             };
 
 
-            PTrie(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, int knumber, int nplaces, int mage) :
+            PTrie(TAPN::TimedArcPetriNet& tapn, int knumber, int nplaces, int mage) :
             maxNumberOfTokens(knumber),
             maxAge(mage + 1),
             numberOfPlaces(nplaces),
@@ -118,7 +118,7 @@ namespace VerifyTAPN {
             uint markingBitSize;
             const uint blockSize;
 
-            boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn;
+            TAPN::TimedArcPetriNet& tapn;
 
             MarkingEncoding encoding;
             vector<PNode*> pnodeArray;
@@ -241,7 +241,7 @@ namespace VerifyTAPN {
                     int age = floor(data / this->numberOfPlaces);
                     uint place = (data % this->numberOfPlaces);
                     Token t = Token(age, count);
-                    m->addTokenInPlace(tapn->getPlace(place), t);
+                    m->addTokenInPlace(tapn.getPlace(place), t);
                     data = 0;
                     count = 0;
                 }

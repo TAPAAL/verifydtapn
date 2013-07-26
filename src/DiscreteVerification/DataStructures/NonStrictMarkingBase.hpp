@@ -203,7 +203,7 @@ public:
 			}
 		}
                 int getYoungest();
-		int makeBase(TAPN::TimedArcPetriNet* tapn);
+		int makeBase();
                 virtual NonStrictMarkingBase& Clone()
                 {
                         NonStrictMarkingBase* clone = new NonStrictMarkingBase(*this);

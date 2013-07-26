@@ -25,13 +25,13 @@ bool TimeDartReachabilitySearch::verify(){
 
 		int passed = dart.getPassed();
 		dart.setPassed(dart.getWaiting());
-		tapn->getTransitions();
+		tapn.getTransitions();
                 this->tmpdart = NULL;
                 if(options.getTrace() == VerificationOptions::SOME_TRACE){
                     this->tmpdart = ((ReachabilityTraceableDart*)&dart)->trace;
                 }
-		for(TimedTransition::Vector::const_iterator transition_iter = tapn->getTransitions().begin();
-				transition_iter != tapn->getTransitions().end(); transition_iter++){
+		for(TimedTransition::Vector::const_iterator transition_iter = tapn.getTransitions().begin();
+				transition_iter != tapn.getTransitions().end(); transition_iter++){
 			TimedTransition& transition = **transition_iter;
 			pair<int,int> calculatedStart = calculateStart(transition, dart.getBase());
 			if(calculatedStart.first == -1){	// Transition cannot be enabled in marking
@@ -85,18 +85,18 @@ bool TimeDartReachabilitySearch::addToPW(NonStrictMarkingBase* marking, WaitingD
 		return false;
 	}
         
-        int youngest = marking->makeBase(tapn.get());
+        int youngest = marking->makeBase();
         
-	if(pwList->add(tapn.get(), marking, youngest, parent, upper, start)){
+	if(pwList->add( marking, youngest, parent, upper, start)){
 
 
                 if(maxDelay != std::numeric_limits<int>::max())
                     maxDelay += youngest;
-                if(maxDelay > tapn->getMaxConstant()){
-                    maxDelay = tapn->getMaxConstant() + 1;
+                if(maxDelay > tapn.getMaxConstant()){
+                    maxDelay = tapn.getMaxConstant() + 1;
                 }
                 
-		QueryVisitor<NonStrictMarkingBase> checker(*marking, *tapn.get(), maxDelay);
+		QueryVisitor<NonStrictMarkingBase> checker(*marking, tapn, maxDelay);
 		boost::any context;
 		query->accept(checker, context);
 		if(boost::any_cast<bool>(context)) {
