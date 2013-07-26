@@ -36,10 +36,14 @@ class SymMarking;
 			inline const std::string& getId() const { return id; };
 			void print(std::ostream&) const;
 			inline TimedInputArc::Vector& getPreset() { return preset; }
+			const inline TimedInputArc::Vector& getPreset() const { return preset; }
 			inline TransportArc::Vector& getTransportArcs() { return transportArcs; }
+			const inline TransportArc::Vector& getTransportArcs() const { return transportArcs; }
 			inline InhibitorArc::Vector& getInhibitorArcs() { return inhibitorArcs; }
+			const inline InhibitorArc::Vector& getInhibitorArcs() const { return inhibitorArcs; }
 			inline const unsigned int getPresetSize() { return getNumberOfInputArcs() + getNumberOfTransportArcs(); }
 			inline OutputArc::Vector& getPostset() { return postset; }
+			const inline OutputArc::Vector& getPostset() const { return postset; }
 			inline const unsigned int getPostsetSize() { return postset.size() + transportArcs.size(); }
 			inline const unsigned int getNumberOfInputArcs() { return preset.size(); };
 			inline const unsigned int getNumberOfTransportArcs() { return transportArcs.size(); };
