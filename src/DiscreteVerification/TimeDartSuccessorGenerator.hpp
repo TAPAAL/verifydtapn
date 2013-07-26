@@ -12,8 +12,6 @@
 #include "DataStructures/NonStrictMarkingBase.hpp"
 #include "google/sparse_hash_map"
 #include <limits>
-#include "boost/tuple/tuple_io.hpp"
-#include "boost/ptr_container/ptr_vector.hpp"
 #include "SuccessorGenerator.hpp"
 
 namespace VerifyTAPN {
@@ -25,7 +23,7 @@ using namespace boost;
 
 class TimeDartSuccessorGenerator {
 	typedef google::sparse_hash_map<const void*, TokenList> ArcHashMap;
-	typedef boost::ptr_vector< ArcAndTokens<NonStrictMarkingBase> > ArcAndTokensVector;
+	typedef std::vector< ArcAndTokens<NonStrictMarkingBase>*> ArcAndTokensVector;
 
 public:
 	TimeDartSuccessorGenerator(TAPN::TimedArcPetriNet& tapn, Verification<NonStrictMarkingBase>& verifier);

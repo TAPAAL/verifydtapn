@@ -26,7 +26,7 @@ namespace VerifyTAPN {
                 //Find the transitions which don't have input arcs
                 for (TimedTransition::Vector::const_iterator iter = tapn->getTransitions().begin(); iter != tapn->getTransitions().end(); iter++) {
                     if ((*iter)->getPreset().size() + (*iter)->getTransportArcs().size() == 0) {
-                        allwaysEnabled.push_back(iter->get());
+                        allwaysEnabled.push_back((*iter));
                     }
                     if((*iter)->isUrgent()){    // no implementation for urgency in timedart engine yet
                         cout << "The TimeDart engine cannot handle urgent transitions" << endl;

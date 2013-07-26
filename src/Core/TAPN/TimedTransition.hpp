@@ -41,12 +41,12 @@ class SymMarking;
 			const inline TransportArc::Vector& getTransportArcs() const { return transportArcs; }
 			inline InhibitorArc::Vector& getInhibitorArcs() { return inhibitorArcs; }
 			const inline InhibitorArc::Vector& getInhibitorArcs() const { return inhibitorArcs; }
-			inline const unsigned int getPresetSize() { return getNumberOfInputArcs() + getNumberOfTransportArcs(); }
+			inline const unsigned int getPresetSize() const { return getNumberOfInputArcs() + getNumberOfTransportArcs(); }
 			inline OutputArc::Vector& getPostset() { return postset; }
 			const inline OutputArc::Vector& getPostset() const { return postset; }
-			inline const unsigned int getPostsetSize() { return postset.size() + transportArcs.size(); }
-			inline const unsigned int getNumberOfInputArcs() { return preset.size(); };
-			inline const unsigned int getNumberOfTransportArcs() { return transportArcs.size(); };
+			inline const unsigned int getPostsetSize() const { return postset.size() + transportArcs.size(); }
+			inline const unsigned int getNumberOfInputArcs() const { return preset.size(); };
+			inline const unsigned int getNumberOfTransportArcs() const { return transportArcs.size(); };
 
 			inline const bool isConservative() const { return preset.size() == postset.size(); }
 			inline const unsigned int getIndex() const { return index; }

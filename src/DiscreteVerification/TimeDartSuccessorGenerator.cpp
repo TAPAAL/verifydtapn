@@ -20,7 +20,7 @@ TimeDartSuccessorGenerator::TimeDartSuccessorGenerator(TAPN::TimedArcPetriNet& t
 	clearTransitionsArray();
 	for(TimedTransition::Vector::const_iterator iter = tapn.getTransitions().begin(); iter != tapn.getTransitions().end(); iter++){
 		if((*iter)->getPreset().size() + (*iter)->getTransportArcs().size() == 0){
-			allwaysEnabled.push_back(iter->get());
+			allwaysEnabled.push_back((*iter));
 		}
 	}
 }
@@ -30,14 +30,14 @@ bool TimeDartSuccessorGenerator::generateAndInsertSuccessors(const NonStrictMark
 	ArcHashMap enabledArcs(transition.getPresetSize() + transition.getTransportArcs().size());
 
 	// Calculate enabling tokens
-	for(TAPN::TimedInputArc::WeakPtrVector::const_iterator arc_iter = transition.getPreset().begin();
+	for(TAPN::TimedInputArc::Vector::const_iterator arc_iter = transition.getPreset().begin();
 			arc_iter != transition.getPreset().end(); arc_iter++){
-			processArc(enabledArcs,	marking.getTokenList( arc_iter->lock()->getInputPlace().getIndex() ), arc_iter->lock()->getInterval(), arc_iter->lock().get(), transition);
+			processArc(enabledArcs,	marking.getTokenList( (*arc_iter)->getInputPlace().getIndex() ), (*arc_iter)->getInterval(), (*arc_iter), transition);
 	}
 
-	for(TAPN::TransportArc::WeakPtrVector::const_iterator arc_iter = transition.getTransportArcs().begin();
+	for(TAPN::TransportArc::Vector::const_iterator arc_iter = transition.getTransportArcs().begin();
 			arc_iter != transition.getTransportArcs().end(); arc_iter++){
-			processArc(enabledArcs,	marking.getTokenList( arc_iter->lock()->getSource().getIndex() ), arc_iter->lock()->getInterval(), arc_iter->lock().get(), transition, arc_iter->lock()->getDestination().getInvariant().getBound());
+			processArc(enabledArcs,	marking.getTokenList( (*arc_iter)->getSource().getIndex() ), (*arc_iter)->getInterval(), (*arc_iter), transition, (*arc_iter)->getDestination().getInvariant().getBound());
 	}
 
 	return generateMarkings(marking, transition, enabledArcs);
@@ -65,9 +65,9 @@ bool TimeDartSuccessorGenerator::generateMarkings( const NonStrictMarkingBase& i
 		bool inhibited = false;
 		//Check that no inhibitors is enabled;
 
-		for(TAPN::InhibitorArc::WeakPtrVector::const_iterator inhib_iter = transition.getInhibitorArcs().begin(); inhib_iter != transition.getInhibitorArcs().end(); inhib_iter++){
+		for(TAPN::InhibitorArc::Vector::const_iterator inhib_iter = transition.getInhibitorArcs().begin(); inhib_iter != transition.getInhibitorArcs().end(); inhib_iter++){
 			// Maybe this could be done more efficiently using ArcHashMap? Dunno exactly how it works
-			if(init_marking.numberOfTokensInPlace(inhib_iter->lock().get()->getInputPlace().getIndex()) >= inhib_iter->lock().get()->getWeight()){
+			if(init_marking.numberOfTokensInPlace((*inhib_iter)->getInputPlace().getIndex()) >= (*inhib_iter)->getWeight()){
 				inhibited = true;
 				break;
 			}
@@ -85,8 +85,8 @@ bool TimeDartSuccessorGenerator::generatePermutations(NonStrictMarkingBase& init
 
 	// Initialize vectors
 	ArcAndTokensVector indicesOfCurrentPermutation;
-	for(TimedInputArc::WeakPtrVector::const_iterator iter = transition.getPreset().begin(); iter != transition.getPreset().end(); iter++){
-		InputArcAndTokens<NonStrictMarkingBase>* arcAndTokens = new InputArcAndTokens<NonStrictMarkingBase>(*iter, enabledArcs[iter->lock().get()]);
+	for(TimedInputArc::Vector::const_iterator iter = transition.getPreset().begin(); iter != transition.getPreset().end(); iter++){
+		InputArcAndTokens<NonStrictMarkingBase>* arcAndTokens = new InputArcAndTokens<NonStrictMarkingBase>(**iter, enabledArcs[(*iter)]);
 		if(arcAndTokens->isOK){
 			indicesOfCurrentPermutation.push_back(arcAndTokens);
 		}else{
@@ -94,8 +94,8 @@ bool TimeDartSuccessorGenerator::generatePermutations(NonStrictMarkingBase& init
 		}
 	}
 	// Transport arcs
-	for(TransportArc::WeakPtrVector::const_iterator iter = transition.getTransportArcs().begin(); iter != transition.getTransportArcs().end(); iter++){
-		TransportArcAndTokens<NonStrictMarkingBase>* arcAndTokens = new TransportArcAndTokens<NonStrictMarkingBase>(*iter, enabledArcs[iter->lock().get()]);
+	for(TransportArc::Vector::const_iterator iter = transition.getTransportArcs().begin(); iter != transition.getTransportArcs().end(); iter++){
+		TransportArcAndTokens<NonStrictMarkingBase>* arcAndTokens = new TransportArcAndTokens<NonStrictMarkingBase>(**iter, enabledArcs[(*iter)]);
 		if(arcAndTokens->isOK){
 			indicesOfCurrentPermutation.push_back(arcAndTokens);
 		}else{
@@ -116,8 +116,8 @@ bool TimeDartSuccessorGenerator::generatePermutations(NonStrictMarkingBase& init
 
 		//Loop through arc indexes from the back
 		for(int arcAndTokenIndex = indicesOfCurrentPermutation.size()-1; arcAndTokenIndex >= 0; arcAndTokenIndex--){
-			TokenList& enabledTokens = indicesOfCurrentPermutation.at(arcAndTokenIndex).enabledBy;
-			vector<unsigned int >& modificationVector = indicesOfCurrentPermutation.at(arcAndTokenIndex).modificationVector;
+			TokenList& enabledTokens = indicesOfCurrentPermutation[arcAndTokenIndex]->enabledBy;
+			vector<unsigned int >& modificationVector = indicesOfCurrentPermutation[arcAndTokenIndex]->modificationVector;
 			if(incrementModificationVector(modificationVector, enabledTokens)){
 				changedSomething = true;
 				break;
@@ -194,17 +194,17 @@ bool TimeDartSuccessorGenerator::incrementModificationVector(vector<unsigned int
 bool TimeDartSuccessorGenerator::insertMarking(NonStrictMarkingBase& init_marking, const TimedTransition& transition, ArcAndTokensVector& indicesOfCurrentPermutation) const{
 	NonStrictMarkingBase* m = new NonStrictMarkingBase(init_marking);
 	for(ArcAndTokensVector::iterator iter = indicesOfCurrentPermutation.begin(); iter != indicesOfCurrentPermutation.end(); iter++){
-		vector<unsigned int>& tokens = iter->modificationVector;
+		vector<unsigned int>& tokens = (*iter)->modificationVector;
 
 		for(vector< unsigned int >::const_iterator tokenIter = tokens.begin(); tokenIter < tokens.end(); tokenIter++){
-			Token t((iter->enabledBy)[*tokenIter].getAge(), 1);
-			iter->moveToken(t, *m);
+			Token t(((*iter)->enabledBy)[*tokenIter].getAge(), 1);
+			(*iter)->moveToken(t, *m);
 		}
 	}
 
-	for(OutputArc::WeakPtrVector::const_iterator postsetIter = transition.getPostset().begin(); postsetIter != transition.getPostset().end(); postsetIter++){
-		Token t(0, postsetIter->lock()->getWeight());
-		m->addTokenInPlace(postsetIter->lock()->getOutputPlace(), t);
+	for(OutputArc::Vector::const_iterator postsetIter = transition.getPostset().begin(); postsetIter != transition.getPostset().end(); postsetIter++){
+		Token t(0, (*postsetIter)->getWeight());
+		m->addTokenInPlace((*postsetIter)->getOutputPlace(), t);
 	}
         return this->verifier.addToPW(m);
 	
