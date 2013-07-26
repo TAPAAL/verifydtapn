@@ -30,23 +30,23 @@ namespace VerifyTAPN {
 
         struct InputArcRef : ArcRef {
 
-            InputArcRef(TimedInputArc& arc) : arc(arc) {
+            InputArcRef(const TimedInputArc& arc) : arc(arc) {
             }
-            TimedInputArc& arc;
+            const TimedInputArc& arc;
         };
 
         struct InhibitorArcRef : ArcRef {
 
-            InhibitorArcRef(InhibitorArc& arc) : arc(arc) {
+            InhibitorArcRef(const InhibitorArc& arc) : arc(arc) {
             }
-            InhibitorArc& arc;
+            const InhibitorArc& arc;
         };
 
         struct TransportArcRef : ArcRef {
 
-            TransportArcRef(TransportArc& arc) : arc(arc) {
+            TransportArcRef(const TransportArc& arc) : arc(arc) {
             }
-            TransportArc& arc;
+            const TransportArc& arc;
         };
 
         template<typename T>
@@ -96,13 +96,13 @@ namespace VerifyTAPN {
         template<typename T>
         class InputArcAndTokens : public ArcAndTokens<T> {
         public:
-            TimedInputArc& arc;
+            const TimedInputArc& arc;
 
-            InputArcAndTokens(TimedInputArc& arc, TokenList enabledBy, vector<unsigned int > modificationVector)
+            InputArcAndTokens(const TimedInputArc& arc, TokenList enabledBy, vector<unsigned int > modificationVector)
             : ArcAndTokens<T>(enabledBy, modificationVector), arc(arc) {
             }
 
-            InputArcAndTokens(TimedInputArc& arc, TokenList enabledBy)
+            InputArcAndTokens(const TimedInputArc& arc, TokenList enabledBy)
             : ArcAndTokens<T>(enabledBy, arc.getWeight()), arc(arc) {
             }
 
@@ -114,13 +114,13 @@ namespace VerifyTAPN {
         template<typename T>
         class TransportArcAndTokens : public ArcAndTokens<T> {
         public:
-            TransportArc& arc;
+            const TransportArc& arc;
 
-            TransportArcAndTokens(TransportArc& arc, TokenList enabledBy, vector<unsigned int > modificationVector)
+            TransportArcAndTokens(const TransportArc& arc, TokenList enabledBy, vector<unsigned int > modificationVector)
             : ArcAndTokens<T>(enabledBy, modificationVector), arc(arc) {
             }
 
-            TransportArcAndTokens(TransportArc& arc, TokenList enabledBy)
+            TransportArcAndTokens(const TransportArc& arc, TokenList enabledBy)
             : ArcAndTokens<T>(enabledBy, arc.getWeight()), arc(arc) {
             }
 
@@ -307,7 +307,7 @@ namespace VerifyTAPN {
             // Initialize vectors
             ArcAndTokensVector indicesOfCurrentPermutation;
             for (TimedInputArc::Vector::const_iterator iter = transition.getPreset().begin(); iter != transition.getPreset().end(); iter++) {
-                InputArcAndTokens<T>* arcAndTokens = new InputArcAndTokens<T > (*iter, enabledArcs[(*iter)]);
+                InputArcAndTokens<T>* arcAndTokens = new InputArcAndTokens<T > (**iter, enabledArcs[(*iter)]);
                 if (arcAndTokens->isOK) {
                     indicesOfCurrentPermutation.push_back(arcAndTokens);
                 } else {
@@ -316,7 +316,7 @@ namespace VerifyTAPN {
             }
             // Transport arcs
             for (TransportArc::Vector::const_iterator iter = transition.getTransportArcs().begin(); iter != transition.getTransportArcs().end(); iter++) {
-                TransportArcAndTokens<T>* arcAndTokens = new TransportArcAndTokens<T > (*iter, enabledArcs[(*iter)]);
+                TransportArcAndTokens<T>* arcAndTokens = new TransportArcAndTokens<T > (**iter, enabledArcs[(*iter)]);
                 if (arcAndTokens->isOK) {
                     indicesOfCurrentPermutation.push_back(arcAndTokens);
                 } else {
@@ -343,8 +343,8 @@ namespace VerifyTAPN {
 
                 //Loop through arc indexes from the back
                 for (int arcAndTokenIndex = indicesOfCurrentPermutation.size() - 1; arcAndTokenIndex >= 0; arcAndTokenIndex--) {
-                    TokenList& enabledTokens = indicesOfCurrentPermutation.at(arcAndTokenIndex).enabledBy;
-                    vector<unsigned int >& modificationVector = indicesOfCurrentPermutation.at(arcAndTokenIndex).modificationVector;
+                    TokenList& enabledTokens = indicesOfCurrentPermutation.at(arcAndTokenIndex)->enabledBy;
+                    vector<unsigned int >& modificationVector = indicesOfCurrentPermutation.at(arcAndTokenIndex)->modificationVector;
                     if (incrementModificationVector(modificationVector, enabledTokens)) {
                         changedSomething = true;
                         break;
@@ -423,11 +423,11 @@ namespace VerifyTAPN {
         bool SuccessorGenerator<T>::insertMarking(T& init_marking, const TimedTransition& transition, ArcAndTokensVector& indicesOfCurrentPermutation) const {
             T* m = new T(init_marking);
             for (typename ArcAndTokensVector::iterator iter = indicesOfCurrentPermutation.begin(); iter != indicesOfCurrentPermutation.end(); iter++) {
-                vector<unsigned int>& tokens = iter->modificationVector;
+                vector<unsigned int>& tokens = (*iter)->modificationVector;
 
                 for (vector< unsigned int >::const_iterator tokenIter = tokens.begin(); tokenIter < tokens.end(); tokenIter++) {
-                    Token t((iter->enabledBy)[*tokenIter].getAge(), 1);
-                    iter->moveToken(t, *m);
+                    Token t(((*iter)->enabledBy)[*tokenIter].getAge(), 1);
+                    (*iter)->moveToken(t, *m);
                 }
             }
 
