@@ -238,7 +238,7 @@ namespace VerifyTAPN {
             int count = tapn.getTransitions().size();
             int* status = new int[count];
 
-            for (vector<boost::shared_ptr<TAPN::TimedTransition> >::const_iterator tit = tapn.getTransitions().begin();
+            for (TAPN::TimedTransition::Vector::const_iterator tit = tapn.getTransitions().begin();
                     tit != tapn.getTransitions().end(); ++tit) {
                 int presetSize = (*tit)->getPresetSize();
                 int index = (*tit)->getIndex();
@@ -255,15 +255,15 @@ namespace VerifyTAPN {
                 int numtokens = place_iter->numberOfTokens();
 
                 // for regular input arcs
-                for (TAPN::TimedInputArc::WeakPtrVector::const_iterator arc_iter = place_iter->place->getInputArcs().begin();
+                for (TAPN::TimedInputArc::Vector::const_iterator arc_iter = place_iter->place->getInputArcs().begin();
                         arc_iter != place_iter->place->getInputArcs().end(); ++arc_iter) {
-                    int id = arc_iter->lock().get()->getOutputTransition().getIndex();
-                    int weight = arc_iter->lock().get()->getWeight();
+                    int id = (*arc_iter)->getOutputTransition().getIndex();
+                    int weight = (*arc_iter)->getWeight();
                     if(numtokens < weight) {
                         status[id] = -1;        // -1 for impossible to enable
                     } else if(status[id] != -1) {
-                        int lb = arc_iter->lock().get()->getInterval().getLowerBound();
-                        int ub = arc_iter->lock().get()->getInterval().getUpperBound();
+                        int lb = (*arc_iter)->getInterval().getLowerBound();
+                        int ub = (*arc_iter)->getInterval().getUpperBound();
                         // decrement if token can satisfy the bounds
                         for (TokenList::const_iterator tokenit = place_iter->tokens.begin();
                                 tokenit != place_iter->tokens.end(); ++tokenit){
@@ -285,15 +285,15 @@ namespace VerifyTAPN {
                 }
 
                 // for transport arcs
-                for (TAPN::TransportArc::WeakPtrVector::const_iterator arc_iter = place_iter->place->getTransportArcs().begin();
+                for (TAPN::TransportArc::Vector::const_iterator arc_iter = place_iter->place->getTransportArcs().begin();
                         arc_iter != place_iter->place->getTransportArcs().end(); ++arc_iter) {
-                    int id = arc_iter->lock().get()->getTransition().getIndex();
-                    int weight = arc_iter->lock().get()->getWeight();
-                    if(numtokens < arc_iter->lock().get()->getWeight())
+                    int id = (*arc_iter)->getTransition().getIndex();
+                    int weight = (*arc_iter)->getWeight();
+                    if(numtokens < (*arc_iter)->getWeight())
                         status[id] = -1; // impossible to enable
                     else if(status[id] != -1) { // if enable able so far
-                        int lb = arc_iter->lock().get()->getInterval().getLowerBound();
-                        int ub = arc_iter->lock().get()->getInterval().getUpperBound();
+                        int lb = (*arc_iter)->getInterval().getLowerBound();
+                        int ub = (*arc_iter)->getInterval().getUpperBound();
                         // decrement if token can satisfy the bounds
                         for (TokenList::const_iterator tokenit = place_iter->tokens.begin();
                                 tokenit != place_iter->tokens.end(); ++tokenit){
@@ -315,11 +315,11 @@ namespace VerifyTAPN {
                 }
 
                 // for inhibitor arcs
-                for (TAPN::InhibitorArc::WeakPtrVector::const_iterator arc_iter = place_iter->place->getInhibitorArcs().begin();
+                for (TAPN::InhibitorArc::Vector::const_iterator arc_iter = place_iter->place->getInhibitorArcs().begin();
                         arc_iter != place_iter->place->getInhibitorArcs().end(); ++arc_iter) {
-                    int id = arc_iter->lock().get()->getOutputTransition().getIndex();
+                    int id = (*arc_iter)->getOutputTransition().getIndex();
                     // no precheck if it was disabled, actual calculation is just as fast
-                    if(numtokens >= arc_iter->lock().get()->getWeight())        // we satisfy the inhibitor
+                    if(numtokens >= (*arc_iter)->getWeight())        // we satisfy the inhibitor
                         status[id] = -1;                                        // transition cannot fire
                 }
                 
