@@ -20,7 +20,7 @@ int main(int argc, char* argv[])
 	VerificationOptions options = parser.parse(argc, argv);
 
 	TAPNXmlParser modelParser;
-	boost::shared_ptr<TAPN::TimedArcPetriNet> tapn;
+	TAPN::TimedArcPetriNet* tapn;
 
 	try{
 		tapn = modelParser.parse(options.getInputFile());
