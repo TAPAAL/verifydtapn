@@ -49,7 +49,7 @@ int main(int argc, char* argv[])
 
 	tapn->updatePlaceTypes(query, options);
 
-	return DiscreteVerification::DiscreteVerification::run(tapn, initialPlacement, query, options);
+	return DiscreteVerification::DiscreteVerification::run(*tapn, initialPlacement, query, options);
 }
 
 
