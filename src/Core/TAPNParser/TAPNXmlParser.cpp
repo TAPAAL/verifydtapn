@@ -186,7 +186,7 @@ TimedInputArc* TAPNXmlParser::parseInputArc(const rapidxml::xml_node<>& arcNode,
             ++transition;
         }     
 
-	return new TimedInputArc(**place, **transition, weight, *(new TimeInterval(TimeInterval::createFor(interval))));
+	return new TimedInputArc(**place, **transition, weight, TimeInterval::createFor(interval));
 }
 
 TransportArc* TAPNXmlParser::parseTransportArc(const rapidxml::xml_node<>& arcNode, const TimedPlace::Vector& places, const TimedTransition::Vector& transitions) const
@@ -219,7 +219,7 @@ TransportArc* TAPNXmlParser::parseTransportArc(const rapidxml::xml_node<>& arcNo
             ++target;
         }
 
-	return new TransportArc(**source, **transition, **target, *(new TimeInterval(TimeInterval::createFor(interval))), weight);
+	return new TransportArc(**source, **transition, **target, TimeInterval::createFor(interval), weight);
 }
 
 InhibitorArc* TAPNXmlParser::parseInhibitorArc(const rapidxml::xml_node<>& arcNode, const TimedPlace::Vector& places, const TimedTransition::Vector& transitions) const

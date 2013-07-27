@@ -16,7 +16,7 @@ namespace VerifyTAPN {
 			typedef std::vector< TimedInputArc* > Vector;
 		public:
 			TimedInputArc(TimedPlace& place, TimedTransition& transition, const int weight) : interval(), place(place), transition(transition), weight(weight) { };
-			TimedInputArc(TimedPlace& place, TimedTransition& transition, const int weight, TimeInterval& interval) : interval(interval), place(place), transition(transition), weight(weight) { };
+			TimedInputArc(TimedPlace& place, TimedTransition& transition, const int weight, TimeInterval interval) : interval(interval), place(place), transition(transition), weight(weight) { };
 			virtual ~TimedInputArc() { /* empty */}
 
 		public: // modifiers

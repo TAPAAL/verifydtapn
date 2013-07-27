@@ -30,7 +30,15 @@ namespace VerifyTAPN {
 				TransportArc::Vector& transportArcs,
 				InhibitorArc::Vector& inhibitorArcs)
 				: places(places), transitions(transitions), inputArcs(inputArcs), outputArcs(outputArcs), transportArcs(transportArcs), inhibitorArcs(inhibitorArcs), maxConstant(0) { };
-			virtual ~TimedArcPetriNet() { /* empty */ }
+			~TimedArcPetriNet() { 
+                            // call delete on all data
+                            for(int i = 0; i < places.size();i++) delete places[i];
+                            for(int i = 0; i < transitions.size();i++) delete transitions[i];
+                            for(int i = 0; i < inputArcs.size();i++) delete inputArcs[i];
+                            for(int i = 0; i < outputArcs.size();i++) delete outputArcs[i];
+                            for(int i = 0; i < transportArcs.size();i++) delete transportArcs[i];
+                            for(int i = 0; i < inhibitorArcs.size();i++) delete inhibitorArcs[i];
+                        }
 
 		public: // inspectors
 			void print(std::ostream& out) const;

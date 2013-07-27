@@ -20,7 +20,7 @@ namespace VerifyTAPN
 					TimedPlace& source,
 					TimedTransition& transition,
 					TimedPlace& destination,
-					TAPN::TimeInterval& interval,
+					TAPN::TimeInterval interval,
 					const int weight
 			) : interval(interval), source(source), transition(transition), destination(destination), weight(weight) {};
 
