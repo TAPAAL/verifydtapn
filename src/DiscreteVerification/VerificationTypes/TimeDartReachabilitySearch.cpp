@@ -120,6 +120,8 @@ void TimeDartReachabilitySearch::printStats(){
 }
 
 TimeDartReachabilitySearch::~TimeDartReachabilitySearch() {
+    delete pwList;
+    delete tmpdart;
 }
 
 } /* namespace DiscreteVerification */

@@ -344,10 +344,13 @@ namespace VerifyTAPN {
                 //Loop through arc indexes from the back
                 for (int arcAndTokenIndex = indicesOfCurrentPermutation.size() - 1; arcAndTokenIndex >= 0; arcAndTokenIndex--) {
                     TokenList& enabledTokens = indicesOfCurrentPermutation.at(arcAndTokenIndex)->enabledBy;
-                    vector<unsigned int >& modificationVector = indicesOfCurrentPermutation.at(arcAndTokenIndex)->modificationVector;
+                    vector<unsigned int >& modificationVector = indicesOfCurrentPermutation[arcAndTokenIndex]->modificationVector;
                     if (incrementModificationVector(modificationVector, enabledTokens)) {
                         changedSomething = true;
+                        delete indicesOfCurrentPermutation[arcAndTokenIndex];
                         break;
+                    } else {
+                        delete indicesOfCurrentPermutation[arcAndTokenIndex];                        
                     }
                 }
             }
