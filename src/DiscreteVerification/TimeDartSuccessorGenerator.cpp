@@ -90,7 +90,8 @@ bool TimeDartSuccessorGenerator::generatePermutations(NonStrictMarkingBase& init
 		if(arcAndTokens->isOK){
 			indicesOfCurrentPermutation.push_back(arcAndTokens);
 		}else{
-			return false;
+                    for(unsigned int i = 0; i < indicesOfCurrentPermutation.size(); ++i) delete indicesOfCurrentPermutation[i];
+                    return false;
 		}
 	}
 	// Transport arcs
@@ -99,6 +100,7 @@ bool TimeDartSuccessorGenerator::generatePermutations(NonStrictMarkingBase& init
 		if(arcAndTokens->isOK){
 			indicesOfCurrentPermutation.push_back(arcAndTokens);
 		}else{
+                    for(unsigned int i = 0; i < indicesOfCurrentPermutation.size(); ++i) delete indicesOfCurrentPermutation[i];
 			return false;
 		}
 	}
@@ -120,10 +122,14 @@ bool TimeDartSuccessorGenerator::generatePermutations(NonStrictMarkingBase& init
 			vector<unsigned int >& modificationVector = indicesOfCurrentPermutation[arcAndTokenIndex]->modificationVector;
 			if(incrementModificationVector(modificationVector, enabledTokens)){
 				changedSomething = true;
+                                //delete indicesOfCurrentPermutation[arcAndTokenIndex];
 				break;
-			}
+			} else {
+                                //delete indicesOfCurrentPermutation[arcAndTokenIndex];
+                        }
 		}
 	}
+        for(unsigned int i = 0; i < indicesOfCurrentPermutation.size(); ++i) delete indicesOfCurrentPermutation[i];
         return false;
 }       
 

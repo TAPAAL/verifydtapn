@@ -311,6 +311,7 @@ namespace VerifyTAPN {
                 if (arcAndTokens->isOK) {
                     indicesOfCurrentPermutation.push_back(arcAndTokens);
                 } else {
+                    for(unsigned int i = 0; i < indicesOfCurrentPermutation.size(); ++i) delete indicesOfCurrentPermutation[i];
                     return false;
                 }
             }
@@ -320,6 +321,7 @@ namespace VerifyTAPN {
                 if (arcAndTokens->isOK) {
                     indicesOfCurrentPermutation.push_back(arcAndTokens);
                 } else {
+                    for(unsigned int i = 0; i < indicesOfCurrentPermutation.size(); ++i) delete indicesOfCurrentPermutation[i];
                     return false;
                 }
             }
@@ -347,13 +349,14 @@ namespace VerifyTAPN {
                     vector<unsigned int >& modificationVector = indicesOfCurrentPermutation[arcAndTokenIndex]->modificationVector;
                     if (incrementModificationVector(modificationVector, enabledTokens)) {
                         changedSomething = true;
-                        delete indicesOfCurrentPermutation[arcAndTokenIndex];
+                    //    delete indicesOfCurrentPermutation[arcAndTokenIndex];
                         break;
                     } else {
-                        delete indicesOfCurrentPermutation[arcAndTokenIndex];                        
+                    //    delete indicesOfCurrentPermutation[arcAndTokenIndex];                        
                     }
                 }
             }
+            for(unsigned int i = 0; i < indicesOfCurrentPermutation.size(); ++i) delete indicesOfCurrentPermutation[i];
             return false;
         }
 
