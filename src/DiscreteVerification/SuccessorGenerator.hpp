@@ -183,7 +183,7 @@ namespace VerifyTAPN {
 
         template<typename T>
         SuccessorGenerator<T>::~SuccessorGenerator() {
-
+            delete[] transitionStatistics;
         }
         
         template<typename T>
