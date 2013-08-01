@@ -122,9 +122,6 @@ std::ostream& operator<<(std::ostream& out, PWList& x){
             return m;
         }
 
-        PWListHybrid::~PWListHybrid() {
-        // We don't care, it is deallocated on program execution done
-        }
 
 } /* namespace DiscreteVerification */
 } /* namespace VerifyTAPN */

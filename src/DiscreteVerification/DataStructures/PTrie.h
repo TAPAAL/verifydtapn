@@ -131,6 +131,21 @@ namespace VerifyTAPN {
 
         template<typename T>
         PTrie<T>::~PTrie() {
+            // should only be used when looking for leaks.
+            for(uint i = 0; i < (nextFree-1); ++i ){
+                PNode* m = fetchNode(i);
+                for(uint ii = 0; ii < (m->highCount + m->lowCount); ++ii){
+                    delete m->data[ii].getMetaData();
+                    delete[] m->data;
+                }
+            }
+            int i = (nextFree-1) / blockSize;
+            if( ((nextFree-1) % blockSize) > 0){
+                ++i;
+            }
+            for(; i >= 0; --i){
+                delete[] pnodeArray[i];
+            }
         }
 
 

@@ -32,6 +32,7 @@ namespace DiscreteVerification {
         virtual bool add(NonStrictMarking* marking) = 0;
 	virtual NonStrictMarking* getNextUnexplored() = 0;
         virtual long long explored()= 0;
+        virtual ~PWListBase(){};
 	inline void setMaxNumTokensIfGreater(int i){ if(i>maxNumTokensInAnyMarking) maxNumTokensInAnyMarking = i; };
     };
     
@@ -80,7 +81,10 @@ class PWListHybrid : public PWListBase {
                 passed = new PTrie<MetaData>(tapn, knumber,nplaces,mage);
                 parent = NULL;
             };
-            virtual ~PWListHybrid();
+            virtual ~PWListHybrid() {
+                // We don't care, it is deallocated on program execution done
+                delete passed;
+            }
             friend std::ostream& operator<<(std::ostream& out, PWListHybrid& x);
 
         public: // inspectors
