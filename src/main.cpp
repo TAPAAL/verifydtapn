@@ -1,5 +1,4 @@
 #include <iostream>
-#include "boost/smart_ptr.hpp"
 #include "Core/TAPNParser/TAPNXmlParser.hpp"
 #include "Core/VerificationOptions.hpp"
 #include "Core/ArgsParser.hpp"
@@ -10,7 +9,6 @@
 using namespace std;
 using namespace VerifyTAPN;
 using namespace VerifyTAPN::TAPN;
-using namespace boost;
 
 int main(int argc, char* argv[])
 {

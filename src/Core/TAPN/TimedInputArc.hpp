@@ -3,7 +3,6 @@
 
 #include <vector>
 #include "TimeInterval.hpp"
-#include "boost/smart_ptr.hpp"
 
 namespace VerifyTAPN {
 	namespace TAPN {

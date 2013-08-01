@@ -19,7 +19,6 @@ namespace DiscreteVerification {
 
 using namespace std;
 using namespace TAPN;
-using namespace boost;
 
 class TimeDartSuccessorGenerator {
 	typedef google::sparse_hash_map<const void*, TokenList> ArcHashMap;
