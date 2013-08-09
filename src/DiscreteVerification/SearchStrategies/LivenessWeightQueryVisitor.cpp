@@ -10,66 +10,67 @@
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
-		void LivenessWeightQueryVisitor::visit(const NotExpression& expr, boost::any& context)
+		void LivenessWeightQueryVisitor::visit(const NotExpression& expr, Result& context)
 		{
 			assert(false);
 		}
 
-		void LivenessWeightQueryVisitor::visit(const ParExpression& expr, boost::any& context)
+		void LivenessWeightQueryVisitor::visit(const ParExpression& expr, Result& context)
 		{
 			expr.getChild().accept(*this, context);
 		}
 
-		void LivenessWeightQueryVisitor::visit(const OrExpression& expr, boost::any& context)
+		void LivenessWeightQueryVisitor::visit(const OrExpression& expr, Result& context)
 		{
-			boost::any left, right;
+			IntResult left, right;
 			expr.getLeft().accept(*this, left);
 			expr.getRight().accept(*this, right);
 
-			context = min(boost::any_cast<int>(left), boost::any_cast<int>(right));
+			static_cast<IntResult&>(context).value 
+                                = min(static_cast<IntResult>(left).value, static_cast<IntResult>(right).value);
 		}
 
-		void LivenessWeightQueryVisitor::visit(const AndExpression& expr, boost::any& context)
+		void LivenessWeightQueryVisitor::visit(const AndExpression& expr, Result& context)
 		{
-			boost::any left, right;
+			IntResult left, right;
 			expr.getLeft().accept(*this, left);
 			expr.getRight().accept(*this, right);
 
-			int l = boost::any_cast<int>(left);
-			if(l == std::numeric_limits<int>::max()){
-				context = l;
+			if(left.value == std::numeric_limits<int>::max()){
+				static_cast<IntResult&>(context).value = left.value;
 				return;
 			}
 
-			int r = boost::any_cast<int>(right);
-			if(r == std::numeric_limits<int>::max()){
-				context = r;
+			if(right.value == std::numeric_limits<int>::max()){
+				static_cast<IntResult&>(context).value = right.value;
 				return;
 			}
 
-			context = l+r;
+			static_cast<IntResult&>(context).value = left.value+right.value;
 		}
 
 
-		void LivenessWeightQueryVisitor::visit(const AtomicProposition& expr, boost::any& context)
+		void LivenessWeightQueryVisitor::visit(const AtomicProposition& expr, Result& context)
 		{
 			int numberOfTokens = marking.numberOfTokensInPlace(expr.getPlace());
-			context = compare(numberOfTokens, expr.getOperator(), expr.getNumberOfTokens());
+			static_cast<IntResult&>(context).value
+                                = compare(numberOfTokens, expr.getOperator(), expr.getNumberOfTokens());
 		}
 
-		void LivenessWeightQueryVisitor::visit(const BoolExpression& expr, boost::any& context)
+		void LivenessWeightQueryVisitor::visit(const BoolExpression& expr, Result& context)
 		{
-			context = expr.getValue()? 0 : std::numeric_limits<int>::max();
+			static_cast<IntResult&>(context).value 
+                                = expr.getValue()? 0 : std::numeric_limits<int>::max();
 		}
 
-		void LivenessWeightQueryVisitor::visit(const Query& query, boost::any& context)
+		void LivenessWeightQueryVisitor::visit(const Query& query, Result& context)
 		{
 			query.getChild().accept(*this, context);
 		}
 
-                void LivenessWeightQueryVisitor::visit(const DeadlockExpression& expr, boost::any& context)
+                void LivenessWeightQueryVisitor::visit(const DeadlockExpression& expr, Result& context)
 		{
-                        context = 0;
+                        static_cast<IntResult&>(context).value = 0;
 		}
                 
 		int LivenessWeightQueryVisitor::compare(int numberOfTokensInPlace, const std::string& op, int n) const

@@ -148,9 +148,9 @@ namespace VerifyTAPN {
             int youngest = marking->makeBase();
 
             QueryVisitor<NonStrictMarkingBase> checker(*marking, tapn);
-            boost::any context;
+            AST::BoolResult context;
             query->accept(checker, context);
-            if (boost::any_cast<bool>(context)) {
+            if (context.value) {
                 std::pair < LivenessDart*, bool> result = pwList->add(marking, youngest, parent, upper, start);
 
 

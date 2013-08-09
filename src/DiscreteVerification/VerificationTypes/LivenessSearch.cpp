@@ -121,9 +121,9 @@ bool LivenessSearch::addToPW(NonStrictMarking* marking, NonStrictMarking* parent
 	}
 
 	QueryVisitor<NonStrictMarking> checker(*marking, tapn);
-	boost::any context;
+	AST::BoolResult context;
 	query->accept(checker, context);
-	if(!boost::any_cast<bool>(context))	return false;
+	if(!context.value)	return false;
 	if(!pwList->add(marking)){
 		//Test if collision is in trace
             if(marking->meta->inTrace){

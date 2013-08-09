@@ -170,10 +170,10 @@ namespace VerifyTAPN {
                         if((!foundLoop) && stack.empty()){
                             // make sure query contains deadlock
                             DeadlockVisitor deadlockVisitor = DeadlockVisitor();
-                            boost::any c;
-                            deadlockVisitor.visit(*query, c);
-                            bool queryContainsDeadlock = boost::any_cast<bool>(c);
-                            if(queryContainsDeadlock){
+                            AST::BoolResult queryContainsDeadlock;
+                            deadlockVisitor.visit(*query, queryContainsDeadlock);
+
+                            if(queryContainsDeadlock.value){
                                 // find the marking from which a delay gave a deadlock
                                 NonStrictMarkingBase* base = old;
                                 while(base->getGeneratedBy() == NULL && base->getParent() != NULL){
