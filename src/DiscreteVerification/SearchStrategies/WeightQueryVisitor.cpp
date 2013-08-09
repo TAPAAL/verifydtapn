@@ -33,15 +33,14 @@ namespace DiscreteVerification {
 		void WeightQueryVisitor::visit(const AndExpression& expr, Result& context)
 		{
 			IntResult left, right;
+                        
 			expr.getLeft().accept(*this, left);
-			expr.getRight().accept(*this, right);
-
-
 			if(left.value == std::numeric_limits<int>::max()){
 				static_cast<IntResult&>(context).value = left.value;
 				return;
 			}
 
+                        expr.getRight().accept(*this, right);
 			if(right.value == std::numeric_limits<int>::max()){
 				static_cast<IntResult&>(context).value = right.value;
 				return;

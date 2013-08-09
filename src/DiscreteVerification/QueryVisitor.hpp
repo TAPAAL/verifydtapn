@@ -72,20 +72,33 @@ namespace VerifyTAPN {
         void QueryVisitor<T>::visit(const OrExpression& expr, AST::Result& context) {
             BoolResult left, right;
             expr.getLeft().accept(*this, left);
-            expr.getRight().accept(*this, right);
+            // use lazy evaluation
+            if(left.value){
+                static_cast<BoolResult&>(context).value = true;
+            } else {
+                expr.getRight().accept(*this, right);
+                static_cast<BoolResult&>(context).value = right.value;
+            }
 
-            static_cast<BoolResult&>(context).value
-                    = left.value || right.value;
+//            static_cast<BoolResult&>(context).value
+//                    = left.value || right.value;
         }
 
         template<typename T>
         void QueryVisitor<T>::visit(const AndExpression& expr, AST::Result& context) {
             BoolResult left, right;
             expr.getLeft().accept(*this, left);
-            expr.getRight().accept(*this, right);
+            
+            // use lazy evaluation
+            if(!left.value){
+                static_cast<BoolResult&>(context).value = false;
+            } else {
+                expr.getRight().accept(*this, right);
+                static_cast<BoolResult&>(context).value = right.value;
+            }
 
-            static_cast<BoolResult&>(context).value 
-                    = left.value && right.value;
+//            static_cast<BoolResult&>(context).value 
+//                    = left.value && right.value;
         }
 
         template<typename T>
