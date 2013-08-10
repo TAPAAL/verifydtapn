@@ -58,15 +58,15 @@ namespace VerifyTAPN {
                                 verifier,
                                 options,
                                 query);
-                        delete strategy;
                     } else if (query->getQuantifier() == EF || query->getQuantifier() == AG) {
                         ReachabilitySearchPTrie verifier = ReachabilitySearchPTrie(tapn, *initialMarking, query, options, strategy);
                         VerifyAndPrint(
                                 verifier,
                                 options,
                                 query);
-                        delete strategy;
+
                     }
+                    delete strategy;
                 } else {
                     WaitingList<NonStrictMarking>* strategy = getWaitingList<NonStrictMarking > (query, options);
                     if (query->getQuantifier() == EG || query->getQuantifier() == AF) {
@@ -75,15 +75,14 @@ namespace VerifyTAPN {
                                 verifier,
                                 options,
                                 query);
-                        delete strategy;
                     } else if (query->getQuantifier() == EF || query->getQuantifier() == AG) {
                         ReachabilitySearch verifier = ReachabilitySearch(tapn, *initialMarking, query, options, strategy);
                         VerifyAndPrint(
                                 verifier,
                                 options,
                                 query);
-                        delete strategy;
                     }
+                    delete strategy;
                 }
             } else if (options.getVerificationType() == VerificationOptions::TIMEDART) {
                 if (query->getQuantifier() == EG || query->getQuantifier() == AF) {

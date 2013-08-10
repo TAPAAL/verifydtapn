@@ -81,10 +81,7 @@ class PWListHybrid : public PWListBase {
                 passed = new PTrie<MetaData>(tapn, knumber,nplaces,mage);
                 parent = NULL;
             };
-            virtual ~PWListHybrid() {
-                // We don't care, it is deallocated on program execution done
-                delete passed;
-            }
+            virtual ~PWListHybrid();
             friend std::ostream& operator<<(std::ostream& out, PWListHybrid& x);
 
         public: // inspectors

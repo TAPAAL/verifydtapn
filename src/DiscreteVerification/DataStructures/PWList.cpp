@@ -69,6 +69,7 @@ std::ostream& operator<<(std::ostream& out, PWList& x){
 
             PTrie<MetaData>::Result res = passed->add(marking);
             if(res.isNew){
+                res.encoding.setMetaData(NULL);
                 if(isLiveness){
                     MetaData* meta;
                     if(this->makeTrace){
@@ -117,9 +118,22 @@ std::ostream& operator<<(std::ostream& out, PWList& x){
                     this->parent = (MetaDataWithTraceAndEncoding*)(m->meta);
                 }
             }
-            if(isLiveness || !this->makeTrace)
+            if(isLiveness || !this->makeTrace){
                 p->encoding.release();
+                delete p;
+            }
             return m;
+        }
+
+        PWListHybrid::~PWListHybrid() {
+            // We don't care, it is deallocated on program execution done
+
+            while (waiting_list->size() > 0) {
+                EncodingPointer<MetaData>* p = waiting_list->pop();
+                p->encoding.release();
+                delete p;
+            }
+            delete passed;
         }
 
 
