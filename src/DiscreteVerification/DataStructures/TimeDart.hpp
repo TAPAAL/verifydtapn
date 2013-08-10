@@ -30,7 +30,7 @@ public:
 		: base(base), waiting(waiting), passed(passed){
 	}
 	~TimeDartBase(){
-            delete base;
+ 
 	}
 
 	//Getters
