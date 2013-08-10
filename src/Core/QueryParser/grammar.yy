@@ -82,8 +82,10 @@ boolExpression		: BOOL_TRUE { $$ = new VerifyTAPN::AST::BoolExpression(true); }
 atomicProposition	: IDENTIFIER compareOp NUMBER 
 	{ 
 		int placeIndex = driver.getTAPN().getPlaceIndex(*$1);
+                delete $1;
 		if(placeIndex == -1) error(@1, "unknown place"); 
-		$$ = new VerifyTAPN::AST::AtomicProposition(placeIndex, $2, $3);
+		$$ = new VerifyTAPN::AST::AtomicProposition(placeIndex, $2, $3); 
+                delete $2;
 	} | DEADLOCK { $$ = new VerifyTAPN::AST::DeadlockExpression(); } ;
 compareOp			: LESS | LESSEQUAL | EQUAL | GREATEREQUAL | GREATER; 
      

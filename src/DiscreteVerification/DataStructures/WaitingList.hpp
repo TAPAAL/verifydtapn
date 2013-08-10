@@ -76,6 +76,7 @@ class HeuristicStackWaitingList : public StackWaitingList<T>{
 public:
 	typedef std::priority_queue<WeightedItem<T>, std::vector<WeightedItem<T> >, less<T> > priority_queue;
 	HeuristicStackWaitingList(AST::Query* q) : buffer(), query(normalizeQuery(q)) { };
+        ~HeuristicStackWaitingList(){delete query;};
 	virtual void add(NonStrictMarkingBase* weight, T* payload);
 	virtual T* peek();
 	virtual T* pop();
@@ -340,6 +341,7 @@ HeuristicWaitingList<T>::~HeuristicWaitingList()
 	while(!queue.empty()){
 		queue.pop();
 	}
+        delete query;
 }
 
 template <class T>
