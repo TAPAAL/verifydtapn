@@ -9,7 +9,17 @@
 
 namespace VerifyTAPN {
 namespace DiscreteVerification {
+TimeDartPWHashMap::~TimeDartPWHashMap() {
+            // We don't care, it is deallocated on program execution done
 
+            // destructor for use when hunting memory-leaks with valgrind
+            for (HashMap::iterator it = markings_storage.begin(); it != markings_storage.end(); it++) {
+                for (TimeDartList::iterator bit = it->second.begin(); bit != it->second.end(); bit++) {
+                    delete *bit;
+                }
+            }
+        }
+    
 bool TimeDartPWHashMap::add(NonStrictMarkingBase* marking, int youngest, WaitingDart* parent, int upper, int start){
 	discoveredMarkings++;
 	TimeDartList& m = markings_storage[marking->getHashKey()];
@@ -104,11 +114,6 @@ TimeDartBase* TimeDartPWPData::getNextUnexplored(){
     p->encoding.release();
     delete p;
     return dart;
-}
-
-
-TimeDartPWHashMap::~TimeDartPWHashMap() {
-	// TODO Auto-generated destructor stub
 }
 
 std::ostream& operator<<(std::ostream& out, TimeDartPWHashMap& x){
