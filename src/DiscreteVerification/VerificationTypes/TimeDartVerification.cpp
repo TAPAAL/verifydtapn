@@ -168,14 +168,13 @@ namespace VerifyTAPN {
             NonStrictMarkingBase* l = NULL;
             
             DeadlockVisitor deadlockVisitor = DeadlockVisitor();
-            boost::any c;
-            deadlockVisitor.visit(*query, c);
-            bool queryContainsDeadlock = boost::any_cast<bool>(c);
+            AST::BoolResult queryContainsDeadlock;
+            deadlockVisitor.visit(*query, queryContainsDeadlock);
             
             // only if we have reached a deadlock (liveness) or 
             // have a reachability query (for delay when deadlock prop is used) then
             // we want to create some end-delay
-            if(deadlock || queryContainsDeadlock){
+            if(deadlock || queryContainsDeadlock.value){
                 NonStrictMarkingBase* base = getBase(trace->dart);
                 
                 int diff = this->maxPossibleDelay(base) - trace->start;

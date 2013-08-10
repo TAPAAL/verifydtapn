@@ -5,63 +5,56 @@ namespace VerifyTAPN
 {
 	namespace AST
 	{
-		struct Tuple{
-			bool negate;
-			Expression* returnExpr;
 
-		public:
-			Tuple(bool negate, Expression* expr) : negate(negate), returnExpr(expr) {};
-		};
-
-		void NormalizationVisitor::visit(const NotExpression& expr, boost::any& context)
+		void NormalizationVisitor::visit(const NotExpression& expr, Result& context)
 		{
-			Tuple& tuple = boost::any_cast<Tuple&>(context);
-			boost::any any = Tuple(!tuple.negate, NULL);
+			Tuple& tuple = static_cast<Tuple&>(context);
+			Tuple any = Tuple(!tuple.negate, NULL);
 			expr.getChild().accept(*this, any);
-			tuple.returnExpr = boost::any_cast<Tuple&>(any).returnExpr;
+			tuple.returnExpr = static_cast<Tuple&>(any).returnExpr;
 		}
 
-		void NormalizationVisitor::visit(const ParExpression& expr, boost::any& context)
+		void NormalizationVisitor::visit(const ParExpression& expr, Result& context)
 		{
-			Tuple& tuple = boost::any_cast<Tuple&>(context);
-			boost::any any = Tuple(tuple.negate, NULL);
+			Tuple& tuple = static_cast<Tuple&>(context);
+			Tuple any = Tuple(tuple.negate, NULL);
 			expr.getChild().accept(*this, any);
-			tuple.returnExpr = new ParExpression(boost::any_cast<Tuple&>(any).returnExpr);
+			tuple.returnExpr = new ParExpression(static_cast<Tuple&>(any).returnExpr);
 		}
 
-		void NormalizationVisitor::visit(const OrExpression& expr, boost::any& context)
+		void NormalizationVisitor::visit(const OrExpression& expr, Result& context)
 		{
-			Tuple& tuple = boost::any_cast<Tuple&>(context);
-			boost::any left = Tuple(tuple.negate, NULL), right = Tuple(tuple.negate, NULL);
+			Tuple& tuple = static_cast<Tuple&>(context);
+			Tuple left = Tuple(tuple.negate, NULL), right = Tuple(tuple.negate, NULL);
 			if(tuple.negate){
 				expr.getLeft().accept(*this, left);
 				expr.getRight().accept(*this, right);
-				tuple.returnExpr = new AndExpression(boost::any_cast<Tuple&>(left).returnExpr, boost::any_cast<Tuple&>(right).returnExpr);
+				tuple.returnExpr = new AndExpression(static_cast<Tuple&>(left).returnExpr, static_cast<Tuple&>(right).returnExpr);
 			}else{
 				expr.getLeft().accept(*this, left);
 				expr.getRight().accept(*this, right);
-				tuple.returnExpr = new OrExpression(boost::any_cast<Tuple&>(left).returnExpr, boost::any_cast<Tuple&>(right).returnExpr);
+				tuple.returnExpr = new OrExpression(static_cast<Tuple&>(left).returnExpr, static_cast<Tuple&>(right).returnExpr);
 			}
 		}
 
-		void NormalizationVisitor::visit(const AndExpression& expr, boost::any& context)
+		void NormalizationVisitor::visit(const AndExpression& expr, Result& context)
 		{
-			Tuple& tuple = boost::any_cast<Tuple&>(context);
-			boost::any left = Tuple(tuple.negate, NULL), right = Tuple(tuple.negate, NULL);
+			Tuple& tuple = static_cast<Tuple&>(context);
+			Tuple left = Tuple(tuple.negate, NULL), right = Tuple(tuple.negate, NULL);
 			if(tuple.negate){
 				expr.getLeft().accept(*this, left);
 				expr.getRight().accept(*this, right);
-				tuple.returnExpr = new OrExpression(boost::any_cast<Tuple&>(left).returnExpr, boost::any_cast<Tuple&>(right).returnExpr);
+				tuple.returnExpr = new OrExpression(static_cast<Tuple&>(left).returnExpr, static_cast<Tuple&>(right).returnExpr);
 			}else{
 				expr.getLeft().accept(*this, left);
 				expr.getRight().accept(*this, right);
-				tuple.returnExpr = new AndExpression(boost::any_cast<Tuple&>(left).returnExpr, boost::any_cast<Tuple&>(right).returnExpr);
+				tuple.returnExpr = new AndExpression(static_cast<Tuple&>(left).returnExpr, static_cast<Tuple&>(right).returnExpr);
 			}
 		}
 
-		void NormalizationVisitor::visit(const AtomicProposition& expr, boost::any& context)
+		void NormalizationVisitor::visit(const AtomicProposition& expr, Result& context)
 		{
-			Tuple& tuple = boost::any_cast<Tuple&>(context);
+			Tuple& tuple = static_cast<Tuple&>(context);
 			std::string op;
 			if(tuple.negate){
 				op = negateOperator(expr.getOperator());
@@ -71,16 +64,16 @@ namespace VerifyTAPN
 			tuple.returnExpr = new AtomicProposition(expr.getPlace(), &op, expr.getNumberOfTokens());
 		}
 
-               void NormalizationVisitor::visit(const DeadlockExpression& expr, boost::any& context) {
+               void NormalizationVisitor::visit(const DeadlockExpression& expr, Result& context) {
                         // this needs review by Mathias and Jakob
-			Tuple& tuple = boost::any_cast<Tuple&>(context);
+			Tuple& tuple = static_cast<Tuple&>(context);
 			tuple.returnExpr = new DeadlockExpression();                  
                 }
                 
 
-		void NormalizationVisitor::visit(const BoolExpression& expr, boost::any& context)
+		void NormalizationVisitor::visit(const BoolExpression& expr, Result& context)
 		{
-			Tuple& tuple = boost::any_cast<Tuple&>(context);
+			Tuple& tuple = static_cast<Tuple&>(context);
 			if(tuple.negate){
 				tuple.returnExpr = new BoolExpression(!expr.getValue());
 			}else{
@@ -88,12 +81,12 @@ namespace VerifyTAPN
 			}
 		}
 
-		void NormalizationVisitor::visit(const Query& query, boost::any& context)
+		void NormalizationVisitor::visit(const Query& query, Result& context)
 		{
-			boost::any any = Tuple(false, NULL);
+			Tuple any = Tuple(false, NULL);
 			query.getChild().accept(*this, any);
 
-			normalizedQuery = new AST::Query(query.getQuantifier(), boost::any_cast<Tuple&>(any).returnExpr);
+			normalizedQuery = new AST::Query(query.getQuantifier(), static_cast<Tuple&>(any).returnExpr);
 		}
 
 		std::string NormalizationVisitor::negateOperator(const std::string& op) const{

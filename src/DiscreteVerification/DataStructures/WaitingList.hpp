@@ -13,8 +13,6 @@
 #include <queue>
 #include <stack>
 #include <vector>
-#include "boost/optional.hpp"
-#include "boost/shared_ptr.hpp"
 #include "../../Core/QueryParser/AST.hpp"
 #include "../SearchStrategies/WeightQueryVisitor.hpp"
 #include "../SearchStrategies/LivenessWeightQueryVisitor.hpp"
@@ -236,9 +234,9 @@ template <class T>
 int HeuristicStackWaitingList<T>::calculateWeight(NonStrictMarkingBase* marking)
 {
 	LivenessWeightQueryVisitor weight(*marking);
-	boost::any weight_c;
+	IntResult weight_c;
 	query->accept(weight, weight_c);
-	return boost::any_cast<int>(weight_c);
+	return weight_c.value;
 }
 
 template <class T>
@@ -319,9 +317,9 @@ template <class T>
 int HeuristicWaitingList<T>::calculateWeight(NonStrictMarkingBase* marking)
 {
 	WeightQueryVisitor weight(*marking);
-	boost::any weight_c;
+	IntResult weight_c;
 	query->accept(weight, weight_c);
-	return boost::any_cast<int>(weight_c);
+	return weight_c.value;
 }
 
 template <class T>

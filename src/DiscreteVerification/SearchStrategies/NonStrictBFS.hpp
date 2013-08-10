@@ -9,7 +9,6 @@
 #define NONSTRICTBFS_HPP_
 
 #include "../DataStructures/PWList.hpp"
-#include "boost/smart_ptr.hpp"
 #include "../../Core/TAPN/TAPN.hpp"
 #include "../../Core/QueryParser/AST.hpp"
 #include "../../Core/VerificationOptions.hpp"
@@ -24,7 +23,6 @@
 #include "../SuccessorGenerator.hpp"
 
 #include "../QueryVisitor.hpp"
-#include "boost/any.hpp"
 #include "SearchStrategy.hpp"
 
 #include <stack>

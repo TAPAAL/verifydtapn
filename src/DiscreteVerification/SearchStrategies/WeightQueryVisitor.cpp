@@ -10,63 +10,65 @@
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
-		void WeightQueryVisitor::visit(const NotExpression& expr, boost::any& context)
+		void WeightQueryVisitor::visit(const NotExpression& expr, Result& context)
 		{
 			assert(false);
 		}
 
-		void WeightQueryVisitor::visit(const ParExpression& expr, boost::any& context)
+		void WeightQueryVisitor::visit(const ParExpression& expr, Result& context)
 		{
 			expr.getChild().accept(*this, context);
 		}
 
-		void WeightQueryVisitor::visit(const OrExpression& expr, boost::any& context)
+		void WeightQueryVisitor::visit(const OrExpression& expr, Result& context)
 		{
-			boost::any left, right;
+			IntResult left, right;
 			expr.getLeft().accept(*this, left);
 			expr.getRight().accept(*this, right);
 
-			context = min(boost::any_cast<int>(left), boost::any_cast<int>(right));
+			static_cast<IntResult&>(context).value
+                                = min(left.value, right.value);
 		}
 
-		void WeightQueryVisitor::visit(const AndExpression& expr, boost::any& context)
+		void WeightQueryVisitor::visit(const AndExpression& expr, Result& context)
 		{
-			boost::any left, right;
+			IntResult left, right;
+                        
 			expr.getLeft().accept(*this, left);
-			expr.getRight().accept(*this, right);
-
-			int l = boost::any_cast<int>(left);
-			if(l == std::numeric_limits<int>::max()){
-				context = l;
+			if(left.value == std::numeric_limits<int>::max()){
+				static_cast<IntResult&>(context).value = left.value;
 				return;
 			}
 
-			int r = boost::any_cast<int>(right);
-			if(r == std::numeric_limits<int>::max()){
-				context = r;
+                        expr.getRight().accept(*this, right);
+			if(right.value == std::numeric_limits<int>::max()){
+				static_cast<IntResult&>(context).value = right.value;
 				return;
 			}
 
-			context = l+r;
+			static_cast<IntResult&>(context).value 
+                                = left.value+right.value;
 		}
 
-                void WeightQueryVisitor::visit(const DeadlockExpression& expr, boost::any& context)
+                void WeightQueryVisitor::visit(const DeadlockExpression& expr, Result& context)
 		{
-                    context = 0;
+                    static_cast<IntResult&>(context).value = 0;
 		}
 
-		void WeightQueryVisitor::visit(const AtomicProposition& expr, boost::any& context)
+		void WeightQueryVisitor::visit(const AtomicProposition& expr, Result& context)
 		{
 			int numberOfTokens = marking.numberOfTokensInPlace(expr.getPlace());
-			context = compare(numberOfTokens, expr.getOperator(), expr.getNumberOfTokens());
+			static_cast<IntResult&>(context).value
+                                = compare(numberOfTokens, expr.getOperator(), expr.getNumberOfTokens());
 		}
 
-		void WeightQueryVisitor::visit(const BoolExpression& expr, boost::any& context)
+		void WeightQueryVisitor::visit(const BoolExpression& expr, Result& context)
 		{
-			context = expr.getValue()? 0 : std::numeric_limits<int>::max();
+			static_cast<IntResult&>(context).value
+                                = expr.getValue()? 0 : std::numeric_limits<int>::max();
 		}
 
-		void WeightQueryVisitor::visit(const Query& query, boost::any& context)
+		void WeightQueryVisitor::visit(const Query& query, Result& context)
 		{
 			query.getChild().accept(*this, context);
 		}

@@ -87,11 +87,11 @@ namespace VerifyTAPN {
                 }
             } else if (options.getVerificationType() == VerificationOptions::TIMEDART) {
                 if (query->getQuantifier() == EG || query->getQuantifier() == AF) {
-                    boost::any c;
+                    AST::BoolResult containsDeadlock;
                     DeadlockVisitor deadlockVisitor = DeadlockVisitor();
-                    deadlockVisitor.visit(*query, c);
-                    bool containsDeadlock = boost::any_cast<bool>(c);
-                    if (containsDeadlock) {
+                    deadlockVisitor.visit(*query, containsDeadlock);
+
+                    if (containsDeadlock.value) {
                         cout << "The combination of TimeDarts, Deadlock proposition and EG or AF queries is currently not supported" << endl;
                         exit(1);
                     }                

@@ -10,44 +10,43 @@
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
-		void PlaceVisitor::visit(const NotExpression& expr, boost::any& context)
+		void PlaceVisitor::visit(const NotExpression& expr, Result& context)
 		{
 			expr.getChild().accept(*this, context);
 		}
 
-		void PlaceVisitor::visit(const ParExpression& expr, boost::any& context)
+		void PlaceVisitor::visit(const ParExpression& expr, Result& context)
 		{
 			expr.getChild().accept(*this, context);
 		}
 
-		void PlaceVisitor::visit(const OrExpression& expr, boost::any& context)
+		void PlaceVisitor::visit(const OrExpression& expr, Result& context)
 		{
 			expr.getLeft().accept(*this, context);
 			expr.getRight().accept(*this, context);
 		}
 
-		void PlaceVisitor::visit(const AndExpression& expr, boost::any& context)
+		void PlaceVisitor::visit(const AndExpression& expr, Result& context)
 		{
 			expr.getLeft().accept(*this, context);
 			expr.getRight().accept(*this, context);
 		}
 
-		void PlaceVisitor::visit(const AtomicProposition& expr, boost::any& context)
+		void PlaceVisitor::visit(const AtomicProposition& expr, Result& context)
 		{
-			std::vector<int> v = boost::any_cast< std::vector< int > >(context);
-			v.push_back(expr.getPlace());
-			context = v;
+			AST::IntVectorResult& v = static_cast< AST::IntVectorResult & >(context);
+			v.value.push_back(expr.getPlace());
 		}
 
-                void PlaceVisitor::visit(const DeadlockExpression& expr, boost::any& context)
+                void PlaceVisitor::visit(const DeadlockExpression& expr, Result& context)
 		{
 		}
                 
-		void PlaceVisitor::visit(const BoolExpression& expr, boost::any& context)
+		void PlaceVisitor::visit(const BoolExpression& expr, Result& context)
 		{
 		}
 
-		void PlaceVisitor::visit(const Query& query, boost::any& context)
+		void PlaceVisitor::visit(const Query& query, Result& context)
 		{
 			query.getChild().accept(*this, context);
 		}
