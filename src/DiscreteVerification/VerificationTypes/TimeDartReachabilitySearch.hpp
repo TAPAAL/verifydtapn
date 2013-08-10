@@ -10,12 +10,10 @@
 
 #include "../DataStructures/TimeDart.hpp"
 #include "../DataStructures/TimeDartPWList.hpp"
-#include "boost/numeric/interval.hpp"
 #include "../../Core/TAPN/TAPN.hpp"
 #include "../../Core/QueryParser/AST.hpp"
 #include "../../Core/VerificationOptions.hpp"
 #include "../QueryVisitor.hpp"
-#include "boost/any.hpp"
 #include "../DataStructures/NonStrictMarkingBase.hpp"
 #include <stack>
 #include "TimeDartVerification.hpp"
