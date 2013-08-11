@@ -177,10 +177,15 @@ namespace VerifyTAPN {
                         lastMarking = new WaitingDart(result.first, parent, result.first->getWaiting(), upper);
                     }
                     return true;
+                } else {
+                    deleteBase(marking);
+                    return false;
                 }
+            } else {
+                delete marking;
+                return false;
             }
-            deleteBase(marking);
-            return false;
+            assert(false);// all cases should be handled
         }
 
         void TimeDartLiveness::printStats() {
