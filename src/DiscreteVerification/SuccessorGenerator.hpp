@@ -132,6 +132,8 @@ namespace VerifyTAPN {
             }
         };
 
+        enum Result {QUERY_SATISFIED, QUERY_UNSATISFIED, URGENT_ENABLED};
+        
         template<typename T>
         class SuccessorGenerator {
             typedef google::sparse_hash_map<const void*, TokenList> ArcHashMap;
@@ -139,10 +141,13 @@ namespace VerifyTAPN {
             typedef typename boost::ptr_vector< ArcAndTokenWithType > ArcAndTokensVector;
 
         public:
+            
             SuccessorGenerator(TAPN::TimedArcPetriNet& tapn, Verification<T>& verifier);
             ~SuccessorGenerator();
-            bool generateAndInsertSuccessors(const T& marking);
+            
+            Result generateAndInsertSuccessors(const T& marking);
             void printTransitionStatistics(std::ostream & out) const;
+
             inline bool doSuccessorsExist();
             
         private:
@@ -165,7 +170,7 @@ namespace VerifyTAPN {
                     const TimedTransition& transition,
                     int bound = std::numeric_limits<int>().max(),
                     bool isInhib = false
-                    ) const;
+                    );
 
             inline void clearTransitionsArray() {
                 memset(transitionStatistics, 0, numberoftransitions * sizeof (transitionStatistics[0]));
@@ -175,6 +180,7 @@ namespace VerifyTAPN {
             unsigned int* transitionStatistics;
             Verification<T>& verifier;
             bool succesorsExist;
+            bool urgentEnabled;
         };
 
         template<typename T>
@@ -200,11 +206,12 @@ namespace VerifyTAPN {
         }
         
         template<typename T>
-        bool SuccessorGenerator<T>::generateAndInsertSuccessors(const T& marking) {
+        Result SuccessorGenerator<T>::generateAndInsertSuccessors(const T& marking) {
             succesorsExist = false;
-            
+            urgentEnabled = false;
             ArcHashMap enabledArcs(tapn.getInhibitorArcs().size() + tapn.getInputArcs().size() + tapn.getTransportArcs().size());
             std::vector<unsigned int> enabledTransitionArcs(tapn.getTransitions().size(), 0);
+
             std::vector<const TAPN::TimedTransition* > enabledTransitions;
 
             for (PlaceList::const_iterator iter = marking.getPlaceList().begin(); iter < marking.getPlaceList().end(); iter++) {
@@ -230,7 +237,16 @@ namespace VerifyTAPN {
             }
 
             enabledTransitions.insert(enabledTransitions.end(), allwaysEnabled.begin(), allwaysEnabled.end());
-            return generateMarkings(marking, enabledTransitions, enabledArcs);
+            if(generateMarkings(marking, enabledTransitions, enabledArcs)){
+                return QUERY_SATISFIED;
+            } else {
+                if(urgentEnabled){
+                    return URGENT_ENABLED;
+                } else{
+                    return QUERY_UNSATISFIED;
+                }
+            }
+
         }
 
         template<typename T>
@@ -244,7 +260,7 @@ namespace VerifyTAPN {
                 const TimedTransition& transition,
                 int bound,
                 bool isInhib
-                ) const {
+                ) {
             bool arcIsEnabled = false;
             for (TokenList::const_iterator token_iter = place.tokens.begin(); token_iter != place.tokens.end(); token_iter++) {
                 if (interval.getLowerBound() <= token_iter->getAge() && token_iter->getAge() <= interval.getUpperBound() && token_iter->getAge() <= bound) {
@@ -310,6 +326,11 @@ namespace VerifyTAPN {
                 }
             }
 
+            // only here the weights have been properly checked.
+            if(transition.isUrgent()){
+                this->urgentEnabled = true;
+            }
+            
             // Write statistics
             transitionStatistics[transition.getIndex()]++;
 

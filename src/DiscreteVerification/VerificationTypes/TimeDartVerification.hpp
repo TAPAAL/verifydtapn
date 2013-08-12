@@ -28,6 +28,10 @@ namespace VerifyTAPN {
                     if ((*iter)->getPreset().size() + (*iter)->getTransportArcs().size() == 0) {
                         allwaysEnabled.push_back(iter->get());
                     }
+                    if((*iter)->isUrgent()){    // no implementation for urgency in timedart engine yet
+                        cout << "The TimeDart engine cannot handle urgent transitions" << endl;
+                        exit(1);
+                    }
                 }
             }
 
