@@ -59,10 +59,11 @@ namespace VerifyTAPN {
 			markUntimedPlaces();
 		}
 
-		void TimedArcPetriNet::removeOrphantedTransitions(){
+		bool TimedArcPetriNet::removeOrphantedTransitions(){
 			// CAUTION: This if statement removes orphan transitions.
 			//			This changes answers for e.g. DEADLOCK queries if
 			//			support for such queries are added later.
+                        bool anyRemoved = false;
 			if(transitions.size() > 0)
 			{
 				bool hasShownMessage = false;
@@ -75,11 +76,13 @@ namespace VerifyTAPN {
 							std::cout << "Orphaned transitions have been removed." << std::endl << std::endl;
 							hasShownMessage = true;
 						}
+                                                anyRemoved = true;
 					}else{
 						iter++;
 					}
 				}
 			}
+                        return anyRemoved;
 		}
 
 		void TimedArcPetriNet::markUntimedPlaces()

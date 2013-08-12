@@ -6,6 +6,7 @@
 #include "Core/QueryParser/TAPNQueryParser.hpp"
 #include "Core/TAPN/TimedPlace.hpp"
 #include "DiscreteVerification/DiscreteVerification.hpp"
+#include "DiscreteVerification/DeadlockVisitor.hpp"
 
 using namespace std;
 using namespace VerifyTAPN;
@@ -44,7 +45,15 @@ int main(int argc, char* argv[])
 	}
 
 	if(query->getQuantifier() == AST::EF || query->getQuantifier() == AST::AG){
-		tapn->removeOrphantedTransitions();
+		bool anyRemoved = tapn->removeOrphantedTransitions();
+                DiscreteVerification::DeadlockVisitor deadlockVisitor = DiscreteVerification::DeadlockVisitor();
+                boost::any c;
+                deadlockVisitor.visit(*query, c);
+                bool queryContainsDeadlock = boost::any_cast<bool>(c);
+                if(queryContainsDeadlock && anyRemoved){
+                        std::cout << "The model contains orphan transitions and the query a deadlock proposition. This combination is not supported." << std::endl; 
+                        return 1;
+                }
 	}
 
 	tapn->updatePlaceTypes(query, options);

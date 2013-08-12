@@ -9,7 +9,6 @@
 #define DEADLOCKVISITOR_HPP_
 
 #include "../Core/QueryParser/Visitor.hpp"
-#include "DataStructures/NonStrictMarking.hpp"
 #include "../Core/QueryParser/AST.hpp"
 #include <exception>
 
