@@ -135,15 +135,6 @@ namespace VerifyTAPN {
                 delete marking;
                 return false;
             }
-
-            // very curde way of doing this, integers could be passed as arguments for querychecker instead
-            // this is only needed for deadlock-checks, should possibly be contained in if-structure (huge overhead)
-            // no supported currently, gives wrong results
-            /*
-            NonStrictMarkingBase maxed = NonStrictMarkingBase(*marking);
-            maxed.incrementAge(maxDelay);        // delay to maximum possible age (for deadlock query)
-            maxed.cut();
-            */
             
             int youngest = marking->makeBase(tapn.get());
 
