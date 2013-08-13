@@ -42,19 +42,12 @@ int main(int argc, char* argv[])
 	}catch(...){
 		std::cout << "There was an error parsing the query file." << std::endl;
 		return 1;
-	}
+        }
 
-	if(query->getQuantifier() == AST::EF || query->getQuantifier() == AST::AG){
-		bool anyRemoved = tapn->removeOrphantedTransitions();
-                DiscreteVerification::DeadlockVisitor deadlockVisitor = DiscreteVerification::DeadlockVisitor();
-                boost::any c;
-                deadlockVisitor.visit(*query, c);
-                bool queryContainsDeadlock = boost::any_cast<bool>(c);
-                if(queryContainsDeadlock && anyRemoved){
-                        std::cout << "The model contains orphan transitions and the query a deadlock proposition. This combination is not supported." << std::endl; 
-                        return 1;
-                }
-	}
+        if (tapn->containsOrphanTransitions()) {
+            std::cout << "The model contains orphan transitions. This is not supported by the engine." << std::endl;
+            return 1;
+        }
 
 	tapn->updatePlaceTypes(query, options);
 
