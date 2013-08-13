@@ -60,7 +60,7 @@ namespace VerifyTAPN {
 			void updatePlaceTypes(const AST::Query* query, VerificationOptions options);
 		public: // modifiers
 			void initialize(bool useGlobalMaxConstant);
-			void removeOrphantedTransitions();
+			bool containsOrphanTransitions();
 
 
 		private: // modifiers

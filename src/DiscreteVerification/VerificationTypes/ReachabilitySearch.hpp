@@ -20,7 +20,6 @@
 #include "../../Core/TAPN/OutputArc.hpp"
 #include "../SuccessorGenerator.hpp"
 #include "../QueryVisitor.hpp"
-#include "boost/any.hpp"
 #include "../DataStructures/NonStrictMarking.hpp"
 #include <stack>
 #include "Verification.hpp"

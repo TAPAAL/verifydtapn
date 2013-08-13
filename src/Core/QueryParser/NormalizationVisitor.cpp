@@ -65,12 +65,10 @@ namespace VerifyTAPN
 		}
 
                void NormalizationVisitor::visit(const DeadlockExpression& expr, Result& context) {
-                        // this needs review by Mathias and Jakob
 			Tuple& tuple = static_cast<Tuple&>(context);
 			tuple.returnExpr = new DeadlockExpression();                  
                 }
                 
-
 		void NormalizationVisitor::visit(const BoolExpression& expr, Result& context)
 		{
 			Tuple& tuple = static_cast<Tuple&>(context);
