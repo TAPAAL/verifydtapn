@@ -93,6 +93,7 @@ bool ReachabilitySearch::addToPW(NonStrictMarking* marking, NonStrictMarking* pa
 	if(pwList->add(marking)){
 		QueryVisitor<NonStrictMarking> checker(*marking, tapn);
 		BoolResult context;
+
 		query->accept(checker, context);
 		if(context.value) {
 			lastMarking = marking;
