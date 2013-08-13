@@ -50,6 +50,7 @@ namespace DiscreteVerification {
 			context = l+r;
 		}
 
+
 		void LivenessWeightQueryVisitor::visit(const AtomicProposition& expr, boost::any& context)
 		{
 			int numberOfTokens = marking.numberOfTokensInPlace(expr.getPlace());
@@ -66,6 +67,11 @@ namespace DiscreteVerification {
 			query.getChild().accept(*this, context);
 		}
 
+                void LivenessWeightQueryVisitor::visit(const DeadlockExpression& expr, boost::any& context)
+		{
+                        context = 0;
+		}
+                
 		int LivenessWeightQueryVisitor::compare(int numberOfTokensInPlace, const std::string& op, int n) const
 		{
 			if(op == "<") return numberOfTokensInPlace < n? abs(n-numberOfTokensInPlace):-abs(n-numberOfTokensInPlace);

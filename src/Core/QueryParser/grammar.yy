@@ -45,6 +45,7 @@ namespace VerifyTAPN{
 %token LPARAN RPARAN
 %token OR AND NOT
 %token BOOL_TRUE BOOL_FALSE
+%token DEADLOCK
 %type  <expr> expression notExpression parExpression orExpression andExpression boolExpression atomicProposition
 %type <query> query
 %type <string> compareOp
@@ -82,8 +83,8 @@ atomicProposition	: IDENTIFIER compareOp NUMBER
 	{ 
 		int placeIndex = driver.getTAPN().getPlaceIndex(*$1);
 		if(placeIndex == -1) error(@1, "unknown place"); 
-		$$ = new VerifyTAPN::AST::AtomicProposition(placeIndex, $2, $3); 
-	};
+		$$ = new VerifyTAPN::AST::AtomicProposition(placeIndex, $2, $3);
+	} | DEADLOCK { $$ = new VerifyTAPN::AST::DeadlockExpression(); } ;
 compareOp			: LESS | LESSEQUAL | EQUAL | GREATEREQUAL | GREATER; 
      
 %%

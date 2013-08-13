@@ -32,6 +32,7 @@ class LivenessWeightQueryVisitor : public Visitor{
 		virtual void visit(const AtomicProposition& expr, boost::any& context);
 		virtual void visit(const BoolExpression& expr, boost::any& context);
 		virtual void visit(const Query& query, boost::any& context);
+                virtual void visit(const DeadlockExpression& expr, boost::any& context);
 	private:
 		int compare(int numberOfTokensInPlace, const std::string& op, int n) const;
 

@@ -117,6 +117,12 @@ public:
 			iter->decrementAge();
 		}
 	}
+        inline bool allMaximumConstant(const int delay) const {                                       
+            // assume the list is sorted, first token must be lowest, 
+            // and thus we only need to check this token to the max constant.
+            // also assume no place-object is "empty"
+            return (tokens[0].getAge() + delay) >= (place->getMaxConstant() + 1);
+        }
 };
 
 typedef vector<Place> PlaceList;
@@ -134,11 +140,16 @@ public:
 	virtual ~NonStrictMarkingBase();
 
 	public: // inspectors
+
+                const bool canDeadlock(const TAPN::TimedArcPetriNet& tapn, const int maxDelay, bool ignoreCanDelay) const;
+                inline const bool canDeadlock(const TAPN::TimedArcPetriNet& tapn, const int maxDelay) const {
+                    return canDeadlock(tapn, maxDelay, false);
+                };
 		int numberOfTokensInPlace(int placeId) const;
 		const TokenList& getTokenList(int placeId) const;
 		inline const PlaceList& getPlaceList() const{ return places; }
 		unsigned int size();
-		inline const NonStrictMarkingBase* getParent() const { return parent; }
+		inline NonStrictMarkingBase* getParent() const { return parent; }
 		inline const TAPN::TimedTransition* getGeneratedBy() const { return generatedBy; }
 		bool equals(const NonStrictMarkingBase &m1) const;
                 inline int getNumberOfChildren(){
@@ -148,7 +159,7 @@ public:
                 
 	public: // modifiers
 
-                void cut();
+                int cut();
 		bool removeToken(int placeId, int age);
 		bool removeToken(Place& place, Token& token);
 		void addTokenInPlace(TAPN::TimedPlace& place, int age);

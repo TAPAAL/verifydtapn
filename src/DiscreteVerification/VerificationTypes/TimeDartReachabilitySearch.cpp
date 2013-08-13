@@ -39,6 +39,7 @@ bool TimeDartReachabilitySearch::verify(){
 			}
 			int start = max(dart.getWaiting(), calculatedStart.first);
 			int end = min(passed-1, calculatedStart.second);
+
 			if(start <= end){
 
 				if(transition.hasUntimedPostset()){
@@ -73,7 +74,7 @@ bool TimeDartReachabilitySearch::addToPW(NonStrictMarkingBase* marking, WaitingD
         if(options.getTrace() == VerificationOptions::SOME_TRACE){
             start = marking->getYoungest();
         }
-	marking->cut();
+	int maxDelay = marking->cut();
 
 	unsigned int size = marking->size();
 
@@ -83,10 +84,19 @@ bool TimeDartReachabilitySearch::addToPW(NonStrictMarkingBase* marking, WaitingD
                 delete marking;
 		return false;
 	}
+        
         int youngest = marking->makeBase(tapn.get());
-                                //int youngest, WaitingDart* parent, int upper
+        
 	if(pwList->add(tapn.get(), marking, youngest, parent, upper, start)){
-		QueryVisitor<NonStrictMarkingBase> checker(*marking);
+
+
+                if(maxDelay != std::numeric_limits<int>::max())
+                    maxDelay += youngest;
+                if(maxDelay > tapn->getMaxConstant()){
+                    maxDelay = tapn->getMaxConstant() + 1;
+                }
+                
+		QueryVisitor<NonStrictMarkingBase> checker(*marking, *tapn.get(), maxDelay);
 		boost::any context;
 		query->accept(checker, context);
 		if(boost::any_cast<bool>(context)) {

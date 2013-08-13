@@ -91,7 +91,7 @@ bool ReachabilitySearch::addToPW(NonStrictMarking* marking, NonStrictMarking* pa
 	}
 
 	if(pwList->add(marking)){
-		QueryVisitor<NonStrictMarking> checker(*marking);
+		QueryVisitor<NonStrictMarking> checker(*marking, *tapn.get());
 		boost::any context;
 		query->accept(checker, context);
 		if(boost::any_cast<bool>(context)) {
@@ -118,7 +118,7 @@ void ReachabilitySearch::getTrace(){
 	stack < NonStrictMarking*> printStack;
 	generateTraceStack(lastMarking, &printStack);
 	if(options.getXmlTrace()){
-		printXMLTrace(lastMarking, printStack, query->getQuantifier());
+		printXMLTrace(lastMarking, printStack, query, *this->tapn.get());
 	} else {
 		printHumanTrace(lastMarking, printStack, query->getQuantifier());
 	}
@@ -138,7 +138,7 @@ void ReachabilitySearchPTrie::getTrace(){
             printStack.push(m);
             next = next->parent;
         };
-        printXMLTrace(lastMarking, printStack, query->getQuantifier());
+        printXMLTrace(lastMarking, printStack, query, *this->tapn.get());
 }
 
 ReachabilitySearch::~ReachabilitySearch() {

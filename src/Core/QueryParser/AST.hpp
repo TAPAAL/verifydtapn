@@ -49,6 +49,16 @@ namespace VerifyTAPN{
 		private:
 			Expression* expr;
 		};
+                
+                class DeadlockExpression : public Expression
+                {
+                    public:
+			explicit DeadlockExpression() {};
+			virtual ~DeadlockExpression() { };
+
+			virtual DeadlockExpression* clone() const;
+			virtual void accept(Visitor& visitor, boost::any& context) const;
+                };
 
 		class BoolExpression : public Expression
 		{

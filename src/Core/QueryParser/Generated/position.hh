@@ -1,8 +1,8 @@
-/* A Bison parser, made by GNU Bison 2.7.12-4996.  */
+/* A Bison parser, made by GNU Bison 2.5.  */
 
 /* Positions for Bison parsers in C++
    
-      Copyright (C) 2002-2007, 2009-2013 Free Software Foundation, Inc.
+      Copyright (C) 2002-2007, 2009-2011 Free Software Foundation, Inc.
    
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -31,72 +31,62 @@
    version 2.2 of Bison.  */
 
 /**
- ** \file Core/QueryParser/Generated/position.hh
+ ** \file position.hh
  ** Define the VerifyTAPN::position class.
  */
 
-#ifndef YY_YY_CORE_QUERYPARSER_GENERATED_POSITION_HH_INCLUDED
-# define YY_YY_CORE_QUERYPARSER_GENERATED_POSITION_HH_INCLUDED
+#ifndef BISON_POSITION_HH
+# define BISON_POSITION_HH
 
-# include <algorithm> // std::max
 # include <iostream>
 # include <string>
+# include <algorithm>
 
-# ifndef YY_NULL
-#  if defined __cplusplus && 201103L <= __cplusplus
-#   define YY_NULL nullptr
-#  else
-#   define YY_NULL 0
-#  endif
-# endif
 
-/* Line 36 of location.cc  */
+/* Line 37 of location.cc  */
 #line 5 "Core/QueryParser/grammar.yy"
 namespace VerifyTAPN {
-/* Line 36 of location.cc  */
-#line 58 "Core/QueryParser/Generated/position.hh"
+
+/* Line 37 of location.cc  */
+#line 52 "Core/QueryParser/Generated/position.hh"
   /// Abstract a position.
   class position
   {
   public:
 
     /// Construct a position.
-    explicit position (std::string* f = YY_NULL,
-                       unsigned int l = 1u,
-                       unsigned int c = 1u)
-      : filename (f)
-      , line (l)
-      , column (c)
+    position ()
+      : filename (0), line (1), column (1)
     {
     }
 
 
     /// Initialization.
-    void initialize (std::string* fn = YY_NULL,
-                     unsigned int l = 1u,
-                     unsigned int c = 1u)
+    inline void initialize (std::string* fn)
     {
       filename = fn;
-      line = l;
-      column = c;
+      line = 1;
+      column = 1;
     }
 
     /** \name Line and Column related manipulators
      ** \{ */
+  public:
     /// (line related) Advance to the COUNT next lines.
-    void lines (int count = 1)
+    inline void lines (int count = 1)
     {
-      column = 1u;
+      column = 1;
       line += count;
     }
 
     /// (column related) Advance to the COUNT next columns.
-    void columns (int count = 1)
+    inline void columns (int count = 1)
     {
       column = std::max (1u, column + count);
     }
     /** \} */
 
+  public:
     /// File name to which this position refers.
     std::string* filename;
     /// Current line number.
@@ -106,7 +96,7 @@ namespace VerifyTAPN {
   };
 
   /// Add and assign a position.
-  inline position&
+  inline const position&
   operator+= (position& res, const int width)
   {
     res.columns (width);
@@ -122,7 +112,7 @@ namespace VerifyTAPN {
   }
 
   /// Add and assign a position.
-  inline position&
+  inline const position&
   operator-= (position& res, const int width)
   {
     return res += -width;
@@ -157,18 +147,19 @@ namespace VerifyTAPN {
    ** \param ostr the destination output stream
    ** \param pos a reference to the position to redirect
    */
-  template <typename YYChar>
-  inline std::basic_ostream<YYChar>&
-  operator<< (std::basic_ostream<YYChar>& ostr, const position& pos)
+  inline std::ostream&
+  operator<< (std::ostream& ostr, const position& pos)
   {
     if (pos.filename)
       ostr << *pos.filename << ':';
     return ostr << pos.line << '.' << pos.column;
   }
 
-/* Line 148 of location.cc  */
+
+/* Line 144 of location.cc  */
 #line 5 "Core/QueryParser/grammar.yy"
 } // VerifyTAPN
-/* Line 148 of location.cc  */
-#line 174 "Core/QueryParser/Generated/position.hh"
-#endif /* !YY_YY_CORE_QUERYPARSER_GENERATED_POSITION_HH_INCLUDED  */
+
+/* Line 144 of location.cc  */
+#line 165 "Core/QueryParser/Generated/position.hh"
+#endif // not BISON_POSITION_HH

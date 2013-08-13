@@ -21,14 +21,22 @@ namespace VerifyTAPN {
         template<typename T>
         class QueryVisitor : public Visitor {
         public:
-
-            QueryVisitor(T& marking) : marking(marking) {
+            
+            QueryVisitor(T& marking, TAPN::TimedArcPetriNet& tapn, int maxDelay) : marking(marking), tapn(tapn), maxDelay(maxDelay) {
+                deadlockChecked = false;
+                deadlocked = false;
             };
 
+            QueryVisitor(T& marking, TAPN::TimedArcPetriNet& tapn) : marking(marking), tapn(tapn), maxDelay(0) {
+                deadlockChecked = false;
+                deadlocked = false;
+            }
+            
             virtual ~QueryVisitor() {
             };
 
         public: // visitor methods
+
             virtual void visit(const NotExpression& expr, boost::any& context);
             virtual void visit(const ParExpression& expr, boost::any& context);
             virtual void visit(const OrExpression& expr, boost::any& context);
@@ -36,11 +44,16 @@ namespace VerifyTAPN {
             virtual void visit(const AtomicProposition& expr, boost::any& context);
             virtual void visit(const BoolExpression& expr, boost::any& context);
             virtual void visit(const Query& query, boost::any& context);
+            virtual void visit(const DeadlockExpression& expr, boost::any& context);
         private:
-            bool Compare(int numberOfTokensInPlace, const std::string& op, int n) const;
+            bool compare(int numberOfTokensInPlace, const std::string& op, int n) const;
 
         private:
             const T& marking;
+            const TAPN::TimedArcPetriNet& tapn;
+            bool deadlockChecked;
+            bool deadlocked;
+            const int maxDelay;
         };
         
         template<typename T>
@@ -74,9 +87,10 @@ namespace VerifyTAPN {
         }
 
         template<typename T>
+
         void QueryVisitor<T>::visit(const AtomicProposition& expr, boost::any& context) {
             int numberOfTokens = marking.numberOfTokensInPlace(expr.getPlace());
-            context = Compare(numberOfTokens, expr.getOperator(), expr.getNumberOfTokens());
+            context = compare(numberOfTokens, expr.getOperator(), expr.getNumberOfTokens());
         }
 
         template<typename T>
@@ -91,9 +105,18 @@ namespace VerifyTAPN {
                 context = !boost::any_cast<bool>(context);
             }
         }
+        
+        template<typename T>
+        void QueryVisitor<T>::visit(const DeadlockExpression& expr, boost::any& context) {
+            if(!deadlockChecked){
+                deadlockChecked = true;
+                deadlocked = marking.canDeadlock(tapn, maxDelay);
+            }
+            context = deadlocked;
+        }
 
         template<typename T>
-        bool QueryVisitor<T>::Compare(int numberOfTokensInPlace, const std::string& op, int n) const {
+        bool QueryVisitor<T>::compare(int numberOfTokensInPlace, const std::string& op, int n) const {
             if (op == "<") return numberOfTokensInPlace < n;
             else if (op == "<=") return numberOfTokensInPlace <= n;
             else if (op == "=" || op == "==") return numberOfTokensInPlace == n;

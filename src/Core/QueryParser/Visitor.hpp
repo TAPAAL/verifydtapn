@@ -12,6 +12,7 @@ namespace VerifyTAPN
 		class OrExpression;
 		class AndExpression;
 		class AtomicProposition;
+                class DeadlockExpression;
 		class BoolExpression;
 		class Query;
 
@@ -26,6 +27,7 @@ namespace VerifyTAPN
 			virtual void visit(const AtomicProposition& expr, boost::any& context) = 0;
 			virtual void visit(const BoolExpression& expr, boost::any& context) = 0;
 			virtual void visit(const Query& query, boost::any& context) = 0;
+                        virtual void visit(const DeadlockExpression& expr, boost::any& context) = 0;
 		};
 	}
 }

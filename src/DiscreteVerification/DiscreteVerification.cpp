@@ -6,6 +6,7 @@
  */
 
 #include "DiscreteVerification.hpp"
+#include "DeadlockVisitor.hpp"
 
 namespace VerifyTAPN {
 
@@ -79,6 +80,14 @@ namespace VerifyTAPN {
                 }
             } else if (options.getVerificationType() == VerificationOptions::TIMEDART) {
                 if (query->getQuantifier() == EG || query->getQuantifier() == AF) {
+                    boost::any c;
+                    DeadlockVisitor deadlockVisitor = DeadlockVisitor();
+                    deadlockVisitor.visit(*query, c);
+                    bool containsDeadlock = boost::any_cast<bool>(c);
+                    if (containsDeadlock) {
+                        cout << "The combination of TimeDarts, Deadlock proposition and EG or AF queries is currently not supported" << endl;
+                        exit(1);
+                    }                
                     if (options.getMemoryOptimization() == VerificationOptions::PTRIE) {
                         WaitingList<EncodingPointer<WaitingDart> >* strategy = getWaitingList<EncodingPointer<WaitingDart> > (query, options);
                         VerifyAndPrint(

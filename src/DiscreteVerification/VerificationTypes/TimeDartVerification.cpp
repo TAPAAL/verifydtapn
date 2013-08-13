@@ -1,4 +1,5 @@
 #include "TimeDartVerification.hpp"
+#include "../DeadlockVisitor.hpp"
 
 namespace VerifyTAPN {
     namespace DiscreteVerification {
@@ -165,10 +166,23 @@ namespace VerifyTAPN {
             int upper = trace->start;
             NonStrictMarkingBase* last = NULL;
             NonStrictMarkingBase* l = NULL;
-            if(deadlock){
+            
+            DeadlockVisitor deadlockVisitor = DeadlockVisitor();
+            boost::any c;
+            deadlockVisitor.visit(*query, c);
+            bool queryContainsDeadlock = boost::any_cast<bool>(c);
+            
+            // only if we have reached a deadlock (liveness) or 
+            // have a reachability query (for delay when deadlock prop is used) then
+            // we want to create some end-delay
+            if(deadlock || queryContainsDeadlock){
                 NonStrictMarkingBase* base = getBase(trace->dart);
                 
                 int diff = this->maxPossibleDelay(base) - trace->start;
+                // fix for when max possible delay = inf
+                if(diff > this->tapn->getMaxConstant())
+                    diff = (this->tapn->getMaxConstant() + 1) - trace->start;
+
                 while (diff) {  // TODO loop seems to count the wrong way, not effecting anything, but wrong.
                         NonStrictMarkingBase* mc = new NonStrictMarkingBase(*base);
                         mc->incrementAge(trace->start + diff);
@@ -235,7 +249,7 @@ namespace VerifyTAPN {
                 trace = (TraceDart*) trace->parent;
             }
             
-            printXMLTrace(l, traceStack, query->getQuantifier());
+            printXMLTrace(l, traceStack, query, *this->tapn.get());
         }
 
     }

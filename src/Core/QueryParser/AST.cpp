@@ -23,6 +23,16 @@ namespace VerifyTAPN
 			return new BoolExpression(*this);
 		}
 
+                void DeadlockExpression::accept(Visitor& visitor, boost::any& context) const
+		{      
+			visitor.visit(*this, context);
+		}
+
+		DeadlockExpression* DeadlockExpression::clone() const
+		{
+			return new DeadlockExpression(*this);
+		}
+        
 		void AtomicProposition::accept(Visitor& visitor, boost::any& context) const
 		{
 			visitor.visit(*this, context);

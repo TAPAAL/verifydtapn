@@ -120,7 +120,7 @@ bool LivenessSearch::addToPW(NonStrictMarking* marking, NonStrictMarking* parent
 		return false;
 	}
 
-	QueryVisitor<NonStrictMarking> checker(*marking);
+	QueryVisitor<NonStrictMarking> checker(*marking, *tapn.get());
 	boost::any context;
 	query->accept(checker, context);
 	if(!boost::any_cast<bool>(context))	return false;
@@ -153,7 +153,7 @@ void LivenessSearch::getTrace(){
 	NonStrictMarking* m = trace.top();
 	generateTraceStack(m, &printStack, &trace);
 	if(options.getXmlTrace()){
-		printXMLTrace(m, printStack, query->getQuantifier());
+		printXMLTrace(m, printStack, query, *this->tapn.get());
 	} else {
 		printHumanTrace(m, printStack, query->getQuantifier());
 	}

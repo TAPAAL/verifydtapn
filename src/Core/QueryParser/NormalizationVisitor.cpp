@@ -71,6 +71,12 @@ namespace VerifyTAPN
 			tuple.returnExpr = new AtomicProposition(expr.getPlace(), &op, expr.getNumberOfTokens());
 		}
 
+               void NormalizationVisitor::visit(const DeadlockExpression& expr, boost::any& context) {
+			Tuple& tuple = boost::any_cast<Tuple&>(context);
+			tuple.returnExpr = new DeadlockExpression();                  
+                }
+                
+
 		void NormalizationVisitor::visit(const BoolExpression& expr, boost::any& context)
 		{
 			Tuple& tuple = boost::any_cast<Tuple&>(context);

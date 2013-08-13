@@ -6,6 +6,7 @@
 #include "Core/QueryParser/TAPNQueryParser.hpp"
 #include "Core/TAPN/TimedPlace.hpp"
 #include "DiscreteVerification/DiscreteVerification.hpp"
+#include "DiscreteVerification/DeadlockVisitor.hpp"
 
 using namespace std;
 using namespace VerifyTAPN;
@@ -41,11 +42,12 @@ int main(int argc, char* argv[])
 	}catch(...){
 		std::cout << "There was an error parsing the query file." << std::endl;
 		return 1;
-	}
+        }
 
-	if(query->getQuantifier() == AST::EF || query->getQuantifier() == AST::AG){
-		tapn->removeOrphantedTransitions();
-	}
+        if (tapn->containsOrphanTransitions()) {
+            std::cout << "The model contains orphan transitions. This is not supported by the engine." << std::endl;
+            return 1;
+        }
 
 	tapn->updatePlaceTypes(query, options);
 
