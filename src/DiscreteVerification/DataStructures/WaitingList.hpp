@@ -77,9 +77,6 @@ public:
 	typedef std::priority_queue<WeightedItem<T>, std::vector<WeightedItem<T> >, less<T> > priority_queue;
 	HeuristicStackWaitingList(AST::Query* q) : buffer(), query(normalizeQuery(q)) { };
         ~HeuristicStackWaitingList(){
-#ifdef NOENDLEAK
-            delete query;
-#endif
         };
 	virtual void add(NonStrictMarkingBase* weight, T* payload);
 	virtual T* peek();
@@ -190,11 +187,6 @@ T* StackWaitingList<T>::peek()
 template <class T>
 StackWaitingList<T>::~StackWaitingList()
 {
-#ifdef NOENDLEAK
-	while(!stack.empty()){
-		stack.pop();
-	}
-#endif
 }
 
 template <class T>
@@ -289,11 +281,6 @@ T* QueueWaitingList<T>::peek()
 template <class T>
 QueueWaitingList<T>::~QueueWaitingList()
 {
-#ifdef NOENDLEAK
-	while(!queue.empty()){
-		queue.pop();
-	}
-#endif
 }
 
 template <class T>
@@ -346,12 +333,6 @@ AST::Query* HeuristicWaitingList<T>::normalizeQuery(AST::Query* q){
 template <class T>
 HeuristicWaitingList<T>::~HeuristicWaitingList()
 {
-#ifdef NOENDLEAK
-	while(!queue.empty()){
-		queue.pop();
-	}
-        delete query;
-#endif
 }
 
 template <class T>
@@ -389,12 +370,6 @@ int RandomWaitingList<T>::calculateWeight(NonStrictMarkingBase* marking)
 template <class T>
 RandomWaitingList<T>::~RandomWaitingList()
 {
-#ifdef NOENDLEAK
-	while(!queue.empty()){
-                delete queue.top();
-		queue.pop();
-	}
-#endif
 }
 
 template <class T>
@@ -440,12 +415,6 @@ int RandomStackWaitingList<T>::calculateWeight(NonStrictMarkingBase* marking)
 template <class T>
 RandomStackWaitingList<T>::~RandomStackWaitingList()
 {
-#ifdef NOENDLEAK
-        flushBuffer();
-	while(!this->stack.empty()){
-		this->stack.pop();
-	}
-#endif
 }
 
 } /* namespace DiscreteVerification */

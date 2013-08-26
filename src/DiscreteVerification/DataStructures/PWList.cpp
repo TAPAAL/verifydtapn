@@ -41,15 +41,6 @@ NonStrictMarking* PWList::getNextUnexplored(){
 
 PWList::~PWList() {
     // We don't care, it is deallocated on program execution done
-#ifdef NOENDLEAK
-    // destructor for use when hunting memory-leaks with valgrind
-    for(HashMap::iterator it = markings_storage.begin(); it != markings_storage.end(); it++){
-        for(NonStrictMarkingList::iterator bit = it->second.begin(); bit != it->second.end(); bit++){
-            delete (*bit)->meta;
-            delete *bit;
-        }
-    }
-#endif
 }
 
 std::ostream& operator<<(std::ostream& out, PWList& x){
@@ -128,14 +119,6 @@ std::ostream& operator<<(std::ostream& out, PWList& x){
 
         PWListHybrid::~PWListHybrid() {
             // We don't care, it is deallocated on program execution done
-#ifdef NOENDLEAK
-            while (waiting_list->size() > 0) {
-                EncodingPointer<MetaData>* p = waiting_list->pop();
-                p->encoding.release();
-                delete p;
-            }
-            delete passed;
-#endif
         }
 
 

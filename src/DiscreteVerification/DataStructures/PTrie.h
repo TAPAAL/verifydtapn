@@ -153,30 +153,6 @@ namespace VerifyTAPN {
 
         template<typename T>
         PTrie<T>::~PTrie() {
-#ifdef NOENDLEAK
-            // should only be used when looking for leaks.
-            if(nextFree > 1) {
-                for(uint i = 0; i < nextFree; ++i ){
-                    PNode* m = fetchNode(i);
-                    uint count = 0;
-                    if(m->highCount > 0)
-                        count += m->highCount;
-                    if(m->lowCount > 0)
-                        count += m->lowCount;
-                    for(uint ii = 0; ii < count; ++ii){
-                        T* meta = m->getData()[ii].getMetaData();
-                        delete meta;
-                        m->getData()[ii].release();
-                    }
-                    delete[] m->getData();
-                }
-
-                for(int i = pnodeArray.size() - 1; i >= 0; --i ){
-                    delete[] pnodeArray[i];
-                }
-            }
-            encoding.release();
-#endif
         }
 
 
