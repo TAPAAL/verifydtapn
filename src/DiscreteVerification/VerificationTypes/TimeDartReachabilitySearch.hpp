@@ -10,13 +10,10 @@
 
 #include "../DataStructures/TimeDart.hpp"
 #include "../DataStructures/TimeDartPWList.hpp"
-#include "boost/smart_ptr.hpp"
-#include "boost/numeric/interval.hpp"
 #include "../../Core/TAPN/TAPN.hpp"
 #include "../../Core/QueryParser/AST.hpp"
 #include "../../Core/VerificationOptions.hpp"
 #include "../QueryVisitor.hpp"
-#include "boost/any.hpp"
 #include "../DataStructures/NonStrictMarkingBase.hpp"
 #include <stack>
 #include "TimeDartVerification.hpp"
@@ -30,9 +27,9 @@ using namespace rapidxml;
 
 class TimeDartReachabilitySearch : public TimeDartVerification{
 public:
-        TimeDartReachabilitySearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarkingBase& initialMarking, AST::Query* query, VerificationOptions options) 
+        TimeDartReachabilitySearch(TAPN::TimedArcPetriNet& tapn, NonStrictMarkingBase& initialMarking, AST::Query* query, VerificationOptions options) 
         :TimeDartVerification(tapn, options, query, initialMarking), trace(10000){};
-        TimeDartReachabilitySearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarkingBase& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<TimeDartBase>* waiting_list)
+        TimeDartReachabilitySearch(TAPN::TimedArcPetriNet& tapn, NonStrictMarkingBase& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<TimeDartBase>* waiting_list)
         :TimeDartVerification(tapn, options, query, initialMarking), trace(10000){
             pwList = new TimeDartPWHashMap(waiting_list, options.getTrace());
         };
@@ -62,9 +59,9 @@ public:
 
 class TimeDartReachabilitySearchPData : public TimeDartReachabilitySearch {
 public:
-    TimeDartReachabilitySearchPData(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarkingBase& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<TimeDartEncodingPointer >* waiting_list)
+    TimeDartReachabilitySearchPData(TAPN::TimedArcPetriNet& tapn, NonStrictMarkingBase& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<TimeDartEncodingPointer >* waiting_list)
     :TimeDartReachabilitySearch(tapn, initialMarking, query, options){
-        pwList = new TimeDartPWPData(waiting_list, tapn, options.getKBound(), tapn->getNumberOfPlaces(), tapn->getMaxConstant(), options.getTrace());
+        pwList = new TimeDartPWPData(waiting_list, tapn, options.getKBound(), tapn.getNumberOfPlaces(), tapn.getMaxConstant(), options.getTrace());
     };
 protected:
        virtual inline void deleteBase(NonStrictMarkingBase* base){

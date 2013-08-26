@@ -56,8 +56,8 @@ namespace VerifyTAPN {
                 waitingDart->dart->setPassed(waitingDart->w);
                 this->tmpdart = waitingDart;
                 // Iterate over transitions
-                for (TimedTransition::Vector::const_iterator transition_iter = tapn->getTransitions().begin();
-                        transition_iter != tapn->getTransitions().end(); transition_iter++) {
+                for (TimedTransition::Vector::const_iterator transition_iter = tapn.getTransitions().begin();
+                        transition_iter != tapn.getTransitions().end(); transition_iter++) {
                     TimedTransition& transition = **transition_iter;
 
                     // Calculate enabled set
@@ -135,14 +135,15 @@ namespace VerifyTAPN {
                 delete marking;
                 return false;
             }
-            
-            int youngest = marking->makeBase(tapn.get());
 
-            QueryVisitor<NonStrictMarkingBase> checker(*marking, *tapn.get());
-            boost::any context;
+            int youngest = marking->makeBase();
+
+            QueryVisitor<NonStrictMarkingBase> checker(*marking, tapn);
+            AST::BoolResult context;
+
             query->accept(checker, context);
-            if (boost::any_cast<bool>(context)) {
-                std::pair < LivenessDart*, bool> result = pwList->add(tapn.get(), marking, youngest, parent, upper, start);
+            if (context.value) {
+                std::pair < LivenessDart*, bool> result = pwList->add(marking, youngest, parent, upper, start);
 
 
                 if (parent != NULL && parent->dart->getBase()->equals(*result.first->getBase()) && youngest <= upper) {
@@ -181,6 +182,8 @@ namespace VerifyTAPN {
         }
 
         TimeDartLiveness::~TimeDartLiveness() {
+            delete tmpdart;
+            delete pwList;
         }
 
     } /* namespace DiscreteVerification */

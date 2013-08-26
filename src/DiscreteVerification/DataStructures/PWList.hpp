@@ -72,7 +72,7 @@ class PWListHybrid : public PWListBase {
 
         public:
 
-            PWListHybrid(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, WaitingList<EncodingPointer<MetaData> >* w_l, int knumber, int nplaces, int mage, bool isLiveness, bool makeTrace) :
+            PWListHybrid(TAPN::TimedArcPetriNet& tapn, WaitingList<EncodingPointer<MetaData> >* w_l, int knumber, int nplaces, int mage, bool isLiveness, bool makeTrace) :
             PWListBase(isLiveness),
             waiting_list(w_l),
             makeTrace(makeTrace) {

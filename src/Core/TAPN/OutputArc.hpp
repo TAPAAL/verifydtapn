@@ -2,7 +2,7 @@
 #define VERIFYTAPN_TAPN_OUTPUTARC_HPP_
 
 #include <vector>
-#include "boost/smart_ptr.hpp"
+#include <iostream>
 
 namespace VerifyTAPN {
 	namespace TAPN {
@@ -12,23 +12,22 @@ namespace VerifyTAPN {
 		class OutputArc
 		{
 		public: // typedefs
-			typedef std::vector< boost::shared_ptr<OutputArc> > Vector;
-			typedef std::vector< boost::weak_ptr<OutputArc> > WeakPtrVector;
+			typedef std::vector< OutputArc* > Vector;
 		public:
-			OutputArc(const boost::shared_ptr<TimedTransition>& transition, const boost::shared_ptr<TimedPlace>& place, const int weight)
+			OutputArc(TimedTransition& transition, TimedPlace& place, const int weight)
 				: transition(transition), place(place), weight(weight) { };
 			virtual ~OutputArc() { /* empty */ }
 
 		public: // modifiers
-			TimedPlace& getOutputPlace();
-			TimedTransition& getInputTransition();
+			TimedPlace& getOutputPlace() const;
+			TimedTransition& getInputTransition() const;
 
 		public: // inspectors
 			void print(std::ostream& out) const;
 			inline const int getWeight() const { return weight; }
 		private:
-			const boost::shared_ptr<TimedTransition> transition;
-			const boost::shared_ptr<TimedPlace> place;
+			TimedTransition& transition;
+			TimedPlace& place;
 			const int weight;
 		};
 

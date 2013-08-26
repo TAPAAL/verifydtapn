@@ -10,7 +10,6 @@
 #include "OutputArc.hpp"
 #include "TransportArc.hpp"
 #include "InhibitorArc.hpp"
-#include "boost/shared_ptr.hpp"
 
 namespace VerifyTAPN{
 	namespace TAPN{
@@ -32,7 +31,7 @@ namespace VerifyTAPN{
 			static const std::string BOTTOM_NAME;
 
 		public: // typedefs
-			typedef std::vector< boost::shared_ptr<TimedPlace> > Vector;
+			typedef std::vector<TimedPlace*> Vector;
 
 		public: // construction / destruction
 			TimedPlace(const std::string& name, const std::string& id, const TimeInvariant timeInvariant)
@@ -45,10 +44,10 @@ namespace VerifyTAPN{
 			inline void setIndex(int i) { index = i; };
 			inline void setMaxConstant(int max) { maxConstant = max; }
 			inline void setHasInhibitorArcs(bool inhibitorArcs) { containsInhibitorArcs = inhibitorArcs; }
-			inline void addInputArc(boost::shared_ptr<TimedInputArc> inputArc) { inputArcs.push_back(inputArc); }
-			inline void addTransportArc(boost::shared_ptr<TransportArc> transportArc) { transportArcs.push_back(transportArc); }
-			inline void addInhibitorArc(boost::shared_ptr<InhibitorArc> inhibitorArc) { inhibitorArcs.push_back(inhibitorArc); }
-			inline void addOutputArc(boost::shared_ptr<OutputArc> outputArc) { outputArcs.push_back(outputArc); }
+			inline void addInputArc(TimedInputArc& inputArc) { inputArcs.push_back(&inputArc); }
+			inline void addTransportArc(TransportArc& transportArc) { transportArcs.push_back(&transportArc); }
+			inline void addInhibitorArc(InhibitorArc& inhibitorArc) { inhibitorArcs.push_back(&inhibitorArc); }
+			inline void addOutputArc(OutputArc& outputArc) { outputArcs.push_back(&outputArc); }
 			inline void setType(PlaceType type){ this->type = type; }
 		public: // inspection
 			inline const PlaceType getType() const { return type; }
@@ -60,9 +59,9 @@ namespace VerifyTAPN{
 			inline const int getMaxConstant() const { return maxConstant; }
 			inline const TAPN::TimeInvariant& getInvariant() const { return timeInvariant; };
 			inline bool hasInhibitorArcs() const { return containsInhibitorArcs; };
-			inline const TransportArc::WeakPtrVector& getTransportArcs() const { return transportArcs; }
-			inline const InhibitorArc::WeakPtrVector& getInhibitorArcs() const { return inhibitorArcs; }
-			inline const TimedInputArc::WeakPtrVector& getInputArcs() const { return inputArcs; }
+			inline const TransportArc::Vector& getTransportArcs() const { return transportArcs; }
+			inline const InhibitorArc::Vector& getInhibitorArcs() const { return inhibitorArcs; }
+			inline const TimedInputArc::Vector& getInputArcs() const { return inputArcs; }
 
 		private: // data
 			PlaceType type;
@@ -73,10 +72,10 @@ namespace VerifyTAPN{
 			bool untimed;
 			int maxConstant;
 			bool containsInhibitorArcs;
-			TimedInputArc::WeakPtrVector inputArcs;
-			TransportArc::WeakPtrVector transportArcs;
-			InhibitorArc::WeakPtrVector inhibitorArcs;
-			OutputArc::WeakPtrVector outputArcs;
+			TimedInputArc::Vector inputArcs;
+			TransportArc::Vector transportArcs;
+			InhibitorArc::Vector inhibitorArcs;
+			OutputArc::Vector outputArcs;
 		};
 
 		inline std::ostream& operator<<(std::ostream& out, const TimedPlace& place)

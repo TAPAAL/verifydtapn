@@ -12,7 +12,7 @@ namespace VerifyTAPN {
 
     namespace DiscreteVerification {
 
-        template<typename T> void VerifyAndPrint(Verification<T>* verifier, VerificationOptions& options, AST::Query* query);
+        template<typename T> void VerifyAndPrint(Verification<T>& verifier, VerificationOptions& options, AST::Query* query);
 
         DiscreteVerification::DiscreteVerification() {
             // TODO Auto-generated constructor stub
@@ -23,15 +23,15 @@ namespace VerifyTAPN {
             // TODO Auto-generated destructor stub
         }
 
-        int DiscreteVerification::run(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, std::vector<int> initialPlacement, AST::Query* query, VerificationOptions& options) {
-            if (!(*tapn).isNonStrict()) {
+        int DiscreteVerification::run(TAPN::TimedArcPetriNet& tapn, std::vector<int> initialPlacement, AST::Query* query, VerificationOptions& options) {
+            if (!tapn.isNonStrict()) {
                 std::cout << "The supplied net contains strict intervals." << std::endl;
                 return -1;
             }
 
-            NonStrictMarking* initialMarking = new NonStrictMarking(*tapn, initialPlacement);
+            NonStrictMarking* initialMarking = new NonStrictMarking(tapn, initialPlacement);
 
-            std::cout << "MC: " << tapn->getMaxConstant() << std::endl;
+            std::cout << "MC: " << tapn.getMaxConstant() << std::endl;
 #if DEBUG
             std::cout << "Places: " << std::endl;
             for (TAPN::TimedPlace::Vector::const_iterator iter = tapn.get()->getPlaces().begin(); iter != tapn.get()->getPlaces().end(); iter++) {
@@ -54,50 +54,56 @@ namespace VerifyTAPN {
                     //TODO fix initialization
                     WaitingList<EncodingPointer<MetaData> >* strategy = getWaitingList<EncodingPointer<MetaData> > (query, options);
                     if (query->getQuantifier() == EG || query->getQuantifier() == AF) {
+                        LivenessSearchPTrie verifier = LivenessSearchPTrie(tapn, *initialMarking, query, options, strategy);
                         VerifyAndPrint(
-                                new LivenessSearchPTrie(tapn, *initialMarking, query, options, strategy),
+                                verifier,
                                 options,
                                 query);
                     } else if (query->getQuantifier() == EF || query->getQuantifier() == AG) {
+                        ReachabilitySearchPTrie verifier = ReachabilitySearchPTrie(tapn, *initialMarking, query, options, strategy);
                         VerifyAndPrint(
-                                new ReachabilitySearchPTrie(tapn, *initialMarking, query, options, strategy),
+                                verifier,
                                 options,
                                 query);
                     }
                 } else {
                     WaitingList<NonStrictMarking>* strategy = getWaitingList<NonStrictMarking > (query, options);
                     if (query->getQuantifier() == EG || query->getQuantifier() == AF) {
+                        LivenessSearch verifier = LivenessSearch(tapn, *initialMarking, query, options, strategy);
                         VerifyAndPrint(
-                                new LivenessSearch(tapn, *initialMarking, query, options, strategy),
+                                verifier,
                                 options,
                                 query);
                     } else if (query->getQuantifier() == EF || query->getQuantifier() == AG) {
+                        ReachabilitySearch verifier = ReachabilitySearch(tapn, *initialMarking, query, options, strategy);
                         VerifyAndPrint(
-                                new ReachabilitySearch(tapn, *initialMarking, query, options, strategy),
+                                verifier,
                                 options,
                                 query);
                     }
                 }
             } else if (options.getVerificationType() == VerificationOptions::TIMEDART) {
                 if (query->getQuantifier() == EG || query->getQuantifier() == AF) {
-                    boost::any c;
+                    AST::BoolResult containsDeadlock;
                     DeadlockVisitor deadlockVisitor = DeadlockVisitor();
-                    deadlockVisitor.visit(*query, c);
-                    bool containsDeadlock = boost::any_cast<bool>(c);
-                    if (containsDeadlock) {
+                    deadlockVisitor.visit(*query, containsDeadlock);
+
+                    if (containsDeadlock.value) {
                         cout << "The combination of TimeDarts, Deadlock proposition and EG or AF queries is currently not supported" << endl;
                         exit(1);
                     }                
                     if (options.getMemoryOptimization() == VerificationOptions::PTRIE) {
                         WaitingList<EncodingPointer<WaitingDart> >* strategy = getWaitingList<EncodingPointer<WaitingDart> > (query, options);
+                        TimeDartLivenessPData verifier = TimeDartLivenessPData(tapn, *initialMarking, query, options, strategy);
                         VerifyAndPrint(
-                                new TimeDartLivenessPData(tapn, *initialMarking, query, options, strategy),
+                                verifier,
                                 options,
                                 query);
                     } else {
                         WaitingList<WaitingDart>* strategy = getWaitingList<WaitingDart > (query, options);
+                        TimeDartLiveness verifier = TimeDartLiveness(tapn, *initialMarking, query, options, strategy);
                         VerifyAndPrint(
-                                new TimeDartLiveness(tapn, *initialMarking, query, options, strategy),
+                                verifier,
                                 options,
                                 query);
                     }
@@ -105,14 +111,16 @@ namespace VerifyTAPN {
 
                     if (options.getMemoryOptimization() == VerificationOptions::PTRIE) {
                         WaitingList<TimeDartEncodingPointer>* strategy = getWaitingList<TimeDartEncodingPointer > (query, options);
+                        TimeDartReachabilitySearchPData verifier = TimeDartReachabilitySearchPData(tapn, *initialMarking, query, options, strategy);
                         VerifyAndPrint(
-                                new TimeDartReachabilitySearchPData(tapn, *initialMarking, query, options, strategy),
+                                verifier,
                                 options,
                                 query);
                     } else {
                         WaitingList<TimeDartBase>* strategy = getWaitingList<TimeDartBase > (query, options);
+                        TimeDartReachabilitySearch verifier = TimeDartReachabilitySearch(tapn, *initialMarking, query, options, strategy);
                         VerifyAndPrint(
-                                new TimeDartReachabilitySearch(tapn, *initialMarking, query, options, strategy),
+                                verifier,
                                 options,
                                 query);
                     }
@@ -125,22 +133,22 @@ namespace VerifyTAPN {
             return 0;
         }
 
-        template<typename T> void VerifyAndPrint(Verification<T>* verifier, VerificationOptions& options, AST::Query* query) {
-            bool result = (query->getQuantifier() == AG || query->getQuantifier() == AF) ? !verifier->verify() : verifier->verify();
+        template<typename T> void VerifyAndPrint(Verification<T>& verifier, VerificationOptions& options, AST::Query* query) {
+            bool result = (query->getQuantifier() == AG || query->getQuantifier() == AF) ? !verifier.verify() : verifier.verify();
 
-            verifier->printStats();
-            verifier->printTransitionStatistics();
+            verifier.printStats();
+            verifier.printTransitionStatistics();
 
             std::cout << "Query is " << (result ? "satisfied" : "NOT satisfied") << "." << std::endl;
             std::cout << "Max number of tokens found in any reachable marking: ";
-            if (verifier->maxUsedTokens() > options.getKBound())
+            if (verifier.maxUsedTokens() > options.getKBound())
                 std::cout << ">" << options.getKBound() << std::endl;
             else
-                std::cout << verifier->maxUsedTokens() << std::endl;
+                std::cout << verifier.maxUsedTokens() << std::endl;
 
             if (options.getTrace() == VerificationOptions::SOME_TRACE) {
                 if ((query->getQuantifier() == EF && result) || (query->getQuantifier() == AG && !result) || (query->getQuantifier() == EG && result) || (query->getQuantifier() == AF && !result)) {
-                    verifier->getTrace();
+                    verifier.getTrace();
                 } else {
                     std::cout << "A trace could not be generated due to the query result" << std::endl;
                 }

@@ -170,10 +170,10 @@ namespace VerifyTAPN {
                         if((!foundLoop) && stack.empty()){
                             // make sure query contains deadlock
                             DeadlockVisitor deadlockVisitor = DeadlockVisitor();
-                            boost::any c;
-                            deadlockVisitor.visit(*query, c);
-                            bool queryContainsDeadlock = boost::any_cast<bool>(c);
-                            if(queryContainsDeadlock){
+                            AST::BoolResult queryContainsDeadlock;
+                            deadlockVisitor.visit(*query, queryContainsDeadlock);
+
+                            if(queryContainsDeadlock.value){
                                 // find the marking from which a delay gave a deadlock
                                 NonStrictMarkingBase* base = old;
                                 while(base->getGeneratedBy() == NULL && base->getParent() != NULL){
@@ -252,12 +252,12 @@ namespace VerifyTAPN {
             xml_attribute<>* id = doc.allocate_attribute("id", current->getGeneratedBy()->getId().c_str());
             transitionNode->append_attribute(id);
 
-            for (TAPN::TimedInputArc::WeakPtrVector::const_iterator arc_iter = current->getGeneratedBy()->getPreset().begin(); arc_iter != current->getGeneratedBy()->getPreset().end(); arc_iter++) {
-                createTransitionSubNodes(old, current, doc, transitionNode, arc_iter->lock()->getInputPlace(), arc_iter->lock()->getInterval(), arc_iter->lock()->getWeight());
+            for (TAPN::TimedInputArc::Vector::const_iterator arc_iter = current->getGeneratedBy()->getPreset().begin(); arc_iter != current->getGeneratedBy()->getPreset().end(); arc_iter++) {
+                createTransitionSubNodes(old, current, doc, transitionNode, (*arc_iter)->getInputPlace(), (*arc_iter)->getInterval(), (*arc_iter)->getWeight());
             }
 
-            for (TAPN::TransportArc::WeakPtrVector::const_iterator arc_iter = current->getGeneratedBy()->getTransportArcs().begin(); arc_iter != current->getGeneratedBy()->getTransportArcs().end(); arc_iter++) {
-                createTransitionSubNodes(old, current, doc, transitionNode, arc_iter->lock()->getSource(), arc_iter->lock()->getInterval(), arc_iter->lock()->getWeight());
+            for (TAPN::TransportArc::Vector::const_iterator arc_iter = current->getGeneratedBy()->getTransportArcs().begin(); arc_iter != current->getGeneratedBy()->getTransportArcs().end(); arc_iter++) {
+                createTransitionSubNodes(old, current, doc, transitionNode, (*arc_iter)->getSource(), (*arc_iter)->getInterval(), (*arc_iter)->getWeight());
             }
 
             return transitionNode;

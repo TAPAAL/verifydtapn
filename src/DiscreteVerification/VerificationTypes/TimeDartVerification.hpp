@@ -19,14 +19,14 @@ namespace VerifyTAPN {
         class TimeDartVerification : public Verification<NonStrictMarkingBase> {
         public:
 
-            TimeDartVerification(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, VerificationOptions options, AST::Query* query, NonStrictMarkingBase& initialMarking) :
-            query(query), options(options), tapn(tapn), initialMarking(initialMarking), exploredMarkings(0), allwaysEnabled(), successorGenerator(*tapn.get(), *this) {
+            TimeDartVerification(TAPN::TimedArcPetriNet& tapn, VerificationOptions options, AST::Query* query, NonStrictMarkingBase& initialMarking) :
+            query(query), options(options), tapn(tapn), initialMarking(initialMarking), exploredMarkings(0), allwaysEnabled(), successorGenerator(tapn, *this) {
                 loop = false;
                 deadlock = false;
                 //Find the transitions which don't have input arcs
-                for (TimedTransition::Vector::const_iterator iter = tapn->getTransitions().begin(); iter != tapn->getTransitions().end(); iter++) {
+                for (TimedTransition::Vector::const_iterator iter = tapn.getTransitions().begin(); iter != tapn.getTransitions().end(); iter++) {
                     if ((*iter)->getPreset().size() + (*iter)->getTransportArcs().size() == 0) {
-                        allwaysEnabled.push_back(iter->get());
+                        allwaysEnabled.push_back((*iter));
                     }
                     if((*iter)->isUrgent()){    // no implementation for urgency in timedart engine yet
                         cout << "The TimeDart engine cannot handle urgent transitions" << endl;
@@ -54,7 +54,7 @@ namespace VerifyTAPN {
         protected:
             AST::Query* query;
             VerificationOptions options;
-            boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn;
+            TAPN::TimedArcPetriNet& tapn;
             NonStrictMarkingBase& initialMarking;
             int exploredMarkings;
             vector<const TAPN::TimedTransition*> allwaysEnabled;

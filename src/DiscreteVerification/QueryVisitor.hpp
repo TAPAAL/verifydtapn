@@ -37,14 +37,14 @@ namespace VerifyTAPN {
 
         public: // visitor methods
 
-            virtual void visit(const NotExpression& expr, boost::any& context);
-            virtual void visit(const ParExpression& expr, boost::any& context);
-            virtual void visit(const OrExpression& expr, boost::any& context);
-            virtual void visit(const AndExpression& expr, boost::any& context);
-            virtual void visit(const AtomicProposition& expr, boost::any& context);
-            virtual void visit(const BoolExpression& expr, boost::any& context);
-            virtual void visit(const Query& query, boost::any& context);
-            virtual void visit(const DeadlockExpression& expr, boost::any& context);
+            virtual void visit(const NotExpression& expr, AST::Result& context);
+            virtual void visit(const ParExpression& expr, AST::Result& context);
+            virtual void visit(const OrExpression& expr, AST::Result& context);
+            virtual void visit(const AndExpression& expr, AST::Result& context);
+            virtual void visit(const AtomicProposition& expr, AST::Result& context);
+            virtual void visit(const BoolExpression& expr, AST::Result& context);
+            virtual void visit(const Query& query, AST::Result& context);
+            virtual void visit(const DeadlockExpression& expr, AST::Result& context);
         private:
             bool compare(int numberOfTokensInPlace, const std::string& op, int n) const;
 
@@ -57,62 +57,75 @@ namespace VerifyTAPN {
         };
         
         template<typename T>
-        void QueryVisitor<T>::visit(const NotExpression& expr, boost::any& context) {
-            boost::any c;
+        void QueryVisitor<T>::visit(const NotExpression& expr, AST::Result& context) {
+            BoolResult c;
             expr.getChild().accept(*this, c);
-            context = !boost::any_cast<bool>(c);
+            static_cast<BoolResult&>(context).value = !c.value;
         }
 
         template<typename T>
-        void QueryVisitor<T>::visit(const ParExpression& expr, boost::any& context) {
+        void QueryVisitor<T>::visit(const ParExpression& expr, AST::Result& context) {
             expr.getChild().accept(*this, context);
         }
 
         template<typename T>
-        void QueryVisitor<T>::visit(const OrExpression& expr, boost::any& context) {
-            boost::any left, right;
+        void QueryVisitor<T>::visit(const OrExpression& expr, AST::Result& context) {
+            BoolResult left, right;
             expr.getLeft().accept(*this, left);
-            expr.getRight().accept(*this, right);
-
-            context = boost::any_cast<bool>(left) || boost::any_cast<bool>(right);
+            // use lazy evaluation
+            if(left.value){
+                static_cast<BoolResult&>(context).value = true;
+            } else {
+                expr.getRight().accept(*this, right);
+                static_cast<BoolResult&>(context).value = right.value;
+            }
         }
 
         template<typename T>
-        void QueryVisitor<T>::visit(const AndExpression& expr, boost::any& context) {
-            boost::any left, right;
+        void QueryVisitor<T>::visit(const AndExpression& expr, AST::Result& context) {
+            BoolResult left, right;
             expr.getLeft().accept(*this, left);
-            expr.getRight().accept(*this, right);
-
-            context = boost::any_cast<bool>(left) && boost::any_cast<bool>(right);
+            
+            // use lazy evaluation
+            if(!left.value){
+                static_cast<BoolResult&>(context).value = false;
+            } else {
+                expr.getRight().accept(*this, right);
+                static_cast<BoolResult&>(context).value = right.value;
+            }
         }
 
         template<typename T>
 
-        void QueryVisitor<T>::visit(const AtomicProposition& expr, boost::any& context) {
+        void QueryVisitor<T>::visit(const AtomicProposition& expr, AST::Result& context) {
             int numberOfTokens = marking.numberOfTokensInPlace(expr.getPlace());
-            context = compare(numberOfTokens, expr.getOperator(), expr.getNumberOfTokens());
+            static_cast<BoolResult&>(context).value 
+                    = compare(numberOfTokens, expr.getOperator(), expr.getNumberOfTokens());
         }
 
         template<typename T>
-        void QueryVisitor<T>::visit(const BoolExpression& expr, boost::any& context) {
-            context = expr.getValue();
+        void QueryVisitor<T>::visit(const BoolExpression& expr, AST::Result& context) {
+            static_cast<BoolResult&>(context).value 
+                    = expr.getValue();
         }
 
         template<typename T>
-        void QueryVisitor<T>::visit(const Query& query, boost::any& context) {
+        void QueryVisitor<T>::visit(const Query& query, AST::Result& context) {
             query.getChild().accept(*this, context);
             if (query.getQuantifier() == AG || query.getQuantifier() == AF) {
-                context = !boost::any_cast<bool>(context);
+                static_cast<BoolResult&>(context).value
+                        = !static_cast<BoolResult&>(context).value;
             }
         }
         
         template<typename T>
-        void QueryVisitor<T>::visit(const DeadlockExpression& expr, boost::any& context) {
+        void QueryVisitor<T>::visit(const DeadlockExpression& expr, AST::Result& context) {
             if(!deadlockChecked){
                 deadlockChecked = true;
                 deadlocked = marking.canDeadlock(tapn, maxDelay);
             }
-            context = deadlocked;
+            static_cast<BoolResult&>(context).value 
+                    = deadlocked;
         }
 
         template<typename T>

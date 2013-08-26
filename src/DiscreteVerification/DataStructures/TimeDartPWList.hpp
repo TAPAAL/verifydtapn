@@ -39,7 +39,7 @@ namespace VerifyTAPN {
                 return stored;
             };
 
-            virtual bool add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* marking, int youngest, WaitingDart* parent, int upper, int start) = 0;
+            virtual bool add(NonStrictMarkingBase* marking, int youngest, WaitingDart* parent, int upper, int start) = 0;
             virtual TimeDartBase* getNextUnexplored() = 0;
 
             inline void setMaxNumTokensIfGreater(int i) {
@@ -71,7 +71,7 @@ namespace VerifyTAPN {
             };
             virtual ~TimeDartPWHashMap();
             friend std::ostream& operator<<(std::ostream& out, TimeDartPWHashMap& x);
-            virtual bool add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* marking,int youngest, WaitingDart* parent, int upper, int start);
+            virtual bool add(NonStrictMarkingBase* marking,int youngest, WaitingDart* parent, int upper, int start);
             virtual TimeDartBase* getNextUnexplored();
 
             virtual bool hasWaitingStates() {
@@ -88,7 +88,7 @@ namespace VerifyTAPN {
         class TimeDartPWPData : public TimeDartPWBase {
         public:
 
-            TimeDartPWPData(WaitingList<EncodingPointer<TimeDartBase> >* w_l, boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, int knumber, int nplaces, int mage, bool trace) :
+            TimeDartPWPData(WaitingList<EncodingPointer<TimeDartBase> >* w_l, TAPN::TimedArcPetriNet& tapn, int knumber, int nplaces, int mage, bool trace) :
             TimeDartPWBase(trace), waiting_list(w_l), passed(tapn, knumber, nplaces, mage) {
             };
             
@@ -98,7 +98,7 @@ namespace VerifyTAPN {
         private:
             WaitingList<EncodingPointer<TimeDartBase> >* waiting_list;
             PTrie<TimeDartBase> passed;
-            virtual bool add(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase* marking, int youngest, WaitingDart* parent, int upper, int start);
+            virtual bool add(NonStrictMarkingBase* marking, int youngest, WaitingDart* parent, int upper, int start);
             virtual TimeDartBase* getNextUnexplored();
 
             virtual bool hasWaitingStates() {

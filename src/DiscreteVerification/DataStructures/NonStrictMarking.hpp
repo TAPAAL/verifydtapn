@@ -10,7 +10,6 @@
 
 #include <assert.h>
 #include <vector>
-#include "boost/functional/hash.hpp"
 #include "NonStrictMarkingBase.hpp"
 #include <iostream>
 #include "../../Core/TAPN/TAPN.hpp"

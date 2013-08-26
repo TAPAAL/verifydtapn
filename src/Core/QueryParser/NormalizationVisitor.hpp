@@ -14,23 +14,29 @@
 
 namespace VerifyTAPN {
 	namespace AST {
-
+                class  Tuple : public Result {
+                    public:
+			bool negate;
+			Expression* returnExpr;
+			Tuple(bool negate, Expression* expr) : negate(negate), returnExpr(expr) {};
+		};
+                
 		class NormalizationVisitor : public Visitor
 		{
 		public:
 			NormalizationVisitor() : normalizedQuery() { };
 			virtual ~NormalizationVisitor() {};
 
-			virtual void visit(const NotExpression& expr, boost::any& context);
-			virtual void visit(const ParExpression& expr, boost::any& context);
-			virtual void visit(const OrExpression& expr, boost::any& context);
-			virtual void visit(const AndExpression& expr, boost::any& context);
-			virtual void visit(const AtomicProposition& expr, boost::any& context);
-			virtual void visit(const BoolExpression& expr, boost::any& context);
-			virtual void visit(const Query& query, boost::any& context);
-			virtual void visit(const DeadlockExpression& expr, boost::any& context);
+			virtual void visit(const NotExpression& expr, Result& context);
+			virtual void visit(const ParExpression& expr, Result& context);
+			virtual void visit(const OrExpression& expr, Result& context);
+			virtual void visit(const AndExpression& expr, Result& context);
+			virtual void visit(const AtomicProposition& expr, Result& context);
+			virtual void visit(const BoolExpression& expr, Result& context);
+			virtual void visit(const Query& query, Result& context);
+			virtual void visit(const DeadlockExpression& expr, Result& context);
 
-			AST::Query* normalize(const AST::Query& query) { boost::any any; query.accept(*this, any); 
+			AST::Query* normalize(const AST::Query& query) { Tuple any(false, NULL); query.accept(*this, any); 
                         return normalizedQuery; };
 		private:
 			std::string negateOperator(const std::string& op) const;

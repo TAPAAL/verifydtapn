@@ -1,5 +1,4 @@
 #include <iostream>
-#include "boost/smart_ptr.hpp"
 #include "Core/TAPNParser/TAPNXmlParser.hpp"
 #include "Core/VerificationOptions.hpp"
 #include "Core/ArgsParser.hpp"
@@ -11,7 +10,6 @@
 using namespace std;
 using namespace VerifyTAPN;
 using namespace VerifyTAPN::TAPN;
-using namespace boost;
 
 int main(int argc, char* argv[])
 {
@@ -21,7 +19,7 @@ int main(int argc, char* argv[])
 	VerificationOptions options = parser.parse(argc, argv);
 
 	TAPNXmlParser modelParser;
-	boost::shared_ptr<TAPN::TimedArcPetriNet> tapn;
+	TAPN::TimedArcPetriNet* tapn;
 
 	try{
 		tapn = modelParser.parse(options.getInputFile());
@@ -50,8 +48,15 @@ int main(int argc, char* argv[])
         }
 
 	tapn->updatePlaceTypes(query, options);
-
-	return DiscreteVerification::DiscreteVerification::run(tapn, initialPlacement, query, options);
+        
+        int result = DiscreteVerification::DiscreteVerification::run(*tapn, initialPlacement, query, options);
+        
+        // cleanup
+        delete tapn;
+        delete query;
+        
+        // return result
+	return result;
 }
 
 

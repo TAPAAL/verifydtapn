@@ -10,13 +10,13 @@
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
-LivenessSearch::LivenessSearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options)
-	: tapn(tapn), initialMarking(initialMarking), query(query), options(options), successorGenerator( *tapn.get(), *this ){
+LivenessSearch::LivenessSearch(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options)
+	: tapn(tapn), initialMarking(initialMarking), query(query), options(options), successorGenerator( tapn, *this ){
 
 }
     
-LivenessSearch::LivenessSearch(boost::shared_ptr<TAPN::TimedArcPetriNet>& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list)
-	: pwList(new PWList(waiting_list, true)), tapn(tapn), initialMarking(initialMarking), query(query), options(options), successorGenerator( *tapn.get(), *this ){
+LivenessSearch::LivenessSearch(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list)
+	: pwList(new PWList(waiting_list, true)), tapn(tapn), initialMarking(initialMarking), query(query), options(options), successorGenerator( tapn, *this ){
 
 }
 
@@ -92,9 +92,9 @@ bool LivenessSearch::isDelayPossible(NonStrictMarking& marking){
 	if(places.size() == 0) return true;	//Delay always possible in empty markings
 
 	PlaceList::const_iterator markedPlace_iter = places.begin();
-	for(TAPN::TimedPlace::Vector::const_iterator place_iter = tapn->getPlaces().begin(); place_iter != tapn->getPlaces().end(); place_iter++){
-		int inv = place_iter->get()->getInvariant().getBound();
-		if(*(place_iter->get()) == *(markedPlace_iter->place)){
+	for(TAPN::TimedPlace::Vector::const_iterator place_iter = tapn.getPlaces().begin(); place_iter != tapn.getPlaces().end(); place_iter++){
+		int inv = (*place_iter)->getInvariant().getBound();
+		if(**place_iter == *(markedPlace_iter->place)){
 			if(markedPlace_iter->maxTokenAge() > inv-1){
 				return false;
 			}
@@ -120,10 +120,10 @@ bool LivenessSearch::addToPW(NonStrictMarking* marking, NonStrictMarking* parent
 		return false;
 	}
 
-	QueryVisitor<NonStrictMarking> checker(*marking, *tapn.get());
-	boost::any context;
+	QueryVisitor<NonStrictMarking> checker(*marking, tapn);
+	AST::BoolResult context;
 	query->accept(checker, context);
-	if(!boost::any_cast<bool>(context))	return false;
+	if(!context.value)	return false;
 	if(!pwList->add(marking)){
 		//Test if collision is in trace
             if(marking->meta->inTrace){
@@ -153,7 +153,7 @@ void LivenessSearch::getTrace(){
 	NonStrictMarking* m = trace.top();
 	generateTraceStack(m, &printStack, &trace);
 	if(options.getXmlTrace()){
-		printXMLTrace(m, printStack, query, *this->tapn.get());
+		printXMLTrace(m, printStack, query, tapn);
 	} else {
 		printHumanTrace(m, printStack, query->getQuantifier());
 	}

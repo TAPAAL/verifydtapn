@@ -17,10 +17,10 @@ namespace VerifyTAPN {
             }
 
             // Inhibitor arcs
-            for (TAPN::InhibitorArc::WeakPtrVector::const_iterator arc = transition.getInhibitorArcs().begin();
+            for (TAPN::InhibitorArc::Vector::const_iterator arc = transition.getInhibitorArcs().begin();
                     arc != transition.getInhibitorArcs().end();
                     arc++) {
-                if (marking->numberOfTokensInPlace(arc->lock()->getInputPlace().getIndex()) >= arc->lock()->getWeight()) {
+                if (marking->numberOfTokensInPlace((*arc)->getInputPlace().getIndex()) >= (*arc)->getWeight()) {
                     pair<int, int> p(-1, -1);
                     return p;
                 }
@@ -28,17 +28,17 @@ namespace VerifyTAPN {
 
 
             // Standard arcs
-            for (TAPN::TimedInputArc::WeakPtrVector::const_iterator arc = transition.getPreset().begin(); arc != transition.getPreset().end(); arc++) {
+            for (TAPN::TimedInputArc::Vector::const_iterator arc = transition.getPreset().begin(); arc != transition.getPreset().end(); arc++) {
                 vector<Util::interval > intervals;
                 int range;
-                if (arc->lock()->getInterval().getUpperBound() == INT_MAX) {
+                if ((*arc)->getInterval().getUpperBound() == INT_MAX) {
                     range = INT_MAX;
                 } else {
-                    range = arc->lock()->getInterval().getUpperBound() - arc->lock()->getInterval().getLowerBound();
+                    range = (*arc)->getInterval().getUpperBound() - (*arc)->getInterval().getLowerBound();
                 }
-                int weight = arc->lock()->getWeight();
+                int weight = (*arc)->getWeight();
 
-                TokenList tokens = marking->getTokenList(arc->lock()->getInputPlace().getIndex());
+                TokenList tokens = marking->getTokenList((*arc)->getInputPlace().getIndex());
                 if (tokens.size() == 0) {
                     pair<int, int> p(-1, -1);
                     return p;
@@ -54,11 +54,11 @@ namespace VerifyTAPN {
                         j--;
                     }
                     if (numberOfTokensAvailable >= weight && tokens.at(j).getAge() - tokens.at(i).getAge() <= range) { //This span is interesting
-                        int low = arc->lock()->getInterval().getLowerBound() - tokens.at(i).getAge();
-                        int heigh = arc->lock()->getInterval().getUpperBound() - tokens.at(j).getAge();
+                        int low = (*arc)->getInterval().getLowerBound() - tokens.at(i).getAge();
+                        int heigh = (*arc)->getInterval().getUpperBound() - tokens.at(j).getAge();
 
                         Util::interval element(low < 0 ? 0 : low,
-                                arc->lock()->getInterval().getUpperBound() == INT_MAX ? INT_MAX : heigh);
+                                (*arc)->getInterval().getUpperBound() == INT_MAX ? INT_MAX : heigh);
                         Util::setAdd(intervals, element);
                     }
                     numberOfTokensAvailable -= tokens.at(i).getCount();
@@ -68,9 +68,9 @@ namespace VerifyTAPN {
             }
 
             // Transport arcs
-            for (TAPN::TransportArc::WeakPtrVector::const_iterator arc = transition.getTransportArcs().begin(); arc != transition.getTransportArcs().end(); arc++) {
-                Util::interval arcGuard(arc->lock()->getInterval().getLowerBound(), arc->lock()->getInterval().getUpperBound());
-                Util::interval invGuard(0, arc->lock()->getDestination().getInvariant().getBound());
+            for (TAPN::TransportArc::Vector::const_iterator arc = transition.getTransportArcs().begin(); arc != transition.getTransportArcs().end(); arc++) {
+                Util::interval arcGuard((*arc)->getInterval().getLowerBound(), (*arc)->getInterval().getUpperBound());
+                Util::interval invGuard(0, (*arc)->getDestination().getInvariant().getBound());
 
                 Util::interval arcInterval = boost::numeric::intersect(arcGuard, invGuard);
                 vector<Util::interval > intervals;
@@ -80,9 +80,9 @@ namespace VerifyTAPN {
                 } else {
                     range = arcInterval.upper() - arcInterval.lower();
                 }
-                int weight = arc->lock()->getWeight();
+                int weight = (*arc)->getWeight();
 
-                TokenList tokens = marking->getTokenList(arc->lock()->getSource().getIndex());
+                TokenList tokens = marking->getTokenList((*arc)->getSource().getIndex());
 
                 if (tokens.size() == 0) {
                     pair<int, int> p(-1, -1);
@@ -133,8 +133,8 @@ namespace VerifyTAPN {
             int MC = -1;
             unsigned int i = 0;
             for (PlaceList::const_iterator iter = marking->getPlaceList().begin(); iter != marking->getPlaceList().end(); iter++) {
-                if (i < transition.getPreset().size() && iter->place->getIndex() == transition.getPreset().at(i).lock()->getInputPlace().getIndex()) {
-                    if (transition.getPreset().at(i).lock()->getWeight() < iter->numberOfTokens()) {
+                if (i < transition.getPreset().size() && iter->place->getIndex() == transition.getPreset().at(i)->getInputPlace().getIndex()) {
+                    if (transition.getPreset().at(i)->getWeight() < iter->numberOfTokens()) {
                         MC = max(MC, iter->place->getMaxConstant() - iter->tokens.front().getAge());
                     }
                     i++;
@@ -168,20 +168,19 @@ namespace VerifyTAPN {
             NonStrictMarkingBase* l = NULL;
             
             DeadlockVisitor deadlockVisitor = DeadlockVisitor();
-            boost::any c;
-            deadlockVisitor.visit(*query, c);
-            bool queryContainsDeadlock = boost::any_cast<bool>(c);
+            AST::BoolResult queryContainsDeadlock;
+            deadlockVisitor.visit(*query, queryContainsDeadlock);
             
             // only if we have reached a deadlock (liveness) or 
             // have a reachability query (for delay when deadlock prop is used) then
             // we want to create some end-delay
-            if(deadlock || queryContainsDeadlock){
+            if(deadlock || queryContainsDeadlock.value){
                 NonStrictMarkingBase* base = getBase(trace->dart);
                 
                 int diff = this->maxPossibleDelay(base) - trace->start;
                 // fix for when max possible delay = inf
-                if(diff > this->tapn->getMaxConstant())
-                    diff = (this->tapn->getMaxConstant() + 1) - trace->start;
+                if(diff > tapn.getMaxConstant())
+                    diff = (tapn.getMaxConstant() + 1) - trace->start;
 
                 while (diff) {  // TODO loop seems to count the wrong way, not effecting anything, but wrong.
                         NonStrictMarkingBase* mc = new NonStrictMarkingBase(*base);
@@ -217,7 +216,7 @@ namespace VerifyTAPN {
                 m->incrementAge(lower);
                 m->setParent(NULL);
                 if(upper == INT_MAX){
-                    upper = tapn.get()->getMaxConstant();
+                    upper = tapn.getMaxConstant();
                 }
                 // create markings between transitions, one for each delay (exluding last one)
                 if (upper > lower) {
@@ -249,7 +248,7 @@ namespace VerifyTAPN {
                 trace = (TraceDart*) trace->parent;
             }
             
-            printXMLTrace(l, traceStack, query, *this->tapn.get());
+            printXMLTrace(l, traceStack, query, tapn);
         }
 
     }

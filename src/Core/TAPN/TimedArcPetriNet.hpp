@@ -8,7 +8,6 @@
 #include "TransportArc.hpp"
 #include "InhibitorArc.hpp"
 #include "OutputArc.hpp"
-#include "boost/make_shared.hpp"
 #include "google/sparse_hash_map"
 #include "boost/functional/hash.hpp"
 #include "../QueryParser/AST.hpp"
@@ -23,14 +22,22 @@ namespace VerifyTAPN {
 		{
 
 		public:// construction
-			TimedArcPetriNet(const TimedPlace::Vector& places,
-				const TimedTransition::Vector& transitions,
-				const TimedInputArc::Vector& inputArcs,
-				const OutputArc::Vector& outputArcs,
-				const TransportArc::Vector& transportArcs,
-				const InhibitorArc::Vector& inhibitorArcs)
+			TimedArcPetriNet(TimedPlace::Vector& places,
+				TimedTransition::Vector& transitions,
+				TimedInputArc::Vector& inputArcs,
+				OutputArc::Vector& outputArcs,
+				TransportArc::Vector& transportArcs,
+				InhibitorArc::Vector& inhibitorArcs)
 				: places(places), transitions(transitions), inputArcs(inputArcs), outputArcs(outputArcs), transportArcs(transportArcs), inhibitorArcs(inhibitorArcs), maxConstant(0) { };
-			virtual ~TimedArcPetriNet() { /* empty */ }
+			~TimedArcPetriNet() { 
+                            // call delete on all data
+                            for(unsigned int i = 0; i < places.size();++i) delete places[i];
+                            for(unsigned int i = 0; i < transitions.size();++i) delete transitions[i];
+                            for(unsigned int i = 0; i < inputArcs.size();++i) delete inputArcs[i];
+                            for(unsigned int i = 0; i < outputArcs.size();++i) delete outputArcs[i];
+                            for(unsigned int i = 0; i < transportArcs.size();++i) delete transportArcs[i];
+                            for(unsigned int i = 0; i < inhibitorArcs.size();++i) delete inhibitorArcs[i];
+                        }
 
 		public: // inspectors
 			void print(std::ostream& out) const;
@@ -64,12 +71,12 @@ namespace VerifyTAPN {
 			void findMaxConstants();
 
 		private: // data
-			const TimedPlace::Vector places;
+			TimedPlace::Vector places;
 			TimedTransition::Vector transitions;
-			const TimedInputArc::Vector inputArcs;
-			const OutputArc::Vector outputArcs;
-			const TransportArc::Vector transportArcs;
-			const InhibitorArc::Vector inhibitorArcs;
+			TimedInputArc::Vector inputArcs;
+			OutputArc::Vector outputArcs;
+			TransportArc::Vector transportArcs;
+			InhibitorArc::Vector inhibitorArcs;
 			int maxConstant;
 		};
 
