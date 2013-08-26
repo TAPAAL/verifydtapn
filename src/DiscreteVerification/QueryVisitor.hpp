@@ -79,9 +79,6 @@ namespace VerifyTAPN {
                 expr.getRight().accept(*this, right);
                 static_cast<BoolResult&>(context).value = right.value;
             }
-
-//            static_cast<BoolResult&>(context).value
-//                    = left.value || right.value;
         }
 
         template<typename T>
@@ -96,9 +93,6 @@ namespace VerifyTAPN {
                 expr.getRight().accept(*this, right);
                 static_cast<BoolResult&>(context).value = right.value;
             }
-
-//            static_cast<BoolResult&>(context).value 
-//                    = left.value && right.value;
         }
 
         template<typename T>

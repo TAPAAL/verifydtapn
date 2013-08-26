@@ -349,10 +349,7 @@ namespace VerifyTAPN {
                     vector<unsigned int >& modificationVector = indicesOfCurrentPermutation[arcAndTokenIndex]->modificationVector;
                     if (incrementModificationVector(modificationVector, enabledTokens)) {
                         changedSomething = true;
-                    //    delete indicesOfCurrentPermutation[arcAndTokenIndex];
                         break;
-                    } else {
-                    //    delete indicesOfCurrentPermutation[arcAndTokenIndex];                        
                     }
                 }
             }
