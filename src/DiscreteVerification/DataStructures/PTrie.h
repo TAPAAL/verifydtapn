@@ -58,10 +58,6 @@ namespace VerifyTAPN {
                 PNode() : highpos(0), lowpos(0), highCount(-1), lowCount(-1), parent(0), data(NULL) {
                 }
                 
-                inline void setNull(){
-                    data = NULL;
-                }
-                
                 inline void replaceData(MarkingEncoding* newData){
                     delete[] data;
                     data = newData;
@@ -94,8 +90,6 @@ namespace VerifyTAPN {
                 stored = 0;
                 totalSize = blockSize;
                 this->pnodeArray.push_back(new PNode[this->totalSize]);
-                memset(this->pnodeArray[0], 0xffffffff, this->totalSize * sizeof (PNode));
-                pnodeArray[0][0].setNull();
                 pnodeArray[0][0].highCount = pnodeArray[0][0].lowCount = 0;
                 pnodeArray[0][0].lowpos = pnodeArray[0][0].highpos = 0;
                 pnodeArray[0][0].parent = 0;
@@ -343,7 +337,6 @@ namespace VerifyTAPN {
                 int testclist = 0;
                 int testnlist = 0;
                 PNode* c_node = &this->pnodeArray[floor(this->nextFree / this->blockSize)][this->nextFree % this->blockSize];
-                c_node->setNull();
                 if (branch) {
                     prev_node->highpos = this->nextFree;
                     c_node->replaceData(new MarkingEncoding[testclist = prev_node->highCount]);
@@ -406,7 +399,6 @@ namespace VerifyTAPN {
                 if (this->nextFree == this->totalSize) {
                     this->totalSize += this->blockSize;
                     this->pnodeArray.push_back(new PNode[this->blockSize]);
-                    memset(this->pnodeArray[floor(this->totalSize / this->blockSize) - 1], 0xffffffff, (this->blockSize) * sizeof (PNode));
                 }
             }
 
