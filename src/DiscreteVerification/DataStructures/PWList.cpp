@@ -61,6 +61,7 @@ std::ostream& operator<<(std::ostream& out, PWList& x){
 
             PTrie<MetaData>::Result res = passed->add(marking);
             if(res.isNew){
+                res.encoding.setMetaData(NULL);
                 if(isLiveness){
                     MetaData* meta;
                     if(this->makeTrace){
@@ -109,14 +110,17 @@ std::ostream& operator<<(std::ostream& out, PWList& x){
                     this->parent = (MetaDataWithTraceAndEncoding*)(m->meta);
                 }
             }
-            if(isLiveness || !this->makeTrace)
+            if(isLiveness || !this->makeTrace){
                 p->encoding.release();
+                delete p;
+            }
             return m;
         }
 
         PWListHybrid::~PWListHybrid() {
-        // We don't care, it is deallocated on program execution done
+            // We don't care, it is deallocated on program execution done
         }
+
 
 } /* namespace DiscreteVerification */
 } /* namespace VerifyTAPN */

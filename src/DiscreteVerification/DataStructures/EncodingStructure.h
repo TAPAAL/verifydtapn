@@ -226,7 +226,6 @@ namespace VerifyTAPN {
 
         template<class T>
         EncodingStructure<T>::~EncodingStructure() {
-
         }
 
 

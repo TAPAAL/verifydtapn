@@ -123,7 +123,10 @@ bool LivenessSearch::addToPW(NonStrictMarking* marking, NonStrictMarking* parent
 	QueryVisitor<NonStrictMarking> checker(*marking, tapn);
 	AST::BoolResult context;
 	query->accept(checker, context);
-	if(!context.value)	return false;
+	if(!context.value){
+            delete marking;
+            return false;
+        }
 	if(!pwList->add(marking)){
 		//Test if collision is in trace
             if(marking->meta->inTrace){
@@ -136,10 +139,11 @@ bool LivenessSearch::addToPW(NonStrictMarking* marking, NonStrictMarking* parent
                     return false;
             }
 	}else{
+                deleteMarking(marking);
 		validChildren++;
+                return false;
 	}
-        deleteMarking(marking);
-	return false;
+
 }
 
 void LivenessSearch::printStats(){

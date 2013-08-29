@@ -32,6 +32,7 @@ namespace DiscreteVerification {
         virtual bool add(NonStrictMarking* marking) = 0;
 	virtual NonStrictMarking* getNextUnexplored() = 0;
         virtual long long explored()= 0;
+        virtual ~PWListBase(){};
 	inline void setMaxNumTokensIfGreater(int i){ if(i>maxNumTokensInAnyMarking) maxNumTokensInAnyMarking = i; };
     };
     

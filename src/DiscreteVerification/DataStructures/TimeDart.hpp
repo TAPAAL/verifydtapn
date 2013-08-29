@@ -30,6 +30,7 @@ public:
 		: base(base), waiting(waiting), passed(passed){
 	}
 	~TimeDartBase(){
+ 
 	}
 
 	//Getters

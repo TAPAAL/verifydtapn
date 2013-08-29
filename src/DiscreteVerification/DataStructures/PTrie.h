@@ -31,6 +31,11 @@ namespace VerifyTAPN {
             // The encoding is cloned as it is not persistant in the PTrie
             EncodingPointer(EncodingStructure<T*> &en, unsigned int n) : encoding(en.clone()), node(n) {
             }
+            
+            ~EncodingPointer(){
+
+            }
+            
         };
         
         template<typename T>
@@ -48,13 +53,26 @@ namespace VerifyTAPN {
                 };
             };
 
-            struct PNode {
-                MarkingEncoding* data;
+            class PNode {
+            public:
+                PNode() : highpos(0), lowpos(0), highCount(-1), lowCount(-1), parent(0), data(NULL) {
+                }
+                
+                inline void replaceData(MarkingEncoding* newData){
+                    delete[] data;
+                    data = newData;
+                }
+                inline MarkingEncoding* getData(){
+                    return data;
+                }
+                
                 uint highpos;
                 uint lowpos;
                 short int highCount;
                 short int lowCount;
                 uint parent;
+            private:
+                MarkingEncoding* data;
             };
 
 
@@ -72,8 +90,6 @@ namespace VerifyTAPN {
                 stored = 0;
                 totalSize = blockSize;
                 this->pnodeArray.push_back(new PNode[this->totalSize]);
-                memset(this->pnodeArray[0], 0xffffffff, this->totalSize * sizeof (PNode));
-                pnodeArray[0][0].data = NULL;
                 pnodeArray[0][0].highCount = pnodeArray[0][0].lowCount = 0;
                 pnodeArray[0][0].lowpos = pnodeArray[0][0].highpos = 0;
                 pnodeArray[0][0].parent = 0;
@@ -288,12 +304,12 @@ namespace VerifyTAPN {
             int ins = 0;
 
             for (; ins < listsize; ins++) {
-                if (prev_node->data[ins] == en) {
+                if (prev_node->getData()[ins] == en) {
                     break;
                 }
             }
             if (ins != listsize) {
-                return Result(false, prev_node->data[ins], prev_count);
+                return Result(false, prev_node->getData()[ins], prev_count);
             }
 
             en = MarkingEncoding(encoding, size, var, encsize);
@@ -303,10 +319,9 @@ namespace VerifyTAPN {
             nlist[listsize] = en;
 
             for (int i = 0; i < listsize; i++) {
-                nlist[i] = prev_node->data[i];
+                nlist[i] = prev_node->getData()[i];
             }
-            delete[] prev_node->data;
-            prev_node->data = nlist;
+            prev_node->replaceData(nlist);
 
 
             bool branch = encoding.at(var);
@@ -324,7 +339,7 @@ namespace VerifyTAPN {
                 PNode* c_node = &this->pnodeArray[floor(this->nextFree / this->blockSize)][this->nextFree % this->blockSize];
                 if (branch) {
                     prev_node->highpos = this->nextFree;
-                    c_node->data = new MarkingEncoding[testclist = prev_node->highCount];
+                    c_node->replaceData(new MarkingEncoding[testclist = prev_node->highCount]);
                     prev_node->highCount = -1;
                     if (prev_node->lowCount > 0)
                         nlist = new MarkingEncoding[testnlist = prev_node->lowCount];
@@ -332,7 +347,7 @@ namespace VerifyTAPN {
                         nlist = NULL;
                 } else {
                     prev_node->lowpos = this->nextFree;
-                    c_node->data = new MarkingEncoding[testclist = prev_node->lowCount];
+                    c_node->replaceData(new MarkingEncoding[testclist = prev_node->lowCount]);
                     prev_node->lowCount = -1;
                     if (prev_node->highCount > 0)
                         nlist = new MarkingEncoding[testnlist = prev_node->highCount];
@@ -350,42 +365,40 @@ namespace VerifyTAPN {
                 int clistcount = 0;
                 int nlistcount = 0;
                 for (int i = 0; i < listsize + 1; i++) {
-                    if (prev_node->data[i].at(npos) == branch) {
+                    if (prev_node->getData()[i].at(npos) == branch) {
                         if (!(size % 8)) {
-                            nee = MarkingEncoding(prev_node->data[i], 8);
+                            nee = MarkingEncoding(prev_node->getData()[i], 8);
                             if (i == ins) {
                                 en = nee;
                             }
-                            prev_node->data[i].release();
+                            prev_node->getData()[i].release();
                         } else {
-                            nee = prev_node->data[i];
+                            nee = prev_node->getData()[i];
                         }
                         if (nee.at((npos + 1) % 8)) {
                             c_node->highCount++;
                         } else {
                             c_node->lowCount++;
                         }
-                        c_node->data[clistcount] = nee;
+                        c_node->getData()[clistcount] = nee;
                         clistcount++;
                     } else {
-                        nlist[nlistcount] = prev_node->data[i];
+                        nlist[nlistcount] = prev_node->getData()[i];
                         nlistcount++;
                     }
 
                 }
-                delete[] prev_node->data;
-                prev_node->data = nlist;
+                prev_node->replaceData(nlist);
 
                 if (prev_node->highCount == -1 && prev_node->lowCount == -1) {
                     blockCount--;
-                    delete[] prev_node->data;
+                    prev_node->replaceData(NULL);
                 }
 
                 this->nextFree++;
                 if (this->nextFree == this->totalSize) {
                     this->totalSize += this->blockSize;
                     this->pnodeArray.push_back(new PNode[this->blockSize]);
-                    memset(this->pnodeArray[floor(this->totalSize / this->blockSize) - 1], 0xffffffff, (this->blockSize) * sizeof (PNode));
                 }
             }
 

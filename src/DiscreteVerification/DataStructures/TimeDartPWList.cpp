@@ -9,7 +9,10 @@
 
 namespace VerifyTAPN {
 namespace DiscreteVerification {
-
+TimeDartPWHashMap::~TimeDartPWHashMap() {
+            // We don't care, it is deallocated on program execution done
+        }
+    
 bool TimeDartPWHashMap::add(NonStrictMarkingBase* marking, int youngest, WaitingDart* parent, int upper, int start){
 	discoveredMarkings++;
 	TimeDartList& m = markings_storage[marking->getHashKey()];
@@ -104,11 +107,6 @@ TimeDartBase* TimeDartPWPData::getNextUnexplored(){
     p->encoding.release();
     delete p;
     return dart;
-}
-
-
-TimeDartPWHashMap::~TimeDartPWHashMap() {
-	// TODO Auto-generated destructor stub
 }
 
 std::ostream& operator<<(std::ostream& out, TimeDartPWHashMap& x){

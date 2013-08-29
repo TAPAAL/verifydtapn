@@ -46,7 +46,6 @@ namespace VerifyTAPN {
 
             std::cout << options << std::endl;
 
-            WaitingList<NonStrictMarking>* strategy = NULL;
             // Select verification method
             if (options.getVerificationType() == VerificationOptions::DISCRETE) {
                 
@@ -65,7 +64,9 @@ namespace VerifyTAPN {
                                 verifier,
                                 options,
                                 query);
+
                     }
+                    delete strategy;
                 } else {
                     WaitingList<NonStrictMarking>* strategy = getWaitingList<NonStrictMarking > (query, options);
                     if (query->getQuantifier() == EG || query->getQuantifier() == AF) {
@@ -81,6 +82,7 @@ namespace VerifyTAPN {
                                 options,
                                 query);
                     }
+                    delete strategy;
                 }
             } else if (options.getVerificationType() == VerificationOptions::TIMEDART) {
                 if (query->getQuantifier() == EG || query->getQuantifier() == AF) {
@@ -99,6 +101,7 @@ namespace VerifyTAPN {
                                 verifier,
                                 options,
                                 query);
+                        delete strategy;
                     } else {
                         WaitingList<WaitingDart>* strategy = getWaitingList<WaitingDart > (query, options);
                         TimeDartLiveness verifier = TimeDartLiveness(tapn, *initialMarking, query, options, strategy);
@@ -106,6 +109,7 @@ namespace VerifyTAPN {
                                 verifier,
                                 options,
                                 query);
+                        delete strategy;
                     }
                 } else if (query->getQuantifier() == EF || query->getQuantifier() == AG) {
 
@@ -116,6 +120,7 @@ namespace VerifyTAPN {
                                 verifier,
                                 options,
                                 query);
+                        delete strategy;
                     } else {
                         WaitingList<TimeDartBase>* strategy = getWaitingList<TimeDartBase > (query, options);
                         TimeDartReachabilitySearch verifier = TimeDartReachabilitySearch(tapn, *initialMarking, query, options, strategy);
@@ -123,12 +128,10 @@ namespace VerifyTAPN {
                                 verifier,
                                 options,
                                 query);
+                        delete strategy;
                     }
                 }
             }
-
-
-            delete strategy;
 
             return 0;
         }

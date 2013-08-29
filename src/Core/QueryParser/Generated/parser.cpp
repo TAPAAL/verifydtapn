@@ -668,20 +668,22 @@ namespace VerifyTAPN {
 #line 83 "Core/QueryParser/grammar.yy"
     { 
 		int placeIndex = driver.getTAPN().getPlaceIndex(*(yysemantic_stack_[(3) - (1)].string));
+                delete (yysemantic_stack_[(3) - (1)].string);
 		if(placeIndex == -1) error((yylocation_stack_[(3) - (1)]), "unknown place"); 
-		(yyval.expr) = new VerifyTAPN::AST::AtomicProposition(placeIndex, (yysemantic_stack_[(3) - (2)].string), (yysemantic_stack_[(3) - (3)].number));
+		(yyval.expr) = new VerifyTAPN::AST::AtomicProposition(placeIndex, (yysemantic_stack_[(3) - (2)].string), (yysemantic_stack_[(3) - (3)].number)); 
+                delete (yysemantic_stack_[(3) - (2)].string);
 	}
     break;
 
   case 19:
 /* Line 664 of lalr1.cc  */
-#line 87 "Core/QueryParser/grammar.yy"
+#line 89 "Core/QueryParser/grammar.yy"
     { (yyval.expr) = new VerifyTAPN::AST::DeadlockExpression(); }
     break;
 
 
 /* Line 664 of lalr1.cc  */
-#line 685 "Core/QueryParser/Generated/parser.cpp"
+#line 687 "Core/QueryParser/Generated/parser.cpp"
       default:
         break;
       }
@@ -1124,8 +1126,8 @@ namespace VerifyTAPN {
   Parser::yyrline_[] =
   {
          0,    59,    59,    60,    61,    62,    65,    66,    67,    68,
-      69,    70,    76,    77,    78,    79,    80,    81,    82,    87,
-      88,    88,    88,    88,    88
+      69,    70,    76,    77,    78,    79,    80,    81,    82,    89,
+      90,    90,    90,    90,    90
   };
 
   // Print the state stack on the debug stream.
@@ -1216,9 +1218,9 @@ namespace VerifyTAPN {
 #line 5 "Core/QueryParser/grammar.yy"
 } // VerifyTAPN
 /* Line 1135 of lalr1.cc  */
-#line 1220 "Core/QueryParser/Generated/parser.cpp"
+#line 1222 "Core/QueryParser/Generated/parser.cpp"
 /* Line 1136 of lalr1.cc  */
-#line 90 "Core/QueryParser/grammar.yy"
+#line 92 "Core/QueryParser/grammar.yy"
 
 
 void 

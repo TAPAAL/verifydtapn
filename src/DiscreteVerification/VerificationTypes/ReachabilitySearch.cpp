@@ -143,7 +143,7 @@ void ReachabilitySearchPTrie::getTrace(){
 }
 
 ReachabilitySearch::~ReachabilitySearch() {
-	// TODO Auto-generated destructor stub
+    delete pwList;
 }
 
 } /* namespace DiscreteVerification */

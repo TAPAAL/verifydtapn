@@ -2,10 +2,10 @@
 
 parser=Core/QueryParser
 
-src=`find . -name "*.cpp"`
-
 flex -o $parser/Generated/lexer.cpp $parser/flex.ll
 bison -o $parser/Generated/parser.cpp $parser/grammar.yy
+
+src=`find . -name "*.cpp"`
 
 g++ -fpermissive  -DBOOST_DISABLE_THREADS -DNDEBUG -DDISABLE_ASSERTX -static -O3 -Wall -mtune=core2 \
     $src -o verifydtapn64 && \
