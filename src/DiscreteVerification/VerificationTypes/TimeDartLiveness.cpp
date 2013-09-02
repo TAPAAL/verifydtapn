@@ -187,7 +187,7 @@ namespace VerifyTAPN {
         }
 
         TimeDartLiveness::~TimeDartLiveness() {
-            delete pwList;
+
         }
 
     } /* namespace DiscreteVerification */

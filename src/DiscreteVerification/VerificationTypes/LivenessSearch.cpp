@@ -164,7 +164,7 @@ void LivenessSearch::getTrace(){
 }
 
 LivenessSearch::~LivenessSearch() {
-	// TODO Auto-generated destructor stub
+
 }
 
 } /* namespace DiscreteVerification */

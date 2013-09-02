@@ -143,7 +143,6 @@ void ReachabilitySearchPTrie::getTrace(){
 }
 
 ReachabilitySearch::~ReachabilitySearch() {
-    delete pwList;
 }
 
 } /* namespace DiscreteVerification */
