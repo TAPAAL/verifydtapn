@@ -18,6 +18,11 @@ WorkflowSoundness::WorkflowSoundness(TAPN::TimedArcPetriNet& tapn, NonStrictMark
 WorkflowSoundness::WorkflowSoundness(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list)
 	: pwList(new PWList(waiting_list, false)), tapn(tapn), initialMarking(initialMarking), query(query), options(options), successorGenerator( tapn, *this ){
 
+	for(TimedPlace::Vector::iterator iter = tapn.getPlaces().begin(); iter != tapn.getPlaces().end(); iter++){
+		if((*iter)->getType() == Dead){
+			(*iter)->setType(Std);
+		}
+	}
 }
 
 bool WorkflowSoundness::verify(){
