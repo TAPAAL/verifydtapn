@@ -30,6 +30,7 @@ namespace DiscreteVerification {
         virtual bool hasWaitingStates() = 0;
         virtual long long size() const = 0;
         virtual bool add(NonStrictMarking* marking) = 0;
+        virtual vector<NonStrictMarking*>& lookup(NonStrictMarking* marking){ return vector<NonStrictMarking*>; }
 	virtual NonStrictMarking* getNextUnexplored() = 0;
         virtual long long explored()= 0;
         virtual ~PWListBase(){};
@@ -50,6 +51,10 @@ public: // inspectors
 	virtual bool hasWaitingStates() {
 		return (waiting_list->size() > 0);
 	};
+
+	virtual vector<NonStrictMarking*>& lookup(NonStrictMarking* marking){
+		return markings_storage[marking->getHashKey()];
+	}
 
 	virtual long long size() const {
 		return stored;

@@ -50,7 +50,11 @@ namespace VerifyTAPN {
             if(options.isWorkflow()){
             	WaitingList<NonStrictMarking>* strategy = getWaitingList<NonStrictMarking > (query, options);
             	WorkflowSoundness verifier = WorkflowSoundness(tapn, *initialMarking, query, options, strategy);
-					VerifyAndPrint(
+				if(verifier.getModelType() == verifier.NOTTAWFN){
+					std::cerr << "Model is not a TAWFN!" << std::endl;
+					return -1;
+				}
+            	VerifyAndPrint(
 							verifier,
 							options,
 							query);
