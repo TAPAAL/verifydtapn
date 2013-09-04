@@ -17,6 +17,7 @@ static const std::string MAX_CONSTANT_OPTION = "global-max-constants";
 static const std::string XML_TRACE_OPTION = "xml-trace";
 static const std::string LEGACY = "legacy";
 static const std::string KEEP_DEAD = "keep-dead-tokens";
+static const std::string WORKFLOW = "workflow";
 
 std::ostream& operator<<(std::ostream& out, const Switch& flag) {
 	flag.print(out);
@@ -162,6 +163,10 @@ void ArgsParser::initialize() {
     parsers.push_back(
             boost::make_shared<Switch > ("x", XML_TRACE_OPTION,
             "Output trace in xml format for TAPAAL."));
+
+    parsers.push_back(
+                boost::make_shared<Switch > ("w", WORKFLOW,
+                "Workflow mode."));
 };
 
 void ArgsParser::printHelp() const {
@@ -370,8 +375,12 @@ VerificationOptions ArgsParser::createVerificationOptions(const option_map& map,
 	assert(map.find(XML_TRACE_OPTION) != map.end());
 	bool xml_trace = boost::lexical_cast<bool>(
 			map.find(XML_TRACE_OPTION)->second);
+
+	assert(map.find(WORKFLOW) != map.end());
+	bool workflow = boost::lexical_cast<bool>(
+			map.find(WORKFLOW)->second);
         
 	return VerificationOptions(modelFile, queryFile, search, verification, memoptimization, kbound, trace,
-			xml_trace, max_constant, keep_dead);
+			xml_trace, max_constant, keep_dead, workflow);
 }
 }
