@@ -47,7 +47,16 @@ namespace VerifyTAPN {
             std::cout << options << std::endl;
 
             // Select verification method
-            if (options.getVerificationType() == VerificationOptions::DISCRETE) {
+            if(options.isWorkflow()){
+            	WaitingList<NonStrictMarking>* strategy = getWaitingList<NonStrictMarking > (query, options);
+            	WorkflowSoundness verifier = WorkflowSoundness(tapn, *initialMarking, query, options, strategy);
+					VerifyAndPrint(
+							verifier,
+							options,
+							query);
+				delete strategy;
+            }
+            else if (options.getVerificationType() == VerificationOptions::DISCRETE) {
                 
                 if (options.getMemoryOptimization() == VerificationOptions::PTRIE) {
                     //TODO fix initialization
