@@ -38,7 +38,6 @@ public:
 	WorkflowSoundness(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list);
 	virtual ~WorkflowSoundness();
 	bool verify();
-	NonStrictMarking* getLastMarking() { return lastMarking; }
 	inline unsigned int maxUsedTokens(){ return pwList->maxNumTokensInAnyMarking; };
 	void printTransitionStatistics() const { successorGenerator.printTransitionStatistics(std::cout); }
         virtual void deleteMarking(NonStrictMarking* m) {
@@ -51,6 +50,7 @@ protected:
 	bool addToPW(NonStrictMarking* marking, NonStrictMarking* parent);
 	bool isDelayPossible(NonStrictMarking& marking);
 	ModelType calculateModelType();
+	bool checkForCoveredMarking(NonStrictMarking* marking);
 
 protected:
 	int validChildren;
@@ -65,13 +65,12 @@ public:
 	virtual void getTrace();
 	inline const ModelType getModelType() const{ return modelType; }
 protected:
-	NonStrictMarking* lastMarking;
     NonStrictMarking* tmpParent;
     TimedPlace* in;
     TimedPlace* out;
     ModelType modelType;
-    vector<NonStrictMarking>* verify_set;
-    vector<NonStrictMarking>* final_set;
+    vector<NonStrictMarking*>* verify_set;
+    vector<NonStrictMarking*>* final_set;
 };
 
 } /* namespace DiscreteVerification */

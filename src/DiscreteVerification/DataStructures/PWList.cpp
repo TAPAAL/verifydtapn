@@ -35,6 +35,21 @@ bool PWList::add(NonStrictMarking* marking){
 	return true;
 }
 
+NonStrictMarking* PWList::addToPassed(NonStrictMarking* marking){
+		NonStrictMarkingList& m = markings_storage[marking->getHashKey()];
+		for(NonStrictMarkingList::const_iterator iter = m.begin();
+					iter != m.end();
+					iter++){
+				if((*iter)->equals(*marking)){
+					return *iter;
+				}
+		}
+		stored++;
+		m.push_back(marking);
+		marking->meta = new MetaData();
+		return marking;
+	}
+
 NonStrictMarking* PWList::getNextUnexplored(){
 	return waiting_list->pop();
 }

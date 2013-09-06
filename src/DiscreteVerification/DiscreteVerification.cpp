@@ -53,6 +53,10 @@ namespace VerifyTAPN {
 				if(verifier.getModelType() == verifier.NOTTAWFN){
 					std::cerr << "Model is not a TAWFN!" << std::endl;
 					return -1;
+				}else if(verifier.getModelType() == verifier.ETAWFN){
+					std::cout << "Model is a ETAWFN" << std::endl << std::endl;
+				}else if(verifier.getModelType() == verifier.MTAWFN){
+					std::cout << "Model is a MTAWFN" << std::endl << std::endl;
 				}
             	VerifyAndPrint(
 							verifier,

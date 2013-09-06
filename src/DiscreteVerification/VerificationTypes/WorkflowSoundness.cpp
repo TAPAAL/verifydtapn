@@ -11,12 +11,12 @@ namespace VerifyTAPN {
 namespace DiscreteVerification {
 
 WorkflowSoundness::WorkflowSoundness(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options)
-: tapn(tapn), initialMarking(initialMarking), query(query), options(options), successorGenerator( tapn, *this ){
+: tapn(tapn), initialMarking(initialMarking), query(query), options(options), successorGenerator( tapn, *this ), final_set(new vector<NonStrictMarking*>){
 
 }
 
 WorkflowSoundness::WorkflowSoundness(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list)
-: pwList(new PWList(waiting_list, false)), tapn(tapn), initialMarking(initialMarking), query(query), options(options), successorGenerator( tapn, *this ), in(NULL), out(NULL), modelType(calculateModelType()){
+: pwList(new PWList(waiting_list, false)), tapn(tapn), initialMarking(initialMarking), query(query), options(options), successorGenerator( tapn, *this ), in(NULL), out(NULL), modelType(calculateModelType()), final_set(new vector<NonStrictMarking*>){
 
 	for(TimedPlace::Vector::const_iterator iter = tapn.getPlaces().begin(); iter != tapn.getPlaces().end(); iter++){
 		if((*iter)->getType() == Dead){
@@ -33,7 +33,7 @@ bool WorkflowSoundness::verify(){
 	// Phase 1
 	while(pwList->hasWaitingStates()){
 		NonStrictMarking& next_marking = *pwList->getNextUnexplored();
-
+		tmpParent = &next_marking;
 		bool noDelay = false;
 		Result res = successorGenerator.generateAndInsertSuccessors(next_marking);
 		if(res == QUERY_SATISFIED){
@@ -54,48 +54,88 @@ bool WorkflowSoundness::verify(){
 	}
 
 	// TODO Phase 2
+	for(vector<NonStrictMarking*>::iterator iter = final_set->begin(); iter != final_set->end(); iter++){
+		pwList->addToWaiting(*iter);
+	}
 
+	while(pwList->hasWaitingStates()){
+		NonStrictMarking* next_marking = pwList->getNextUnexplored();
+		if(next_marking->meta->passed)	continue;
+		next_marking->meta->passed = true;
+		for(vector<NonStrictMarking*>::iterator iter = next_marking->meta->parents->begin(); iter != next_marking->meta->parents->end(); iter++){
+			pwList->addToWaiting(*iter);
+		}
+	}
 
-	return true;
+	return pwList->areAllPassed();
 }
 
 bool WorkflowSoundness::addToPW(NonStrictMarking* marking, NonStrictMarking* parent){
 	marking->cut();
 
-	// TODO add to parents_set
-
 	unsigned int size = marking->size();
+
+	// Check K-bound
+	pwList->setMaxNumTokensIfGreater(size);
+	if(modelType == ETAWFN && size > options.getKBound()) {
+		delete marking;
+		return true;	// Terminate false, TODO: throw error message?
+	}
+
+	// Map to existing marking if any
+	NonStrictMarking* lookup = pwList->lookup(marking);
+	if(lookup != NULL){
+		marking = lookup;
+	}
+
+	// add to parents_set
+	if(marking->meta != NULL){
+		if(parent != NULL){
+			marking->meta->parents->push_back(parent);
+		}
+	}
 
 	// Test if final place
 	if(marking->numberOfTokensInPlace(out->getIndex()) > 0){
 		if(size == marking->numberOfTokensInPlace(out->getIndex())){
-			final_set->push_back(*marking);
+			marking = pwList->addToPassed(marking);
+			marking->meta->parents->push_back(parent);
+			final_set->push_back(marking);
 		}else{
-			return true;	// Terminate
+			return true;	// Terminate false
 		}
-	}
-
-	// If new marking
-	if(pwList->add(marking)){
-
-		// TODO Test if a covered marking has already reached
-
-		// TODO Check k-bound?
-		pwList->setMaxNumTokensIfGreater(size);
-		if(size > options.getKBound()) {
-			delete marking;
-			return false;
+	}else{
+		// If new marking
+		if(pwList->add(marking)){
+			if(parent != NULL){
+				marking->meta->parents->push_back(parent);
+			}
+			if(modelType == MTAWFN && checkForCoveredMarking(marking)){
+				return false;
+			}
 		}
 	}
 
 	return false;
 }
 
+bool WorkflowSoundness::checkForCoveredMarking(NonStrictMarking* marking){
+	// TODO implement
+
+
+	return false;
+}
+
 WorkflowSoundness::ModelType WorkflowSoundness::calculateModelType(){
 	bool isin, isout;
+	bool hasInvariant = false;
 	for(TimedPlace::Vector::const_iterator iter = tapn.getPlaces().begin(); iter != tapn.getPlaces().end(); iter++){
 		isin = isout = true;
 		TimedPlace* p = (*iter);
+
+		if(!hasInvariant && p->getInvariant() != p->getInvariant().LS_INF){
+			hasInvariant = true;
+		}
 
 		if(p->getInputArcs().size() > 0){
 			isout = false;
@@ -140,7 +180,28 @@ WorkflowSoundness::ModelType WorkflowSoundness::calculateModelType(){
 		return NOTTAWFN;
 	}
 
-	return ETAWFN;
+	bool hasUrgent = false;
+	bool hasInhibitor = false;
+	// All transitions must have preset
+	for(TimedTransition::Vector::const_iterator iter = tapn.getTransitions().begin(); iter != tapn.getTransitions().end(); iter++){
+		if((*iter)->getPresetSize() == 0 && (*iter)->getNumberOfTransportArcs() == 0){
+			return NOTTAWFN;
+		}
+
+		if(!hasUrgent && (*iter)->isUrgent()){
+			hasUrgent = true;
+		}
+
+		if(!hasInhibitor && !(*iter)->getInhibitorArcs().empty()){
+			hasInhibitor = true;
+		}
+	}
+
+	if(hasUrgent || hasInvariant || hasInhibitor){
+		return ETAWFN;
+	}
+
+	return MTAWFN;
 }
 
 bool WorkflowSoundness::isDelayPossible(NonStrictMarking& marking){
@@ -171,13 +232,13 @@ void WorkflowSoundness::printStats(){
 }
 
 void WorkflowSoundness::getTrace(){
-	stack < NonStrictMarking*> printStack;
+	/*stack < NonStrictMarking*> printStack;
 	generateTraceStack(lastMarking, &printStack);
 	if(options.getXmlTrace()){
 		printXMLTrace(lastMarking, printStack, query, tapn);
 	} else {
 		printHumanTrace(lastMarking, printStack, query->getQuantifier());
-	}
+	}*/
 }
 
 WorkflowSoundness::~WorkflowSoundness() {
