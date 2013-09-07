@@ -111,7 +111,7 @@ bool WorkflowSoundness::addToPW(NonStrictMarking* marking, NonStrictMarking* par
 				marking->meta->parents->push_back(parent);
 			}
 			if(modelType == MTAWFN && checkForCoveredMarking(marking)){
-				return false;
+				return true;	// Terminate false
 			}
 		}
 	}
@@ -170,12 +170,21 @@ WorkflowSoundness::ModelType WorkflowSoundness::calculateModelType(){
 			isin = false;
 		}
 
-		for(TransportArc::Vector::const_iterator iter = p->getTransportArcs().begin(); iter != p->getTransportArcs().end(); iter++){
-			if(&(*iter)->getSource() == p){
-				isout = false;
+		if(isout){
+			for(TransportArc::Vector::const_iterator iter = p->getTransportArcs().begin(); iter != p->getTransportArcs().end(); iter++){
+				if(&(*iter)->getSource() == p){
+					isout = false;
+					break;
+				}
 			}
-			if(&(*iter)->getDestination() == p){
-				isin = false;
+		}
+
+		if(isin){
+			for(TransportArc::Vector::const_iterator iter = tapn.getTransportArcs().begin(); iter != tapn.getTransportArcs().end(); ++iter){		// TODO maybe transportArcs should contain both incoming and outgoing? Might break something though.
+				if(&(*iter)->getDestination() == p){
+					isin = false;
+					break;
+				}
 			}
 		}
 

@@ -154,7 +154,7 @@ namespace VerifyTAPN {
         }
 
         template<typename T> void VerifyAndPrint(Verification<T>& verifier, VerificationOptions& options, AST::Query* query) {
-            bool result = (query->getQuantifier() == AG || query->getQuantifier() == AF) ? !verifier.verify() : verifier.verify();
+            bool result = (!options.isWorkflow() && (query->getQuantifier() == AG || query->getQuantifier() == AF)) ? !verifier.verify() : verifier.verify();
 
             verifier.printStats();
             verifier.printTransitionStatistics();
