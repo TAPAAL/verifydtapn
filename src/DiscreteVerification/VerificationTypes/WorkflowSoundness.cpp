@@ -53,7 +53,7 @@ bool WorkflowSoundness::verify(){
 		}
 	}
 
-	// TODO Phase 2
+	// Phase 2
 	for(vector<NonStrictMarking*>::iterator iter = final_set->begin(); iter != final_set->end(); iter++){
 		pwList->addToWaiting(*iter);
 	}
@@ -120,8 +120,6 @@ bool WorkflowSoundness::addToPW(NonStrictMarking* marking, NonStrictMarking* par
 }
 
 bool WorkflowSoundness::checkForCoveredMarking(NonStrictMarking* marking){
-	int size = marking->size();
-
 	vector<NonStrictMarking*> coveredMarkings;
 	coveredMarkings.push_back(new NonStrictMarking(*marking));
 
