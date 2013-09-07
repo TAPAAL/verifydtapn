@@ -120,8 +120,35 @@ bool WorkflowSoundness::addToPW(NonStrictMarking* marking, NonStrictMarking* par
 }
 
 bool WorkflowSoundness::checkForCoveredMarking(NonStrictMarking* marking){
-	// TODO implement
+	int size = marking->size();
 
+	vector<NonStrictMarking*> coveredMarkings;
+	coveredMarkings.push_back(new NonStrictMarking(*marking));
+
+	for(PlaceList::const_iterator p_iter = marking->getPlaceList().begin(); p_iter != marking->getPlaceList().end(); ++p_iter){
+		for(TokenList::const_iterator t_iter = p_iter->tokens.begin(); t_iter != p_iter->tokens.end(); ++t_iter){
+			for(int i = 1; i <= t_iter->getCount(); ++i){
+				vector<NonStrictMarking*> toAdd;
+				for(vector<NonStrictMarking*>::iterator iter = coveredMarkings.begin(); iter != coveredMarkings.end(); ++iter){
+					NonStrictMarking* new_marking = new NonStrictMarking(**iter);
+					for(int ii = i; ii > 0; --ii){
+						new_marking->removeToken(p_iter->place->getIndex(), t_iter->getAge());
+					}
+					toAdd.push_back(new_marking);
+				}
+				for(vector<NonStrictMarking*>::iterator iter = toAdd.begin(); iter != toAdd.end(); ++iter){
+					coveredMarkings.push_back(*iter);
+				}
+			}
+		}
+	}
+
+	for(vector<NonStrictMarking*>::iterator iter = coveredMarkings.begin(); iter != coveredMarkings.end(); ++iter){
+		if(pwList->lookup(*iter)){
+			return true;
+		}
+		delete *iter;
+	}
 
 	return false;
 }
