@@ -141,8 +141,13 @@ bool WorkflowSoundness::checkForCoveredMarking(NonStrictMarking* marking){
 		}
 	}
 
+	bool isFirst = true;
 	for(vector<NonStrictMarking*>::iterator iter = coveredMarkings.begin(); iter != coveredMarkings.end(); ++iter){
-		if(pwList->lookup(*iter)){
+		if(isFirst){
+			isFirst = false;
+			continue;
+		}
+		if(pwList->lookup(*iter) != NULL){
 			return true;
 		}
 		delete *iter;
