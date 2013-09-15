@@ -18,6 +18,9 @@ static const std::string XML_TRACE_OPTION = "xml-trace";
 static const std::string LEGACY = "legacy";
 static const std::string KEEP_DEAD = "keep-dead-tokens";
 static const std::string WORKFLOW = "workflow";
+static const std::string WORKFLOW_STRONG = "workflow-strong";
+static const std::string WORKFLOW_MIN = "workflow-min";
+static const std::string WORKFLOW_MAX = "workflow-max";
 
 std::ostream& operator<<(std::ostream& out, const Switch& flag) {
 	flag.print(out);
@@ -167,6 +170,17 @@ void ArgsParser::initialize() {
     parsers.push_back(
                 boost::make_shared<Switch > ("w", WORKFLOW,
                 "Workflow mode."));
+
+    parsers.push_back(
+                   boost::make_shared<Switch > ("ws", WORKFLOW_STRONG,
+                   "Check strong soundness (requires workflow mode)."));
+
+    parsers.push_back(
+                       boost::make_shared<Switch > ("wmin", WORKFLOW_MIN,
+                       "Calculate minimum duration (requires workflow mode)."));
+    parsers.push_back(
+                          boost::make_shared<Switch > ("wmax", WORKFLOW_MAX,
+                          "Calculate maximum duration (requires workflow mode)."));
 };
 
 void ArgsParser::printHelp() const {
@@ -379,8 +393,22 @@ VerificationOptions ArgsParser::createVerificationOptions(const option_map& map,
 	assert(map.find(WORKFLOW) != map.end());
 	bool workflow = boost::lexical_cast<bool>(
 			map.find(WORKFLOW)->second);
+
+	assert(map.find(WORKFLOW_STRONG) != map.end());
+		bool workflow_strong = boost::lexical_cast<bool>(
+				map.find(WORKFLOW_STRONG)->second);
+
+	assert(map.find(WORKFLOW_MIN) != map.end());
+			bool workflow_min = boost::lexical_cast<bool>(
+					map.find(WORKFLOW_MIN)->second);
+
+	assert(map.find(WORKFLOW_MAX) != map.end());
+			bool workflow_max = boost::lexical_cast<bool>(
+					map.find(WORKFLOW_MAX)->second);
+
+
         
 	return VerificationOptions(modelFile, queryFile, search, verification, memoptimization, kbound, trace,
-			xml_trace, max_constant, keep_dead, workflow);
+			xml_trace, max_constant, keep_dead, workflow, workflow_strong, workflow_min, workflow_max);
 }
 }

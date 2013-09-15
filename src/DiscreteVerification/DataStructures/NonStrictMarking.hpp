@@ -23,10 +23,12 @@ namespace DiscreteVerification {
  
    struct MetaData {
     public:
-        MetaData() : passed(false), inTrace(false), parents(new  vector<NonStrictMarking*>) {};
+        MetaData() : passed(false), inTrace(false), parents(new  vector<NonStrictMarking*>), min(INT_MAX), max(0) {};
         bool passed;
         bool inTrace;
         vector<NonStrictMarking*>* parents;
+        int min;
+        int max;
     };
     
     struct MetaDataWithTrace : public MetaData {
