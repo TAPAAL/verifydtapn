@@ -177,10 +177,10 @@ void ArgsParser::initialize() {
 
     parsers.push_back(
                        boost::make_shared<Switch > ("wmin", WORKFLOW_MIN,
-                       "Calculate minimum duration (requires workflow mode)."));
+                       "Calculate minimum execution time (requires workflow mode)."));
     parsers.push_back(
                           boost::make_shared<Switch > ("wmax", WORKFLOW_MAX,
-                          "Calculate maximum duration (requires workflow mode)."));
+                          "Calculate maximum execution time (requires strong soundness)."));
 };
 
 void ArgsParser::printHelp() const {

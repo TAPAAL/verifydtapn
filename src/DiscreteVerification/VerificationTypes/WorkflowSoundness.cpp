@@ -11,7 +11,7 @@ namespace VerifyTAPN {
 namespace DiscreteVerification {
 
 WorkflowSoundness::WorkflowSoundness(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options)
-: tapn(tapn), initialMarking(initialMarking), query(query), options(options), successorGenerator( tapn, *this ), final_set(new vector<NonStrictMarking*>){
+: tapn(tapn), initialMarking(initialMarking), query(query), options(options), successorGenerator( tapn, *this ), final_set(new vector<NonStrictMarking*>), min_exec(INT_MAX){
 
 }
 
@@ -56,6 +56,7 @@ bool WorkflowSoundness::verify(){
 	// Phase 2
 	for(vector<NonStrictMarking*>::iterator iter = final_set->begin(); iter != final_set->end(); iter++){
 		pwList->addToWaiting(*iter);
+		min_exec = min(min_exec, (*iter)->meta->min);
 	}
 
 	while(pwList->hasWaitingStates()){
@@ -92,14 +93,23 @@ bool WorkflowSoundness::addToPW(NonStrictMarking* marking, NonStrictMarking* par
 	if(marking->meta != NULL){
 		if(parent != NULL){
 			marking->meta->parents->push_back(parent);
+			if(marking->getGeneratedBy() == NULL){
+				marking->meta->min = min(marking->meta->min, parent->meta->min+1);	// Delay
+			}else{
+				marking->meta->min = min(marking->meta->min, parent->meta->min);	// Transition
+			}
 		}
 	}
+
+
 
 	// Test if final place
 	if(marking->numberOfTokensInPlace(out->getIndex()) > 0){
 		if(size == marking->numberOfTokensInPlace(out->getIndex())){
 			marking = pwList->addToPassed(marking);
 			marking->meta->parents->push_back(parent);
+			// Set min
+			marking->meta->min = min(marking->meta->min, parent->meta->min);	// Transition
 			final_set->push_back(marking);
 		}else{
 			return true;	// Terminate false
@@ -109,6 +119,13 @@ bool WorkflowSoundness::addToPW(NonStrictMarking* marking, NonStrictMarking* par
 		if(pwList->add(marking)){
 			if(parent != NULL){
 				marking->meta->parents->push_back(parent);
+				if(marking->getGeneratedBy() == NULL){
+					marking->meta->min = min(marking->meta->min, parent->meta->min+1);	// Delay
+				}else{
+					marking->meta->min = min(marking->meta->min, parent->meta->min);	// Transition
+				}
+			}else{
+				marking->meta->min = 0;		// Initial markings
 			}
 			if(modelType == MTAWFN && checkForCoveredMarking(marking)){
 				return true;	// Terminate false

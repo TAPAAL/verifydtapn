@@ -46,6 +46,7 @@ public:
          virtual bool addToPW(NonStrictMarking* m){
             return addToPW(m, tmpParent);
         };
+    inline int getMinExecutionTime(){	return min_exec;	}
 protected:
 	bool addToPW(NonStrictMarking* marking, NonStrictMarking* parent);
 	bool isDelayPossible(NonStrictMarking& marking);
@@ -71,6 +72,7 @@ protected:
     ModelType modelType;
     vector<NonStrictMarking*>* verify_set;
     vector<NonStrictMarking*>* final_set;
+    int min_exec;
 };
 
 } /* namespace DiscreteVerification */

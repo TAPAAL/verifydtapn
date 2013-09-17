@@ -62,6 +62,9 @@ namespace VerifyTAPN {
 							verifier,
 							options,
 							query);
+            	if(options.workflowCheckMin()){
+            		cout << "Minimum execution time: " << verifier.getMinExecutionTime() << endl;
+            	}
 				delete strategy;
             }
             else if (options.getVerificationType() == VerificationOptions::DISCRETE) {
