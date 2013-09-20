@@ -368,7 +368,7 @@ inline void SmallestDelayFirstWaitingList<NonStrictMarking>::add(NonStrictMarkin
 {
 	WeightedItem<NonStrictMarking> weighted_item;
 	weighted_item.item = payload;
-	weighted_item.weight = calculateWeight(payload);	// TODO make sure min is set before calculation
+	weighted_item.weight = calculateWeight(payload);
 	queue.push(weighted_item);
 }
 
@@ -392,7 +392,7 @@ T* SmallestDelayFirstWaitingList<T>::peek()
 template <class T>
 int SmallestDelayFirstWaitingList<T>::calculateWeight(NonStrictMarking* payload)
 {
-	return payload->meta->min*-1;
+	return payload->meta->min;
 }
 
 template <class T>

@@ -8,7 +8,7 @@
 #ifndef WORKFLOWSOUNDNESS_HPP_
 #define WORKFLOWSOUNDNESS_HPP_
 
-#include "../DataStructures/PWList.hpp"
+#include "../DataStructures/WorkflowPWList.hpp"
 #include "../../Core/TAPN/TAPN.hpp"
 #include "../../Core/QueryParser/AST.hpp"
 #include "../../Core/VerificationOptions.hpp"

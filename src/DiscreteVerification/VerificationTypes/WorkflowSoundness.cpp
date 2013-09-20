@@ -16,7 +16,7 @@ WorkflowSoundness::WorkflowSoundness(TAPN::TimedArcPetriNet& tapn, NonStrictMark
 }
 
 WorkflowSoundness::WorkflowSoundness(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list)
-: pwList(new PWList(waiting_list, false)), tapn(tapn), initialMarking(initialMarking), query(query), options(options), successorGenerator( tapn, *this ), in(NULL), out(NULL), modelType(calculateModelType()), final_set(new vector<NonStrictMarking*>){
+: pwList(new WorkflowPWList(waiting_list)), tapn(tapn), initialMarking(initialMarking), query(query), options(options), successorGenerator( tapn, *this ), in(NULL), out(NULL), modelType(calculateModelType()), final_set(new vector<NonStrictMarking*>){
 
 	for(TimedPlace::Vector::const_iterator iter = tapn.getPlaces().begin(); iter != tapn.getPlaces().end(); iter++){
 		if((*iter)->getType() == Dead){
@@ -47,7 +47,7 @@ bool WorkflowSoundness::verify(){
 			NonStrictMarking* marking = new NonStrictMarking(next_marking);
 			marking->incrementAge();
 			marking->setGeneratedBy(NULL);
-			if(addToPW(marking, &next_marking)){
+			if(addToPW(marking, next_marking.meta->parents->empty()? NULL : &next_marking)){	// This enforces that min of any initial marking is 0
 				return false;
 			}
 		}
@@ -87,18 +87,20 @@ bool WorkflowSoundness::addToPW(NonStrictMarking* marking, NonStrictMarking* par
 	NonStrictMarking* lookup = pwList->lookup(marking);
 	if(lookup != NULL){
 		marking = lookup;
+	}else{
+		marking->meta = new MetaData();
 	}
 
 	// add to parents_set
-	if(marking->meta != NULL){
-		if(parent != NULL){
-			marking->meta->parents->push_back(parent);
-			if(marking->getGeneratedBy() == NULL){
-				marking->meta->min = min(marking->meta->min, parent->meta->min+1);	// Delay
-			}else{
-				marking->meta->min = min(marking->meta->min, parent->meta->min);	// Transition
-			}
+	if(parent != NULL){
+		marking->meta->parents->push_back(parent);
+		if(marking->getGeneratedBy() == NULL){
+			marking->meta->min = min(marking->meta->min, parent->meta->min+1);	// Delay
+		}else{
+			marking->meta->min = min(marking->meta->min, parent->meta->min);	// Transition
 		}
+	}else{
+		marking->meta->min = 0;		// Initial markings
 	}
 
 
@@ -117,16 +119,6 @@ bool WorkflowSoundness::addToPW(NonStrictMarking* marking, NonStrictMarking* par
 	}else{
 		// If new marking
 		if(pwList->add(marking)){
-			if(parent != NULL){
-				marking->meta->parents->push_back(parent);
-				if(marking->getGeneratedBy() == NULL){
-					marking->meta->min = min(marking->meta->min, parent->meta->min+1);	// Delay
-				}else{
-					marking->meta->min = min(marking->meta->min, parent->meta->min);	// Transition
-				}
-			}else{
-				marking->meta->min = 0;		// Initial markings
-			}
 			if(modelType == MTAWFN && checkForCoveredMarking(marking)){
 				return true;	// Terminate false
 			}

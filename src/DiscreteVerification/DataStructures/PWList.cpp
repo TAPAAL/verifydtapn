@@ -30,7 +30,7 @@ bool PWList::add(NonStrictMarking* marking){
 	}
         stored++;
 	m.push_back(marking);
-        marking->meta = new MetaData();
+    marking->meta = new MetaData();
 	waiting_list->add(marking, marking);
 	return true;
 }
