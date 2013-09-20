@@ -47,7 +47,7 @@ bool WorkflowSoundness::verify(){
 			NonStrictMarking* marking = new NonStrictMarking(next_marking);
 			marking->incrementAge();
 			marking->setGeneratedBy(NULL);
-			if(addToPW(marking, next_marking.meta->parents->empty()? NULL : &next_marking)){	// This enforces that min of any initial marking is 0
+			if(addToPW(marking, &next_marking)){	// This enforces that min of any initial marking is 0
 				return false;
 			}
 		}
