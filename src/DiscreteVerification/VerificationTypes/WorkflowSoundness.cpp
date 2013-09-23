@@ -298,6 +298,8 @@ void WorkflowSoundness::getTrace(){
 		next = parent;
 	}
 
+	printStack.push(next);
+
 	if(options.getXmlTrace()){
 		printXMLTrace(lastMarking, printStack, query, tapn);
 	} else {
