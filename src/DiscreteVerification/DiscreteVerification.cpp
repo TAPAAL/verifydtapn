@@ -170,7 +170,7 @@ namespace VerifyTAPN {
                 std::cout << verifier.maxUsedTokens() << std::endl;
 
             if (options.getTrace() == VerificationOptions::SOME_TRACE) {
-                if ((query->getQuantifier() == EF && result) || (query->getQuantifier() == AG && !result) || (query->getQuantifier() == EG && result) || (query->getQuantifier() == AF && !result)) {
+                if ((query->getQuantifier() == EF && result) || (query->getQuantifier() == AG && !result) || (query->getQuantifier() == EG && result) || (query->getQuantifier() == AF && !result) || (options.isWorkflow())) {
                     verifier.getTrace();
                 } else {
                     std::cout << "A trace could not be generated due to the query result" << std::endl;

@@ -71,7 +71,13 @@ bool WorkflowSoundness::verify(){
 		}
 	}
 
-	return pwList->areAllPassed();
+	NonStrictMarking* unpassed = pwList->getUnpassed();
+	if(unpassed == NULL){
+		return true;
+	}else{
+		lastMarking = unpassed;
+		return false;
+	}
 }
 
 bool WorkflowSoundness::addToPW(NonStrictMarking* marking, NonStrictMarking* parent){
@@ -82,7 +88,7 @@ bool WorkflowSoundness::addToPW(NonStrictMarking* marking, NonStrictMarking* par
 	// Check K-bound
 	pwList->setMaxNumTokensIfGreater(size);
 	if(modelType == ETAWFN && size > options.getKBound()) {
-		delete marking;
+		lastMarking = marking;
 		return true;	// Terminate false, TODO: throw error message?
 	}
 
@@ -110,19 +116,21 @@ bool WorkflowSoundness::addToPW(NonStrictMarking* marking, NonStrictMarking* par
 
 	// Test if final place
 	if(marking->numberOfTokensInPlace(out->getIndex()) > 0){
-		if(size == marking->numberOfTokensInPlace(out->getIndex())){
+		if((int) size == marking->numberOfTokensInPlace(out->getIndex())){
 			marking = pwList->addToPassed(marking);
 			marking->meta->parents->push_back(parent);
 			// Set min
 			marking->meta->min = min(marking->meta->min, parent->meta->min);	// Transition
 			final_set->push_back(marking);
 		}else{
+			lastMarking = marking;
 			return true;	// Terminate false
 		}
 	}else{
 		// If new marking
 		if(pwList->add(marking)){
 			if(modelType == MTAWFN && checkForCoveredMarking(marking)){
+				lastMarking = marking;
 				return true;	// Terminate false
 			}
 		}
@@ -294,7 +302,10 @@ void WorkflowSoundness::getTrace(){
 				parent = *iter;
 			}
 		}
+
 		printStack.push(next);
+		if(next->meta->inTrace){ printStack.push(next); break;	}
+		next->meta->inTrace = true;
 		next = parent;
 	}
 

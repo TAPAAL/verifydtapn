@@ -33,7 +33,7 @@ namespace DiscreteVerification {
         virtual NonStrictMarking* addToPassed(NonStrictMarking* marking){ return NULL; };
         virtual bool addToWaiting(NonStrictMarking* marking){ return false; };
         virtual NonStrictMarking* lookup(NonStrictMarking* marking){ return NULL; }
-        virtual bool areAllPassed(){ return false; }
+        virtual NonStrictMarking* getUnpassed(){ return NULL; }
         virtual NonStrictMarking* getNextUnexplored() = 0;
         virtual long long explored()= 0;
         virtual ~PWListBase(){};
@@ -55,17 +55,17 @@ public: // inspectors
 		return (waiting_list->size() > 0);
 	};
 
-	virtual bool areAllPassed(){
+	virtual NonStrictMarking* getUnpassed(){
 			for(HashMap::iterator hmiter = markings_storage.begin(); hmiter != markings_storage.end(); hmiter++){
 				for(NonStrictMarkingList::const_iterator iter = hmiter->second.begin();
 						iter != hmiter->second.end();
 						iter++){
 					if(!(*iter)->meta->passed){
-						return false;
+						return *iter;
 					}
 				}
 			}
-			return true;
+			return NULL;
 		}
 
 	virtual NonStrictMarking* lookup(NonStrictMarking* marking){
