@@ -16,7 +16,7 @@ WorkflowSoundness::WorkflowSoundness(TAPN::TimedArcPetriNet& tapn, NonStrictMark
 }
 
 WorkflowSoundness::WorkflowSoundness(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list)
-: pwList(new WorkflowPWList(waiting_list)), tapn(tapn), initialMarking(initialMarking), query(query), options(options), successorGenerator( tapn, *this ), in(NULL), out(NULL), modelType(calculateModelType()), final_set(new vector<NonStrictMarking*>){
+: pwList(new WorkflowPWList(waiting_list)), tapn(tapn), initialMarking(initialMarking), query(query), options(options), successorGenerator( tapn, *this ), in(NULL), out(NULL), modelType(calculateModelType()), final_set(new vector<NonStrictMarking*>), lastMarking(NULL){
 
 	for(TimedPlace::Vector::const_iterator iter = tapn.getPlaces().begin(); iter != tapn.getPlaces().end(); iter++){
 		if((*iter)->getType() == Dead){
@@ -56,7 +56,10 @@ bool WorkflowSoundness::verify(){
 	// Phase 2
 	for(vector<NonStrictMarking*>::iterator iter = final_set->begin(); iter != final_set->end(); iter++){
 		pwList->addToWaiting(*iter);
-		min_exec = min(min_exec, (*iter)->meta->min);
+		if((*iter)->meta->min < min_exec){
+			min_exec = (*iter)->meta->min;
+			lastMarking = (*iter);
+		}
 	}
 
 	while(pwList->hasWaitingStates()){
@@ -280,13 +283,26 @@ void WorkflowSoundness::printStats(){
 }
 
 void WorkflowSoundness::getTrace(){
-	/*stack < NonStrictMarking*> printStack;
-	generateTraceStack(lastMarking, &printStack);
+	stack < NonStrictMarking*> printStack;
+	NonStrictMarking* next = lastMarking;
+	while(next->meta->parents != NULL && !next->meta->parents->empty()){
+		int min = INT_MAX;
+		NonStrictMarking* parent = NULL;
+		for(vector<NonStrictMarking*>::const_iterator iter = next->meta->parents->begin(); iter != next->meta->parents->end(); ++iter){
+			if((*iter)->meta->min < min){
+				min = (*iter)->meta->min;
+				parent = *iter;
+			}
+		}
+		printStack.push(next);
+		next = parent;
+	}
+
 	if(options.getXmlTrace()){
 		printXMLTrace(lastMarking, printStack, query, tapn);
 	} else {
 		printHumanTrace(lastMarking, printStack, query->getQuantifier());
-	}*/
+	}
 }
 
 WorkflowSoundness::~WorkflowSoundness() {

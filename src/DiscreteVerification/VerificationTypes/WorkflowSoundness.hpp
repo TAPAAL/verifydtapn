@@ -72,6 +72,7 @@ protected:
     ModelType modelType;
     vector<NonStrictMarking*>* verify_set;
     vector<NonStrictMarking*>* final_set;
+    NonStrictMarking* lastMarking;
     int min_exec;
 };
 
