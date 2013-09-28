@@ -56,8 +56,8 @@ bool WorkflowSoundness::verify(){
 	// Phase 2
 	for(vector<NonStrictMarking*>::iterator iter = final_set->begin(); iter != final_set->end(); iter++){
 		pwList->addToWaiting(*iter);
-		if((*iter)->meta->min < min_exec){
-			min_exec = (*iter)->meta->min;
+		if(((WorkflowSoundnessMetaData*)(*iter)->meta)->min < min_exec){
+			min_exec = ((WorkflowSoundnessMetaData*)(*iter)->meta)->min;
 			lastMarking = (*iter);
 		}
 	}
@@ -66,7 +66,7 @@ bool WorkflowSoundness::verify(){
 		NonStrictMarking* next_marking = pwList->getNextUnexplored();
 		if(next_marking->meta->passed)	continue;
 		next_marking->meta->passed = true;
-		for(vector<NonStrictMarking*>::iterator iter = next_marking->meta->parents->begin(); iter != next_marking->meta->parents->end(); iter++){
+		for(vector<NonStrictMarking*>::iterator iter = ((WorkflowSoundnessMetaData*)next_marking->meta)->parents->begin(); iter != ((WorkflowSoundnessMetaData*)next_marking->meta)->parents->end(); iter++){
 			pwList->addToWaiting(*iter);
 		}
 	}
@@ -102,14 +102,14 @@ bool WorkflowSoundness::addToPW(NonStrictMarking* marking, NonStrictMarking* par
 
 	// add to parents_set
 	if(parent != NULL){
-		marking->meta->parents->push_back(parent);
+		((WorkflowSoundnessMetaData*)marking->meta)->parents->push_back(parent);
 		if(marking->getGeneratedBy() == NULL){
-			marking->meta->min = min(marking->meta->min, parent->meta->min+1);	// Delay
+			((WorkflowSoundnessMetaData*)marking->meta)->min = min(((WorkflowSoundnessMetaData*)marking->meta)->min, ((WorkflowSoundnessMetaData*)parent->meta)->min+1);	// Delay
 		}else{
-			marking->meta->min = min(marking->meta->min, parent->meta->min);	// Transition
+			((WorkflowSoundnessMetaData*)marking->meta)->min = min(((WorkflowSoundnessMetaData*)marking->meta)->min, ((WorkflowSoundnessMetaData*)parent->meta)->min);	// Transition
 		}
 	}else{
-		marking->meta->min = 0;		// Initial markings
+		((WorkflowSoundnessMetaData*)marking->meta)->min = 0;		// Initial markings
 	}
 
 
@@ -118,9 +118,9 @@ bool WorkflowSoundness::addToPW(NonStrictMarking* marking, NonStrictMarking* par
 	if(marking->numberOfTokensInPlace(out->getIndex()) > 0){
 		if((int) size == marking->numberOfTokensInPlace(out->getIndex())){
 			marking = pwList->addToPassed(marking);
-			marking->meta->parents->push_back(parent);
+			((WorkflowSoundnessMetaData*)marking->meta)->parents->push_back(parent);
 			// Set min
-			marking->meta->min = min(marking->meta->min, parent->meta->min);	// Transition
+			((WorkflowSoundnessMetaData*)marking->meta)->min = min(((WorkflowSoundnessMetaData*)marking->meta)->min, ((WorkflowSoundnessMetaData*)parent->meta)->min);	// Transition
 			final_set->push_back(marking);
 		}else{
 			lastMarking = marking;
@@ -294,19 +294,19 @@ void WorkflowSoundness::printStats(){
 void WorkflowSoundness::getTrace(){
 	stack < NonStrictMarking*> printStack;
 	NonStrictMarking* next = lastMarking;
-	while(next->meta->parents != NULL && !next->meta->parents->empty()){
+	while(((WorkflowSoundnessMetaData*)next->meta)->parents != NULL && !((WorkflowSoundnessMetaData*)next->meta)->parents->empty()){
 		int min = INT_MAX;
 		NonStrictMarking* parent = NULL;
-		for(vector<NonStrictMarking*>::const_iterator iter = next->meta->parents->begin(); iter != next->meta->parents->end(); ++iter){
-			if((*iter)->meta->min < min){
-				min = (*iter)->meta->min;
+		for(vector<NonStrictMarking*>::const_iterator iter = ((WorkflowSoundnessMetaData*)next->meta)->parents->begin(); iter != ((WorkflowSoundnessMetaData*)next->meta)->parents->end(); ++iter){
+			if(((WorkflowSoundnessMetaData*)(*iter)->meta)->min < min){
+				min = ((WorkflowSoundnessMetaData*)(*iter)->meta)->min;
 				parent = *iter;
 			}
 		}
 
 		printStack.push(next);
-		if(next->meta->inTrace){ printStack.push(next); break;	}
-		next->meta->inTrace = true;
+		if(((WorkflowSoundnessMetaData*)next->meta)->inTrace){ printStack.push(next); break;	}
+		((WorkflowSoundnessMetaData*)next->meta)->inTrace = true;
 		next = parent;
 	}
 

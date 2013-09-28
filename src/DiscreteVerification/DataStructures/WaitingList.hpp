@@ -127,12 +127,12 @@ private:
 };
 
 template <class T>
-class SmallestDelayFirstWaitingList : public WaitingList<T>{
+class WorkflowMinFirstWaitingList : public WaitingList<T>{
 public:
 	typedef std::priority_queue<WeightedItem<T>, std::vector<WeightedItem<T> >, less<T> > priority_queue;
 public:
-	SmallestDelayFirstWaitingList(AST::Query* q) : queue(), query(q) { };
-	virtual ~SmallestDelayFirstWaitingList();
+	WorkflowMinFirstWaitingList(AST::Query* q) : queue(), query(q) { };
+	virtual ~WorkflowMinFirstWaitingList();
 public:
 	virtual void add(NonStrictMarkingBase* weight, T* payload);
 	virtual T* peek();
@@ -354,7 +354,7 @@ HeuristicWaitingList<T>::~HeuristicWaitingList()
 }
 
 template <class T>
-void SmallestDelayFirstWaitingList<T>::add(NonStrictMarkingBase* weight, T* payload)
+void WorkflowMinFirstWaitingList<T>::add(NonStrictMarkingBase* weight, T* payload)
 {
 	assert(false);
 	WeightedItem<T> weighted_item;
@@ -364,7 +364,7 @@ void SmallestDelayFirstWaitingList<T>::add(NonStrictMarkingBase* weight, T* payl
 }
 
 template <>
-inline void SmallestDelayFirstWaitingList<NonStrictMarking>::add(NonStrictMarkingBase* weight, NonStrictMarking* payload)
+inline void WorkflowMinFirstWaitingList<NonStrictMarking>::add(NonStrictMarkingBase* weight, NonStrictMarking* payload)
 {
 	WeightedItem<NonStrictMarking> weighted_item;
 	weighted_item.item = payload;
@@ -373,7 +373,7 @@ inline void SmallestDelayFirstWaitingList<NonStrictMarking>::add(NonStrictMarkin
 }
 
 template <class T>
-T* SmallestDelayFirstWaitingList<T>::pop()
+T* WorkflowMinFirstWaitingList<T>::pop()
 {
 	WeightedItem<T> weighted_item = queue.top();
 	T* marking = weighted_item.item;
@@ -382,7 +382,7 @@ T* SmallestDelayFirstWaitingList<T>::pop()
 }
 
 template <class T>
-T* SmallestDelayFirstWaitingList<T>::peek()
+T* WorkflowMinFirstWaitingList<T>::peek()
 {
 	WeightedItem<T> weighted_item = queue.top();
 	T* marking = weighted_item.item;
@@ -390,13 +390,13 @@ T* SmallestDelayFirstWaitingList<T>::peek()
 }
 
 template <class T>
-int SmallestDelayFirstWaitingList<T>::calculateWeight(NonStrictMarking* payload)
+int WorkflowMinFirstWaitingList<T>::calculateWeight(NonStrictMarking* payload)
 {
-	return payload->meta->min;
+	return ((WorkflowSoundnessMetaData*)payload->meta)->min;
 }
 
 template <class T>
-SmallestDelayFirstWaitingList<T>::~SmallestDelayFirstWaitingList()
+WorkflowMinFirstWaitingList<T>::~WorkflowMinFirstWaitingList()
 {
 }
 

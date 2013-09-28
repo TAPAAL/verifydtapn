@@ -23,18 +23,22 @@ namespace DiscreteVerification {
  
    struct MetaData {
     public:
-        MetaData() : passed(false), inTrace(false), parents(new  vector<NonStrictMarking*>), min(INT_MAX), max(0) {};
+        MetaData() : passed(false), inTrace(false) {};
         bool passed;
         bool inTrace;
-        vector<NonStrictMarking*>* parents;
-        int min;
-        int max;
     };
     
     struct MetaDataWithTrace : public MetaData {
         const TAPN::TimedTransition* generatedBy;
     };
     
+    struct WorkflowSoundnessMetaData : public MetaData {
+	   public:
+    	WorkflowSoundnessMetaData() : parents(new  vector<NonStrictMarking*>), min(INT_MAX) {};
+		   vector<NonStrictMarking*>* parents;
+		   int min;
+	   };
+
     // ugly forward declaration
     template<class MetaData>
     struct EncodingPointer;
@@ -57,7 +61,6 @@ namespace DiscreteVerification {
     public:
         MetaData* meta;
     };
-    
 
 } /* namespace DiscreteVerification */
 } /* namespace VerifyTAPN */

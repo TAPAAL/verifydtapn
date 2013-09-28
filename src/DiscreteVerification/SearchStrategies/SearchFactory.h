@@ -18,7 +18,7 @@ template <class T>
 WaitingList<T>* getWaitingList(AST::Query* query, VerificationOptions& options){
 	WaitingList<T>* strategy = NULL;
 	if(options.isWorkflow()){
-		SmallestDelayFirst<T> s;
+		WorkflowMinFirst<T> s;
 		strategy = s.createWaitingList(query);
 	} else if(query->getQuantifier() == EG || query->getQuantifier() == AF){
 		//Liveness query, force DFS

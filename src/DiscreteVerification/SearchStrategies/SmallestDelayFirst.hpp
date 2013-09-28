@@ -32,9 +32,9 @@ namespace VerifyTAPN {
 namespace DiscreteVerification {
 
 template <class T>
-class SmallestDelayFirst : public SearchStrategy<T> {
+class WorkflowMinFirst : public SearchStrategy<T> {
 public:
-	virtual WaitingList<T>* createWaitingList(AST::Query* query) const { return new SmallestDelayFirstWaitingList<T>(query); };
+	virtual WaitingList<T>* createWaitingList(AST::Query* query) const { return new WorkflowMinFirstWaitingList<T>(query); };
 };
 
 }
