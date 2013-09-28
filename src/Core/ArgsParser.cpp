@@ -397,7 +397,7 @@ VerificationOptions ArgsParser::createVerificationOptions(const option_map& map,
 
 	assert(map.find(WORKFLOW) != map.end());
 	VerificationOptions::WorkflowMode workflow = intToWorkflowTypeEnum(
-			tryParseInt(*map.find(SEARCH_OPTION)));
+			tryParseInt(*map.find(WORKFLOW)));
 
 
         

@@ -37,6 +37,21 @@ namespace DiscreteVerification {
     		waiting_list->add(marking, marking);
     		return true;
     	}
+
+    	NonStrictMarking* addToPassed(NonStrictMarking* marking){
+    			NonStrictMarkingList& m = markings_storage[marking->getHashKey()];
+    			for(NonStrictMarkingList::const_iterator iter = m.begin();
+    						iter != m.end();
+    						iter++){
+    					if((*iter)->equals(*marking)){
+    						return *iter;
+    					}
+    			}
+    			stored++;
+    			m.push_back(marking);
+    			return marking;
+    		}
+
     };
 
 } /* namespace DiscreteVerification */

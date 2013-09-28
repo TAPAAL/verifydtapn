@@ -97,7 +97,7 @@ bool WorkflowSoundness::addToPW(NonStrictMarking* marking, NonStrictMarking* par
 	if(lookup != NULL){
 		marking = lookup;
 	}else{
-		marking->meta = new MetaData();
+		marking->meta = new WorkflowSoundnessMetaData();
 	}
 
 	// add to parents_set
