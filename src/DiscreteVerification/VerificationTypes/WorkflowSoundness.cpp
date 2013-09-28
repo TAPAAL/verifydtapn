@@ -182,6 +182,7 @@ WorkflowSoundness::ModelType WorkflowSoundness::calculateModelType(){
 	for(TimedPlace::Vector::const_iterator iter = tapn.getPlaces().begin(); iter != tapn.getPlaces().end(); iter++){
 		isin = isout = true;
 		TimedPlace* p = (*iter);
+		if(p->getInputArcs().empty() && p->getOutputArcs().empty() && p->getTransportArcs().empty())	continue;	// Fix unused places
 
 		if(!hasInvariant && p->getInvariant() != p->getInvariant().LS_INF){
 			hasInvariant = true;
