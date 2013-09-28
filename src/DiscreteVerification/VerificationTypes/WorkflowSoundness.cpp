@@ -103,7 +103,7 @@ bool WorkflowSoundness::addToPW(NonStrictMarking* marking, NonStrictMarking* par
 	// add to parents_set
 	if(parent != NULL){
 		marking->meta->parents->push_back(parent);
-		if(marking->getGeneratedBy() == NULL && marking->numberOfTokensInPlace(in->getIndex()) == 0){
+		if(marking->getGeneratedBy() == NULL){
 			marking->meta->min = min(marking->meta->min, parent->meta->min+1);	// Delay
 		}else{
 			marking->meta->min = min(marking->meta->min, parent->meta->min);	// Transition
