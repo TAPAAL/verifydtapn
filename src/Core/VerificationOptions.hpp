@@ -26,6 +26,10 @@ namespace VerifyTAPN {
             NO_MEMORY_OPTIMIZATION, PTRIE
         };
 
+        enum WorkflowMode{
+        	NOT_WORKFLOW, WORKFLOW_SOUNDNESS, WORKFLOW_STRONG_SOUNDNESS
+        };
+
         VerificationOptions() {
         }
 
@@ -40,10 +44,7 @@ namespace VerifyTAPN {
                 bool xml_trace,
                 bool useGlobalMaxConstants,
                 bool keepDeadTokens,
-                bool workflow,
-                bool workflow_strong,
-                bool workflow_min,
-                bool workflow_max) : inputFile(inputFile),
+               	WorkflowMode workflow) : inputFile(inputFile),
         queryFile(queryFile),
         searchType(searchType),
         verificationType(verificationType),
@@ -53,10 +54,7 @@ namespace VerifyTAPN {
         xml_trace(xml_trace),
         useGlobalMaxConstants(useGlobalMaxConstants),
         keepDeadTokens(keepDeadTokens),
-        workflow(workflow),
-        workflow_check_strong(workflow_strong),
-        workflow_check_min(workflow_min),
-        workflow_check_max(workflow_max){
+        workflow(workflow){
 
         };
 
@@ -102,21 +100,14 @@ namespace VerifyTAPN {
             return keepDeadTokens;
         };
 
-        inline const bool isWorkflow() const {
+        inline const WorkflowMode getWorkflowMode() const {
 		   return workflow;
 	   };
 
-        inline const bool workflowCheckStrong() const {
-		   return workflow_check_strong;
-	   };
+       inline bool isWorkflow() const{
+    	   return workflow != NOT_WORKFLOW;
+       }
 
-        inline const bool workflowCheckMin() const {
-        		   return workflow_check_min;
-        	   };
-
-        inline const bool workflowCheckMax() const {
-        		   return workflow_check_max;
-        	   };
     private:
         std::string inputFile;
         std::string queryFile;
@@ -128,10 +119,7 @@ namespace VerifyTAPN {
         bool xml_trace;
         bool useGlobalMaxConstants;
         bool keepDeadTokens;
-        bool workflow;
-        bool workflow_check_strong;
-        bool workflow_check_min;
-        bool workflow_check_max;
+        WorkflowMode workflow;
     };
 
     std::ostream& operator<<(std::ostream& out, const VerificationOptions& options);

@@ -47,7 +47,7 @@ namespace VerifyTAPN {
             std::cout << options << std::endl;
 
             // Select verification method
-            if(options.isWorkflow()){
+            if(options.getWorkflowMode() == VerificationOptions::WORKFLOW_SOUNDNESS){
             	WaitingList<NonStrictMarking>* strategy = getWaitingList<NonStrictMarking > (query, options);
             	WorkflowSoundness verifier = WorkflowSoundness(tapn, *initialMarking, query, options, strategy);
 				if(verifier.getModelType() == verifier.NOTTAWFN){
@@ -62,10 +62,11 @@ namespace VerifyTAPN {
 							verifier,
 							options,
 							query);
-            	if(options.workflowCheckMin()){
-            		cout << "Minimum execution time: " << verifier.getMinExecutionTime() << endl;
-            	}
+            	cout << "Minimum execution time: " << verifier.getMinExecutionTime() << endl;
 				delete strategy;
+            }
+            else if (options.getWorkflowMode() == VerificationOptions::WORKFLOW_STRONG_SOUNDNESS){
+            	return -1;
             }
             else if (options.getVerificationType() == VerificationOptions::DISCRETE) {
                 

@@ -79,6 +79,14 @@ public:
 
 };
 
+class WorkflowStrongSoundnessReachability : public ReachabilitySearch{
+public:
+	WorkflowStrongSoundnessReachability(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<EncodingPointer<MetaData> >* waiting_list)
+    : ReachabilitySearch(tapn,initialMarking, query, options)
+    {
+    };
+};
+
 } /* namespace DiscreteVerification */
 } /* namespace VerifyTAPN */
 #endif /* NONSTRICTSEARCH_HPP_ */

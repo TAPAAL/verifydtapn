@@ -168,19 +168,10 @@ void ArgsParser::initialize() {
             "Output trace in xml format for TAPAAL."));
 
     parsers.push_back(
-                boost::make_shared<Switch > ("w", WORKFLOW,
-                "Workflow mode."));
+    		 boost::make_shared<SwitchWithArg > ("w", WORKFLOW,
+    		            "Workflow mode.\n - 0: Disabled\n - 1: Soundness (and min)\n - 2: Strong Soundness (and max)",
+    		            0));
 
-    parsers.push_back(
-                   boost::make_shared<Switch > ("ws", WORKFLOW_STRONG,
-                   "Check strong soundness (requires workflow mode)."));
-
-    parsers.push_back(
-                       boost::make_shared<Switch > ("wmin", WORKFLOW_MIN,
-                       "Calculate minimum execution time (requires workflow mode)."));
-    parsers.push_back(
-                          boost::make_shared<Switch > ("wmax", WORKFLOW_MAX,
-                          "Calculate maximum execution time (requires strong soundness)."));
 };
 
 void ArgsParser::printHelp() const {
@@ -328,6 +319,20 @@ VerificationOptions::MemoryOptimization intToMemoryOptimizationEnum(int i) {
 }
 
 
+VerificationOptions::WorkflowMode intToWorkflowTypeEnum(int i) {
+	switch (i) {
+	case 0:
+		return VerificationOptions::NOT_WORKFLOW;
+	case 1:
+		return VerificationOptions::WORKFLOW_SOUNDNESS;
+	case 2:
+		return VerificationOptions::WORKFLOW_STRONG_SOUNDNESS;
+	default:
+		std::cout << "Unknown workflow option specified." << std::endl;
+		exit(1);
+	}
+}
+
 VerificationOptions::Trace intToEnum(int i) {
 	switch (i) {
 	case 0:
@@ -391,24 +396,12 @@ VerificationOptions ArgsParser::createVerificationOptions(const option_map& map,
 			map.find(XML_TRACE_OPTION)->second);
 
 	assert(map.find(WORKFLOW) != map.end());
-	bool workflow = boost::lexical_cast<bool>(
-			map.find(WORKFLOW)->second);
-
-	assert(map.find(WORKFLOW_STRONG) != map.end());
-		bool workflow_strong = boost::lexical_cast<bool>(
-				map.find(WORKFLOW_STRONG)->second);
-
-	assert(map.find(WORKFLOW_MIN) != map.end());
-			bool workflow_min = boost::lexical_cast<bool>(
-					map.find(WORKFLOW_MIN)->second);
-
-	assert(map.find(WORKFLOW_MAX) != map.end());
-			bool workflow_max = boost::lexical_cast<bool>(
-					map.find(WORKFLOW_MAX)->second);
+	VerificationOptions::WorkflowMode workflow = intToWorkflowTypeEnum(
+			tryParseInt(*map.find(SEARCH_OPTION)));
 
 
         
 	return VerificationOptions(modelFile, queryFile, search, verification, memoptimization, kbound, trace,
-			xml_trace, max_constant, keep_dead, workflow, workflow_strong, workflow_min, workflow_max);
+			xml_trace, max_constant, keep_dead, workflow);
 }
 }
