@@ -109,7 +109,7 @@ bool WorkflowSoundness::addToPW(NonStrictMarking* marking, NonStrictMarking* par
 			((WorkflowSoundnessMetaData*)marking->meta)->min = min(((WorkflowSoundnessMetaData*)marking->meta)->min, ((WorkflowSoundnessMetaData*)parent->meta)->min);	// Transition
 		}
 	}else{
-		((WorkflowSoundnessMetaData*)marking->meta)->min = 0;		// Initial markings
+		((WorkflowSoundnessMetaData*)marking->meta)->min = 0;
 	}
 
 
@@ -294,7 +294,7 @@ void WorkflowSoundness::printStats(){
 void WorkflowSoundness::getTrace(){
 	stack < NonStrictMarking*> printStack;
 	NonStrictMarking* next = lastMarking;
-	while(((WorkflowSoundnessMetaData*)next->meta)->parents != NULL && !((WorkflowSoundnessMetaData*)next->meta)->parents->empty()){
+	do{
 		int min = INT_MAX;
 		NonStrictMarking* parent = NULL;
 		for(vector<NonStrictMarking*>::const_iterator iter = ((WorkflowSoundnessMetaData*)next->meta)->parents->begin(); iter != ((WorkflowSoundnessMetaData*)next->meta)->parents->end(); ++iter){
@@ -304,13 +304,16 @@ void WorkflowSoundness::getTrace(){
 			}
 		}
 
-		printStack.push(next);
-		if(((WorkflowSoundnessMetaData*)next->meta)->inTrace){ printStack.push(next); break;	}
+		if(((WorkflowSoundnessMetaData*)next->meta)->inTrace){ break;	}
 		((WorkflowSoundnessMetaData*)next->meta)->inTrace = true;
+		printStack.push(next);
 		next = parent;
-	}
 
-	printStack.push(next);
+	}while(((WorkflowSoundnessMetaData*)next->meta)->parents != NULL && !((WorkflowSoundnessMetaData*)next->meta)->parents->empty());
+
+	if(printStack.top() != next){
+		printStack.push(next);
+	}
 
 	if(options.getXmlTrace()){
 		printXMLTrace(lastMarking, printStack, query, tapn);
