@@ -78,7 +78,7 @@ bool WorkflowSoundness::addToPW(NonStrictMarking* marking, NonStrictMarking* par
 	pwList->setMaxNumTokensIfGreater(size);
 	if(modelType == ETAWFN && size > options.getKBound()) {
 		lastMarking = marking;
-		return true;	// Terminate false, TODO: throw error message?
+		return true;	// Terminate false
 	}
 
 	// Map to existing marking if any
@@ -118,6 +118,10 @@ bool WorkflowSoundness::addToPW(NonStrictMarking* marking, NonStrictMarking* par
 	}else{
 		// If new marking
 		if(pwList->add(marking)){
+			if(marking->canDeadlock(tapn, 0)){
+				lastMarking = marking;
+				return true;
+			}
 			if(modelType == MTAWFN && checkForCoveredMarking(marking)){
 				lastMarking = marking;
 				return true;	// Terminate false

@@ -37,7 +37,7 @@ namespace DiscreteVerification {
         virtual NonStrictMarking* getNextUnexplored() = 0;
         virtual long long explored()= 0;
         virtual ~PWListBase(){};
-	inline void setMaxNumTokensIfGreater(int i){ if(i>maxNumTokensInAnyMarking) maxNumTokensInAnyMarking = i; };
+	inline void setMaxNumTokensIfGreater(int i){ if(i>maxNumTokensInAnyMarking)	maxNumTokensInAnyMarking = i; };
     };
 
 class PWList : public PWListBase {

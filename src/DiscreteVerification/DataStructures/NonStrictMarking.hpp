@@ -39,6 +39,13 @@ namespace DiscreteVerification {
 		   int min;
 	   };
 
+    struct WorkflowStrongSoundnessMetaData : public MetaData {
+   	   public:
+    	WorkflowStrongSoundnessMetaData() : parents(new vector<NonStrictMarking*>) {};
+   		   vector<NonStrictMarking*>* parents;
+   	   };
+
+
     // ugly forward declaration
     template<class MetaData>
     struct EncodingPointer;
