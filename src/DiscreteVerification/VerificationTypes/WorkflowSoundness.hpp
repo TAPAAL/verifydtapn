@@ -42,8 +42,8 @@ protected:
 
 public:
 	virtual void getTrace();
-	string getExecutionTime(){
-		return "Minimum execution time: " + min_exec;
+	void printExecutionTime(ostream& stream){
+		stream << "Minimum execution time: " << min_exec << endl;
 	}
 protected:
 	PWListBase* pwList;

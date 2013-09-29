@@ -67,7 +67,7 @@ namespace VerifyTAPN {
             			*verifier,
             			options,
             			query);
-            	cout << verifier->getExecutionTime() << endl;
+            	verifier->printExecutionTime(cout);
             	delete strategy;
 
             }
