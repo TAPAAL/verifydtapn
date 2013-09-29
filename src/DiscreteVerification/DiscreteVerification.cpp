@@ -47,26 +47,29 @@ namespace VerifyTAPN {
             std::cout << options << std::endl;
 
             // Select verification method
-            if(options.getWorkflowMode() == VerificationOptions::WORKFLOW_SOUNDNESS){
+            if(options.getWorkflowMode() != VerificationOptions::NOT_WORKFLOW){
             	WaitingList<NonStrictMarking>* strategy = getWaitingList<NonStrictMarking > (query, options);
-            	WorkflowSoundness verifier = WorkflowSoundness(tapn, *initialMarking, query, options, strategy);
-				if(verifier.getModelType() == verifier.NOTTAWFN){
-					std::cerr << "Model is not a TAWFN!" << std::endl;
-					return -1;
-				}else if(verifier.getModelType() == verifier.ETAWFN){
-					std::cout << "Model is a ETAWFN" << std::endl << std::endl;
-				}else if(verifier.getModelType() == verifier.MTAWFN){
-					std::cout << "Model is a MTAWFN" << std::endl << std::endl;
-				}
+            	Workflow* verifier = NULL;
+            	if(options.getWorkflowMode() == VerificationOptions::WORKFLOW_SOUNDNESS)
+            		verifier = new WorkflowSoundness(tapn, *initialMarking, query, options, strategy);
+            	else
+            		verifier = new WorkflowStrongSoundnessReachability(tapn, *initialMarking, query, options, strategy);
+
+            	if(verifier->getModelType() == verifier->NOTTAWFN){
+            		std::cerr << "Model is not a TAWFN!" << std::endl;
+            		return -1;
+            	}else if(verifier->getModelType() == verifier->ETAWFN){
+            		std::cout << "Model is a ETAWFN" << std::endl << std::endl;
+            	}else if(verifier->getModelType() == verifier->MTAWFN){
+            		std::cout << "Model is a MTAWFN" << std::endl << std::endl;
+            	}
             	VerifyAndPrint(
-							verifier,
-							options,
-							query);
-            	cout << "Minimum execution time: " << verifier.getMinExecutionTime() << endl;
-				delete strategy;
-            }
-            else if (options.getWorkflowMode() == VerificationOptions::WORKFLOW_STRONG_SOUNDNESS){
-            	return -1;
+            			*verifier,
+            			options,
+            			query);
+            	cout << verifier->getExecutionTime() << endl;
+            	delete strategy;
+
             }
             else if (options.getVerificationType() == VerificationOptions::DISCRETE) {
                 

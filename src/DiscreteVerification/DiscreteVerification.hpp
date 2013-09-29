@@ -24,6 +24,7 @@
 #include "VerificationTypes/TimeDartReachabilitySearch.hpp"
 #include "VerificationTypes/TimeDartLiveness.hpp"
 #include "VerificationTypes/WorkflowSoundness.hpp"
+#include "VerificationTypes/WorkflowStrongSoundness.hpp"
 #include "SearchStrategies/SearchFactory.h"
 #include "DataStructures/PTrie.h"
 

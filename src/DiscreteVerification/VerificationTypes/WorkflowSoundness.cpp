@@ -10,19 +10,8 @@
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
-WorkflowSoundness::WorkflowSoundness(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options)
-: tapn(tapn), initialMarking(initialMarking), query(query), options(options), successorGenerator( tapn, *this ), final_set(new vector<NonStrictMarking*>), min_exec(INT_MAX){
-
-}
-
 WorkflowSoundness::WorkflowSoundness(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list)
-: pwList(new WorkflowPWList(waiting_list)), tapn(tapn), initialMarking(initialMarking), query(query), options(options), successorGenerator( tapn, *this ), in(NULL), out(NULL), modelType(calculateModelType()), final_set(new vector<NonStrictMarking*>), lastMarking(NULL){
-
-	for(TimedPlace::Vector::const_iterator iter = tapn.getPlaces().begin(); iter != tapn.getPlaces().end(); iter++){
-		if((*iter)->getType() == Dead){
-			(*iter)->setType(Std);
-		}
-	}
+: Workflow(tapn, initialMarking, query, options, waiting_list), pwList(new WorkflowPWList(waiting_list)), final_set(new vector<NonStrictMarking*>), min_exec(INT_MAX){
 }
 
 bool WorkflowSoundness::verify(){
@@ -174,121 +163,6 @@ bool WorkflowSoundness::checkForCoveredMarking(NonStrictMarking* marking){
 	}
 
 	return false;
-}
-
-WorkflowSoundness::ModelType WorkflowSoundness::calculateModelType(){
-	bool isin, isout;
-	bool hasInvariant = false;
-	for(TimedPlace::Vector::const_iterator iter = tapn.getPlaces().begin(); iter != tapn.getPlaces().end(); iter++){
-		isin = isout = true;
-		TimedPlace* p = (*iter);
-		if(p->getInputArcs().empty() && p->getOutputArcs().empty() && p->getTransportArcs().empty())	continue;	// Fix unused places
-
-		if(!hasInvariant && p->getInvariant() != p->getInvariant().LS_INF){
-			hasInvariant = true;
-		}
-
-		if(p->getInputArcs().size() > 0){
-			isout = false;
-		}
-
-		if(p->getOutputArcs().size() > 0){
-			isin = false;
-		}
-
-		if(isout){
-			for(TransportArc::Vector::const_iterator iter = p->getTransportArcs().begin(); iter != p->getTransportArcs().end(); iter++){
-				if(&(*iter)->getSource() == p){
-					isout = false;
-					break;
-				}
-			}
-		}
-
-		if(isin){
-			for(TransportArc::Vector::const_iterator iter = tapn.getTransportArcs().begin(); iter != tapn.getTransportArcs().end(); ++iter){		// TODO maybe transportArcs should contain both incoming and outgoing? Might break something though.
-				if(&(*iter)->getDestination() == p){
-					isin = false;
-					break;
-				}
-			}
-		}
-
-		if(isin){
-			if(in == NULL){
-				in = p;
-			}else{
-				return NOTTAWFN;
-			}
-		}
-
-		if(isout){
-			if(out == NULL){
-				out = p;
-			}else{
-				return NOTTAWFN;
-			}
-		}
-
-	}
-
-	if(in == NULL || out == NULL || in == out){
-		return NOTTAWFN;
-	}
-
-	if(initialMarking.size() != 1 || initialMarking.numberOfTokensInPlace(in->getIndex()) != 1){
-		return NOTTAWFN;
-	}
-
-	bool hasUrgent = false;
-	bool hasInhibitor = false;
-	// All transitions must have preset
-	for(TimedTransition::Vector::const_iterator iter = tapn.getTransitions().begin(); iter != tapn.getTransitions().end(); iter++){
-		if((*iter)->getPresetSize() == 0 && (*iter)->getNumberOfTransportArcs() == 0){
-			return NOTTAWFN;
-		}
-
-		if(!hasUrgent && (*iter)->isUrgent()){
-			hasUrgent = true;
-		}
-
-		if(!hasInhibitor && !(*iter)->getInhibitorArcs().empty()){
-			hasInhibitor = true;
-		}
-	}
-
-	if(hasUrgent || hasInvariant || hasInhibitor){
-		return ETAWFN;
-	}
-
-	return MTAWFN;
-}
-
-bool WorkflowSoundness::isDelayPossible(NonStrictMarking& marking){
-	const PlaceList& places = marking.getPlaceList();
-	if(places.size() == 0) return true;	//Delay always possible in empty markings
-
-	PlaceList::const_iterator markedPlace_iter = places.begin();
-	for(TAPN::TimedPlace::Vector::const_iterator place_iter = tapn.getPlaces().begin(); place_iter != tapn.getPlaces().end(); place_iter++){
-		int inv = (*place_iter)->getInvariant().getBound();
-		if(**place_iter == *(markedPlace_iter->place)){
-			if(markedPlace_iter->maxTokenAge() > inv-1){
-				return false;
-			}
-
-			markedPlace_iter++;
-
-			if(markedPlace_iter == places.end())	return true;
-		}
-	}
-	assert(false);	// This happens if there are markings on places not in the TAPN
-	return false;
-}
-
-void WorkflowSoundness::printStats(){
-	std::cout << "  discovered markings:\t" << pwList->discoveredMarkings << std::endl;
-	std::cout << "  explored markings:\t" << pwList->size()-pwList->explored() << std::endl;
-	std::cout << "  stored markings:\t" << pwList->size() << std::endl;
 }
 
 void WorkflowSoundness::getTrace(){

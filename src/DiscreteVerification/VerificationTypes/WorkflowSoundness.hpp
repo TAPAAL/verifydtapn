@@ -22,57 +22,32 @@
 #include "../QueryVisitor.hpp"
 #include "../DataStructures/NonStrictMarking.hpp"
 #include <stack>
-#include "Verification.hpp"
+#include "Workflow.hpp"
 #include "../DataStructures/WaitingList.hpp"
 
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
-class WorkflowSoundness : public Verification<NonStrictMarking>{
+class WorkflowSoundness : public Workflow{
 public:
-	enum ModelType{
-		MTAWFN, ETAWFN, NOTTAWFN
-	};
-public:
-    WorkflowSoundness(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options);
 	WorkflowSoundness(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list);
 	virtual ~WorkflowSoundness();
 	bool verify();
-	inline unsigned int maxUsedTokens(){ return pwList->maxNumTokensInAnyMarking; };
-	void printTransitionStatistics() const { successorGenerator.printTransitionStatistics(std::cout); }
-        virtual void deleteMarking(NonStrictMarking* m) {
-            //dummy;
-        };
-         virtual bool addToPW(NonStrictMarking* m){
-            return addToPW(m, tmpParent);
-        };
-    inline int getMinExecutionTime(){	return min_exec;	}
 protected:
+	virtual bool addToPW(NonStrictMarking* m){
+		return addToPW(m, tmpParent);
+	};
 	bool addToPW(NonStrictMarking* marking, NonStrictMarking* parent);
-	bool isDelayPossible(NonStrictMarking& marking);
-	ModelType calculateModelType();
 	bool checkForCoveredMarking(NonStrictMarking* marking);
 
-protected:
-	int validChildren;
-	PWListBase* pwList;
-	TAPN::TimedArcPetriNet& tapn;
-	NonStrictMarking& initialMarking;
-	AST::Query* query;
-	VerificationOptions options;
-	SuccessorGenerator<NonStrictMarking> successorGenerator;
 public:
-	void printStats();
 	virtual void getTrace();
-	inline const ModelType getModelType() const{ return modelType; }
+	string getExecutionTime(){
+		return "Minimum execution time: " + min_exec;
+	}
 protected:
-    NonStrictMarking* tmpParent;
-    TimedPlace* in;
-    TimedPlace* out;
-    ModelType modelType;
-    vector<NonStrictMarking*>* verify_set;
+	PWListBase* pwList;
     vector<NonStrictMarking*>* final_set;
-    NonStrictMarking* lastMarking;
     int min_exec;
 };
 

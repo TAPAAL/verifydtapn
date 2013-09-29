@@ -47,7 +47,7 @@ protected:
 	bool addToPW(NonStrictMarking* marking, NonStrictMarking* parent);
 	bool isDelayPossible(NonStrictMarking& marking);
 
-protected:
+public:
 	int validChildren;
 	PWListBase* pwList;
 	TAPN::TimedArcPetriNet& tapn;
@@ -77,14 +77,6 @@ public:
     
    virtual void getTrace();
 
-};
-
-class WorkflowStrongSoundnessReachability : public ReachabilitySearch{
-public:
-	WorkflowStrongSoundnessReachability(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<EncodingPointer<MetaData> >* waiting_list)
-    : ReachabilitySearch(tapn,initialMarking, query, options)
-    {
-    };
 };
 
 } /* namespace DiscreteVerification */
