@@ -5,8 +5,14 @@
 
 namespace VerifyTAPN {
 	namespace TAPN {
-		void TimedArcPetriNet::initialize(bool useGlobalMaxConstant)
+		void TimedArcPetriNet::initialize(bool useGlobalMaxConstant, bool lowerGuards)
 		{
+                    
+                        // start by doing GCD if enabled
+                        if(lowerGuards){
+                                GCDLowerGuards();
+                        }
+                    
 			for(unsigned int i = 0; i < places.size(); i++){
 				places[i]->setIndex(i);
 				updateMaxConstant(places[i]->getInvariant());

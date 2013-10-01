@@ -39,7 +39,8 @@ namespace VerifyTAPN {
                 Trace trace,
                 bool xml_trace,
                 bool useGlobalMaxConstants,
-                bool keepDeadTokens
+                bool keepDeadTokens, 
+                bool gcdLowerGuards
                 ) : inputFile(inputFile),
         queryFile(queryFile),
         searchType(searchType),
@@ -49,7 +50,8 @@ namespace VerifyTAPN {
         trace(trace),
         xml_trace(xml_trace),
         useGlobalMaxConstants(useGlobalMaxConstants),
-        keepDeadTokens(keepDeadTokens) {
+        keepDeadTokens(keepDeadTokens), 
+        gcdLowerGuards(gcdLowerGuards) {
 
         };
 
@@ -94,6 +96,10 @@ namespace VerifyTAPN {
         inline const bool getKeepDeadTokens() const {
             return keepDeadTokens;
         };
+        
+        inline const bool getGCDLowerGuards() const {
+            return gcdLowerGuards;
+        }
     private:
         std::string inputFile;
         std::string queryFile;
@@ -105,6 +111,7 @@ namespace VerifyTAPN {
         bool xml_trace;
         bool useGlobalMaxConstants;
         bool keepDeadTokens;
+        bool gcdLowerGuards;
     };
 
     std::ostream& operator<<(std::ostream& out, const VerificationOptions& options);
