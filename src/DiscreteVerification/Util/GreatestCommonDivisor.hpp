@@ -21,7 +21,7 @@ template <typename ForwardIterator>
 int greatestCommonDivisor(ForwardIterator first, ForwardIterator last)
 {
 	if(first == last){
-		throw new std::invalid_argument("The range is empty");
+                return 1;
 	}
 
 	int result = *first;

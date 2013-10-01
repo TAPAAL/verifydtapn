@@ -96,11 +96,16 @@ namespace VerifyTAPN {
                             constants.insert((*iter)->getInterval().getLowerBound());
                             constants.insert((*iter)->getInterval().getUpperBound());
                         }
+                 
+                        constants.erase(0);
+                        constants.erase(std::numeric_limits<int>().max());
                         
                         int devider = VerifyTAPN::DiscreteVerification::Util::greatestCommonDivisor(constants.begin(), constants.end());
                         
                         if(devider <= 1)
                             return;
+                        
+                        gcd = devider;
                         
                         for (TimedPlace::Vector::const_iterator iter = places.begin(); iter != places.end(); ++iter) {
                             (*iter)->devideInvariantBy(gcd);
@@ -112,7 +117,6 @@ namespace VerifyTAPN {
                         for (TransportArc::Vector::const_iterator iter = transportArcs.begin(); iter != transportArcs.end(); ++iter) {
                             (*iter)->devideIntervalBy(gcd);
                         }                      
-                        gcd = devider;
 		}
 
 		void TimedArcPetriNet::markUntimedPlaces()
