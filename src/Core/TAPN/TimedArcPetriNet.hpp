@@ -2,6 +2,7 @@
 #define VERIFYTAPN_TAPN_TimedArcPetriNet_HPP_
 
 #include <iostream>
+#include <set>
 #include "TimedPlace.hpp"
 #include "TimedTransition.hpp"
 #include "TimedInputArc.hpp"
@@ -61,6 +62,7 @@ namespace VerifyTAPN {
 		public: // modifiers
 			void initialize(bool useGlobalMaxConstant);
 			bool containsOrphanTransitions();
+			void GCDLowerGuards();
 
 
 		private: // modifiers

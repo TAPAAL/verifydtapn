@@ -75,6 +75,21 @@ namespace VerifyTAPN {
                         return false;
 		}
 
+		void TimedArcPetriNet::GCDLowerGuards(){
+			std::set<int> constants;
+
+			for(TimedPlace::Vector::const_iterator iter = places.begin(); iter != places.end(); ++iter){
+				constants.insert((*iter)->getInvariant().getBound());
+			}
+
+			for(TimedInputArc::Vector::const_iterator iter = inputArcs.begin(); iter != inputArcs.end(); ++iter){
+				constants.insert((*iter)->getInterval().getLowerBound());
+				constants.insert((*iter)->getInterval().getUpperBound());
+			}
+
+
+		}
+
 		void TimedArcPetriNet::markUntimedPlaces()
 		{
 			for(TimedPlace::Vector::const_iterator iter = places.begin(); iter != places.end(); ++iter)
