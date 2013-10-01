@@ -49,6 +49,7 @@ namespace VerifyTAPN{
 			inline void addInhibitorArc(InhibitorArc& inhibitorArc) { inhibitorArcs.push_back(&inhibitorArc); }
 			inline void addOutputArc(OutputArc& outputArc) { outputArcs.push_back(&outputArc); }
 			inline void setType(PlaceType type){ this->type = type; }
+                        void devideInvariantBy(int devider);
 		public: // inspection
 			inline const PlaceType getType() const { return type; }
 			const std::string& getName() const;

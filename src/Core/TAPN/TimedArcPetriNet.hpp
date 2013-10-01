@@ -14,6 +14,7 @@
 #include "../QueryParser/AST.hpp"
 #include "../../DiscreteVerification/PlaceVisitor.hpp"
 #include "../VerificationOptions.hpp"
+#include "../../DiscreteVerification/Util/GreatestCommonDivisor.hpp"
 
 namespace VerifyTAPN {
 

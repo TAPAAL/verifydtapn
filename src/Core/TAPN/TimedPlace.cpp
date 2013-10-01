@@ -19,5 +19,13 @@ namespace VerifyTAPN{
 		{
 			out << "(" << name << " (index: " << index << "), " << timeInvariant << ", Max Constant: " << maxConstant << ", Infinity Place: " << (untimed ? "true" : "false") << ", Type: " << (type == Std ? "Std" : (type == Inv ? "Inv" : "Dead")) << ")";
 		}
+
+                void TimedPlace::devideInvariantBy(int devider) {
+                    if (timeInvariant.getBound() != 0 && timeInvariant.getBound() != std::numeric_limits<int>::max()){
+                        timeInvariant = TAPN::TimeInvariant(
+                            timeInvariant.isBoundStrict(),
+                            timeInvariant.getBound() / devider);
+                    }
+                }
 	}
 }

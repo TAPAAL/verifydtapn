@@ -75,19 +75,37 @@ namespace VerifyTAPN {
                         return false;
 		}
 
-		void TimedArcPetriNet::GCDLowerGuards(){
-			std::set<int> constants;
+                void TimedArcPetriNet::GCDLowerGuards() {
+                        std::set<int> constants;
 
-			for(TimedPlace::Vector::const_iterator iter = places.begin(); iter != places.end(); ++iter){
-				constants.insert((*iter)->getInvariant().getBound());
-			}
+                        for (TimedPlace::Vector::const_iterator iter = places.begin(); iter != places.end(); ++iter) {
+                            constants.insert((*iter)->getInvariant().getBound());
+                        }
 
-			for(TimedInputArc::Vector::const_iterator iter = inputArcs.begin(); iter != inputArcs.end(); ++iter){
-				constants.insert((*iter)->getInterval().getLowerBound());
-				constants.insert((*iter)->getInterval().getUpperBound());
-			}
+                        for (TimedInputArc::Vector::const_iterator iter = inputArcs.begin(); iter != inputArcs.end(); ++iter) {
+                            constants.insert((*iter)->getInterval().getLowerBound());
+                            constants.insert((*iter)->getInterval().getUpperBound());
+                        }
+                        for (TransportArc::Vector::const_iterator iter = transportArcs.begin(); iter != transportArcs.end(); ++iter) {
+                            constants.insert((*iter)->getInterval().getLowerBound());
+                            constants.insert((*iter)->getInterval().getUpperBound());
+                        }
+                        
+                        int gcd = VerifyTAPN::DiscreteVerification::Util::greatestCommonDivisor(constants.begin(), constants.end());
+                        
+                        if(gcd <= 1)
+                            return;
+                        
+                        for (TimedPlace::Vector::const_iterator iter = places.begin(); iter != places.end(); ++iter) {
+                            (*iter)->devideInvariantBy(gcd);
+                        }
 
-
+                        for (TimedInputArc::Vector::const_iterator iter = inputArcs.begin(); iter != inputArcs.end(); ++iter) {
+                            (*iter)->devideIntervalBy(gcd);
+                        }
+                        for (TransportArc::Vector::const_iterator iter = transportArcs.begin(); iter != transportArcs.end(); ++iter) {
+                            (*iter)->devideIntervalBy(gcd);
+                        }                      
 		}
 
 		void TimedArcPetriNet::markUntimedPlaces()

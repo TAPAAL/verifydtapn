@@ -40,5 +40,14 @@ namespace VerifyTAPN {
 
 			out << leftParenthesis << strLowerBound << "," << strUpperBound << rightParenthesis;
 		}
+                
+                void TimeInterval::devideBoundsBy(int devider){
+                        if(lowerBound != 0){
+                                lowerBound = lowerBound / devider;
+                        }
+                        if(upperBound != std::numeric_limits<int>().max()){
+                                upperBound = upperBound / devider;
+                        }
+                }
 	}
 }

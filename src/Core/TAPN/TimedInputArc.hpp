@@ -22,6 +22,7 @@ namespace VerifyTAPN {
 			inline TimedPlace& getInputPlace() const { return place; }
 			inline TimedTransition& getOutputTransition() const { return transition; }
 			const inline TimeInterval& getInterval() const { return interval; }
+                        inline void devideIntervalBy(int devider) { interval.devideBoundsBy(devider); };
 
 		public: // Inspectors
 			void print(std::ostream& out) const;
