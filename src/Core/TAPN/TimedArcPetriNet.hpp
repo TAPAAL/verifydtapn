@@ -30,7 +30,7 @@ namespace VerifyTAPN {
 				OutputArc::Vector& outputArcs,
 				TransportArc::Vector& transportArcs,
 				InhibitorArc::Vector& inhibitorArcs)
-				: places(places), transitions(transitions), inputArcs(inputArcs), outputArcs(outputArcs), transportArcs(transportArcs), inhibitorArcs(inhibitorArcs), maxConstant(0) { };
+				: places(places), transitions(transitions), inputArcs(inputArcs), outputArcs(outputArcs), transportArcs(transportArcs), inhibitorArcs(inhibitorArcs), maxConstant(0), gcd(1) { };
 			~TimedArcPetriNet() { 
                             // call delete on all data
                             for(unsigned int i = 0; i < places.size();++i) delete places[i];
@@ -56,6 +56,7 @@ namespace VerifyTAPN {
 			const int getNumberOfOutputArcs() const { return outputArcs.size(); }
 			int getNumberOfPlaces() const { return places.size(); };
 			inline int getMaxConstant() const { return maxConstant; };
+                        const inline int getGcd() const { return gcd; };
 			inline const bool isPlaceAtIndexUntimed(int index) const { return places[index]->isUntimed(); }
 			bool isNonStrict() const;
 			void calculateCausality(TimedPlace& p, std::vector< TimedPlace* >* result) const;
@@ -81,6 +82,7 @@ namespace VerifyTAPN {
 			TransportArc::Vector transportArcs;
 			InhibitorArc::Vector inhibitorArcs;
 			int maxConstant;
+                        int gcd;
 		};
 
 		inline std::ostream& operator<<(std::ostream& out, const VerifyTAPN::TAPN::TimedArcPetriNet& tapn)
