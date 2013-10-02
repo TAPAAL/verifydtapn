@@ -62,7 +62,7 @@ namespace VerifyTAPN {
 			void calculateCausality(TimedPlace& p, std::vector< TimedPlace* >* result) const;
 			void updatePlaceTypes(const AST::Query* query, VerificationOptions options);
 		public: // modifiers
-			void initialize(bool useGlobalMaxConstant, bool lowerGuards);
+			void initialize(bool useGlobalMaxConstant, bool disableLowerGuards);
 			bool containsOrphanTransitions();
 			void GCDLowerGuards();
 
