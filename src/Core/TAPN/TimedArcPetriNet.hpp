@@ -56,7 +56,7 @@ namespace VerifyTAPN {
 			const int getNumberOfOutputArcs() const { return outputArcs.size(); }
 			int getNumberOfPlaces() const { return places.size(); };
 			inline int getMaxConstant() const { return maxConstant; };
-                        const inline int getGcd() const { return gcd; };
+                        const inline int getGCD() const { return gcd; };
 			inline const bool isPlaceAtIndexUntimed(int index) const { return places[index]->isUntimed(); }
 			bool isNonStrict() const;
 			void calculateCausality(TimedPlace& p, std::vector< TimedPlace* >* result) const;

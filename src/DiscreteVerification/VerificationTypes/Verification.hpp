@@ -143,7 +143,7 @@ namespace VerifyTAPN {
 
                                 foundLoop = true;
                                 delayloop = true;
-                                xml_node<>* node = doc.allocate_node(node_element, "delay", doc.allocate_string(toString(i).c_str()));
+                                xml_node<>* node = doc.allocate_node(node_element, "delay", doc.allocate_string(toString(i * tapn.getGCD()).c_str()));
                                 root->append_node(node);
                                 root->append_node(doc.allocate_node(node_element, "loop"));
                                 
@@ -191,7 +191,7 @@ namespace VerifyTAPN {
                             }
                         }
                         if(i > 0){
-                            xml_node<>* node = doc.allocate_node(node_element, "delay", doc.allocate_string(toString(i).c_str()));
+                            xml_node<>* node = doc.allocate_node(node_element, "delay", doc.allocate_string(toString(i * tapn.getGCD()).c_str()));
                             root->append_node(node);
                         }
                         stack.push(old);
