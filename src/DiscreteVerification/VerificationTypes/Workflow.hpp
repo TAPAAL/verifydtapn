@@ -51,7 +51,17 @@ public:
 		for(TimedPlace::Vector::const_iterator iter = tapn.getPlaces().begin(); iter != tapn.getPlaces().end(); iter++){
 			isin = isout = true;
 			TimedPlace* p = (*iter);
-			if(p->getInputArcs().empty() && p->getOutputArcs().empty() && p->getTransportArcs().empty())	continue;	// Fix unused places
+			if(p->getInputArcs().empty() && p->getOutputArcs().empty() && p->getTransportArcs().empty()){
+				bool continueOuter = true;
+				// Test if really orphan place or if out place
+				for(TransportArc::Vector::const_iterator trans_i = tapn.getTransportArcs().begin(); trans_i != tapn.getTransportArcs().end(); ++trans_i){
+					if(&((*trans_i)->getDestination()) == p){
+						continueOuter = false;
+						break;
+					}
+				}
+				if(continueOuter)	continue;	// Fix orphan places
+			}
 
 			if(!hasInvariant && p->getInvariant() != p->getInvariant().LS_INF){
 				hasInvariant = true;
