@@ -118,7 +118,7 @@ bool WorkflowSoundness::addToPW(NonStrictMarking* marking, NonStrictMarking* par
 	}else{
 		// If new marking
 		if(pwList->add(marking)){
-			if(marking->canDeadlock(tapn, 0)){
+			if(parent != NULL && marking->canDeadlock(tapn, 0)){
 				lastMarking = marking;
 				return true;
 			}
