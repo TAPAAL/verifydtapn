@@ -216,14 +216,14 @@ namespace VerifyTAPN {
         }
 
         std::ostream& operator<<(std::ostream& out, NonStrictMarkingBase& x) {
-            out << "-";
             for (PlaceList::iterator iter = x.places.begin(); iter != x.places.end(); iter++) {
-                out << "place " << iter->place->getId() << " has tokens (age, count): ";
                 for (TokenList::iterator it = iter->tokens.begin(); it != iter->tokens.end(); it++) {
-                    out << "(" << it->getAge() << ", " << it->getCount() << ") ";
+                    out << "(" << iter->place->getName() << ", "<< it->getAge() << ", " << it->getCount() << ")";
                 }
-                if (iter != x.places.end() - 1) {
+                if (iter == x.places.end() - 1) {
                     out << endl;
+                }else{
+                	out << ", ";
                 }
             }
 

@@ -72,6 +72,7 @@ namespace VerifyTAPN {
             			options,
             			query);
             	verifier->printExecutionTime(cout);
+            	verifier->printMessages(cout);
             	delete strategy;
 
             }

@@ -33,7 +33,7 @@ namespace DiscreteVerification {
         virtual NonStrictMarking* addToPassed(NonStrictMarking* marking){ return NULL; };
         virtual bool addToWaiting(NonStrictMarking* marking){ return false; };
         virtual NonStrictMarking* lookup(NonStrictMarking* marking){ return NULL; }
-        virtual bool isCoveredBy(NonStrictMarking* marking){ return false; }
+        virtual NonStrictMarking* getCoveredMarking(NonStrictMarking* marking){ return NULL; }
         virtual NonStrictMarking* getUnpassed(){ return NULL; }
         virtual NonStrictMarking* getNextUnexplored() = 0;
         virtual long long explored()= 0;
@@ -81,7 +81,7 @@ public: // inspectors
 		return NULL;
 	}
 
-	virtual bool isCoveredBy(NonStrictMarking* marking){
+	virtual NonStrictMarking* getCoveredMarking(NonStrictMarking* marking){
 		for(HashMap::const_iterator iter = markings_storage.begin(); iter != markings_storage.end(); ++iter){
 			for(NonStrictMarkingList::const_iterator m_iter = iter->second.begin(); m_iter != iter->second.end(); m_iter++){
 				if((*m_iter)->size() >= marking->size()){
@@ -118,11 +118,11 @@ public: // inspectors
 				}
 
 				if(tokensCovered){
-					return true;
+					return *m_iter;
 				}
 			}
 		}
-		return false;
+		return NULL;
 	}
 
 	virtual bool addToWaiting(NonStrictMarking* marking){

@@ -144,6 +144,7 @@ public:
 	}
 
 	virtual void printExecutionTime(ostream& stream){}
+	virtual void printMessages(ostream& stream){}
 
 protected:
 	TimedPlace* in;

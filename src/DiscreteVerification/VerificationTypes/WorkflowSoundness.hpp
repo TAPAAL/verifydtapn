@@ -52,11 +52,17 @@ public:
 	void printExecutionTime(ostream& stream){
 		stream << "Minimum execution time: " << min_exec << endl;
 	}
+	void printMessages(ostream& stream){
+		if(coveredMarking != NULL){
+			stream << "Covered marking: " << *coveredMarking << endl;
+		}
+	}
 protected:
 	PWListBase* pwList;
     vector<NonStrictMarking*>* final_set;
     int min_exec;
     unsigned int linearSweepTreshold;
+    NonStrictMarking* coveredMarking;
 };
 
 } /* namespace DiscreteVerification */

@@ -11,7 +11,7 @@ namespace VerifyTAPN {
 namespace DiscreteVerification {
 
 WorkflowSoundness::WorkflowSoundness(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list)
-: Workflow(tapn, initialMarking, query, options, waiting_list), pwList(new WorkflowPWList(waiting_list)), final_set(new vector<NonStrictMarking*>), min_exec(INT_MAX), linearSweepTreshold(3){
+: Workflow(tapn, initialMarking, query, options, waiting_list), pwList(new WorkflowPWList(waiting_list)), final_set(new vector<NonStrictMarking*>), min_exec(INT_MAX), linearSweepTreshold(3), coveredMarking(NULL){
 }
 
 bool WorkflowSoundness::verify(){
@@ -137,7 +137,11 @@ bool WorkflowSoundness::checkForCoveredMarking(NonStrictMarking* marking){
 	coveredMarkings.push_back(new NonStrictMarking(*marking));
 
 	if(marking->size() > linearSweepTreshold){
-		return pwList->isCoveredBy(marking);
+		NonStrictMarking* covered = pwList->getCoveredMarking(marking);
+		if(covered != NULL){
+			coveredMarking = covered;
+			return true;
+		}
 	}
 
 	for(PlaceList::const_iterator p_iter = marking->getPlaceList().begin(); p_iter != marking->getPlaceList().end(); ++p_iter){
@@ -164,7 +168,9 @@ bool WorkflowSoundness::checkForCoveredMarking(NonStrictMarking* marking){
 			isFirst = false;
 			continue;
 		}
-		if(pwList->lookup(*iter) != NULL){
+		NonStrictMarking* covered = pwList->lookup(*iter);
+		if(covered != NULL){
+			coveredMarking = covered;
 			return true;
 		}
 		delete *iter;
