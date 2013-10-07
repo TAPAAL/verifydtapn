@@ -56,6 +56,7 @@ protected:
 	PWListBase* pwList;
     vector<NonStrictMarking*>* final_set;
     int min_exec;
+    unsigned int linearSweepTreshold;
 };
 
 } /* namespace DiscreteVerification */

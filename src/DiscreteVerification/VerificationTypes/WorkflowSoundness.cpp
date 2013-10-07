@@ -11,7 +11,7 @@ namespace VerifyTAPN {
 namespace DiscreteVerification {
 
 WorkflowSoundness::WorkflowSoundness(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list)
-: Workflow(tapn, initialMarking, query, options, waiting_list), pwList(new WorkflowPWList(waiting_list)), final_set(new vector<NonStrictMarking*>), min_exec(INT_MAX){
+: Workflow(tapn, initialMarking, query, options, waiting_list), pwList(new WorkflowPWList(waiting_list)), final_set(new vector<NonStrictMarking*>), min_exec(INT_MAX), linearSweepTreshold(3){
 }
 
 bool WorkflowSoundness::verify(){
@@ -135,6 +135,10 @@ bool WorkflowSoundness::addToPW(NonStrictMarking* marking, NonStrictMarking* par
 bool WorkflowSoundness::checkForCoveredMarking(NonStrictMarking* marking){
 	vector<NonStrictMarking*> coveredMarkings;
 	coveredMarkings.push_back(new NonStrictMarking(*marking));
+
+	if(marking->size() > linearSweepTreshold){
+		return pwList->isCoveredBy(marking);
+	}
 
 	for(PlaceList::const_iterator p_iter = marking->getPlaceList().begin(); p_iter != marking->getPlaceList().end(); ++p_iter){
 		for(TokenList::const_iterator t_iter = p_iter->tokens.begin(); t_iter != p_iter->tokens.end(); ++t_iter){
