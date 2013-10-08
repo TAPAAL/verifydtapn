@@ -136,6 +136,10 @@ bool WorkflowSoundness::checkForCoveredMarking(NonStrictMarking* marking){
 	vector<NonStrictMarking*> coveredMarkings;
 	coveredMarkings.push_back(new NonStrictMarking(*marking));
 
+	if(marking->size() <= options.getKBound()){
+		return false;	// Do not run check on small markings (invoke more rarely)
+	}
+
 	if(marking->size() > linearSweepTreshold){
 		NonStrictMarking* covered = pwList->getCoveredMarking(marking);
 		if(covered != NULL){
