@@ -105,7 +105,7 @@ bool WorkflowSoundness::addToPW(NonStrictMarking* marking, NonStrictMarking* par
 
 	// Test if final place
 	if(marking->numberOfTokensInPlace(out->getIndex()) > 0){
-		if((int) size == marking->numberOfTokensInPlace(out->getIndex())){
+		if(size == 1){
 			marking = pwList->addToPassed(marking);
 			((WorkflowSoundnessMetaData*)marking->meta)->parents->push_back(parent);
 			// Set min
