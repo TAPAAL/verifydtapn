@@ -46,15 +46,18 @@ protected:
 	};
 	bool addToPW(NonStrictMarking* marking, NonStrictMarking* parent);
 	bool checkForCoveredMarking(NonStrictMarking* marking);
-
+	void getTrace(NonStrictMarking* base);
 public:
-	virtual void getTrace();
+	virtual void getTrace(){
+		return getTrace(lastMarking);
+	}
 	void printExecutionTime(ostream& stream){
 		stream << "Minimum execution time: " << min_exec << endl;
 	}
 	void printMessages(ostream& stream){
 		if(coveredMarking != NULL){
 			stream << "Covered marking: " << *coveredMarking << endl;
+			getTrace(coveredMarking);
 		}
 	}
 protected:

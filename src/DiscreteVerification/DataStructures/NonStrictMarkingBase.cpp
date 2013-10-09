@@ -220,9 +220,7 @@ namespace VerifyTAPN {
                 for (TokenList::iterator it = iter->tokens.begin(); it != iter->tokens.end(); it++) {
                     out << "(" << iter->place->getName() << ", "<< it->getAge() << ", " << it->getCount() << ")";
                 }
-                if (iter == x.places.end() - 1) {
-                    out << endl;
-                }else{
+                if (iter != x.places.end() - 1) {
                 	out << ", ";
                 }
             }

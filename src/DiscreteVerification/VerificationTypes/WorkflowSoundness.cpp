@@ -183,9 +183,9 @@ bool WorkflowSoundness::checkForCoveredMarking(NonStrictMarking* marking){
 	return false;
 }
 
-void WorkflowSoundness::getTrace(){
+void WorkflowSoundness::getTrace(NonStrictMarking* base){
 	stack < NonStrictMarking*> printStack;
-	NonStrictMarking* next = lastMarking;
+	NonStrictMarking* next = base;
 	do{
 		int min = INT_MAX;
 		NonStrictMarking* parent = NULL;
@@ -205,6 +205,18 @@ void WorkflowSoundness::getTrace(){
 
 	if(printStack.top() != next){
 		printStack.push(next);
+	}
+
+	stack < NonStrictMarking*> tempStack;
+	while(!printStack.empty()){
+		printStack.top()->meta->inTrace = false;
+		tempStack.push(printStack.top());
+		printStack.pop();
+	}
+
+	while(!tempStack.empty()){
+		printStack.push(tempStack.top());
+		tempStack.pop();
 	}
 
 	if(options.getXmlTrace()){
