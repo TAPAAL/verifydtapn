@@ -18,9 +18,6 @@ static const std::string XML_TRACE_OPTION = "xml-trace";
 static const std::string LEGACY = "legacy";
 static const std::string KEEP_DEAD = "keep-dead-tokens";
 static const std::string WORKFLOW = "workflow";
-static const std::string WORKFLOW_STRONG = "workflow-strong";
-static const std::string WORKFLOW_MIN = "workflow-min";
-static const std::string WORKFLOW_MAX = "workflow-max";
 
 std::ostream& operator<<(std::ostream& out, const Switch& flag) {
 	flag.print(out);

@@ -9,6 +9,6 @@
 #include "NonStrictRandom.hpp"
 #include "NonStrictDFSHeuristic.hpp"
 #include "NonStrictDFSRandom.hpp"
-#include "SmallestDelayFirst.hpp"
+#include "WorkflowMinFirst.hpp"
 
 #endif /* TAPN_HPP_ */
