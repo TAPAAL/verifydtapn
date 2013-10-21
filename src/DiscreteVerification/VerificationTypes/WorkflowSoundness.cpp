@@ -60,7 +60,7 @@ bool WorkflowSoundness::verify(){
 		}
 	}
 
-	NonStrictMarking* unpassed = pwList->getUnpassed();
+	NonStrictMarking* unpassed = ((WorkflowPWList*) pwList)->getUnpassed();
 	if(unpassed == NULL){
 		return true;
 	}else{
@@ -84,21 +84,25 @@ bool WorkflowSoundness::addToPW(NonStrictMarking* marking, NonStrictMarking* par
 	// Map to existing marking if any
 	NonStrictMarking* lookup = pwList->lookup(marking);
 	if(lookup != NULL){
+		delete marking;
 		marking = lookup;
 	}else{
 		marking->meta = new WorkflowSoundnessMetaData();
 	}
 
+	WorkflowSoundnessMetaData* marking_meta_data = ((WorkflowSoundnessMetaData*)marking->meta);
+
 	// add to parents_set
 	if(parent != NULL){
-		((WorkflowSoundnessMetaData*)marking->meta)->parents->push_back(parent);
+		WorkflowSoundnessMetaData* parent_meta_data = ((WorkflowSoundnessMetaData*)parent->meta);
+		marking_meta_data->parents->push_back(parent);
 		if(marking->getGeneratedBy() == NULL){
-			((WorkflowSoundnessMetaData*)marking->meta)->min = min(((WorkflowSoundnessMetaData*)marking->meta)->min, ((WorkflowSoundnessMetaData*)parent->meta)->min+1);	// Delay
+			marking_meta_data->min = min(marking_meta_data->min, parent_meta_data->min+1);	// Delay
 		}else{
-			((WorkflowSoundnessMetaData*)marking->meta)->min = min(((WorkflowSoundnessMetaData*)marking->meta)->min, ((WorkflowSoundnessMetaData*)parent->meta)->min);	// Transition
+			marking_meta_data->min = min(marking_meta_data->min, parent_meta_data->min);	// Transition
 		}
 	}else{
-		((WorkflowSoundnessMetaData*)marking->meta)->min = 0;
+		marking_meta_data->min = 0;
 	}
 
 
@@ -107,9 +111,10 @@ bool WorkflowSoundness::addToPW(NonStrictMarking* marking, NonStrictMarking* par
 	if(marking->numberOfTokensInPlace(out->getIndex()) > 0){
 		if(size == 1){
 			marking = pwList->addToPassed(marking);
-			((WorkflowSoundnessMetaData*)marking->meta)->parents->push_back(parent);
+			marking_meta_data = ((WorkflowSoundnessMetaData*)marking->meta);
+			marking_meta_data->parents->push_back(parent);
 			// Set min
-			((WorkflowSoundnessMetaData*)marking->meta)->min = min(((WorkflowSoundnessMetaData*)marking->meta)->min, ((WorkflowSoundnessMetaData*)parent->meta)->min);	// Transition
+			marking_meta_data->min = min(marking_meta_data->min, ((WorkflowSoundnessMetaData*)parent->meta)->min);	// Transition
 			final_set->push_back(marking);
 		}else{
 			lastMarking = marking;
@@ -133,51 +138,14 @@ bool WorkflowSoundness::addToPW(NonStrictMarking* marking, NonStrictMarking* par
 }
 
 bool WorkflowSoundness::checkForCoveredMarking(NonStrictMarking* marking){
-	vector<NonStrictMarking*> coveredMarkings;
-	coveredMarkings.push_back(new NonStrictMarking(*marking));
-
 	if(marking->size() <= options.getKBound()){
 		return false;	// Do not run check on small markings (invoke more rarely)
 	}
 
-	if(marking->size() > linearSweepTreshold){
-		NonStrictMarking* covered = pwList->getCoveredMarking(marking);
-		if(covered != NULL){
-			coveredMarking = covered;
-			return true;
-		}
-	}
-
-	for(PlaceList::const_iterator p_iter = marking->getPlaceList().begin(); p_iter != marking->getPlaceList().end(); ++p_iter){
-		for(TokenList::const_iterator t_iter = p_iter->tokens.begin(); t_iter != p_iter->tokens.end(); ++t_iter){
-			for(int i = 1; i <= t_iter->getCount(); ++i){
-				vector<NonStrictMarking*> toAdd;
-				for(vector<NonStrictMarking*>::iterator iter = coveredMarkings.begin(); iter != coveredMarkings.end(); ++iter){
-					NonStrictMarking* new_marking = new NonStrictMarking(**iter);
-					for(int ii = i; ii > 0; --ii){
-						new_marking->removeToken(p_iter->place->getIndex(), t_iter->getAge());
-					}
-					toAdd.push_back(new_marking);
-				}
-				for(vector<NonStrictMarking*>::iterator iter = toAdd.begin(); iter != toAdd.end(); ++iter){
-					coveredMarkings.push_back(*iter);
-				}
-			}
-		}
-	}
-
-	bool isFirst = true;
-	for(vector<NonStrictMarking*>::iterator iter = coveredMarkings.begin(); iter != coveredMarkings.end(); ++iter){
-		if(isFirst){
-			isFirst = false;
-			continue;
-		}
-		NonStrictMarking* covered = pwList->lookup(*iter);
-		if(covered != NULL){
-			coveredMarking = covered;
-			return true;
-		}
-		delete *iter;
+	NonStrictMarking* covered = ((WorkflowPWList*) pwList)->getCoveredMarking(marking, (marking->size() > linearSweepTreshold));
+	if(covered != NULL){
+		coveredMarking = covered;
+		return true;
 	}
 
 	return false;

@@ -48,6 +48,15 @@ namespace VerifyTAPN {
 
             // Select verification method
             if(options.getWorkflowMode() != VerificationOptions::NOT_WORKFLOW){
+            	if (options.getVerificationType() == VerificationOptions::TIMEDART) {
+					cout << "Workflow analysis currently only supports discrete exploration (i.e. not TimeDarts)." << endl;
+					exit(1);
+				}
+
+            	if (options.getMemoryOptimization() != VerificationOptions::NO_MEMORY_OPTIMIZATION) {
+					cout << "Workflow analysis currently does not support any memory optimizations (i.e. no PTries)." << endl;
+					exit(1);
+				}
             	WaitingList<NonStrictMarking>* strategy = getWaitingList<NonStrictMarking > (query, options);
             	Workflow* verifier = NULL;
             	if(options.getWorkflowMode() == VerificationOptions::WORKFLOW_SOUNDNESS){
