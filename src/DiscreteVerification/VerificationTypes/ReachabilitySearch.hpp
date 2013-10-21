@@ -47,7 +47,7 @@ protected:
 	bool addToPW(NonStrictMarking* marking, NonStrictMarking* parent);
 	bool isDelayPossible(NonStrictMarking& marking);
 
-public:
+protected:
 	int validChildren;
 	PWListBase* pwList;
 	TAPN::TimedArcPetriNet& tapn;
