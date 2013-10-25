@@ -132,18 +132,16 @@ namespace DiscreteVerification {
     	}
 
     	NonStrictMarking* addToPassed(NonStrictMarking* marking){
+    		NonStrictMarking* existing = lookup(marking);
+    		if(existing != NULL){
+    			return existing;
+    		}else{
     			NonStrictMarkingList& m = markings_storage[marking->getHashKey()];
-    			for(NonStrictMarkingList::const_iterator iter = m.begin();
-    						iter != m.end();
-    						iter++){
-    					if((*iter)->equals(*marking)){
-    						return *iter;
-    					}
-    			}
     			stored++;
     			m.push_back(marking);
     			return marking;
     		}
+    	}
 
     };
 
