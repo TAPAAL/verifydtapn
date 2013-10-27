@@ -37,8 +37,6 @@ bool WorkflowStrongSoundnessReachability::verify(){
 	                            return true;
 	                        }
 			}
-	                //deleteMarking(&next_marking);
-
 		}
 
 		return false;
@@ -110,7 +108,6 @@ bool WorkflowStrongSoundnessReachability::verify(){
 				lastMarking = marking;
 				return true;
 			} else {
-	                        //deleteMarking(marking);
 				return false;
 			}
 		}
