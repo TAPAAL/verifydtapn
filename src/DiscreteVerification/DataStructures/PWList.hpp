@@ -30,8 +30,6 @@ namespace DiscreteVerification {
         virtual bool hasWaitingStates() = 0;
         virtual long long size() const = 0;
         virtual bool add(NonStrictMarking* marking) = 0;
-        virtual NonStrictMarking* addToPassed(NonStrictMarking* marking){ return NULL; };
-        virtual bool addToWaiting(NonStrictMarking* marking){ return false; };
         virtual NonStrictMarking* lookup(NonStrictMarking* marking){ return NULL; }
         virtual NonStrictMarking* getNextUnexplored() = 0;
         virtual long long explored()= 0;
