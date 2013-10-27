@@ -60,7 +60,7 @@ bool WorkflowSoundness::verify(){
 		}
 	}
 
-	NonStrictMarking* unpassed = ((WorkflowPWList*) pwList)->getUnpassed();
+	NonStrictMarking* unpassed = pwList->getUnpassed();
 	if(unpassed == NULL){
 		return true;
 	}else{
@@ -142,7 +142,7 @@ bool WorkflowSoundness::checkForCoveredMarking(NonStrictMarking* marking){
 		return false;	// Do not run check on small markings (invoke more rarely)
 	}
 
-	NonStrictMarking* covered = ((WorkflowPWList*) pwList)->getCoveredMarking(marking, (marking->size() > linearSweepTreshold));
+	NonStrictMarking* covered = pwList->getCoveredMarking(marking, (marking->size() > linearSweepTreshold));
 	if(covered != NULL){
 		coveredMarking = covered;
 		return true;
