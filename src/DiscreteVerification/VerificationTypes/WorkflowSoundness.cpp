@@ -11,7 +11,12 @@ namespace VerifyTAPN {
 namespace DiscreteVerification {
 
 WorkflowSoundness::WorkflowSoundness(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list)
-: Workflow(tapn, initialMarking, query, options, waiting_list), pwList(new WorkflowPWList(waiting_list)), final_set(new vector<NonStrictMarking*>), min_exec(INT_MAX), linearSweepTreshold(3), coveredMarking(NULL){
+: ReachabilitySearch(tapn, initialMarking, query, options, waiting_list), pwList(new WorkflowPWList(waiting_list)), final_set(new vector<NonStrictMarking*>), min_exec(INT_MAX), linearSweepTreshold(3), coveredMarking(NULL), in(NULL), out(NULL), modelType(calculateModelType()){
+	for(TimedPlace::Vector::const_iterator iter = tapn.getPlaces().begin(); iter != tapn.getPlaces().end(); iter++){
+		if((*iter)->getType() == Dead){
+			(*iter)->setType(Std);
+		}
+	}
 }
 
 bool WorkflowSoundness::verify(){
