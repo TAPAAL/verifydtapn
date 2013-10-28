@@ -16,30 +16,7 @@ namespace DiscreteVerification {
 
 class WorkflowStrongSoundnessReachability : public Workflow{
 public:
-	WorkflowStrongSoundnessReachability(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list)
-    : Workflow(tapn,initialMarking, query, options, waiting_list), max_value(-1), timer(NULL), term1(NULL), term2(NULL)
-    {
-		// Find timer place and store as out
-		for(TimedPlace::Vector::const_iterator iter = tapn.getPlaces().begin(); iter != tapn.getPlaces().end(); ++iter){
-			if((*iter)->getInvariant() != (*iter)->getInvariant().LS_INF){
-				if(timer == NULL || timer->getInvariant().getBound() < (*iter)->getInvariant().getBound()){
-					timer = *iter;
-				}
-			}
-
-			if(!(*iter)->getTransportArcs().empty() || !(*iter)->getInputArcs().empty()){
-				continue;
-			}
-
-			if(term1 == NULL){
-				term1 = *iter;
-			}else if(term2 == NULL){
-				term2 = *iter;
-			}else{
-				assert(false);
-			}
-		}
-    };
+	WorkflowStrongSoundnessReachability(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list);
 
 	bool verify();
 	void getTrace();
