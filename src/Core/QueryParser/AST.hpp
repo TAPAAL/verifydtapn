@@ -218,6 +218,7 @@ namespace VerifyTAPN{
 
 			Quantifier getQuantifier() const { return quantifier; }
 			const Expression& getChild() const { return *expr; }
+			void setQuantifier(Quantifier q){ quantifier = q; }
 		private:
 			Quantifier quantifier;
 			Expression* expr;

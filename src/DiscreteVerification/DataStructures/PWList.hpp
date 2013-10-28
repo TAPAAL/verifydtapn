@@ -17,7 +17,7 @@
 
 namespace VerifyTAPN {
 namespace DiscreteVerification {
-    
+
     class PWListBase {
     public:
         PWListBase() : stored(0), discoveredMarkings(0), maxNumTokensInAnyMarking(-1), isLiveness(false) {};
@@ -26,16 +26,17 @@ namespace DiscreteVerification {
     	int discoveredMarkings;
 	int maxNumTokensInAnyMarking;
         bool isLiveness;
-        
+
         virtual bool hasWaitingStates() = 0;
         virtual long long size() const = 0;
         virtual bool add(NonStrictMarking* marking) = 0;
-	virtual NonStrictMarking* getNextUnexplored() = 0;
+        virtual NonStrictMarking* lookup(NonStrictMarking* marking){ return NULL; }
+        virtual NonStrictMarking* getNextUnexplored() = 0;
         virtual long long explored()= 0;
         virtual ~PWListBase(){};
-	inline void setMaxNumTokensIfGreater(int i){ if(i>maxNumTokensInAnyMarking) maxNumTokensInAnyMarking = i; };
+	inline void setMaxNumTokensIfGreater(int i){ if(i>maxNumTokensInAnyMarking)	maxNumTokensInAnyMarking = i; };
     };
-    
+
 class PWList : public PWListBase {
 public:
 	typedef std::vector<NonStrictMarking*> NonStrictMarkingList;
@@ -51,14 +52,32 @@ public: // inspectors
 		return (waiting_list->size() > 0);
 	};
 
+	virtual NonStrictMarking* lookup(NonStrictMarking* marking){
+		NonStrictMarkingList& m = markings_storage[marking->getHashKey()];
+			for(NonStrictMarkingList::const_iterator iter = m.begin();
+					iter != m.end();
+					iter++){
+				if((*iter)->equals(*marking)){
+					return *iter;
+				}
+			}
+		return NULL;
+	}
+
+	virtual bool addToWaiting(NonStrictMarking* marking){
+		waiting_list->add(marking, marking);
+		return true;
+	}
+
 	virtual long long size() const {
 		return stored;
 	};
 
         virtual long long explored() {return waiting_list->size();};
-        
+
 public: // modifiers
 	virtual bool add(NonStrictMarking* marking);
+	virtual NonStrictMarking* addToPassed(NonStrictMarking* marking);
 	virtual NonStrictMarking* getNextUnexplored();
 
 public:

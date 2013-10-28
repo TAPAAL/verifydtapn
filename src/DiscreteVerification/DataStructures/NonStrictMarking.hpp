@@ -18,6 +18,8 @@ using namespace std;
 
 namespace VerifyTAPN {
 namespace DiscreteVerification {
+
+	class NonStrictMarking;
  
    struct MetaData {
     public:
@@ -30,6 +32,20 @@ namespace DiscreteVerification {
         const TAPN::TimedTransition* generatedBy;
     };
     
+    struct WorkflowSoundnessMetaData : public MetaData {
+	   public:
+    	WorkflowSoundnessMetaData() : parents(new vector<NonStrictMarking*>), min(INT_MAX) {};
+		   vector<NonStrictMarking*>* parents;
+		   int min;
+	   };
+
+    struct WorkflowStrongSoundnessMetaData : public MetaData {
+   	   public:
+    	WorkflowStrongSoundnessMetaData() : parents(new vector<NonStrictMarking*>) {};
+   		   vector<NonStrictMarking*>* parents;
+   	   };
+
+
     // ugly forward declaration
     template<class MetaData>
     struct EncodingPointer;
@@ -42,17 +58,16 @@ namespace DiscreteVerification {
     class NonStrictMarking : public NonStrictMarkingBase{
     public:
         NonStrictMarking():NonStrictMarkingBase(), meta(new MetaData()){}
-	NonStrictMarking(const TAPN::TimedArcPetriNet& tapn, const std::vector<int>& v):NonStrictMarkingBase(tapn, v){}
-	NonStrictMarking(const NonStrictMarkingBase& nsm):NonStrictMarkingBase(nsm){
+	NonStrictMarking(const TAPN::TimedArcPetriNet& tapn, const std::vector<int>& v): NonStrictMarkingBase(tapn, v), meta(NULL){}
+	NonStrictMarking(const NonStrictMarkingBase& nsm):NonStrictMarkingBase(nsm), meta(NULL){
 
         }
-        NonStrictMarking(const NonStrictMarking& nsm):NonStrictMarkingBase(nsm){
+        NonStrictMarking(const NonStrictMarking& nsm):NonStrictMarkingBase(nsm), meta(NULL){
 
         }
     public:
         MetaData* meta;
     };
-    
 
 } /* namespace DiscreteVerification */
 } /* namespace VerifyTAPN */
