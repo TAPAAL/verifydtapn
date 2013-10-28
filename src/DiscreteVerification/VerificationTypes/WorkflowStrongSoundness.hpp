@@ -24,21 +24,13 @@ public:
 	void printExecutionTime(ostream& stream){
 		stream << "Maximum execution time: " << max_value << endl;
 	}
-
-	void printStats(){
-			std::cout << "  discovered markings:\t" << pwList->discoveredMarkings << std::endl;
-			std::cout << "  explored markings:\t" << pwList->size()-pwList->explored() << std::endl;
-			std::cout << "  stored markings:\t" << pwList->size() << std::endl;
-		}
-
 	inline unsigned int maxUsedTokens(){ return pwList->maxNumTokensInAnyMarking; };
 
 protected:
-	virtual bool addToPW(NonStrictMarking* m){
-			return addToPW(m, tmpParent);
-		};
-
 	bool addToPW(NonStrictMarking* marking, NonStrictMarking* parent);
+        virtual bool addToPW(NonStrictMarking* m){
+                return addToPW(m, tmpParent);
+        };
 protected:
 	int max_value;
 	TimedPlace* timer;

@@ -33,21 +33,6 @@ public:
 	WorkflowSoundness(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list);
 	virtual ~WorkflowSoundness();
 	bool verify();
-	void printStats(){
-		std::cout << "  discovered markings:\t" << pwList->discoveredMarkings << std::endl;
-		std::cout << "  explored markings:\t" << pwList->size()-pwList->explored() << std::endl;
-		std::cout << "  stored markings:\t" << pwList->size() << std::endl;
-	}
-
-	inline unsigned int maxUsedTokens(){ return pwList->maxNumTokensInAnyMarking; };
-protected:
-	virtual bool addToPW(NonStrictMarking* m){
-		return addToPW(m, tmpParent);
-	};
-	bool addToPW(NonStrictMarking* marking, NonStrictMarking* parent);
-	bool checkForCoveredMarking(NonStrictMarking* marking);
-	void getTrace(NonStrictMarking* base);
-public:
 	virtual void getTrace(){
 		return getTrace(lastMarking);
 	}
@@ -60,6 +45,15 @@ public:
 			getTrace(coveredMarking);
 		}
 	}
+        
+protected:
+	bool addToPW(NonStrictMarking* marking, NonStrictMarking* parent);
+    	virtual bool addToPW(NonStrictMarking* m){
+                return addToPW(m, tmpParent);
+        };
+	bool checkForCoveredMarking(NonStrictMarking* marking);
+	void getTrace(NonStrictMarking* base);
+        
 protected:
     vector<NonStrictMarking*>* final_set;
     int min_exec;

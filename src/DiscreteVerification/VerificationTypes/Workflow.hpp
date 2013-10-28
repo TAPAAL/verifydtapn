@@ -24,11 +24,12 @@
 #include <stack>
 #include "ReachabilitySearch.hpp"
 #include "../DataStructures/WaitingList.hpp"
+#include "AbstractReachability.hpp"
 
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
-class Workflow : public Verification<NonStrictMarking> {
+class Workflow : public AbstractReachability<WorkflowPWList> {
 public:
     	enum ModelType{
 		MTAWFN, ETAWFN, NOTTAWFN
@@ -37,25 +38,16 @@ public:
 	Workflow(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list);
 
 	inline const ModelType getModelType() const{ return modelType; }
-        void printTransitionStatistics() const { successorGenerator.printTransitionStatistics(std::cout); }
-        bool isDelayPossible(NonStrictMarking& marking);
-	ModelType calculateModelType();
-
-	virtual void printExecutionTime(ostream& stream){}
-	virtual void printMessages(ostream& stream){}
-
+	virtual void printExecutionTime(ostream& stream){};
+	virtual void printMessages(ostream& stream){};
+        inline unsigned int maxUsedTokens(){ return pwList->maxNumTokensInAnyMarking; };
 protected:
-    	TAPN::TimedArcPetriNet& tapn;
-	NonStrictMarking& initialMarking;
-	AST::Query* query;
-	VerificationOptions options;
+        ModelType calculateModelType();
+        
+protected:
 	TimedPlace* in;
 	TimedPlace* out;
 	ModelType modelType;
-        WorkflowPWList* pwList;
-        SuccessorGenerator<NonStrictMarking> successorGenerator;
-	NonStrictMarking* lastMarking;
-        NonStrictMarking* tmpParent; 
 };
 
 } /* namespace DiscreteVerification */

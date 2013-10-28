@@ -10,34 +10,13 @@
 namespace VerifyTAPN {
     namespace DiscreteVerification {
 
-        Workflow::Workflow(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list) :
-        tapn(tapn), initialMarking(initialMarking), query(query), options(options), in(NULL), out(NULL), modelType(calculateModelType()), pwList(new WorkflowPWList(waiting_list)), successorGenerator(tapn, *this) {
+        Workflow::Workflow(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list)
+        : AbstractReachability<WorkflowPWList>(tapn, initialMarking, query, options, new WorkflowPWList(waiting_list)), in(NULL), out(NULL), modelType(calculateModelType()) {
             for (TimedPlace::Vector::const_iterator iter = tapn.getPlaces().begin(); iter != tapn.getPlaces().end(); iter++) {
                 if ((*iter)->getType() == Dead) {
                     (*iter)->setType(Std);
                 }
             }
-        }
-
-        bool Workflow::isDelayPossible(NonStrictMarking& marking) {
-            const PlaceList& places = marking.getPlaceList();
-            if (places.size() == 0) return true; //Delay always possible in empty markings
-
-            PlaceList::const_iterator markedPlace_iter = places.begin();
-            for (TAPN::TimedPlace::Vector::const_iterator place_iter = tapn.getPlaces().begin(); place_iter != tapn.getPlaces().end(); place_iter++) {
-                int inv = (*place_iter)->getInvariant().getBound();
-                if (**place_iter == *(markedPlace_iter->place)) {
-                    if (markedPlace_iter->maxTokenAge() > inv - 1) {
-                        return false;
-                    }
-
-                    markedPlace_iter++;
-
-                    if (markedPlace_iter == places.end()) return true;
-                }
-            }
-            assert(false); // This happens if there are markings on places not in the TAPN
-            return false;
         }
 
         Workflow::ModelType Workflow::calculateModelType() {
