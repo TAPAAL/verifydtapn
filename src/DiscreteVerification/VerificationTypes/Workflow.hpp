@@ -28,10 +28,10 @@
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
-class Workflow : public ReachabilitySearch{
+class Workflow : public Verification<NonStrictMarking> {
 public:
 	Workflow(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list) :
-		ReachabilitySearch(tapn, initialMarking, query, options, waiting_list), in(NULL), out(NULL), modelType(calculateModelType()), pwList(new WorkflowPWList(waiting_list)){
+		tapn(tapn), initialMarking(initialMarking), query(query), options(options), in(NULL), out(NULL), modelType(calculateModelType()), pwList(new WorkflowPWList(waiting_list)), successorGenerator( tapn, *this ){
 		for(TimedPlace::Vector::const_iterator iter = tapn.getPlaces().begin(); iter != tapn.getPlaces().end(); iter++){
 			if((*iter)->getType() == Dead){
 				(*iter)->setType(Std);
@@ -44,7 +44,8 @@ public:
 	};
 
 	inline const ModelType getModelType() const{ return modelType; }
-
+        void printTransitionStatistics() const { successorGenerator.printTransitionStatistics(std::cout); }
+        bool isDelayPossible(NonStrictMarking& marking);
 	ModelType calculateModelType(){
 		bool isin, isout;
 		bool hasInvariant = false;
@@ -147,10 +148,17 @@ public:
 	virtual void printMessages(ostream& stream){}
 
 protected:
+    	TAPN::TimedArcPetriNet& tapn;
+	NonStrictMarking& initialMarking;
+	AST::Query* query;
+	VerificationOptions options;
 	TimedPlace* in;
 	TimedPlace* out;
 	ModelType modelType;
         WorkflowPWList* pwList;
+        SuccessorGenerator<NonStrictMarking> successorGenerator;
+	NonStrictMarking* lastMarking;
+        NonStrictMarking* tmpParent; 
 };
 
 } /* namespace DiscreteVerification */
