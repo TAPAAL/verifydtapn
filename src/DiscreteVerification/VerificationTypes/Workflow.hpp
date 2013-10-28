@@ -31,7 +31,7 @@ namespace DiscreteVerification {
 class Workflow : public ReachabilitySearch{
 public:
 	Workflow(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list) :
-		ReachabilitySearch(tapn, initialMarking, query, options, waiting_list), in(NULL), out(NULL), modelType(calculateModelType()){
+		ReachabilitySearch(tapn, initialMarking, query, options, waiting_list), in(NULL), out(NULL), modelType(calculateModelType()), pwList(new WorkflowPWList(waiting_list)){
 		for(TimedPlace::Vector::const_iterator iter = tapn.getPlaces().begin(); iter != tapn.getPlaces().end(); iter++){
 			if((*iter)->getType() == Dead){
 				(*iter)->setType(Std);
@@ -150,6 +150,7 @@ protected:
 	TimedPlace* in;
 	TimedPlace* out;
 	ModelType modelType;
+        WorkflowPWList* pwList;
 };
 
 } /* namespace DiscreteVerification */

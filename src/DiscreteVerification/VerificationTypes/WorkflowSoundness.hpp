@@ -61,7 +61,6 @@ public:
 		}
 	}
 protected:
-	WorkflowPWList* pwList;
     vector<NonStrictMarking*>* final_set;
     int min_exec;
     unsigned int linearSweepTreshold;

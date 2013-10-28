@@ -17,7 +17,7 @@ namespace DiscreteVerification {
 class WorkflowStrongSoundnessReachability : public Workflow{
 public:
 	WorkflowStrongSoundnessReachability(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list)
-    : Workflow(tapn,initialMarking, query, options, waiting_list), pwList(new WorkflowPWList(waiting_list)), max_value(-1), timer(NULL), term1(NULL), term2(NULL)
+    : Workflow(tapn,initialMarking, query, options, waiting_list), max_value(-1), timer(NULL), term1(NULL), term2(NULL)
     {
 		// Find timer place and store as out
 		for(TimedPlace::Vector::const_iterator iter = tapn.getPlaces().begin(); iter != tapn.getPlaces().end(); ++iter){
@@ -63,7 +63,6 @@ protected:
 
 	bool addToPW(NonStrictMarking* marking, NonStrictMarking* parent);
 protected:
-	PWListBase* pwList;
 	int max_value;
 	TimedPlace* timer;
 	TimedPlace* term1;
