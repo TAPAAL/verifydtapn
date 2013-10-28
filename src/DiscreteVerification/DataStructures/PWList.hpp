@@ -54,18 +54,6 @@ public: // inspectors
 		return (waiting_list->size() > 0);
 	};
 
-	virtual NonStrictMarking* lookup(NonStrictMarking* marking){
-		NonStrictMarkingList& m = markings_storage[marking->getHashKey()];
-			for(NonStrictMarkingList::const_iterator iter = m.begin();
-					iter != m.end();
-					iter++){
-				if((*iter)->equals(*marking)){
-					return *iter;
-				}
-			}
-		return NULL;
-	}
-
 	virtual bool addToWaiting(NonStrictMarking* marking){
 		waiting_list->add(marking, marking);
 		return true;

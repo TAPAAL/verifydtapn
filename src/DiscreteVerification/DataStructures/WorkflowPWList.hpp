@@ -143,6 +143,18 @@ namespace DiscreteVerification {
     		}
     	}
 
+        virtual NonStrictMarking* lookup(NonStrictMarking* marking) {
+            NonStrictMarkingList& m = markings_storage[marking->getHashKey()];
+            for (NonStrictMarkingList::const_iterator iter = m.begin();
+                    iter != m.end();
+                    iter++) {
+                if ((*iter)->equals(*marking)) {
+                    return *iter;
+                }
+            }
+            return NULL;
+        }
+
     };
 
 } /* namespace DiscreteVerification */
