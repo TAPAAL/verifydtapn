@@ -61,8 +61,6 @@ namespace VerifyTAPN {
                         return true;
                     }
                 }
-                //deleteMarking(&next_marking);
-
             }
 
             return false;
@@ -133,7 +131,6 @@ namespace VerifyTAPN {
                     lastMarking = marking;
                     return true;
                 } else {
-                    //deleteMarking(marking);
                     return false;
                 }
             }
