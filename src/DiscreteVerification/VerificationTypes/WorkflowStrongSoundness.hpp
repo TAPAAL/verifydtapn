@@ -10,44 +10,16 @@
 
 #include "ReachabilitySearch.hpp"
 #include "../DataStructures/WorkflowPWList.hpp"
+#include "Workflow.hpp"
 #include <stack>
 
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
-class WorkflowStrongSoundnessReachability : public ReachabilitySearch{
+class WorkflowStrongSoundnessReachability : public Workflow{
 public:
-	WorkflowStrongSoundnessReachability(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list)
-    : ReachabilitySearch(tapn,initialMarking, query, options, waiting_list), pwList(new WorkflowPWList(waiting_list)), max_value(-1), timer(NULL), term1(NULL), term2(NULL)
-    {
-		// Disable dead place optimization
-		for(TimedPlace::Vector::const_iterator iter = tapn.getPlaces().begin(); iter != tapn.getPlaces().end(); iter++){
-			if((*iter)->getType() == Dead){
-				(*iter)->setType(Std);
-			}
-		}
 
-		// Find timer place and store as out
-		for(TimedPlace::Vector::const_iterator iter = tapn.getPlaces().begin(); iter != tapn.getPlaces().end(); ++iter){
-			if((*iter)->getInvariant() != (*iter)->getInvariant().LS_INF){
-				if(timer == NULL || timer->getInvariant().getBound() < (*iter)->getInvariant().getBound()){
-					timer = *iter;
-				}
-			}
-
-			if(!(*iter)->getTransportArcs().empty() || !(*iter)->getInputArcs().empty()){
-				continue;
-			}
-
-			if(term1 == NULL){
-				term1 = *iter;
-			}else if(term2 == NULL){
-				term2 = *iter;
-			}else{
-				assert(false);
-			}
-		}
-    };
+	WorkflowStrongSoundnessReachability(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list);
 
 	bool verify();
 	void getTrace();
@@ -55,23 +27,11 @@ public:
 	void printExecutionTime(ostream& stream){
 		stream << "Maximum execution time: " << max_value << endl;
 	}
-
-	void printStats(){
-			std::cout << "  discovered markings:\t" << pwList->discoveredMarkings << std::endl;
-			std::cout << "  explored markings:\t" << pwList->size()-pwList->explored() << std::endl;
-			std::cout << "  stored markings:\t" << pwList->size() << std::endl;
-		}
-
-	inline unsigned int maxUsedTokens(){ return pwList->maxNumTokensInAnyMarking; };
+        
 
 protected:
-	virtual bool addToPW(NonStrictMarking* m){
-			return addToPW(m, tmpParent);
-		};
-
 	bool addToPW(NonStrictMarking* marking, NonStrictMarking* parent);
 protected:
-	PWListBase* pwList;
 	int max_value;
 	TimedPlace* timer;
 	TimedPlace* term1;

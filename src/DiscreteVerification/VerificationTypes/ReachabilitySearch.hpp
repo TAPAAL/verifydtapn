@@ -24,46 +24,32 @@
 #include <stack>
 #include "Verification.hpp"
 #include "../DataStructures/WaitingList.hpp"
+#include "AbstractNaiveVerification.hpp"
 
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
-class ReachabilitySearch : public Verification<NonStrictMarking>{
+class ReachabilitySearch : public AbstractNaiveVerification<PWListBase> {
 public:
         ReachabilitySearch(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options);
 	ReachabilitySearch(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list);
 	virtual ~ReachabilitySearch();
 	bool verify();
-	NonStrictMarking* getLastMarking() { return lastMarking; }
-	inline unsigned int maxUsedTokens(){ return pwList->maxNumTokensInAnyMarking; };
-	void printTransitionStatistics() const { successorGenerator.printTransitionStatistics(std::cout); }
+
         virtual void deleteMarking(NonStrictMarking* m) {
             //dummy;
         };
-         virtual bool addToPW(NonStrictMarking* m){
-            return addToPW(m, tmpParent);
-        };
+        
 protected:
 	bool addToPW(NonStrictMarking* marking, NonStrictMarking* parent);
-	bool isDelayPossible(NonStrictMarking& marking);
 
 protected:
 	int validChildren;
-	PWListBase* pwList;
-	TAPN::TimedArcPetriNet& tapn;
-	NonStrictMarking& initialMarking;
-	AST::Query* query;
-	VerificationOptions options;
-	SuccessorGenerator<NonStrictMarking> successorGenerator;
 public:
-	void printStats();
 	virtual void getTrace();
-protected:
-	NonStrictMarking* lastMarking;
-    NonStrictMarking* tmpParent;
 };
 
-class ReachabilitySearchPTrie : public ReachabilitySearch{
+class ReachabilitySearchPTrie : public ReachabilitySearch {
 public:
     ReachabilitySearchPTrie(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<EncodingPointer<MetaData> >* waiting_list) 
     : ReachabilitySearch(tapn,initialMarking, query, options)

@@ -8,112 +8,135 @@
 #include "WorkflowStrongSoundness.hpp"
 
 namespace VerifyTAPN {
-namespace DiscreteVerification {
+    namespace DiscreteVerification {
 
-bool WorkflowStrongSoundnessReachability::verify(){
-		if(addToPW(&initialMarking, NULL)){
-			return true;
-		}
+        WorkflowStrongSoundnessReachability::WorkflowStrongSoundnessReachability(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list)
+        : Workflow(tapn, initialMarking, query, options, waiting_list), max_value(-1), timer(NULL), term1(NULL), term2(NULL) {
+            // Find timer place and store as out
+            for (TimedPlace::Vector::const_iterator iter = tapn.getPlaces().begin(); iter != tapn.getPlaces().end(); ++iter) {
+                if ((*iter)->getInvariant() != (*iter)->getInvariant().LS_INF) {
+                    if (timer == NULL || timer->getInvariant().getBound() < (*iter)->getInvariant().getBound()) {
+                        timer = *iter;
+                    }
+                }
 
-		//Main loop
-		while(pwList->hasWaitingStates()){
-			NonStrictMarking& next_marking = *pwList->getNextUnexplored();
-	                tmpParent = &next_marking;
+                if (!(*iter)->getTransportArcs().empty() || !(*iter)->getInputArcs().empty()) {
+                    continue;
+                }
 
-	                bool noDelay = false;
-	                Result res = successorGenerator.generateAndInsertSuccessors(next_marking);
-	                if(res == QUERY_SATISFIED){
-	                    return true;
-	                }  else if (res == URGENT_ENABLED) {
-	                    noDelay = true;
-	                }
+                if (term1 == NULL) {
+                    term1 = *iter;
+                } else if (term2 == NULL) {
+                    term2 = *iter;
+                } else {
+                    assert(false);
+                }
+            }
+        };
 
-			// Generate next markings
-			if(!noDelay && isDelayPossible(next_marking)){
-				NonStrictMarking* marking = new NonStrictMarking(next_marking);
-				marking->incrementAge();
-				marking->setGeneratedBy(NULL);
-	                        if(addToPW(marking, &next_marking)){
-	                            return true;
-	                        }
-			}
-		}
+        bool WorkflowStrongSoundnessReachability::verify() {
+            if (addToPW(&initialMarking, NULL)) {
+                return true;
+            }
 
-		return false;
-	}
+            //Main loop
+            while (pwList->hasWaitingStates()) {
+                NonStrictMarking& next_marking = *pwList->getNextUnexplored();
+                tmpParent = &next_marking;
 
-	void WorkflowStrongSoundnessReachability::getTrace(){
-		std::stack < NonStrictMarking*> printStack;
-		NonStrictMarking* next = lastMarking;
-		do{
-			NonStrictMarking* parent = ((WorkflowStrongSoundnessMetaData*) next->meta)->parents->at(0);
-			printStack.push(next);
-			next = parent;
+                bool noDelay = false;
+                Result res = successorGenerator.generateAndInsertSuccessors(next_marking);
+                if (res == QUERY_SATISFIED) {
+                    return true;
+                } else if (res == URGENT_ENABLED) {
+                    noDelay = true;
+                }
 
-		}while(((WorkflowStrongSoundnessMetaData*)next->meta)->parents != NULL && !((WorkflowStrongSoundnessMetaData*)next->meta)->parents->empty());
+                // Generate next markings
+                if (!noDelay && isDelayPossible(next_marking)) {
+                    NonStrictMarking* marking = new NonStrictMarking(next_marking);
+                    marking->incrementAge();
+                    marking->setGeneratedBy(NULL);
+                    if (addToPW(marking, &next_marking)) {
+                        return true;
+                    }
+                }
+            }
 
-		if(printStack.top() != next){
-			printStack.push(next);
-		}
+            return false;
+        }
 
-		if(options.getXmlTrace()){
-			printXMLTrace(lastMarking, printStack, query, tapn);
-		} else {
-			printHumanTrace(lastMarking, printStack, query->getQuantifier());
-		}
-	}
+        void WorkflowStrongSoundnessReachability::getTrace() {
+            std::stack < NonStrictMarking*> printStack;
+            NonStrictMarking* next = lastMarking;
+            do {
+                NonStrictMarking* parent = ((WorkflowStrongSoundnessMetaData*) next->meta)->parents->at(0);
+                printStack.push(next);
+                next = parent;
 
+            } while (((WorkflowStrongSoundnessMetaData*) next->meta)->parents != NULL && !((WorkflowStrongSoundnessMetaData*) next->meta)->parents->empty());
 
-	bool WorkflowStrongSoundnessReachability::addToPW(NonStrictMarking* marking, NonStrictMarking* parent){
-		marking->cut();
-		marking->setParent(parent);
+            if (printStack.top() != next) {
+                printStack.push(next);
+            }
 
-		unsigned int size = marking->size();
+            if (options.getXmlTrace()) {
+                printXMLTrace(lastMarking, printStack, query, tapn);
+            } else {
+                printHumanTrace(lastMarking, printStack, query->getQuantifier());
+            }
+        }
 
-		pwList->setMaxNumTokensIfGreater(size);
+        bool WorkflowStrongSoundnessReachability::addToPW(NonStrictMarking* marking, NonStrictMarking* parent) {
+            marking->cut();
+            marking->setParent(parent);
 
-		if(size > options.getKBound()) {
-			delete marking;
-			return false;
-		}
+            unsigned int size = marking->size();
 
-		/* Handle max */
-		// Map to existing marking if any
-		NonStrictMarking* lookup = pwList->lookup(marking);
-		if(lookup != NULL){
-			marking = lookup;
-		}else{
-			marking->meta = new WorkflowStrongSoundnessMetaData();
-		}
+            pwList->setMaxNumTokensIfGreater(size);
 
-		WorkflowStrongSoundnessMetaData* meta = (WorkflowStrongSoundnessMetaData*)marking->meta;
+            if (size > options.getKBound()) {
+                delete marking;
+                return false;
+            }
 
-		if(parent != NULL)	meta->parents->push_back(parent);
+            /* Handle max */
+            // Map to existing marking if any
+            NonStrictMarking* lookup = pwList->lookup(marking);
+            if (lookup != NULL) {
+                marking = lookup;
+            } else {
+                marking->meta = new WorkflowStrongSoundnessMetaData();
+            }
 
-		if(!marking->getTokenList(timer->getIndex()).empty() &&
-				(marking->getTokenList(timer->getIndex()).at(0).getAge() > max_value ||
-						(marking->getTokenList(timer->getIndex()).at(0).getAge() == max_value &&
-								(!marking->getTokenList(term1->getIndex()).empty() || !marking->getTokenList(term2->getIndex()).empty())))){
-			max_value = marking->getTokenList(timer->getIndex()).at(0).getAge();
-			lastMarking = marking;
-		}
+            WorkflowStrongSoundnessMetaData* meta = (WorkflowStrongSoundnessMetaData*) marking->meta;
 
-		// Add to passed
-		if(pwList->add(marking)){
-			QueryVisitor<NonStrictMarking> checker(*marking, tapn);
-			BoolResult context;
+            if (parent != NULL) meta->parents->push_back(parent);
 
-			query->accept(checker, context);
-			if(context.value) {
-				lastMarking = marking;
-				return true;
-			} else {
-				return false;
-			}
-		}
+            if (!marking->getTokenList(timer->getIndex()).empty() &&
+                    (marking->getTokenList(timer->getIndex()).at(0).getAge() > max_value ||
+                    (marking->getTokenList(timer->getIndex()).at(0).getAge() == max_value &&
+                    (!marking->getTokenList(term1->getIndex()).empty() || !marking->getTokenList(term2->getIndex()).empty())))) {
+                max_value = marking->getTokenList(timer->getIndex()).at(0).getAge();
+                lastMarking = marking;
+            }
 
-		return false;
-	}
+            // Add to passed
+            if (pwList->add(marking)) {
+                QueryVisitor<NonStrictMarking> checker(*marking, tapn);
+                BoolResult context;
 
-} /* namespace DiscreteVerification */
+                query->accept(checker, context);
+                if (context.value) {
+                    lastMarking = marking;
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+
+            return false;
+        }
+
+    } /* namespace DiscreteVerification */
 } /* namespace VerifyTAPN */

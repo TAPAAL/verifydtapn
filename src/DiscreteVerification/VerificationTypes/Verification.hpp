@@ -13,10 +13,11 @@ namespace VerifyTAPN {
         template<typename T>
         class Verification {
         public:
-            virtual bool verify() = 0;
 
+            Verification(TAPN::TimedArcPetriNet& tapn, T& initialMarking, AST::Query* query, VerificationOptions options);
             virtual ~Verification() {
             };
+            virtual bool verify() = 0;
             virtual void printStats() = 0;
             virtual void printTransitionStatistics() const = 0;
             virtual unsigned int maxUsedTokens() = 0;
@@ -33,8 +34,19 @@ namespace VerifyTAPN {
             rapidxml::xml_node<>* createTokenNode(rapidxml::xml_document<>& doc, const TAPN::TimedPlace& place, const Token& token);
             void generateTraceStack(T* m, std::stack<T*>* result, std::stack<T*>* liveness = NULL);
             stack< T* > trace;
-        };
+            protected:
+            TAPN::TimedArcPetriNet& tapn;
+            T& initialMarking;
+            AST::Query* query;
+            VerificationOptions options;
 
+         };
+
+        template<typename T>
+        Verification<T>::Verification(TAPN::TimedArcPetriNet& tapn, T& initialMarking, AST::Query* query, VerificationOptions options)
+        : tapn(tapn), initialMarking(initialMarking), query(query), options(options){
+            
+        }
         template<typename T>
         void Verification<T>::printHumanTrace(T* m, std::stack<T*>& stack, AST::Quantifier query) {
             std::cout << "Trace: " << std::endl;

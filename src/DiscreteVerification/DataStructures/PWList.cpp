@@ -35,19 +35,6 @@ bool PWList::add(NonStrictMarking* marking){
 	return true;
 }
 
-NonStrictMarking* PWList::addToPassed(NonStrictMarking* marking){
-		NonStrictMarking* existing = lookup(marking);
-		if(existing != NULL){
-			return existing;
-		}else{
-			NonStrictMarkingList& m = markings_storage[marking->getHashKey()];
-			stored++;
-			m.push_back(marking);
-			marking->meta = new MetaData();
-			return marking;
-		}
-	}
-
 NonStrictMarking* PWList::getNextUnexplored(){
 	return waiting_list->pop();
 }
