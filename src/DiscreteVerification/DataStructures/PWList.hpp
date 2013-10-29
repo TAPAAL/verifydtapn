@@ -65,7 +65,6 @@ public: // inspectors
 
 public: // modifiers
 	virtual bool add(NonStrictMarking* marking);
-	virtual NonStrictMarking* addToPassed(NonStrictMarking* marking);
 	virtual NonStrictMarking* getNextUnexplored();
 
 public:
