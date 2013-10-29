@@ -7,9 +7,9 @@ bison -o $parser/Generated/parser.cpp $parser/grammar.yy
 
 export CPLUS_INCLUDE_PATH=$HOME/dev/boost_1_46_1
 
-inc64="-I$HOME/dev/ia64/include -I /opt/local/include"
+inc64="-I$HOME/dev/ia64/include -I/usr/local/include -I/opt/local/include"
 
-inc32="-I$HOME/dev/ia32/include -I /opt/local/include"
+inc32="-I$HOME/dev/ia32/include -I/usr/local/include -I/opt/local/include"
 
 compatibility="-mmacosx-version-min=10.6"
 

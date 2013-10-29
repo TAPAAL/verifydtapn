@@ -22,13 +22,14 @@
 #include "../QueryVisitor.hpp"
 #include "../DataStructures/NonStrictMarking.hpp"
 #include <stack>
-#include "Workflow.hpp"
+#include "ReachabilitySearch.hpp"
 #include "../DataStructures/WaitingList.hpp"
+#include "Workflow.hpp"
 
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
-class WorkflowSoundness : public Workflow{
+class WorkflowSoundness : public Workflow {
 public:
 	WorkflowSoundness(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list);
 	virtual ~WorkflowSoundness();
@@ -45,7 +46,7 @@ public:
 			getTrace(coveredMarking);
 		}
 	}
-        
+
 protected:
 	bool addToPW(NonStrictMarking* marking, NonStrictMarking* parent);
 	bool checkForCoveredMarking(NonStrictMarking* marking);
@@ -56,6 +57,8 @@ protected:
     int min_exec;
     unsigned int linearSweepTreshold;
     NonStrictMarking* coveredMarking;
+    TimedPlace* in;
+	TimedPlace* out;
 };
 
 } /* namespace DiscreteVerification */

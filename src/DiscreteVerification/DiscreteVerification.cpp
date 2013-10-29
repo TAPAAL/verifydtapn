@@ -58,9 +58,8 @@ namespace VerifyTAPN {
 					exit(1);
 				}
             	WaitingList<NonStrictMarking>* strategy = getWaitingList<NonStrictMarking > (query, options);
-            	Workflow* verifier = NULL;
             	if(options.getWorkflowMode() == VerificationOptions::WORKFLOW_SOUNDNESS){
-            		verifier = new WorkflowSoundness(tapn, *initialMarking, query, options, strategy);
+            		WorkflowSoundness* verifier = new WorkflowSoundness(tapn, *initialMarking, query, options, strategy);
 
 					if(verifier->getModelType() == verifier->NOTTAWFN){
 						std::cerr << "Model is not a TAWFN!" << std::endl;
@@ -70,18 +69,23 @@ namespace VerifyTAPN {
 					}else if(verifier->getModelType() == verifier->MTAWFN){
 						std::cout << "Model is a MTAWFN" << std::endl << std::endl;
 					}
+					VerifyAndPrint(
+							*verifier,
+							options,
+							query);
+					verifier->printExecutionTime(cout);
+					verifier->printMessages(cout);
             	}
             	else{
             		// Assumes correct structure of net!
-            		verifier = new WorkflowStrongSoundnessReachability(tapn, *initialMarking, query, options, strategy);
+            		WorkflowStrongSoundnessReachability* verifier = new WorkflowStrongSoundnessReachability(tapn, *initialMarking, query, options, strategy);
+            		VerifyAndPrint(
+							*verifier,
+							options,
+							query);
+					verifier->printExecutionTime(cout);
             	}
 
-            	VerifyAndPrint(
-            			*verifier,
-            			options,
-            			query);
-            	verifier->printExecutionTime(cout);
-            	verifier->printMessages(cout);
             	delete strategy;
 
             }
