@@ -20,7 +20,7 @@ namespace VerifyTAPN {
         public:
 
             TimeDartVerification(TAPN::TimedArcPetriNet& tapn, VerificationOptions options, AST::Query* query, NonStrictMarkingBase& initialMarking) :
-            query(query), options(options), tapn(tapn), initialMarking(initialMarking), exploredMarkings(0), allwaysEnabled(), successorGenerator(tapn, *this) {
+            Verification<NonStrictMarkingBase>(tapn, initialMarking, query, options), exploredMarkings(0), allwaysEnabled(), successorGenerator(tapn, *this) {
                 loop = false;
                 deadlock = false;
                 //Find the transitions which don't have input arcs
@@ -52,10 +52,6 @@ namespace VerifyTAPN {
             virtual inline bool addToPW(NonStrictMarkingBase* m) = 0;
             
         protected:
-            AST::Query* query;
-            VerificationOptions options;
-            TAPN::TimedArcPetriNet& tapn;
-            NonStrictMarkingBase& initialMarking;
             int exploredMarkings;
             vector<const TAPN::TimedTransition*> allwaysEnabled;
             bool loop;         

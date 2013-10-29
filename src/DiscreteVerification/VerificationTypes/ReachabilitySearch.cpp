@@ -11,12 +11,12 @@ namespace VerifyTAPN {
 namespace DiscreteVerification {
 
 ReachabilitySearch::ReachabilitySearch(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options)
-	: AbstractReachability<PWListBase>(tapn, initialMarking, query, options, NULL){
+	: AbstractNaiveVerification<PWListBase>(tapn, initialMarking, query, options, NULL){
 
 }
     
 ReachabilitySearch::ReachabilitySearch(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list)
-	: AbstractReachability<PWListBase>(tapn, initialMarking, query, options, new PWList(waiting_list, false)) {
+	: AbstractNaiveVerification<PWListBase>(tapn, initialMarking, query, options, new PWList(waiting_list, false)) {
     
 }
 

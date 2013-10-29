@@ -28,9 +28,7 @@ public:
 
 protected:
 	bool addToPW(NonStrictMarking* marking, NonStrictMarking* parent);
-        virtual bool addToPW(NonStrictMarking* m){
-                return addToPW(m, tmpParent);
-        };
+
 protected:
 	int max_value;
 	TimedPlace* timer;

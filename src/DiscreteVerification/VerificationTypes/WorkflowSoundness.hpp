@@ -48,9 +48,6 @@ public:
         
 protected:
 	bool addToPW(NonStrictMarking* marking, NonStrictMarking* parent);
-    	virtual bool addToPW(NonStrictMarking* m){
-                return addToPW(m, tmpParent);
-        };
 	bool checkForCoveredMarking(NonStrictMarking* marking);
 	void getTrace(NonStrictMarking* base);
         

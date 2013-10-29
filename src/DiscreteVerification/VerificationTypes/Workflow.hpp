@@ -24,12 +24,12 @@
 #include <stack>
 #include "ReachabilitySearch.hpp"
 #include "../DataStructures/WaitingList.hpp"
-#include "AbstractReachability.hpp"
+#include "AbstractNaiveVerification.hpp"
 
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
-class Workflow : public AbstractReachability<WorkflowPWList> {
+class Workflow : public AbstractNaiveVerification<WorkflowPWList> {
 public:
     	enum ModelType{
 		MTAWFN, ETAWFN, NOTTAWFN

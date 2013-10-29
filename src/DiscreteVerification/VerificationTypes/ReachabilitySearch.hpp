@@ -24,12 +24,12 @@
 #include <stack>
 #include "Verification.hpp"
 #include "../DataStructures/WaitingList.hpp"
-#include "AbstractReachability.hpp"
+#include "AbstractNaiveVerification.hpp"
 
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
-class ReachabilitySearch : public AbstractReachability<PWListBase> {
+class ReachabilitySearch : public AbstractNaiveVerification<PWListBase> {
 public:
         ReachabilitySearch(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options);
 	ReachabilitySearch(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list);
@@ -39,9 +39,7 @@ public:
         virtual void deleteMarking(NonStrictMarking* m) {
             //dummy;
         };
-         virtual bool addToPW(NonStrictMarking* m){
-            return addToPW(m, tmpParent);
-        };
+        
 protected:
 	bool addToPW(NonStrictMarking* marking, NonStrictMarking* parent);
 

@@ -11,7 +11,7 @@ namespace VerifyTAPN {
     namespace DiscreteVerification {
 
         Workflow::Workflow(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list)
-        : AbstractReachability<WorkflowPWList>(tapn, initialMarking, query, options, new WorkflowPWList(waiting_list)), in(NULL), out(NULL), modelType(calculateModelType()) {
+        : AbstractNaiveVerification<WorkflowPWList>(tapn, initialMarking, query, options, new WorkflowPWList(waiting_list)), in(NULL), out(NULL), modelType(calculateModelType()) {
             for (TimedPlace::Vector::const_iterator iter = tapn.getPlaces().begin(); iter != tapn.getPlaces().end(); iter++) {
                 if ((*iter)->getType() == Dead) {
                     (*iter)->setType(Std);
