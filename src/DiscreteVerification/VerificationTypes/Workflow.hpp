@@ -30,24 +30,16 @@ namespace VerifyTAPN {
 namespace DiscreteVerification {
 
 class Workflow : public AbstractNaiveVerification<WorkflowPWList> {
-public:
-    	enum ModelType{
-		MTAWFN, ETAWFN, NOTTAWFN
-	};
-    
+public:    
 	Workflow(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list);
 
-	inline const ModelType getModelType() const{ return modelType; }
 	virtual void printExecutionTime(ostream& stream){};
 	virtual void printMessages(ostream& stream){};
         inline unsigned int maxUsedTokens(){ return pwList->maxNumTokensInAnyMarking; };
-protected:
-        ModelType calculateModelType();
         
 protected:
 	TimedPlace* in;
 	TimedPlace* out;
-	ModelType modelType;
 };
 
 } /* namespace DiscreteVerification */

@@ -31,6 +31,10 @@ namespace DiscreteVerification {
 
 class WorkflowSoundness : public Workflow {
 public:
+        enum ModelType{
+		MTAWFN, ETAWFN, NOTTAWFN
+	};
+        
 	WorkflowSoundness(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list);
 	virtual ~WorkflowSoundness();
 	bool verify();
@@ -46,11 +50,12 @@ public:
 			getTrace(coveredMarking);
 		}
 	}
-
+        inline const ModelType getModelType() const{ return modelType; }
 protected:
 	bool addToPW(NonStrictMarking* marking, NonStrictMarking* parent);
 	bool checkForCoveredMarking(NonStrictMarking* marking);
 	void getTrace(NonStrictMarking* base);
+        ModelType calculateModelType();
         
 protected:
     vector<NonStrictMarking*>* final_set;
@@ -58,7 +63,8 @@ protected:
     unsigned int linearSweepTreshold;
     NonStrictMarking* coveredMarking;
     TimedPlace* in;
-	TimedPlace* out;
+    TimedPlace* out;
+    ModelType modelType;
 };
 
 } /* namespace DiscreteVerification */
