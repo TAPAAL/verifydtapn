@@ -35,11 +35,12 @@ namespace VerifyTAPN {
             void generateTraceStack(T* m, std::stack<T*>* result, std::stack<T*>* liveness = NULL);
             stack< T* > trace;
             protected:
-            AST::Query* query;
-            VerificationOptions options;
             TAPN::TimedArcPetriNet& tapn;
             T& initialMarking;
-        };
+            AST::Query* query;
+            VerificationOptions options;
+
+         };
 
         template<typename T>
         Verification<T>::Verification(TAPN::TimedArcPetriNet& tapn, T& initialMarking, AST::Query* query, VerificationOptions options)
