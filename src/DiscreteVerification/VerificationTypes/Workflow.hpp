@@ -32,10 +32,7 @@ namespace DiscreteVerification {
 class Workflow : public AbstractNaiveVerification<WorkflowPWList> {
 public:    
 	Workflow(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list);
-
-	virtual void printExecutionTime(ostream& stream){};
-	virtual void printMessages(ostream& stream){};
-        inline unsigned int maxUsedTokens(){ return pwList->maxNumTokensInAnyMarking; };
+	virtual void printExecutionTime(ostream& stream) = 0;
         
 protected:
 	TimedPlace* in;

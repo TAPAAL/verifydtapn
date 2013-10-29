@@ -62,9 +62,8 @@ protected:
     int min_exec;
     unsigned int linearSweepTreshold;
     NonStrictMarking* coveredMarking;
-    TimedPlace* in;
-    TimedPlace* out;
     ModelType modelType;
+
 };
 
 } /* namespace DiscreteVerification */
