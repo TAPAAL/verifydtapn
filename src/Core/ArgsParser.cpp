@@ -15,7 +15,7 @@ static const std::string MEMORY_OPTIMIZATION_OPTION = "memory-optimization";
 static const std::string TRACE_OPTION = "trace";
 static const std::string MAX_CONSTANT_OPTION = "global-max-constants";
 static const std::string XML_TRACE_OPTION = "xml-trace";
-static const std::string DISABLE_GCD_LOWER_GUARDS_OPTION = "disable-gcd-lower-guards";
+static const std::string GCD = "gcd";
 static const std::string LEGACY = "legacy";
 static const std::string KEEP_DEAD = "keep-dead-tokens";
 static const std::string WORKFLOW = "workflow";
@@ -166,7 +166,7 @@ void ArgsParser::initialize() {
             "Output trace in xml format for TAPAAL."));
 
     parsers.push_back(
-            boost::make_shared<Switch >("l", DISABLE_GCD_LOWER_GUARDS_OPTION,
+            boost::make_shared<Switch >("c", GCD,
             "Disable lowering the guards by the greatest common devisor"));
     
     parsers.push_back(
@@ -403,9 +403,9 @@ VerificationOptions ArgsParser::createVerificationOptions(const option_map& map,
 
 
         
-        assert(map.find(DISABLE_GCD_LOWER_GUARDS_OPTION) != map.end());
+        assert(map.find(GCD) != map.end());
         bool disableGCDLowerGuards = boost::lexical_cast<bool>(
-			map.find(DISABLE_GCD_LOWER_GUARDS_OPTION)->second);
+			map.find(GCD)->second);
         
 	return VerificationOptions(modelFile, queryFile, search, verification, memoptimization, kbound, trace,
 			xml_trace, max_constant, keep_dead, disableGCDLowerGuards, workflow);
