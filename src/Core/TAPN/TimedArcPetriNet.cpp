@@ -100,7 +100,11 @@ namespace VerifyTAPN {
                         constants.erase(0);
                         constants.erase(std::numeric_limits<int>().max());
                         
-                        int devider = VerifyTAPN::DiscreteVerification::Util::greatestCommonDivisor(constants.begin(), constants.end());
+                        int devider = *constants.begin();
+                        for(std::set<int>::const_iterator it = constants.begin(); it != constants.end(); ++it){
+                            devider = boost::math::gcd(devider, *it);
+                        }
+
                         
                         if(devider <= 1)
                             return;
