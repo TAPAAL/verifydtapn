@@ -63,6 +63,7 @@ namespace VerifyTAPN{
 			inline const TransportArc::Vector& getTransportArcs() const { return transportArcs; }
 			inline const InhibitorArc::Vector& getInhibitorArcs() const { return inhibitorArcs; }
 			inline const TimedInputArc::Vector& getInputArcs() const { return inputArcs; }
+			inline const OutputArc::Vector& getOutputArcs() const { return outputArcs; }
 
 		private: // data
 			PlaceType type;

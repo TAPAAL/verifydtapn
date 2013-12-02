@@ -17,7 +17,10 @@ namespace DiscreteVerification {
 template <class T>
 WaitingList<T>* getWaitingList(AST::Query* query, VerificationOptions& options){
 	WaitingList<T>* strategy = NULL;
-	if(query->getQuantifier() == EG || query->getQuantifier() == AF){
+	if(options.getWorkflowMode() == options.WORKFLOW_SOUNDNESS){
+		WorkflowMinFirst<T> s;
+		strategy = s.createWaitingList(query);
+	} else if(query->getQuantifier() == EG || query->getQuantifier() == AF){
 		//Liveness query, force DFS
 		switch(options.getSearchType()){
 		case VerificationOptions::DEPTHFIRST: {

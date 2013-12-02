@@ -11,12 +11,12 @@ namespace VerifyTAPN {
 namespace DiscreteVerification {
 
 LivenessSearch::LivenessSearch(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options)
-	: tapn(tapn), initialMarking(initialMarking), query(query), options(options), successorGenerator( tapn, *this ){
+	: AbstractNaiveVerification<PWListBase>(tapn, initialMarking, query, options, NULL){
 
 }
     
 LivenessSearch::LivenessSearch(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list)
-	: pwList(new PWList(waiting_list, true)), tapn(tapn), initialMarking(initialMarking), query(query), options(options), successorGenerator( tapn, *this ){
+	: AbstractNaiveVerification<PWListBase>(tapn, initialMarking, query, options, new PWList(waiting_list, true)){
 
 }
 
@@ -87,27 +87,6 @@ bool LivenessSearch::verify(){
 	return false;
 }
 
-bool LivenessSearch::isDelayPossible(NonStrictMarking& marking){
-	const PlaceList& places = marking.getPlaceList();
-	if(places.size() == 0) return true;	//Delay always possible in empty markings
-
-	PlaceList::const_iterator markedPlace_iter = places.begin();
-	for(TAPN::TimedPlace::Vector::const_iterator place_iter = tapn.getPlaces().begin(); place_iter != tapn.getPlaces().end(); place_iter++){
-		int inv = (*place_iter)->getInvariant().getBound();
-		if(**place_iter == *(markedPlace_iter->place)){
-			if(markedPlace_iter->maxTokenAge() > inv-1){
-				return false;
-			}
-
-			markedPlace_iter++;
-
-			if(markedPlace_iter == places.end())	return true;
-		}
-	}
-	assert(false);	// This happens if there are markings on places not in the TAPN
-	return false;
-}
-
 bool LivenessSearch::addToPW(NonStrictMarking* marking, NonStrictMarking* parent){
 	marking->cut();
 	marking->setParent(parent);
@@ -144,12 +123,6 @@ bool LivenessSearch::addToPW(NonStrictMarking* marking, NonStrictMarking* parent
                 return false;
 	}
 
-}
-
-void LivenessSearch::printStats(){
-	std::cout << "  discovered markings:\t" << pwList->discoveredMarkings << std::endl;
-	std::cout << "  explored markings:\t" << pwList->size()-pwList->explored() << std::endl;
-	std::cout << "  stored markings:\t" << pwList->size() << std::endl;
 }
 
 void LivenessSearch::getTrace(){

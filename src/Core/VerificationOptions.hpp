@@ -26,6 +26,10 @@ namespace VerifyTAPN {
             NO_MEMORY_OPTIMIZATION, PTRIE
         };
 
+        enum WorkflowMode{
+        	NOT_WORKFLOW, WORKFLOW_SOUNDNESS, WORKFLOW_STRONG_SOUNDNESS
+        };
+
         VerificationOptions() {
         }
 
@@ -40,7 +44,8 @@ namespace VerifyTAPN {
                 bool xml_trace,
                 bool useGlobalMaxConstants,
                 bool keepDeadTokens, 
-                bool disableGCDLowerGuards
+                bool disableGCDLowerGuards,
+                WorkflowMode workflow
                 ) : inputFile(inputFile),
         queryFile(queryFile),
         searchType(searchType),
@@ -51,8 +56,8 @@ namespace VerifyTAPN {
         xml_trace(xml_trace),
         useGlobalMaxConstants(useGlobalMaxConstants),
         keepDeadTokens(keepDeadTokens), 
-        disableGCDLowerGuards(disableGCDLowerGuards) {
-
+        disableGCDLowerGuards(disableGCDLowerGuards),
+        workflow(workflow){
         };
 
     public: // inspectors
@@ -96,10 +101,19 @@ namespace VerifyTAPN {
         inline const bool getKeepDeadTokens() const {
             return keepDeadTokens;
         };
-        
+
         inline const bool getDisableGCDLowerGuards() const {
             return disableGCDLowerGuards;
         }
+
+        inline const WorkflowMode getWorkflowMode() const {
+		   return workflow;
+	   };
+
+        inline bool isWorkflow() const{
+            return workflow != NOT_WORKFLOW;
+        }
+
     private:
         std::string inputFile;
         std::string queryFile;
@@ -112,6 +126,7 @@ namespace VerifyTAPN {
         bool useGlobalMaxConstants;
         bool keepDeadTokens;
         bool disableGCDLowerGuards;
+        WorkflowMode workflow;
     };
 
     std::ostream& operator<<(std::ostream& out, const VerificationOptions& options);

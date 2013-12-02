@@ -18,6 +18,7 @@ static const std::string XML_TRACE_OPTION = "xml-trace";
 static const std::string DISABLE_GCD_LOWER_GUARDS_OPTION = "disable-gcd-lower-guards";
 static const std::string LEGACY = "legacy";
 static const std::string KEEP_DEAD = "keep-dead-tokens";
+static const std::string WORKFLOW = "workflow";
 
 std::ostream& operator<<(std::ostream& out, const Switch& flag) {
 	flag.print(out);
@@ -163,10 +164,17 @@ void ArgsParser::initialize() {
     parsers.push_back(
             boost::make_shared<Switch > ("x", XML_TRACE_OPTION,
             "Output trace in xml format for TAPAAL."));
+
     parsers.push_back(
-                boost::make_shared<Switch >("l", DISABLE_GCD_LOWER_GUARDS_OPTION,
+            boost::make_shared<Switch >("l", DISABLE_GCD_LOWER_GUARDS_OPTION,
             "Disable lowering the guards by the greatest common devisor"));
-};
+    
+    parsers.push_back(
+            boost::make_shared<SwitchWithArg > ("w", WORKFLOW,
+            "Workflow mode.\n - 0: Disabled\n - 1: Soundness (and min)\n - 2: Strong Soundness (and max)",
+            0));
+
+    };
 
 void ArgsParser::printHelp() const {
 	std::cout
@@ -313,6 +321,20 @@ VerificationOptions::MemoryOptimization intToMemoryOptimizationEnum(int i) {
 }
 
 
+VerificationOptions::WorkflowMode intToWorkflowTypeEnum(int i) {
+	switch (i) {
+	case 0:
+		return VerificationOptions::NOT_WORKFLOW;
+	case 1:
+		return VerificationOptions::WORKFLOW_SOUNDNESS;
+	case 2:
+		return VerificationOptions::WORKFLOW_STRONG_SOUNDNESS;
+	default:
+		std::cout << "Unknown workflow option specified." << std::endl;
+		exit(1);
+	}
+}
+
 VerificationOptions::Trace intToEnum(int i) {
 	switch (i) {
 	case 0:
@@ -374,12 +396,19 @@ VerificationOptions ArgsParser::createVerificationOptions(const option_map& map,
 	assert(map.find(XML_TRACE_OPTION) != map.end());
 	bool xml_trace = boost::lexical_cast<bool>(
 			map.find(XML_TRACE_OPTION)->second);
+
+	assert(map.find(WORKFLOW) != map.end());
+	VerificationOptions::WorkflowMode workflow = intToWorkflowTypeEnum(
+			tryParseInt(*map.find(WORKFLOW)));
+
+
         
         assert(map.find(DISABLE_GCD_LOWER_GUARDS_OPTION) != map.end());
         bool disableGCDLowerGuards = boost::lexical_cast<bool>(
 			map.find(DISABLE_GCD_LOWER_GUARDS_OPTION)->second);
         
 	return VerificationOptions(modelFile, queryFile, search, verification, memoptimization, kbound, trace,
-			xml_trace, max_constant, keep_dead, disableGCDLowerGuards);
+			xml_trace, max_constant, keep_dead, disableGCDLowerGuards, workflow);
+
 }
 }

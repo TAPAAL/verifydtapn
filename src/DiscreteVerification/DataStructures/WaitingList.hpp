@@ -127,6 +127,24 @@ private:
 };
 
 template <class T>
+class WorkflowMinFirstWaitingList : public WaitingList<T>{
+public:
+	typedef std::priority_queue<WeightedItem<T>, std::vector<WeightedItem<T> >, less<T> > priority_queue;
+public:
+	WorkflowMinFirstWaitingList(AST::Query* q) : queue(), query(q) { };
+	virtual ~WorkflowMinFirstWaitingList();
+public:
+	virtual void add(NonStrictMarkingBase* weight, T* payload);
+	virtual T* peek();
+	virtual T* pop();
+	virtual size_t size() { return queue.size(); };
+private:
+	int calculateWeight(NonStrictMarking* payload);
+	priority_queue queue;
+	AST::Query* query;
+};
+
+template <class T>
 class RandomStackWaitingList : public StackWaitingList<T>{
 public:
 	typedef std::priority_queue<WeightedItem<T>, std::vector<WeightedItem<T> >, less<T> > priority_queue;
@@ -334,6 +352,54 @@ template <class T>
 HeuristicWaitingList<T>::~HeuristicWaitingList()
 {
 }
+
+template <class T>
+void WorkflowMinFirstWaitingList<T>::add(NonStrictMarkingBase* weight, T* payload)
+{
+	assert(false);
+	WeightedItem<T> weighted_item;
+	weighted_item.item = payload;
+	weighted_item.weight = 0;
+	queue.push(weighted_item);
+}
+
+template <>
+inline void WorkflowMinFirstWaitingList<NonStrictMarking>::add(NonStrictMarkingBase* weight, NonStrictMarking* payload)
+{
+	WeightedItem<NonStrictMarking> weighted_item;
+	weighted_item.item = payload;
+	weighted_item.weight = calculateWeight(payload);
+	queue.push(weighted_item);
+}
+
+template <class T>
+T* WorkflowMinFirstWaitingList<T>::pop()
+{
+	WeightedItem<T> weighted_item = queue.top();
+	T* marking = weighted_item.item;
+	queue.pop();
+	return marking;
+}
+
+template <class T>
+T* WorkflowMinFirstWaitingList<T>::peek()
+{
+	WeightedItem<T> weighted_item = queue.top();
+	T* marking = weighted_item.item;
+	return marking;
+}
+
+template <class T>
+int WorkflowMinFirstWaitingList<T>::calculateWeight(NonStrictMarking* payload)
+{
+	return ((WorkflowSoundnessMetaData*)payload->meta)->min;
+}
+
+template <class T>
+WorkflowMinFirstWaitingList<T>::~WorkflowMinFirstWaitingList()
+{
+}
+
 
 template <class T>
 void RandomWaitingList<T>::add(NonStrictMarkingBase* weight, T* payload)
