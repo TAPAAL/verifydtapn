@@ -23,7 +23,7 @@ namespace VerifyTAPN {
 			}
 
 			virtual ~TimeInterval() { /* empty */ }
-                        void devideBoundsBy(int devider);
+                        void divideBoundsBy(int divider);
                         
                         
 		public: // inspectors

@@ -44,7 +44,7 @@ namespace VerifyTAPN {
                 return 1;
             }
 
-            std::cout << options << std::endl;
+            std::cout << options;
 
             // Select verification method
             if(options.getWorkflowMode() != VerificationOptions::NOT_WORKFLOW){
@@ -191,6 +191,11 @@ namespace VerifyTAPN {
         template<typename T> void VerifyAndPrint(TAPN::TimedArcPetriNet& tapn, Verification<T>& verifier, VerificationOptions& options, AST::Query* query) {
             bool result = (!options.isWorkflow() && (query->getQuantifier() == AG || query->getQuantifier() == AF)) ? !verifier.verify() : verifier.verify();
 
+            if (!options.getDisableGCDLowerGuards()) {
+                std::cout << "Lowering all guards by greatest common divisor: " << tapn.getGCD() << std::endl;
+            }
+            std::cout << std::endl;
+            
             verifier.printStats();
             verifier.printTransitionStatistics();
 
@@ -200,10 +205,6 @@ namespace VerifyTAPN {
                 std::cout << ">" << options.getKBound() << std::endl;
             else
                 std::cout << verifier.maxUsedTokens() << std::endl;
-
-            if(!options.getDisableGCDLowerGuards()){
-                std::cout << "Greatest common divisor used: " << tapn.getGCD() << std::endl; 
-            }
             
             if (options.getTrace() == VerificationOptions::SOME_TRACE) {
                 if ((query->getQuantifier() == EF && result) || (query->getQuantifier() == AG && !result) || (query->getQuantifier() == EG && result) || (query->getQuantifier() == AF && !result) || (options.isWorkflow())) {

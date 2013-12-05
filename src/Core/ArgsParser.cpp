@@ -167,7 +167,7 @@ void ArgsParser::initialize() {
 
     parsers.push_back(
             boost::make_shared<Switch >("c", GCD,
-            "Disable lowering the guards by the greatest common devisor"));
+            "Disable lowering the guards by the greatest common divisor"));
     
     parsers.push_back(
             boost::make_shared<SwitchWithArg > ("w", WORKFLOW,

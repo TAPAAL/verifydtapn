@@ -49,8 +49,6 @@ namespace VerifyTAPN {
         out << "Search type: " << SearchTypeEnumToString(options.getSearchType()) << std::endl;
         out << "Verification method: " << VerificationTypeEnumToString(options.getVerificationType()) << std::endl;
         out << "Memory optimization: " << MemoryOptimizationEnumToString(options.getMemoryOptimization()) << std::endl;
-        if(!options.getDisableGCDLowerGuards())
-                out << "Lowering all guards by greatest common devisor" << std::endl;
         out << "k-bound is: " << options.getKBound() << std::endl;
         out << "Generating " << enumToString(options.getTrace()) << " trace";
         if (options.getTrace() != VerificationOptions::NO_TRACE) out << " in " << (options.getXmlTrace() ? "xml format" : "human readable format");

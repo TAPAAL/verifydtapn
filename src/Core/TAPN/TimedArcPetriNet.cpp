@@ -100,26 +100,30 @@ namespace VerifyTAPN {
                         constants.erase(0);
                         constants.erase(std::numeric_limits<int>().max());
                         
-                        int devider = *constants.begin();
+                        if(constants.size() == 0){
+                            return; // no constants other than 0 or inf
+                        }
+                        
+                        int divider = *constants.begin();
                         for(std::set<int>::const_iterator it = constants.begin(); it != constants.end(); ++it){
-                            devider = boost::math::gcd(devider, *it);
+                            divider = boost::math::gcd(divider, *it);
                         }
 
                         
-                        if(devider <= 1)
+                        if(divider <= 1)
                             return;
                         
-                        gcd = devider;
+                        gcd = divider;
                         
                         for (TimedPlace::Vector::const_iterator iter = places.begin(); iter != places.end(); ++iter) {
-                            (*iter)->devideInvariantBy(gcd);
+                            (*iter)->divideInvariantBy(gcd);
                         }
 
                         for (TimedInputArc::Vector::const_iterator iter = inputArcs.begin(); iter != inputArcs.end(); ++iter) {
-                            (*iter)->devideIntervalBy(gcd);
+                            (*iter)->divideIntervalBy(gcd);
                         }
                         for (TransportArc::Vector::const_iterator iter = transportArcs.begin(); iter != transportArcs.end(); ++iter) {
-                            (*iter)->devideIntervalBy(gcd);
+                            (*iter)->divideIntervalBy(gcd);
                         }                      
 		}
 
