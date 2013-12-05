@@ -43,8 +43,10 @@ namespace VerifyTAPN {
                 Trace trace,
                 bool xml_trace,
                 bool useGlobalMaxConstants,
-                bool keepDeadTokens,
-               	WorkflowMode workflow) : inputFile(inputFile),
+                bool keepDeadTokens, 
+                bool disableGCDLowerGuards,
+                WorkflowMode workflow
+                ) : inputFile(inputFile),
         queryFile(queryFile),
         searchType(searchType),
         verificationType(verificationType),
@@ -53,9 +55,9 @@ namespace VerifyTAPN {
         trace(trace),
         xml_trace(xml_trace),
         useGlobalMaxConstants(useGlobalMaxConstants),
-        keepDeadTokens(keepDeadTokens),
+        keepDeadTokens(keepDeadTokens), 
+        disableGCDLowerGuards(disableGCDLowerGuards),
         workflow(workflow){
-
         };
 
     public: // inspectors
@@ -100,13 +102,17 @@ namespace VerifyTAPN {
             return keepDeadTokens;
         };
 
+        inline const bool getDisableGCDLowerGuards() const {
+            return disableGCDLowerGuards;
+        }
+
         inline const WorkflowMode getWorkflowMode() const {
 		   return workflow;
 	   };
 
-       inline bool isWorkflow() const{
-    	   return workflow != NOT_WORKFLOW;
-       }
+        inline bool isWorkflow() const{
+            return workflow != NOT_WORKFLOW;
+        }
 
     private:
         std::string inputFile;
@@ -119,6 +125,7 @@ namespace VerifyTAPN {
         bool xml_trace;
         bool useGlobalMaxConstants;
         bool keepDeadTokens;
+        bool disableGCDLowerGuards;
         WorkflowMode workflow;
     };
 

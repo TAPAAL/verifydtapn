@@ -30,6 +30,7 @@ namespace VerifyTAPN
 			inline TimedTransition& getTransition() const { return transition; }
 			inline TimedPlace& getDestination() const { return destination; }
 			inline const TimeInterval& getInterval() const { return interval; }
+                        inline void divideIntervalBy(int divider) { interval.divideBoundsBy(divider); };
 
 		public: // Inspectors
 				void print(std::ostream& out) const;

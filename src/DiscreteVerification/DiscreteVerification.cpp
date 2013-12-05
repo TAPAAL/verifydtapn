@@ -12,7 +12,7 @@ namespace VerifyTAPN {
 
     namespace DiscreteVerification {
 
-        template<typename T> void VerifyAndPrint(Verification<T>& verifier, VerificationOptions& options, AST::Query* query);
+        template<typename T> void VerifyAndPrint(TAPN::TimedArcPetriNet& tapn, Verification<T>& verifier, VerificationOptions& options, AST::Query* query);
 
         DiscreteVerification::DiscreteVerification() {
             // TODO Auto-generated constructor stub
@@ -44,7 +44,7 @@ namespace VerifyTAPN {
                 return 1;
             }
 
-            std::cout << options << std::endl;
+            std::cout << options;
 
             // Select verification method
             if(options.getWorkflowMode() != VerificationOptions::NOT_WORKFLOW){
@@ -70,6 +70,7 @@ namespace VerifyTAPN {
 						std::cout << "Model is a MTAWFN" << std::endl << std::endl;
 					}
 					VerifyAndPrint(
+                                                        tapn,
 							*verifier,
 							options,
 							query);
@@ -80,6 +81,7 @@ namespace VerifyTAPN {
             		// Assumes correct structure of net!
             		WorkflowStrongSoundnessReachability* verifier = new WorkflowStrongSoundnessReachability(tapn, *initialMarking, query, options, strategy);
             		VerifyAndPrint(
+                                                        tapn,
 							*verifier,
 							options,
 							query);
@@ -97,12 +99,14 @@ namespace VerifyTAPN {
                     if (query->getQuantifier() == EG || query->getQuantifier() == AF) {
                         LivenessSearchPTrie verifier = LivenessSearchPTrie(tapn, *initialMarking, query, options, strategy);
                         VerifyAndPrint(
+                                tapn,
                                 verifier,
                                 options,
                                 query);
                     } else if (query->getQuantifier() == EF || query->getQuantifier() == AG) {
                         ReachabilitySearchPTrie verifier = ReachabilitySearchPTrie(tapn, *initialMarking, query, options, strategy);
                         VerifyAndPrint(
+                                tapn,
                                 verifier,
                                 options,
                                 query);
@@ -114,12 +118,14 @@ namespace VerifyTAPN {
                     if (query->getQuantifier() == EG || query->getQuantifier() == AF) {
                         LivenessSearch verifier = LivenessSearch(tapn, *initialMarking, query, options, strategy);
                         VerifyAndPrint(
+                                tapn,
                                 verifier,
                                 options,
                                 query);
                     } else if (query->getQuantifier() == EF || query->getQuantifier() == AG) {
                         ReachabilitySearch verifier = ReachabilitySearch(tapn, *initialMarking, query, options, strategy);
                         VerifyAndPrint(
+                                tapn,
                                 verifier,
                                 options,
                                 query);
@@ -133,13 +139,14 @@ namespace VerifyTAPN {
                     deadlockVisitor.visit(*query, containsDeadlock);
 
                     if (containsDeadlock.value) {
-                        cout << "The combination of TimeDarts, Deadlock proposition and EG or AF queries is currently not supported" << endl;
+                        std::cout << "The combination of TimeDarts, Deadlock proposition and EG or AF queries is currently not supported" << endl;
                         exit(1);
                     }                
                     if (options.getMemoryOptimization() == VerificationOptions::PTRIE) {
                         WaitingList<EncodingPointer<WaitingDart> >* strategy = getWaitingList<EncodingPointer<WaitingDart> > (query, options);
                         TimeDartLivenessPData verifier = TimeDartLivenessPData(tapn, *initialMarking, query, options, strategy);
                         VerifyAndPrint(
+                                tapn,
                                 verifier,
                                 options,
                                 query);
@@ -148,6 +155,7 @@ namespace VerifyTAPN {
                         WaitingList<WaitingDart>* strategy = getWaitingList<WaitingDart > (query, options);
                         TimeDartLiveness verifier = TimeDartLiveness(tapn, *initialMarking, query, options, strategy);
                         VerifyAndPrint(
+                                tapn,
                                 verifier,
                                 options,
                                 query);
@@ -159,6 +167,7 @@ namespace VerifyTAPN {
                         WaitingList<TimeDartEncodingPointer>* strategy = getWaitingList<TimeDartEncodingPointer > (query, options);
                         TimeDartReachabilitySearchPData verifier = TimeDartReachabilitySearchPData(tapn, *initialMarking, query, options, strategy);
                         VerifyAndPrint(
+                                tapn,
                                 verifier,
                                 options,
                                 query);
@@ -167,6 +176,7 @@ namespace VerifyTAPN {
                         WaitingList<TimeDartBase>* strategy = getWaitingList<TimeDartBase > (query, options);
                         TimeDartReachabilitySearch verifier = TimeDartReachabilitySearch(tapn, *initialMarking, query, options, strategy);
                         VerifyAndPrint(
+                                tapn,
                                 verifier,
                                 options,
                                 query);
@@ -178,9 +188,14 @@ namespace VerifyTAPN {
             return 0;
         }
 
-        template<typename T> void VerifyAndPrint(Verification<T>& verifier, VerificationOptions& options, AST::Query* query) {
+        template<typename T> void VerifyAndPrint(TAPN::TimedArcPetriNet& tapn, Verification<T>& verifier, VerificationOptions& options, AST::Query* query) {
             bool result = (!options.isWorkflow() && (query->getQuantifier() == AG || query->getQuantifier() == AF)) ? !verifier.verify() : verifier.verify();
 
+            if (!options.getDisableGCDLowerGuards()) {
+                std::cout << "Lowering all guards by greatest common divisor: " << tapn.getGCD() << std::endl;
+            }
+            std::cout << std::endl;
+            
             verifier.printStats();
             verifier.printTransitionStatistics();
 
@@ -190,7 +205,7 @@ namespace VerifyTAPN {
                 std::cout << ">" << options.getKBound() << std::endl;
             else
                 std::cout << verifier.maxUsedTokens() << std::endl;
-
+            
             if (options.getTrace() == VerificationOptions::SOME_TRACE) {
                 if ((query->getQuantifier() == EF && result) || (query->getQuantifier() == AG && !result) || (query->getQuantifier() == EG && result) || (query->getQuantifier() == AF && !result) || (options.isWorkflow())) {
                     verifier.getTrace();

@@ -28,7 +28,7 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
-	tapn->initialize(options.getGlobalMaxConstantsEnabled());
+	tapn->initialize(options.getGlobalMaxConstantsEnabled(), options.getDisableGCDLowerGuards());
 
 	std::vector<int> initialPlacement(modelParser.parseMarking(options.getInputFile(), *tapn));
 

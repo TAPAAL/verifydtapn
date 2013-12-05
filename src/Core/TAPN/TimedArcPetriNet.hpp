@@ -2,6 +2,7 @@
 #define VERIFYTAPN_TAPN_TimedArcPetriNet_HPP_
 
 #include <iostream>
+#include <set>
 #include "TimedPlace.hpp"
 #include "TimedTransition.hpp"
 #include "TimedInputArc.hpp"
@@ -10,6 +11,7 @@
 #include "OutputArc.hpp"
 #include "google/sparse_hash_map"
 #include "boost/functional/hash.hpp"
+#include <boost/math/common_factor.hpp>
 #include "../QueryParser/AST.hpp"
 #include "../../DiscreteVerification/PlaceVisitor.hpp"
 #include "../VerificationOptions.hpp"
@@ -28,7 +30,7 @@ namespace VerifyTAPN {
 				OutputArc::Vector& outputArcs,
 				TransportArc::Vector& transportArcs,
 				InhibitorArc::Vector& inhibitorArcs)
-				: places(places), transitions(transitions), inputArcs(inputArcs), outputArcs(outputArcs), transportArcs(transportArcs), inhibitorArcs(inhibitorArcs), maxConstant(0) { };
+				: places(places), transitions(transitions), inputArcs(inputArcs), outputArcs(outputArcs), transportArcs(transportArcs), inhibitorArcs(inhibitorArcs), maxConstant(0), gcd(1) { };
 			~TimedArcPetriNet() { 
                             // call delete on all data
                             for(unsigned int i = 0; i < places.size();++i) delete places[i];
@@ -54,13 +56,15 @@ namespace VerifyTAPN {
 			const int getNumberOfOutputArcs() const { return outputArcs.size(); }
 			int getNumberOfPlaces() const { return places.size(); };
 			inline int getMaxConstant() const { return maxConstant; };
+                        const inline int getGCD() const { return gcd; };
 			inline const bool isPlaceAtIndexUntimed(int index) const { return places[index]->isUntimed(); }
 			bool isNonStrict() const;
 			void calculateCausality(TimedPlace& p, std::vector< TimedPlace* >* result) const;
 			void updatePlaceTypes(const AST::Query* query, VerificationOptions options);
 		public: // modifiers
-			void initialize(bool useGlobalMaxConstant);
+			void initialize(bool useGlobalMaxConstant, bool disableLowerGuards);
 			bool containsOrphanTransitions();
+			void GCDLowerGuards();
 
 
 		private: // modifiers
@@ -78,6 +82,7 @@ namespace VerifyTAPN {
 			TransportArc::Vector transportArcs;
 			InhibitorArc::Vector inhibitorArcs;
 			int maxConstant;
+                        int gcd;
 		};
 
 		inline std::ostream& operator<<(std::ostream& out, const VerifyTAPN::TAPN::TimedArcPetriNet& tapn)

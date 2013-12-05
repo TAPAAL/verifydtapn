@@ -5,8 +5,14 @@
 
 namespace VerifyTAPN {
 	namespace TAPN {
-		void TimedArcPetriNet::initialize(bool useGlobalMaxConstant)
+		void TimedArcPetriNet::initialize(bool useGlobalMaxConstant, bool disableLowerGuards)
 		{
+                    
+                        // start by doing GCD if enabled
+                        if(!disableLowerGuards){
+                                GCDLowerGuards();
+                        }
+                    
 			for(unsigned int i = 0; i < places.size(); i++){
 				places[i]->setIndex(i);
 				updateMaxConstant(places[i]->getInvariant());
@@ -73,6 +79,52 @@ namespace VerifyTAPN {
 				}
 			}
                         return false;
+		}
+
+                void TimedArcPetriNet::GCDLowerGuards() {
+                        std::set<int> constants;
+
+                        for (TimedPlace::Vector::const_iterator iter = places.begin(); iter != places.end(); ++iter) {
+                            constants.insert((*iter)->getInvariant().getBound());
+                        }
+
+                        for (TimedInputArc::Vector::const_iterator iter = inputArcs.begin(); iter != inputArcs.end(); ++iter) {
+                            constants.insert((*iter)->getInterval().getLowerBound());
+                            constants.insert((*iter)->getInterval().getUpperBound());
+                        }
+                        for (TransportArc::Vector::const_iterator iter = transportArcs.begin(); iter != transportArcs.end(); ++iter) {
+                            constants.insert((*iter)->getInterval().getLowerBound());
+                            constants.insert((*iter)->getInterval().getUpperBound());
+                        }
+                 
+                        constants.erase(0);
+                        constants.erase(std::numeric_limits<int>().max());
+                        
+                        if(constants.size() == 0){
+                            return; // no constants other than 0 or inf
+                        }
+                        
+                        int divider = *constants.begin();
+                        for(std::set<int>::const_iterator it = constants.begin(); it != constants.end(); ++it){
+                            divider = boost::math::gcd(divider, *it);
+                        }
+
+                        
+                        if(divider <= 1)
+                            return;
+                        
+                        gcd = divider;
+                        
+                        for (TimedPlace::Vector::const_iterator iter = places.begin(); iter != places.end(); ++iter) {
+                            (*iter)->divideInvariantBy(gcd);
+                        }
+
+                        for (TimedInputArc::Vector::const_iterator iter = inputArcs.begin(); iter != inputArcs.end(); ++iter) {
+                            (*iter)->divideIntervalBy(gcd);
+                        }
+                        for (TransportArc::Vector::const_iterator iter = transportArcs.begin(); iter != transportArcs.end(); ++iter) {
+                            (*iter)->divideIntervalBy(gcd);
+                        }                      
 		}
 
 		void TimedArcPetriNet::markUntimedPlaces()

@@ -23,7 +23,9 @@ namespace VerifyTAPN {
 			}
 
 			virtual ~TimeInterval() { /* empty */ }
-
+                        void divideBoundsBy(int divider);
+                        
+                        
 		public: // inspectors
 			void print(std::ostream& out) const;
 			inline const int getLowerBound() const { return lowerBound; }
