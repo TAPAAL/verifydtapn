@@ -45,8 +45,6 @@ namespace VerifyTAPN {
 
         public:
             void getTrace();
-        private:
-            NonStrictMarking* lastMarking;
         protected:
             int validChildren;
             NonStrictMarking* tmpParent;
