@@ -324,7 +324,7 @@ namespace VerifyTAPN {
             xml_node<>* tokenNode = doc.allocate_node(node_element, "token");
             xml_attribute<>* placeAttribute = doc.allocate_attribute("place", doc.allocate_string(place.getName().c_str()));
             tokenNode->append_attribute(placeAttribute);
-            xml_attribute<>* ageAttribute = doc.allocate_attribute("age", doc.allocate_string(toString(token.getAge()).c_str()));
+            xml_attribute<>* ageAttribute = doc.allocate_attribute("age", doc.allocate_string(toString(token.getAge()*tapn.getGCD()).c_str()));
             tokenNode->append_attribute(ageAttribute);
             if (place.getMaxConstant() < token.getAge()) {
                 xml_attribute<>* gtAttribute = doc.allocate_attribute("greaterThanOrEqual", doc.allocate_string("true"));
