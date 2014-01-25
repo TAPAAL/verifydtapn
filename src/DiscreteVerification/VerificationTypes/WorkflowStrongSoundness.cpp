@@ -58,11 +58,12 @@ namespace VerifyTAPN {
                     marking->incrementAge();
                     marking->setGeneratedBy(NULL);
                     if (addToPW(marking, &next_marking)) {
+                        this->printExecutionTime(std::cout);
+                        exit(1);
                         return true;
                     }
                 }
             }
-
             return false;
         }
 
@@ -70,11 +71,11 @@ namespace VerifyTAPN {
             std::stack < NonStrictMarking*> printStack;
             NonStrictMarking* next = lastMarking;
             do {
-                NonStrictMarking* parent = ((WorkflowStrongSoundnessMetaData*) next->meta)->parent;
+                NonStrictMarking* parent = (NonStrictMarking*)next->getParent();
                 printStack.push(next);
                 next = parent;
 
-            } while (((WorkflowStrongSoundnessMetaData*) next->meta)->parent != NULL);
+            } while (next != NULL && next->getParent() != NULL);
 
             if (printStack.top() != next) {
                 printStack.push(next);
@@ -106,15 +107,13 @@ namespace VerifyTAPN {
             bool isNew = false;
             if(old == NULL){
                     isNew = true;
-                    marking->meta = new WorkflowSoundnessMetaData();
             } else  {
                 delete marking;
                 marking = old;
             }
 
-            WorkflowStrongSoundnessMetaData* meta = (WorkflowStrongSoundnessMetaData*) marking->meta;
-
-            if (meta->parent == NULL) meta->parent = parent;
+            
+            if (marking->getParent() == NULL) marking->setParent(parent);
 
             if (!marking->getTokenList(timer->getIndex()).empty() &&
                     (marking->getTokenList(timer->getIndex()).at(0).getAge() > max_value ||

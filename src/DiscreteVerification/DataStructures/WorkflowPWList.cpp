@@ -117,6 +117,7 @@ namespace VerifyTAPN {
         }
 
         NonStrictMarking* WorkflowPWList::addToPassed(NonStrictMarking* marking) {
+            discoveredMarkings++;
             NonStrictMarking* existing = lookup(marking);
             if (existing != NULL) {
                 return existing;
