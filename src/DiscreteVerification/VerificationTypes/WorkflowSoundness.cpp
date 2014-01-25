@@ -82,13 +82,15 @@ bool WorkflowSoundness::addToPW(NonStrictMarking* marking, NonStrictMarking* par
 	}
 
 	// Map to existing marking if any
-	NonStrictMarking* lookup = pwList->lookup(marking);
-	if(lookup != NULL){
-		delete marking;
-		marking = lookup;
-	}else{
+	NonStrictMarking* old = pwList->addToPassed(marking);
+        bool isNew = false;
+	if(old == NULL){
+                isNew = true;
 		marking->meta = new WorkflowSoundnessMetaData();
-	}
+	} else  {
+            delete marking;
+            marking = old;
+        }
 
 	WorkflowSoundnessMetaData* marking_meta_data = ((WorkflowSoundnessMetaData*)marking->meta);
 
@@ -110,7 +112,6 @@ bool WorkflowSoundness::addToPW(NonStrictMarking* marking, NonStrictMarking* par
 	// Test if final place
 	if(marking->numberOfTokensInPlace(out->getIndex()) > 0){
 		if(size == 1){
-			marking = pwList->addToPassed(marking);
 			marking_meta_data = ((WorkflowSoundnessMetaData*)marking->meta);
 			marking_meta_data->parents->push_back(parent);
 			// Set min
@@ -122,7 +123,8 @@ bool WorkflowSoundness::addToPW(NonStrictMarking* marking, NonStrictMarking* par
 		}
 	}else{
 		// If new marking
-		if(pwList->add(marking)){
+		if(isNew){
+                        pwList->addToWaiting(marking);
 			if(parent != NULL && marking->canDeadlock(tapn, 0)){
 				lastMarking = marking;
 				return true;
@@ -133,7 +135,6 @@ bool WorkflowSoundness::addToPW(NonStrictMarking* marking, NonStrictMarking* par
 			}
 		}
 	}
-
 	return false;
 }
 

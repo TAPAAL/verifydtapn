@@ -102,11 +102,14 @@ namespace VerifyTAPN {
 
             /* Handle max */
             // Map to existing marking if any
-            NonStrictMarking* lookup = pwList->lookup(marking);
-            if (lookup != NULL) {
-                marking = lookup;
-            } else {
-                marking->meta = new WorkflowStrongSoundnessMetaData();
+            NonStrictMarking* old = pwList->addToPassed(marking);
+            bool isNew = false;
+            if(old == NULL){
+                    isNew = true;
+                    marking->meta = new WorkflowSoundnessMetaData();
+            } else  {
+                delete marking;
+                marking = old;
             }
 
             WorkflowStrongSoundnessMetaData* meta = (WorkflowStrongSoundnessMetaData*) marking->meta;
@@ -122,7 +125,7 @@ namespace VerifyTAPN {
             }
 
             // Add to passed
-            if (pwList->add(marking)) {
+            if (isNew) {
                 QueryVisitor<NonStrictMarking> checker(*marking, tapn);
                 BoolResult context;
 

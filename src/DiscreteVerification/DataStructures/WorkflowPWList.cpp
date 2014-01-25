@@ -124,7 +124,7 @@ namespace VerifyTAPN {
                 NonStrictMarkingList& m = markings_storage[marking->getHashKey()];
                 stored++;
                 m.push_back(marking);
-                return marking;
+                return NULL;
             }
         }
 
