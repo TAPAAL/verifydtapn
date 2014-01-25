@@ -114,7 +114,7 @@ namespace VerifyTAPN {
 
             WorkflowStrongSoundnessMetaData* meta = (WorkflowStrongSoundnessMetaData*) marking->meta;
 
-            if (parent != NULL) meta->parent = parent;
+            if (meta->parent == NULL) meta->parent = parent;
 
             if (!marking->getTokenList(timer->getIndex()).empty() &&
                     (marking->getTokenList(timer->getIndex()).at(0).getAge() > max_value ||
@@ -126,6 +126,7 @@ namespace VerifyTAPN {
 
             // Add to passed
             if (isNew) {
+                pwList->addToWaiting(marking);
                 QueryVisitor<NonStrictMarking> checker(*marking, tapn);
                 BoolResult context;
 
