@@ -70,11 +70,11 @@ namespace VerifyTAPN {
             std::stack < NonStrictMarking*> printStack;
             NonStrictMarking* next = lastMarking;
             do {
-                NonStrictMarking* parent = ((WorkflowStrongSoundnessMetaData*) next->meta)->parents->at(0);
+                NonStrictMarking* parent = ((WorkflowStrongSoundnessMetaData*) next->meta)->parent;
                 printStack.push(next);
                 next = parent;
 
-            } while (((WorkflowStrongSoundnessMetaData*) next->meta)->parents != NULL && !((WorkflowStrongSoundnessMetaData*) next->meta)->parents->empty());
+            } while (((WorkflowStrongSoundnessMetaData*) next->meta)->parent != NULL);
 
             if (printStack.top() != next) {
                 printStack.push(next);
@@ -114,7 +114,7 @@ namespace VerifyTAPN {
 
             WorkflowStrongSoundnessMetaData* meta = (WorkflowStrongSoundnessMetaData*) marking->meta;
 
-            if (parent != NULL) meta->parents->push_back(parent);
+            if (parent != NULL) meta->parent = parent;
 
             if (!marking->getTokenList(timer->getIndex()).empty() &&
                     (marking->getTokenList(timer->getIndex()).at(0).getAge() > max_value ||
