@@ -221,6 +221,7 @@ namespace VerifyTAPN {
                 l->incrementAge(trace->start);
                 l->cut();
                 l->setParent(NULL);
+                l->setGeneratedBy( ((TraceDart*)lastMarking)->generatedBy);
             }
             while (trace != NULL) {
                 int lower = trace->start;
