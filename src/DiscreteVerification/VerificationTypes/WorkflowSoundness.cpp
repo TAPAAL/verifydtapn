@@ -43,6 +43,7 @@ bool WorkflowSoundness::verify(){
 	}
 
 	// Phase 2
+        // find shortest trace
 	for(vector<NonStrictMarking*>::iterator iter = final_set->begin(); iter != final_set->end(); iter++){
 		pwList->addToWaiting(*iter);
 		if(((WorkflowSoundnessMetaData*)(*iter)->meta)->min < min_exec){
@@ -50,22 +51,23 @@ bool WorkflowSoundness::verify(){
 			lastMarking = (*iter);
 		}
 	}
-
+        int passed = 0;
+        // mark all as passed which ends in a final marking
 	while(pwList->hasWaitingStates()){
 		NonStrictMarking* next_marking = pwList->getNextUnexplored();
 		if(next_marking->meta->passed)	continue;
 		next_marking->meta->passed = true;
+                ++passed;
 		for(vector<NonStrictMarking*>::iterator iter = ((WorkflowSoundnessMetaData*)next_marking->meta)->parents->begin(); iter != ((WorkflowSoundnessMetaData*)next_marking->meta)->parents->end(); iter++){
 			pwList->addToWaiting(*iter);
 		}
 	}
 
-	NonStrictMarking* unpassed = pwList->getUnpassed();
-	if(unpassed == NULL){
+        if(passed < pwList->stored){
+                lastMarking = pwList->getUnpassed();
+                return false;
+        } else {
 		return true;
-	}else{
-		lastMarking = unpassed;
-		return false;
 	}
 }
 
