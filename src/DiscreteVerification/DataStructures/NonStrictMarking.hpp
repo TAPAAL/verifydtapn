@@ -34,8 +34,8 @@ namespace DiscreteVerification {
     
     struct WorkflowSoundnessMetaData : public MetaData {
 	   public:
-    	WorkflowSoundnessMetaData() : parents(new vector<NonStrictMarking*>), min(INT_MAX) {};
-		   vector<NonStrictMarking*>* parents;
+    	WorkflowSoundnessMetaData() : parents(), min(INT_MAX) {};
+		   vector<WorkflowSoundnessMetaData*> parents;
 		   int min;
 	   };
 
