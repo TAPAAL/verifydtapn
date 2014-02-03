@@ -33,9 +33,18 @@ int main(int argc, char* argv[])
 	std::vector<int> initialPlacement(modelParser.parseMarking(options.getInputFile(), *tapn));
 
 	AST::Query* query;
-        if(options.getWorkflowMode() == VerificationOptions::WORKFLOW_SOUNDNESS) {
+        if (options.getWorkflowMode() == VerificationOptions::WORKFLOW_SOUNDNESS) {
+            if (options.getSearchType() != VerificationOptions::DEFAULT) {
+                cout << "Workflow-soundness only supports the default search-strategy" << endl;
+                exit(1);
+            } else {
+                options.setSearchType(VerificationOptions::MINDELAYFIRST);
+            }
             query = new AST::Query(AST::EF, new AST::BoolExpression(true));
         } else {
+            if (options.getSearchType() == VerificationOptions::DEFAULT) {
+                options.setSearchType(VerificationOptions::COVERMOST);
+            }
             try{
                     TAPNQueryParser queryParser(*tapn);
                     queryParser.parse(options.getQueryFile());

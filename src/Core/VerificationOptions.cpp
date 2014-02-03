@@ -20,6 +20,10 @@ namespace VerifyTAPN {
                 return "Random Search";
             case VerificationOptions::DEPTHFIRST:
                 return "Depth-First Search";
+            case VerificationOptions::BREADTHFIRST:
+                return "Breadth-First Search";
+            case VerificationOptions::MINDELAYFIRST:
+                return "Minimum-Delay-First Search";
             default:
                 return "Breadth-First Search";
         }

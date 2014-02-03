@@ -137,8 +137,8 @@ void ArgsParser::initialize() {
             "Max tokens to use during exploration.", 0));
     parsers.push_back(
             boost::make_shared<SwitchWithArg > ("o", SEARCH_OPTION,
-            "Specify the desired search strategy.\n - 0: Breadth-First Search\n - 1: Depth-First Search\n - 2: Random Search\n - 3: Heuristic Search",
-            3));
+            "Specify the desired search strategy.\n - 0: Breadth-First Search\n - 1: Depth-First Search\n - 2: Random Search\n - 3: Heuristic Search - 4: Default",
+            4));
     parsers.push_back(
             boost::make_shared<SwitchWithArg > ("m", VERIFICATION_OPTION,
             "Specify the desired verification method.\n - 0: Default (discrete)\n - 1: Time Darts",
@@ -311,6 +311,8 @@ VerificationOptions::SearchType intToSearchTypeEnum(int i) {
 		return VerificationOptions::RANDOM;
 	case 3:
 		return VerificationOptions::COVERMOST;
+        case 4:
+                return VerificationOptions::DEFAULT;
 	default:
 		std::cout << "Unknown search strategy specified." << std::endl;
 		exit(1);

@@ -15,7 +15,7 @@ namespace VerifyTAPN {
         };
 
         enum SearchType {
-            BREADTHFIRST, DEPTHFIRST, RANDOM, COVERMOST
+            BREADTHFIRST, DEPTHFIRST, RANDOM, COVERMOST, DEFAULT, MINDELAYFIRST
         };
 
         enum VerificationType {
@@ -94,6 +94,10 @@ namespace VerifyTAPN {
 
         inline const SearchType getSearchType() const {
             return searchType;
+        }
+        
+        inline void setSearchType(SearchType type){
+            searchType = type;
         }
 
         inline const VerificationType getVerificationType() const {
