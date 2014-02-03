@@ -215,32 +215,14 @@ VerificationOptions ArgsParser::parse(int argc, char* argv[]) const {
 		exit(1);
 	}
 
-	std::string model_file(argv[argc - 2]);
-	std::string query_file(argv[argc - 1]);
-
-	if (boost::iends_with(query_file, ".xml")) {
-		std::cout << "Missing query file." << std::endl;
-		exit(1);
-	}
-
-	if (!boost::iends_with(model_file, ".xml")) {
-		std::cout << "Invalid model file specified." << std::endl;
-		exit(1);
-	}
-
-	if (!boost::iends_with(query_file, ".q")) {
-		std::cout << "Invalid query file specified." << std::endl;
-		exit(1);
-	}
-
 	std::vector<std::string> flags;
 	unsigned int i = 1;
 	unsigned int size = static_cast<unsigned int>(argc);
-	while (i < size - 2) {
+	while (i < size) {
 		std::string arg(argv[i]);
 		if (boost::istarts_with(arg, "-")) {
 			std::string arg2(argv[i + 1]);
-			if (!boost::istarts_with(arg2, "-") && i + 1 < size - 2) {
+			if (!boost::istarts_with(arg2, "-") && i + 1 < size) {
 				flags.push_back(arg + " " + arg2);
 				i++;
 			} else {
@@ -277,7 +259,46 @@ VerificationOptions ArgsParser::parse(int argc, char* argv[]) const {
 		}
 	}
 
-	return createVerificationOptions(options, model_file, query_file);
+        std::string model_file(argv[argc - 2]);
+	std::string query_file(argv[argc - 1]);
+        
+	return verifyInputFiles(createVerificationOptions(options), model_file, query_file);
+}
+
+VerificationOptions ArgsParser::verifyInputFiles(VerificationOptions options, std::string model_file, std::string query_file) const {
+    if(options.getWorkflowMode() != VerificationOptions::WORKFLOW_SOUNDNESS) {
+        if (boost::iends_with(query_file, ".xml")) {
+            std::cout << "Missing query file." << std::endl;
+            exit(1);
+        }
+
+        if (!boost::iends_with(model_file, ".xml")) {
+            std::cout << "Invalid model file specified." << std::endl;
+            exit(1);
+        }
+
+        if (!boost::iends_with(query_file, ".q")) {
+            std::cout << "Invalid query file specified." << std::endl;
+            exit(1);
+        }
+    } else {
+        if (!boost::iends_with(model_file, ".xml")) {
+            if (boost::iends_with(query_file, ".xml")) {
+                // last argument is probably xml, no query-file 
+                model_file = query_file;
+            } else {
+                // we have no xml-files at all :(
+                std::cout << "Invalid model file specified." << std::endl;
+                exit(1);
+            }
+        } else {
+            std::cout << "Ignoring query-file for Workflow-analysis" << std::endl;
+        }
+        query_file = "";
+    }
+    options.setInputFile(model_file);
+    options.setQueryFile(query_file);
+    return options;
 }
 
 VerificationOptions::SearchType intToSearchTypeEnum(int i) {
@@ -366,8 +387,7 @@ std::vector<std::string> ArgsParser::parseIncPlaces(
 	return vec;
 }
 
-VerificationOptions ArgsParser::createVerificationOptions(const option_map& map,
-		const std::string& modelFile, const std::string& queryFile) const {
+VerificationOptions ArgsParser::createVerificationOptions(const option_map& map) const {
 	assert(map.find(KBOUND_OPTION) != map.end());
 	unsigned int kbound = tryParseInt(*map.find(KBOUND_OPTION));
 
@@ -407,7 +427,7 @@ VerificationOptions ArgsParser::createVerificationOptions(const option_map& map,
         bool disableGCDLowerGuards = boost::lexical_cast<bool>(
 			map.find(GCD)->second);
         
-	return VerificationOptions(modelFile, queryFile, search, verification, memoptimization, kbound, trace,
+	return VerificationOptions(search, verification, memoptimization, kbound, trace,
 			xml_trace, max_constant, keep_dead, disableGCDLowerGuards, workflow);
 
 }

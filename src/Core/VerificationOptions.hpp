@@ -34,8 +34,6 @@ namespace VerifyTAPN {
         }
 
         VerificationOptions(
-                const std::string& inputFile,
-                const std::string& queryFile,
                 SearchType searchType,
                 VerificationType verificationType,
                 MemoryOptimization memOptimization,
@@ -46,8 +44,8 @@ namespace VerifyTAPN {
                 bool keepDeadTokens, 
                 bool disableGCDLowerGuards,
                 WorkflowMode workflow
-                ) : inputFile(inputFile),
-        queryFile(queryFile),
+                ) : inputFile(""),
+        queryFile(""),
         searchType(searchType),
         verificationType(verificationType),
         memOptimization(memOptimization),
@@ -66,8 +64,16 @@ namespace VerifyTAPN {
             return inputFile;
         }
 
+        void setInputFile(std::string input) {
+            inputFile = input;
+        }
+        
         const std::string getQueryFile() const {
             return queryFile;
+        }
+        
+        void setQueryFile(std::string input) {
+            queryFile = input;
         }
 
         inline const unsigned int getKBound() const {

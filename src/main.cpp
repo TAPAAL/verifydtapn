@@ -33,13 +33,17 @@ int main(int argc, char* argv[])
 	std::vector<int> initialPlacement(modelParser.parseMarking(options.getInputFile(), *tapn));
 
 	AST::Query* query;
-	try{
-		TAPNQueryParser queryParser(*tapn);
-		queryParser.parse(options.getQueryFile());
-		query = queryParser.getAST();
-	}catch(...){
-		std::cout << "There was an error parsing the query file." << std::endl;
-		return 1;
+        if(options.getWorkflowMode() == VerificationOptions::WORKFLOW_SOUNDNESS) {
+            query = new AST::Query(AST::EF, new AST::BoolExpression(true));
+        } else {
+            try{
+                    TAPNQueryParser queryParser(*tapn);
+                    queryParser.parse(options.getQueryFile());
+                    query = queryParser.getAST();
+            }catch(...){
+                    std::cout << "There was an error parsing the query file." << std::endl;
+                    return 1;
+            }
         }
 
         if (tapn->containsOrphanTransitions()) {

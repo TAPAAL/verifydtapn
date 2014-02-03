@@ -85,7 +85,8 @@ namespace VerifyTAPN
 
 		VerificationOptions parse(int argc, char* argv[]) const;
 	private:
-		VerificationOptions createVerificationOptions(const option_map& map,const std::string& modelFile, const std::string& queryFile) const;
+		VerificationOptions createVerificationOptions(const option_map& map) const;
+                VerificationOptions verifyInputFiles(VerificationOptions, std::string model_file, std::string query_file) const;
 		unsigned int tryParseInt(const option& option) const;
 		std::vector<std::string> parseIncPlaces(const std::string& string) const;
 		void initialize();
