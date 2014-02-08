@@ -58,9 +58,7 @@ namespace VerifyTAPN {
                     marking->incrementAge();
                     marking->setGeneratedBy(NULL);
                     if (addToPW(marking, &next_marking)) {
-                        this->printExecutionTime(std::cout);
-                        exit(1);
-                        return true;
+                        return true;e
                     }
                 }
             }
