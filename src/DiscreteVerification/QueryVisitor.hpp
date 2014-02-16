@@ -101,7 +101,7 @@ namespace VerifyTAPN {
             IntResult left;
             expr.getLeft().accept(*this, left);
             IntResult right;
-            expr.getLeft().accept(*this, right);
+            expr.getRight().accept(*this, right);
 
             static_cast<BoolResult&>(context).value 
                     = compare(left.value, expr.getOperator(), right.value);
@@ -127,7 +127,7 @@ namespace VerifyTAPN {
             IntResult left;
             expr.getLeft().accept(*this, left);
             IntResult right;
-            expr.getLeft().accept(*this, right);
+            expr.getRight().accept(*this, right);
             ((IntResult&)context).value = left.value * right.value;
         }
         template<typename T>
@@ -142,7 +142,7 @@ namespace VerifyTAPN {
             IntResult left;
             expr.getLeft().accept(*this, left);
             IntResult right;
-            expr.getLeft().accept(*this, right);
+            expr.getRight().accept(*this, right);
             ((IntResult&)context).value = left.value - right.value;
         }
         
@@ -151,7 +151,7 @@ namespace VerifyTAPN {
             IntResult left;
             expr.getLeft().accept(*this, left);
             IntResult right;
-            expr.getLeft().accept(*this, right);
+            expr.getRight().accept(*this, right);
             ((IntResult&)context).value = left.value + right.value;
         }
         
