@@ -31,6 +31,7 @@ namespace VerifyTAPN{
 	int          					number;
 	std::string* 					string;
 	VerifyTAPN::AST::Expression*                    expr;
+        VerifyTAPN::AST::ArithmeticExpression*           arexpr;
 	VerifyTAPN::AST::Query*                         query;
 };
 
@@ -47,8 +48,8 @@ namespace VerifyTAPN{
 %token BOOL_TRUE BOOL_FALSE
 %token DEADLOCK
 %token PLUS MINUS MULTIPLY
-%type <expr> expression notExpression parExpression orExpression andExpression boolExpression 
-%type <expr> atomicProposition arithmeticExpression multiplyExpression arithmeticParantheses
+%type <expr> expression notExpression parExpression orExpression andExpression boolExpression atomicProposition
+%type <arexpr> arithmeticExpression multiplyExpression arithmeticParantheses
 %type <query> query
 %type <string> compareOp
 
@@ -75,22 +76,27 @@ expression              : parExpression             { $$ = $1; }
 %left OR;
 %left AND;
 
-arithmeticExpression	: arithmeticExpression PLUS multiplyExpression	{ $$ = new PlusExpression($1, $3); }
-                        | arithmeticExpression MINUS multiplyExpression	{ $$ = new SubtractExpression($1, $3); }
-                        | MINUS multiplyExpression                    { $$ = new MinusExpression($2); }
+arithmeticExpression	: arithmeticExpression PLUS multiplyExpression	{ $$ = new VerifyTAPN::AST::PlusExpression($1, $3); }
+                        | arithmeticExpression MINUS multiplyExpression	{ $$ = new VerifyTAPN::AST::SubtractExpression($1, $3); }
+                        | MINUS multiplyExpression                    { $$ = new VerifyTAPN::AST::MinusExpression($2); }
                         | multiplyExpression                            { $$ = $1; }
                         ;
 
-multiplyExpression	: multiplyExpression MULTIPLY arithmeticParantheses	{ $$ = new MultiplyExpression($1, $3); }
+multiplyExpression	: multiplyExpression MULTIPLY arithmeticParantheses	{ $$ = new VerifyTAPN::AST::MultiplyExpression($1, $3); }
                         | arithmeticParantheses                                 { $$ = $1; }
                         ;
 
 arithmeticParantheses	: LPARAN arithmeticExpression RPARAN	{ $$ = $2; }
-                        | NUMBER                        	{ $$ = new NumberExpression(atol($1->c_str())); delete $1; }
-                        | IDENTIFIER                            { $$ = new IdentifierExpression(*$1, @1.first_column); delete $1; }
+                        | NUMBER                        	{ $$ = new VerifyTAPN::AST::NumberExpression($1);}
+                        | IDENTIFIER                            { 
+                                                                    int placeIndex = driver.getTAPN().getPlaceIndex(*$1);
+                                                                    delete $1;
+                                                                    if(placeIndex == -1) error(@1, "unknown place"); 
+                                                                    $$ = new VerifyTAPN::AST::IdentifierExpression(placeIndex); 
+                                                                 }
                         ;
 
-parExpression		: LPARAN expression RPARAN  { $$ = new VerifyTAPN::AST::ParExpression($2); };
+parExpression		: LPARAN expression RPARAN  { $$ = $2; };
 notExpression		: NOT parExpression         { $$ = new VerifyTAPN::AST::NotExpression($2); };
 orExpression		: expression OR expression  { $$ = new VerifyTAPN::AST::OrExpression($1, $3); };
 andExpression		: expression AND expression { $$ = new VerifyTAPN::AST::AndExpression($1, $3); };

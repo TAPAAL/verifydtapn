@@ -62,7 +62,7 @@ namespace VerifyTAPN{
 
 /* Enabling traces.  */
 #ifndef YYDEBUG
-# define YYDEBUG 1
+# define YYDEBUG 0
 #endif
 
 /* Line 33 of lalr1.cc  */
@@ -85,11 +85,12 @@ namespace VerifyTAPN {
 	int          					number;
 	std::string* 					string;
 	VerifyTAPN::AST::Expression*                    expr;
+        VerifyTAPN::AST::ArithmeticExpression*           arexpr;
 	VerifyTAPN::AST::Query*                         query;
 
 
 /* Line 33 of lalr1.cc  */
-#line 93 "Core/QueryParser/Generated/parser.hpp"
+#line 94 "Core/QueryParser/Generated/parser.hpp"
     };
 #else
     typedef YYSTYPE semantic_type;
@@ -306,7 +307,7 @@ namespace VerifyTAPN {
 #line 5 "Core/QueryParser/grammar.yy"
 } // VerifyTAPN
 /* Line 33 of lalr1.cc  */
-#line 310 "Core/QueryParser/Generated/parser.hpp"
+#line 311 "Core/QueryParser/Generated/parser.hpp"
 
 
 

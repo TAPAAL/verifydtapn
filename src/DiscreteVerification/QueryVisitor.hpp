@@ -34,17 +34,22 @@ namespace VerifyTAPN {
             
             virtual ~QueryVisitor() {
             };
-
+ 
         public: // visitor methods
 
             virtual void visit(const NotExpression& expr, AST::Result& context);
-            virtual void visit(const ParExpression& expr, AST::Result& context);
             virtual void visit(const OrExpression& expr, AST::Result& context);
             virtual void visit(const AndExpression& expr, AST::Result& context);
             virtual void visit(const AtomicProposition& expr, AST::Result& context);
             virtual void visit(const BoolExpression& expr, AST::Result& context);
             virtual void visit(const Query& query, AST::Result& context);
             virtual void visit(const DeadlockExpression& expr, AST::Result& context);
+            virtual void visit(const NumberExpression& expr, Result& context);
+            virtual void visit(const IdentifierExpression& expr, Result& context);
+            virtual void visit(const MultiplyExpression& expr, Result& context);
+            virtual void visit(const MinusExpression& expr, Result& context);
+            virtual void visit(const SubtractExpression& expr, Result& context);
+            virtual void visit(const PlusExpression& expr, Result& context);
         private:
             bool compare(int numberOfTokensInPlace, const std::string& op, int n) const;
 
@@ -61,11 +66,6 @@ namespace VerifyTAPN {
             BoolResult c;
             expr.getChild().accept(*this, c);
             static_cast<BoolResult&>(context).value = !c.value;
-        }
-
-        template<typename T>
-        void QueryVisitor<T>::visit(const ParExpression& expr, AST::Result& context) {
-            expr.getChild().accept(*this, context);
         }
 
         template<typename T>
@@ -98,9 +98,13 @@ namespace VerifyTAPN {
         template<typename T>
 
         void QueryVisitor<T>::visit(const AtomicProposition& expr, AST::Result& context) {
-            int numberOfTokens = marking.numberOfTokensInPlace(expr.getPlace());
+            IntResult left;
+            expr.getLeft().accept(*this, left);
+            IntResult right;
+            expr.getLeft().accept(*this, right);
+
             static_cast<BoolResult&>(context).value 
-                    = compare(numberOfTokens, expr.getOperator(), expr.getNumberOfTokens());
+                    = compare(left.value, expr.getOperator(), right.value);
         }
 
         template<typename T>
@@ -109,6 +113,49 @@ namespace VerifyTAPN {
                     = expr.getValue();
         }
 
+        template<typename T>
+        void QueryVisitor<T>::visit(const NumberExpression& expr, Result& context){
+            ((IntResult&)context).value = expr.getValue();
+        }
+        
+        template<typename T>
+        void QueryVisitor<T>::visit(const IdentifierExpression& expr, Result& context){
+            ((IntResult&)context).value = marking.numberOfTokensInPlace(expr.getPlace());
+        }
+        template<typename T>
+        void QueryVisitor<T>::visit(const MultiplyExpression& expr, Result& context){
+            IntResult left;
+            expr.getLeft().accept(*this, left);
+            IntResult right;
+            expr.getLeft().accept(*this, right);
+            ((IntResult&)context).value = left.value * right.value;
+        }
+        template<typename T>
+        void QueryVisitor<T>::visit(const MinusExpression& expr, Result& context){
+            IntResult value;
+            expr.getValue().accept(*this, value);
+            ((IntResult&)context).value = -value.value;
+        }
+        
+        template<typename T>
+        void QueryVisitor<T>::visit(const SubtractExpression& expr, Result& context){
+            IntResult left;
+            expr.getLeft().accept(*this, left);
+            IntResult right;
+            expr.getLeft().accept(*this, right);
+            ((IntResult&)context).value = left.value - right.value;
+        }
+        
+        template<typename T>
+        void QueryVisitor<T>::visit(const PlusExpression& expr, Result& context){
+            IntResult left;
+            expr.getLeft().accept(*this, left);
+            IntResult right;
+            expr.getLeft().accept(*this, right);
+            ((IntResult&)context).value = left.value + right.value;
+        }
+        
+        
         template<typename T>
         void QueryVisitor<T>::visit(const Query& query, AST::Result& context) {
             query.getChild().accept(*this, context);

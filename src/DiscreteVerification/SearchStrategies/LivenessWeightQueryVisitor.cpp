@@ -15,11 +15,6 @@ namespace DiscreteVerification {
 			assert(false);
 		}
 
-		void LivenessWeightQueryVisitor::visit(const ParExpression& expr, Result& context)
-		{
-			expr.getChild().accept(*this, context);
-		}
-
 		void LivenessWeightQueryVisitor::visit(const OrExpression& expr, Result& context)
 		{
 			IntResult left, right;
@@ -52,9 +47,12 @@ namespace DiscreteVerification {
 
 		void LivenessWeightQueryVisitor::visit(const AtomicProposition& expr, Result& context)
 		{
-			int numberOfTokens = marking.numberOfTokensInPlace(expr.getPlace());
+                    IntResult left;
+                    IntResult right;
+                    expr.getLeft().accept(*this, left);
+                    expr.getRight().accept(*this, right);
 			static_cast<IntResult&>(context).value
-                                = compare(numberOfTokens, expr.getOperator(), expr.getNumberOfTokens());
+                                = compare(left.value, expr.getOperator(), right.value);
 		}
 
 		void LivenessWeightQueryVisitor::visit(const BoolExpression& expr, Result& context)
