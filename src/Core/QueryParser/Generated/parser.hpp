@@ -62,7 +62,7 @@ namespace VerifyTAPN{
 
 /* Enabling traces.  */
 #ifndef YYDEBUG
-# define YYDEBUG 0
+# define YYDEBUG 1
 #endif
 
 /* Line 33 of lalr1.cc  */
@@ -84,8 +84,8 @@ namespace VerifyTAPN {
 
 	int          					number;
 	std::string* 					string;
-	VerifyTAPN::AST::Expression*	expr;
-	VerifyTAPN::AST::Query*		 	query;
+	VerifyTAPN::AST::Expression*                    expr;
+	VerifyTAPN::AST::Query*                         query;
 
 
 /* Line 33 of lalr1.cc  */
@@ -120,7 +120,10 @@ namespace VerifyTAPN {
      NOT = 273,
      BOOL_TRUE = 274,
      BOOL_FALSE = 275,
-     DEADLOCK = 276
+     DEADLOCK = 276,
+     PLUS = 277,
+     MINUS = 278,
+     MULTIPLY = 279
    };
 
     };
@@ -229,7 +232,7 @@ namespace VerifyTAPN {
     static const unsigned char yytable_[];
     static const signed char yytable_ninf_;
 
-    static const unsigned char yycheck_[];
+    static const signed char yycheck_[];
 
     /// For a state, its accessing symbol.
     static const unsigned char yystos_[];
@@ -303,7 +306,7 @@ namespace VerifyTAPN {
 #line 5 "Core/QueryParser/grammar.yy"
 } // VerifyTAPN
 /* Line 33 of lalr1.cc  */
-#line 307 "Core/QueryParser/Generated/parser.hpp"
+#line 310 "Core/QueryParser/Generated/parser.hpp"
 
 
 

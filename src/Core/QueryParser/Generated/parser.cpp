@@ -247,108 +247,129 @@ namespace VerifyTAPN {
     {
       case 3: /* IDENTIFIER */
 /* Line 452 of lalr1.cc  */
-#line 53 "Core/QueryParser/grammar.yy"
+#line 55 "Core/QueryParser/grammar.yy"
         { delete ((*yyvaluep).string); };
 /* Line 452 of lalr1.cc  */
 #line 254 "Core/QueryParser/Generated/parser.cpp"
         break;
       case 4: /* LESS */
 /* Line 452 of lalr1.cc  */
-#line 53 "Core/QueryParser/grammar.yy"
+#line 55 "Core/QueryParser/grammar.yy"
         { delete ((*yyvaluep).string); };
 /* Line 452 of lalr1.cc  */
 #line 261 "Core/QueryParser/Generated/parser.cpp"
         break;
       case 5: /* LESSEQUAL */
 /* Line 452 of lalr1.cc  */
-#line 53 "Core/QueryParser/grammar.yy"
+#line 55 "Core/QueryParser/grammar.yy"
         { delete ((*yyvaluep).string); };
 /* Line 452 of lalr1.cc  */
 #line 268 "Core/QueryParser/Generated/parser.cpp"
         break;
       case 6: /* EQUAL */
 /* Line 452 of lalr1.cc  */
-#line 53 "Core/QueryParser/grammar.yy"
+#line 55 "Core/QueryParser/grammar.yy"
         { delete ((*yyvaluep).string); };
 /* Line 452 of lalr1.cc  */
 #line 275 "Core/QueryParser/Generated/parser.cpp"
         break;
       case 7: /* GREATEREQUAL */
 /* Line 452 of lalr1.cc  */
-#line 53 "Core/QueryParser/grammar.yy"
+#line 55 "Core/QueryParser/grammar.yy"
         { delete ((*yyvaluep).string); };
 /* Line 452 of lalr1.cc  */
 #line 282 "Core/QueryParser/Generated/parser.cpp"
         break;
       case 8: /* GREATER */
 /* Line 452 of lalr1.cc  */
-#line 53 "Core/QueryParser/grammar.yy"
+#line 55 "Core/QueryParser/grammar.yy"
         { delete ((*yyvaluep).string); };
 /* Line 452 of lalr1.cc  */
 #line 289 "Core/QueryParser/Generated/parser.cpp"
         break;
-      case 23: /* query */
+      case 26: /* query */
 /* Line 452 of lalr1.cc  */
-#line 55 "Core/QueryParser/grammar.yy"
+#line 57 "Core/QueryParser/grammar.yy"
         { delete ((*yyvaluep).query); };
 /* Line 452 of lalr1.cc  */
 #line 296 "Core/QueryParser/Generated/parser.cpp"
         break;
-      case 24: /* expression */
+      case 27: /* expression */
 /* Line 452 of lalr1.cc  */
-#line 54 "Core/QueryParser/grammar.yy"
+#line 56 "Core/QueryParser/grammar.yy"
         { delete ((*yyvaluep).expr); };
 /* Line 452 of lalr1.cc  */
 #line 303 "Core/QueryParser/Generated/parser.cpp"
         break;
-      case 25: /* parExpression */
+      case 28: /* arithmeticExpression */
 /* Line 452 of lalr1.cc  */
-#line 54 "Core/QueryParser/grammar.yy"
+#line 56 "Core/QueryParser/grammar.yy"
         { delete ((*yyvaluep).expr); };
 /* Line 452 of lalr1.cc  */
 #line 310 "Core/QueryParser/Generated/parser.cpp"
         break;
-      case 26: /* notExpression */
+      case 29: /* multiplyExpression */
 /* Line 452 of lalr1.cc  */
-#line 54 "Core/QueryParser/grammar.yy"
+#line 56 "Core/QueryParser/grammar.yy"
         { delete ((*yyvaluep).expr); };
 /* Line 452 of lalr1.cc  */
 #line 317 "Core/QueryParser/Generated/parser.cpp"
         break;
-      case 27: /* orExpression */
+      case 30: /* arithmeticParantheses */
 /* Line 452 of lalr1.cc  */
-#line 54 "Core/QueryParser/grammar.yy"
+#line 56 "Core/QueryParser/grammar.yy"
         { delete ((*yyvaluep).expr); };
 /* Line 452 of lalr1.cc  */
 #line 324 "Core/QueryParser/Generated/parser.cpp"
         break;
-      case 28: /* andExpression */
+      case 31: /* parExpression */
 /* Line 452 of lalr1.cc  */
-#line 54 "Core/QueryParser/grammar.yy"
+#line 56 "Core/QueryParser/grammar.yy"
         { delete ((*yyvaluep).expr); };
 /* Line 452 of lalr1.cc  */
 #line 331 "Core/QueryParser/Generated/parser.cpp"
         break;
-      case 29: /* boolExpression */
+      case 32: /* notExpression */
 /* Line 452 of lalr1.cc  */
-#line 54 "Core/QueryParser/grammar.yy"
+#line 56 "Core/QueryParser/grammar.yy"
         { delete ((*yyvaluep).expr); };
 /* Line 452 of lalr1.cc  */
 #line 338 "Core/QueryParser/Generated/parser.cpp"
         break;
-      case 30: /* atomicProposition */
+      case 33: /* orExpression */
 /* Line 452 of lalr1.cc  */
-#line 54 "Core/QueryParser/grammar.yy"
+#line 56 "Core/QueryParser/grammar.yy"
         { delete ((*yyvaluep).expr); };
 /* Line 452 of lalr1.cc  */
 #line 345 "Core/QueryParser/Generated/parser.cpp"
         break;
-      case 31: /* compareOp */
+      case 34: /* andExpression */
 /* Line 452 of lalr1.cc  */
-#line 53 "Core/QueryParser/grammar.yy"
-        { delete ((*yyvaluep).string); };
+#line 56 "Core/QueryParser/grammar.yy"
+        { delete ((*yyvaluep).expr); };
 /* Line 452 of lalr1.cc  */
 #line 352 "Core/QueryParser/Generated/parser.cpp"
+        break;
+      case 35: /* boolExpression */
+/* Line 452 of lalr1.cc  */
+#line 56 "Core/QueryParser/grammar.yy"
+        { delete ((*yyvaluep).expr); };
+/* Line 452 of lalr1.cc  */
+#line 359 "Core/QueryParser/Generated/parser.cpp"
+        break;
+      case 36: /* atomicProposition */
+/* Line 452 of lalr1.cc  */
+#line 56 "Core/QueryParser/grammar.yy"
+        { delete ((*yyvaluep).expr); };
+/* Line 452 of lalr1.cc  */
+#line 366 "Core/QueryParser/Generated/parser.cpp"
+        break;
+      case 37: /* compareOp */
+/* Line 452 of lalr1.cc  */
+#line 55 "Core/QueryParser/grammar.yy"
+        { delete ((*yyvaluep).string); };
+/* Line 452 of lalr1.cc  */
+#line 373 "Core/QueryParser/Generated/parser.cpp"
         break;
 
       default:
@@ -449,7 +470,7 @@ namespace VerifyTAPN {
   yylloc.begin.filename = yylloc.end.filename = &driver.file;
 }
 /* Line 539 of lalr1.cc  */
-#line 453 "Core/QueryParser/Generated/parser.cpp"
+#line 474 "Core/QueryParser/Generated/parser.cpp"
 
     /* Initialize the stacks.  The initial state will be pushed in
        yynewstate, since the latter expects the semantical and the
@@ -569,121 +590,169 @@ namespace VerifyTAPN {
       {
           case 2:
 /* Line 664 of lalr1.cc  */
-#line 59 "Core/QueryParser/grammar.yy"
+#line 61 "Core/QueryParser/grammar.yy"
     { (yyval.query) = new VerifyTAPN::AST::Query(VerifyTAPN::AST::EF, (yysemantic_stack_[(2) - (2)].expr)); driver.setAST((yyval.query)); }
     break;
 
   case 3:
 /* Line 664 of lalr1.cc  */
-#line 60 "Core/QueryParser/grammar.yy"
+#line 62 "Core/QueryParser/grammar.yy"
     { (yyval.query) = new VerifyTAPN::AST::Query(VerifyTAPN::AST::AG, (yysemantic_stack_[(2) - (2)].expr)); driver.setAST((yyval.query)); }
     break;
 
   case 4:
 /* Line 664 of lalr1.cc  */
-#line 61 "Core/QueryParser/grammar.yy"
+#line 63 "Core/QueryParser/grammar.yy"
     { (yyval.query) = new VerifyTAPN::AST::Query(VerifyTAPN::AST::EG, (yysemantic_stack_[(2) - (2)].expr)); driver.setAST((yyval.query)); }
     break;
 
   case 5:
 /* Line 664 of lalr1.cc  */
-#line 62 "Core/QueryParser/grammar.yy"
+#line 64 "Core/QueryParser/grammar.yy"
     { (yyval.query) = new VerifyTAPN::AST::Query(VerifyTAPN::AST::AF, (yysemantic_stack_[(2) - (2)].expr)); driver.setAST((yyval.query)); }
     break;
 
   case 6:
 /* Line 664 of lalr1.cc  */
-#line 65 "Core/QueryParser/grammar.yy"
+#line 67 "Core/QueryParser/grammar.yy"
     { (yyval.expr) = (yysemantic_stack_[(1) - (1)].expr); }
     break;
 
   case 7:
 /* Line 664 of lalr1.cc  */
-#line 66 "Core/QueryParser/grammar.yy"
+#line 68 "Core/QueryParser/grammar.yy"
     { (yyval.expr) = (yysemantic_stack_[(1) - (1)].expr); }
     break;
 
   case 8:
 /* Line 664 of lalr1.cc  */
-#line 67 "Core/QueryParser/grammar.yy"
+#line 69 "Core/QueryParser/grammar.yy"
     { (yyval.expr) = (yysemantic_stack_[(1) - (1)].expr); }
     break;
 
   case 9:
 /* Line 664 of lalr1.cc  */
-#line 68 "Core/QueryParser/grammar.yy"
+#line 70 "Core/QueryParser/grammar.yy"
     { (yyval.expr) = (yysemantic_stack_[(1) - (1)].expr); }
     break;
 
   case 10:
 /* Line 664 of lalr1.cc  */
-#line 69 "Core/QueryParser/grammar.yy"
+#line 71 "Core/QueryParser/grammar.yy"
     { (yyval.expr) = (yysemantic_stack_[(1) - (1)].expr); }
     break;
 
   case 11:
 /* Line 664 of lalr1.cc  */
-#line 70 "Core/QueryParser/grammar.yy"
+#line 72 "Core/QueryParser/grammar.yy"
     { (yyval.expr) = (yysemantic_stack_[(1) - (1)].expr); }
     break;
 
   case 12:
 /* Line 664 of lalr1.cc  */
-#line 76 "Core/QueryParser/grammar.yy"
-    { (yyval.expr) = new VerifyTAPN::AST::ParExpression((yysemantic_stack_[(3) - (2)].expr)); }
+#line 78 "Core/QueryParser/grammar.yy"
+    { (yyval.expr) = new PlusExpression((yysemantic_stack_[(3) - (1)].expr), (yysemantic_stack_[(3) - (3)].expr)); }
     break;
 
   case 13:
 /* Line 664 of lalr1.cc  */
-#line 77 "Core/QueryParser/grammar.yy"
-    { (yyval.expr) = new VerifyTAPN::AST::NotExpression((yysemantic_stack_[(2) - (2)].expr)); }
+#line 79 "Core/QueryParser/grammar.yy"
+    { (yyval.expr) = new SubtractExpression((yysemantic_stack_[(3) - (1)].expr), (yysemantic_stack_[(3) - (3)].expr)); }
     break;
 
   case 14:
 /* Line 664 of lalr1.cc  */
-#line 78 "Core/QueryParser/grammar.yy"
-    { (yyval.expr) = new VerifyTAPN::AST::OrExpression((yysemantic_stack_[(3) - (1)].expr), (yysemantic_stack_[(3) - (3)].expr)); }
+#line 80 "Core/QueryParser/grammar.yy"
+    { (yyval.expr) = new MinusExpression((yysemantic_stack_[(2) - (2)].expr)); }
     break;
 
   case 15:
 /* Line 664 of lalr1.cc  */
-#line 79 "Core/QueryParser/grammar.yy"
-    { (yyval.expr) = new VerifyTAPN::AST::AndExpression((yysemantic_stack_[(3) - (1)].expr), (yysemantic_stack_[(3) - (3)].expr)); }
+#line 81 "Core/QueryParser/grammar.yy"
+    { (yyval.expr) = (yysemantic_stack_[(1) - (1)].expr); }
     break;
 
   case 16:
 /* Line 664 of lalr1.cc  */
-#line 80 "Core/QueryParser/grammar.yy"
-    { (yyval.expr) = new VerifyTAPN::AST::BoolExpression(true); }
+#line 84 "Core/QueryParser/grammar.yy"
+    { (yyval.expr) = new MultiplyExpression((yysemantic_stack_[(3) - (1)].expr), (yysemantic_stack_[(3) - (3)].expr)); }
     break;
 
   case 17:
 /* Line 664 of lalr1.cc  */
-#line 81 "Core/QueryParser/grammar.yy"
-    { (yyval.expr) = new VerifyTAPN::AST::BoolExpression(false); }
+#line 85 "Core/QueryParser/grammar.yy"
+    { (yyval.expr) = (yysemantic_stack_[(1) - (1)].expr); }
     break;
 
   case 18:
 /* Line 664 of lalr1.cc  */
-#line 83 "Core/QueryParser/grammar.yy"
-    { 
-		int placeIndex = driver.getTAPN().getPlaceIndex(*(yysemantic_stack_[(3) - (1)].string));
-                delete (yysemantic_stack_[(3) - (1)].string);
-		if(placeIndex == -1) error((yylocation_stack_[(3) - (1)]), "unknown place"); 
-		(yyval.expr) = new VerifyTAPN::AST::AtomicProposition(placeIndex, (yysemantic_stack_[(3) - (2)].string), (yysemantic_stack_[(3) - (3)].number)); 
-                delete (yysemantic_stack_[(3) - (2)].string);
-	}
+#line 88 "Core/QueryParser/grammar.yy"
+    { (yyval.expr) = (yysemantic_stack_[(3) - (2)].expr); }
     break;
 
   case 19:
 /* Line 664 of lalr1.cc  */
 #line 89 "Core/QueryParser/grammar.yy"
+    { (yyval.expr) = new NumberExpression(atol((yysemantic_stack_[(1) - (1)].number)->c_str())); delete (yysemantic_stack_[(1) - (1)].number); }
+    break;
+
+  case 20:
+/* Line 664 of lalr1.cc  */
+#line 90 "Core/QueryParser/grammar.yy"
+    { (yyval.expr) = new IdentifierExpression(*(yysemantic_stack_[(1) - (1)].string), (yylocation_stack_[(1) - (1)]).first_column); delete (yysemantic_stack_[(1) - (1)].string); }
+    break;
+
+  case 21:
+/* Line 664 of lalr1.cc  */
+#line 93 "Core/QueryParser/grammar.yy"
+    { (yyval.expr) = new VerifyTAPN::AST::ParExpression((yysemantic_stack_[(3) - (2)].expr)); }
+    break;
+
+  case 22:
+/* Line 664 of lalr1.cc  */
+#line 94 "Core/QueryParser/grammar.yy"
+    { (yyval.expr) = new VerifyTAPN::AST::NotExpression((yysemantic_stack_[(2) - (2)].expr)); }
+    break;
+
+  case 23:
+/* Line 664 of lalr1.cc  */
+#line 95 "Core/QueryParser/grammar.yy"
+    { (yyval.expr) = new VerifyTAPN::AST::OrExpression((yysemantic_stack_[(3) - (1)].expr), (yysemantic_stack_[(3) - (3)].expr)); }
+    break;
+
+  case 24:
+/* Line 664 of lalr1.cc  */
+#line 96 "Core/QueryParser/grammar.yy"
+    { (yyval.expr) = new VerifyTAPN::AST::AndExpression((yysemantic_stack_[(3) - (1)].expr), (yysemantic_stack_[(3) - (3)].expr)); }
+    break;
+
+  case 25:
+/* Line 664 of lalr1.cc  */
+#line 97 "Core/QueryParser/grammar.yy"
+    { (yyval.expr) = new VerifyTAPN::AST::BoolExpression(true); }
+    break;
+
+  case 26:
+/* Line 664 of lalr1.cc  */
+#line 98 "Core/QueryParser/grammar.yy"
+    { (yyval.expr) = new VerifyTAPN::AST::BoolExpression(false); }
+    break;
+
+  case 27:
+/* Line 664 of lalr1.cc  */
+#line 100 "Core/QueryParser/grammar.yy"
+    { (yyval.expr) = new VerifyTAPN::AST::AtomicProposition((yysemantic_stack_[(3) - (1)].expr), (yysemantic_stack_[(3) - (2)].string), (yysemantic_stack_[(3) - (3)].expr)); }
+    break;
+
+  case 28:
+/* Line 664 of lalr1.cc  */
+#line 101 "Core/QueryParser/grammar.yy"
     { (yyval.expr) = new VerifyTAPN::AST::DeadlockExpression(); }
     break;
 
 
 /* Line 664 of lalr1.cc  */
-#line 687 "Core/QueryParser/Generated/parser.cpp"
+#line 756 "Core/QueryParser/Generated/parser.cpp"
       default:
         break;
       }
@@ -983,14 +1052,16 @@ namespace VerifyTAPN {
 
   /* YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
      STATE-NUM.  */
-  const signed char Parser::yypact_ninf_ = -5;
+  const signed char Parser::yypact_ninf_ = -29;
   const signed char
   Parser::yypact_[] =
   {
-        12,     0,     0,     0,     0,     4,     2,     0,     3,    -5,
-      -5,    -5,    -1,    -5,    -5,    -5,    -5,    -5,    -5,    -1,
-      -1,    -1,    -5,    -5,    -5,    -5,    -5,    -5,    17,    -4,
-      -5,     0,     0,    -5,    -5,    10,    -5
+        46,    -1,    -1,    -1,    -1,     7,   -29,   -29,    -1,     9,
+     -29,   -29,   -29,    25,    -2,    43,    14,   -29,   -29,   -29,
+     -29,   -29,   -29,   -29,    -2,    -2,    -2,   -29,    -6,    38,
+      -1,   -29,    18,    14,    -1,    -1,   -29,   -29,   -29,   -29,
+     -29,    25,    25,    18,    25,   -29,   -29,    40,    -5,   -29,
+      14,    14,     3,   -29
   };
 
   /* YYDEFACT[S] -- default reduction number in state S.  Performed when
@@ -999,24 +1070,28 @@ namespace VerifyTAPN {
   const unsigned char
   Parser::yydefact_[] =
   {
-         0,     0,     0,     0,     0,     0,     0,     0,     0,    16,
-      17,    19,     2,     6,     7,     8,     9,    11,    10,     3,
-       5,     4,     1,    20,    21,    22,    23,    24,     0,     0,
-      13,     0,     0,    18,    12,    14,    15
+         0,     0,     0,     0,     0,     0,    20,    19,     0,     0,
+      25,    26,    28,     0,     2,     0,    15,    17,     6,     7,
+       8,     9,    11,    10,     3,     5,     4,     1,     0,     0,
+       0,    22,     0,    14,     0,     0,    29,    30,    31,    32,
+      33,     0,     0,     0,     0,    21,    18,     0,    23,    24,
+      12,    13,    27,    16
   };
 
   /* YYPGOTO[NTERM-NUM].  */
   const signed char
   Parser::yypgoto_[] =
   {
-        -5,    -5,    -2,    20,    -5,    -5,    -5,    -5,    -5,    -5
+       -29,   -29,     2,    -8,   -12,   -28,    22,   -29,   -29,   -29,
+     -29,   -29,   -29
   };
 
   /* YYDEFGOTO[NTERM-NUM].  */
   const signed char
   Parser::yydefgoto_[] =
   {
-        -1,     5,    12,    13,    14,    15,    16,    17,    18,    28
+        -1,     5,    28,    15,    16,    17,    18,    19,    20,    21,
+      22,    23,    43
   };
 
   /* YYTABLE[YYPACT[STATE-NUM]].  What to do in state STATE-NUM.  If
@@ -1026,20 +1101,26 @@ namespace VerifyTAPN {
   const unsigned char
   Parser::yytable_[] =
   {
-        19,    20,    21,     6,    22,    29,    23,    24,    25,    26,
-      27,    34,    31,    32,     7,    31,    32,     7,     8,     9,
-      10,    11,     1,     2,     3,     4,    33,    32,    30,    35,
-      36
+        29,    33,     6,    14,    24,    25,    26,    27,     7,    45,
+      34,    35,    35,     8,    34,    35,    53,     9,    10,    11,
+      12,     6,    13,    30,    47,    41,    42,     7,     6,    50,
+      51,    31,    32,     0,     7,    52,    48,    49,    44,    32,
+       0,    13,    36,    37,    38,    39,    40,    36,    37,    38,
+      39,    40,     0,    46,     0,    46,     1,     2,     3,     4,
+      41,    42,    41,    42,     0,    41,    42
   };
 
   /* YYCHECK.  */
-  const unsigned char
+  const signed char
   Parser::yycheck_[] =
   {
-         2,     3,     4,     3,     0,     7,     4,     5,     6,     7,
-       8,    15,    16,    17,    14,    16,    17,    14,    18,    19,
-      20,    21,    10,    11,    12,    13,     9,    17,     8,    31,
-      32
+         8,    13,     3,     1,     2,     3,     4,     0,     9,    15,
+      16,    17,    17,    14,    16,    17,    44,    18,    19,    20,
+      21,     3,    23,    14,    32,    22,    23,     9,     3,    41,
+      42,     9,    14,    -1,     9,    43,    34,    35,    24,    14,
+      -1,    23,     4,     5,     6,     7,     8,     4,     5,     6,
+       7,     8,    -1,    15,    -1,    15,    10,    11,    12,    13,
+      22,    23,    22,    23,    -1,    22,    23
   };
 
   /* STOS_[STATE-NUM] -- The (internal number of the) accessing
@@ -1047,10 +1128,12 @@ namespace VerifyTAPN {
   const unsigned char
   Parser::yystos_[] =
   {
-         0,    10,    11,    12,    13,    23,     3,    14,    18,    19,
-      20,    21,    24,    25,    26,    27,    28,    29,    30,    24,
-      24,    24,     0,     4,     5,     6,     7,     8,    31,    24,
-      25,    16,    17,     9,    15,    24,    24
+         0,    10,    11,    12,    13,    26,     3,     9,    14,    18,
+      19,    20,    21,    23,    27,    28,    29,    30,    31,    32,
+      33,    34,    35,    36,    27,    27,    27,     0,    27,    28,
+      14,    31,    14,    29,    16,    17,     4,     5,     6,     7,
+       8,    22,    23,    37,    24,    15,    15,    28,    27,    27,
+      29,    29,    28,    30
   };
 
 #if YYDEBUG
@@ -1061,7 +1144,7 @@ namespace VerifyTAPN {
   {
          0,   256,   257,   258,   259,   260,   261,   262,   263,   264,
      265,   266,   267,   268,   269,   270,   271,   272,   273,   274,
-     275,   276
+     275,   276,   277,   278,   279
   };
 #endif
 
@@ -1069,9 +1152,10 @@ namespace VerifyTAPN {
   const unsigned char
   Parser::yyr1_[] =
   {
-         0,    22,    23,    23,    23,    23,    24,    24,    24,    24,
-      24,    24,    25,    26,    27,    28,    29,    29,    30,    30,
-      31,    31,    31,    31,    31
+         0,    25,    26,    26,    26,    26,    27,    27,    27,    27,
+      27,    27,    28,    28,    28,    28,    29,    29,    30,    30,
+      30,    31,    32,    33,    34,    35,    35,    36,    36,    37,
+      37,    37,    37,    37
   };
 
   /* YYR2[YYN] -- Number of symbols composing right hand side of rule YYN.  */
@@ -1079,8 +1163,9 @@ namespace VerifyTAPN {
   Parser::yyr2_[] =
   {
          0,     2,     2,     2,     2,     2,     1,     1,     1,     1,
-       1,     1,     3,     2,     3,     3,     1,     1,     3,     1,
-       1,     1,     1,     1,     1
+       1,     1,     3,     3,     2,     1,     3,     1,     3,     1,
+       1,     3,     2,     3,     3,     1,     1,     3,     1,     1,
+       1,     1,     1,     1
   };
 
 
@@ -1092,9 +1177,11 @@ namespace VerifyTAPN {
     "END", "error", "$undefined", "IDENTIFIER", "LESS", "LESSEQUAL",
   "EQUAL", "GREATEREQUAL", "GREATER", "NUMBER", "EF", "AG", "AF", "EG",
   "LPARAN", "RPARAN", "OR", "AND", "NOT", "BOOL_TRUE", "BOOL_FALSE",
-  "DEADLOCK", "$accept", "query", "expression", "parExpression",
-  "notExpression", "orExpression", "andExpression", "boolExpression",
-  "atomicProposition", "compareOp", YY_NULL
+  "DEADLOCK", "PLUS", "MINUS", "MULTIPLY", "$accept", "query",
+  "expression", "arithmeticExpression", "multiplyExpression",
+  "arithmeticParantheses", "parExpression", "notExpression",
+  "orExpression", "andExpression", "boolExpression", "atomicProposition",
+  "compareOp", YY_NULL
   };
 
 #if YYDEBUG
@@ -1102,13 +1189,15 @@ namespace VerifyTAPN {
   const Parser::rhs_number_type
   Parser::yyrhs_[] =
   {
-        23,     0,    -1,    10,    24,    -1,    11,    24,    -1,    13,
-      24,    -1,    12,    24,    -1,    25,    -1,    26,    -1,    27,
-      -1,    28,    -1,    30,    -1,    29,    -1,    14,    24,    15,
-      -1,    18,    25,    -1,    24,    16,    24,    -1,    24,    17,
-      24,    -1,    19,    -1,    20,    -1,     3,    31,     9,    -1,
-      21,    -1,     4,    -1,     5,    -1,     6,    -1,     7,    -1,
-       8,    -1
+        26,     0,    -1,    10,    27,    -1,    11,    27,    -1,    13,
+      27,    -1,    12,    27,    -1,    31,    -1,    32,    -1,    33,
+      -1,    34,    -1,    36,    -1,    35,    -1,    28,    22,    29,
+      -1,    28,    23,    29,    -1,    23,    29,    -1,    29,    -1,
+      29,    24,    30,    -1,    30,    -1,    14,    28,    15,    -1,
+       9,    -1,     3,    -1,    14,    27,    15,    -1,    18,    31,
+      -1,    27,    16,    27,    -1,    27,    17,    27,    -1,    19,
+      -1,    20,    -1,    28,    37,    28,    -1,    21,    -1,     4,
+      -1,     5,    -1,     6,    -1,     7,    -1,     8,    -1
   };
 
   /* YYPRHS[YYN] -- Index of the first RHS symbol of rule number YYN in
@@ -1117,17 +1206,19 @@ namespace VerifyTAPN {
   Parser::yyprhs_[] =
   {
          0,     0,     3,     6,     9,    12,    15,    17,    19,    21,
-      23,    25,    27,    31,    34,    38,    42,    44,    46,    50,
-      52,    54,    56,    58,    60
+      23,    25,    27,    31,    35,    38,    40,    44,    46,    50,
+      52,    54,    58,    61,    65,    69,    71,    73,    77,    79,
+      81,    83,    85,    87
   };
 
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
   const unsigned char
   Parser::yyrline_[] =
   {
-         0,    59,    59,    60,    61,    62,    65,    66,    67,    68,
-      69,    70,    76,    77,    78,    79,    80,    81,    82,    89,
-      90,    90,    90,    90,    90
+         0,    61,    61,    62,    63,    64,    67,    68,    69,    70,
+      71,    72,    78,    79,    80,    81,    84,    85,    88,    89,
+      90,    93,    94,    95,    96,    97,    98,   100,   101,   103,
+     103,   103,   103,   103
   };
 
   // Print the state stack on the debug stream.
@@ -1194,7 +1285,7 @@ namespace VerifyTAPN {
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     1,     2,     3,     4,
        5,     6,     7,     8,     9,    10,    11,    12,    13,    14,
-      15,    16,    17,    18,    19,    20,    21
+      15,    16,    17,    18,    19,    20,    21,    22,    23,    24
     };
     if ((unsigned int) t <= yyuser_token_number_max_)
       return translate_table[t];
@@ -1203,24 +1294,24 @@ namespace VerifyTAPN {
   }
 
   const int Parser::yyeof_ = 0;
-  const int Parser::yylast_ = 30;
-  const int Parser::yynnts_ = 10;
+  const int Parser::yylast_ = 66;
+  const int Parser::yynnts_ = 13;
   const int Parser::yyempty_ = -2;
-  const int Parser::yyfinal_ = 22;
+  const int Parser::yyfinal_ = 27;
   const int Parser::yyterror_ = 1;
   const int Parser::yyerrcode_ = 256;
-  const int Parser::yyntokens_ = 22;
+  const int Parser::yyntokens_ = 25;
 
-  const unsigned int Parser::yyuser_token_number_max_ = 276;
+  const unsigned int Parser::yyuser_token_number_max_ = 279;
   const Parser::token_number_type Parser::yyundef_token_ = 2;
 
 /* Line 1135 of lalr1.cc  */
 #line 5 "Core/QueryParser/grammar.yy"
 } // VerifyTAPN
 /* Line 1135 of lalr1.cc  */
-#line 1222 "Core/QueryParser/Generated/parser.cpp"
+#line 1313 "Core/QueryParser/Generated/parser.cpp"
 /* Line 1136 of lalr1.cc  */
-#line 92 "Core/QueryParser/grammar.yy"
+#line 105 "Core/QueryParser/grammar.yy"
 
 
 void 
