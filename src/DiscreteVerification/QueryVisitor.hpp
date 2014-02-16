@@ -44,12 +44,12 @@ namespace VerifyTAPN {
             virtual void visit(const BoolExpression& expr, AST::Result& context);
             virtual void visit(const Query& query, AST::Result& context);
             virtual void visit(const DeadlockExpression& expr, AST::Result& context);
-            virtual void visit(const NumberExpression& expr, Result& context);
-            virtual void visit(const IdentifierExpression& expr, Result& context);
-            virtual void visit(const MultiplyExpression& expr, Result& context);
-            virtual void visit(const MinusExpression& expr, Result& context);
-            virtual void visit(const SubtractExpression& expr, Result& context);
-            virtual void visit(const PlusExpression& expr, Result& context);
+            virtual void visit(const NumberExpression& expr,  AST::Result& context);
+            virtual void visit(const IdentifierExpression& expr,  AST::Result& context);
+            virtual void visit(const MultiplyExpression& expr,  AST::Result& context);
+            virtual void visit(const MinusExpression& expr,  AST::Result& context);
+            virtual void visit(const SubtractExpression& expr,  AST::Result& context);
+            virtual void visit(const PlusExpression& expr,  AST::Result& context);
         private:
             bool compare(int numberOfTokensInPlace, const std::string& op, int n) const;
 
@@ -114,16 +114,16 @@ namespace VerifyTAPN {
         }
 
         template<typename T>
-        void QueryVisitor<T>::visit(const NumberExpression& expr, Result& context){
+        void QueryVisitor<T>::visit(const NumberExpression& expr,  AST::Result& context){
             ((IntResult&)context).value = expr.getValue();
         }
         
         template<typename T>
-        void QueryVisitor<T>::visit(const IdentifierExpression& expr, Result& context){
+        void QueryVisitor<T>::visit(const IdentifierExpression& expr, AST::Result& context){
             ((IntResult&)context).value = marking.numberOfTokensInPlace(expr.getPlace());
         }
         template<typename T>
-        void QueryVisitor<T>::visit(const MultiplyExpression& expr, Result& context){
+        void QueryVisitor<T>::visit(const MultiplyExpression& expr,  AST::Result& context){
             IntResult left;
             expr.getLeft().accept(*this, left);
             IntResult right;
@@ -131,14 +131,14 @@ namespace VerifyTAPN {
             ((IntResult&)context).value = left.value * right.value;
         }
         template<typename T>
-        void QueryVisitor<T>::visit(const MinusExpression& expr, Result& context){
+        void QueryVisitor<T>::visit(const MinusExpression& expr,  AST::Result& context){
             IntResult value;
             expr.getValue().accept(*this, value);
             ((IntResult&)context).value = -value.value;
         }
         
         template<typename T>
-        void QueryVisitor<T>::visit(const SubtractExpression& expr, Result& context){
+        void QueryVisitor<T>::visit(const SubtractExpression& expr,  AST::Result& context){
             IntResult left;
             expr.getLeft().accept(*this, left);
             IntResult right;
@@ -147,7 +147,7 @@ namespace VerifyTAPN {
         }
         
         template<typename T>
-        void QueryVisitor<T>::visit(const PlusExpression& expr, Result& context){
+        void QueryVisitor<T>::visit(const PlusExpression& expr,  AST::Result& context){
             IntResult left;
             expr.getLeft().accept(*this, left);
             IntResult right;
@@ -157,7 +157,7 @@ namespace VerifyTAPN {
         
         
         template<typename T>
-        void QueryVisitor<T>::visit(const Query& query, AST::Result& context) {
+        void QueryVisitor<T>::visit(const Query& query,  AST::Result& context) {
             query.getChild().accept(*this, context);
             if (query.getQuantifier() == AG || query.getQuantifier() == AF) {
                 static_cast<BoolResult&>(context).value
