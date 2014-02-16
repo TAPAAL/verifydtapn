@@ -62,7 +62,6 @@ namespace VerifyTAPN {
                     }
                 }
             }
-
             return false;
         }
 
@@ -70,11 +69,11 @@ namespace VerifyTAPN {
             std::stack < NonStrictMarking*> printStack;
             NonStrictMarking* next = lastMarking;
             do {
-                NonStrictMarking* parent = ((WorkflowStrongSoundnessMetaData*) next->meta)->parents->at(0);
+                NonStrictMarking* parent = (NonStrictMarking*)next->getParent();
                 printStack.push(next);
                 next = parent;
 
-            } while (((WorkflowStrongSoundnessMetaData*) next->meta)->parents != NULL && !((WorkflowStrongSoundnessMetaData*) next->meta)->parents->empty());
+            } while (next != NULL && next->getParent() != NULL);
 
             if (printStack.top() != next) {
                 printStack.push(next);
@@ -102,16 +101,17 @@ namespace VerifyTAPN {
 
             /* Handle max */
             // Map to existing marking if any
-            NonStrictMarking* lookup = pwList->lookup(marking);
-            if (lookup != NULL) {
-                marking = lookup;
-            } else {
-                marking->meta = new WorkflowStrongSoundnessMetaData();
+            NonStrictMarking* old = pwList->addToPassed(marking);
+            bool isNew = false;
+            if(old == NULL){
+                    isNew = true;
+            } else  {
+                delete marking;
+                marking = old;
             }
 
-            WorkflowStrongSoundnessMetaData* meta = (WorkflowStrongSoundnessMetaData*) marking->meta;
-
-            if (parent != NULL) meta->parents->push_back(parent);
+            
+            if (marking->getParent() == NULL) marking->setParent(parent);
 
             if (!marking->getTokenList(timer->getIndex()).empty() &&
                     (marking->getTokenList(timer->getIndex()).at(0).getAge() > max_value ||
@@ -122,7 +122,8 @@ namespace VerifyTAPN {
             }
 
             // Add to passed
-            if (pwList->add(marking)) {
+            if (isNew) {
+                pwList->addToWaiting(marking);
                 QueryVisitor<NonStrictMarking> checker(*marking, tapn);
                 BoolResult context;
 
