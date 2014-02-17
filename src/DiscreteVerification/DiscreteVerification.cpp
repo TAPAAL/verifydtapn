@@ -89,10 +89,26 @@ namespace VerifyTAPN {
             	}
 
             	delete strategy;
-
+                return 0;
             }
-            else if (options.getVerificationType() == VerificationOptions::DISCRETE) {
-                
+            
+            
+            // asume that we dont reach here except if we are doing normal verification
+            AST::BoolResult containsDeadlock;
+            DeadlockVisitor deadlockVisitor = DeadlockVisitor();
+            deadlockVisitor.visit(*query, containsDeadlock);
+            if(containsDeadlock.value && options.getDisableGCDLowerGuards() == false){
+                        cout << "Lowering constants by greatest common divisor is unsound for queries containing the deadlock proposition" << endl;
+                        exit(1);
+            }
+            if((query->getQuantifier() == EG || query->getQuantifier() == AF) && options.getDisableGCDLowerGuards() == false){
+                        cout << "Lowering constants by greatest common divisor is unsound for EG and AF queries" << endl;
+                        exit(1);
+            }
+            
+            
+            if (options.getVerificationType() == VerificationOptions::DISCRETE) {
+
                 if (options.getMemoryOptimization() == VerificationOptions::PTRIE) {
                     //TODO fix initialization
                     WaitingList<EncodingPointer<MetaData> >* strategy = getWaitingList<EncodingPointer<MetaData> > (query, options);
@@ -132,12 +148,8 @@ namespace VerifyTAPN {
                     }
                     delete strategy;
                 }
-            } else if (options.getVerificationType() == VerificationOptions::TIMEDART) {
+            } else if (options.getVerificationType() == VerificationOptions::TIMEDART) {              
                 if (query->getQuantifier() == EG || query->getQuantifier() == AF) {
-                    AST::BoolResult containsDeadlock;
-                    DeadlockVisitor deadlockVisitor = DeadlockVisitor();
-                    deadlockVisitor.visit(*query, containsDeadlock);
-
                     if (containsDeadlock.value) {
                         std::cout << "The combination of TimeDarts, Deadlock proposition and EG or AF queries is currently not supported" << endl;
                         exit(1);
