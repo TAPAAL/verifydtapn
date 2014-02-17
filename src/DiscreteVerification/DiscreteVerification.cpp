@@ -98,11 +98,11 @@ namespace VerifyTAPN {
             DeadlockVisitor deadlockVisitor = DeadlockVisitor();
             deadlockVisitor.visit(*query, containsDeadlock);
             if(containsDeadlock.value && options.getDisableGCDLowerGuards() == false){
-                        cout << "Lowering constants by greatest common divisor gives wrong answer for queries containing the deadlock proposition" << endl;
+                        cout << "Lowering constants by greatest common divisor is unsound for queries containing the deadlock proposition" << endl;
                         exit(1);
             }
             if((query->getQuantifier() == EG || query->getQuantifier() == AF) && options.getDisableGCDLowerGuards() == false){
-                        cout << "Lowering constants by greatest common divisor gives wrong answer for EG and AF queries" << endl;
+                        cout << "Lowering constants by greatest common divisor is unsound for EG and AF queries" << endl;
                         exit(1);
             }
             
