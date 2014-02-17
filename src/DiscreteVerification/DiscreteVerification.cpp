@@ -95,6 +95,10 @@ namespace VerifyTAPN {
                 AST::BoolResult containsDeadlock;
                 DeadlockVisitor deadlockVisitor = DeadlockVisitor();
                 deadlockVisitor.visit(*query, containsDeadlock);
+                if (options.getDisableGCDLowerGuards() == false && containsDeadlock.value) {
+                    cout << "Lowering constants by greatest common divisor gives wrong answer for queries containing the deadlock proposition" << endl;
+                    exit(1);
+                }
                 if (options.getMemoryOptimization() == VerificationOptions::PTRIE) {
                     //TODO fix initialization
                     WaitingList<EncodingPointer<MetaData> >* strategy = getWaitingList<EncodingPointer<MetaData> > (query, options);
@@ -120,8 +124,8 @@ namespace VerifyTAPN {
                     }
                     delete strategy;
                 } else {
-                    if (options.getDisableGCDLowerGuards() == false && containsDeadlock.value) {
-                        cout << "Lowering constants by greatest common divisor gives wrong answer for queries containing the deadlock proposition" << endl;
+                    if (options.getDisableGCDLowerGuards() == false) {
+                        cout << "Lowering constants by greatest common divisor gives wrong answer for EG and AF queries" << endl;
                         exit(1);
                     }
                     WaitingList<NonStrictMarking>* strategy = getWaitingList<NonStrictMarking > (query, options);
