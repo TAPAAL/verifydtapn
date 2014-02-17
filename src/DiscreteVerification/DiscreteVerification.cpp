@@ -101,7 +101,7 @@ namespace VerifyTAPN {
                         cout << "Lowering constants by greatest common divisor gives wrong answer for queries containing the deadlock proposition" << endl;
                         exit(1);
             }
-            if(query->getQuantifier() == EG || query->getQuantifier() == AF){
+            if((query->getQuantifier() == EG || query->getQuantifier() == AF) && options.getDisableGCDLowerGuards() == false){
                         cout << "Lowering constants by greatest common divisor gives wrong answer for EG and AF queries" << endl;
                         exit(1);
             }
