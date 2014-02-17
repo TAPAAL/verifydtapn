@@ -148,10 +148,12 @@ namespace VerifyTAPN {
                     }
                     delete strategy;
                 }
-            } else if (options.getVerificationType() == VerificationOptions::TIMEDART) {
-               
+            } else if (options.getVerificationType() == VerificationOptions::TIMEDART) {              
                 if (query->getQuantifier() == EG || query->getQuantifier() == AF) {
-                       
+                    if (containsDeadlock.value) {
+                        std::cout << "The combination of TimeDarts, Deadlock proposition and EG or AF queries is currently not supported" << endl;
+                        exit(1);
+                    }                
                     if (options.getMemoryOptimization() == VerificationOptions::PTRIE) {
                         WaitingList<EncodingPointer<WaitingDart> >* strategy = getWaitingList<EncodingPointer<WaitingDart> > (query, options);
                         TimeDartLivenessPData verifier = TimeDartLivenessPData(tapn, *initialMarking, query, options, strategy);
@@ -172,6 +174,7 @@ namespace VerifyTAPN {
                         delete strategy;
                     }
                 } else if (query->getQuantifier() == EF || query->getQuantifier() == AG) {
+
                     if (options.getMemoryOptimization() == VerificationOptions::PTRIE) {
                         WaitingList<TimeDartEncodingPointer>* strategy = getWaitingList<TimeDartEncodingPointer > (query, options);
                         TimeDartReachabilitySearchPData verifier = TimeDartReachabilitySearchPData(tapn, *initialMarking, query, options, strategy);
