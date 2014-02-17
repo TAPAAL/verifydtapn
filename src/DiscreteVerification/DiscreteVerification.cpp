@@ -92,11 +92,17 @@ namespace VerifyTAPN {
 
             }
             else if (options.getVerificationType() == VerificationOptions::DISCRETE) {
-                
+                AST::BoolResult containsDeadlock;
+                DeadlockVisitor deadlockVisitor = DeadlockVisitor();
+                deadlockVisitor.visit(*query, containsDeadlock);
                 if (options.getMemoryOptimization() == VerificationOptions::PTRIE) {
                     //TODO fix initialization
                     WaitingList<EncodingPointer<MetaData> >* strategy = getWaitingList<EncodingPointer<MetaData> > (query, options);
                     if (query->getQuantifier() == EG || query->getQuantifier() == AF) {
+                        if(options.getDisableGCDLowerGuards() == false){
+                            cout << "Lowering constants by greatest common divisor gives wrong answer for EG and AF queries" << endl;
+                            exit(1);
+                        }
                         LivenessSearchPTrie verifier = LivenessSearchPTrie(tapn, *initialMarking, query, options, strategy);
                         VerifyAndPrint(
                                 tapn,
@@ -114,6 +120,10 @@ namespace VerifyTAPN {
                     }
                     delete strategy;
                 } else {
+                    if (options.getDisableGCDLowerGuards() == false && containsDeadlock.value) {
+                        cout << "Lowering constants by greatest common divisor gives wrong answer for queries containing the deadlock proposition" << endl;
+                        exit(1);
+                    }
                     WaitingList<NonStrictMarking>* strategy = getWaitingList<NonStrictMarking > (query, options);
                     if (query->getQuantifier() == EG || query->getQuantifier() == AF) {
                         LivenessSearch verifier = LivenessSearch(tapn, *initialMarking, query, options, strategy);
@@ -133,11 +143,14 @@ namespace VerifyTAPN {
                     delete strategy;
                 }
             } else if (options.getVerificationType() == VerificationOptions::TIMEDART) {
+                AST::BoolResult containsDeadlock;
+                DeadlockVisitor deadlockVisitor = DeadlockVisitor();
+                deadlockVisitor.visit(*query, containsDeadlock);
                 if (query->getQuantifier() == EG || query->getQuantifier() == AF) {
-                    AST::BoolResult containsDeadlock;
-                    DeadlockVisitor deadlockVisitor = DeadlockVisitor();
-                    deadlockVisitor.visit(*query, containsDeadlock);
-
+                    if (options.getDisableGCDLowerGuards() == false) {
+                        cout << "Lowering constants by greatest common divisor gives wrong answer for EG and AF queries" << endl;
+                        exit(1);
+                    }
                     if (containsDeadlock.value) {
                         std::cout << "The combination of TimeDarts, Deadlock proposition and EG or AF queries is currently not supported" << endl;
                         exit(1);
@@ -162,7 +175,10 @@ namespace VerifyTAPN {
                         delete strategy;
                     }
                 } else if (query->getQuantifier() == EF || query->getQuantifier() == AG) {
-
+                    if (options.getDisableGCDLowerGuards() == false && containsDeadlock.value) {
+                        cout << "Lowering constants by greatest common divisor gives wrong answer for queries containing the deadlock proposition" << endl;
+                        exit(1);
+                    }
                     if (options.getMemoryOptimization() == VerificationOptions::PTRIE) {
                         WaitingList<TimeDartEncodingPointer>* strategy = getWaitingList<TimeDartEncodingPointer > (query, options);
                         TimeDartReachabilitySearchPData verifier = TimeDartReachabilitySearchPData(tapn, *initialMarking, query, options, strategy);
