@@ -97,11 +97,11 @@ namespace VerifyTAPN {
             AST::BoolResult containsDeadlock;
             DeadlockVisitor deadlockVisitor = DeadlockVisitor();
             deadlockVisitor.visit(*query, containsDeadlock);
-            if(containsDeadlock.value && options.getDisableGCDLowerGuards() == false){
+            if(containsDeadlock.value && options.getGCDLowerGuardsEnabled()){
                         cout << "Lowering constants by greatest common divisor is unsound for queries containing the deadlock proposition" << endl;
                         exit(1);
             }
-            if((query->getQuantifier() == EG || query->getQuantifier() == AF) && options.getDisableGCDLowerGuards() == false){
+            if((query->getQuantifier() == EG || query->getQuantifier() == AF) && options.getGCDLowerGuardsEnabled()){
                         cout << "Lowering constants by greatest common divisor is unsound for EG and AF queries" << endl;
                         exit(1);
             }
@@ -203,7 +203,7 @@ namespace VerifyTAPN {
         template<typename T> void VerifyAndPrint(TAPN::TimedArcPetriNet& tapn, Verification<T>& verifier, VerificationOptions& options, AST::Query* query) {
             bool result = (!options.isWorkflow() && (query->getQuantifier() == AG || query->getQuantifier() == AF)) ? !verifier.verify() : verifier.verify();
 
-            if (!options.getDisableGCDLowerGuards()) {
+            if (options.getGCDLowerGuardsEnabled()) {
                 std::cout << "Lowering all guards by greatest common divisor: " << tapn.getGCD() << std::endl;
             }
             std::cout << std::endl;
