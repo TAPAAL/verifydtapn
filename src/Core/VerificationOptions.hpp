@@ -44,7 +44,7 @@ namespace VerifyTAPN {
                 bool xml_trace,
                 bool useGlobalMaxConstants,
                 bool keepDeadTokens, 
-                bool disableGCDLowerGuards,
+                bool enableGCDLowerGuards,
                 WorkflowMode workflow
                 ) : inputFile(inputFile),
         queryFile(queryFile),
@@ -56,7 +56,7 @@ namespace VerifyTAPN {
         xml_trace(xml_trace),
         useGlobalMaxConstants(useGlobalMaxConstants),
         keepDeadTokens(keepDeadTokens), 
-        disableGCDLowerGuards(disableGCDLowerGuards),
+        enableGCDLowerGuards(enableGCDLowerGuards),
         workflow(workflow){
         };
 
@@ -102,8 +102,8 @@ namespace VerifyTAPN {
             return keepDeadTokens;
         };
 
-        inline const bool getDisableGCDLowerGuards() const {
-            return disableGCDLowerGuards;
+        inline const bool getGCDLowerGuardsEnabled() const {
+            return enableGCDLowerGuards;
         }
 
         inline const WorkflowMode getWorkflowMode() const {
@@ -125,7 +125,7 @@ namespace VerifyTAPN {
         bool xml_trace;
         bool useGlobalMaxConstants;
         bool keepDeadTokens;
-        bool disableGCDLowerGuards;
+        bool enableGCDLowerGuards;
         WorkflowMode workflow;
     };
 
