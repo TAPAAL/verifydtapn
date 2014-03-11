@@ -11,7 +11,7 @@ namespace VerifyTAPN {
     namespace DiscreteVerification {
 
         WorkflowStrongSoundnessReachability::WorkflowStrongSoundnessReachability(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list)
-        : Workflow<NonStrictMarking>(tapn, initialMarking, query, options, waiting_list), max_value(-1), timer(NULL), term1(NULL), term2(NULL) {
+        : Workflow<NonStrictMarkingWithDelay>(tapn, *(new NonStrictMarkingWithDelay(initialMarking)), query, options, waiting_list), max_value(-1), timer(NULL), term1(NULL), term2(NULL) {
             // Find timer place and store as out
             for (TimedPlace::Vector::const_iterator iter = tapn.getPlaces().begin(); iter != tapn.getPlaces().end(); ++iter) {
                 if ((*iter)->getInvariant() != (*iter)->getInvariant().LS_INF) {
@@ -41,7 +41,8 @@ namespace VerifyTAPN {
 
             //Main loop
             while (pwList->hasWaitingStates()) {
-                NonStrictMarking& next_marking = *pwList->getNextUnexplored();
+                NonStrictMarkingWithDelay& next_marking = 
+                        static_cast<NonStrictMarkingWithDelay&>(*pwList->getNextUnexplored());
                 tmpParent = &next_marking;
 
                 bool noDelay = false;
@@ -54,7 +55,7 @@ namespace VerifyTAPN {
 
                 // Generate next markings
                 if (!noDelay && isDelayPossible(next_marking)) {
-                    NonStrictMarking* marking = new NonStrictMarking(next_marking);
+                    NonStrictMarkingWithDelay* marking = new NonStrictMarkingWithDelay(next_marking);
                     marking->incrementAge();
                     marking->setGeneratedBy(NULL);
                     if (addToPW(marking, &next_marking)) {
@@ -66,10 +67,10 @@ namespace VerifyTAPN {
         }
 
         void WorkflowStrongSoundnessReachability::getTrace() {
-            std::stack < NonStrictMarking*> printStack;
-            NonStrictMarking* next = lastMarking;
+            std::stack < NonStrictMarkingWithDelay*> printStack;
+            NonStrictMarkingWithDelay* next = lastMarking;
             do {
-                NonStrictMarking* parent = (NonStrictMarking*)next->getParent();
+                NonStrictMarkingWithDelay* parent = (NonStrictMarkingWithDelay*)next->getParent();
                 printStack.push(next);
                 next = parent;
 
@@ -86,7 +87,7 @@ namespace VerifyTAPN {
             }
         }
 
-        bool WorkflowStrongSoundnessReachability::addToPW(NonStrictMarking* marking, NonStrictMarking* parent) {
+        bool WorkflowStrongSoundnessReachability::addToPW(NonStrictMarkingWithDelay* marking, NonStrictMarkingWithDelay* parent) {
             marking->cut();
             marking->setParent(parent);
 
@@ -101,7 +102,7 @@ namespace VerifyTAPN {
 
             /* Handle max */
             // Map to existing marking if any
-            NonStrictMarking* old = pwList->addToPassed(marking);
+            NonStrictMarkingWithDelay* old = (NonStrictMarkingWithDelay*)pwList->addToPassed(marking);
             bool isNew = false;
             if(old == NULL){
                     isNew = true;
@@ -124,7 +125,7 @@ namespace VerifyTAPN {
             // Add to passed
             if (isNew) {
                 pwList->addToWaiting(marking);
-                QueryVisitor<NonStrictMarking> checker(*marking, tapn);
+                QueryVisitor<NonStrictMarkingWithDelay> checker(*marking, tapn);
                 BoolResult context;
 
                 query->accept(checker, context);

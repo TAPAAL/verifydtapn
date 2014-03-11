@@ -61,6 +61,28 @@ namespace DiscreteVerification {
     public:
         MetaData* meta;
     };
+    
+    class NonStrictMarkingWithDelay : public NonStrictMarking {
+    private:
+        unsigned int delay;
+    public:
+        NonStrictMarkingWithDelay() : NonStrictMarking(), delay(0) {};
+        NonStrictMarkingWithDelay(const TAPN::TimedArcPetriNet& tapn, const std::vector<int>& v) : NonStrictMarking(tapn, v), delay(0) {};
+        NonStrictMarkingWithDelay(const NonStrictMarking& nsm) : NonStrictMarking(nsm), delay(0) {};
+        NonStrictMarkingWithDelay(const NonStrictMarkingWithDelay& nsm) : NonStrictMarking(nsm), delay(nsm.delay) {};
+        
+        int getTotalDelay() const {
+            return delay;
+        }
+        
+        void incrementDelay(const int i){
+            delay += i;
+        }
+        
+        void incrementDelay() {
+            incrementDelay(1);
+        }
+    };
 
 } /* namespace DiscreteVerification */
 } /* namespace VerifyTAPN */

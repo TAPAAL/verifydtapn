@@ -16,7 +16,7 @@
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
-class WorkflowStrongSoundnessReachability : public Workflow<NonStrictMarking>{
+class WorkflowStrongSoundnessReachability : public Workflow<NonStrictMarkingWithDelay>{
 public:
 
 	WorkflowStrongSoundnessReachability(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list);
@@ -30,7 +30,7 @@ public:
         
 
 protected:
-	bool addToPW(NonStrictMarking* marking, NonStrictMarking* parent);
+	bool addToPW(NonStrictMarkingWithDelay* marking, NonStrictMarkingWithDelay* parent);
 protected:
 	int max_value;
 	TimedPlace* timer;
