@@ -29,7 +29,7 @@
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
-class WorkflowSoundness : public Workflow {
+class WorkflowSoundness : public Workflow<NonStrictMarking> {
 public:
         enum ModelType{
 		MTAWFN, ETAWFN, NOTTAWFN
