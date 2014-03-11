@@ -19,6 +19,7 @@ static const std::string GCD = "gcd";
 static const std::string LEGACY = "legacy";
 static const std::string KEEP_DEAD = "keep-dead-tokens";
 static const std::string WORKFLOW = "workflow";
+static const std::string STRONG_WORKFLOW_BOUND = "strong-workflow-bound";
 
 std::ostream& operator<<(std::ostream& out, const Switch& flag) {
 	flag.print(out);
@@ -172,6 +173,10 @@ void ArgsParser::initialize() {
     parsers.push_back(
             boost::make_shared<SwitchWithArg > ("w", WORKFLOW,
             "Workflow mode.\n - 0: Disabled\n - 1: Soundness (and min)\n - 2: Strong Soundness (and max)",
+            0));
+    parsers.push_back(
+            boost::make_shared<SwitchWithArg > ("b", STRONG_WORKFLOW_BOUND,
+            "Maximum delay bound for strong workflow analysis",
             0));
 
     };
@@ -400,7 +405,9 @@ VerificationOptions ArgsParser::createVerificationOptions(const option_map& map,
 	assert(map.find(WORKFLOW) != map.end());
 	VerificationOptions::WorkflowMode workflow = intToWorkflowTypeEnum(
 			tryParseInt(*map.find(WORKFLOW)));
-
+        
+	assert(map.find(STRONG_WORKFLOW_BOUND) != map.end());
+	unsigned int workflowBound = tryParseInt(*map.find(STRONG_WORKFLOW_BOUND));
 
         
         assert(map.find(GCD) != map.end());
@@ -408,7 +415,7 @@ VerificationOptions ArgsParser::createVerificationOptions(const option_map& map,
 			map.find(GCD)->second);
         
 	return VerificationOptions(modelFile, queryFile, search, verification, memoptimization, kbound, trace,
-			xml_trace, max_constant, keep_dead, enableGCDLowerGuards, workflow);
+			xml_trace, max_constant, keep_dead, enableGCDLowerGuards, workflow, workflowBound);
 
 }
 }

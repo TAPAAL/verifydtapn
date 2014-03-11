@@ -45,7 +45,8 @@ namespace VerifyTAPN {
                 bool useGlobalMaxConstants,
                 bool keepDeadTokens, 
                 bool enableGCDLowerGuards,
-                WorkflowMode workflow
+                WorkflowMode workflow,
+                int workflowBound
                 ) : inputFile(inputFile),
         queryFile(queryFile),
         searchType(searchType),
@@ -57,7 +58,8 @@ namespace VerifyTAPN {
         useGlobalMaxConstants(useGlobalMaxConstants),
         keepDeadTokens(keepDeadTokens), 
         enableGCDLowerGuards(enableGCDLowerGuards),
-        workflow(workflow){
+        workflow(workflow),
+        workflowBound(workflowBound){
         };
 
     public: // inspectors
@@ -107,8 +109,12 @@ namespace VerifyTAPN {
         }
 
         inline const WorkflowMode getWorkflowMode() const {
-		   return workflow;
-	   };
+            return workflow;
+        };
+
+        inline const int getWorkflowBound() const {
+            return workflowBound;
+        };
 
         inline bool isWorkflow() const{
             return workflow != NOT_WORKFLOW;
@@ -127,6 +133,7 @@ namespace VerifyTAPN {
         bool keepDeadTokens;
         bool enableGCDLowerGuards;
         WorkflowMode workflow;
+        int workflowBound;
     };
 
     std::ostream& operator<<(std::ostream& out, const VerificationOptions& options);
