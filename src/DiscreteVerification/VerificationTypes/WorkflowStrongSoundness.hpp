@@ -19,7 +19,7 @@ namespace DiscreteVerification {
 class WorkflowStrongSoundnessReachability : public Workflow<NonStrictMarkingWithDelay>{
 public:
 
-	WorkflowStrongSoundnessReachability(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list);
+	WorkflowStrongSoundnessReachability(TAPN::TimedArcPetriNet& tapn, NonStrictMarkingWithDelay& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list);
 
 	bool verify();
 	void getTrace();
@@ -33,9 +33,7 @@ protected:
 	bool addToPW(NonStrictMarkingWithDelay* marking, NonStrictMarkingWithDelay* parent);
 protected:
 	int max_value;
-	TimedPlace* timer;
-	TimedPlace* term1;
-	TimedPlace* term2;
+	TimedPlace* outPlace;
 };
 
 } /* namespace DiscreteVerification */

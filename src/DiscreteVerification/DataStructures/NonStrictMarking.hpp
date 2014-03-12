@@ -75,12 +75,8 @@ namespace DiscreteVerification {
             return delay;
         }
         
-        void incrementDelay(const int i){
-            delay += i;
-        }
-        
-        void incrementDelay() {
-            incrementDelay(1);
+        void setTotalDelay(const int i){
+            delay = i;
         }
     };
 

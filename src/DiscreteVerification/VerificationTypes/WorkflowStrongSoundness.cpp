@@ -10,26 +10,13 @@
 namespace VerifyTAPN {
     namespace DiscreteVerification {
 
-        WorkflowStrongSoundnessReachability::WorkflowStrongSoundnessReachability(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list)
-        : Workflow<NonStrictMarkingWithDelay>(tapn, *(new NonStrictMarkingWithDelay(initialMarking)), query, options, waiting_list), max_value(-1), timer(NULL), term1(NULL), term2(NULL) {
+        WorkflowStrongSoundnessReachability::WorkflowStrongSoundnessReachability(TAPN::TimedArcPetriNet& tapn, NonStrictMarkingWithDelay& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list)
+        : Workflow<NonStrictMarkingWithDelay>(tapn, initialMarking, query, options, waiting_list), max_value(-1), outPlace(NULL){
             // Find timer place and store as out
             for (TimedPlace::Vector::const_iterator iter = tapn.getPlaces().begin(); iter != tapn.getPlaces().end(); ++iter) {
-                if ((*iter)->getInvariant() != (*iter)->getInvariant().LS_INF) {
-                    if (timer == NULL || timer->getInvariant().getBound() < (*iter)->getInvariant().getBound()) {
-                        timer = *iter;
-                    }
-                }
-
-                if (!(*iter)->getTransportArcs().empty() || !(*iter)->getInputArcs().empty()) {
-                    continue;
-                }
-
-                if (term1 == NULL) {
-                    term1 = *iter;
-                } else if (term2 == NULL) {
-                    term2 = *iter;
-                } else {
-                    assert(false);
+                if ((*iter)->getTransportArcs().empty() && (*iter)->getInputArcs().empty()) {
+                    outPlace = *iter;
+                    break;
                 }
             }
         };
@@ -58,6 +45,11 @@ namespace VerifyTAPN {
                     NonStrictMarkingWithDelay* marking = new NonStrictMarkingWithDelay(next_marking);
                     marking->incrementAge();
                     marking->setGeneratedBy(NULL);
+                    marking->setTotalDelay(next_marking.getTotalDelay()+1);
+                    if(marking->getTotalDelay() > options.getWorkflowBound()){
+                        marking->setParent(&next_marking);
+                        return true;
+                    }
                     if (addToPW(marking, &next_marking)) {
                         return true;
                     }
@@ -106,37 +98,16 @@ namespace VerifyTAPN {
             bool isNew = false;
             if(old == NULL){
                     isNew = true;
-            } else  {
-                delete marking;
-                marking = old;
             }
 
             
-            if (marking->getParent() == NULL) marking->setParent(parent);
-
-            if (!marking->getTokenList(timer->getIndex()).empty() &&
-                    (marking->getTokenList(timer->getIndex()).at(0).getAge() > max_value ||
-                    (marking->getTokenList(timer->getIndex()).at(0).getAge() == max_value &&
-                    (!marking->getTokenList(term1->getIndex()).empty() || !marking->getTokenList(term2->getIndex()).empty())))) {
-                max_value = marking->getTokenList(timer->getIndex()).at(0).getAge();
+            if(marking->getTotalDelay() > max_value){
+                max_value = marking->getTotalDelay();
                 lastMarking = marking;
             }
-
-            // Add to passed
-            if (isNew) {
+            if (isNew && marking->numberOfTokensInPlace(outPlace->getIndex()) == 0) {
                 pwList->addToWaiting(marking);
-                QueryVisitor<NonStrictMarkingWithDelay> checker(*marking, tapn);
-                BoolResult context;
-
-                query->accept(checker, context);
-                if (context.value) {
-                    lastMarking = marking;
-                    return true;
-                } else {
-                    return false;
-                }
             }
-
             return false;
         }
 
