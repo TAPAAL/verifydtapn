@@ -14,14 +14,6 @@ namespace VerifyTAPN
 			tuple.returnExpr = static_cast<Tuple&>(any).returnExpr;
 		}
 
-		void NormalizationVisitor::visit(const ParExpression& expr, Result& context)
-		{
-			Tuple& tuple = static_cast<Tuple&>(context);
-			Tuple any = Tuple(tuple.negate, NULL);
-			expr.getChild().accept(*this, any);
-			tuple.returnExpr = new ParExpression(static_cast<Tuple&>(any).returnExpr);
-		}
-
 		void NormalizationVisitor::visit(const OrExpression& expr, Result& context)
 		{
 			Tuple& tuple = static_cast<Tuple&>(context);
@@ -61,10 +53,28 @@ namespace VerifyTAPN
 			}else{
 				op = expr.getOperator();
 			}
-			tuple.returnExpr = new AtomicProposition(expr.getPlace(), &op, expr.getNumberOfTokens());
+			tuple.returnExpr = new AtomicProposition(&expr.getLeft(), &op, &expr.getRight());// dont visit arithmetics for now
 		}
-
-               void NormalizationVisitor::visit(const DeadlockExpression& expr, Result& context) {
+                
+                void NormalizationVisitor::visit(const NumberExpression& expr, Result& context){
+                }
+                
+                void NormalizationVisitor::visit(const IdentifierExpression& expr, Result& context){
+                }
+                
+                void NormalizationVisitor::visit(const MultiplyExpression& expr, Result& context){
+                }
+                
+                void NormalizationVisitor::visit(const MinusExpression& expr, Result& context){
+                }
+                
+                void NormalizationVisitor::visit(const SubtractExpression& expr, Result& context){
+                }
+                
+                void NormalizationVisitor::visit(const PlusExpression& expr, Result& context){
+                }
+                
+                void NormalizationVisitor::visit(const DeadlockExpression& expr, Result& context) {
 			Tuple& tuple = static_cast<Tuple&>(context);
 			tuple.returnExpr = new DeadlockExpression();                  
                 }

@@ -15,11 +15,6 @@ namespace DiscreteVerification {
 			assert(false);
 		}
 
-		void LivenessWeightQueryVisitor::visit(const ParExpression& expr, Result& context)
-		{
-			expr.getChild().accept(*this, context);
-		}
-
 		void LivenessWeightQueryVisitor::visit(const OrExpression& expr, Result& context)
 		{
 			IntResult left, right;
@@ -52,10 +47,51 @@ namespace DiscreteVerification {
 
 		void LivenessWeightQueryVisitor::visit(const AtomicProposition& expr, Result& context)
 		{
-			int numberOfTokens = marking.numberOfTokensInPlace(expr.getPlace());
+                    IntResult left;
+                    expr.getLeft().accept(*this, left);
+                    IntResult right;
+                    expr.getLeft().accept(*this, right);
 			static_cast<IntResult&>(context).value
-                                = compare(numberOfTokens, expr.getOperator(), expr.getNumberOfTokens());
+                                = compare(left.value, expr.getOperator(), right.value);
 		}
+
+                void LivenessWeightQueryVisitor::visit(const NumberExpression& expr, Result& context){
+                    ((IntResult&)context).value = expr.getValue();
+                }
+
+                void LivenessWeightQueryVisitor::visit(const IdentifierExpression& expr, Result& context){
+                    ((IntResult&)context).value = marking.numberOfTokensInPlace(expr.getPlace());
+                }
+                
+                void LivenessWeightQueryVisitor::visit(const MultiplyExpression& expr, Result& context){
+                    IntResult left;
+                    expr.getLeft().accept(*this, left);
+                    IntResult right;
+                    expr.getLeft().accept(*this, right);
+                    ((IntResult&)context).value = left.value * right.value;
+                }
+                
+                void LivenessWeightQueryVisitor::visit(const MinusExpression& expr, Result& context){
+                    IntResult value;
+                    expr.getValue().accept(*this, value);
+                    ((IntResult&)context).value = -value.value;
+                }
+
+                void LivenessWeightQueryVisitor::visit(const SubtractExpression& expr, Result& context){
+                    IntResult left;
+                    expr.getLeft().accept(*this, left);
+                    IntResult right;
+                    expr.getLeft().accept(*this, right);
+                    ((IntResult&)context).value = left.value - right.value;
+                }
+
+                void LivenessWeightQueryVisitor::visit(const PlusExpression& expr, Result& context){
+                    IntResult left;
+                    expr.getLeft().accept(*this, left);
+                    IntResult right;
+                    expr.getLeft().accept(*this, right);
+                    ((IntResult&)context).value = left.value + right.value;
+                }
 
 		void LivenessWeightQueryVisitor::visit(const BoolExpression& expr, Result& context)
 		{

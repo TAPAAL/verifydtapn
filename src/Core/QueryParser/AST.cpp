@@ -47,7 +47,7 @@ namespace VerifyTAPN
 		{
 			return new AndExpression(*this);
 		}
-
+                
 		void AndExpression::accept(Visitor& visitor, Result& context) const
 		{
 			visitor.visit(*this, context);
@@ -58,21 +58,71 @@ namespace VerifyTAPN
 			return new OrExpression(*this);
 		}
 
-		void OrExpression::accept(Visitor& visitor, Result& context) const
+                void OrExpression::accept(Visitor& visitor, Result& context) const
+		{
+			visitor.visit(*this, context);
+		}
+                
+		void PlusExpression::accept(Visitor& visitor, Result& context) const
 		{
 			visitor.visit(*this, context);
 		}
 
-		ParExpression* ParExpression::clone() const
+                PlusExpression* PlusExpression::clone() const
 		{
-			return new ParExpression(*this);
+			return new PlusExpression(*this);
 		}
-
-		void ParExpression::accept(Visitor& visitor, Result& context) const
+                
+                void SubtractExpression::accept(Visitor& visitor, Result& context) const
 		{
 			visitor.visit(*this, context);
 		}
 
+                SubtractExpression* SubtractExpression::clone() const
+		{
+			return new SubtractExpression(*this);
+		}
+                
+                void MinusExpression::accept(Visitor& visitor, Result& context) const
+		{
+			visitor.visit(*this, context);
+		}
+
+                MinusExpression* MinusExpression::clone() const
+		{
+			return new MinusExpression(*this);
+		}
+
+                void MultiplyExpression::accept(Visitor& visitor, Result& context) const
+		{
+			visitor.visit(*this, context);
+		}
+
+                MultiplyExpression* MultiplyExpression::clone() const
+		{
+			return new MultiplyExpression(*this);
+		}
+                
+                void NumberExpression::accept(Visitor& visitor, Result& context) const
+		{
+			visitor.visit(*this, context);
+		}
+
+                NumberExpression* NumberExpression::clone() const
+		{
+			return new NumberExpression(*this);
+		} 
+                
+                void IdentifierExpression::accept(Visitor& visitor, Result& context) const
+		{
+			visitor.visit(*this, context);
+		}
+
+                IdentifierExpression* IdentifierExpression::clone() const
+		{
+			return new IdentifierExpression(*this);
+		} 
+                
 		Query* Query::clone() const
 		{
 			return new Query(*this);
