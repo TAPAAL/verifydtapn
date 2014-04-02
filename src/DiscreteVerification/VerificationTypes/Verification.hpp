@@ -212,23 +212,8 @@ namespace VerifyTAPN {
                 
                 if ((query->getQuantifier() == AST::EG || query->getQuantifier() == AST::AF)
                         && (stack.size() > 1 && stack.top()->equals(*m))) {
-                    T* temp = m;
-                    foundLoop = false;
-                    T* top = stack.top();
-
-                    do {
-                        if(temp == top)
-                            break;
-                        if(temp->getGeneratedBy()){
-                            foundLoop = true;
-                            break;
-                        } 
-                        temp = (T*)temp->getParent();
-                    } while(temp && temp->getParent() && temp->getParent() != top);
-                    if(foundLoop){
-                        root->append_node(doc.allocate_node(node_element, "loop"));
-                    }
-
+                    foundLoop = true;
+                    root->append_node(doc.allocate_node(node_element, "loop"));
                 }
                 old = stack.top();
                 stack.pop();
