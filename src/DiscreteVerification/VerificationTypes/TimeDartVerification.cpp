@@ -190,7 +190,8 @@ namespace VerifyTAPN {
             // only if we have reached a deadlock (liveness) or 
             // have a reachability query (for delay when deadlock prop is used) then
             // we want to create some end-delay
-            if(deadlock || queryContainsDeadlock.value){
+            if(deadlock || queryContainsDeadlock.value ||
+               query->getQuantifier() == AST::EG || query->getQuantifier() == AST::AF){
                 NonStrictMarkingBase* base = getBase(trace->dart);
                 
                 int diff = this->maxPossibleDelay(base) - trace->start;
@@ -209,8 +210,9 @@ namespace VerifyTAPN {
                         mc->cut();
                         if(l == NULL)                   // set specific last marking to last marking in delay if deadlock
                             l = mc;
-                        if(diff)                        // seems obsolete TODO check effect of remove.
+                        if(diff){                        // seems obsolete TODO check effect of remove.
                                 traceStack.push(mc);            // add delay marking to the trace
+                        }
                         mc->setParent(NULL);
                         diff--;
                     }
@@ -264,7 +266,7 @@ namespace VerifyTAPN {
                 upper = trace->upper;
                 trace = (TraceDart*) trace->parent;
             }
-            
+
             printXMLTrace(l, traceStack, query, tapn);
         }
 
