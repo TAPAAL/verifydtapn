@@ -348,8 +348,9 @@ namespace VerifyTAPN {
                 do {
                     result->push(liveness->top());
                     liveness->pop();
-                    if(!liveness->empty())
+                    if(!liveness->empty()) {
                         result->top()->setParent(liveness->top());
+                    }
                 } while (!(liveness->empty()));
             }
         }
