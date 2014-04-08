@@ -1,8 +1,10 @@
-/* A Bison parser, made by GNU Bison 2.7.12-4996.  */
+
+/* A Bison parser, made by GNU Bison 2.4.1.  */
 
 /* Skeleton implementation for Bison LALR(1) parsers in C++
    
-      Copyright (C) 2002-2013 Free Software Foundation, Inc.
+      Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007, 2008 Free Software
+   Foundation, Inc.
    
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -33,37 +35,32 @@
 
 /* First part of user declarations.  */
 
-/* Line 283 of lalr1.cc  */
-#line 38 "Core/QueryParser/Generated/parser.cpp"
+
+/* Line 311 of lalr1.cc  */
+#line 41 "Core/QueryParser/Generated/parser.cpp"
 
 
 #include "parser.hpp"
 
 /* User implementation prologue.  */
 
-/* Line 289 of lalr1.cc  */
-#line 46 "Core/QueryParser/Generated/parser.cpp"
+
+/* Line 317 of lalr1.cc  */
+#line 50 "Core/QueryParser/Generated/parser.cpp"
 /* Unqualified %code blocks.  */
-/* Line 290 of lalr1.cc  */
+
+/* Line 318 of lalr1.cc  */
 #line 38 "Core/QueryParser/grammar.yy"
 
 	#include "../TAPNQueryParser.hpp"
 
 
-/* Line 290 of lalr1.cc  */
-#line 55 "Core/QueryParser/Generated/parser.cpp"
 
-
-# ifndef YY_NULL
-#  if defined __cplusplus && 201103L <= __cplusplus
-#   define YY_NULL nullptr
-#  else
-#   define YY_NULL 0
-#  endif
-# endif
+/* Line 318 of lalr1.cc  */
+#line 61 "Core/QueryParser/Generated/parser.cpp"
 
 #ifndef YY_
-# if defined YYENABLE_NLS && YYENABLE_NLS
+# if YYENABLE_NLS
 #  if ENABLE_NLS
 #   include <libintl.h> /* FIXME: INFRINGES ON USER NAME SPACE */
 #   define YY_(msgid) dgettext ("bison-runtime", msgid)
@@ -73,27 +70,6 @@
 #  define YY_(msgid) msgid
 # endif
 #endif
-
-#define YYRHSLOC(Rhs, K) ((Rhs)[K])
-/* YYLLOC_DEFAULT -- Set CURRENT to span from RHS[1] to RHS[N].
-   If N is 0, then set CURRENT to the empty location which ends
-   the previous symbol: RHS[0] (always defined).  */
-
-# ifndef YYLLOC_DEFAULT
-#  define YYLLOC_DEFAULT(Current, Rhs, N)                               \
-    do                                                                  \
-      if (N)                                                            \
-        {                                                               \
-          (Current).begin  = YYRHSLOC (Rhs, 1).begin;                   \
-          (Current).end    = YYRHSLOC (Rhs, N).end;                     \
-        }                                                               \
-      else                                                              \
-        {                                                               \
-          (Current).begin = (Current).end = YYRHSLOC (Rhs, 0).end;      \
-        }                                                               \
-    while (/*CONSTCOND*/ false)
-# endif
-
 
 /* Suppress unused-variable warnings by "using" E.  */
 #define YYUSE(e) ((void) (e))
@@ -129,9 +105,9 @@ do {					\
 #else /* !YYDEBUG */
 
 # define YYCDEBUG if (false) std::cerr
-# define YY_SYMBOL_PRINT(Title, Type, Value, Location) YYUSE(Type)
-# define YY_REDUCE_PRINT(Rule)        static_cast<void>(0)
-# define YY_STACK_PRINT()             static_cast<void>(0)
+# define YY_SYMBOL_PRINT(Title, Type, Value, Location)
+# define YY_REDUCE_PRINT(Rule)
+# define YY_STACK_PRINT()
 
 #endif /* !YYDEBUG */
 
@@ -143,11 +119,14 @@ do {					\
 #define YYERROR		goto yyerrorlab
 #define YYRECOVERING()  (!!yyerrstatus_)
 
-/* Line 357 of lalr1.cc  */
+
+/* Line 380 of lalr1.cc  */
 #line 5 "Core/QueryParser/grammar.yy"
 namespace VerifyTAPN {
-/* Line 357 of lalr1.cc  */
-#line 151 "Core/QueryParser/Generated/parser.cpp"
+
+/* Line 380 of lalr1.cc  */
+#line 129 "Core/QueryParser/Generated/parser.cpp"
+#if YYERROR_VERBOSE
 
   /* Return YYSTR after stripping away unnecessary quotes and
      backslashes, so that it's suitable for yyerror.  The heuristic is
@@ -186,6 +165,7 @@ namespace VerifyTAPN {
     return yystr;
   }
 
+#endif
 
   /// Build a parser object.
   Parser::Parser (VerifyTAPN::TAPNQueryParser& driver_yyarg)
@@ -213,10 +193,11 @@ namespace VerifyTAPN {
   {
     YYUSE (yylocationp);
     YYUSE (yyvaluep);
-    std::ostream& yyo = debug_stream ();
-    std::ostream& yyoutput = yyo;
-    YYUSE (yyoutput);
-    YYUSE (yytype);
+    switch (yytype)
+      {
+         default:
+	  break;
+      }
   }
 
 
@@ -240,141 +221,176 @@ namespace VerifyTAPN {
     YYUSE (yymsg);
     YYUSE (yyvaluep);
 
-    if (yymsg)
-      YY_SYMBOL_PRINT (yymsg, yytype, yyvaluep, yylocationp);
+    YY_SYMBOL_PRINT (yymsg, yytype, yyvaluep, yylocationp);
 
     switch (yytype)
-    {
-      case 3: /* IDENTIFIER */
-/* Line 452 of lalr1.cc  */
-#line 56 "Core/QueryParser/grammar.yy"
-        { delete ((*yyvaluep).string); };
-/* Line 452 of lalr1.cc  */
-#line 254 "Core/QueryParser/Generated/parser.cpp"
-        break;
-      case 4: /* LESS */
-/* Line 452 of lalr1.cc  */
-#line 56 "Core/QueryParser/grammar.yy"
-        { delete ((*yyvaluep).string); };
-/* Line 452 of lalr1.cc  */
-#line 261 "Core/QueryParser/Generated/parser.cpp"
-        break;
-      case 5: /* LESSEQUAL */
-/* Line 452 of lalr1.cc  */
-#line 56 "Core/QueryParser/grammar.yy"
-        { delete ((*yyvaluep).string); };
-/* Line 452 of lalr1.cc  */
-#line 268 "Core/QueryParser/Generated/parser.cpp"
-        break;
-      case 6: /* EQUAL */
-/* Line 452 of lalr1.cc  */
-#line 56 "Core/QueryParser/grammar.yy"
-        { delete ((*yyvaluep).string); };
-/* Line 452 of lalr1.cc  */
-#line 275 "Core/QueryParser/Generated/parser.cpp"
-        break;
-      case 7: /* GREATEREQUAL */
-/* Line 452 of lalr1.cc  */
-#line 56 "Core/QueryParser/grammar.yy"
-        { delete ((*yyvaluep).string); };
-/* Line 452 of lalr1.cc  */
-#line 282 "Core/QueryParser/Generated/parser.cpp"
-        break;
-      case 8: /* GREATER */
-/* Line 452 of lalr1.cc  */
-#line 56 "Core/QueryParser/grammar.yy"
-        { delete ((*yyvaluep).string); };
-/* Line 452 of lalr1.cc  */
-#line 289 "Core/QueryParser/Generated/parser.cpp"
-        break;
-      case 26: /* query */
-/* Line 452 of lalr1.cc  */
-#line 58 "Core/QueryParser/grammar.yy"
-        { delete ((*yyvaluep).query); };
-/* Line 452 of lalr1.cc  */
-#line 296 "Core/QueryParser/Generated/parser.cpp"
-        break;
-      case 27: /* expression */
-/* Line 452 of lalr1.cc  */
-#line 57 "Core/QueryParser/grammar.yy"
-        { delete ((*yyvaluep).expr); };
-/* Line 452 of lalr1.cc  */
-#line 303 "Core/QueryParser/Generated/parser.cpp"
-        break;
-      case 28: /* arithmeticExpression */
-/* Line 452 of lalr1.cc  */
-#line 57 "Core/QueryParser/grammar.yy"
-        { delete ((*yyvaluep).arexpr); };
-/* Line 452 of lalr1.cc  */
-#line 310 "Core/QueryParser/Generated/parser.cpp"
-        break;
-      case 29: /* multiplyExpression */
-/* Line 452 of lalr1.cc  */
-#line 57 "Core/QueryParser/grammar.yy"
-        { delete ((*yyvaluep).arexpr); };
-/* Line 452 of lalr1.cc  */
-#line 317 "Core/QueryParser/Generated/parser.cpp"
-        break;
-      case 30: /* arithmeticParantheses */
-/* Line 452 of lalr1.cc  */
-#line 57 "Core/QueryParser/grammar.yy"
-        { delete ((*yyvaluep).arexpr); };
-/* Line 452 of lalr1.cc  */
-#line 324 "Core/QueryParser/Generated/parser.cpp"
-        break;
-      case 31: /* parExpression */
-/* Line 452 of lalr1.cc  */
-#line 57 "Core/QueryParser/grammar.yy"
-        { delete ((*yyvaluep).expr); };
-/* Line 452 of lalr1.cc  */
-#line 331 "Core/QueryParser/Generated/parser.cpp"
-        break;
-      case 32: /* notExpression */
-/* Line 452 of lalr1.cc  */
-#line 57 "Core/QueryParser/grammar.yy"
-        { delete ((*yyvaluep).expr); };
-/* Line 452 of lalr1.cc  */
-#line 338 "Core/QueryParser/Generated/parser.cpp"
-        break;
-      case 33: /* orExpression */
-/* Line 452 of lalr1.cc  */
-#line 57 "Core/QueryParser/grammar.yy"
-        { delete ((*yyvaluep).expr); };
-/* Line 452 of lalr1.cc  */
-#line 345 "Core/QueryParser/Generated/parser.cpp"
-        break;
-      case 34: /* andExpression */
-/* Line 452 of lalr1.cc  */
-#line 57 "Core/QueryParser/grammar.yy"
-        { delete ((*yyvaluep).expr); };
-/* Line 452 of lalr1.cc  */
-#line 352 "Core/QueryParser/Generated/parser.cpp"
-        break;
-      case 35: /* boolExpression */
-/* Line 452 of lalr1.cc  */
-#line 57 "Core/QueryParser/grammar.yy"
-        { delete ((*yyvaluep).expr); };
-/* Line 452 of lalr1.cc  */
-#line 359 "Core/QueryParser/Generated/parser.cpp"
-        break;
-      case 36: /* atomicProposition */
-/* Line 452 of lalr1.cc  */
-#line 57 "Core/QueryParser/grammar.yy"
-        { delete ((*yyvaluep).expr); };
-/* Line 452 of lalr1.cc  */
-#line 366 "Core/QueryParser/Generated/parser.cpp"
-        break;
-      case 37: /* compareOp */
-/* Line 452 of lalr1.cc  */
-#line 56 "Core/QueryParser/grammar.yy"
-        { delete ((*yyvaluep).string); };
-/* Line 452 of lalr1.cc  */
-#line 373 "Core/QueryParser/Generated/parser.cpp"
-        break;
+      {
+        case 3: /* "IDENTIFIER" */
 
-      default:
-        break;
-    }
+/* Line 480 of lalr1.cc  */
+#line 56 "Core/QueryParser/grammar.yy"
+	{ delete (yyvaluep->string); };
+
+/* Line 480 of lalr1.cc  */
+#line 236 "Core/QueryParser/Generated/parser.cpp"
+	break;
+      case 4: /* "LESS" */
+
+/* Line 480 of lalr1.cc  */
+#line 56 "Core/QueryParser/grammar.yy"
+	{ delete (yyvaluep->string); };
+
+/* Line 480 of lalr1.cc  */
+#line 245 "Core/QueryParser/Generated/parser.cpp"
+	break;
+      case 5: /* "LESSEQUAL" */
+
+/* Line 480 of lalr1.cc  */
+#line 56 "Core/QueryParser/grammar.yy"
+	{ delete (yyvaluep->string); };
+
+/* Line 480 of lalr1.cc  */
+#line 254 "Core/QueryParser/Generated/parser.cpp"
+	break;
+      case 6: /* "EQUAL" */
+
+/* Line 480 of lalr1.cc  */
+#line 56 "Core/QueryParser/grammar.yy"
+	{ delete (yyvaluep->string); };
+
+/* Line 480 of lalr1.cc  */
+#line 263 "Core/QueryParser/Generated/parser.cpp"
+	break;
+      case 7: /* "GREATEREQUAL" */
+
+/* Line 480 of lalr1.cc  */
+#line 56 "Core/QueryParser/grammar.yy"
+	{ delete (yyvaluep->string); };
+
+/* Line 480 of lalr1.cc  */
+#line 272 "Core/QueryParser/Generated/parser.cpp"
+	break;
+      case 8: /* "GREATER" */
+
+/* Line 480 of lalr1.cc  */
+#line 56 "Core/QueryParser/grammar.yy"
+	{ delete (yyvaluep->string); };
+
+/* Line 480 of lalr1.cc  */
+#line 281 "Core/QueryParser/Generated/parser.cpp"
+	break;
+      case 26: /* "query" */
+
+/* Line 480 of lalr1.cc  */
+#line 58 "Core/QueryParser/grammar.yy"
+	{ delete (yyvaluep->query); };
+
+/* Line 480 of lalr1.cc  */
+#line 290 "Core/QueryParser/Generated/parser.cpp"
+	break;
+      case 27: /* "expression" */
+
+/* Line 480 of lalr1.cc  */
+#line 57 "Core/QueryParser/grammar.yy"
+	{ delete (yyvaluep->expr); };
+
+/* Line 480 of lalr1.cc  */
+#line 299 "Core/QueryParser/Generated/parser.cpp"
+	break;
+      case 28: /* "arithmeticExpression" */
+
+/* Line 480 of lalr1.cc  */
+#line 57 "Core/QueryParser/grammar.yy"
+	{ delete (yyvaluep->arexpr); };
+
+/* Line 480 of lalr1.cc  */
+#line 308 "Core/QueryParser/Generated/parser.cpp"
+	break;
+      case 29: /* "multiplyExpression" */
+
+/* Line 480 of lalr1.cc  */
+#line 57 "Core/QueryParser/grammar.yy"
+	{ delete (yyvaluep->arexpr); };
+
+/* Line 480 of lalr1.cc  */
+#line 317 "Core/QueryParser/Generated/parser.cpp"
+	break;
+      case 30: /* "arithmeticParantheses" */
+
+/* Line 480 of lalr1.cc  */
+#line 57 "Core/QueryParser/grammar.yy"
+	{ delete (yyvaluep->arexpr); };
+
+/* Line 480 of lalr1.cc  */
+#line 326 "Core/QueryParser/Generated/parser.cpp"
+	break;
+      case 31: /* "parExpression" */
+
+/* Line 480 of lalr1.cc  */
+#line 57 "Core/QueryParser/grammar.yy"
+	{ delete (yyvaluep->expr); };
+
+/* Line 480 of lalr1.cc  */
+#line 335 "Core/QueryParser/Generated/parser.cpp"
+	break;
+      case 32: /* "notExpression" */
+
+/* Line 480 of lalr1.cc  */
+#line 57 "Core/QueryParser/grammar.yy"
+	{ delete (yyvaluep->expr); };
+
+/* Line 480 of lalr1.cc  */
+#line 344 "Core/QueryParser/Generated/parser.cpp"
+	break;
+      case 33: /* "orExpression" */
+
+/* Line 480 of lalr1.cc  */
+#line 57 "Core/QueryParser/grammar.yy"
+	{ delete (yyvaluep->expr); };
+
+/* Line 480 of lalr1.cc  */
+#line 353 "Core/QueryParser/Generated/parser.cpp"
+	break;
+      case 34: /* "andExpression" */
+
+/* Line 480 of lalr1.cc  */
+#line 57 "Core/QueryParser/grammar.yy"
+	{ delete (yyvaluep->expr); };
+
+/* Line 480 of lalr1.cc  */
+#line 362 "Core/QueryParser/Generated/parser.cpp"
+	break;
+      case 35: /* "boolExpression" */
+
+/* Line 480 of lalr1.cc  */
+#line 57 "Core/QueryParser/grammar.yy"
+	{ delete (yyvaluep->expr); };
+
+/* Line 480 of lalr1.cc  */
+#line 371 "Core/QueryParser/Generated/parser.cpp"
+	break;
+      case 36: /* "atomicProposition" */
+
+/* Line 480 of lalr1.cc  */
+#line 57 "Core/QueryParser/grammar.yy"
+	{ delete (yyvaluep->expr); };
+
+/* Line 480 of lalr1.cc  */
+#line 380 "Core/QueryParser/Generated/parser.cpp"
+	break;
+      case 37: /* "compareOp" */
+
+/* Line 480 of lalr1.cc  */
+#line 56 "Core/QueryParser/grammar.yy"
+	{ delete (yyvaluep->string); };
+
+/* Line 480 of lalr1.cc  */
+#line 389 "Core/QueryParser/Generated/parser.cpp"
+	break;
+
+	default:
+	  break;
+      }
   }
 
   void
@@ -412,18 +428,6 @@ namespace VerifyTAPN {
   }
 #endif
 
-  inline bool
-  Parser::yy_pact_value_is_default_ (int yyvalue)
-  {
-    return yyvalue == yypact_ninf_;
-  }
-
-  inline bool
-  Parser::yy_table_value_is_error_ (int yyvalue)
-  {
-    return yyvalue == yytable_ninf_;
-  }
-
   int
   Parser::parse ()
   {
@@ -431,22 +435,21 @@ namespace VerifyTAPN {
     int yychar = yyempty_;
     int yytoken = 0;
 
-    // State.
+    /* State.  */
     int yyn;
     int yylen = 0;
     int yystate = 0;
 
-    // Error handling.
+    /* Error handling.  */
     int yynerrs_ = 0;
     int yyerrstatus_ = 0;
 
     /// Semantic value of the lookahead.
-    static semantic_type yyval_default;
-    semantic_type yylval = yyval_default;
+    semantic_type yylval;
     /// Location of the lookahead.
     location_type yylloc;
     /// The locations where the error started and ended.
-    location_type yyerror_range[3];
+    location_type yyerror_range[2];
 
     /// $$.
     semantic_type yyval;
@@ -455,30 +458,28 @@ namespace VerifyTAPN {
 
     int yyresult;
 
-    // FIXME: This shoud be completely indented.  It is not yet to
-    // avoid gratuitous conflicts when merging into the master branch.
-    try
-      {
     YYCDEBUG << "Starting parse" << std::endl;
 
 
-/* User initialization code.  */
-/* Line 539 of lalr1.cc  */
+    /* User initialization code.  */
+    
+/* Line 559 of lalr1.cc  */
 #line 21 "Core/QueryParser/grammar.yy"
 {
   // Initialize the initial location.
   yylloc.begin.filename = yylloc.end.filename = &driver.file;
 }
-/* Line 539 of lalr1.cc  */
-#line 474 "Core/QueryParser/Generated/parser.cpp"
+
+/* Line 559 of lalr1.cc  */
+#line 475 "Core/QueryParser/Generated/parser.cpp"
 
     /* Initialize the stacks.  The initial state will be pushed in
        yynewstate, since the latter expects the semantical and the
        location values to have been already stored, initialize these
        stacks with a primary value.  */
-    yystate_stack_.clear ();
-    yysemantic_stack_.clear ();
-    yylocation_stack_.clear ();
+    yystate_stack_ = state_stack_type (0);
+    yysemantic_stack_ = semantic_stack_type (0);
+    yylocation_stack_ = location_stack_type (0);
     yysemantic_stack_.push (yylval);
     yylocation_stack_.push (yylloc);
 
@@ -498,15 +499,16 @@ namespace VerifyTAPN {
 
     /* Try to take a decision without lookahead.  */
     yyn = yypact_[yystate];
-    if (yy_pact_value_is_default_ (yyn))
+    if (yyn == yypact_ninf_)
       goto yydefault;
 
     /* Read a lookahead token.  */
     if (yychar == yyempty_)
       {
-        YYCDEBUG << "Reading a token: ";
-        yychar = yylex (&yylval, &yylloc, driver);
+	YYCDEBUG << "Reading a token: ";
+	yychar = yylex (&yylval, &yylloc, driver);
       }
+
 
     /* Convert token to internal form.  */
     if (yychar <= yyeof_)
@@ -530,8 +532,8 @@ namespace VerifyTAPN {
     yyn = yytable_[yyn];
     if (yyn <= 0)
       {
-	if (yy_table_value_is_error_ (yyn))
-	  goto yyerrlab;
+	if (yyn == 0 || yyn == yytable_ninf_)
+	goto yyerrlab;
 	yyn = -yyn;
 	goto yyreduce;
       }
@@ -578,126 +580,142 @@ namespace VerifyTAPN {
     else
       yyval = yysemantic_stack_[0];
 
-    // Compute the default @$.
     {
       slice<location_type, location_stack_type> slice (yylocation_stack_, yylen);
       YYLLOC_DEFAULT (yyloc, slice, yylen);
     }
-
-    // Perform the reduction.
     YY_REDUCE_PRINT (yyn);
     switch (yyn)
       {
-          case 2:
-/* Line 664 of lalr1.cc  */
+	  case 2:
+
+/* Line 678 of lalr1.cc  */
 #line 62 "Core/QueryParser/grammar.yy"
     { (yyval.query) = new VerifyTAPN::AST::Query(VerifyTAPN::AST::EF, (yysemantic_stack_[(2) - (2)].expr)); driver.setAST((yyval.query)); }
     break;
 
   case 3:
-/* Line 664 of lalr1.cc  */
+
+/* Line 678 of lalr1.cc  */
 #line 63 "Core/QueryParser/grammar.yy"
     { (yyval.query) = new VerifyTAPN::AST::Query(VerifyTAPN::AST::AG, (yysemantic_stack_[(2) - (2)].expr)); driver.setAST((yyval.query)); }
     break;
 
   case 4:
-/* Line 664 of lalr1.cc  */
+
+/* Line 678 of lalr1.cc  */
 #line 64 "Core/QueryParser/grammar.yy"
     { (yyval.query) = new VerifyTAPN::AST::Query(VerifyTAPN::AST::EG, (yysemantic_stack_[(2) - (2)].expr)); driver.setAST((yyval.query)); }
     break;
 
   case 5:
-/* Line 664 of lalr1.cc  */
+
+/* Line 678 of lalr1.cc  */
 #line 65 "Core/QueryParser/grammar.yy"
     { (yyval.query) = new VerifyTAPN::AST::Query(VerifyTAPN::AST::AF, (yysemantic_stack_[(2) - (2)].expr)); driver.setAST((yyval.query)); }
     break;
 
   case 6:
-/* Line 664 of lalr1.cc  */
+
+/* Line 678 of lalr1.cc  */
 #line 68 "Core/QueryParser/grammar.yy"
     { (yyval.expr) = (yysemantic_stack_[(1) - (1)].expr); }
     break;
 
   case 7:
-/* Line 664 of lalr1.cc  */
+
+/* Line 678 of lalr1.cc  */
 #line 69 "Core/QueryParser/grammar.yy"
     { (yyval.expr) = (yysemantic_stack_[(1) - (1)].expr); }
     break;
 
   case 8:
-/* Line 664 of lalr1.cc  */
+
+/* Line 678 of lalr1.cc  */
 #line 70 "Core/QueryParser/grammar.yy"
     { (yyval.expr) = (yysemantic_stack_[(1) - (1)].expr); }
     break;
 
   case 9:
-/* Line 664 of lalr1.cc  */
+
+/* Line 678 of lalr1.cc  */
 #line 71 "Core/QueryParser/grammar.yy"
     { (yyval.expr) = (yysemantic_stack_[(1) - (1)].expr); }
     break;
 
   case 10:
-/* Line 664 of lalr1.cc  */
+
+/* Line 678 of lalr1.cc  */
 #line 72 "Core/QueryParser/grammar.yy"
     { (yyval.expr) = (yysemantic_stack_[(1) - (1)].expr); }
     break;
 
   case 11:
-/* Line 664 of lalr1.cc  */
+
+/* Line 678 of lalr1.cc  */
 #line 73 "Core/QueryParser/grammar.yy"
     { (yyval.expr) = (yysemantic_stack_[(1) - (1)].expr); }
     break;
 
   case 12:
-/* Line 664 of lalr1.cc  */
+
+/* Line 678 of lalr1.cc  */
 #line 79 "Core/QueryParser/grammar.yy"
     { (yyval.arexpr) = new VerifyTAPN::AST::PlusExpression((yysemantic_stack_[(3) - (1)].arexpr), (yysemantic_stack_[(3) - (3)].arexpr)); }
     break;
 
   case 13:
-/* Line 664 of lalr1.cc  */
+
+/* Line 678 of lalr1.cc  */
 #line 80 "Core/QueryParser/grammar.yy"
     { (yyval.arexpr) = new VerifyTAPN::AST::SubtractExpression((yysemantic_stack_[(3) - (1)].arexpr), (yysemantic_stack_[(3) - (3)].arexpr)); }
     break;
 
   case 14:
-/* Line 664 of lalr1.cc  */
+
+/* Line 678 of lalr1.cc  */
 #line 81 "Core/QueryParser/grammar.yy"
     { (yyval.arexpr) = new VerifyTAPN::AST::MinusExpression((yysemantic_stack_[(2) - (2)].arexpr)); }
     break;
 
   case 15:
-/* Line 664 of lalr1.cc  */
+
+/* Line 678 of lalr1.cc  */
 #line 82 "Core/QueryParser/grammar.yy"
     { (yyval.arexpr) = (yysemantic_stack_[(1) - (1)].arexpr); }
     break;
 
   case 16:
-/* Line 664 of lalr1.cc  */
+
+/* Line 678 of lalr1.cc  */
 #line 85 "Core/QueryParser/grammar.yy"
     { (yyval.arexpr) = new VerifyTAPN::AST::MultiplyExpression((yysemantic_stack_[(3) - (1)].arexpr), (yysemantic_stack_[(3) - (3)].arexpr)); }
     break;
 
   case 17:
-/* Line 664 of lalr1.cc  */
+
+/* Line 678 of lalr1.cc  */
 #line 86 "Core/QueryParser/grammar.yy"
     { (yyval.arexpr) = (yysemantic_stack_[(1) - (1)].arexpr); }
     break;
 
   case 18:
-/* Line 664 of lalr1.cc  */
+
+/* Line 678 of lalr1.cc  */
 #line 89 "Core/QueryParser/grammar.yy"
     { (yyval.arexpr) = (yysemantic_stack_[(3) - (2)].arexpr); }
     break;
 
   case 19:
-/* Line 664 of lalr1.cc  */
+
+/* Line 678 of lalr1.cc  */
 #line 90 "Core/QueryParser/grammar.yy"
     { (yyval.arexpr) = new VerifyTAPN::AST::NumberExpression((yysemantic_stack_[(1) - (1)].number));}
     break;
 
   case 20:
-/* Line 664 of lalr1.cc  */
+
+/* Line 678 of lalr1.cc  */
 #line 91 "Core/QueryParser/grammar.yy"
     { 
                                                                     int placeIndex = driver.getTAPN().getPlaceIndex(*(yysemantic_stack_[(1) - (1)].string));
@@ -708,71 +726,68 @@ namespace VerifyTAPN {
     break;
 
   case 21:
-/* Line 664 of lalr1.cc  */
+
+/* Line 678 of lalr1.cc  */
 #line 99 "Core/QueryParser/grammar.yy"
     { (yyval.expr) = (yysemantic_stack_[(3) - (2)].expr); }
     break;
 
   case 22:
-/* Line 664 of lalr1.cc  */
+
+/* Line 678 of lalr1.cc  */
 #line 100 "Core/QueryParser/grammar.yy"
     { (yyval.expr) = new VerifyTAPN::AST::NotExpression((yysemantic_stack_[(2) - (2)].expr)); }
     break;
 
   case 23:
-/* Line 664 of lalr1.cc  */
+
+/* Line 678 of lalr1.cc  */
 #line 101 "Core/QueryParser/grammar.yy"
     { (yyval.expr) = new VerifyTAPN::AST::OrExpression((yysemantic_stack_[(3) - (1)].expr), (yysemantic_stack_[(3) - (3)].expr)); }
     break;
 
   case 24:
-/* Line 664 of lalr1.cc  */
+
+/* Line 678 of lalr1.cc  */
 #line 102 "Core/QueryParser/grammar.yy"
     { (yyval.expr) = new VerifyTAPN::AST::AndExpression((yysemantic_stack_[(3) - (1)].expr), (yysemantic_stack_[(3) - (3)].expr)); }
     break;
 
   case 25:
-/* Line 664 of lalr1.cc  */
+
+/* Line 678 of lalr1.cc  */
 #line 103 "Core/QueryParser/grammar.yy"
     { (yyval.expr) = new VerifyTAPN::AST::BoolExpression(true); }
     break;
 
   case 26:
-/* Line 664 of lalr1.cc  */
+
+/* Line 678 of lalr1.cc  */
 #line 104 "Core/QueryParser/grammar.yy"
     { (yyval.expr) = new VerifyTAPN::AST::BoolExpression(false); }
     break;
 
   case 27:
-/* Line 664 of lalr1.cc  */
+
+/* Line 678 of lalr1.cc  */
 #line 106 "Core/QueryParser/grammar.yy"
     { (yyval.expr) = new VerifyTAPN::AST::AtomicProposition((yysemantic_stack_[(3) - (1)].arexpr), (yysemantic_stack_[(3) - (2)].string), (yysemantic_stack_[(3) - (3)].arexpr)); }
     break;
 
   case 28:
-/* Line 664 of lalr1.cc  */
+
+/* Line 678 of lalr1.cc  */
 #line 107 "Core/QueryParser/grammar.yy"
     { (yyval.expr) = new VerifyTAPN::AST::DeadlockExpression(); }
     break;
 
 
-/* Line 664 of lalr1.cc  */
-#line 761 "Core/QueryParser/Generated/parser.cpp"
-      default:
-        break;
-      }
 
-    /* User semantic actions sometimes alter yychar, and that requires
-       that yytoken be updated with the new translation.  We take the
-       approach of translating immediately before every use of yytoken.
-       One alternative is translating here after every semantic action,
-       but that translation would be missed if the semantic action
-       invokes YYABORT, YYACCEPT, or YYERROR immediately after altering
-       yychar.  In the case of YYABORT or YYACCEPT, an incorrect
-       destructor might then be invoked immediately.  In the case of
-       YYERROR, subsequent parser actions might lead to an incorrect
-       destructor call or verbose syntax error message before the
-       lookahead is translated.  */
+/* Line 678 of lalr1.cc  */
+#line 788 "Core/QueryParser/Generated/parser.cpp"
+	default:
+          break;
+      }
     YY_SYMBOL_PRINT ("-> $$ =", yyr1_[yyn], &yyval, &yyloc);
 
     yypop_ (yylen);
@@ -796,35 +811,30 @@ namespace VerifyTAPN {
   | yyerrlab -- here on detecting error |
   `------------------------------------*/
   yyerrlab:
-    /* Make sure we have latest lookahead translation.  See comments at
-       user semantic actions for why this is necessary.  */
-    yytoken = yytranslate_ (yychar);
-
     /* If not already recovering from an error, report this error.  */
     if (!yyerrstatus_)
       {
 	++yynerrs_;
-	if (yychar == yyempty_)
-	  yytoken = yyempty_;
 	error (yylloc, yysyntax_error_ (yystate, yytoken));
       }
 
-    yyerror_range[1] = yylloc;
+    yyerror_range[0] = yylloc;
     if (yyerrstatus_ == 3)
       {
-        /* If just tried and failed to reuse lookahead token after an
-           error, discard it.  */
-        if (yychar <= yyeof_)
-          {
-            /* Return failure if at end of input.  */
-            if (yychar == yyeof_)
-              YYABORT;
-          }
-        else
-          {
-            yydestruct_ ("Error: discarding", yytoken, &yylval, &yylloc);
-            yychar = yyempty_;
-          }
+	/* If just tried and failed to reuse lookahead token after an
+	 error, discard it.  */
+
+	if (yychar <= yyeof_)
+	  {
+	  /* Return failure if at end of input.  */
+	  if (yychar == yyeof_)
+	    YYABORT;
+	  }
+	else
+	  {
+	    yydestruct_ ("Error: discarding", yytoken, &yylval, &yylloc);
+	    yychar = yyempty_;
+	  }
       }
 
     /* Else will try to reuse lookahead token after shifting the error
@@ -843,7 +853,7 @@ namespace VerifyTAPN {
     if (false)
       goto yyerrorlab;
 
-    yyerror_range[1] = yylocation_stack_[yylen - 1];
+    yyerror_range[0] = yylocation_stack_[yylen - 1];
     /* Do not reclaim the symbols of the rule which action triggered
        this YYERROR.  */
     yypop_ (yylen);
@@ -860,7 +870,7 @@ namespace VerifyTAPN {
     for (;;)
       {
 	yyn = yypact_[yystate];
-	if (!yy_pact_value_is_default_ (yyn))
+	if (yyn != yypact_ninf_)
 	{
 	  yyn += yyterror_;
 	  if (0 <= yyn && yyn <= yylast_ && yycheck_[yyn] == yyterror_)
@@ -873,9 +883,9 @@ namespace VerifyTAPN {
 
 	/* Pop the current state because it cannot handle the error token.  */
 	if (yystate_stack_.height () == 1)
-	  YYABORT;
+	YYABORT;
 
-	yyerror_range[1] = yylocation_stack_[0];
+	yyerror_range[0] = yylocation_stack_[0];
 	yydestruct_ ("Error: popping",
 		     yystos_[yystate],
 		     &yysemantic_stack_[0], &yylocation_stack_[0]);
@@ -884,10 +894,10 @@ namespace VerifyTAPN {
 	YY_STACK_PRINT ();
       }
 
-    yyerror_range[2] = yylloc;
+    yyerror_range[1] = yylloc;
     // Using YYLLOC is tempting, but would change the location of
     // the lookahead.  YYLOC is available though.
-    YYLLOC_DEFAULT (yyloc, yyerror_range, 2);
+    YYLLOC_DEFAULT (yyloc, (yyerror_range - 1), 2);
     yysemantic_stack_.push (yylval);
     yylocation_stack_.push (yyloc);
 
@@ -910,148 +920,70 @@ namespace VerifyTAPN {
 
   yyreturn:
     if (yychar != yyempty_)
-      {
-        /* Make sure we have latest lookahead translation.  See comments
-           at user semantic actions for why this is necessary.  */
-        yytoken = yytranslate_ (yychar);
-        yydestruct_ ("Cleanup: discarding lookahead", yytoken, &yylval,
-                     &yylloc);
-      }
+      yydestruct_ ("Cleanup: discarding lookahead", yytoken, &yylval, &yylloc);
 
     /* Do not reclaim the symbols of the rule which action triggered
        this YYABORT or YYACCEPT.  */
     yypop_ (yylen);
-    while (1 < yystate_stack_.height ())
+    while (yystate_stack_.height () != 1)
       {
-        yydestruct_ ("Cleanup: popping",
-                     yystos_[yystate_stack_[0]],
-                     &yysemantic_stack_[0],
-                     &yylocation_stack_[0]);
-        yypop_ ();
+	yydestruct_ ("Cleanup: popping",
+		   yystos_[yystate_stack_[0]],
+		   &yysemantic_stack_[0],
+		   &yylocation_stack_[0]);
+	yypop_ ();
       }
 
     return yyresult;
-    }
-    catch (...)
-      {
-        YYCDEBUG << "Exception caught: cleaning lookahead and stack"
-                 << std::endl;
-        // Do not try to display the values of the reclaimed symbols,
-        // as their printer might throw an exception.
-        if (yychar != yyempty_)
-          {
-            /* Make sure we have latest lookahead translation.  See
-               comments at user semantic actions for why this is
-               necessary.  */
-            yytoken = yytranslate_ (yychar);
-            yydestruct_ (YY_NULL, yytoken, &yylval, &yylloc);
-          }
-
-        while (1 < yystate_stack_.height ())
-          {
-            yydestruct_ (YY_NULL,
-                         yystos_[yystate_stack_[0]],
-                         &yysemantic_stack_[0],
-                         &yylocation_stack_[0]);
-            yypop_ ();
-          }
-        throw;
-      }
   }
 
   // Generate an error message.
   std::string
-  Parser::yysyntax_error_ (int yystate, int yytoken)
+  Parser::yysyntax_error_ (int yystate, int tok)
   {
-    std::string yyres;
-    // Number of reported tokens (one for the "unexpected", one per
-    // "expected").
-    size_t yycount = 0;
-    // Its maximum.
-    enum { YYERROR_VERBOSE_ARGS_MAXIMUM = 5 };
-    // Arguments of yyformat.
-    char const *yyarg[YYERROR_VERBOSE_ARGS_MAXIMUM];
-
-    /* There are many possibilities here to consider:
-       - If this state is a consistent state with a default action, then
-         the only way this function was invoked is if the default action
-         is an error action.  In that case, don't check for expected
-         tokens because there are none.
-       - The only way there can be no lookahead present (in yytoken) is
-         if this state is a consistent state with a default action.
-         Thus, detecting the absence of a lookahead is sufficient to
-         determine that there is no unexpected or expected token to
-         report.  In that case, just report a simple "syntax error".
-       - Don't assume there isn't a lookahead just because this state is
-         a consistent state with a default action.  There might have
-         been a previous inconsistent state, consistent state with a
-         non-default action, or user semantic action that manipulated
-         yychar.
-       - Of course, the expected token list depends on states to have
-         correct lookahead information, and it depends on the parser not
-         to perform extra reductions after fetching a lookahead from the
-         scanner and before detecting a syntax error.  Thus, state
-         merging (from LALR or IELR) and default reductions corrupt the
-         expected token list.  However, the list is correct for
-         canonical LR with one exception: it will still contain any
-         token that will not be accepted due to an error action in a
-         later state.
-    */
-    if (yytoken != yyempty_)
+    std::string res;
+    YYUSE (yystate);
+#if YYERROR_VERBOSE
+    int yyn = yypact_[yystate];
+    if (yypact_ninf_ < yyn && yyn <= yylast_)
       {
-        yyarg[yycount++] = yytname_[yytoken];
-        int yyn = yypact_[yystate];
-        if (!yy_pact_value_is_default_ (yyn))
-          {
-            /* Start YYX at -YYN if negative to avoid negative indexes in
-               YYCHECK.  In other words, skip the first -YYN actions for
-               this state because they are default actions.  */
-            int yyxbegin = yyn < 0 ? -yyn : 0;
-            /* Stay within bounds of both yycheck and yytname.  */
-            int yychecklim = yylast_ - yyn + 1;
-            int yyxend = yychecklim < yyntokens_ ? yychecklim : yyntokens_;
-            for (int yyx = yyxbegin; yyx < yyxend; ++yyx)
-              if (yycheck_[yyx + yyn] == yyx && yyx != yyterror_
-                  && !yy_table_value_is_error_ (yytable_[yyx + yyn]))
-                {
-                  if (yycount == YYERROR_VERBOSE_ARGS_MAXIMUM)
-                    {
-                      yycount = 1;
-                      break;
-                    }
-                  else
-                    yyarg[yycount++] = yytname_[yyx];
-                }
-          }
-      }
+	/* Start YYX at -YYN if negative to avoid negative indexes in
+	   YYCHECK.  */
+	int yyxbegin = yyn < 0 ? -yyn : 0;
 
-    char const* yyformat = YY_NULL;
-    switch (yycount)
-      {
-#define YYCASE_(N, S)                         \
-        case N:                               \
-          yyformat = S;                       \
-        break
-        YYCASE_(0, YY_("syntax error"));
-        YYCASE_(1, YY_("syntax error, unexpected %s"));
-        YYCASE_(2, YY_("syntax error, unexpected %s, expecting %s"));
-        YYCASE_(3, YY_("syntax error, unexpected %s, expecting %s or %s"));
-        YYCASE_(4, YY_("syntax error, unexpected %s, expecting %s or %s or %s"));
-        YYCASE_(5, YY_("syntax error, unexpected %s, expecting %s or %s or %s or %s"));
-#undef YYCASE_
-      }
+	/* Stay within bounds of both yycheck and yytname.  */
+	int yychecklim = yylast_ - yyn + 1;
+	int yyxend = yychecklim < yyntokens_ ? yychecklim : yyntokens_;
+	int count = 0;
+	for (int x = yyxbegin; x < yyxend; ++x)
+	  if (yycheck_[x + yyn] == x && x != yyterror_)
+	    ++count;
 
-    // Argument number.
-    size_t yyi = 0;
-    for (char const* yyp = yyformat; *yyp; ++yyp)
-      if (yyp[0] == '%' && yyp[1] == 's' && yyi < yycount)
-        {
-          yyres += yytnamerr_ (yyarg[yyi++]);
-          ++yyp;
-        }
-      else
-        yyres += *yyp;
-    return yyres;
+	// FIXME: This method of building the message is not compatible
+	// with internationalization.  It should work like yacc.c does it.
+	// That is, first build a string that looks like this:
+	// "syntax error, unexpected %s or %s or %s"
+	// Then, invoke YY_ on this string.
+	// Finally, use the string as a format to output
+	// yytname_[tok], etc.
+	// Until this gets fixed, this message appears in English only.
+	res = "syntax error, unexpected ";
+	res += yytnamerr_ (yytname_[tok]);
+	if (count < 5)
+	  {
+	    count = 0;
+	    for (int x = yyxbegin; x < yyxend; ++x)
+	      if (yycheck_[x + yyn] == x && x != yyterror_)
+		{
+		  res += (!count++) ? ", expecting " : " or ";
+		  res += yytnamerr_ (yytname_[x]);
+		}
+	  }
+      }
+    else
+#endif
+      res = YY_("syntax error");
+    return res;
   }
 
 
@@ -1069,9 +1001,9 @@ namespace VerifyTAPN {
       14,    14,     3,   -29
   };
 
-  /* YYDEFACT[S] -- default reduction number in state S.  Performed when
-     YYTABLE doesn't specify something else to do.  Zero means the
-     default is an error.  */
+  /* YYDEFACT[S] -- default rule to reduce with in state S when YYTABLE
+     doesn't specify something else to do.  Zero means the default is an
+     error.  */
   const unsigned char
   Parser::yydefact_[] =
   {
@@ -1101,7 +1033,7 @@ namespace VerifyTAPN {
 
   /* YYTABLE[YYPACT[STATE-NUM]].  What to do in state STATE-NUM.  If
      positive, shift that token.  If negative, reduce the rule which
-     number is the opposite.  If YYTABLE_NINF_, syntax error.  */
+     number is the opposite.  If zero, do what YYDEFACT says.  */
   const signed char Parser::yytable_ninf_ = -1;
   const unsigned char
   Parser::yytable_[] =
@@ -1173,7 +1105,7 @@ namespace VerifyTAPN {
        1,     1,     1,     1
   };
 
-
+#if YYDEBUG || YYERROR_VERBOSE || YYTOKEN_TABLE
   /* YYTNAME[SYMBOL-NUM] -- String name of the symbol SYMBOL-NUM.
      First, the terminals, then, starting at \a yyntokens_, nonterminals.  */
   const char*
@@ -1186,8 +1118,9 @@ namespace VerifyTAPN {
   "expression", "arithmeticExpression", "multiplyExpression",
   "arithmeticParantheses", "parExpression", "notExpression",
   "orExpression", "andExpression", "boolExpression", "atomicProposition",
-  "compareOp", YY_NULL
+  "compareOp", 0
   };
+#endif
 
 #if YYDEBUG
   /* YYRHS -- A `-1'-separated list of the rules' RHS.  */
@@ -1310,12 +1243,16 @@ namespace VerifyTAPN {
   const unsigned int Parser::yyuser_token_number_max_ = 279;
   const Parser::token_number_type Parser::yyundef_token_ = 2;
 
-/* Line 1135 of lalr1.cc  */
+
+/* Line 1054 of lalr1.cc  */
 #line 5 "Core/QueryParser/grammar.yy"
 } // VerifyTAPN
-/* Line 1135 of lalr1.cc  */
-#line 1318 "Core/QueryParser/Generated/parser.cpp"
-/* Line 1136 of lalr1.cc  */
+
+/* Line 1054 of lalr1.cc  */
+#line 1253 "Core/QueryParser/Generated/parser.cpp"
+
+
+/* Line 1056 of lalr1.cc  */
 #line 111 "Core/QueryParser/grammar.yy"
 
 
@@ -1326,3 +1263,4 @@ VerifyTAPN::Parser::error (const VerifyTAPN::Parser::location_type& l,
 	driver.error (l, m);
 	exit(1);
 }
+

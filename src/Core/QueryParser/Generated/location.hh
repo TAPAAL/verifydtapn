@@ -1,8 +1,9 @@
-/* A Bison parser, made by GNU Bison 2.7.12-4996.  */
+
+/* A Bison parser, made by GNU Bison 2.4.1.  */
 
 /* Locations for Bison parsers in C++
    
-      Copyright (C) 2002-2007, 2009-2013 Free Software Foundation, Inc.
+      Copyright (C) 2002, 2003, 2004, 2005, 2006 Free Software Foundation, Inc.
    
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -31,56 +32,41 @@
    version 2.2 of Bison.  */
 
 /**
- ** \file Core/QueryParser/Generated/location.hh
+ ** \file location.hh
  ** Define the VerifyTAPN::location class.
  */
 
-#ifndef YY_YY_CORE_QUERYPARSER_GENERATED_LOCATION_HH_INCLUDED
-# define YY_YY_CORE_QUERYPARSER_GENERATED_LOCATION_HH_INCLUDED
+#ifndef BISON_LOCATION_HH
+# define BISON_LOCATION_HH
 
+# include <iostream>
+# include <string>
 # include "position.hh"
 
-/* Line 166 of location.cc  */
+
+/* Line 162 of location.cc  */
 #line 5 "Core/QueryParser/grammar.yy"
 namespace VerifyTAPN {
-/* Line 166 of location.cc  */
-#line 48 "Core/QueryParser/Generated/location.hh"
+
+/* Line 162 of location.cc  */
+#line 53 "Core/QueryParser/Generated/location.hh"
 
   /// Abstract a location.
   class location
   {
   public:
 
-    /// Construct a location from \a b to \a e.
-    location (const position& b, const position& e)
-      : begin (b)
-      , end (e)
-    {
-    }
-
-    /// Construct a 0-width location in \a p.
-    explicit location (const position& p = position ())
-      : begin (p)
-      , end (p)
-    {
-    }
-
-    /// Construct a 0-width location in \a f, \a l, \a c.
-    explicit location (std::string* f,
-                       unsigned int l = 1u,
-                       unsigned int c = 1u)
-      : begin (f, l, c)
-      , end (f, l, c)
+    /// Construct a location.
+    location ()
+      : begin (), end ()
     {
     }
 
 
     /// Initialization.
-    void initialize (std::string* f = YY_NULL,
-                     unsigned int l = 1u,
-                     unsigned int c = 1u)
+    inline void initialize (std::string* fn)
     {
-      begin.initialize (f, l, c);
+      begin.initialize (fn);
       end = begin;
     }
 
@@ -88,19 +74,19 @@ namespace VerifyTAPN {
      ** \{ */
   public:
     /// Reset initial location to final location.
-    void step ()
+    inline void step ()
     {
       begin = end;
     }
 
     /// Extend the current location to the COUNT next columns.
-    void columns (unsigned int count = 1)
+    inline void columns (unsigned int count = 1)
     {
       end += count;
     }
 
     /// Extend the current location to the COUNT next lines.
-    void lines (unsigned int count = 1)
+    inline void lines (unsigned int count = 1)
     {
       end.lines (count);
     }
@@ -157,9 +143,7 @@ namespace VerifyTAPN {
    **
    ** Avoid duplicate information.
    */
-  template <typename YYChar>
-  inline std::basic_ostream<YYChar>&
-  operator<< (std::basic_ostream<YYChar>& ostr, const location& loc)
+  inline std::ostream& operator<< (std::ostream& ostr, const location& loc)
   {
     position last = loc.end - 1;
     ostr << loc.begin;
@@ -174,10 +158,12 @@ namespace VerifyTAPN {
     return ostr;
   }
 
-/* Line 296 of location.cc  */
+
+/* Line 271 of location.cc  */
 #line 5 "Core/QueryParser/grammar.yy"
 } // VerifyTAPN
-/* Line 296 of location.cc  */
-#line 182 "Core/QueryParser/Generated/location.hh"
 
-#endif /* !YY_YY_CORE_QUERYPARSER_GENERATED_LOCATION_HH_INCLUDED  */
+/* Line 271 of location.cc  */
+#line 168 "Core/QueryParser/Generated/location.hh"
+
+#endif // not BISON_LOCATION_HH
