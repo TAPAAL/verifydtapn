@@ -342,13 +342,15 @@ namespace VerifyTAPN {
             if (liveness == NULL) {
                 T* next = m;
                 do {
-                    
                     result->push((T*)next);
                 } while ((next = ((T*)next->getParent())) != NULL);
             } else {
                 do {
                     result->push(liveness->top());
                     liveness->pop();
+                    if(!liveness->empty()) {
+                        result->top()->setParent(liveness->top());
+                    }
                 } while (!(liveness->empty()));
             }
         }
