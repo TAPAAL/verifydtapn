@@ -34,6 +34,7 @@ protected:
 protected:
 	int max_value;
 	TimedPlace* outPlace;
+        int validChildren;
 };
 
 } /* namespace DiscreteVerification */
