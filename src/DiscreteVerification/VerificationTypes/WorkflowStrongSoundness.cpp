@@ -80,13 +80,23 @@ namespace VerifyTAPN {
         }
 
         void WorkflowStrongSoundnessReachability::getTrace() {
-            stack < NonStrictMarkingWithDelay*> printStack;
-            NonStrictMarkingWithDelay* m = trace.top();
-            generateTraceStack(m, &printStack, &trace);
-            if(options.getXmlTrace()){
-                    printXMLTrace(m, printStack, query, tapn);
+            std::stack < NonStrictMarkingWithDelay*> printStack;
+            NonStrictMarkingWithDelay* next = lastMarking;
+            do {
+                NonStrictMarkingWithDelay* parent = (NonStrictMarkingWithDelay*)next->getParent();
+                printStack.push(next);
+                next = parent;
+
+            } while (next != NULL && next->getParent() != NULL);
+
+            if (printStack.top() != next) {
+                printStack.push(next);
+            }
+
+            if (options.getXmlTrace()) {
+                printXMLTrace(lastMarking, printStack, query, tapn);
             } else {
-                    printHumanTrace(m, printStack, query->getQuantifier());
+                    printHumanTrace(lastMarking, printStack, query->getQuantifier());
             }
         }
 
