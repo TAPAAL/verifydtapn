@@ -16,10 +16,6 @@ namespace VerifyTAPN {
             expr.getChild().accept(*this, context);
         }
 
-        void DeadlockVisitor::visit(const ParExpression& expr, Result& context) {
-            expr.getChild().accept(*this, context);
-        }
-
         void DeadlockVisitor::visit(const OrExpression& expr, Result& context) {
             BoolResult left, right;
             expr.getLeft().accept(*this, left);
@@ -52,6 +48,30 @@ namespace VerifyTAPN {
 
         void DeadlockVisitor::visit(const DeadlockExpression& expr, Result& context) {
             static_cast<BoolResult&>(context).value = true;
+        }
+        
+        void DeadlockVisitor::visit(const NumberExpression& expr, Result& context){
+            static_cast<BoolResult&>(context).value = false;
+        }
+        
+        void DeadlockVisitor::visit(const IdentifierExpression& expr, Result& context){
+            static_cast<BoolResult&>(context).value = false;
+        }
+        
+        void DeadlockVisitor::visit(const MultiplyExpression& expr, Result& context){
+            static_cast<BoolResult&>(context).value = false;
+        }
+        
+        void DeadlockVisitor::visit(const MinusExpression& expr, Result& context){
+            static_cast<BoolResult&>(context).value = false;
+        }
+        
+        void DeadlockVisitor::visit(const SubtractExpression& expr, Result& context){
+            static_cast<BoolResult&>(context).value = false;
+        }
+        
+        void DeadlockVisitor::visit(const PlusExpression& expr, Result& context){
+            static_cast<BoolResult&>(context).value = false;
         }
     }
 }

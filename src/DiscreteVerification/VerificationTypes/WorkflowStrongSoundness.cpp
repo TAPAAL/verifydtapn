@@ -11,7 +11,7 @@ namespace VerifyTAPN {
     namespace DiscreteVerification {
 
         WorkflowStrongSoundnessReachability::WorkflowStrongSoundnessReachability(TAPN::TimedArcPetriNet& tapn, NonStrictMarkingWithDelay& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list)
-        : Workflow<NonStrictMarkingWithDelay>(tapn, initialMarking, query, options, waiting_list), max_value(-1), outPlace(NULL){
+        : Workflow<NonStrictMarkingWithDelay>(tapn, initialMarking, query, options, waiting_list), max_value(0), outPlace(NULL){
             // Find timer place and store as out
             for (TimedPlace::Vector::const_iterator iter = tapn.getPlaces().begin(); iter != tapn.getPlaces().end(); ++iter) {
                 if ((*iter)->getTransportArcs().empty() && (*iter)->getInputArcs().empty()) {
@@ -133,6 +133,8 @@ namespace VerifyTAPN {
                     if(old->meta->inTrace){
                         // delay loop
                         lastMarking = marking;
+                        // make sure we can print trace
+                        marking->setNumberOfChildren(1);
                         return true;
                     } else {
                         if(old->getTotalDelay() < marking->getTotalDelay()){
