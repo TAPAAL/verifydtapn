@@ -40,7 +40,7 @@ namespace VerifyTAPN {
                 bool noDelay = false;
                 Result res = successorGenerator.generateAndInsertSuccessors(next_marking);
                 if (res == QUERY_SATISFIED) {
-                    return false;
+                    return true;
                 } else if (res == URGENT_ENABLED) {
                     noDelay = true;
                 }
@@ -80,23 +80,13 @@ namespace VerifyTAPN {
         }
 
         void WorkflowStrongSoundnessReachability::getTrace() {
-            std::stack < NonStrictMarkingWithDelay*> printStack;
-            NonStrictMarkingWithDelay* next = lastMarking;
-            do {
-                NonStrictMarkingWithDelay* parent = (NonStrictMarkingWithDelay*)next->getParent();
-                printStack.push(next);
-                next = parent;
-
-            } while (next != NULL && next->getParent() != NULL);
-
-            if (printStack.top() != next) {
-                printStack.push(next);
-            }
-
-            if (options.getXmlTrace()) {
-                printXMLTrace(lastMarking, printStack, query, tapn);
+            stack < NonStrictMarkingWithDelay*> printStack;
+            NonStrictMarkingWithDelay* m = trace.top();
+            generateTraceStack(m, &printStack, &trace);
+            if(options.getXmlTrace()){
+                    printXMLTrace(m, printStack, query, tapn);
             } else {
-                printHumanTrace(lastMarking, printStack, query->getQuantifier());
+                    printHumanTrace(m, printStack, query->getQuantifier());
             }
         }
 
@@ -135,6 +125,7 @@ namespace VerifyTAPN {
                         lastMarking = marking;
                         // make sure we can print trace
                         marking->setNumberOfChildren(1);
+                        trace.push(marking);
                         return true;
                     } else {
                         if(old->getTotalDelay() < marking->getTotalDelay()){
