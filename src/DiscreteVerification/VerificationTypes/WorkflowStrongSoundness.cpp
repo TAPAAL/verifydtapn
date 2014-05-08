@@ -40,7 +40,7 @@ namespace VerifyTAPN {
                 bool noDelay = false;
                 Result res = successorGenerator.generateAndInsertSuccessors(next_marking);
                 if (res == QUERY_SATISFIED) {
-                    return true;
+                    return false;
                 } else if (res == URGENT_ENABLED) {
                     noDelay = true;
                 }
@@ -53,9 +53,11 @@ namespace VerifyTAPN {
                     marking->setTotalDelay(next_marking.getTotalDelay()+1);
                     if(marking->getTotalDelay() > options.getWorkflowBound()){
                         marking->setParent(&next_marking);
+                        lastMarking = marking;
                         return true;
                     }
                     if (addToPW(marking, &next_marking)) {
+                        lastMarking = marking;
                         return true;
                     }
                 }
@@ -72,6 +74,8 @@ namespace VerifyTAPN {
                     trace.top()->decrementNumberOfChildren();
                 }
             }
+            // should never reach here
+            assert(false);
             return false;
         }
 
@@ -118,15 +122,14 @@ namespace VerifyTAPN {
                     // nonterminal
                     pwList->addToWaiting(marking);
                     ++validChildren;
-                    max_value = marking->getTotalDelay();
-                    lastMarking = marking;
-                    return false;
                 } else {
                     // terminal marking
-                    return false;
+                    max_value = marking->getTotalDelay();
+                    lastMarking = marking;
                 }
+                return false;
             } else {
-                if(old->getTotalDelay() != marking->getTotalDelay()) {
+                if(old->getTotalDelay() < marking->getTotalDelay()) {
                     if(old->meta->inTrace){
                         // delay loop
                         lastMarking = marking;
@@ -137,9 +140,15 @@ namespace VerifyTAPN {
                             // copy data from new
                             old->setParent(marking->getParent());
                             old->setGeneratedBy(marking->getGeneratedBy());
+                            old->setTotalDelay(marking->getTotalDelay());
                             delete marking;
-                            pwList->addToWaiting(old);
-                            ++validChildren;
+                            if(old->numberOfTokensInPlace(outPlace->getIndex()) == 0){
+                                pwList->addToWaiting(old);
+                                ++validChildren;
+                            } else {
+                                max_value = old->getTotalDelay();
+                                lastMarking = old;
+                            }
                             return false;
                         } else {
                             // already searched with higher delay, no need
