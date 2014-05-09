@@ -12,14 +12,15 @@
 #include "../DataStructures/WorkflowPWList.hpp"
 #include "Workflow.hpp"
 #include <stack>
+#include <algorithm>
 
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
-class WorkflowStrongSoundnessReachability : public Workflow{
+class WorkflowStrongSoundnessReachability : public Workflow<NonStrictMarkingWithDelay>{
 public:
 
-	WorkflowStrongSoundnessReachability(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list);
+	WorkflowStrongSoundnessReachability(TAPN::TimedArcPetriNet& tapn, NonStrictMarkingWithDelay& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list);
 
 	bool verify();
 	void getTrace();
@@ -30,12 +31,11 @@ public:
         
 
 protected:
-	bool addToPW(NonStrictMarking* marking, NonStrictMarking* parent);
+	bool addToPW(NonStrictMarkingWithDelay* marking, NonStrictMarkingWithDelay* parent);
 protected:
 	int max_value;
-	TimedPlace* timer;
-	TimedPlace* term1;
-	TimedPlace* term2;
+	TimedPlace* outPlace;
+        int validChildren;
 };
 
 } /* namespace DiscreteVerification */

@@ -29,7 +29,7 @@
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
-class ReachabilitySearch : public AbstractNaiveVerification<PWListBase> {
+class ReachabilitySearch : public AbstractNaiveVerification<PWListBase,NonStrictMarking> {
 public:
         ReachabilitySearch(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options);
 	ReachabilitySearch(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list);

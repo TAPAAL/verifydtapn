@@ -10,26 +10,13 @@
 namespace VerifyTAPN {
     namespace DiscreteVerification {
 
-        WorkflowStrongSoundnessReachability::WorkflowStrongSoundnessReachability(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list)
-        : Workflow(tapn, initialMarking, query, options, waiting_list), max_value(-1), timer(NULL), term1(NULL), term2(NULL) {
+        WorkflowStrongSoundnessReachability::WorkflowStrongSoundnessReachability(TAPN::TimedArcPetriNet& tapn, NonStrictMarkingWithDelay& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list)
+        : Workflow<NonStrictMarkingWithDelay>(tapn, initialMarking, query, options, waiting_list), max_value(0), outPlace(NULL){
             // Find timer place and store as out
             for (TimedPlace::Vector::const_iterator iter = tapn.getPlaces().begin(); iter != tapn.getPlaces().end(); ++iter) {
-                if ((*iter)->getInvariant() != (*iter)->getInvariant().LS_INF) {
-                    if (timer == NULL || timer->getInvariant().getBound() < (*iter)->getInvariant().getBound()) {
-                        timer = *iter;
-                    }
-                }
-
-                if (!(*iter)->getTransportArcs().empty() || !(*iter)->getInputArcs().empty()) {
-                    continue;
-                }
-
-                if (term1 == NULL) {
-                    term1 = *iter;
-                } else if (term2 == NULL) {
-                    term2 = *iter;
-                } else {
-                    assert(false);
+                if ((*iter)->getTransportArcs().empty() && (*iter)->getInputArcs().empty()) {
+                    outPlace = *iter;
+                    break;
                 }
             }
         };
@@ -41,8 +28,14 @@ namespace VerifyTAPN {
 
             //Main loop
             while (pwList->hasWaitingStates()) {
-                NonStrictMarking& next_marking = *pwList->getNextUnexplored();
+                NonStrictMarkingWithDelay& next_marking = 
+                        static_cast<NonStrictMarkingWithDelay&>(*pwList->getNextUnexplored());
                 tmpParent = &next_marking;
+                
+                // push onto trace
+                trace.push(&next_marking);
+                next_marking.meta->inTrace = true;
+                validChildren = 0;
 
                 bool noDelay = false;
                 Result res = successorGenerator.generateAndInsertSuccessors(next_marking);
@@ -52,24 +45,48 @@ namespace VerifyTAPN {
                     noDelay = true;
                 }
 
-                // Generate next markings
+                // Generate delays markings
                 if (!noDelay && isDelayPossible(next_marking)) {
-                    NonStrictMarking* marking = new NonStrictMarking(next_marking);
+                    NonStrictMarkingWithDelay* marking = new NonStrictMarkingWithDelay(next_marking);
                     marking->incrementAge();
                     marking->setGeneratedBy(NULL);
+                    marking->setTotalDelay(next_marking.getTotalDelay()+1);
+                    if(marking->getTotalDelay() > options.getWorkflowBound()){
+                        // if the bound is exceeded, terminate
+                        marking->setParent(&next_marking);
+                        lastMarking = marking;
+                        return true;
+                    }
                     if (addToPW(marking, &next_marking)) {
+                        lastMarking = marking;
                         return true;
                     }
                 }
+                if(validChildren != 0){
+                    next_marking.setNumberOfChildren(validChildren);
+                } else {
+                    // remove childless markings from stack
+                    while(!trace.empty() && trace.top()->getNumberOfChildren() <= 1){
+                            trace.top()->meta->inTrace = false;
+                            trace.pop();
+                    }
+                    if(trace.empty()){
+                        // this should only happen when the waitinglist is empty
+                        return false;
+                    }
+                    trace.top()->decrementNumberOfChildren();
+                }
             }
+            // should never reach here
+            assert(false);
             return false;
         }
 
         void WorkflowStrongSoundnessReachability::getTrace() {
-            std::stack < NonStrictMarking*> printStack;
-            NonStrictMarking* next = lastMarking;
+            std::stack < NonStrictMarkingWithDelay*> printStack;
+            NonStrictMarkingWithDelay* next = lastMarking;
             do {
-                NonStrictMarking* parent = (NonStrictMarking*)next->getParent();
+                NonStrictMarkingWithDelay* parent = (NonStrictMarkingWithDelay*)next->getParent();
                 printStack.push(next);
                 next = parent;
 
@@ -82,11 +99,11 @@ namespace VerifyTAPN {
             if (options.getXmlTrace()) {
                 printXMLTrace(lastMarking, printStack, query, tapn);
             } else {
-                printHumanTrace(lastMarking, printStack, query->getQuantifier());
+                    printHumanTrace(lastMarking, printStack, query->getQuantifier());
             }
         }
 
-        bool WorkflowStrongSoundnessReachability::addToPW(NonStrictMarking* marking, NonStrictMarking* parent) {
+        bool WorkflowStrongSoundnessReachability::addToPW(NonStrictMarkingWithDelay* marking, NonStrictMarkingWithDelay* parent) {
             marking->cut();
             marking->setParent(parent);
 
@@ -101,41 +118,52 @@ namespace VerifyTAPN {
 
             /* Handle max */
             // Map to existing marking if any
-            NonStrictMarking* old = pwList->addToPassed(marking);
-            bool isNew = false;
-            if(old == NULL){
-                    isNew = true;
-            } else  {
-                delete marking;
-                marking = old;
-            }
-
-            
-            if (marking->getParent() == NULL) marking->setParent(parent);
-
-            if (!marking->getTokenList(timer->getIndex()).empty() &&
-                    (marking->getTokenList(timer->getIndex()).at(0).getAge() > max_value ||
-                    (marking->getTokenList(timer->getIndex()).at(0).getAge() == max_value &&
-                    (!marking->getTokenList(term1->getIndex()).empty() || !marking->getTokenList(term2->getIndex()).empty())))) {
-                max_value = marking->getTokenList(timer->getIndex()).at(0).getAge();
-                lastMarking = marking;
-            }
-
-            // Add to passed
-            if (isNew) {
-                pwList->addToWaiting(marking);
-                QueryVisitor<NonStrictMarking> checker(*marking, tapn);
-                BoolResult context;
-
-                query->accept(checker, context);
-                if (context.value) {
-                    lastMarking = marking;
-                    return true;
+            NonStrictMarkingWithDelay* old = (NonStrictMarkingWithDelay*)pwList->addToPassed(marking);
+            if(old != NULL) {
+                if(old->getTotalDelay() < marking->getTotalDelay()) {
+                    if(old->meta->inTrace){
+                        // delay loop
+                        lastMarking = marking;
+                        // make sure we can print trace
+                        marking->setNumberOfChildren(1);
+                        trace.push(marking);
+                        max_value = marking->getTotalDelay();
+                        return true;
+                    } else {
+                        if(old->getTotalDelay() < marking->getTotalDelay()){
+                            // search again to find maxdelay
+                            // copy data from new
+                            old->setParent(marking->getParent());
+                            old->setGeneratedBy(marking->getGeneratedBy());
+                            old->setTotalDelay(marking->getTotalDelay());
+                            delete marking;
+                            marking = old;
+                            // fall through on purpose
+                        } else {
+                            // already searched with higher delay, no need
+                            delete marking;
+                            return false;
+                        }
+                    }
                 } else {
+                    // already seen this maxage/marking combination
                     return false;
                 }
+            } else {
+                marking->meta = marking->meta = new MetaData();
             }
-
+            
+            if(marking->numberOfTokensInPlace(outPlace->getIndex()) == 0){
+                // if nonterminal, add to waiting
+                pwList->addToWaiting(marking);
+                ++validChildren;
+            } else {
+                // if terminal, update max_value and last marking of trace
+                if(max_value < marking->getTotalDelay()) {
+                    max_value = marking->getTotalDelay();
+                    lastMarking = marking;
+                }
+            }
             return false;
         }
 
