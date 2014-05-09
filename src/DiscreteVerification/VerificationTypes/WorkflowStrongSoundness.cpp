@@ -149,6 +149,8 @@ namespace VerifyTAPN {
                     // already seen this maxage/marking combination
                     return false;
                 }
+            } else {
+                marking->meta = marking->meta = new MetaData();
             }
             
             if(marking->numberOfTokensInPlace(outPlace->getIndex()) == 0){
