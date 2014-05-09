@@ -39,9 +39,9 @@ bool LivenessSearch::verify(){
 
                         bool noDelay = false;
                         Result res = successorGenerator.generateAndInsertSuccessors(next_marking);
-                        if (res == QUERY_SATISFIED) {
+                        if (res == ADDTOPW_RETURNED_TRUE) {
                             return true;
-                        } else if (res == URGENT_ENABLED) {
+                        } else if (res == ADDTOPW_RETURNED_FALSE_URGENTENABLED) {
                             noDelay = true;
                         }
                         

@@ -10,8 +10,8 @@
 namespace VerifyTAPN {
     namespace DiscreteVerification {
 
-        WorkflowStrongSoundnessReachability::WorkflowStrongSoundnessReachability(TAPN::TimedArcPetriNet& tapn, NonStrictMarkingWithDelay& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list)
-        : Workflow<NonStrictMarkingWithDelay>(tapn, initialMarking, query, options, waiting_list), max_value(0), outPlace(NULL){
+        WorkflowStrongSoundnessReachability::WorkflowStrongSoundnessReachability(TAPN::TimedArcPetriNet& tapn, NonStrictMarkingWithTotalDelay& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list)
+        : Workflow<NonStrictMarkingWithTotalDelay>(tapn, initialMarking, query, options, waiting_list), maxValue(0), outPlace(NULL){
             // Find timer place and store as out
             for (TimedPlace::Vector::const_iterator iter = tapn.getPlaces().begin(); iter != tapn.getPlaces().end(); ++iter) {
                 if ((*iter)->getTransportArcs().empty() && (*iter)->getInputArcs().empty()) {
@@ -28,8 +28,8 @@ namespace VerifyTAPN {
 
             //Main loop
             while (pwList->hasWaitingStates()) {
-                NonStrictMarkingWithDelay& next_marking = 
-                        static_cast<NonStrictMarkingWithDelay&>(*pwList->getNextUnexplored());
+                NonStrictMarkingWithTotalDelay& next_marking = 
+                        static_cast<NonStrictMarkingWithTotalDelay&>(*pwList->getNextUnexplored());
                 tmpParent = &next_marking;
                 
                 // push onto trace
@@ -39,15 +39,15 @@ namespace VerifyTAPN {
 
                 bool noDelay = false;
                 Result res = successorGenerator.generateAndInsertSuccessors(next_marking);
-                if (res == QUERY_SATISFIED) {
+                if (res == ADDTOPW_RETURNED_TRUE) {
                     return true;
-                } else if (res == URGENT_ENABLED) {
+                } else if (res == ADDTOPW_RETURNED_FALSE_URGENTENABLED) {
                     noDelay = true;
                 }
 
                 // Generate delays markings
                 if (!noDelay && isDelayPossible(next_marking)) {
-                    NonStrictMarkingWithDelay* marking = new NonStrictMarkingWithDelay(next_marking);
+                    NonStrictMarkingWithTotalDelay* marking = new NonStrictMarkingWithTotalDelay(next_marking);
                     marking->incrementAge();
                     marking->setGeneratedBy(NULL);
                     marking->setTotalDelay(next_marking.getTotalDelay()+1);
@@ -83,10 +83,10 @@ namespace VerifyTAPN {
         }
 
         void WorkflowStrongSoundnessReachability::getTrace() {
-            std::stack < NonStrictMarkingWithDelay*> printStack;
-            NonStrictMarkingWithDelay* next = lastMarking;
+            std::stack < NonStrictMarkingWithTotalDelay*> printStack;
+            NonStrictMarkingWithTotalDelay* next = lastMarking;
             do {
-                NonStrictMarkingWithDelay* parent = (NonStrictMarkingWithDelay*)next->getParent();
+                NonStrictMarkingWithTotalDelay* parent = (NonStrictMarkingWithTotalDelay*)next->getParent();
                 printStack.push(next);
                 next = parent;
 
@@ -103,7 +103,7 @@ namespace VerifyTAPN {
             }
         }
 
-        bool WorkflowStrongSoundnessReachability::addToPW(NonStrictMarkingWithDelay* marking, NonStrictMarkingWithDelay* parent) {
+        bool WorkflowStrongSoundnessReachability::addToPW(NonStrictMarkingWithTotalDelay* marking, NonStrictMarkingWithTotalDelay* parent) {
             marking->cut();
             marking->setParent(parent);
 
@@ -118,7 +118,7 @@ namespace VerifyTAPN {
 
             /* Handle max */
             // Map to existing marking if any
-            NonStrictMarkingWithDelay* old = (NonStrictMarkingWithDelay*)pwList->addToPassed(marking);
+            NonStrictMarkingWithTotalDelay* old = (NonStrictMarkingWithTotalDelay*)pwList->addToPassed(marking);
             if(old != NULL) {
                 if(old->getTotalDelay() < marking->getTotalDelay()) {
                     if(old->meta->inTrace){
@@ -127,25 +127,20 @@ namespace VerifyTAPN {
                         // make sure we can print trace
                         marking->setNumberOfChildren(1);
                         trace.push(marking);
-                        max_value = marking->getTotalDelay();
+                        maxValue = marking->getTotalDelay();
                         return true;
                     } else {
-                        if(old->getTotalDelay() < marking->getTotalDelay()){
-                            // search again to find maxdelay
-                            // copy data from new
-                            old->setParent(marking->getParent());
-                            old->setGeneratedBy(marking->getGeneratedBy());
-                            old->setTotalDelay(marking->getTotalDelay());
-                            delete marking;
-                            marking = old;
-                            // fall through on purpose
-                        } else {
-                            // already searched with higher delay, no need
-                            delete marking;
-                            return false;
-                        }
+                        // search again to find maxdelay
+                        // copy data from new
+                        old->setParent(marking->getParent());
+                        old->setGeneratedBy(marking->getGeneratedBy());
+                        old->setTotalDelay(marking->getTotalDelay());
+                        delete marking;
+                        marking = old;
+                        // fall through on purpose
                     }
                 } else {
+                    delete marking;
                     // already seen this maxage/marking combination
                     return false;
                 }
@@ -159,8 +154,8 @@ namespace VerifyTAPN {
                 ++validChildren;
             } else {
                 // if terminal, update max_value and last marking of trace
-                if(max_value < marking->getTotalDelay()) {
-                    max_value = marking->getTotalDelay();
+                if(maxValue < marking->getTotalDelay()) {
+                    maxValue = marking->getTotalDelay();
                     lastMarking = marking;
                 }
             }

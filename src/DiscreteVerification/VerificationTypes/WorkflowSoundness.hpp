@@ -42,7 +42,7 @@ public:
 		return getTrace(lastMarking);
 	}
 	void printExecutionTime(ostream& stream){
-		stream << "Minimum execution time: " << min_exec << endl;
+		stream << "Minimum execution time: " << minExec << endl;
 	}
 	void printMessages(ostream& stream){
 		if(coveredMarking != NULL){
@@ -58,8 +58,8 @@ protected:
         ModelType calculateModelType();
         
 protected:
-    stack<WorkflowSoundnessMetaData*> passed_stack;
-    int min_exec;
+    stack<WorkflowSoundnessMetaData*> passedStack;
+    int minExec;
     unsigned int linearSweepTreshold;
     NonStrictMarking* coveredMarking;
     ModelType modelType;
