@@ -33,14 +33,26 @@ int main(int argc, char* argv[])
 	std::vector<int> initialPlacement(modelParser.parseMarking(options.getInputFile(), *tapn));
 
 	AST::Query* query;
-        if (options.getWorkflowMode() == VerificationOptions::WORKFLOW_SOUNDNESS) {
+        if (options.getWorkflowMode() == VerificationOptions::WORKFLOW_SOUNDNESS ||
+            options.getWorkflowMode() == VerificationOptions::WORKFLOW_STRONG_SOUNDNESS) {
             if (options.getSearchType() != VerificationOptions::DEFAULT) {
-                cout << "Workflow-soundness only supports the default search-strategy" << endl;
+                cout << "Workflow-analysis only supports the default search-strategy" << endl;
                 exit(1);
-            } else {
-                options.setSearchType(VerificationOptions::MINDELAYFIRST);
             }
-            query = new AST::Query(AST::EF, new AST::BoolExpression(true));
+            
+            if(options.getQueryFile() != ""){
+                cout << "Workflow-analysis does not accept a query file" << endl;
+                exit(1); 
+            }
+            
+            if(options.getWorkflowMode() == VerificationOptions::WORKFLOW_SOUNDNESS) {
+                options.setSearchType(VerificationOptions::MINDELAYFIRST);
+                query = new AST::Query(AST::EF, new AST::BoolExpression(true));
+            } else if(options.getWorkflowMode() == VerificationOptions::WORKFLOW_STRONG_SOUNDNESS) {
+                options.setSearchType(VerificationOptions::DEPTHFIRST);
+                query = new AST::Query(AST::AF, new AST::BoolExpression(false));
+            }
+
         } else {
             if (options.getSearchType() == VerificationOptions::DEFAULT) {
                 options.setSearchType(VerificationOptions::COVERMOST);
