@@ -11,7 +11,7 @@ namespace VerifyTAPN {
 namespace DiscreteVerification {
 
 WorkflowSoundness::WorkflowSoundness(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list)
-: Workflow<NonStrictMarking>(tapn, initialMarking, query, options, waiting_list), passed_stack(), min_exec(INT_MAX), linearSweepTreshold(3), coveredMarking(NULL), modelType(calculateModelType()){
+: Workflow<NonStrictMarking>(tapn, initialMarking, query, options, waiting_list), passedStack(), minExec(INT_MAX), linearSweepTreshold(3), coveredMarking(NULL), modelType(calculateModelType()){
 }
 
 bool WorkflowSoundness::verify(){
@@ -25,9 +25,9 @@ bool WorkflowSoundness::verify(){
 		tmpParent = &next_marking;
 		bool noDelay = false;
 		Result res = successorGenerator.generateAndInsertSuccessors(next_marking);
-		if(res == QUERY_SATISFIED){
+		if(res == ADDTOPW_RETURNED_TRUE){
 			return false;
-		}  else if (res == URGENT_ENABLED) {
+		}  else if (res == ADDTOPW_RETURNED_FALSE_URGENTENABLED) {
 			noDelay = true;
 		}
 
@@ -45,15 +45,15 @@ bool WorkflowSoundness::verify(){
 	// Phase 2
         // mark all as passed which ends in a final marking        
         int passed = 0;
-        while(passed_stack.size()){
-            WorkflowSoundnessMetaData* next = passed_stack.top();
-            passed_stack.pop();
+        while(passedStack.size()){
+            WorkflowSoundnessMetaData* next = passedStack.top();
+            passedStack.pop();
             if(next->passed) continue;
             next->passed = true;
             ++passed;
             for(vector<WorkflowSoundnessMetaData*>::iterator iter = next->parents.begin();
                     iter != next->parents.end(); iter++){
-                    passed_stack.push(*iter);
+                    passedStack.push(*iter);
             }
         }
         
@@ -113,10 +113,10 @@ bool WorkflowSoundness::addToPW(NonStrictMarking* marking, NonStrictMarking* par
 			marking_meta_data->parents.push_back(((WorkflowSoundnessMetaData*)parent->meta));
 			// Set min
 			marking_meta_data->min = min(marking_meta_data->min, ((WorkflowSoundnessMetaData*)parent->meta)->min);	// Transition
-                        passed_stack.push(marking_meta_data);
+                        passedStack.push(marking_meta_data);
                         // keep track of shortest trace
-                        if (marking_meta_data->min < min_exec) {
-                            min_exec = marking_meta_data->min;
+                        if (marking_meta_data->min < minExec) {
+                            minExec = marking_meta_data->min;
                             lastMarking = marking;
                         }
 		}else{

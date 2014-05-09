@@ -130,7 +130,7 @@ namespace VerifyTAPN {
             }
         };
 
-        enum Result {QUERY_SATISFIED, QUERY_UNSATISFIED, URGENT_ENABLED};
+        enum Result {ADDTOPW_RETURNED_TRUE, ADDTOPW_RETURNED_FALSE, ADDTOPW_RETURNED_FALSE_URGENTENABLED};
         
         template<typename T>
         class SuccessorGenerator {
@@ -236,12 +236,12 @@ namespace VerifyTAPN {
 
             enabledTransitions.insert(enabledTransitions.end(), allwaysEnabled.begin(), allwaysEnabled.end());
             if(generateMarkings(marking, enabledTransitions, enabledArcs)){
-                return QUERY_SATISFIED;
+                return ADDTOPW_RETURNED_TRUE;
             } else {
                 if(urgentEnabled){
-                    return URGENT_ENABLED;
+                    return ADDTOPW_RETURNED_FALSE_URGENTENABLED;
                 } else{
-                    return QUERY_UNSATISFIED;
+                    return ADDTOPW_RETURNED_FALSE;
                 }
             }
 
