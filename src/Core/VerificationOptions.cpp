@@ -68,7 +68,8 @@ namespace VerifyTAPN {
             }
         } 
         out << "Model file is: " << options.getInputFile() << std::endl;
-        out << "Query file is: " << options.getQueryFile() << std::endl;
+        if(options.getQueryFile() != "")
+            out << "Query file is: " << options.getQueryFile() << std::endl;
         return out;
     }
 }

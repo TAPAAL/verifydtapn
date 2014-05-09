@@ -271,7 +271,8 @@ VerificationOptions ArgsParser::parse(int argc, char* argv[]) const {
 }
 
 VerificationOptions ArgsParser::verifyInputFiles(VerificationOptions options, std::string model_file, std::string query_file) const {
-    if(options.getWorkflowMode() != VerificationOptions::WORKFLOW_SOUNDNESS) {
+    if(options.getWorkflowMode() != VerificationOptions::WORKFLOW_SOUNDNESS &&
+       options.getWorkflowMode() != VerificationOptions::WORKFLOW_STRONG_SOUNDNESS) {
         if (boost::iends_with(query_file, ".xml")) {
             std::cout << "Missing query file." << std::endl;
             exit(1);
