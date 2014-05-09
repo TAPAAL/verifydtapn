@@ -45,13 +45,14 @@ namespace VerifyTAPN {
                     noDelay = true;
                 }
 
-                // Generate next markings
+                // Generate delays markings
                 if (!noDelay && isDelayPossible(next_marking)) {
                     NonStrictMarkingWithDelay* marking = new NonStrictMarkingWithDelay(next_marking);
                     marking->incrementAge();
                     marking->setGeneratedBy(NULL);
                     marking->setTotalDelay(next_marking.getTotalDelay()+1);
                     if(marking->getTotalDelay() > options.getWorkflowBound()){
+                        // if the bound is exceeded, terminate
                         marking->setParent(&next_marking);
                         lastMarking = marking;
                         return true;
@@ -64,11 +65,13 @@ namespace VerifyTAPN {
                 if(validChildren != 0){
                     next_marking.setNumberOfChildren(validChildren);
                 } else {
+                    // remove childless markings from stack
                     while(!trace.empty() && trace.top()->getNumberOfChildren() <= 1){
                             trace.top()->meta->inTrace = false;
                             trace.pop();
                     }
                     if(trace.empty()){
+                        // this should only happen when the waitinglist is empty
                         return false;
                     }
                     trace.top()->decrementNumberOfChildren();
@@ -116,19 +119,7 @@ namespace VerifyTAPN {
             /* Handle max */
             // Map to existing marking if any
             NonStrictMarkingWithDelay* old = (NonStrictMarkingWithDelay*)pwList->addToPassed(marking);
-
-            if(old == NULL){
-                if(marking->numberOfTokensInPlace(outPlace->getIndex()) == 0){
-                    // nonterminal
-                    pwList->addToWaiting(marking);
-                    ++validChildren;
-                } else {
-                    // terminal marking
-                    max_value = marking->getTotalDelay();
-                    lastMarking = marking;
-                }
-                return false;
-            } else {
+            if(old != NULL) {
                 if(old->getTotalDelay() < marking->getTotalDelay()) {
                     if(old->meta->inTrace){
                         // delay loop
@@ -136,6 +127,7 @@ namespace VerifyTAPN {
                         // make sure we can print trace
                         marking->setNumberOfChildren(1);
                         trace.push(marking);
+                        max_value = marking->getTotalDelay();
                         return true;
                     } else {
                         if(old->getTotalDelay() < marking->getTotalDelay()){
@@ -145,14 +137,8 @@ namespace VerifyTAPN {
                             old->setGeneratedBy(marking->getGeneratedBy());
                             old->setTotalDelay(marking->getTotalDelay());
                             delete marking;
-                            if(old->numberOfTokensInPlace(outPlace->getIndex()) == 0){
-                                pwList->addToWaiting(old);
-                                ++validChildren;
-                            } else {
-                                max_value = old->getTotalDelay();
-                                lastMarking = old;
-                            }
-                            return false;
+                            marking = old;
+                            // fall through on purpose
                         } else {
                             // already searched with higher delay, no need
                             delete marking;
@@ -164,8 +150,19 @@ namespace VerifyTAPN {
                     return false;
                 }
             }
-            // should be non-reachable
-            assert(false);
+            
+            if(marking->numberOfTokensInPlace(outPlace->getIndex()) == 0){
+                // if nonterminal, add to waiting
+                pwList->addToWaiting(marking);
+                ++validChildren;
+            } else {
+                // if terminal, update max_value and last marking of trace
+                if(max_value < marking->getTotalDelay()) {
+                    max_value = marking->getTotalDelay();
+                    lastMarking = marking;
+                }
+            }
+            return false;
         }
 
     } /* namespace DiscreteVerification */
