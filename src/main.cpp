@@ -32,7 +32,7 @@ int main(int argc, char* argv[])
 
 	std::vector<int> initialPlacement(modelParser.parseMarking(options.getInputFile(), *tapn));
 
-	AST::Query* query;
+	AST::Query* query = NULL;
         if (options.getWorkflowMode() == VerificationOptions::WORKFLOW_SOUNDNESS ||
             options.getWorkflowMode() == VerificationOptions::WORKFLOW_STRONG_SOUNDNESS) {
             if (options.getSearchType() != VerificationOptions::DEFAULT) {

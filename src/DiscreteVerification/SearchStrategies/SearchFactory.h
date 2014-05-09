@@ -69,6 +69,11 @@ WaitingList<T>* getWaitingList(AST::Query* query, VerificationOptions& options){
 			strategy = s.createWaitingList(query);
 			break;
 		}
+                default: {
+			NonStrictHeuristic<T> s;
+			strategy = s.createWaitingList(query);
+			break;
+		}
 		}
 	}
 	return strategy;

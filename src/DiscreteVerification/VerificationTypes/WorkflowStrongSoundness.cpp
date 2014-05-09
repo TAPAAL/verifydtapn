@@ -145,7 +145,7 @@ namespace VerifyTAPN {
                     return false;
                 }
             } else {
-                marking->meta = marking->meta = new MetaData();
+                marking->meta = new MetaData();
             }
             
             if(marking->numberOfTokensInPlace(outPlace->getIndex()) == 0){
