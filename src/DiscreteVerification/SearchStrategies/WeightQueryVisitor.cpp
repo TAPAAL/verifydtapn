@@ -15,11 +15,6 @@ namespace DiscreteVerification {
 			assert(false);
 		}
 
-		void WeightQueryVisitor::visit(const ParExpression& expr, Result& context)
-		{
-			expr.getChild().accept(*this, context);
-		}
-
 		void WeightQueryVisitor::visit(const OrExpression& expr, Result& context)
 		{
 			IntResult left, right;
@@ -57,11 +52,52 @@ namespace DiscreteVerification {
 
 		void WeightQueryVisitor::visit(const AtomicProposition& expr, Result& context)
 		{
-			int numberOfTokens = marking.numberOfTokensInPlace(expr.getPlace());
+                    IntResult left;
+                    expr.getLeft().accept(*this, left);
+                    IntResult right;
+                    expr.getLeft().accept(*this, right);
 			static_cast<IntResult&>(context).value
-                                = compare(numberOfTokens, expr.getOperator(), expr.getNumberOfTokens());
+                                = compare(left.value, expr.getOperator(), right.value);
 		}
 
+                void WeightQueryVisitor::visit(const NumberExpression& expr, Result& context){
+                    ((IntResult&)context).value = expr.getValue();
+                }
+
+                void WeightQueryVisitor::visit(const IdentifierExpression& expr, Result& context){
+                    ((IntResult&)context).value = marking.numberOfTokensInPlace(expr.getPlace());
+                }
+                
+                void WeightQueryVisitor::visit(const MultiplyExpression& expr, Result& context){
+                    IntResult left;
+                    expr.getLeft().accept(*this, left);
+                    IntResult right;
+                    expr.getLeft().accept(*this, right);
+                    ((IntResult&)context).value = left.value * right.value;
+                }
+                
+                void WeightQueryVisitor::visit(const MinusExpression& expr, Result& context){
+                    IntResult value;
+                    expr.getValue().accept(*this, value);
+                    ((IntResult&)context).value = -value.value;
+                }
+
+                void WeightQueryVisitor::visit(const SubtractExpression& expr, Result& context){
+                    IntResult left;
+                    expr.getLeft().accept(*this, left);
+                    IntResult right;
+                    expr.getLeft().accept(*this, right);
+                    ((IntResult&)context).value = left.value - right.value;
+                }
+
+                void WeightQueryVisitor::visit(const PlusExpression& expr, Result& context){
+                    IntResult left;
+                    expr.getLeft().accept(*this, left);
+                    IntResult right;
+                    expr.getLeft().accept(*this, right);
+                    ((IntResult&)context).value = left.value + right.value;
+                }
+                
 		void WeightQueryVisitor::visit(const BoolExpression& expr, Result& context)
 		{
 			static_cast<IntResult&>(context).value

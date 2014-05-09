@@ -30,8 +30,9 @@ namespace VerifyTAPN{
 {
 	int          					number;
 	std::string* 					string;
-	VerifyTAPN::AST::Expression*	expr;
-	VerifyTAPN::AST::Query*		 	query;
+	VerifyTAPN::AST::Expression*                    expr;
+        VerifyTAPN::AST::ArithmeticExpression*           arexpr;
+	VerifyTAPN::AST::Query*                         query;
 };
 
 %code{
@@ -46,48 +47,66 @@ namespace VerifyTAPN{
 %token OR AND NOT
 %token BOOL_TRUE BOOL_FALSE
 %token DEADLOCK
-%type  <expr> expression notExpression parExpression orExpression andExpression boolExpression atomicProposition
+%token PLUS MINUS MULTIPLY
+%type <expr> expression notExpression parExpression orExpression andExpression boolExpression atomicProposition
+%type <arexpr> arithmeticExpression multiplyExpression arithmeticParantheses
 %type <query> query
 %type <string> compareOp
 
 %destructor { delete $$; } IDENTIFIER LESS LESSEQUAL EQUAL GREATEREQUAL GREATER compareOp
-%destructor { delete $$; } expression notExpression parExpression orExpression andExpression boolExpression atomicProposition
+%destructor { delete $$; } expression notExpression parExpression orExpression andExpression boolExpression atomicProposition arithmeticExpression multiplyExpression arithmeticParantheses
 %destructor { delete $$; } query
 
 %%
 %start query;
-query				: EF expression { $$ = new VerifyTAPN::AST::Query(VerifyTAPN::AST::EF, $2); driver.setAST($$); }
-					| AG expression { $$ = new VerifyTAPN::AST::Query(VerifyTAPN::AST::AG, $2); driver.setAST($$); }
-					| EG expression { $$ = new VerifyTAPN::AST::Query(VerifyTAPN::AST::EG, $2); driver.setAST($$); }
-					| AF expression { $$ = new VerifyTAPN::AST::Query(VerifyTAPN::AST::AF, $2); driver.setAST($$); }
-;
+query			: EF expression { $$ = new VerifyTAPN::AST::Query(VerifyTAPN::AST::EF, $2); driver.setAST($$); }
+                        | AG expression { $$ = new VerifyTAPN::AST::Query(VerifyTAPN::AST::AG, $2); driver.setAST($$); }
+                        | EG expression { $$ = new VerifyTAPN::AST::Query(VerifyTAPN::AST::EG, $2); driver.setAST($$); }
+                        | AF expression { $$ = new VerifyTAPN::AST::Query(VerifyTAPN::AST::AF, $2); driver.setAST($$); }
+                        ;
 
-expression			: parExpression { $$ = $1; }
-					| notExpression { $$ = $1; }
-					| orExpression { $$ = $1; }
-					| andExpression { $$ = $1; }
-					| atomicProposition { $$ = $1; }
-					| boolExpression { $$ = $1; }
-;
+expression              : parExpression             { $$ = $1; }
+                        | notExpression     { $$ = $1; }
+                        | orExpression      { $$ = $1; }
+                        | andExpression     { $$ = $1; }
+                        | atomicProposition { $$ = $1; }
+                        | boolExpression    { $$ = $1; }
+                        ;
 
 %left OR;
 %left AND;
 
-parExpression		: LPARAN expression RPARAN { $$ = new VerifyTAPN::AST::ParExpression($2); };
-notExpression		: NOT parExpression { $$ = new VerifyTAPN::AST::NotExpression($2); };
-orExpression		: expression OR expression { $$ = new VerifyTAPN::AST::OrExpression($1, $3); };
+arithmeticExpression	: arithmeticExpression PLUS multiplyExpression	{ $$ = new VerifyTAPN::AST::PlusExpression($1, $3); }
+                        | arithmeticExpression MINUS multiplyExpression	{ $$ = new VerifyTAPN::AST::SubtractExpression($1, $3); }
+                        | MINUS multiplyExpression                    { $$ = new VerifyTAPN::AST::MinusExpression($2); }
+                        | multiplyExpression                            { $$ = $1; }
+                        ;
+
+multiplyExpression	: multiplyExpression MULTIPLY arithmeticParantheses	{ $$ = new VerifyTAPN::AST::MultiplyExpression($1, $3); }
+                        | arithmeticParantheses                                 { $$ = $1; }
+                        ;
+
+arithmeticParantheses	: LPARAN arithmeticExpression RPARAN	{ $$ = $2; }
+                        | NUMBER                        	{ $$ = new VerifyTAPN::AST::NumberExpression($1);}
+                        | IDENTIFIER                            { 
+                                                                    int placeIndex = driver.getTAPN().getPlaceIndex(*$1);
+                                                                    delete $1;
+                                                                    if(placeIndex == -1) error(@1, "unknown place"); 
+                                                                    $$ = new VerifyTAPN::AST::IdentifierExpression(placeIndex); 
+                                                                 }
+                        ;
+
+parExpression		: LPARAN expression RPARAN  { $$ = $2; };
+notExpression		: NOT parExpression         { $$ = new VerifyTAPN::AST::NotExpression($2); };
+orExpression		: expression OR expression  { $$ = new VerifyTAPN::AST::OrExpression($1, $3); };
 andExpression		: expression AND expression { $$ = new VerifyTAPN::AST::AndExpression($1, $3); };
-boolExpression		: BOOL_TRUE { $$ = new VerifyTAPN::AST::BoolExpression(true); } 
-					| BOOL_FALSE { $$ = new VerifyTAPN::AST::BoolExpression(false); };
-atomicProposition	: IDENTIFIER compareOp NUMBER 
-	{ 
-		int placeIndex = driver.getTAPN().getPlaceIndex(*$1);
-                delete $1;
-		if(placeIndex == -1) error(@1, "unknown place"); 
-		$$ = new VerifyTAPN::AST::AtomicProposition(placeIndex, $2, $3); 
-                delete $2;
-	} | DEADLOCK { $$ = new VerifyTAPN::AST::DeadlockExpression(); } ;
-compareOp			: LESS | LESSEQUAL | EQUAL | GREATEREQUAL | GREATER; 
+boolExpression		: BOOL_TRUE                 { $$ = new VerifyTAPN::AST::BoolExpression(true); } 
+			| BOOL_FALSE                { $$ = new VerifyTAPN::AST::BoolExpression(false); };
+
+atomicProposition	: arithmeticExpression compareOp arithmeticExpression { $$ = new VerifyTAPN::AST::AtomicProposition($1, $2, $3); } 
+                        | DEADLOCK { $$ = new VerifyTAPN::AST::DeadlockExpression(); } ;
+
+compareOp		: LESS | LESSEQUAL | EQUAL | GREATEREQUAL | GREATER; 
      
 %%
 

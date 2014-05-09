@@ -190,28 +190,32 @@ namespace VerifyTAPN {
             // only if we have reached a deadlock (liveness) or 
             // have a reachability query (for delay when deadlock prop is used) then
             // we want to create some end-delay
-            if(deadlock || queryContainsDeadlock.value){
+            if(deadlock || queryContainsDeadlock.value ||
+               query->getQuantifier() == AST::EG || query->getQuantifier() == AST::AF){
                 NonStrictMarkingBase* base = getBase(trace->dart);
                 
                 int diff = this->maxPossibleDelay(base) - trace->start;
                 // fix for when max possible delay = inf
-                if(diff > tapn.getMaxConstant())
+                if(diff > tapn.getMaxConstant()) {
                     diff = (tapn.getMaxConstant() + 1) - trace->start;
+                }
 
-                while (diff) {  // TODO loop seems to count the wrong way, not effecting anything, but wrong.
+                while (diff) {  // while there is some delay in trace
                         NonStrictMarkingBase* mc = new NonStrictMarkingBase(*base);
                         mc->incrementAge(trace->start + diff);
                         mc->setGeneratedBy(NULL);       // NULL indicates that it is a delay transition
-                        if (last != NULL)
-                            last->setParent(mc);          // set the parent of the last marking
+                        if (last != NULL) {
+                            last->setParent(mc);        // set the parent of the last marking
+                        }
 
                         last = mc;
                         mc->cut();
-                        if(l == NULL)                   // set specific last marking to last marking in delay if deadlock
+                        if(l == NULL) {                  // set specific last marking to last marking in delay if deadlock
                             l = mc;
-                        if(diff)                        // seems obsolete TODO check effect of remove.
-                                traceStack.push(mc);            // add delay marking to the trace
-                        mc->setParent(NULL);
+                        }
+
+                        traceStack.push(mc);            // add delay marking to the trace
+                        mc->setParent(NULL);            // set parrent
                         diff--;
                     }
             }
@@ -243,28 +247,32 @@ namespace VerifyTAPN {
                         mc->setParent(NULL);
                         mc->incrementAge(lower + diff);
                         mc->setGeneratedBy(NULL);       // NULL indicates that it is a delay transition
-                        if (last != NULL)
+                        if (last != NULL){
                             last->setParent(mc);          // set the parent of the last marking
-                        if(!l->getParent())
+                        }
+                        if(!l->getParent()){
                             l->setParent(mc);
+                        }
                         last = mc;
                         mc->cut();
                         traceStack.push(mc);            // add delay marking to the trace
                         diff--;
                     }
                 }
-                if (last != NULL)
+                if(last != NULL){
                     last->setParent(m);
-                if(!l->getParent())
-                            l->setParent(m);
+                }
+                if(!l->getParent()) {
+                    l->setParent(m);
+                }
                 m->cut();
                 last = m;
-                traceStack.push(m);     // add the marking to the trace
+                traceStack.push(m); // add the marking to the trace
 
                 upper = trace->upper;
                 trace = (TraceDart*) trace->parent;
             }
-            
+
             printXMLTrace(l, traceStack, query, tapn);
         }
 

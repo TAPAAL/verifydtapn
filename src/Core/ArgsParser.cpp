@@ -167,7 +167,7 @@ void ArgsParser::initialize() {
 
     parsers.push_back(
             boost::make_shared<Switch >("c", GCD,
-            "Disable lowering the guards by the greatest common divisor"));
+            "Enable lowering the guards by the greatest common divisor"));
     
     parsers.push_back(
             boost::make_shared<SwitchWithArg > ("w", WORKFLOW,
@@ -426,11 +426,11 @@ VerificationOptions ArgsParser::createVerificationOptions(const option_map& map)
 
         
         assert(map.find(GCD) != map.end());
-        bool disableGCDLowerGuards = boost::lexical_cast<bool>(
+        bool enableGCDLowerGuards = boost::lexical_cast<bool>(
 			map.find(GCD)->second);
         
 	return VerificationOptions(search, verification, memoptimization, kbound, trace,
-			xml_trace, max_constant, keep_dead, disableGCDLowerGuards, workflow);
+			xml_trace, max_constant, keep_dead, enableGCDLowerGuards, workflow);
 
 }
 }

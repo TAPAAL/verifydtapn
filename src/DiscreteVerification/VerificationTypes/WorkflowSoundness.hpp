@@ -58,7 +58,7 @@ protected:
         ModelType calculateModelType();
         
 protected:
-    vector<NonStrictMarking*>* final_set;
+    stack<WorkflowSoundnessMetaData*> passed_stack;
     int min_exec;
     unsigned int linearSweepTreshold;
     NonStrictMarking* coveredMarking;
