@@ -138,7 +138,7 @@ void ArgsParser::initialize() {
             "Max tokens to use during exploration.", 0));
     parsers.push_back(
             boost::make_shared<SwitchWithArg > ("o", SEARCH_OPTION,
-            "Specify the desired search strategy.\n - 0: Breadth-First Search\n - 1: Depth-First Search\n - 2: Random Search\n - 3: Heuristic Search - 4: Default",
+            "Specify the desired search strategy.\n - 0: Breadth-First Search\n - 1: Depth-First Search\n - 2: Random Search\n - 3: Heuristic Search\n - 4: Default",
             4));
     parsers.push_back(
             boost::make_shared<SwitchWithArg > ("m", VERIFICATION_OPTION,
