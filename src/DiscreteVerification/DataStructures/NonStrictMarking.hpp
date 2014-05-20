@@ -78,6 +78,12 @@ namespace DiscreteVerification {
         void setTotalDelay(const int i){
             totalDelay = i;
         }
+	
+	void incrementAge()
+	{
+		totalDelay += 1;
+		NonStrictMarking::incrementAge();
+	}
     };
 
 } /* namespace DiscreteVerification */

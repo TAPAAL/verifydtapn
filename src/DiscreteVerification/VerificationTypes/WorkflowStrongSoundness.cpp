@@ -50,7 +50,6 @@ namespace VerifyTAPN {
                     NonStrictMarkingWithTotalDelay* marking = new NonStrictMarkingWithTotalDelay(next_marking);
                     marking->incrementAge();
                     marking->setGeneratedBy(NULL);
-                    marking->setTotalDelay(next_marking.getTotalDelay()+1);
                     if(marking->getTotalDelay() > options.getWorkflowBound()){
                         // if the bound is exceeded, terminate
                         marking->setParent(&next_marking);
