@@ -26,7 +26,7 @@ public:
 	void getTrace();
 
 	void printExecutionTime(ostream& stream){
-		stream << "Maximum execution time: " << maxValue << endl;
+		stream << "Maximum execution time: " << (maxValue * tapn.getGCD()) << endl;
 	}
         
 
