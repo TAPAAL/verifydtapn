@@ -35,6 +35,11 @@ int main(int argc, char* argv[])
 	AST::Query* query = NULL;
         if (options.getWorkflowMode() == VerificationOptions::WORKFLOW_SOUNDNESS ||
             options.getWorkflowMode() == VerificationOptions::WORKFLOW_STRONG_SOUNDNESS) {
+            if(options.getGCDLowerGuardsEnabled()){
+                cout << "Workflow-analysis does not support GCD-lowering" << endl;
+                exit(1);
+            }
+            
             if (options.getSearchType() != VerificationOptions::DEFAULT) {
                 cout << "Workflow-analysis only supports the default search-strategy" << endl;
                 exit(1);
