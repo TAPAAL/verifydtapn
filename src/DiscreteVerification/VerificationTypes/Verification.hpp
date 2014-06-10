@@ -240,8 +240,15 @@ namespace VerifyTAPN {
                     if (m->getNumberOfChildren() > 0) {
                         root->append_node(doc.allocate_node(node_element, "deadlock"));
                     } else {
-                        // By default delay forever
-                        xml_node<>* node = doc.allocate_node(node_element, "delay", doc.allocate_string("forever"));
+                        
+			xml_node<>* node;
+			if(m->canDeadlock(tapn, 0, false)){
+				// check if deadlock
+				node = doc.allocate_node(node_element, "deadlock");
+			} else {
+				// if not it is delay forever
+				node = doc.allocate_node(node_element, "delay", doc.allocate_string("forever"));				
+			}
                         for (PlaceList::const_iterator iter = m->getPlaceList().begin(); iter != m->getPlaceList().end(); iter++) {
                             if (iter->place->getInvariant().getBound() != std::numeric_limits<int>::max()) {
                                 //Invariant, deadlock instead of delay forever
