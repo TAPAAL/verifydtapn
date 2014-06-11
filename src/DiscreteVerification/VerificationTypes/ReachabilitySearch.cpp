@@ -11,12 +11,12 @@ namespace VerifyTAPN {
 namespace DiscreteVerification {
 
 ReachabilitySearch::ReachabilitySearch(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options)
-	: AbstractNaiveVerification<PWListBase>(tapn, initialMarking, query, options, NULL){
+	: AbstractNaiveVerification<PWListBase,NonStrictMarking>(tapn, initialMarking, query, options, NULL){
 
 }
     
 ReachabilitySearch::ReachabilitySearch(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list)
-	: AbstractNaiveVerification<PWListBase>(tapn, initialMarking, query, options, new PWList(waiting_list, false)) {
+	: AbstractNaiveVerification<PWListBase,NonStrictMarking>(tapn, initialMarking, query, options, new PWList(waiting_list, false)) {
     
 }
 
@@ -34,9 +34,9 @@ bool ReachabilitySearch::verify(){
 
                 bool noDelay = false;
                 Result res = successorGenerator.generateAndInsertSuccessors(next_marking);
-                if(res == QUERY_SATISFIED){
+                if(res == ADDTOPW_RETURNED_TRUE){
                     return true;
-                }  else if (res == URGENT_ENABLED) {
+                }  else if (res == ADDTOPW_RETURNED_FALSE_URGENTENABLED) {
                     noDelay = true;
                 }
 

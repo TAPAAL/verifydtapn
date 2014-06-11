@@ -20,6 +20,10 @@ namespace VerifyTAPN {
                 return "Random Search";
             case VerificationOptions::DEPTHFIRST:
                 return "Depth-First Search";
+            case VerificationOptions::BREADTHFIRST:
+                return "Breadth-First Search";
+            case VerificationOptions::MINDELAYFIRST:
+                return "Minimum-Delay-First Search";
             default:
                 return "Breadth-First Search";
         }
@@ -54,8 +58,18 @@ namespace VerifyTAPN {
         if (options.getTrace() != VerificationOptions::NO_TRACE) out << " in " << (options.getXmlTrace() ? "xml format" : "human readable format");
         out << std::endl;
         out << "Using " << (options.getGlobalMaxConstantsEnabled() ? "global maximum constant" : "local maximum constants") << " for extrapolation" << std::endl;
+        if(options.isWorkflow()){
+            out << "Workflow analysis type : ";
+            if(options.getWorkflowMode() == VerificationOptions::WORKFLOW_SOUNDNESS){
+                out << "Soundness" << std::endl;
+            } else {
+                out << "Strong soundness" << std::endl;
+                out << "Bound is : " << options.getWorkflowBound() << std::endl;
+            }
+        } 
         out << "Model file is: " << options.getInputFile() << std::endl;
-        out << "Query file is: " << options.getQueryFile() << std::endl;
+        if(options.getQueryFile() != "")
+            out << "Query file is: " << options.getQueryFile() << std::endl;
         return out;
     }
 }

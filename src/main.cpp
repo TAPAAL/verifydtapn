@@ -32,14 +32,44 @@ int main(int argc, char* argv[])
 
 	std::vector<int> initialPlacement(modelParser.parseMarking(options.getInputFile(), *tapn));
 
-	AST::Query* query;
-	try{
-		TAPNQueryParser queryParser(*tapn);
-		queryParser.parse(options.getQueryFile());
-		query = queryParser.getAST();
-	}catch(...){
-		std::cout << "There was an error parsing the query file." << std::endl;
-		return 1;
+	AST::Query* query = NULL;
+        if (options.getWorkflowMode() == VerificationOptions::WORKFLOW_SOUNDNESS ||
+            options.getWorkflowMode() == VerificationOptions::WORKFLOW_STRONG_SOUNDNESS) {
+            if(options.getGCDLowerGuardsEnabled()){
+                cout << "Workflow-analysis does not support GCD-lowering" << endl;
+                exit(1);
+            }
+            
+            if (options.getSearchType() != VerificationOptions::DEFAULT) {
+                cout << "Workflow-analysis only supports the default search-strategy" << endl;
+                exit(1);
+            }
+            
+            if(options.getQueryFile() != ""){
+                cout << "Workflow-analysis does not accept a query file" << endl;
+                exit(1); 
+            }
+            
+            if(options.getWorkflowMode() == VerificationOptions::WORKFLOW_SOUNDNESS) {
+                options.setSearchType(VerificationOptions::MINDELAYFIRST);
+                query = new AST::Query(AST::EF, new AST::BoolExpression(true));
+            } else if(options.getWorkflowMode() == VerificationOptions::WORKFLOW_STRONG_SOUNDNESS) {
+                options.setSearchType(VerificationOptions::DEPTHFIRST);
+                query = new AST::Query(AST::AF, new AST::BoolExpression(false));
+            }
+
+        } else {
+            if (options.getSearchType() == VerificationOptions::DEFAULT) {
+                options.setSearchType(VerificationOptions::COVERMOST);
+            }
+            try{
+                    TAPNQueryParser queryParser(*tapn);
+                    queryParser.parse(options.getQueryFile());
+                    query = queryParser.getAST();
+            }catch(...){
+                    std::cout << "There was an error parsing the query file." << std::endl;
+                    return 1;
+            }
         }
 
         if (tapn->containsOrphanTransitions()) {

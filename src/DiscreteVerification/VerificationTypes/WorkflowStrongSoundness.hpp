@@ -12,30 +12,30 @@
 #include "../DataStructures/WorkflowPWList.hpp"
 #include "Workflow.hpp"
 #include <stack>
+#include <algorithm>
 
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
-class WorkflowStrongSoundnessReachability : public Workflow{
+class WorkflowStrongSoundnessReachability : public Workflow<NonStrictMarkingWithTotalDelay>{
 public:
 
-	WorkflowStrongSoundnessReachability(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list);
+	WorkflowStrongSoundnessReachability(TAPN::TimedArcPetriNet& tapn, NonStrictMarkingWithTotalDelay& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list);
 
 	bool verify();
 	void getTrace();
 
 	void printExecutionTime(ostream& stream){
-		stream << "Maximum execution time: " << max_value << endl;
+		stream << "Maximum execution time: " << (maxValue * tapn.getGCD()) << endl;
 	}
         
 
 protected:
-	bool addToPW(NonStrictMarking* marking, NonStrictMarking* parent);
+	bool addToPW(NonStrictMarkingWithTotalDelay* marking, NonStrictMarkingWithTotalDelay* parent);
 protected:
-	int max_value;
-	TimedPlace* timer;
-	TimedPlace* term1;
-	TimedPlace* term2;
+	int maxValue;
+	TimedPlace* outPlace;
+        int validChildren;
 };
 
 } /* namespace DiscreteVerification */

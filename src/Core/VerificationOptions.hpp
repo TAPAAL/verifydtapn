@@ -15,7 +15,7 @@ namespace VerifyTAPN {
         };
 
         enum SearchType {
-            BREADTHFIRST, DEPTHFIRST, RANDOM, COVERMOST
+            BREADTHFIRST, DEPTHFIRST, RANDOM, COVERMOST, DEFAULT, MINDELAYFIRST
         };
 
         enum VerificationType {
@@ -34,8 +34,6 @@ namespace VerifyTAPN {
         }
 
         VerificationOptions(
-                const std::string& inputFile,
-                const std::string& queryFile,
                 SearchType searchType,
                 VerificationType verificationType,
                 MemoryOptimization memOptimization,
@@ -45,9 +43,10 @@ namespace VerifyTAPN {
                 bool useGlobalMaxConstants,
                 bool keepDeadTokens, 
                 bool enableGCDLowerGuards,
-                WorkflowMode workflow
-                ) : inputFile(inputFile),
-        queryFile(queryFile),
+                WorkflowMode workflow,
+                int workflowBound
+                ) : inputFile(""),
+        queryFile(""),
         searchType(searchType),
         verificationType(verificationType),
         memOptimization(memOptimization),
@@ -57,7 +56,8 @@ namespace VerifyTAPN {
         useGlobalMaxConstants(useGlobalMaxConstants),
         keepDeadTokens(keepDeadTokens), 
         enableGCDLowerGuards(enableGCDLowerGuards),
-        workflow(workflow){
+        workflow(workflow),
+        workflowBound(workflowBound){
         };
 
     public: // inspectors
@@ -66,8 +66,16 @@ namespace VerifyTAPN {
             return inputFile;
         }
 
+        void setInputFile(std::string input) {
+            inputFile = input;
+        }
+        
         const std::string getQueryFile() const {
             return queryFile;
+        }
+        
+        void setQueryFile(std::string input) {
+            queryFile = input;
         }
 
         inline const unsigned int getKBound() const {
@@ -89,6 +97,10 @@ namespace VerifyTAPN {
         inline const SearchType getSearchType() const {
             return searchType;
         }
+        
+        inline void setSearchType(SearchType type){
+            searchType = type;
+        }
 
         inline const VerificationType getVerificationType() const {
             return verificationType;
@@ -107,8 +119,12 @@ namespace VerifyTAPN {
         }
 
         inline const WorkflowMode getWorkflowMode() const {
-		   return workflow;
-	   };
+            return workflow;
+        };
+
+        inline const int getWorkflowBound() const {
+            return workflowBound;
+        };
 
         inline bool isWorkflow() const{
             return workflow != NOT_WORKFLOW;
@@ -127,6 +143,7 @@ namespace VerifyTAPN {
         bool keepDeadTokens;
         bool enableGCDLowerGuards;
         WorkflowMode workflow;
+        int workflowBound;
     };
 
     std::ostream& operator<<(std::ostream& out, const VerificationOptions& options);

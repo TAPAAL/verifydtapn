@@ -19,6 +19,7 @@ static const std::string GCD = "gcd";
 static const std::string LEGACY = "legacy";
 static const std::string KEEP_DEAD = "keep-dead-tokens";
 static const std::string WORKFLOW = "workflow";
+static const std::string STRONG_WORKFLOW_BOUND = "strong-workflow-bound";
 
 std::ostream& operator<<(std::ostream& out, const Switch& flag) {
 	flag.print(out);
@@ -137,8 +138,8 @@ void ArgsParser::initialize() {
             "Max tokens to use during exploration.", 0));
     parsers.push_back(
             boost::make_shared<SwitchWithArg > ("o", SEARCH_OPTION,
-            "Specify the desired search strategy.\n - 0: Breadth-First Search\n - 1: Depth-First Search\n - 2: Random Search\n - 3: Heuristic Search",
-            3));
+            "Specify the desired search strategy.\n - 0: Breadth-First Search\n - 1: Depth-First Search\n - 2: Random Search\n - 3: Heuristic Search\n - 4: Default",
+            4));
     parsers.push_back(
             boost::make_shared<SwitchWithArg > ("m", VERIFICATION_OPTION,
             "Specify the desired verification method.\n - 0: Default (discrete)\n - 1: Time Darts",
@@ -172,6 +173,10 @@ void ArgsParser::initialize() {
     parsers.push_back(
             boost::make_shared<SwitchWithArg > ("w", WORKFLOW,
             "Workflow mode.\n - 0: Disabled\n - 1: Soundness (and min)\n - 2: Strong Soundness (and max)",
+            0));
+    parsers.push_back(
+            boost::make_shared<SwitchWithArg > ("b", STRONG_WORKFLOW_BOUND,
+            "Maximum delay bound for strong workflow analysis",
             0));
 
     };
@@ -215,32 +220,14 @@ VerificationOptions ArgsParser::parse(int argc, char* argv[]) const {
 		exit(1);
 	}
 
-	std::string model_file(argv[argc - 2]);
-	std::string query_file(argv[argc - 1]);
-
-	if (boost::iends_with(query_file, ".xml")) {
-		std::cout << "Missing query file." << std::endl;
-		exit(1);
-	}
-
-	if (!boost::iends_with(model_file, ".xml")) {
-		std::cout << "Invalid model file specified." << std::endl;
-		exit(1);
-	}
-
-	if (!boost::iends_with(query_file, ".q")) {
-		std::cout << "Invalid query file specified." << std::endl;
-		exit(1);
-	}
-
 	std::vector<std::string> flags;
 	unsigned int i = 1;
 	unsigned int size = static_cast<unsigned int>(argc);
-	while (i < size - 2) {
+	while (i < size) {
 		std::string arg(argv[i]);
 		if (boost::istarts_with(arg, "-")) {
 			std::string arg2(argv[i + 1]);
-			if (!boost::istarts_with(arg2, "-") && i + 1 < size - 2) {
+			if (!boost::istarts_with(arg2, "-") && i + 1 < size) {
 				flags.push_back(arg + " " + arg2);
 				i++;
 			} else {
@@ -277,7 +264,47 @@ VerificationOptions ArgsParser::parse(int argc, char* argv[]) const {
 		}
 	}
 
-	return createVerificationOptions(options, model_file, query_file);
+        std::string model_file(argv[argc - 2]);
+	std::string query_file(argv[argc - 1]);
+        
+	return verifyInputFiles(createVerificationOptions(options), model_file, query_file);
+}
+
+VerificationOptions ArgsParser::verifyInputFiles(VerificationOptions options, std::string model_file, std::string query_file) const {
+    if(options.getWorkflowMode() != VerificationOptions::WORKFLOW_SOUNDNESS &&
+       options.getWorkflowMode() != VerificationOptions::WORKFLOW_STRONG_SOUNDNESS) {
+        if (boost::iends_with(query_file, ".xml")) {
+            std::cout << "Missing query file." << std::endl;
+            exit(1);
+        }
+
+        if (!boost::iends_with(model_file, ".xml")) {
+            std::cout << "Invalid model file specified." << std::endl;
+            exit(1);
+        }
+
+        if (!boost::iends_with(query_file, ".q")) {
+            std::cout << "Invalid query file specified." << std::endl;
+            exit(1);
+        }
+    } else {
+        if (!boost::iends_with(model_file, ".xml")) {
+            if (boost::iends_with(query_file, ".xml")) {
+                // last argument is probably xml, no query-file 
+                model_file = query_file;
+            } else {
+                // we have no xml-files at all :(
+                std::cout << "Invalid model file specified." << std::endl;
+                exit(1);
+            }
+        } else {
+            std::cout << "Ignoring query-file for Workflow-analysis" << std::endl;
+        }
+        query_file = "";
+    }
+    options.setInputFile(model_file);
+    options.setQueryFile(query_file);
+    return options;
 }
 
 VerificationOptions::SearchType intToSearchTypeEnum(int i) {
@@ -290,6 +317,8 @@ VerificationOptions::SearchType intToSearchTypeEnum(int i) {
 		return VerificationOptions::RANDOM;
 	case 3:
 		return VerificationOptions::COVERMOST;
+        case 4:
+                return VerificationOptions::DEFAULT;
 	default:
 		std::cout << "Unknown search strategy specified." << std::endl;
 		exit(1);
@@ -366,8 +395,7 @@ std::vector<std::string> ArgsParser::parseIncPlaces(
 	return vec;
 }
 
-VerificationOptions ArgsParser::createVerificationOptions(const option_map& map,
-		const std::string& modelFile, const std::string& queryFile) const {
+VerificationOptions ArgsParser::createVerificationOptions(const option_map& map) const {
 	assert(map.find(KBOUND_OPTION) != map.end());
 	unsigned int kbound = tryParseInt(*map.find(KBOUND_OPTION));
 
@@ -400,15 +428,17 @@ VerificationOptions ArgsParser::createVerificationOptions(const option_map& map,
 	assert(map.find(WORKFLOW) != map.end());
 	VerificationOptions::WorkflowMode workflow = intToWorkflowTypeEnum(
 			tryParseInt(*map.find(WORKFLOW)));
-
+        
+	assert(map.find(STRONG_WORKFLOW_BOUND) != map.end());
+	unsigned int workflowBound = tryParseInt(*map.find(STRONG_WORKFLOW_BOUND));
 
         
         assert(map.find(GCD) != map.end());
         bool enableGCDLowerGuards = boost::lexical_cast<bool>(
 			map.find(GCD)->second);
         
-	return VerificationOptions(modelFile, queryFile, search, verification, memoptimization, kbound, trace,
-			xml_trace, max_constant, keep_dead, enableGCDLowerGuards, workflow);
+	return VerificationOptions(search, verification, memoptimization, kbound, trace,
+			xml_trace, max_constant, keep_dead, enableGCDLowerGuards, workflow, workflowBound);
 
 }
 }
