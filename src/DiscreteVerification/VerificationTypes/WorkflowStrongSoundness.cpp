@@ -108,7 +108,7 @@ namespace VerifyTAPN {
             marking->cut();
             marking->setParent(parent);
             
-            int totalDelay = parent->meta->totalDelay;
+            int totalDelay = (parent && parent->meta) ? parent->meta->totalDelay : 0;
             if(marking->getGeneratedBy() == NULL) ++totalDelay;
 
             unsigned int size = marking->size();
