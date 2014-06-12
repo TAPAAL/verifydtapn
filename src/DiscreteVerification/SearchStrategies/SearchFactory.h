@@ -41,6 +41,11 @@ WaitingList<T>* getWaitingList(AST::Query* query, VerificationOptions& options){
 			strategy = s.createWaitingList(query);
 			break;
 		}
+		case VerificationOptions::MINDELAYFIRST:{
+			WorkflowMinFirst<T> s;
+			strategy = s.createWaitingList(query);
+			break;
+		}
 		default: {
 			NonStrictDFSHeuristic<T> s;
 			strategy = s.createWaitingList(query);
@@ -66,6 +71,11 @@ WaitingList<T>* getWaitingList(AST::Query* query, VerificationOptions& options){
 		}
 		case VerificationOptions::RANDOM: {
 			NonStrictDFSRandom<T> s;
+			strategy = s.createWaitingList(query);
+			break;
+		}
+		case VerificationOptions::MINDELAYFIRST:{
+			WorkflowMinFirst<T> s;
 			strategy = s.createWaitingList(query);
 			break;
 		}

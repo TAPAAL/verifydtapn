@@ -59,9 +59,6 @@ int main(int argc, char* argv[])
             }
 
         } else {
-            if (options.getSearchType() == VerificationOptions::DEFAULT) {
-                options.setSearchType(VerificationOptions::COVERMOST);
-            }
             try{
                     TAPNQueryParser queryParser(*tapn);
                     queryParser.parse(options.getQueryFile());
@@ -69,6 +66,19 @@ int main(int argc, char* argv[])
             }catch(...){
                     std::cout << "There was an error parsing the query file." << std::endl;
                     return 1;
+            }
+            
+            if(options.getTrace() == VerificationOptions::FASTEST_TRACE &&
+               (options.getSearchType() != VerificationOptions::DEFAULT ||
+                query->getQuantifier() == AST::EG || query->getQuantifier() == AST::AF)) {
+                std::cout << "Fastest trace-option is only possible with default search strategy"
+                          << " and for Reachability queries." << std::endl;
+                   return 1;
+            } else if(options.getTrace() == VerificationOptions::FASTEST_TRACE) {
+               options.setTrace(VerificationOptions::SOME_TRACE); 
+               options.setSearchType(VerificationOptions::MINDELAYFIRST);
+            } else if (options.getSearchType() == VerificationOptions::DEFAULT) {
+                options.setSearchType(VerificationOptions::COVERMOST);
             }
         }
 

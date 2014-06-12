@@ -11,7 +11,7 @@ namespace VerifyTAPN {
     public:
 
         enum Trace {
-            NO_TRACE, SOME_TRACE
+            NO_TRACE, SOME_TRACE, FASTEST_TRACE
         };
 
         enum SearchType {
@@ -101,6 +101,10 @@ namespace VerifyTAPN {
         inline void setSearchType(SearchType type){
             searchType = type;
         }
+	
+	inline void setTrace(Trace traceType){
+		trace = traceType;
+	}
 
         inline const VerificationType getVerificationType() const {
             return verificationType;

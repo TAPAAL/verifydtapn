@@ -29,7 +29,7 @@ namespace VerifyTAPN {
                 return -1;
             }
 
-            NonStrictMarkingWithTotalDelay* initialMarking = new NonStrictMarkingWithTotalDelay(tapn, initialPlacement);
+            NonStrictMarking* initialMarking = new NonStrictMarking(tapn, initialPlacement);
 
             std::cout << "MC: " << tapn.getMaxConstant() << std::endl;
 #if DEBUG
