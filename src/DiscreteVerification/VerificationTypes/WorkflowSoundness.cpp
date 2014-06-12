@@ -97,12 +97,12 @@ bool WorkflowSoundness::addToPW(NonStrictMarking* marking, NonStrictMarking* par
 		WorkflowSoundnessMetaData* parent_meta_data = ((WorkflowSoundnessMetaData*)parent->meta);
 		marking_meta_data->parents.push_back(parent_meta_data);
 		if(marking->getGeneratedBy() == NULL){
-			marking_meta_data->min = min(marking_meta_data->min, parent_meta_data->min+1);	// Delay
+			marking_meta_data->totalDelay = min(marking_meta_data->totalDelay, parent_meta_data->totalDelay+1);	// Delay
 		}else{
-			marking_meta_data->min = min(marking_meta_data->min, parent_meta_data->min);	// Transition
+			marking_meta_data->totalDelay = min(marking_meta_data->totalDelay, parent_meta_data->totalDelay);	// Transition
 		}
 	}else{
-		marking_meta_data->min = 0;
+		marking_meta_data->totalDelay = 0;
 	}
 
 
@@ -113,11 +113,11 @@ bool WorkflowSoundness::addToPW(NonStrictMarking* marking, NonStrictMarking* par
 			marking_meta_data = ((WorkflowSoundnessMetaData*)marking->meta);
 			marking_meta_data->parents.push_back(((WorkflowSoundnessMetaData*)parent->meta));
 			// Set min
-			marking_meta_data->min = min(marking_meta_data->min, ((WorkflowSoundnessMetaData*)parent->meta)->min);	// Transition
+			marking_meta_data->totalDelay = min(marking_meta_data->totalDelay, ((WorkflowSoundnessMetaData*)parent->meta)->totalDelay);	// Transition
                         passedStack.push(marking_meta_data);
                         // keep track of shortest trace
-                        if (marking_meta_data->min < minExec) {
-                            minExec = marking_meta_data->min;
+                        if (marking_meta_data->totalDelay < minExec) {
+                            minExec = marking_meta_data->totalDelay;
                             lastMarking = marking;
                         }
 		}else{

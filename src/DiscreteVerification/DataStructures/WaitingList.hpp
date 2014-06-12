@@ -139,7 +139,6 @@ public:
 	virtual T* pop();
 	virtual size_t size() { return queue.size(); };
 private:
-	int calculateWeight(NonStrictMarking* payload);
 	priority_queue queue;
 	AST::Query* query;
 };
@@ -368,7 +367,7 @@ inline void WorkflowMinFirstWaitingList<NonStrictMarking>::add(NonStrictMarkingB
 {
 	WeightedItem<NonStrictMarking> weighted_item;
 	weighted_item.item = payload;
-	weighted_item.weight = calculateWeight(payload);
+	weighted_item.weight = payload->meta->totalDelay;
 	queue.push(weighted_item);
 }
 
@@ -387,12 +386,6 @@ T* WorkflowMinFirstWaitingList<T>::peek()
 	WeightedItem<T> weighted_item = queue.top();
 	T* marking = weighted_item.item;
 	return marking;
-}
-
-template <class T>
-int WorkflowMinFirstWaitingList<T>::calculateWeight(NonStrictMarking* payload)
-{
-	return ((WorkflowSoundnessMetaData*)payload->meta)->min;
 }
 
 template <class T>

@@ -23,9 +23,10 @@ namespace DiscreteVerification {
  
    struct MetaData {
     public:
-        MetaData() : passed(false), inTrace(false) {};
+        MetaData() : passed(false), inTrace(false), totalDelay(0) {};
         bool passed;
         bool inTrace;
+	int totalDelay;
     };
     
     struct MetaDataWithTrace : public MetaData {
@@ -34,9 +35,8 @@ namespace DiscreteVerification {
     
     struct WorkflowSoundnessMetaData : public MetaData {
 	   public:
-    	WorkflowSoundnessMetaData() : parents(), min(INT_MAX) {};
+    	WorkflowSoundnessMetaData() : MetaData(), parents() { totalDelay = INT_MAX;};
 		   vector<WorkflowSoundnessMetaData*> parents;
-		   int min;
 	   };
 
     // ugly forward declaration
@@ -61,31 +61,6 @@ namespace DiscreteVerification {
     public:
         MetaData* meta;
     };
-    
-    class NonStrictMarkingWithTotalDelay : public NonStrictMarking {
-    private:
-        unsigned int totalDelay;
-    public:
-        NonStrictMarkingWithTotalDelay() : NonStrictMarking(), totalDelay(0) {};
-        NonStrictMarkingWithTotalDelay(const TAPN::TimedArcPetriNet& tapn, const std::vector<int>& v) : NonStrictMarking(tapn, v), totalDelay(0) {};
-        NonStrictMarkingWithTotalDelay(const NonStrictMarking& nsm) : NonStrictMarking(nsm), totalDelay(0) {};
-        NonStrictMarkingWithTotalDelay(const NonStrictMarkingWithTotalDelay& nsm) : NonStrictMarking(nsm), totalDelay(nsm.totalDelay) {};
-        
-        int getTotalDelay() const {
-            return totalDelay;
-        }
-        
-        void setTotalDelay(const int i){
-            totalDelay = i;
-        }
-	
-	void incrementAge()
-	{
-		totalDelay += 1;
-		NonStrictMarking::incrementAge();
-	}
-    };
-
 } /* namespace DiscreteVerification */
 } /* namespace VerifyTAPN */
 
