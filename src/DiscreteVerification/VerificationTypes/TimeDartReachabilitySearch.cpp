@@ -96,6 +96,12 @@ bool TimeDartReachabilitySearch::addToPW(NonStrictMarkingBase* marking, WaitingD
                     maxDelay = tapn.getMaxConstant() + 1;
                 }
                 
+                if(this->options.getTrace() == VerificationOptions::FASTEST_TRACE){
+				   int totalDelay = (parent && parent) ? parent->meta->totalDelay : 0;
+				   if(marking->getGeneratedBy() == NULL) ++totalDelay;
+				   marking->meta->totalDelay = totalDelay;
+                }
+
 		QueryVisitor<NonStrictMarkingBase> checker(*marking, tapn, maxDelay);
                 AST::BoolResult context;
 		query->accept(checker, context);

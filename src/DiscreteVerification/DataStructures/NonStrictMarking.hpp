@@ -26,7 +26,7 @@ namespace DiscreteVerification {
         MetaData() : passed(false), inTrace(false), totalDelay(0) {};
         bool passed;
         bool inTrace;
-	int totalDelay;
+        int totalDelay;
     };
     
     struct MetaDataWithTrace : public MetaData {

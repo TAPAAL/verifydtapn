@@ -150,7 +150,7 @@ void ArgsParser::initialize() {
             0)); // TODO change to 0!
     parsers.push_back(
             boost::make_shared<SwitchWithArg > ("t", TRACE_OPTION,
-            "Specify the desired trace option.\n - 0: none\n - 1: some",
+            "Specify the desired trace option.\n - 0: none\n - 1: some\n - 2: fastest",
             0));
     parsers.push_back(
             boost::make_shared<Switch > ("d", KEEP_DEAD,

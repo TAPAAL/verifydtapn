@@ -72,7 +72,7 @@ bool ReachabilitySearch::addToPW(NonStrictMarking* marking, NonStrictMarking* pa
 	if(pwList->add(marking)){
 		QueryVisitor<NonStrictMarking> checker(*marking, tapn);
 		BoolResult context;
-                if(this->options.getTrace() == VerificationOptions::SOME_TRACE)
+                if(this->options.getTrace() == VerificationOptions::FASTEST_TRACE)
                 {
                     int totalDelay = (parent && parent->meta) ? parent->meta->totalDelay : 0;
                     if(marking->getGeneratedBy() == NULL) ++totalDelay;
