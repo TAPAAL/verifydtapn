@@ -144,9 +144,7 @@ private:
 	int calculateWeight(TimeDartBase* marking){	assert(false); return 0; }
 	int calculateWeight(EncodingPointer<TimeDartBase>* payload){	assert(false); return 0;}
 	int calculateWeight(WaitingDart* payload){	assert(false);  return 0;}
-	int calculateWeight(EncodingPointer<WaitingDart>* payload){
-		assert(false);  return 0;
-	}
+	int calculateWeight(EncodingPointer<WaitingDart>* payload){	assert(false);  return 0;	}
 	priority_queue queue;
 	AST::Query* query;
 };
