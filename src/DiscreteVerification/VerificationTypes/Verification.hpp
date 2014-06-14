@@ -249,15 +249,6 @@ namespace VerifyTAPN {
 				// if not it is delay forever
 				node = doc.allocate_node(node_element, "delay", doc.allocate_string("forever"));				
 			}
-			/* This is possibly redundant due to deadlock-check.
-			 * Kept as it *might* have some purpose
-                        for (PlaceList::const_iterator iter = m->getPlaceList().begin(); iter != m->getPlaceList().end(); iter++) {
-                            if (iter->place->getInvariant().getBound() != std::numeric_limits<int>::max()) {
-                                //Invariant, deadlock instead of delay forever
-                                node = doc.allocate_node(node_element, "deadlock");
-                                break;
-                            }
-                        }*/
                         root->append_node(node);
                     }
                 }
