@@ -41,11 +41,6 @@ WaitingList<T>* getWaitingList(AST::Query* query, VerificationOptions& options){
 			strategy = s.createWaitingList(query);
 			break;
 		}
-		case VerificationOptions::MINDELAYFIRST:{
-			WorkflowMinFirst<T> s;
-			strategy = s.createWaitingList(query);
-			break;
-		}
 		default: {
 			NonStrictDFSHeuristic<T> s;
 			strategy = s.createWaitingList(query);

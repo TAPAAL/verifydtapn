@@ -70,12 +70,10 @@ int main(int argc, char* argv[])
             
             if(options.getTrace() == VerificationOptions::FASTEST_TRACE &&
                (options.getSearchType() != VerificationOptions::DEFAULT ||
-                query->getQuantifier() == AST::EG || query->getQuantifier() == AST::AF)) {
-                std::cout << "Fastest trace-option is only possible with default search strategy"
-                          << " and for Reachability queries." << std::endl;
+                query->getQuantifier() == AST::EG || query->getQuantifier() == AST::AF || options.getVerificationType() == VerificationOptions::TIMEDART)) {
+                std::cout << "Fastest trace-option is only supported for reachability queries with default search strategy and without time darts." << std::endl;
                    return 1;
             } else if(options.getTrace() == VerificationOptions::FASTEST_TRACE) {
-               options.setTrace(VerificationOptions::SOME_TRACE); 
                options.setSearchType(VerificationOptions::MINDELAYFIRST);
             } else if (options.getSearchType() == VerificationOptions::DEFAULT) {
                 options.setSearchType(VerificationOptions::COVERMOST);

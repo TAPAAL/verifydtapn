@@ -27,7 +27,7 @@ bool TimeDartReachabilitySearch::verify(){
 		dart.setPassed(dart.getWaiting());
 		tapn.getTransitions();
                 this->tmpdart = NULL;
-                if(options.getTrace() == VerificationOptions::SOME_TRACE){
+                if(options.getTrace() != VerificationOptions::NO_TRACE){
                     this->tmpdart = ((ReachabilityTraceableDart*)&dart)->trace;
                 }
 		for(TimedTransition::Vector::const_iterator transition_iter = tapn.getTransitions().begin();
@@ -71,7 +71,7 @@ bool TimeDartReachabilitySearch::verify(){
 
 bool TimeDartReachabilitySearch::addToPW(NonStrictMarkingBase* marking, WaitingDart* parent, int upper){
         int start = 0;
-        if(options.getTrace() == VerificationOptions::SOME_TRACE){
+        if(options.getTrace() != VerificationOptions::NO_TRACE){
             start = marking->getYoungest();
         }
 	int maxDelay = marking->cut();
@@ -96,12 +96,6 @@ bool TimeDartReachabilitySearch::addToPW(NonStrictMarkingBase* marking, WaitingD
                     maxDelay = tapn.getMaxConstant() + 1;
                 }
                 
-                if(this->options.getTrace() == VerificationOptions::FASTEST_TRACE){
-				   int totalDelay = (parent && parent) ? parent->meta->totalDelay : 0;
-				   if(marking->getGeneratedBy() == NULL) ++totalDelay;
-				   marking->meta->totalDelay = totalDelay;
-                }
-
 		QueryVisitor<NonStrictMarkingBase> checker(*marking, tapn, maxDelay);
                 AST::BoolResult context;
 		query->accept(checker, context);

@@ -76,7 +76,7 @@ bool ReachabilitySearch::addToPW(NonStrictMarking* marking, NonStrictMarking* pa
                 {
                     int totalDelay = (parent && parent->meta) ? parent->meta->totalDelay : 0;
                     if(marking->getGeneratedBy() == NULL) ++totalDelay;
-                    marking->meta->totalDelay = totalDelay;
+                    if(marking->meta)	marking->meta->totalDelay = totalDelay;
                 }
 		query->accept(checker, context);
 		if(context.value) {
