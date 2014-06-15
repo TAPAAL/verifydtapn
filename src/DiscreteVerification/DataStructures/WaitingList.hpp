@@ -127,12 +127,12 @@ private:
 };
 
 template <class T>
-class WorkflowMinFirstWaitingList : public WaitingList<T>{
+class MinFirstWaitingList : public WaitingList<T>{
 public:
 	typedef std::priority_queue<WeightedItem<T>, std::vector<WeightedItem<T> >, less<T> > priority_queue;
 public:
-	WorkflowMinFirstWaitingList(AST::Query* q) : queue(), query(q) { };
-	virtual ~WorkflowMinFirstWaitingList();
+	MinFirstWaitingList(AST::Query* q) : queue(), query(q) { };
+	virtual ~MinFirstWaitingList();
 public:
 	virtual void add(NonStrictMarkingBase* weight, T* payload);
 	virtual T* peek();
@@ -359,9 +359,8 @@ HeuristicWaitingList<T>::~HeuristicWaitingList()
 }
 
 template <class T>
-void WorkflowMinFirstWaitingList<T>::add(NonStrictMarkingBase* weight, T* payload)
+void MinFirstWaitingList<T>::add(NonStrictMarkingBase* weight, T* payload)
 {
-	assert(false);
 	WeightedItem<T> weighted_item;
 	weighted_item.item = payload;
 	weighted_item.weight = calculateWeight(payload);
@@ -369,19 +368,19 @@ void WorkflowMinFirstWaitingList<T>::add(NonStrictMarkingBase* weight, T* payloa
 }
 
 template <class T>
-int WorkflowMinFirstWaitingList<T>::calculateWeight(NonStrictMarking* marking)
+int MinFirstWaitingList<T>::calculateWeight(NonStrictMarking* marking)
 {
 	return marking->meta->totalDelay;
 }
 
 template <class T>
-int WorkflowMinFirstWaitingList<T>::calculateWeight(EncodingPointer<MetaData>* payload)
+int MinFirstWaitingList<T>::calculateWeight(EncodingPointer<MetaData>* payload)
 {
 	return payload->encoding.getMetaData()->totalDelay;
 }
 
 template <class T>
-T* WorkflowMinFirstWaitingList<T>::pop()
+T* MinFirstWaitingList<T>::pop()
 {
 	WeightedItem<T> weighted_item = queue.top();
 	T* marking = weighted_item.item;
@@ -390,7 +389,7 @@ T* WorkflowMinFirstWaitingList<T>::pop()
 }
 
 template <class T>
-T* WorkflowMinFirstWaitingList<T>::peek()
+T* MinFirstWaitingList<T>::peek()
 {
 	WeightedItem<T> weighted_item = queue.top();
 	T* marking = weighted_item.item;
@@ -398,7 +397,7 @@ T* WorkflowMinFirstWaitingList<T>::peek()
 }
 
 template <class T>
-WorkflowMinFirstWaitingList<T>::~WorkflowMinFirstWaitingList()
+MinFirstWaitingList<T>::~MinFirstWaitingList()
 {
 }
 

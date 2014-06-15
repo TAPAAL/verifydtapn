@@ -34,7 +34,7 @@ namespace DiscreteVerification {
 template <class T>
 class WorkflowMinFirst : public SearchStrategy<T> {
 public:
-	virtual WaitingList<T>* createWaitingList(AST::Query* query) const { return new WorkflowMinFirstWaitingList<T>(query); };
+	virtual WaitingList<T>* createWaitingList(AST::Query* query) const { return new MinFirstWaitingList<T>(query); };
 };
 
 }
