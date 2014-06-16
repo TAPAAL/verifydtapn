@@ -56,7 +56,8 @@ namespace VerifyTAPN {
                         return true;
                     }
                     
-                    if(marking->meta->totalDelay > options.getWorkflowBound()){
+                    if(marking->meta &&
+                       marking->meta->totalDelay > options.getWorkflowBound()){
                         // if the bound is exceeded, terminate
                         marking->setParent(&next_marking);
                         lastMarking = marking;
