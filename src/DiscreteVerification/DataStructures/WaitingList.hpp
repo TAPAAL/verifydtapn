@@ -127,19 +127,24 @@ private:
 };
 
 template <class T>
-class WorkflowMinFirstWaitingList : public WaitingList<T>{
+class MinFirstWaitingList : public WaitingList<T>{
 public:
 	typedef std::priority_queue<WeightedItem<T>, std::vector<WeightedItem<T> >, less<T> > priority_queue;
 public:
-	WorkflowMinFirstWaitingList(AST::Query* q) : queue(), query(q) { };
-	virtual ~WorkflowMinFirstWaitingList();
+	MinFirstWaitingList(AST::Query* q) : queue(), query(q) { };
+	virtual ~MinFirstWaitingList();
 public:
 	virtual void add(NonStrictMarkingBase* weight, T* payload);
 	virtual T* peek();
 	virtual T* pop();
 	virtual size_t size() { return queue.size(); };
 private:
-	int calculateWeight(NonStrictMarking* payload);
+	int calculateWeight(NonStrictMarking* marking);
+	int calculateWeight(EncodingPointer<MetaData>* payload);
+	int calculateWeight(TimeDartBase* marking){	assert(false); return 0; }
+	int calculateWeight(EncodingPointer<TimeDartBase>* payload){	assert(false); return 0;}
+	int calculateWeight(WaitingDart* payload){	assert(false);  return 0;}
+	int calculateWeight(EncodingPointer<WaitingDart>* payload){	assert(false);  return 0;	}
 	priority_queue queue;
 	AST::Query* query;
 };
@@ -354,26 +359,28 @@ HeuristicWaitingList<T>::~HeuristicWaitingList()
 }
 
 template <class T>
-void WorkflowMinFirstWaitingList<T>::add(NonStrictMarkingBase* weight, T* payload)
+void MinFirstWaitingList<T>::add(NonStrictMarkingBase* weight, T* payload)
 {
-	assert(false);
 	WeightedItem<T> weighted_item;
-	weighted_item.item = payload;
-	weighted_item.weight = 0;
-	queue.push(weighted_item);
-}
-
-template <>
-inline void WorkflowMinFirstWaitingList<NonStrictMarking>::add(NonStrictMarkingBase* weight, NonStrictMarking* payload)
-{
-	WeightedItem<NonStrictMarking> weighted_item;
 	weighted_item.item = payload;
 	weighted_item.weight = calculateWeight(payload);
 	queue.push(weighted_item);
 }
 
 template <class T>
-T* WorkflowMinFirstWaitingList<T>::pop()
+int MinFirstWaitingList<T>::calculateWeight(NonStrictMarking* marking)
+{
+	return marking->meta->totalDelay;
+}
+
+template <class T>
+int MinFirstWaitingList<T>::calculateWeight(EncodingPointer<MetaData>* payload)
+{
+	return payload->encoding.getMetaData()->totalDelay;
+}
+
+template <class T>
+T* MinFirstWaitingList<T>::pop()
 {
 	WeightedItem<T> weighted_item = queue.top();
 	T* marking = weighted_item.item;
@@ -382,7 +389,7 @@ T* WorkflowMinFirstWaitingList<T>::pop()
 }
 
 template <class T>
-T* WorkflowMinFirstWaitingList<T>::peek()
+T* MinFirstWaitingList<T>::peek()
 {
 	WeightedItem<T> weighted_item = queue.top();
 	T* marking = weighted_item.item;
@@ -390,13 +397,7 @@ T* WorkflowMinFirstWaitingList<T>::peek()
 }
 
 template <class T>
-int WorkflowMinFirstWaitingList<T>::calculateWeight(NonStrictMarking* payload)
-{
-	return ((WorkflowSoundnessMetaData*)payload->meta)->min;
-}
-
-template <class T>
-WorkflowMinFirstWaitingList<T>::~WorkflowMinFirstWaitingList()
+MinFirstWaitingList<T>::~MinFirstWaitingList()
 {
 }
 

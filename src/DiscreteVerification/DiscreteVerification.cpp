@@ -13,7 +13,7 @@ namespace VerifyTAPN {
     namespace DiscreteVerification {
 
         template<typename T> void VerifyAndPrint(TAPN::TimedArcPetriNet& tapn, Verification<T>& verifier, VerificationOptions& options, AST::Query* query);
-
+        
         DiscreteVerification::DiscreteVerification() {
             // TODO Auto-generated constructor stub
 
@@ -29,7 +29,7 @@ namespace VerifyTAPN {
                 return -1;
             }
 
-            NonStrictMarkingWithTotalDelay* initialMarking = new NonStrictMarkingWithTotalDelay(tapn, initialPlacement);
+            NonStrictMarking* initialMarking = new NonStrictMarking(tapn, initialPlacement);
 
             std::cout << "MC: " << tapn.getMaxConstant() << std::endl;
 #if DEBUG
@@ -43,7 +43,7 @@ namespace VerifyTAPN {
                 std::cout << "The specified k-bound is less than the number of tokens in the initial markings.";
                 return 1;
             }
-
+            
             std::cout << options;
 
             // Select verification method
@@ -148,7 +148,7 @@ namespace VerifyTAPN {
                     }
                     delete strategy;
                 }
-            } else if (options.getVerificationType() == VerificationOptions::TIMEDART) {              
+            } else if (options.getVerificationType() == VerificationOptions::TIMEDART) {
                 if (query->getQuantifier() == EG || query->getQuantifier() == AF) {
                     if (containsDeadlock.value) {
                         std::cout << "The combination of TimeDarts, Deadlock proposition and EG or AF queries is currently not supported" << endl;
@@ -218,7 +218,7 @@ namespace VerifyTAPN {
             else
                 std::cout << verifier.maxUsedTokens() << std::endl;
             
-            if (options.getTrace() == VerificationOptions::SOME_TRACE) {
+            if (options.getTrace() != VerificationOptions::NO_TRACE) {
                 if ((query->getQuantifier() == EF && result) || (query->getQuantifier() == AG && !result) || (query->getQuantifier() == EG && result) || (query->getQuantifier() == AF && !result) || (options.isWorkflow())) {
                     verifier.getTrace();
                 } else {

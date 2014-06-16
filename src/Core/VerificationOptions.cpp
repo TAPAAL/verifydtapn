@@ -7,6 +7,8 @@ namespace VerifyTAPN {
         switch (trace) {
             case VerificationOptions::SOME_TRACE:
                 return "some";
+            case VerificationOptions::FASTEST_TRACE:
+                return "fastest";
             default:
                 return "no";
         }

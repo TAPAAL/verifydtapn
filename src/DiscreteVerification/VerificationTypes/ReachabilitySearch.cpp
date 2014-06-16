@@ -59,7 +59,7 @@ bool ReachabilitySearch::verify(){
 bool ReachabilitySearch::addToPW(NonStrictMarking* marking, NonStrictMarking* parent){
 	marking->cut();
 	marking->setParent(parent);
-
+        
 	unsigned int size = marking->size();
 
 	pwList->setMaxNumTokensIfGreater(size);
@@ -71,8 +71,7 @@ bool ReachabilitySearch::addToPW(NonStrictMarking* marking, NonStrictMarking* pa
 
 	if(pwList->add(marking)){
 		QueryVisitor<NonStrictMarking> checker(*marking, tapn);
-		BoolResult context;
-
+		BoolResult context;        
 		query->accept(checker, context);
 		if(context.value) {
 			lastMarking = marking;
@@ -84,7 +83,6 @@ bool ReachabilitySearch::addToPW(NonStrictMarking* marking, NonStrictMarking* pa
 	} else {
 		delete marking;
 	}
-
 	return false;
 }
 

@@ -10,8 +10,8 @@
 namespace VerifyTAPN {
     namespace DiscreteVerification {
 
-        WorkflowStrongSoundnessReachability::WorkflowStrongSoundnessReachability(TAPN::TimedArcPetriNet& tapn, NonStrictMarkingWithTotalDelay& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list)
-        : Workflow<NonStrictMarkingWithTotalDelay>(tapn, initialMarking, query, options, waiting_list), maxValue(-1), outPlace(NULL){
+        WorkflowStrongSoundnessReachability::WorkflowStrongSoundnessReachability(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list)
+        : Workflow<NonStrictMarking>(tapn, initialMarking, query, options, waiting_list), maxValue(-1), outPlace(NULL){
             // Find timer place and store as out
             for (TimedPlace::Vector::const_iterator iter = tapn.getPlaces().begin(); iter != tapn.getPlaces().end(); ++iter) {
                 if ((*iter)->getTransportArcs().empty() && (*iter)->getInputArcs().empty()) {
@@ -28,8 +28,8 @@ namespace VerifyTAPN {
 
             //Main loop
             while (pwList->hasWaitingStates()) {
-                NonStrictMarkingWithTotalDelay& next_marking = 
-                        static_cast<NonStrictMarkingWithTotalDelay&>(*pwList->getNextUnexplored());
+                NonStrictMarking& next_marking = 
+                        static_cast<NonStrictMarking&>(*pwList->getNextUnexplored());
                 tmpParent = &next_marking;
                 
                 // push onto trace
@@ -47,16 +47,18 @@ namespace VerifyTAPN {
 
                 // Generate delays markings
                 if (!noDelay && isDelayPossible(next_marking)) {
-                    NonStrictMarkingWithTotalDelay* marking = new NonStrictMarkingWithTotalDelay(next_marking);
+                    NonStrictMarking* marking = new NonStrictMarking(next_marking);
                     marking->incrementAge();
                     marking->setGeneratedBy(NULL);
-                    if(marking->getTotalDelay() > options.getWorkflowBound()){
-                        // if the bound is exceeded, terminate
-                        marking->setParent(&next_marking);
+                   
+                    if (addToPW(marking, &next_marking)) {
                         lastMarking = marking;
                         return true;
                     }
-                    if (addToPW(marking, &next_marking)) {
+                    
+                    if(marking->meta->totalDelay > options.getWorkflowBound()){
+                        // if the bound is exceeded, terminate
+                        marking->setParent(&next_marking);
                         lastMarking = marking;
                         return true;
                     }
@@ -82,10 +84,10 @@ namespace VerifyTAPN {
         }
 
         void WorkflowStrongSoundnessReachability::getTrace() {
-            std::stack < NonStrictMarkingWithTotalDelay*> printStack;
-            NonStrictMarkingWithTotalDelay* next = lastMarking;
+            std::stack < NonStrictMarking*> printStack;
+            NonStrictMarking* next = lastMarking;
             do {
-                NonStrictMarkingWithTotalDelay* parent = (NonStrictMarkingWithTotalDelay*)next->getParent();
+                NonStrictMarking* parent = (NonStrictMarking*)next->getParent();
                 printStack.push(next);
                 next = parent;
 
@@ -102,9 +104,12 @@ namespace VerifyTAPN {
             }
         }
 
-        bool WorkflowStrongSoundnessReachability::addToPW(NonStrictMarkingWithTotalDelay* marking, NonStrictMarkingWithTotalDelay* parent) {
+        bool WorkflowStrongSoundnessReachability::addToPW(NonStrictMarking* marking, NonStrictMarking* parent) {
             marking->cut();
             marking->setParent(parent);
+            
+            int totalDelay = (parent && parent->meta) ? parent->meta->totalDelay : 0;
+            if(marking->getGeneratedBy() == NULL) ++totalDelay;
 
             unsigned int size = marking->size();
 
@@ -117,23 +122,23 @@ namespace VerifyTAPN {
 
             /* Handle max */
             // Map to existing marking if any
-            NonStrictMarkingWithTotalDelay* old = (NonStrictMarkingWithTotalDelay*)pwList->addToPassed(marking);
+            NonStrictMarking* old = (NonStrictMarking*)pwList->addToPassed(marking);
             if(old != NULL) {
-                if(old->getTotalDelay() < marking->getTotalDelay()) {
+                if(old->meta->totalDelay < totalDelay) {
                     if(old->meta->inTrace){
                         // delay loop
                         lastMarking = marking;
                         // make sure we can print trace
                         marking->setNumberOfChildren(1);
                         trace.push(marking);
-                        maxValue = marking->getTotalDelay();
+                        maxValue = totalDelay;
                         return true;
                     } else {
                         // search again to find maxdelay
                         // copy data from new
                         old->setParent(marking->getParent());
                         old->setGeneratedBy(marking->getGeneratedBy());
-                        old->setTotalDelay(marking->getTotalDelay());
+                        old->meta->totalDelay = totalDelay;
                         delete marking;
                         marking = old;
                         // fall through on purpose
@@ -145,6 +150,7 @@ namespace VerifyTAPN {
                 }
             } else {
                 marking->meta = new MetaData();
+                marking->meta->totalDelay = totalDelay;
             }
             
             if(marking->numberOfTokensInPlace(outPlace->getIndex()) == 0){
@@ -153,8 +159,8 @@ namespace VerifyTAPN {
                 ++validChildren;
             } else {
                 // if terminal, update max_value and last marking of trace
-                if(maxValue < marking->getTotalDelay()) {
-                    maxValue = marking->getTotalDelay();
+                if(maxValue < marking->meta->totalDelay) {
+                    maxValue = marking->meta->totalDelay;
                     lastMarking = marking;
                 }
             }
