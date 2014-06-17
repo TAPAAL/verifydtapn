@@ -35,6 +35,16 @@ namespace DiscreteVerification {
         virtual long long explored()= 0;
         virtual ~PWListBase(){};
 	inline void setMaxNumTokensIfGreater(int i){ if(i>maxNumTokensInAnyMarking)	maxNumTokensInAnyMarking = i; };
+	inline int getTotalDelay(NonStrictMarking* marking)
+	{
+		NonStrictMarking* parent = (NonStrictMarking*)marking->getParent();
+		int totalDelay = 0;
+		if (parent && parent->meta) {
+			totalDelay = parent->meta->totalDelay;
+			if (marking->getGeneratedBy() == NULL) ++totalDelay;
+		}
+		return totalDelay;
+	}
     };
 
 class PWList : public PWListBase {
