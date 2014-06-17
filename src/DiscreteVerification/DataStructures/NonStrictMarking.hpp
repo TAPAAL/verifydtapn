@@ -58,6 +58,15 @@ namespace DiscreteVerification {
         NonStrictMarking(const NonStrictMarking& nsm):NonStrictMarkingBase(nsm), meta(NULL){
 
         }
+	inline int calculateTotalDelay(){
+		int totalDelay = 0;
+		NonStrictMarking* parent = (NonStrictMarking*)this->getParent();
+		if (parent && parent->meta) {
+			totalDelay = parent->meta->totalDelay;
+			if (this->getGeneratedBy() == NULL) ++totalDelay;
+		}
+		return totalDelay;
+	}
     public:
         MetaData* meta;
     };

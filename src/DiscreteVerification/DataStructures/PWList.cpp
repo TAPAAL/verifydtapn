@@ -32,7 +32,7 @@ bool PWList::add(NonStrictMarking* marking){
 	m.push_back(marking);
         marking->meta = new MetaData();
         
-        marking->meta->totalDelay = getTotalDelay(marking);
+        marking->meta->totalDelay = marking->calculateTotalDelay();
                 
 	waiting_list->add(marking, marking);
 	return true;
@@ -82,7 +82,7 @@ std::ostream& operator<<(std::ostream& out, PWList& x){
                     meta->ep = new EncodingPointer<MetaData > (res.encoding, res.pos);
                     meta->parent = parent;
                     
-                    meta->totalDelay = getTotalDelay(marking);
+                    meta->totalDelay = marking->calculateTotalDelay();
                 }
                 this->waiting_list->add(marking, new EncodingPointer<MetaData > (res.encoding, res.pos));
             } else{
