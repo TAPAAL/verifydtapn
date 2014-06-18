@@ -241,7 +241,7 @@ namespace VerifyTAPN {
                     tit != tapn.getTransitions().end(); ++tit) {
                 int presetSize = (*tit)->getPresetSize();
                 int index = (*tit)->getIndex();
-                if (presetSize == 0) {
+                if (presetSize == 0 && (*tit)->getInhibitorArcs().size() == 0) {
                     delete[] status;
                     return false; // if empty preset, we can always fire a transition
                 }
