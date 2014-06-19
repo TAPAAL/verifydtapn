@@ -56,7 +56,8 @@ namespace VerifyTAPN {
                         return true;
                     }
                     
-                    if(marking->meta->totalDelay > options.getWorkflowBound()){
+                    if(marking->meta &&
+                       marking->meta->totalDelay > options.getWorkflowBound()){
                         // if the bound is exceeded, terminate
                         marking->setParent(&next_marking);
                         lastMarking = marking;
@@ -108,8 +109,7 @@ namespace VerifyTAPN {
             marking->cut();
             marking->setParent(parent);
             
-            int totalDelay = (parent && parent->meta) ? parent->meta->totalDelay : 0;
-            if(marking->getGeneratedBy() == NULL) ++totalDelay;
+            int totalDelay = marking->calculateTotalDelay();
 
             unsigned int size = marking->size();
 

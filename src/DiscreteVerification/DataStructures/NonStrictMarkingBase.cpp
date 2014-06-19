@@ -231,6 +231,7 @@ namespace VerifyTAPN {
         const bool NonStrictMarkingBase::canDeadlock(const TAPN::TimedArcPetriNet& tapn, const int maxDelay, bool ignoreCanDelay) const {
             bool canDelay = true;
             bool allMC = true;
+            bool hasOutArc = false;
             
             // this should be allocated only once!   
             int count = tapn.getTransitions().size();
@@ -240,7 +241,7 @@ namespace VerifyTAPN {
                     tit != tapn.getTransitions().end(); ++tit) {
                 int presetSize = (*tit)->getPresetSize();
                 int index = (*tit)->getIndex();
-                if (presetSize == 0) {
+                if (presetSize == 0 && (*tit)->getInhibitorArcs().size() == 0) {
                     delete[] status;
                     return false; // if empty preset, we can always fire a transition
                 }
@@ -251,10 +252,10 @@ namespace VerifyTAPN {
 
             for (PlaceList::const_iterator place_iter = this->places.begin(); place_iter != this->places.end(); ++place_iter) {
                 int numtokens = place_iter->numberOfTokens();
-
                 // for regular input arcs
                 for (TAPN::TimedInputArc::Vector::const_iterator arc_iter = place_iter->place->getInputArcs().begin();
                         arc_iter != place_iter->place->getInputArcs().end(); ++arc_iter) {
+                    hasOutArc = true;
                     int id = (*arc_iter)->getOutputTransition().getIndex();
                     int weight = (*arc_iter)->getWeight();
                     if(numtokens < weight) {
@@ -285,6 +286,7 @@ namespace VerifyTAPN {
                 // for transport arcs
                 for (TAPN::TransportArc::Vector::const_iterator arc_iter = place_iter->place->getTransportArcs().begin();
                         arc_iter != place_iter->place->getTransportArcs().end(); ++arc_iter) {
+                    hasOutArc = true;
                     int id = (*arc_iter)->getTransition().getIndex();
                     int weight = (*arc_iter)->getWeight();
                     if(numtokens < (*arc_iter)->getWeight())
@@ -311,7 +313,7 @@ namespace VerifyTAPN {
                         }
                     }
                 }
-
+                
                 // for inhibitor arcs
                 for (TAPN::InhibitorArc::Vector::const_iterator arc_iter = place_iter->place->getInhibitorArcs().begin();
                         arc_iter != place_iter->place->getInhibitorArcs().end(); ++arc_iter) {
@@ -332,6 +334,9 @@ namespace VerifyTAPN {
                     }
                 }
             }
+            
+            if(!hasOutArc) return true; // if no outgoing arcs, we have a deadlock!   
+            
             
             // if any transition is enabled there is no deadlock
             for(int i = 0; i < count; ++i){

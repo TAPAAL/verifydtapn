@@ -100,7 +100,12 @@ namespace VerifyTAPN {
             if(containsDeadlock.value && options.getGCDLowerGuardsEnabled()){
                         cout << "Lowering constants by greatest common divisor is unsound for queries containing the deadlock proposition" << endl;
                         exit(1);
+            } else if(containsDeadlock.value &&  options.getTrace() == VerificationOptions::FASTEST_TRACE)
+            {
+                        cout << "Fastest trace is not supported for queries containing the deadlock proposition." << endl;
+                        exit(1);               
             }
+            
             if((query->getQuantifier() == EG || query->getQuantifier() == AF) && options.getGCDLowerGuardsEnabled()){
                         cout << "Lowering constants by greatest common divisor is unsound for EG and AF queries" << endl;
                         exit(1);

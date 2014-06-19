@@ -32,10 +32,7 @@ bool PWList::add(NonStrictMarking* marking){
 	m.push_back(marking);
         marking->meta = new MetaData();
         
-        NonStrictMarking* parent = (NonStrictMarking*)marking->getParent();
-        int totalDelay = (parent && parent->meta) ? parent->meta->totalDelay : 0;
-        if(marking->getGeneratedBy() == NULL && parent) ++totalDelay;
-        marking->meta->totalDelay = totalDelay;
+        marking->meta->totalDelay = marking->calculateTotalDelay();
                 
 	waiting_list->add(marking, marking);
 	return true;
@@ -85,10 +82,7 @@ std::ostream& operator<<(std::ostream& out, PWList& x){
                     meta->ep = new EncodingPointer<MetaData > (res.encoding, res.pos);
                     meta->parent = parent;
                     
-                    NonStrictMarking* parent = (NonStrictMarking*)marking->getParent();
-                    int totalDelay = (parent && parent->meta) ? parent->meta->totalDelay : 0;
-                    if(marking->getGeneratedBy() == NULL && parent) ++totalDelay;
-                    meta->totalDelay = totalDelay;
+                    meta->totalDelay = marking->calculateTotalDelay();
                 }
                 this->waiting_list->add(marking, new EncodingPointer<MetaData > (res.encoding, res.pos));
             } else{
