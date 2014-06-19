@@ -313,8 +313,6 @@ namespace VerifyTAPN {
                         }
                     }
                 }
-
-                if(!hasOutArc) return true; // if no outgoing arcs, we have a deadlock!
                 
                 // for inhibitor arcs
                 for (TAPN::InhibitorArc::Vector::const_iterator arc_iter = place_iter->place->getInhibitorArcs().begin();
@@ -336,6 +334,9 @@ namespace VerifyTAPN {
                     }
                 }
             }
+            
+            if(!hasOutArc) return true; // if no outgoing arcs, we have a deadlock!   
+            
             
             // if any transition is enabled there is no deadlock
             for(int i = 0; i < count; ++i){
