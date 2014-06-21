@@ -47,7 +47,6 @@ namespace VerifyTAPN {
             void getTrace();
         protected:
             int validChildren;
-            NonStrictMarking* tmpParent;
         };
 
         class LivenessSearchPTrie : public LivenessSearch {
