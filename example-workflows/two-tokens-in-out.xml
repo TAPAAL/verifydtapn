@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<pnml xmlns="http://www.informatik.hu-berlin.de/top/pnml/ptNetb">
+<net active="true" id="TAPN1" type="P/T net">
+<place id="P0" initialMarking="1" invariant="&lt; inf" markingOffsetX="0.0" markingOffsetY="0.0" name="P0" nameOffsetX="-5.0" nameOffsetY="35.0" positionX="180.0" positionY="300.0"/>
+<place id="P2" initialMarking="0" invariant="&lt; inf" markingOffsetX="0.0" markingOffsetY="0.0" name="P2" nameOffsetX="-5.0" nameOffsetY="35.0" positionX="465.0" positionY="315.0"/>
+<transition angle="0" id="T0" infiniteServer="false" name="T0" nameOffsetX="-5.0" nameOffsetY="35.0" positionX="300.0" positionY="300.0" priority="0" urgent="false"/>
+<arc id="P0 to T0" inscription="[0,inf)" source="P0" target="T0" type="timed" weight="1">
+<arcpath arcPointType="false" id="0" xCoord="206" yCoord="312"/>
+<arcpath arcPointType="false" id="1" xCoord="306" yCoord="312"/>
+</arc>
+<arc id="T0 to P2" inscription="1" source="T0" target="P2" type="normal" weight="2">
+<arcpath arcPointType="false" id="0" xCoord="316" yCoord="312"/>
+<arcpath arcPointType="false" id="1" xCoord="462" yCoord="325"/>
+</arc>
+</net>
+<k-bound bound="3"/>
+</pnml>
