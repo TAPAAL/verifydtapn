@@ -169,7 +169,7 @@ namespace VerifyTAPN {
                         }
                         if(delayloop)
                             continue;
-                        if ((!foundLoop) && stack.empty() && old->getNumberOfChildren() > 0) {
+                        if ((!foundLoop) && stack.empty() && old->getNumberOfChildren() > 0 && !old->canDeadlock(tapn, 0)) {
                             xml_node<>* node = doc.allocate_node(node_element, "delay", doc.allocate_string("forever"));
                             root->append_node(node);
                             delayedForever = true;
