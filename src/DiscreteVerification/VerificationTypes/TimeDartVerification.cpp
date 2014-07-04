@@ -199,11 +199,18 @@ namespace VerifyTAPN {
                 if(diff > tapn.getMaxConstant()) {
                     diff = (tapn.getMaxConstant() + 1) - trace->start;
                 }
+                
+                // find the lowest delay at which the query is satisfied
+                while(diff && base->canDeadlock(tapn, trace->start + diff))
+                {
+                    --diff;
+                }
 
                 while (diff) {  // while there is some delay in trace
                         NonStrictMarkingBase* mc = new NonStrictMarkingBase(*base);
                         mc->incrementAge(trace->start + diff);
-                        mc->setGeneratedBy(NULL);       // NULL indicates that it is a delay transition
+                        mc->setGeneratedBy(NULL);       // NULL indicates that it is a delay transition 
+                        
                         if (last != NULL) {
                             last->setParent(mc);        // set the parent of the last marking
                         }
