@@ -201,7 +201,7 @@ namespace VerifyTAPN {
                 }
                 
                 // find the lowest delay at which the query is satisfied
-                while(diff && base->canDeadlock(tapn, trace->start + diff))
+                while(diff && base->canDeadlock(tapn, trace->start + diff - 1))
                 {
                     --diff;
                 }
