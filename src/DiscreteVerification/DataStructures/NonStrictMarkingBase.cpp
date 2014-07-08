@@ -293,7 +293,8 @@ namespace VerifyTAPN {
                         status[id] = -1; // impossible to enable
                     else if(status[id] != -1) { // if enable able so far
                         int lb = (*arc_iter)->getInterval().getLowerBound();
-                        int ub = (*arc_iter)->getInterval().getUpperBound();
+                        int destination_invariant = (*arc_iter)->getDestination().getInvariant().getBound();
+                        int ub = min((*arc_iter)->getInterval().getUpperBound(), destination_invariant);
                         // decrement if token can satisfy the bounds
                         for (TokenList::const_iterator tokenit = place_iter->tokens.begin();
                                 tokenit != place_iter->tokens.end(); ++tokenit){
