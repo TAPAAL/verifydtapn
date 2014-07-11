@@ -357,7 +357,7 @@ namespace VerifyTAPN {
         }
 
         
-        int NonStrictMarkingBase::cut() {
+        int NonStrictMarkingBase::cut(std::vector<int>& placeCount) {
 #ifdef DEBUG
             std::cout << "Before cut: " << *this << std::endl;
 #endif

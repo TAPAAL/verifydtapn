@@ -209,7 +209,7 @@ namespace VerifyTAPN {
                         }
 
                         last = mc;
-                        mc->cut();
+                        mc->cut(placeStats);
                         if(l == NULL) {                  // set specific last marking to last marking in delay if deadlock
                             l = mc;
                         }
@@ -223,7 +223,7 @@ namespace VerifyTAPN {
                 l = new NonStrictMarkingBase(*getBase(lastMarking->dart));
                 trace = ((TraceDart*) lastMarking);
                 l->incrementAge(trace->start);
-                l->cut();
+                l->cut(placeStats);
                 l->setParent(NULL);
                 l->setGeneratedBy( ((TraceDart*)lastMarking)->generatedBy);
             }
@@ -254,7 +254,7 @@ namespace VerifyTAPN {
                             l->setParent(mc);
                         }
                         last = mc;
-                        mc->cut();
+                        mc->cut(placeStats);
                         traceStack.push(mc);            // add delay marking to the trace
                         diff--;
                     }
@@ -265,7 +265,7 @@ namespace VerifyTAPN {
                 if(!l->getParent()) {
                     l->setParent(m);
                 }
-                m->cut();
+                m->cut(placeStats);
                 last = m;
                 traceStack.push(m); // add the marking to the trace
 

@@ -67,7 +67,7 @@ bool WorkflowSoundness::verify(){
 }
 
 bool WorkflowSoundness::addToPW(NonStrictMarking* marking, NonStrictMarking* parent){
-	marking->cut();
+	marking->cut(placeStats);
 
 	unsigned int size = marking->size();
 
