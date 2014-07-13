@@ -7,6 +7,7 @@
 #include <stack>
 #include "../../Core/TAPNParser/util.hpp"
 #include "../DeadlockVisitor.hpp"
+#include "../../Core/TAPN/TimedPlace.hpp"
 
 namespace VerifyTAPN {
     namespace DiscreteVerification {
@@ -49,10 +50,21 @@ namespace VerifyTAPN {
         : tapn(tapn), initialMarking(initialMarking), query(query), options(options), placeStats(tapn.getNumberOfPlaces()){
             
         }
-        
+
         template<typename T>
         void Verification<T>::printPlaceStatistics() {
-            // TODO implement
+            fprintf(stdout, "\n\nPLACE-BOUND STATISTICS\n");
+            for (size_t p = 0; p < placeStats.size(); ++p) {
+                // report maximum bounds for each place (? means that the place was removed in net reduction)
+                int count = placeStats[p];
+                const TAPN::TimedPlace place = tapn.getPlace(p);
+                if (count == std::numeric_limits<int>::max()) {
+                    fprintf(stdout, "<%s;?> ", place.getName().c_str());
+                } else {
+                    fprintf(stdout, "<%s;%i> ", place.getName().c_str(), count);
+                }
+            }
+            fprintf(stdout, "\n\n");
         }
         
         template<typename T>
