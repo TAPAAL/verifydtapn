@@ -55,7 +55,7 @@ namespace VerifyTAPN {
         void Verification<T>::printPlaceStatistics() {
             fprintf(stdout, "\n\nPLACE-BOUND STATISTICS\n");
             for (size_t p = 0; p < placeStats.size(); ++p) {
-                // report maximum bounds for each place (? means that the place was removed in net reduction)
+                // report maximum bounds for each place (? means that the place had some deadlock tokens that were removed)
                 int count = placeStats[p];
                 const TAPN::TimedPlace place = tapn.getPlace(p);
                 if (count == std::numeric_limits<int>::max()) {
