@@ -51,7 +51,11 @@ bool LivenessSearch::verify(){
 				marking->incrementAge();
 				marking->setGeneratedBy(NULL);
                                 if(addToPW(marking, &next_marking)){
-                                        return true;
+                                    // this can only occur when there is a deadlock detected by cut
+                                    // pop last marking as it is not a part of the trace
+                                    // ie. we detect the situation 1 delay later.
+                                    trace.pop();
+                                    return true;
                                 }
                                 endOfMaxRun = false;
 			}

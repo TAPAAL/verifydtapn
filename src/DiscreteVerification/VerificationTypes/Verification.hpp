@@ -8,6 +8,8 @@
 #include "../../Core/TAPNParser/util.hpp"
 #include "../DeadlockVisitor.hpp"
 
+
+
 namespace VerifyTAPN {
     namespace DiscreteVerification {
         template<typename T>
@@ -27,6 +29,7 @@ namespace VerifyTAPN {
                 std::cout << "Error generating trace" << std::endl;
             }
 
+            void removeLastIfDelay(rapidxml::xml_node<>&);
             void printHumanTrace(T* m, std::stack<T*>& stack, AST::Quantifier query);
             void printXMLTrace(T* m, std::stack<T*>& stack, AST::Query* query, TAPN::TimedArcPetriNet& tapn);
             rapidxml::xml_node<>* createTransitionNode(T* old, T* current, rapidxml::xml_document<>& doc);
@@ -125,6 +128,19 @@ namespace VerifyTAPN {
         }
 
         template<typename T>
+        void Verification<T>::removeLastIfDelay(rapidxml::xml_node<>& root)
+        {
+            using namespace rapidxml;
+            xml_node<>* node = root.last_node();
+            if(node){
+                char* name = node->name();
+                if(strcmp(name, "delay") == 0){
+                    root.remove_last_node();
+                }
+            }
+        }
+        
+        template<typename T>
         void Verification<T>::printXMLTrace(T* m, std::stack<T*>& stack, AST::Query* query, TAPN::TimedArcPetriNet& tapn) {
             using namespace rapidxml;
             std::cerr << "Trace: " << std::endl;
@@ -170,6 +186,8 @@ namespace VerifyTAPN {
                         if(delayloop)
                             continue;
                         if ((!foundLoop) && stack.empty() && old->getNumberOfChildren() > 0) {
+                            // remove delay before delay forever
+                            removeLastIfDelay(*root);
                             xml_node<>* node = doc.allocate_node(node_element, "delay", doc.allocate_string("forever"));
                             root->append_node(node);
                             delayedForever = true;
@@ -247,13 +265,17 @@ namespace VerifyTAPN {
 				node = doc.allocate_node(node_element, "deadlock");
 			} else {
 				// if not it is delay forever
-				node = doc.allocate_node(node_element, "delay", doc.allocate_string("forever"));				
+                            
+                                // remove delay before delay forever
+                                removeLastIfDelay(*root);
+				node = doc.allocate_node(node_element, "delay", doc.allocate_string("forever"));
+                                
 			}
                         root->append_node(node);
                     }
                 }
             }
-
+            
             std::cerr << doc;
         }
         
