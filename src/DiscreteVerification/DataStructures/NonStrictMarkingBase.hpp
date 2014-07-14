@@ -159,7 +159,7 @@ public:
                 
 	public: // modifiers
 
-                int cut();
+                int cut(std::vector<int>&);
 		bool removeToken(int placeId, int age);
 		bool removeToken(Place& place, Token& token);
 		void addTokenInPlace(TAPN::TimedPlace& place, int age);

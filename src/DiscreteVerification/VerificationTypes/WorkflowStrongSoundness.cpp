@@ -106,7 +106,7 @@ namespace VerifyTAPN {
         }
 
         bool WorkflowStrongSoundnessReachability::addToPW(NonStrictMarking* marking, NonStrictMarking* parent) {
-            marking->cut();
+            marking->cut(placeStats);
             marking->setParent(parent);
             
             int totalDelay = marking->calculateTotalDelay();

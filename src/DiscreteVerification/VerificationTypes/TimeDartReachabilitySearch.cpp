@@ -74,7 +74,7 @@ bool TimeDartReachabilitySearch::addToPW(NonStrictMarkingBase* marking, WaitingD
         if(options.getTrace() != VerificationOptions::NO_TRACE){
             start = marking->getYoungest();
         }
-	int maxDelay = marking->cut();
+	int maxDelay = marking->cut(placeStats);
 
 	unsigned int size = marking->size();
 

@@ -125,7 +125,7 @@ namespace VerifyTAPN {
             if(options.getTrace() == VerificationOptions::SOME_TRACE){
                 start = marking->getYoungest();
             }
-            marking->cut();
+            marking->cut(placeStats);
             const TimedTransition* transition = marking->getGeneratedBy();
             unsigned int size = marking->size();
 

@@ -215,6 +215,7 @@ namespace VerifyTAPN {
             
             verifier.printStats();
             verifier.printTransitionStatistics();
+            verifier.printPlaceStatistics();
 
             std::cout << "Query is " << (result ? "satisfied" : "NOT satisfied") << "." << std::endl;
             std::cout << "Max number of tokens found in any reachable marking: ";

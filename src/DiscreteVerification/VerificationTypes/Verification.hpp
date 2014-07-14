@@ -7,6 +7,7 @@
 #include <stack>
 #include "../../Core/TAPNParser/util.hpp"
 #include "../DeadlockVisitor.hpp"
+#include "../../Core/TAPN/TimedPlace.hpp"
 
 
 
@@ -22,6 +23,7 @@ namespace VerifyTAPN {
             virtual bool verify() = 0;
             virtual void printStats() = 0;
             virtual void printTransitionStatistics() const = 0;
+            virtual void printPlaceStatistics();
             virtual unsigned int maxUsedTokens() = 0;
             virtual bool addToPW(T* marking) = 0;
 
@@ -42,14 +44,32 @@ namespace VerifyTAPN {
             T& initialMarking;
             AST::Query* query;
             VerificationOptions options;
+            std::vector<int> placeStats;
 
          };
 
         template<typename T>
         Verification<T>::Verification(TAPN::TimedArcPetriNet& tapn, T& initialMarking, AST::Query* query, VerificationOptions options)
-        : tapn(tapn), initialMarking(initialMarking), query(query), options(options){
+        : tapn(tapn), initialMarking(initialMarking), query(query), options(options), placeStats(tapn.getNumberOfPlaces()){
             
         }
+
+        template<typename T>
+        void Verification<T>::printPlaceStatistics() {
+            fprintf(stdout, "PLACE-BOUND STATISTICS\n");
+            for (size_t p = 0; p < placeStats.size(); ++p) {
+                // report maximum bounds for each place (? means that the place had some deadlock tokens that were removed)
+                int count = placeStats[p];
+                const TAPN::TimedPlace place = tapn.getPlace(p);
+                if (count == std::numeric_limits<int>::max()) {
+                    fprintf(stdout, "<%s;?> ", place.getName().c_str());
+                } else {
+                    fprintf(stdout, "<%s;%i> ", place.getName().c_str(), count);
+                }
+            }
+            fprintf(stdout, "\n\n");
+        }
+        
         template<typename T>
         void Verification<T>::printHumanTrace(T* m, std::stack<T*>& stack, AST::Quantifier query) {
             std::cout << "Trace: " << std::endl;

@@ -57,7 +57,7 @@ bool ReachabilitySearch::verify(){
 }
 
 bool ReachabilitySearch::addToPW(NonStrictMarking* marking, NonStrictMarking* parent){
-	marking->cut();
+	marking->cut(placeStats);
 	marking->setParent(parent);
         
 	unsigned int size = marking->size();

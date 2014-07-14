@@ -6,6 +6,7 @@
  */
 
 #include "NonStrictMarkingBase.hpp"
+#include <limits>
 
 using namespace std;
 
@@ -357,7 +358,7 @@ namespace VerifyTAPN {
         }
 
         
-        int NonStrictMarkingBase::cut() {
+        int NonStrictMarkingBase::cut(std::vector<int>& placeCount) {
 #ifdef DEBUG
             std::cout << "Before cut: " << *this << std::endl;
 #endif
@@ -374,6 +375,7 @@ namespace VerifyTAPN {
                 }
                 //set age of too old tokens to max age
                 int count = 0;
+                int total = 0;
                 for (TokenList::iterator token_iter = place_iter->tokens.begin(); token_iter != place_iter->tokens.end(); token_iter++) {
                     if (token_iter->getAge() > place_iter->place->getMaxConstant()) { // this will also removed dead tokens
                         TokenList::iterator beginDelete = token_iter;
@@ -381,15 +383,29 @@ namespace VerifyTAPN {
                             for (; token_iter != place_iter->tokens.end(); token_iter++) {
                                 count += token_iter->getCount();
                             }
+                        } 
+                        else if(place_iter->place->getType() == TAPN::Dead)
+                        { 
+                            // if we remove some dead tokens update place statistics
+                            if(place_iter->tokens.size() > 0) {
+                                placeCount[place_iter->place->getIndex()] = std::numeric_limits<int>::max();
+                            }   
                         }
                         this->removeRangeOfTokens(*place_iter, beginDelete, place_iter->tokens.end());
                         break;
+                    } else {
+                        total += token_iter->getCount();
                     }
                 }
+                
                 if (count) {
                     Token t(place_iter->place->getMaxConstant() + 1, count);
                     this->addTokenInPlace(*place_iter, t);
                 }
+                
+                // update place statistics
+                total += count;
+                placeCount[place_iter->place->getIndex()] = max(total, placeCount[place_iter->place->getIndex()]);
             }
             this->cleanUp();
             return maxDelay;
