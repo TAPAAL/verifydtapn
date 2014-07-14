@@ -53,7 +53,7 @@ namespace VerifyTAPN {
 
         template<typename T>
         void Verification<T>::printPlaceStatistics() {
-            fprintf(stdout, "\n\nPLACE-BOUND STATISTICS\n");
+            fprintf(stdout, "PLACE-BOUND STATISTICS\n");
             for (size_t p = 0; p < placeStats.size(); ++p) {
                 // report maximum bounds for each place (? means that the place had some deadlock tokens that were removed)
                 int count = placeStats[p];
