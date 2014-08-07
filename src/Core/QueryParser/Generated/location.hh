@@ -45,11 +45,11 @@
 
 
 /* Line 162 of location.cc  */
-#line 5 "Core/QueryParser/grammar.yy"
+#line 5 "src/Core/QueryParser/grammar.yy"
 namespace VerifyTAPN {
 
 /* Line 162 of location.cc  */
-#line 53 "Core/QueryParser/Generated/location.hh"
+#line 53 "src/Core/QueryParser/Generated/location.hh"
 
   /// Abstract a location.
   class location
@@ -160,10 +160,10 @@ namespace VerifyTAPN {
 
 
 /* Line 271 of location.cc  */
-#line 5 "Core/QueryParser/grammar.yy"
+#line 5 "src/Core/QueryParser/grammar.yy"
 } // VerifyTAPN
 
 /* Line 271 of location.cc  */
-#line 168 "Core/QueryParser/Generated/location.hh"
+#line 168 "src/Core/QueryParser/Generated/location.hh"
 
 #endif // not BISON_LOCATION_HH

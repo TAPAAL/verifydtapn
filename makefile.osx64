@@ -1,0 +1,19 @@
+# For bash on OS X, as /bin/sh is compiled with --enable-strict-posix-default
+SHELL    		= /bin/bash
+
+# Programs for processing
+LEX				= flex 
+YACC				= bison 
+CC				= gcc
+CUT				= cut
+
+# Compiler and linker flags
+CFLAGS			= -mmacosx-version-min=10.6 -m64 -O3 -I. -I -I/usr/local/include -I/opt/local/include -I 
+LDFLAGS			= -mmacosx-version-min=10.6 -m64 -O3 -lstdc++ 
+
+# Input files
+SOURCES			= $(shell find * -name "*.cpp")	
+OBJECTS			= $(SOURCES:.cpp=.o)
+TARGET			= verifydtapn-osx64
+
+include rules.mk

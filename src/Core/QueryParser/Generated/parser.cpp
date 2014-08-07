@@ -37,7 +37,7 @@
 
 
 /* Line 311 of lalr1.cc  */
-#line 41 "Core/QueryParser/Generated/parser.cpp"
+#line 41 "src/Core/QueryParser/Generated/parser.cpp"
 
 
 #include "parser.hpp"
@@ -46,18 +46,18 @@
 
 
 /* Line 317 of lalr1.cc  */
-#line 50 "Core/QueryParser/Generated/parser.cpp"
+#line 50 "src/Core/QueryParser/Generated/parser.cpp"
 /* Unqualified %code blocks.  */
 
 /* Line 318 of lalr1.cc  */
-#line 38 "Core/QueryParser/grammar.yy"
+#line 38 "src/Core/QueryParser/grammar.yy"
 
 	#include "../TAPNQueryParser.hpp"
 
 
 
 /* Line 318 of lalr1.cc  */
-#line 61 "Core/QueryParser/Generated/parser.cpp"
+#line 61 "src/Core/QueryParser/Generated/parser.cpp"
 
 #ifndef YY_
 # if YYENABLE_NLS
@@ -121,11 +121,11 @@ do {					\
 
 
 /* Line 380 of lalr1.cc  */
-#line 5 "Core/QueryParser/grammar.yy"
+#line 5 "src/Core/QueryParser/grammar.yy"
 namespace VerifyTAPN {
 
 /* Line 380 of lalr1.cc  */
-#line 129 "Core/QueryParser/Generated/parser.cpp"
+#line 129 "src/Core/QueryParser/Generated/parser.cpp"
 #if YYERROR_VERBOSE
 
   /* Return YYSTR after stripping away unnecessary quotes and
@@ -228,164 +228,164 @@ namespace VerifyTAPN {
         case 3: /* "IDENTIFIER" */
 
 /* Line 480 of lalr1.cc  */
-#line 56 "Core/QueryParser/grammar.yy"
+#line 56 "src/Core/QueryParser/grammar.yy"
 	{ delete (yyvaluep->string); };
 
 /* Line 480 of lalr1.cc  */
-#line 236 "Core/QueryParser/Generated/parser.cpp"
+#line 236 "src/Core/QueryParser/Generated/parser.cpp"
 	break;
       case 4: /* "LESS" */
 
 /* Line 480 of lalr1.cc  */
-#line 56 "Core/QueryParser/grammar.yy"
+#line 56 "src/Core/QueryParser/grammar.yy"
 	{ delete (yyvaluep->string); };
 
 /* Line 480 of lalr1.cc  */
-#line 245 "Core/QueryParser/Generated/parser.cpp"
+#line 245 "src/Core/QueryParser/Generated/parser.cpp"
 	break;
       case 5: /* "LESSEQUAL" */
 
 /* Line 480 of lalr1.cc  */
-#line 56 "Core/QueryParser/grammar.yy"
+#line 56 "src/Core/QueryParser/grammar.yy"
 	{ delete (yyvaluep->string); };
 
 /* Line 480 of lalr1.cc  */
-#line 254 "Core/QueryParser/Generated/parser.cpp"
+#line 254 "src/Core/QueryParser/Generated/parser.cpp"
 	break;
       case 6: /* "EQUAL" */
 
 /* Line 480 of lalr1.cc  */
-#line 56 "Core/QueryParser/grammar.yy"
+#line 56 "src/Core/QueryParser/grammar.yy"
 	{ delete (yyvaluep->string); };
 
 /* Line 480 of lalr1.cc  */
-#line 263 "Core/QueryParser/Generated/parser.cpp"
+#line 263 "src/Core/QueryParser/Generated/parser.cpp"
 	break;
       case 7: /* "GREATEREQUAL" */
 
 /* Line 480 of lalr1.cc  */
-#line 56 "Core/QueryParser/grammar.yy"
+#line 56 "src/Core/QueryParser/grammar.yy"
 	{ delete (yyvaluep->string); };
 
 /* Line 480 of lalr1.cc  */
-#line 272 "Core/QueryParser/Generated/parser.cpp"
+#line 272 "src/Core/QueryParser/Generated/parser.cpp"
 	break;
       case 8: /* "GREATER" */
 
 /* Line 480 of lalr1.cc  */
-#line 56 "Core/QueryParser/grammar.yy"
+#line 56 "src/Core/QueryParser/grammar.yy"
 	{ delete (yyvaluep->string); };
 
 /* Line 480 of lalr1.cc  */
-#line 281 "Core/QueryParser/Generated/parser.cpp"
+#line 281 "src/Core/QueryParser/Generated/parser.cpp"
 	break;
       case 26: /* "query" */
 
 /* Line 480 of lalr1.cc  */
-#line 58 "Core/QueryParser/grammar.yy"
+#line 58 "src/Core/QueryParser/grammar.yy"
 	{ delete (yyvaluep->query); };
 
 /* Line 480 of lalr1.cc  */
-#line 290 "Core/QueryParser/Generated/parser.cpp"
+#line 290 "src/Core/QueryParser/Generated/parser.cpp"
 	break;
       case 27: /* "expression" */
 
 /* Line 480 of lalr1.cc  */
-#line 57 "Core/QueryParser/grammar.yy"
+#line 57 "src/Core/QueryParser/grammar.yy"
 	{ delete (yyvaluep->expr); };
 
 /* Line 480 of lalr1.cc  */
-#line 299 "Core/QueryParser/Generated/parser.cpp"
+#line 299 "src/Core/QueryParser/Generated/parser.cpp"
 	break;
       case 28: /* "arithmeticExpression" */
 
 /* Line 480 of lalr1.cc  */
-#line 57 "Core/QueryParser/grammar.yy"
+#line 57 "src/Core/QueryParser/grammar.yy"
 	{ delete (yyvaluep->arexpr); };
 
 /* Line 480 of lalr1.cc  */
-#line 308 "Core/QueryParser/Generated/parser.cpp"
+#line 308 "src/Core/QueryParser/Generated/parser.cpp"
 	break;
       case 29: /* "multiplyExpression" */
 
 /* Line 480 of lalr1.cc  */
-#line 57 "Core/QueryParser/grammar.yy"
+#line 57 "src/Core/QueryParser/grammar.yy"
 	{ delete (yyvaluep->arexpr); };
 
 /* Line 480 of lalr1.cc  */
-#line 317 "Core/QueryParser/Generated/parser.cpp"
+#line 317 "src/Core/QueryParser/Generated/parser.cpp"
 	break;
       case 30: /* "arithmeticParantheses" */
 
 /* Line 480 of lalr1.cc  */
-#line 57 "Core/QueryParser/grammar.yy"
+#line 57 "src/Core/QueryParser/grammar.yy"
 	{ delete (yyvaluep->arexpr); };
 
 /* Line 480 of lalr1.cc  */
-#line 326 "Core/QueryParser/Generated/parser.cpp"
+#line 326 "src/Core/QueryParser/Generated/parser.cpp"
 	break;
       case 31: /* "parExpression" */
 
 /* Line 480 of lalr1.cc  */
-#line 57 "Core/QueryParser/grammar.yy"
+#line 57 "src/Core/QueryParser/grammar.yy"
 	{ delete (yyvaluep->expr); };
 
 /* Line 480 of lalr1.cc  */
-#line 335 "Core/QueryParser/Generated/parser.cpp"
+#line 335 "src/Core/QueryParser/Generated/parser.cpp"
 	break;
       case 32: /* "notExpression" */
 
 /* Line 480 of lalr1.cc  */
-#line 57 "Core/QueryParser/grammar.yy"
+#line 57 "src/Core/QueryParser/grammar.yy"
 	{ delete (yyvaluep->expr); };
 
 /* Line 480 of lalr1.cc  */
-#line 344 "Core/QueryParser/Generated/parser.cpp"
+#line 344 "src/Core/QueryParser/Generated/parser.cpp"
 	break;
       case 33: /* "orExpression" */
 
 /* Line 480 of lalr1.cc  */
-#line 57 "Core/QueryParser/grammar.yy"
+#line 57 "src/Core/QueryParser/grammar.yy"
 	{ delete (yyvaluep->expr); };
 
 /* Line 480 of lalr1.cc  */
-#line 353 "Core/QueryParser/Generated/parser.cpp"
+#line 353 "src/Core/QueryParser/Generated/parser.cpp"
 	break;
       case 34: /* "andExpression" */
 
 /* Line 480 of lalr1.cc  */
-#line 57 "Core/QueryParser/grammar.yy"
+#line 57 "src/Core/QueryParser/grammar.yy"
 	{ delete (yyvaluep->expr); };
 
 /* Line 480 of lalr1.cc  */
-#line 362 "Core/QueryParser/Generated/parser.cpp"
+#line 362 "src/Core/QueryParser/Generated/parser.cpp"
 	break;
       case 35: /* "boolExpression" */
 
 /* Line 480 of lalr1.cc  */
-#line 57 "Core/QueryParser/grammar.yy"
+#line 57 "src/Core/QueryParser/grammar.yy"
 	{ delete (yyvaluep->expr); };
 
 /* Line 480 of lalr1.cc  */
-#line 371 "Core/QueryParser/Generated/parser.cpp"
+#line 371 "src/Core/QueryParser/Generated/parser.cpp"
 	break;
       case 36: /* "atomicProposition" */
 
 /* Line 480 of lalr1.cc  */
-#line 57 "Core/QueryParser/grammar.yy"
+#line 57 "src/Core/QueryParser/grammar.yy"
 	{ delete (yyvaluep->expr); };
 
 /* Line 480 of lalr1.cc  */
-#line 380 "Core/QueryParser/Generated/parser.cpp"
+#line 380 "src/Core/QueryParser/Generated/parser.cpp"
 	break;
       case 37: /* "compareOp" */
 
 /* Line 480 of lalr1.cc  */
-#line 56 "Core/QueryParser/grammar.yy"
+#line 56 "src/Core/QueryParser/grammar.yy"
 	{ delete (yyvaluep->string); };
 
 /* Line 480 of lalr1.cc  */
-#line 389 "Core/QueryParser/Generated/parser.cpp"
+#line 389 "src/Core/QueryParser/Generated/parser.cpp"
 	break;
 
 	default:
@@ -464,14 +464,14 @@ namespace VerifyTAPN {
     /* User initialization code.  */
     
 /* Line 559 of lalr1.cc  */
-#line 21 "Core/QueryParser/grammar.yy"
+#line 21 "src/Core/QueryParser/grammar.yy"
 {
   // Initialize the initial location.
   yylloc.begin.filename = yylloc.end.filename = &driver.file;
 }
 
 /* Line 559 of lalr1.cc  */
-#line 475 "Core/QueryParser/Generated/parser.cpp"
+#line 475 "src/Core/QueryParser/Generated/parser.cpp"
 
     /* Initialize the stacks.  The initial state will be pushed in
        yynewstate, since the latter expects the semantical and the
@@ -590,133 +590,133 @@ namespace VerifyTAPN {
 	  case 2:
 
 /* Line 678 of lalr1.cc  */
-#line 62 "Core/QueryParser/grammar.yy"
+#line 62 "src/Core/QueryParser/grammar.yy"
     { (yyval.query) = new VerifyTAPN::AST::Query(VerifyTAPN::AST::EF, (yysemantic_stack_[(2) - (2)].expr)); driver.setAST((yyval.query)); }
     break;
 
   case 3:
 
 /* Line 678 of lalr1.cc  */
-#line 63 "Core/QueryParser/grammar.yy"
+#line 63 "src/Core/QueryParser/grammar.yy"
     { (yyval.query) = new VerifyTAPN::AST::Query(VerifyTAPN::AST::AG, (yysemantic_stack_[(2) - (2)].expr)); driver.setAST((yyval.query)); }
     break;
 
   case 4:
 
 /* Line 678 of lalr1.cc  */
-#line 64 "Core/QueryParser/grammar.yy"
+#line 64 "src/Core/QueryParser/grammar.yy"
     { (yyval.query) = new VerifyTAPN::AST::Query(VerifyTAPN::AST::EG, (yysemantic_stack_[(2) - (2)].expr)); driver.setAST((yyval.query)); }
     break;
 
   case 5:
 
 /* Line 678 of lalr1.cc  */
-#line 65 "Core/QueryParser/grammar.yy"
+#line 65 "src/Core/QueryParser/grammar.yy"
     { (yyval.query) = new VerifyTAPN::AST::Query(VerifyTAPN::AST::AF, (yysemantic_stack_[(2) - (2)].expr)); driver.setAST((yyval.query)); }
     break;
 
   case 6:
 
 /* Line 678 of lalr1.cc  */
-#line 68 "Core/QueryParser/grammar.yy"
+#line 68 "src/Core/QueryParser/grammar.yy"
     { (yyval.expr) = (yysemantic_stack_[(1) - (1)].expr); }
     break;
 
   case 7:
 
 /* Line 678 of lalr1.cc  */
-#line 69 "Core/QueryParser/grammar.yy"
+#line 69 "src/Core/QueryParser/grammar.yy"
     { (yyval.expr) = (yysemantic_stack_[(1) - (1)].expr); }
     break;
 
   case 8:
 
 /* Line 678 of lalr1.cc  */
-#line 70 "Core/QueryParser/grammar.yy"
+#line 70 "src/Core/QueryParser/grammar.yy"
     { (yyval.expr) = (yysemantic_stack_[(1) - (1)].expr); }
     break;
 
   case 9:
 
 /* Line 678 of lalr1.cc  */
-#line 71 "Core/QueryParser/grammar.yy"
+#line 71 "src/Core/QueryParser/grammar.yy"
     { (yyval.expr) = (yysemantic_stack_[(1) - (1)].expr); }
     break;
 
   case 10:
 
 /* Line 678 of lalr1.cc  */
-#line 72 "Core/QueryParser/grammar.yy"
+#line 72 "src/Core/QueryParser/grammar.yy"
     { (yyval.expr) = (yysemantic_stack_[(1) - (1)].expr); }
     break;
 
   case 11:
 
 /* Line 678 of lalr1.cc  */
-#line 73 "Core/QueryParser/grammar.yy"
+#line 73 "src/Core/QueryParser/grammar.yy"
     { (yyval.expr) = (yysemantic_stack_[(1) - (1)].expr); }
     break;
 
   case 12:
 
 /* Line 678 of lalr1.cc  */
-#line 79 "Core/QueryParser/grammar.yy"
+#line 79 "src/Core/QueryParser/grammar.yy"
     { (yyval.arexpr) = new VerifyTAPN::AST::PlusExpression((yysemantic_stack_[(3) - (1)].arexpr), (yysemantic_stack_[(3) - (3)].arexpr)); }
     break;
 
   case 13:
 
 /* Line 678 of lalr1.cc  */
-#line 80 "Core/QueryParser/grammar.yy"
+#line 80 "src/Core/QueryParser/grammar.yy"
     { (yyval.arexpr) = new VerifyTAPN::AST::SubtractExpression((yysemantic_stack_[(3) - (1)].arexpr), (yysemantic_stack_[(3) - (3)].arexpr)); }
     break;
 
   case 14:
 
 /* Line 678 of lalr1.cc  */
-#line 81 "Core/QueryParser/grammar.yy"
+#line 81 "src/Core/QueryParser/grammar.yy"
     { (yyval.arexpr) = new VerifyTAPN::AST::MinusExpression((yysemantic_stack_[(2) - (2)].arexpr)); }
     break;
 
   case 15:
 
 /* Line 678 of lalr1.cc  */
-#line 82 "Core/QueryParser/grammar.yy"
+#line 82 "src/Core/QueryParser/grammar.yy"
     { (yyval.arexpr) = (yysemantic_stack_[(1) - (1)].arexpr); }
     break;
 
   case 16:
 
 /* Line 678 of lalr1.cc  */
-#line 85 "Core/QueryParser/grammar.yy"
+#line 85 "src/Core/QueryParser/grammar.yy"
     { (yyval.arexpr) = new VerifyTAPN::AST::MultiplyExpression((yysemantic_stack_[(3) - (1)].arexpr), (yysemantic_stack_[(3) - (3)].arexpr)); }
     break;
 
   case 17:
 
 /* Line 678 of lalr1.cc  */
-#line 86 "Core/QueryParser/grammar.yy"
+#line 86 "src/Core/QueryParser/grammar.yy"
     { (yyval.arexpr) = (yysemantic_stack_[(1) - (1)].arexpr); }
     break;
 
   case 18:
 
 /* Line 678 of lalr1.cc  */
-#line 89 "Core/QueryParser/grammar.yy"
+#line 89 "src/Core/QueryParser/grammar.yy"
     { (yyval.arexpr) = (yysemantic_stack_[(3) - (2)].arexpr); }
     break;
 
   case 19:
 
 /* Line 678 of lalr1.cc  */
-#line 90 "Core/QueryParser/grammar.yy"
+#line 90 "src/Core/QueryParser/grammar.yy"
     { (yyval.arexpr) = new VerifyTAPN::AST::NumberExpression((yysemantic_stack_[(1) - (1)].number));}
     break;
 
   case 20:
 
 /* Line 678 of lalr1.cc  */
-#line 91 "Core/QueryParser/grammar.yy"
+#line 91 "src/Core/QueryParser/grammar.yy"
     { 
                                                                     int placeIndex = driver.getTAPN().getPlaceIndex(*(yysemantic_stack_[(1) - (1)].string));
                                                                     delete (yysemantic_stack_[(1) - (1)].string);
@@ -728,63 +728,63 @@ namespace VerifyTAPN {
   case 21:
 
 /* Line 678 of lalr1.cc  */
-#line 99 "Core/QueryParser/grammar.yy"
+#line 99 "src/Core/QueryParser/grammar.yy"
     { (yyval.expr) = (yysemantic_stack_[(3) - (2)].expr); }
     break;
 
   case 22:
 
 /* Line 678 of lalr1.cc  */
-#line 100 "Core/QueryParser/grammar.yy"
+#line 100 "src/Core/QueryParser/grammar.yy"
     { (yyval.expr) = new VerifyTAPN::AST::NotExpression((yysemantic_stack_[(2) - (2)].expr)); }
     break;
 
   case 23:
 
 /* Line 678 of lalr1.cc  */
-#line 101 "Core/QueryParser/grammar.yy"
+#line 101 "src/Core/QueryParser/grammar.yy"
     { (yyval.expr) = new VerifyTAPN::AST::OrExpression((yysemantic_stack_[(3) - (1)].expr), (yysemantic_stack_[(3) - (3)].expr)); }
     break;
 
   case 24:
 
 /* Line 678 of lalr1.cc  */
-#line 102 "Core/QueryParser/grammar.yy"
+#line 102 "src/Core/QueryParser/grammar.yy"
     { (yyval.expr) = new VerifyTAPN::AST::AndExpression((yysemantic_stack_[(3) - (1)].expr), (yysemantic_stack_[(3) - (3)].expr)); }
     break;
 
   case 25:
 
 /* Line 678 of lalr1.cc  */
-#line 103 "Core/QueryParser/grammar.yy"
+#line 103 "src/Core/QueryParser/grammar.yy"
     { (yyval.expr) = new VerifyTAPN::AST::BoolExpression(true); }
     break;
 
   case 26:
 
 /* Line 678 of lalr1.cc  */
-#line 104 "Core/QueryParser/grammar.yy"
+#line 104 "src/Core/QueryParser/grammar.yy"
     { (yyval.expr) = new VerifyTAPN::AST::BoolExpression(false); }
     break;
 
   case 27:
 
 /* Line 678 of lalr1.cc  */
-#line 106 "Core/QueryParser/grammar.yy"
+#line 106 "src/Core/QueryParser/grammar.yy"
     { (yyval.expr) = new VerifyTAPN::AST::AtomicProposition((yysemantic_stack_[(3) - (1)].arexpr), (yysemantic_stack_[(3) - (2)].string), (yysemantic_stack_[(3) - (3)].arexpr)); }
     break;
 
   case 28:
 
 /* Line 678 of lalr1.cc  */
-#line 107 "Core/QueryParser/grammar.yy"
+#line 107 "src/Core/QueryParser/grammar.yy"
     { (yyval.expr) = new VerifyTAPN::AST::DeadlockExpression(); }
     break;
 
 
 
 /* Line 678 of lalr1.cc  */
-#line 788 "Core/QueryParser/Generated/parser.cpp"
+#line 788 "src/Core/QueryParser/Generated/parser.cpp"
 	default:
           break;
       }
@@ -1245,15 +1245,15 @@ namespace VerifyTAPN {
 
 
 /* Line 1054 of lalr1.cc  */
-#line 5 "Core/QueryParser/grammar.yy"
+#line 5 "src/Core/QueryParser/grammar.yy"
 } // VerifyTAPN
 
 /* Line 1054 of lalr1.cc  */
-#line 1253 "Core/QueryParser/Generated/parser.cpp"
+#line 1253 "src/Core/QueryParser/Generated/parser.cpp"
 
 
 /* Line 1056 of lalr1.cc  */
-#line 111 "Core/QueryParser/grammar.yy"
+#line 111 "src/Core/QueryParser/grammar.yy"
 
 
 void 

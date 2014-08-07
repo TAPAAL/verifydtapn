@@ -40,7 +40,7 @@
 /* "%code requires" blocks.  */
 
 /* Line 300 of lalr1.cc  */
-#line 7 "Core/QueryParser/grammar.yy"
+#line 7 "src/Core/QueryParser/grammar.yy"
 
 # include <string>
 #include "../AST.hpp"
@@ -51,7 +51,7 @@ namespace VerifyTAPN{
 
 
 /* Line 300 of lalr1.cc  */
-#line 55 "Core/QueryParser/Generated/parser.hpp"
+#line 55 "src/Core/QueryParser/Generated/parser.hpp"
 
 
 #include <string>
@@ -60,20 +60,20 @@ namespace VerifyTAPN{
 
 
 /* Line 300 of lalr1.cc  */
-#line 5 "Core/QueryParser/grammar.yy"
+#line 5 "src/Core/QueryParser/grammar.yy"
 namespace VerifyTAPN {
 
 /* Line 300 of lalr1.cc  */
-#line 68 "Core/QueryParser/Generated/parser.hpp"
+#line 68 "src/Core/QueryParser/Generated/parser.hpp"
   class position;
   class location;
 
 /* Line 300 of lalr1.cc  */
-#line 5 "Core/QueryParser/grammar.yy"
+#line 5 "src/Core/QueryParser/grammar.yy"
 } // VerifyTAPN
 
 /* Line 300 of lalr1.cc  */
-#line 77 "Core/QueryParser/Generated/parser.hpp"
+#line 77 "src/Core/QueryParser/Generated/parser.hpp"
 
 #include "location.hh"
 
@@ -116,11 +116,11 @@ do {							\
 
 
 /* Line 300 of lalr1.cc  */
-#line 5 "Core/QueryParser/grammar.yy"
+#line 5 "src/Core/QueryParser/grammar.yy"
 namespace VerifyTAPN {
 
 /* Line 300 of lalr1.cc  */
-#line 124 "Core/QueryParser/Generated/parser.hpp"
+#line 124 "src/Core/QueryParser/Generated/parser.hpp"
 
   /// A Bison parser.
   class Parser
@@ -132,7 +132,7 @@ namespace VerifyTAPN {
     {
 
 /* Line 300 of lalr1.cc  */
-#line 30 "Core/QueryParser/grammar.yy"
+#line 30 "src/Core/QueryParser/grammar.yy"
 
 	int          					number;
 	std::string* 					string;
@@ -143,7 +143,7 @@ namespace VerifyTAPN {
 
 
 /* Line 300 of lalr1.cc  */
-#line 147 "Core/QueryParser/Generated/parser.hpp"
+#line 147 "src/Core/QueryParser/Generated/parser.hpp"
     };
 #else
     typedef YYSTYPE semantic_type;
@@ -349,11 +349,11 @@ namespace VerifyTAPN {
   };
 
 /* Line 300 of lalr1.cc  */
-#line 5 "Core/QueryParser/grammar.yy"
+#line 5 "src/Core/QueryParser/grammar.yy"
 } // VerifyTAPN
 
 /* Line 300 of lalr1.cc  */
-#line 357 "Core/QueryParser/Generated/parser.hpp"
+#line 357 "src/Core/QueryParser/Generated/parser.hpp"
 
 
 
