@@ -48,3 +48,23 @@ To recompile the query parser follow these steps:
 1. go to src/Core/QueryParser/
 2. run flex -o Generated/lexer.cpp flex.ll
 3. run bison -o Generated/parser.cpp grammar.yy
+
+or using:
+makefile -f makefile.XXX generate
+
+--------------------------------------------------------------------------------
+3. Compiling on Max OS X
+--------------------------------------------------------------------------------
+
+Install boost, for example using homebrew as follows:
+brew install boost
+
+Then run (for 32 bit version):
+make -f makefile.osx32 clean
+make -f makefile.osx32 
+
+or run (for 64 bit version):
+make -f makefile.osx64 clean
+make -f makefile.osx64 
+
+
