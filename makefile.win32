@@ -8,10 +8,8 @@ CC				= i686-w64-mingw32-g++
 CUT				= cut
 
 # Compiler and linker flags
-CFLAGS			= -static-libgcc -static-libstdc++ -O3 -L. -Wl,--enable-
-stdcall-fixup -I ${HOME}/dev/iaw32/include -I
-LDFLAGS			= -static-libgcc -static-libstdc++ -O3 -L. -Wl,--enable-
-stdcall-fixup -I ${HOME}/dev/iaw32/include -I 
+CFLAGS			= -static-libgcc -static-libstdc++ -O3 -L. -Wl,--enable-stdcall-fixup -I ${HOME}/dev/iaw32/include -I
+LDFLAGS			= -static-libgcc -static-libstdc++ -O3 -L. -Wl,--enable-stdcall-fixup -I ${HOME}/dev/iaw32/include -I 
 
 # Input files
 SOURCES			= $(shell find * -name "*.cpp")	
