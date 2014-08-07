@@ -55,6 +55,7 @@ makefile -f makefile.XXX generate
 --------------------------------------------------------------------------------
 3. Compiling on Max OS X
 --------------------------------------------------------------------------------
+Install xcode through App Store.
 
 Install boost, for example using homebrew as follows:
 brew install boost
