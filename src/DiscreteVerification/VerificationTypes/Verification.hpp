@@ -262,7 +262,7 @@ namespace VerifyTAPN {
                             break;
                         } 
                         temp = (T*)temp->getParent();
-                    } while(temp && temp->getParent() && temp->getParent() != top);
+                    } while(temp && temp->getParent());
                     if(foundLoop){
                         root->append_node(doc.allocate_node(node_element, "loop"));
                     }
