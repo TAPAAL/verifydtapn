@@ -213,6 +213,7 @@ namespace VerifyTAPN {
                         
                         if (last != NULL) {
                             last->setParent(mc);        // set the parent of the last marking
+                            mc->setNumberOfChildren(1);
                         }
 
                         last = mc;
@@ -256,6 +257,7 @@ namespace VerifyTAPN {
                         mc->setGeneratedBy(NULL);       // NULL indicates that it is a delay transition
                         if (last != NULL){
                             last->setParent(mc);          // set the parent of the last marking
+                            mc->setNumberOfChildren(1);
                         }
                         if(!l->getParent()){
                             l->setParent(mc);
@@ -268,9 +270,11 @@ namespace VerifyTAPN {
                 }
                 if(last != NULL){
                     last->setParent(m);
+                    m->setNumberOfChildren(1);
                 }
                 if(!l->getParent()) {
                     l->setParent(m);
+                    m->setNumberOfChildren(1);
                 }
                 m->cut(placeStats);
                 last = m;
@@ -278,6 +282,10 @@ namespace VerifyTAPN {
 
                 upper = trace->upper;
                 trace = (TraceDart*) trace->parent;
+            }
+            
+            if(!deadlock){
+                l->setNumberOfChildren(1);
             }
 
             printXMLTrace(l, traceStack, query, tapn);

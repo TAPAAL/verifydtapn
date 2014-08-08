@@ -276,7 +276,8 @@ namespace VerifyTAPN {
             if (query->getQuantifier() == AST::EG || query->getQuantifier() == AST::AF) {
                 if (!foundLoop && !delayedForever) {
                     if (m->getNumberOfChildren() > 0) {
-                        root->append_node(doc.allocate_node(node_element, "deadlock"));
+                        removeLastIfDelay(*root);
+                        root->append_node(doc.allocate_node(node_element, "delay", doc.allocate_string("forever")));
                     } else {
                         
 			xml_node<>* node;
