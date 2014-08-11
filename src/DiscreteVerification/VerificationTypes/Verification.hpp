@@ -151,11 +151,13 @@ namespace VerifyTAPN {
         void Verification<T>::removeLastIfDelay(rapidxml::xml_node<>& root)
         {
             using namespace rapidxml;
-            xml_node<>* node = root.last_node();
-            if(node){
-                char* name = node->name();
-                if(strcmp(name, "delay") == 0){
-                    root.remove_last_node();
+            if(root.first_node()){ // if there is a node in the trace
+                xml_node<>* node = root.last_node();
+                if(node){
+                    char* name = node->name();
+                    if(strcmp(name, "delay") == 0){
+                        root.remove_last_node();
+                    }
                 }
             }
         }
