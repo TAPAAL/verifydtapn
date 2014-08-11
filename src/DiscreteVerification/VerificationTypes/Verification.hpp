@@ -275,25 +275,19 @@ namespace VerifyTAPN {
             //Trace ended, goto * or deadlock
             if (query->getQuantifier() == AST::EG || query->getQuantifier() == AST::AF) {
                 if (!foundLoop && !delayedForever) {
-                    if (m->getNumberOfChildren() > 0) {
-                        removeLastIfDelay(*root);
-                        root->append_node(doc.allocate_node(node_element, "delay", doc.allocate_string("forever")));
+                    xml_node<>* node;
+                    if(m->canDeadlock(tapn, 0, false)){
+                            // check if deadlock
+                            node = doc.allocate_node(node_element, "deadlock");
                     } else {
-                        
-			xml_node<>* node;
-			if(m->canDeadlock(tapn, 0, false)){
-				// check if deadlock
-				node = doc.allocate_node(node_element, "deadlock");
-			} else {
-				// if not it is delay forever
-                            
-                                // remove delay before delay forever
-                                removeLastIfDelay(*root);
-				node = doc.allocate_node(node_element, "delay", doc.allocate_string("forever"));
-                                
-			}
-                        root->append_node(node);
+                            // if not it is delay forever
+
+                            // remove delay before delay forever
+                            removeLastIfDelay(*root);
+                            node = doc.allocate_node(node_element, "delay", doc.allocate_string("forever"));
+
                     }
+                    root->append_node(node);
                 }
             }
             
