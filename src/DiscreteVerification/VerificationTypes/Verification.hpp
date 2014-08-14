@@ -151,11 +151,13 @@ namespace VerifyTAPN {
         void Verification<T>::removeLastIfDelay(rapidxml::xml_node<>& root)
         {
             using namespace rapidxml;
-            xml_node<>* node = root.last_node();
-            if(node){
-                char* name = node->name();
-                if(strcmp(name, "delay") == 0){
-                    root.remove_last_node();
+            if(root.first_node()){ // if there is a node in the trace
+                xml_node<>* node = root.last_node();
+                if(node){
+                    char* name = node->name();
+                    if(strcmp(name, "delay") == 0){
+                        root.remove_last_node();
+                    }
                 }
             }
         }
@@ -262,7 +264,7 @@ namespace VerifyTAPN {
                             break;
                         } 
                         temp = (T*)temp->getParent();
-                    } while(temp && temp->getParent() && temp->getParent() != top);
+                    } while(temp && temp->getParent());
                     if(foundLoop){
                         root->append_node(doc.allocate_node(node_element, "loop"));
                     }
@@ -275,24 +277,19 @@ namespace VerifyTAPN {
             //Trace ended, goto * or deadlock
             if (query->getQuantifier() == AST::EG || query->getQuantifier() == AST::AF) {
                 if (!foundLoop && !delayedForever) {
-                    if (m->getNumberOfChildren() > 0) {
-                        root->append_node(doc.allocate_node(node_element, "deadlock"));
+                    xml_node<>* node;
+                    if(m->canDeadlock(tapn, 0, false)){
+                            // check if deadlock
+                            node = doc.allocate_node(node_element, "deadlock");
                     } else {
-                        
-			xml_node<>* node;
-			if(m->canDeadlock(tapn, 0, false)){
-				// check if deadlock
-				node = doc.allocate_node(node_element, "deadlock");
-			} else {
-				// if not it is delay forever
-                            
-                                // remove delay before delay forever
-                                removeLastIfDelay(*root);
-				node = doc.allocate_node(node_element, "delay", doc.allocate_string("forever"));
-                                
-			}
-                        root->append_node(node);
+                            // if not it is delay forever
+
+                            // remove delay before delay forever
+                            removeLastIfDelay(*root);
+                            node = doc.allocate_node(node_element, "delay", doc.allocate_string("forever"));
+
                     }
+                    root->append_node(node);
                 }
             }
             
