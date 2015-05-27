@@ -8,7 +8,7 @@ CC				= gcc
 CUT				= cut
 
 # Compiler and linker flags
-COMMONFLAGS             = -DBOOST_DISABLE_THREADS -DNDEBUG -DDISABLE_ASSERTX -O3 -Wall -mtune=core2 -mmacosx-version-min=10.6 -m32
+COMMONFLAGS             = -DBOOST_DISABLE_THREADS -DNDEBUG -DDISABLE_ASSERTX -O3 -Wall -mtune=core2 -mmacosx-version-min=10.9 -m32
 CFLAGS                  = $(COMMONFLAGS) -I. -I -I/usr/local/include -I/opt/local/include -I 
 LDFLAGS                 = $(COMMONFLAGS) -lstdc++ 
 
