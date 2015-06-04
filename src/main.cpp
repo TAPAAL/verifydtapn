@@ -30,6 +30,16 @@ int main(int argc, char* argv[])
 
 	tapn->initialize(options.getGlobalMaxConstantsEnabled(), options.getGCDLowerGuardsEnabled());
 
+	if (options.getCalculateCmax()) {
+	    std::cout << options << std::endl;
+	    std::cout << "C-MAX" << std::endl;
+	    for (TimedPlace::Vector::const_iterator iter = tapn->getPlaces().begin(); iter != tapn->getPlaces().end(); ++iter) {
+	    	std::cout << '<' << (*iter)->getName() << '#' << (*iter)->getMaxConstant() << "> ";
+	    }
+	    std::cout << std::endl;
+	    return 0;
+	}
+
 	std::vector<int> initialPlacement(modelParser.parseMarking(options.getInputFile(), *tapn));
 
 	AST::Query* query = NULL;
