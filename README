@@ -9,6 +9,8 @@ a. Install gcc/g++ (we use version 4.4.5)
 b. Install boost libraries (we used 1.40 but any version that is backward 
    compatible with 1.40 should work)
 	- On ubuntu you can install it through the software center
+        - On mac try homebrew: brew install boost (possibly run
+          sudo chown -R `whoami` /usr/local to fix the writing rights)
 	- Otherwise, there is a guide here: 
 	  http://www.boost.org/doc/libs/1_40_0/more/getting_started/unix-variants.html
 c. Install google-sparsehash library.
@@ -58,7 +60,11 @@ makefile -f makefile.XXX generate
 Install xcode through App Store.
 
 Install boost, for example using homebrew as follows:
+sudo chown -R `whoami` /usr/local
 brew install boost
+
+Install google-sparsehash, e.g. as follows:
+brew install google-sparsehash 
 
 Then run (for 32 bit version):
 make -f makefile.osx32 clean
