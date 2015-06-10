@@ -61,7 +61,7 @@ bool TimeDartPWPData::add(NonStrictMarkingBase* marking, int youngest, WaitingDa
         PTrie<TimeDartBase>::Result res = passed.add(marking);
 
         if(!res.isNew){
-            TimeDartBase* t = res.encoding.getMetaData();
+            TimeDartBase* t = res.encoding.getMeta();
             bool inWaiting = t->getWaiting() < t->getPassed();
             t->setWaiting(min(t->getWaiting(),youngest));
 
@@ -86,7 +86,7 @@ bool TimeDartPWPData::add(NonStrictMarkingBase* marking, int youngest, WaitingDa
                 dart = new TimeDartBase(marking, youngest, INT_MAX);
         }
         stored++;
-        res.encoding.setMetaData(dart);
+        res.encoding.setMeta(dart);
         EncodingPointer<TimeDartBase>* ep = new EncodingPointer<TimeDartBase>(res.encoding, res.pos);
 	waiting_list->add(marking, ep);
         if (this->trace) {
@@ -101,7 +101,7 @@ TimeDartBase* TimeDartPWPData::getNextUnexplored(){
   
     EncodingPointer<TimeDartBase>* p = waiting_list->pop();
     NonStrictMarkingBase* m = passed.enumerateDecode(*p);
-    TimeDartBase* dart = p->encoding.getMetaData();
+    TimeDartBase* dart = p->encoding.getMeta();
     dart->setBase(m);
     
     p->encoding.release();

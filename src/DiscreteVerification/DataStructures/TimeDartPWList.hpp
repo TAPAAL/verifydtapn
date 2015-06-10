@@ -14,7 +14,7 @@
 #include "NonStrictMarkingBase.hpp"
 #include "WaitingList.hpp"
 #include "TimeDart.hpp"
-#include "PTrie.h"
+#include "PTrie_old.h"
 
 namespace VerifyTAPN {
     namespace DiscreteVerification {

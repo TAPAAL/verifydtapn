@@ -64,7 +64,7 @@ std::ostream& operator<<(std::ostream& out, PWList& x){
 
             PTrie<MetaData>::Result res = passed->add(marking);
             if(res.isNew){
-                res.encoding.setMetaData(NULL);
+                res.encoding.setMeta(NULL);
                 if(isLiveness){
                     MetaData* meta;
                     if(this->makeTrace){
@@ -73,12 +73,12 @@ std::ostream& operator<<(std::ostream& out, PWList& x){
                     } else {
                         meta = new MetaData();
                     }
-                    res.encoding.setMetaData(meta);
+                    res.encoding.setMeta(meta);
                     marking->meta = meta;
                 } else if(this->makeTrace){
                     MetaDataWithTraceAndEncoding* meta = new MetaDataWithTraceAndEncoding();
                     meta->generatedBy = marking->getGeneratedBy();
-                    res.encoding.setMetaData(meta);
+                    res.encoding.setMeta(meta);
                     meta->ep = new EncodingPointer<MetaData > (res.encoding, res.pos);
                     meta->parent = parent;
                     
@@ -87,7 +87,7 @@ std::ostream& operator<<(std::ostream& out, PWList& x){
                 this->waiting_list->add(marking, new EncodingPointer<MetaData > (res.encoding, res.pos));
             } else{
                 if(isLiveness){
-                        marking->meta = res.encoding.getMetaData();
+                        marking->meta = res.encoding.getMeta();
                         if(this->makeTrace){
                             ((MetaDataWithTrace*)marking->meta)->generatedBy = marking->getGeneratedBy();
                         }
@@ -106,7 +106,7 @@ std::ostream& operator<<(std::ostream& out, PWList& x){
             NonStrictMarking* m = new NonStrictMarking(*base);
             delete base;
             
-            m->meta = p->encoding.getMetaData();
+            m->meta = p->encoding.getMeta();
             
             if(this->makeTrace){
                 if(isLiveness){

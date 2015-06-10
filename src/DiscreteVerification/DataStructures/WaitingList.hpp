@@ -22,7 +22,7 @@
 #include <deque>
 #include <stack>
 #include <vector>
-#include "PTrie.h"
+#include "PTrie_old.h"
 
 namespace VerifyTAPN {
 namespace DiscreteVerification {
@@ -376,7 +376,7 @@ int MinFirstWaitingList<T>::calculateWeight(NonStrictMarking* marking)
 template <class T>
 int MinFirstWaitingList<T>::calculateWeight(EncodingPointer<MetaData>* payload)
 {
-	return payload->encoding.getMetaData()->totalDelay;
+	return payload->encoding.getMeta()->totalDelay;
 }
 
 template <class T>
