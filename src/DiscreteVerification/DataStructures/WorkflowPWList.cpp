@@ -5,7 +5,7 @@
 namespace VerifyTAPN {
     namespace DiscreteVerification {
 
-        WorkflowPWList::WorkflowPWList(WaitingList<NonStrictMarking>* w_l) : PWList(w_l, false) {
+        WorkflowPWList::WorkflowPWList(WaitingList<NonStrictMarking*>* w_l) : PWList(w_l, false) {
         };
 
         bool WorkflowPWList::add(NonStrictMarking* marking) {

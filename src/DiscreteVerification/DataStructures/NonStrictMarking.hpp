@@ -13,7 +13,9 @@
 #include "NonStrictMarkingBase.hpp"
 #include <iostream>
 #include "../../Core/TAPN/TAPN.hpp"
+#include "ptrie.h"
 
+using namespace pgj;
 using namespace std;
 
 namespace VerifyTAPN {
@@ -40,11 +42,10 @@ namespace DiscreteVerification {
 	   };
 
     // ugly forward declaration
-    template<class MetaData>
-    struct EncodingPointer;
+    class MetaData;
     
     struct MetaDataWithTraceAndEncoding : public MetaDataWithTrace {
-        EncodingPointer<MetaData>* ep;
+        ptriepointer<MetaData*> ep;
         MetaDataWithTraceAndEncoding* parent;
     };
     

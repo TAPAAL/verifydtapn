@@ -9,7 +9,7 @@
 #define TIMEDART_HPP_
 
 #include "NonStrictMarking.hpp"
-#include "PTrie_old.h"
+#include "ptrie.h"
 
 namespace VerifyTAPN {
 namespace DiscreteVerification {
@@ -18,8 +18,8 @@ struct WaitingDart;
 struct TraceDart;
 class TimeDartBase;
 
-typedef EncodingPointer<TimeDartBase> TimeDartEncodingPointer;  // used for memory-optimization for reachability
-typedef EncodingPointer<WaitingDart> WaitingDartEncodingPointer; // mem-optimization for liveness
+typedef ptriepointer<TimeDartBase*> TimeDartEncodingPointer;  // used for memory-optimization for reachability
+typedef ptriepointer<WaitingDart*> WaitingDartEncodingPointer; // mem-optimization for liveness
 
 
 typedef vector<WaitingDart*> TraceMetaDataList;

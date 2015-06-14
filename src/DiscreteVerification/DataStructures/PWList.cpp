@@ -6,7 +6,9 @@
  */
 
 #include "PWList.hpp"
-
+#include "ptrie.h"
+#include "MarkingEncoder.h"
+using namespace pgj;
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
@@ -62,9 +64,14 @@ std::ostream& operator<<(std::ostream& out, PWList& x){
             discoveredMarkings++;
             // reset the encoding array
 
-            PTrie<MetaData>::Result res = passed->add(marking);
-            if(res.isNew){
-                res.encoding.setMeta(NULL);
+            assert(passed.isConsistent());
+            binarywrapper<MetaData*> enc = encoder.encode(marking);
+            assert(passed.isConsistent());
+            std::pair<bool, ptriepointer<MetaData*> > res = passed.insert(enc);
+            assert(passed.isConsistent());
+            enc = binarywrapper<MetaData*>(res.second.remainder());
+            if(res.first){
+                enc.setMeta(NULL);
                 if(isLiveness){
                     MetaData* meta;
                     if(this->makeTrace){
@@ -73,51 +80,53 @@ std::ostream& operator<<(std::ostream& out, PWList& x){
                     } else {
                         meta = new MetaData();
                     }
-                    res.encoding.setMeta(meta);
+                    enc.setMeta(meta);
                     marking->meta = meta;
                 } else if(this->makeTrace){
                     MetaDataWithTraceAndEncoding* meta = new MetaDataWithTraceAndEncoding();
                     meta->generatedBy = marking->getGeneratedBy();
-                    res.encoding.setMeta(meta);
-                    meta->ep = new EncodingPointer<MetaData > (res.encoding, res.pos);
-                    meta->parent = parent;
+                    enc.setMeta(meta);
+                    meta->ep = res.second;
+                    assert(false);
+//                    meta->parent = parent;
                     
                     meta->totalDelay = marking->calculateTotalDelay();
                 }
-                this->waiting_list->add(marking, new EncodingPointer<MetaData > (res.encoding, res.pos));
+                waiting_list->add(marking, res.second);
             } else{
                 if(isLiveness){
-                        marking->meta = res.encoding.getMeta();
+                        marking->meta = enc.getMeta();
                         if(this->makeTrace){
                             ((MetaDataWithTrace*)marking->meta)->generatedBy = marking->getGeneratedBy();
                         }
                 }
                 if(isLiveness && !marking->meta->passed){
-                    this->waiting_list->add(marking, new EncodingPointer<MetaData > (res.encoding, res.pos));
+                    waiting_list->add(marking, res.second);
                     return true;
                 }
             }
-            return res.isNew;
+            return res.first;
         }
 
         NonStrictMarking* PWListHybrid::getNextUnexplored() {
-            EncodingPointer<MetaData>* p = waiting_list->pop();
-            NonStrictMarkingBase* base = passed->enumerateDecode(*p);
+            ptriepointer<MetaData*> p = waiting_list->pop();
+            assert(passed.isConsistent());
+            NonStrictMarkingBase* base = encoder.decode(p);
+            assert(passed.isConsistent());
             NonStrictMarking* m = new NonStrictMarking(*base);
             delete base;
             
-            m->meta = p->encoding.getMeta();
+            m->meta = p.getMeta();
             
-            if(this->makeTrace){
+            std::cout << "popped " << *m << std::endl;
+            
+            if(makeTrace){
                 if(isLiveness){
                         m->setGeneratedBy(((MetaDataWithTrace*)(m->meta))->generatedBy);
                 } else {
-                    this->parent = (MetaDataWithTraceAndEncoding*)(m->meta);
+                    assert(false);
+//                    this->parent = (MetaDataWithTraceAndEncoding*)(m->meta);
                 }
-            }
-            if(isLiveness || !this->makeTrace){
-                p->encoding.release();
-                delete p;
             }
             return m;
         }

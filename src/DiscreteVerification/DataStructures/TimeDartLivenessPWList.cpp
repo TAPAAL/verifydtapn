@@ -61,41 +61,41 @@ namespace VerifyTAPN {
         }
 
         std::pair<LivenessDart*, bool> TimeDartLivenessPWPData::add(NonStrictMarkingBase* marking, int youngest, WaitingDart* parent, int upper, int start) {
-
+/*
             
             discoveredMarkings++;
-            PTrie<LivenessDart>::Result res = passed.add(marking);
+            std::pair<bool, ptriepointer<LivenessDart*> > res = passed.insert(encoder.encode(marking));
+//            binarywrapper<LivenessDart*>* encoding = &res.second.getEncoding();
+            if (!res.first) {
+//                LivenessDart* td = encoding->getMeta();
+//                td->setBase(marking);
+                std::pair < LivenessDart*, bool> result(td, false);
+//                td->setWaiting(min(td->getWaiting(), youngest));
 
-                if (!res.isNew) {
-                    LivenessDart* td = res.encoding.getMeta();
-                    td->setBase(marking);
-                    std::pair < LivenessDart*, bool> result(td, false);
-                    td->setWaiting(min(td->getWaiting(), youngest));
-                           
-                    if (td->getWaiting() < td->getPassed()) {
-                        binarywrapper<WaitingDart*> es(res.encoding.raw(), res.encoding.size());
+                if (td->getWaiting() < td->getPassed()) {
 
-                        EncodingPointer<WaitingDart>* ewp = new EncodingPointer<WaitingDart > (es, res.pos);
-                        WaitingDart *wd;
-                        if(options.getTrace()){
-                            wd =  new TraceDart(td, parent, youngest, start, upper, marking->getGeneratedBy());
+                    WaitingDart *wd;
+                    if(options.getTrace()){
+                        wd =  new TraceDart(td, parent, youngest, start, upper, marking->getGeneratedBy());
 
-                        } else {
-                            wd = new WaitingDart(td, parent, youngest, upper);
-                        }
-                        ewp->encoding.setMeta(wd);
-                        
-                        waiting_list->add(marking, ewp);
-                        result.second = true;
                     } else {
-                        if(options.getTrace() == VerificationOptions::SOME_TRACE){
-                            binarywrapper<WaitingDart*> es(res.encoding.raw(), res.encoding.size());
-                           ((EncodedLivenessDart*)td)->encoding = new EncodingPointer<WaitingDart > (es, res.pos);
-                           result.first = td;
-                        }
+                        wd = new WaitingDart(td, parent, youngest, upper);
                     }
-                    return result;
+                    assert(false);
+//                    encoding->setMeta(wd);
+
+                    assert(false);
+//                    waiting_list->add(marking, &res.second);
+                    result.second = true;
+                } else {
+                    if(options.getTrace() == VerificationOptions::SOME_TRACE){
+                        assert(false);
+//                       ((EncodedLivenessDart*)td)->encoding = res.second;
+                       result.first = td;
+                    }
                 }
+                return result;
+            }
             
             stored++;
             LivenessDart* dart;
@@ -104,43 +104,46 @@ namespace VerifyTAPN {
             } else {
                 dart = new LivenessDart(marking, youngest, INT_MAX);
             }
-            res.encoding.setMeta(dart);
-            
-            binarywrapper<WaitingDart*> es(res.encoding.raw(), res.encoding.size());
-            EncodingPointer<WaitingDart>* ewp = new EncodingPointer<WaitingDart > (es, res.pos);
+            assert(false);
+//            encoding.setMeta(dart);
             
             WaitingDart *wd;
             if(options.getTrace()){
                 wd =  new TraceDart(dart, parent, youngest, start, upper, marking->getGeneratedBy());
-                ((EncodedLivenessDart*)dart)->encoding = ewp;
+                assert(false);
+//                ((EncodedLivenessDart*)dart)->encoding = res.second;
             } else {
                 wd = new WaitingDart(dart, parent, youngest, upper);
             }
-            ewp->encoding.setMeta(wd);
+            assert(false);
+//            encoding.setMeta(wd);
             
-            waiting_list->add(marking, ewp);
+            assert(false);
+//            waiting_list->add(marking, &res.second);
             std::pair < LivenessDart*, bool> result(dart, true);
-            return result;
+            return result;*/
         }
 
         WaitingDart* TimeDartLivenessPWPData::getNextUnexplored() {
-            EncodingPointer<WaitingDart>* ewp =  waiting_list->peek();
-            WaitingDart* wd = ewp->encoding.getMeta();
-            NonStrictMarkingBase* base = passed.enumerateDecode(*((EncodingPointer<LivenessDart>*)ewp));
-            wd->dart->setBase(base);
+            assert(false);
+//            ptriepointer<LivenessDart*>* ewp =  waiting_list->peek();
+//            WaitingDart* wd = ewp->getMeta();
+//            NonStrictMarkingBase* base = encoder.decode(*ewp);
+//            wd->dart->setBase(base);
             if(options.getTrace() == VerificationOptions::SOME_TRACE){
-                ((EncodedLivenessDart*)wd->dart)->encoding = ewp;
+            assert(false);
+//                ((EncodedLivenessDart*)wd->dart)->encoding = ewp;
             }
-            return wd;
+//            return wd;
+            return NULL;
         }
 
         void TimeDartLivenessPWPData::popWaiting() {
-            EncodingPointer<WaitingDart>* ewp =  waiting_list->pop();
-            WaitingDart* wd = ewp->encoding.getMeta();
-            delete wd->dart->getBase();
-            delete wd;
-            ewp->encoding.release();
-            delete ewp;
+            assert(false);
+//            ptriepointer<LivenessDart*>* ewp =  waiting_list->pop();
+//            WaitingDart* wd = ewp->getMeta();
+//            delete wd->dart->getBase();
+//            delete wd;
         }
 
         void TimeDartLivenessPWPData::flushBuffer() {

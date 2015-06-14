@@ -10,7 +10,7 @@
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
-WorkflowSoundness::WorkflowSoundness(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list)
+WorkflowSoundness::WorkflowSoundness(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking*>* waiting_list)
 : Workflow<NonStrictMarking>(tapn, initialMarking, query, options, waiting_list), passedStack(), minExec(INT_MAX), linearSweepTreshold(3), coveredMarking(NULL), modelType(calculateModelType()){
 
 }

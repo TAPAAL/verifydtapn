@@ -22,7 +22,7 @@
 #include <deque>
 #include <stack>
 #include <vector>
-#include "PTrie_old.h"
+#include "ptrie.h"
 
 namespace VerifyTAPN {
 namespace DiscreteVerification {
@@ -32,9 +32,9 @@ class WaitingList {
 public:
 	WaitingList() {};
 	virtual ~WaitingList() {};
-	virtual void add(NonStrictMarkingBase* weight, T* payload) = 0;
-	virtual T* peek() = 0;
-	virtual T* pop() = 0;
+	virtual void add(NonStrictMarkingBase* weight, T payload) = 0;
+	virtual T peek() = 0;
+	virtual T pop() = 0;
 	virtual size_t size() = 0;
 	virtual void flushBuffer(){};
 	template <class S>
@@ -47,18 +47,18 @@ public:
 	StackWaitingList() : stack() { };
 	virtual ~StackWaitingList();
 public:
-	virtual void add(NonStrictMarkingBase* weight, T* payload);
-        virtual T* peek();
-	virtual T* pop();
+	virtual void add(NonStrictMarkingBase* weight, T payload);
+        virtual T peek();
+	virtual T pop();
 	virtual size_t size() { return stack.size(); };
 	virtual void flushBuffer(){};
 protected:
-	std::stack<T*> stack;
+	std::stack<T> stack;
 };
 
 template <class T>
 struct WeightedItem{
-	T* item;
+	T item;
 	int weight;
 };
 
@@ -78,9 +78,9 @@ public:
 	HeuristicStackWaitingList(AST::Query* q) : buffer(), query(normalizeQuery(q)) { };
         ~HeuristicStackWaitingList(){
         };
-	virtual void add(NonStrictMarkingBase* weight, T* payload);
-	virtual T* peek();
-	virtual T* pop();
+	virtual void add(NonStrictMarkingBase* weight, T payload);
+	virtual T peek();
+	virtual T pop();
 	virtual size_t size() { return this->stack.size() +buffer.size(); };
 	virtual void flushBuffer();
 private:
@@ -98,12 +98,12 @@ public:
 	QueueWaitingList() : queue() { };
 	virtual ~QueueWaitingList();
 public:
-	virtual void add(NonStrictMarkingBase* weight, T* payload);
-	virtual T* peek();
-	virtual T* pop();
+	virtual void add(NonStrictMarkingBase* weight, T payload);
+	virtual T peek();
+	virtual T pop();
 	virtual size_t size() { return queue.size(); };
 private:
-	std::queue< T* > queue;
+	std::queue< T > queue;
 };
 
 template <class T>
@@ -114,9 +114,9 @@ public:
 	HeuristicWaitingList(AST::Query* q) : queue(), query(normalizeQuery(q)) { };
 	virtual ~HeuristicWaitingList();
 public:
-	virtual void add(NonStrictMarkingBase* weight, T* payload);
-	virtual T* peek();
-	virtual T* pop();
+	virtual void add(NonStrictMarkingBase* weight, T payload);
+	virtual T peek();
+	virtual T pop();
 	virtual size_t size() { return queue.size(); };
 private:
 	AST::Query* normalizeQuery(AST::Query* q);
@@ -134,17 +134,16 @@ public:
 	MinFirstWaitingList(AST::Query* q) : queue(), query(q) { };
 	virtual ~MinFirstWaitingList();
 public:
-	virtual void add(NonStrictMarkingBase* weight, T* payload);
-	virtual T* peek();
-	virtual T* pop();
+	virtual void add(NonStrictMarkingBase* weight, T payload);
+	virtual T peek();
+	virtual T pop();
 	virtual size_t size() { return queue.size(); };
 private:
-	int calculateWeight(NonStrictMarking* marking);
-	int calculateWeight(EncodingPointer<MetaData>* payload);
-	int calculateWeight(TimeDartBase* marking){	assert(false); return 0; }
-	int calculateWeight(EncodingPointer<TimeDartBase>* payload){	assert(false); return 0;}
-	int calculateWeight(WaitingDart* payload){	assert(false);  return 0;}
-	int calculateWeight(EncodingPointer<WaitingDart>* payload){	assert(false);  return 0;	}
+	virtual int calculateWeight(NonStrictMarking* marking);
+	virtual int calculateWeight(TimeDartBase* marking){	assert(false); return 0; }
+	virtual int calculateWeight(ptriepointer<T>& payload);
+	virtual int calculateWeight(WaitingDart* payload){	assert(false);  return 0;}
+
 	priority_queue queue;
 	AST::Query* query;
 };
@@ -157,13 +156,13 @@ public:
 	RandomStackWaitingList() : buffer() { };
 	virtual ~RandomStackWaitingList();
 public:
-	virtual void add(NonStrictMarkingBase* weight, T* payload);
-	virtual T* peek();
-	virtual T* pop();
+	virtual void add(NonStrictMarkingBase* weight, T payload);
+	virtual T peek();
+	virtual T pop();
 	virtual size_t size() { return this->stack.size()+buffer.size(); };
 	virtual void flushBuffer();
 private:
-	int calculateWeight(NonStrictMarkingBase* marking);
+	virtual int calculateWeight(NonStrictMarkingBase* marking);
 	priority_queue buffer;
 };
 
@@ -175,35 +174,35 @@ public:
 	RandomWaitingList() : queue() { };
 	virtual ~RandomWaitingList();
 public:
-	virtual void add(NonStrictMarkingBase* weight, T* payload);
-	virtual T* peek();
-	virtual T* pop();
+	virtual void add(NonStrictMarkingBase* weight, T payload);
+	virtual T peek();
+	virtual T pop();
 	virtual size_t size() { return queue.size(); };
 private:
-	int calculateWeight(NonStrictMarkingBase* marking);
+	virtual int calculateWeight(NonStrictMarkingBase* marking);
 	priority_queue queue;
 };
 
 
 //IMPLEMENTATIONS
 template <class T>
-void StackWaitingList<T>::add(NonStrictMarkingBase* weight, T* payload)
+void StackWaitingList<T>::add(NonStrictMarkingBase* weight, T payload)
 {
 	stack.push(payload);
 }
 
 template <class T>
-T* StackWaitingList<T>::pop()
+T StackWaitingList<T>::pop()
 {
-	T* marking = stack.top();
+	T marking = stack.top();
 	stack.pop();
 	return marking;
 }
 
 template <class T>
-T* StackWaitingList<T>::peek()
+T StackWaitingList<T>::peek()
 {
-	T* marking = stack.top();
+	T marking = stack.top();
 	return marking;
 }
 
@@ -219,7 +218,7 @@ std::ostream& operator<<(std::ostream& out, WaitingList<T>& x){
 }
 
 template <class T>
-void HeuristicStackWaitingList<T>::add(NonStrictMarkingBase* weight, T* payload)
+void HeuristicStackWaitingList<T>::add(NonStrictMarkingBase* weight, T payload)
 {
 	WeightedItem<T> weighted_item;
 	weighted_item.item = payload;
@@ -236,19 +235,19 @@ void HeuristicStackWaitingList<T>::flushBuffer(){
 }
 
 template <class T>
-T* HeuristicStackWaitingList<T>::pop()
+T HeuristicStackWaitingList<T>::pop()
 {
 	flushBuffer();
-	T* marking = this->stack.top();
+	T marking = this->stack.top();
 	this->stack.pop();
 	return marking;
 }
 
 template <class T>
-T* HeuristicStackWaitingList<T>::peek()
+T HeuristicStackWaitingList<T>::peek()
 {
 	flushBuffer();
-	T* marking = this->stack.top();
+	T marking = this->stack.top();
 	return marking;
 }
 
@@ -281,23 +280,23 @@ AST::Query* HeuristicStackWaitingList<T>::normalizeQuery(AST::Query* q){
 }
 
 template <class T>
-void QueueWaitingList<T>::add(NonStrictMarkingBase* weight, T* payload)
+void QueueWaitingList<T>::add(NonStrictMarkingBase* weight, T payload)
 {
 	queue.push(payload);
 }
 
 template <class T>
-T* QueueWaitingList<T>::pop()
+T QueueWaitingList<T>::pop()
 {
-	T* marking = queue.front();
+	T marking = queue.front();
 	queue.pop();
 	return marking;
 }
 
 template <class T>
-T* QueueWaitingList<T>::peek()
+T QueueWaitingList<T>::peek()
 {
-	T* marking = queue.front();
+	T marking = queue.front();
 	return marking;
 }
 
@@ -307,7 +306,7 @@ QueueWaitingList<T>::~QueueWaitingList()
 }
 
 template <class T>
-void HeuristicWaitingList<T>::add(NonStrictMarkingBase* weight, T* payload)
+void HeuristicWaitingList<T>::add(NonStrictMarkingBase* weight, T payload)
 {
 	WeightedItem<T> weighted_item;
 	weighted_item.item = payload;
@@ -316,19 +315,19 @@ void HeuristicWaitingList<T>::add(NonStrictMarkingBase* weight, T* payload)
 }
 
 template <class T>
-T* HeuristicWaitingList<T>::pop()
+T HeuristicWaitingList<T>::pop()
 {
 	WeightedItem<T> weighted_item = queue.top();
-	T* marking = weighted_item.item;
+	T marking = weighted_item.item;
 	queue.pop();
 	return marking;
 }
 
 template <class T>
-T* HeuristicWaitingList<T>::peek()
+T HeuristicWaitingList<T>::peek()
 {
 	WeightedItem<T> weighted_item = queue.top();
-	T* marking = weighted_item.item;
+	T marking = weighted_item.item;
 	return marking;
 }
 
@@ -359,11 +358,12 @@ HeuristicWaitingList<T>::~HeuristicWaitingList()
 }
 
 template <class T>
-void MinFirstWaitingList<T>::add(NonStrictMarkingBase* weight, T* payload)
+void MinFirstWaitingList<T>::add(NonStrictMarkingBase* weight, T payload)
 {
 	WeightedItem<T> weighted_item;
 	weighted_item.item = payload;
-	weighted_item.weight = calculateWeight(payload);
+        assert(false);
+//	weighted_item.weight = calculateWeight(payload);
 	queue.push(weighted_item);
 }
 
@@ -374,25 +374,26 @@ int MinFirstWaitingList<T>::calculateWeight(NonStrictMarking* marking)
 }
 
 template <class T>
-int MinFirstWaitingList<T>::calculateWeight(EncodingPointer<MetaData>* payload)
+int MinFirstWaitingList<T>::calculateWeight(ptriepointer<T>& payload)
 {
-	return payload->encoding.getMeta()->totalDelay;
+    assert(false);
+//	return payload.getMeta()->totalDelay;
 }
 
 template <class T>
-T* MinFirstWaitingList<T>::pop()
+T MinFirstWaitingList<T>::pop()
 {
 	WeightedItem<T> weighted_item = queue.top();
-	T* marking = weighted_item.item;
+	T marking = weighted_item.item;
 	queue.pop();
 	return marking;
 }
 
 template <class T>
-T* MinFirstWaitingList<T>::peek()
+T MinFirstWaitingList<T>::peek()
 {
 	WeightedItem<T> weighted_item = queue.top();
-	T* marking = weighted_item.item;
+	T marking = weighted_item.item;
 	return marking;
 }
 
@@ -403,7 +404,7 @@ MinFirstWaitingList<T>::~MinFirstWaitingList()
 
 
 template <class T>
-void RandomWaitingList<T>::add(NonStrictMarkingBase* weight, T* payload)
+void RandomWaitingList<T>::add(NonStrictMarkingBase* weight, T payload)
 {
 	WeightedItem<T> weighted_item;
 	weighted_item.item = payload;
@@ -412,19 +413,19 @@ void RandomWaitingList<T>::add(NonStrictMarkingBase* weight, T* payload)
 }
 
 template <class T>
-T* RandomWaitingList<T>::pop()
+T RandomWaitingList<T>::pop()
 {
 	WeightedItem<T> weighted_item = queue.top();
-	T* marking = weighted_item.item;
+	T marking = weighted_item.item;
 	queue.pop();
 	return marking;
 }
 
 template <class T>
-T* RandomWaitingList<T>::peek()
+T RandomWaitingList<T>::peek()
 {
 	WeightedItem<T> weighted_item = queue.top();
-	T* marking = weighted_item.item;
+	T marking = weighted_item.item;
 	return marking;
 }
 
@@ -440,7 +441,7 @@ RandomWaitingList<T>::~RandomWaitingList()
 }
 
 template <class T>
-void RandomStackWaitingList<T>::add(NonStrictMarkingBase* weight, T* payload)
+void RandomStackWaitingList<T>::add(NonStrictMarkingBase* weight, T payload)
 {
 	WeightedItem<T> weighted_item;
 	weighted_item.item = payload;
@@ -457,19 +458,19 @@ void RandomStackWaitingList<T>::flushBuffer(){
 }
 
 template <class T>
-T* RandomStackWaitingList<T>::pop()
+T RandomStackWaitingList<T>::pop()
 {
 	flushBuffer();
-	T* marking = this->stack.top();
+	T marking = this->stack.top();
 	this->stack.pop();
 	return marking;
 }
 
 template <class T>
-T* RandomStackWaitingList<T>::peek()
+T RandomStackWaitingList<T>::peek()
 {
 	flushBuffer();
-	T* marking = this->stack.top();
+	T marking = this->stack.top();
 	return marking;
 }
 

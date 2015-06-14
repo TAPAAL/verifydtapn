@@ -15,7 +15,7 @@ ReachabilitySearch::ReachabilitySearch(TAPN::TimedArcPetriNet& tapn, NonStrictMa
 
 }
     
-ReachabilitySearch::ReachabilitySearch(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list)
+ReachabilitySearch::ReachabilitySearch(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking*>* waiting_list)
 	: AbstractNaiveVerification<PWListBase,NonStrictMarking>(tapn, initialMarking, query, options, new PWList(waiting_list, false)) {
     
 }
@@ -97,7 +97,7 @@ void ReachabilitySearch::getTrace(){
 }
 
 void ReachabilitySearchPTrie::getTrace(){
-	stack < NonStrictMarking*> printStack;
+	/*stack < NonStrictMarking*> printStack;
         PWListHybrid* pwhlist = (PWListHybrid*)(this->pwList);
         MetaDataWithTraceAndEncoding* next = pwhlist->parent;
         NonStrictMarking* last = lastMarking;
@@ -110,7 +110,7 @@ void ReachabilitySearchPTrie::getTrace(){
             printStack.push(m);
             next = next->parent;
         };
-        printXMLTrace(lastMarking, printStack, query, tapn);
+        printXMLTrace(lastMarking, printStack, query, tapn);*/
 }
 
 ReachabilitySearch::~ReachabilitySearch() {

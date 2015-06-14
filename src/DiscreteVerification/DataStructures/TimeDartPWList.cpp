@@ -58,10 +58,11 @@ TimeDartBase* TimeDartPWHashMap::getNextUnexplored(){
 
 bool TimeDartPWPData::add(NonStrictMarkingBase* marking, int youngest, WaitingDart* parent, int upper, int start){
 	discoveredMarkings++;
-        PTrie<TimeDartBase>::Result res = passed.add(marking);
+        std::pair<bool, ptriepointer<TimeDartBase*> > res = passed.insert(encoder.encode(marking));
 
-        if(!res.isNew){
-            TimeDartBase* t = res.encoding.getMeta();
+        
+        if(!res.first){
+            TimeDartBase* t = res.second.getMeta();
             bool inWaiting = t->getWaiting() < t->getPassed();
             t->setWaiting(min(t->getWaiting(),youngest));
 
@@ -70,7 +71,8 @@ bool TimeDartPWPData::add(NonStrictMarkingBase* marking, int youngest, WaitingDa
                         ((EncodedReachabilityTraceableDart*)t)->trace = new TraceDart(t, parent, youngest, start, upper, marking->getGeneratedBy());
                         this->last = ((EncodedReachabilityTraceableDart*)t)->trace;
                     }
-                    waiting_list->add(marking, new EncodingPointer<TimeDartBase>(res.encoding, res.pos));
+                    assert(false);
+                    waiting_list->add(marking, res.second);
  //               waiting_list->Add(t->getBase(), t);
             }
             return false;
@@ -86,12 +88,13 @@ bool TimeDartPWPData::add(NonStrictMarkingBase* marking, int youngest, WaitingDa
                 dart = new TimeDartBase(marking, youngest, INT_MAX);
         }
         stored++;
-        res.encoding.setMeta(dart);
-        EncodingPointer<TimeDartBase>* ep = new EncodingPointer<TimeDartBase>(res.encoding, res.pos);
-	waiting_list->add(marking, ep);
+        assert(false);
+//        res.second.getEncoding().setMeta(dart);
+	waiting_list->add(marking, res.second);
         if (this->trace) {
             // if trace, create new (persistent) encodingpointer as regular one gets deleted every time we pop from waiting.
-                ((EncodedReachabilityTraceableDart*) dart)->encoding = new EncodingPointer<TimeDartBase>(res.encoding, res.pos);
+            assert(false);
+            ((EncodedReachabilityTraceableDart*) dart)->encoding = &res.second;
         }
 //        waiting_list->Add(dart->getBase(), dart);
 	return true;
@@ -99,13 +102,11 @@ bool TimeDartPWPData::add(NonStrictMarkingBase* marking, int youngest, WaitingDa
 
 TimeDartBase* TimeDartPWPData::getNextUnexplored(){
   
-    EncodingPointer<TimeDartBase>* p = waiting_list->pop();
-    NonStrictMarkingBase* m = passed.enumerateDecode(*p);
-    TimeDartBase* dart = p->encoding.getMeta();
+    ptriepointer<TimeDartBase*> p = waiting_list->pop();
+    NonStrictMarkingBase* m = encoder.decode(p);
+    TimeDartBase* dart = p.getMeta();
     dart->setBase(m);
     
-    p->encoding.release();
-    delete p;
     return dart;
 }
 

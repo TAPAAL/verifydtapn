@@ -29,7 +29,7 @@ class TimeDartReachabilitySearch : public TimeDartVerification{
 public:
         TimeDartReachabilitySearch(TAPN::TimedArcPetriNet& tapn, NonStrictMarkingBase& initialMarking, AST::Query* query, VerificationOptions options) 
         :TimeDartVerification(tapn, options, query, initialMarking), trace(10000){};
-        TimeDartReachabilitySearch(TAPN::TimedArcPetriNet& tapn, NonStrictMarkingBase& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<TimeDartBase>* waiting_list)
+        TimeDartReachabilitySearch(TAPN::TimedArcPetriNet& tapn, NonStrictMarkingBase& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<TimeDartBase*>* waiting_list)
         :TimeDartVerification(tapn, options, query, initialMarking), trace(10000){
             pwList = new TimeDartPWHashMap(waiting_list, options.getTrace());
         };
@@ -70,7 +70,7 @@ protected:
         virtual inline NonStrictMarkingBase* getBase(TimeDartBase* dart){
                 EncodedReachabilityTraceableDart* erd = (EncodedReachabilityTraceableDart*)dart;
 
-                return ((TimeDartPWPData*)pwList)->decode(erd->encoding);
+                return ((TimeDartPWPData*)pwList)->decode(*erd->encoding);
        };
 };
 

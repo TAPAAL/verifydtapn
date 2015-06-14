@@ -30,7 +30,7 @@ namespace VerifyTAPN {
             : TimeDartVerification(tapn, options, query, initialMarking) {
             };
 
-            TimeDartLiveness(TAPN::TimedArcPetriNet& tapn, NonStrictMarkingBase& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<WaitingDart>* waiting_list)
+            TimeDartLiveness(TAPN::TimedArcPetriNet& tapn, NonStrictMarkingBase& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<WaitingDart*>* waiting_list)
             : TimeDartVerification(tapn, options, query, initialMarking) {
                 pwList = new TimeDartLivenessPWHashMap( options, waiting_list);
             };
@@ -65,7 +65,7 @@ namespace VerifyTAPN {
         class TimeDartLivenessPData : public TimeDartLiveness {
         public:
 
-            TimeDartLivenessPData(TAPN::TimedArcPetriNet& tapn, NonStrictMarkingBase& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<EncodingPointer<WaitingDart> >* waiting_list)
+            TimeDartLivenessPData(TAPN::TimedArcPetriNet& tapn, NonStrictMarkingBase& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<ptriepointer<WaitingDart*> >* waiting_list)
             : TimeDartLiveness(tapn, initialMarking, query, options) {
                 pwList = new TimeDartLivenessPWPData(options, waiting_list, tapn, tapn.getNumberOfPlaces(), tapn.getMaxConstant());
             };
@@ -79,8 +79,8 @@ namespace VerifyTAPN {
             
             virtual inline NonStrictMarkingBase* getBase(TimeDartBase* dart){
                 EncodedLivenessDart* eld = (EncodedLivenessDart*)dart;
-                EncodingPointer<LivenessDart>* ep = (EncodingPointer<LivenessDart>*)(eld->encoding);
-                return ((TimeDartLivenessPWPData*)pwList)->decode(ep);
+                ptriepointer<LivenessDart*>* ep = (ptriepointer<LivenessDart*>*)(eld->encoding);
+                return ((TimeDartLivenessPWPData*)pwList)->decode(*ep);
             };
         };
 
