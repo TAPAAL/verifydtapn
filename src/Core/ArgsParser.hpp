@@ -80,7 +80,7 @@ namespace VerifyTAPN
 	class ArgsParser {
 		typedef std::vector< boost::shared_ptr<Switch> > parser_vec;
 	public:
-		ArgsParser() : parsers(), version(3,1,2) { initialize(); };
+		ArgsParser() : parsers(), version(3,1,3) { initialize(); };
 		virtual ~ArgsParser() {};
 
 		VerificationOptions parse(int argc, char* argv[]) const;
@@ -88,6 +88,7 @@ namespace VerifyTAPN
 		VerificationOptions createVerificationOptions(const option_map& map) const;
                 VerificationOptions verifyInputFiles(VerificationOptions, std::string model_file, std::string query_file) const;
 		unsigned int tryParseInt(const option& option) const;
+ 		unsigned long long tryParseLongLong(const option& option) const;
 		std::vector<std::string> parseIncPlaces(const std::string& string) const;
 		void initialize();
 		void printHelp() const;
