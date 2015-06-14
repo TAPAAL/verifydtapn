@@ -390,6 +390,18 @@ unsigned int ArgsParser::tryParseInt(const option& option) const {
 	return result;
 }
 
+unsigned long long ArgsParser::tryParseLongLong(const option& option) const {
+	unsigned long long result = 0;
+	try {
+		result = boost::lexical_cast<unsigned long long>(option.second);
+	} catch (boost::bad_lexical_cast & e) {
+		std::cout << "Invalid value '" << option.second << "' for option '--"
+				<< option.first << "'" << std::endl;
+		exit(1);
+	}
+	return result;
+}
+
 std::vector<std::string> ArgsParser::parseIncPlaces(
 		const std::string& string) const {
 	std::vector<std::string> vec;
@@ -432,7 +444,7 @@ VerificationOptions ArgsParser::createVerificationOptions(const option_map& map)
 			tryParseInt(*map.find(WORKFLOW)));
         
 	assert(map.find(STRONG_WORKFLOW_BOUND) != map.end());
-	unsigned int workflowBound = tryParseInt(*map.find(STRONG_WORKFLOW_BOUND));
+	unsigned long long workflowBound = tryParseLongLong(*map.find(STRONG_WORKFLOW_BOUND));
 
         
         assert(map.find(GCD) != map.end());

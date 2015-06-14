@@ -44,7 +44,7 @@ namespace VerifyTAPN {
                 bool keepDeadTokens, 
                 bool enableGCDLowerGuards,
                 WorkflowMode workflow,
-                int workflowBound
+                long long workflowBound
                 ) : inputFile(""),
         queryFile(""),
         searchType(searchType),
@@ -122,7 +122,7 @@ namespace VerifyTAPN {
             return workflow;
         };
 
-        inline const int getWorkflowBound() const {
+        inline const long long getWorkflowBound() const {
             return workflowBound;
         };
 
@@ -143,7 +143,7 @@ namespace VerifyTAPN {
         bool keepDeadTokens;
         bool enableGCDLowerGuards;
         WorkflowMode workflow;
-        int workflowBound;
+        long long workflowBound;
     };
 
     std::ostream& operator<<(std::ostream& out, const VerificationOptions& options);

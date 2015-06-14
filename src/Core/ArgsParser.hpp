@@ -88,6 +88,7 @@ namespace VerifyTAPN
 		VerificationOptions createVerificationOptions(const option_map& map) const;
                 VerificationOptions verifyInputFiles(VerificationOptions, std::string model_file, std::string query_file) const;
 		unsigned int tryParseInt(const option& option) const;
+ 		unsigned long long tryParseLongLong(const option& option) const;
 		std::vector<std::string> parseIncPlaces(const std::string& string) const;
 		void initialize();
 		void printHelp() const;
