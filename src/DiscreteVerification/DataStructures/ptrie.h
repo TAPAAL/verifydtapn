@@ -30,6 +30,7 @@ namespace pgj
         public:
             ptriepointer(ptrie<T>* container, uint i); 
             T getMeta() const;
+            void setMeta(T);
             uint revsereWritePartialEncoding(encoding_t&) const;
             encoding_t& remainder() const;
             ptriepointer() : container(NULL), index(0) {};
@@ -45,6 +46,12 @@ namespace pgj
     T ptriepointer<T>::getMeta() const
     {
         return container->getEntry(index)->data.getMeta();
+    }
+    
+    template<typename T>
+    void ptriepointer<T>::setMeta(T val)
+    {
+        container->getEntry(index)->data.setMeta(val);
     }
     
     template<typename T>
@@ -113,7 +120,6 @@ namespace pgj
             std::pair<bool, ptriepointer<T> > find(const encoding_t& encoding);
             bool isConsistent() const;
             uint size() const { return nextFreeEntry; }
-//            uint size() const;
     };
     
     template<typename T>

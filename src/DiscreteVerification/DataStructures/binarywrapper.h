@@ -214,6 +214,7 @@ namespace pgj
     void binarywrapper<T>::copy(const binarywrapper& other, uint offset)
     {
         memcpy(&(blob[offset / 8]), other.blob, other.numberOfBytes);
+        meta = other.meta;
     }
     
     template<class T>

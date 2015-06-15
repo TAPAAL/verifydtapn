@@ -74,7 +74,7 @@ namespace VerifyTAPN {
             uint data = 0;
             uint count = 0;
             bool bit;
-            for (int i = 0; i < maxNumberOfTokens; i++) {
+            for (uint i = 0; i < maxNumberOfTokens; i++) {
                 uint offset = offsetBitSize * i;
                 cbit = offset + offsetBitSize - 1;
                 

@@ -44,8 +44,9 @@ bool PWList::add(NonStrictMarking* marking){
 
 NonStrictMarking* PWList::getNextUnexplored(){
     NonStrictMarking* m = waiting_list->pop();
+    
     std::cout << "p:" << *m << std::endl;
-
+    std::cout << "m:it->" <<    m->meta->inTrace << ":passed->"  << m->meta->passed << std::endl;
     return m;
 }
 
@@ -73,33 +74,32 @@ std::ostream& operator<<(std::ostream& out, PWList& x){
 
             std::pair<bool, ptriepointer<MetaData*> > res = passed.insert(encoder.encode(marking));
 
-            binarywrapper<MetaData*> enc = binarywrapper<MetaData*>(res.second.remainder());
             if(res.first){
-                enc.setMeta(NULL);
+                res.second.setMeta(NULL);
                 if(isLiveness){
                     MetaData* meta;
-                    if(this->makeTrace){
+                    if(makeTrace){
                         meta = new MetaDataWithTrace();   
                         ((MetaDataWithTrace*)meta)->generatedBy = marking->getGeneratedBy();
                     } else {
                         meta = new MetaData();
                     }
-                    enc.setMeta(meta);
+                    res.second.setMeta(meta);
                     marking->meta = meta;
-                } else if(this->makeTrace){
+                    std::cout << "m:it->" << marking->meta->inTrace << ":passed->"  << marking->meta->passed << std::endl;
+                } else if(makeTrace){
                     MetaDataWithTraceAndEncoding* meta = new MetaDataWithTraceAndEncoding();
                     meta->generatedBy = marking->getGeneratedBy();
-                    enc.setMeta(meta);
+                    res.second.setMeta(meta);
                     meta->ep = res.second;
-                    assert(false);
-//                    meta->parent = parent;
+                    meta->parent = parent;
                     
                     meta->totalDelay = marking->calculateTotalDelay();
                 }
                 waiting_list->add(marking, res.second);
             } else{
                 if(isLiveness){
-                        marking->meta = enc.getMeta();
+                        marking->meta = res.second.getMeta();
                         if(this->makeTrace){
                             ((MetaDataWithTrace*)marking->meta)->generatedBy = marking->getGeneratedBy();
                         }
@@ -127,12 +127,11 @@ std::ostream& operator<<(std::ostream& out, PWList& x){
                 if(isLiveness){
                         m->setGeneratedBy(((MetaDataWithTrace*)(m->meta))->generatedBy);
                 } else {
-                    assert(false);
-//                    this->parent = (MetaDataWithTraceAndEncoding*)(m->meta);
+                    parent = (MetaDataWithTraceAndEncoding*)(m->meta);
                 }
             }
             std::cout << "p:" << *m << std::endl;
-
+            std::cout << "m:it->" <<    m->meta->inTrace << ":passed->"  << m->meta->passed << std::endl;
             return m;
         }
 

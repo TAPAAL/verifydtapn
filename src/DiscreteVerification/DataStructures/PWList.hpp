@@ -121,7 +121,7 @@ class PWListHybrid : public PWListBase {
 
             WaitingList<ptriepointer<MetaData*> >* waiting_list;
             bool makeTrace;
-            ptriepointer<MetaData*>* parent;             
+            MetaDataWithTraceAndEncoding* parent;             
             ptrie<MetaData*> passed;
             MarkingEncoder<MetaData*> encoder;
 };

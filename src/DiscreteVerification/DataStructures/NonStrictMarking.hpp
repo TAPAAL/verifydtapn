@@ -46,7 +46,7 @@ namespace DiscreteVerification {
     
     struct MetaDataWithTraceAndEncoding : public MetaDataWithTrace {
         ptriepointer<MetaData*> ep;
-        MetaDataWithTraceAndEncoding* parent;
+            MetaDataWithTraceAndEncoding* parent;
     };
     
     class NonStrictMarking : public NonStrictMarkingBase{
