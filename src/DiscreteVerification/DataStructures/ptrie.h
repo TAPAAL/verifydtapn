@@ -112,6 +112,7 @@ namespace pgj
             std::pair<bool, ptriepointer<T> > insert(const encoding_t& encoding);
             std::pair<bool, ptriepointer<T> > find(const encoding_t& encoding);
             bool isConsistent() const;
+            uint size() const { return nextFreeEntry; }
 //            uint size() const;
     };
     
@@ -230,16 +231,12 @@ namespace pgj
         uint c_index = ent->nodeindex;
         node_t* node = getNode(c_index);
         assert(isConsistent());
-        while(node->parent != 0)
+        while(c_index != 0)
         {
             uint p_index = node->parent;
-            assert(isConsistent());
             node = getNode(p_index);
-            assert(isConsistent());
             bool branch = c_index == node->highpos;
-            assert(isConsistent());
             encoding.set(count, branch);
-            assert(isConsistent());
             ++count;
             c_index = p_index;
         }
@@ -256,7 +253,7 @@ namespace pgj
         tree_pos = 0;
         enc_pos = 0;
         bucketsize = 0;
-        e_index = 0;
+
         size_t encsize = encoding.size() * 8;
         
         // run through tree as long as there are branches covering some of 
@@ -265,11 +262,12 @@ namespace pgj
             tree_pos = t_pos;
             if (encoding.at(enc_pos)) {
                 t_pos = getNode(t_pos)->highpos;
-
             } else {
                 t_pos = getNode(t_pos)->lowpos;
             }
 
+            assert(t_pos == 0 || getNode(t_pos)->parent == tree_pos);
+            
             enc_pos++;
 
         } while (t_pos != 0);
@@ -301,14 +299,18 @@ namespace pgj
         
         bool found = false;
 
-        for(; e_index < bucketsize; ++e_index)
+        e_index = std::numeric_limits<uint>::max();
+        
+        for(uint i = 0; i < bucketsize; ++i)
         {
-            if(getEntry(node->entries[e_index])->data == s_enc)
+            if(getEntry(node->entries[i])->data == s_enc)
             {
                 found = true;
+                e_index = node->entries[i];
                 break;
             }
         }
+        
         assert(isConsistent());        
         return found;
     }
@@ -457,10 +459,7 @@ namespace pgj
                                     enc_pos, 
                                     encsize);
         assert(n_entry->data.raw() != encoding.raw());
-        
-        std::cout << "added" << std::endl;
-        n_entry->data.print();
-        
+                
         n_entry->nodeindex = tree_pos;
         
         // make a new bucket, add new entry to end, copy over old data

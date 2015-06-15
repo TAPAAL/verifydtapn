@@ -64,10 +64,6 @@ namespace pgj
                 if(enc1.blob[i] != enc2.blob[i])
                     return false;
             
-            std::cout << "match : " << std::endl;
-            enc1.print(); 
-            enc2.print();
-            std::cout << "done" << std::endl;
             return true;
         }
         

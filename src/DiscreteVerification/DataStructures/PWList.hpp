@@ -106,8 +106,7 @@ class PWListHybrid : public PWListBase {
             };
 
             virtual long long size() const {
-//                return passed.size();
-                return 0;
+                return passed.size();
             };
             virtual long long explored() {return waiting_list->size();};
             void printMemStats() {

@@ -67,7 +67,7 @@ namespace VerifyTAPN {
             const encoding_t remainder = pointer.remainder();
             uint n = pointer.revsereWritePartialEncoding(scratchpad);
             assert(pointer.container->isConsistent());
-            n = n - (n % 8);    // make sure n matches exactly on a byte
+            uint r_offset = n - (n % 8);    // make sure n matches exactly on a byte
             
             uint cbit = 0;
             // foreach token
@@ -88,7 +88,7 @@ namespace VerifyTAPN {
                     }
                     else
                     {
-                        bit = remainder.at(cbit - n);
+                        bit = remainder.at(cbit - r_offset);
                         assert(pointer.container->isConsistent());
                     }
                     
@@ -111,7 +111,7 @@ namespace VerifyTAPN {
                     }
                     else
                     {
-                        bit = remainder.at(cbit - n);
+                        bit = remainder.at(cbit - r_offset);
                     }
                     
                     if (bit) {
@@ -136,7 +136,7 @@ namespace VerifyTAPN {
                     break;
                 }
                 
-                if (cbit == n + remainder.size()) {
+                if (cbit == r_offset + remainder.size() * 8) {
                     // rest is zeroes, ignore
                     break;
                 }

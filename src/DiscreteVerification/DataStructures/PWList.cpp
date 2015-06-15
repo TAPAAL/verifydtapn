@@ -13,6 +13,8 @@ namespace VerifyTAPN {
 namespace DiscreteVerification {
 
 bool PWList::add(NonStrictMarking* marking){
+        std::cout << "a:" << *marking << std::endl;
+
 	discoveredMarkings++;
 	NonStrictMarkingList& m = markings_storage[marking->getHashKey()];
 	for(NonStrictMarkingList::const_iterator iter = m.begin();
@@ -41,7 +43,10 @@ bool PWList::add(NonStrictMarking* marking){
 }
 
 NonStrictMarking* PWList::getNextUnexplored(){
-	return waiting_list->pop();
+    NonStrictMarking* m = waiting_list->pop();
+    std::cout << "p:" << *m << std::endl;
+
+    return m;
 }
 
 PWList::~PWList() {
@@ -60,16 +65,15 @@ std::ostream& operator<<(std::ostream& out, PWList& x){
 }
 
         bool PWListHybrid::add(NonStrictMarking* marking) {
-
+            std::cout << "a:" << *marking << std::endl;
             discoveredMarkings++;
             // reset the encoding array
 
             assert(passed.isConsistent());
-            binarywrapper<MetaData*> enc = encoder.encode(marking);
-            assert(passed.isConsistent());
-            std::pair<bool, ptriepointer<MetaData*> > res = passed.insert(enc);
-            assert(passed.isConsistent());
-            enc = binarywrapper<MetaData*>(res.second.remainder());
+
+            std::pair<bool, ptriepointer<MetaData*> > res = passed.insert(encoder.encode(marking));
+
+            binarywrapper<MetaData*> enc = binarywrapper<MetaData*>(res.second.remainder());
             if(res.first){
                 enc.setMeta(NULL);
                 if(isLiveness){
@@ -117,8 +121,7 @@ std::ostream& operator<<(std::ostream& out, PWList& x){
             delete base;
             
             m->meta = p.getMeta();
-            
-            std::cout << "popped " << *m << std::endl;
+
             
             if(makeTrace){
                 if(isLiveness){
@@ -128,6 +131,8 @@ std::ostream& operator<<(std::ostream& out, PWList& x){
 //                    this->parent = (MetaDataWithTraceAndEncoding*)(m->meta);
                 }
             }
+            std::cout << "p:" << *m << std::endl;
+
             return m;
         }
 
