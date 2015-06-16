@@ -13,7 +13,6 @@ namespace VerifyTAPN {
 namespace DiscreteVerification {
 
 bool PWList::add(NonStrictMarking* marking){
-        std::cout << "a:" << *marking << std::endl;
 
 	discoveredMarkings++;
 	NonStrictMarkingList& m = markings_storage[marking->getHashKey()];
@@ -44,10 +43,6 @@ bool PWList::add(NonStrictMarking* marking){
 
 NonStrictMarking* PWList::getNextUnexplored(){
     NonStrictMarking* m = waiting_list->pop();
-    
-    std::cout << "p:" << *m << std::endl;
-    if(m->meta != NULL)
-        std::cout << "m:it->" <<    m->meta->inTrace << ":passed->"  << m->meta->passed << std::endl;
     return m;
 }
 
@@ -67,7 +62,6 @@ std::ostream& operator<<(std::ostream& out, PWList& x){
 }
 
         bool PWListHybrid::add(NonStrictMarking* marking) {
-//            std::cout << "a:" << *marking << std::endl;
             discoveredMarkings++;
             // reset the encoding array
 
@@ -127,9 +121,6 @@ std::ostream& operator<<(std::ostream& out, PWList& x){
                     parent = (MetaDataWithTraceAndEncoding*)(m->meta);
                 }
             }
-//            std::cout << "p:" << *m << std::endl;
-//            if(m->meta != NULL)
-//                std::cout << "m:it->" <<    m->meta->inTrace << ":passed->"  << m->meta->passed << std::endl;
             return m;
         }
 

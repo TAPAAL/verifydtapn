@@ -67,26 +67,32 @@ namespace pgj
             return true;
         }
         
+       /* inline friend bool operator <=( const binarywrapper &enc1,
+                                        const binarywrapper &enc2)
+        {
+            if(enc1.numberOfBytes != enc2.numberOfBytes)
+                return enc1.numberOfBytes < enc2.numberOfBytes;
+            
+            for(size_t i = 0; i < enc1.numberOfBytes; i++)
+                if(enc1.blob[i] < enc2.blob[i])
+                    return true;
+                else if (enc1.blob[i] > enc2.blob[i])
+                    return false;
+            
+            return true;
+        }*/
+        
         inline friend bool operator<(   const binarywrapper &enc1, 
                                         const binarywrapper &enc2) {
-            int count = enc1.numberOfBytes > enc2.numberOfBytes ?
-                                        enc1.numberOfBytes : enc2.numberOfBytes;
-
-            for (size_t i = 0; i < count; i++) {
-                if (enc1.numberOfBytes > i && enc2.numberOfBytes > i &&
-                        enc1.blob[i] != enc2.blob[i]) {
-                    return 
-                            ((unsigned short int) enc1.blob[i]) < 
-                            ((unsigned short int) enc2.blob[i]);
-                }
-            }
+            if(enc1.numberOfBytes != enc2.numberOfBytes)
+                return enc1.numberOfBytes < enc2.numberOfBytes;
             
-            if (enc1.numberOfBytes > enc2.numberOfBytes) {
-                return false;
-            } else if (enc1.numberOfBytes < enc2.numberOfBytes) {
-                return true;
-            }
-
+            for(size_t i = 0; i < enc1.numberOfBytes; i++)
+                if(enc1.blob[i] < enc2.blob[i])
+                    return true;
+                else if (enc1.blob[i] > enc2.blob[i])
+                    return false;
+            
             return false;
         }
         

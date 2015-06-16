@@ -12,9 +12,11 @@
 #include <assert.h>
 #include <limits>
 #include <vector>
+#include <stdint.h>
+
 namespace pgj
 {
-    typedef unsigned int uint;
+    typedef uint32_t uint;
     typedef unsigned char uchar;
     
     template<typename T>
@@ -70,7 +72,7 @@ namespace pgj
     class ptrie {
         typedef binarywrapper<T> encoding_t;  
         friend class ptriepointer<T>;
-        private:
+        public:
             
             // nodes in the tree
             struct node_t
@@ -98,19 +100,20 @@ namespace pgj
             
             short int splitThreshold;
             
+        protected:
             node_t* getNode(uint index) const;
             uint newNode();
             
             entry_t* getEntry(uint index) const;
             uint newEntry();
             
-            bool bestMatch(const encoding_t& encoding, uint& tree_pos , uint& e_index,
-                                            uint& enc_pos, uint& bucketsize);
+            virtual bool bestMatch(const encoding_t& encoding, uint& tree_pos , uint& e_index,
+                                uint& enc_pos, uint& b_index, uint& bucketsize);
             
-            uint splitNode(node_t* node, uint tree_pos, uint enc_pos, 
+            virtual uint splitNode(node_t* node, uint tree_pos, uint enc_pos, 
                     uint bucketsize, bool branch);
-            protected:
-                uint writePathToRoot(uint n_index, encoding_t& encoding) const;
+
+            virtual uint writePathToRoot(uint n_index, encoding_t& encoding) const;
             
         public:
             ptrie();
@@ -256,7 +259,7 @@ namespace pgj
     
     template<typename T>
     bool ptrie<T>::bestMatch(const encoding_t& encoding, uint& tree_pos, 
-                                uint& e_index, uint& enc_pos, uint& bucketsize)
+                uint& e_index, uint& enc_pos, uint& b_index, uint& bucketsize)
     {
         assert(isConsistent());
         uint t_pos = 0;
@@ -311,12 +314,22 @@ namespace pgj
 
         e_index = std::numeric_limits<uint>::max();
         
-        for(uint i = 0; i < bucketsize; ++i)
+        for(b_index = 0; b_index < bucketsize; ++b_index)
         {
-            if(getEntry(node->entries[i])->data == s_enc)
+            entry_t* ent = getEntry(node->entries[b_index]);
+            if(ent->data < s_enc)
             {
-                found = true;
-                e_index = node->entries[i];
+                continue;
+            }
+            else
+            if(ent->data == s_enc)
+            {
+                found = ent->data == s_enc;                
+                e_index = node->entries[b_index];
+                break;
+            }
+            else
+            {
                 break;
             }
         }
@@ -449,8 +462,9 @@ namespace pgj
         uint enc_pos;
         uint bucketsize;
         uint e_index;
+        uint b_index;
                 
-        if(bestMatch(encoding, tree_pos, e_index, enc_pos, bucketsize))
+        if(bestMatch(encoding, tree_pos, e_index, enc_pos, b_index, bucketsize))
         {   // We are not inserting duplicates, semantics of PTrie is a set.
             assert(isConsistent());
             return std::pair<bool, ptriepointer<T> >(false, 
@@ -474,14 +488,25 @@ namespace pgj
         n_entry->nodeindex = tree_pos;
         
         // make a new bucket, add new entry to end, copy over old data
-        uint* nbucket = new uint[bucketsize + 1];
-        nbucket[bucketsize] = ne_index;
+        bucketsize += 1;
+        uint* nbucket = new uint[bucketsize];
         for(size_t i = 0; i < bucketsize; ++i)
         {
-            nbucket[i] = node->entries[i];
+            if(i < b_index)
+            {
+                nbucket[i] = node->entries[i];
+            } 
+            else if (i == b_index)
+            {
+                nbucket[i] = ne_index;
+            }
+            else
+            {
+                nbucket[i] = node->entries[i - 1];
+            }
         }
         // We added one to the bucket, now it is larger
-        bucketsize += 1;
+
         
         // remove old bucket and replace
         delete[] node->entries;
