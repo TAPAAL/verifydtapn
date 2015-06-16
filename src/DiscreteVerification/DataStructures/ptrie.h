@@ -211,8 +211,10 @@ namespace pgj
             assert(node->lowpos < nextFreeNode);
             assert(node->parent < nextFreeNode);
             assert(node->parent == 0 && i == 0 || node->parent < i);
-            assert((node->highpos > i && node->highCount == -1) || (node->highpos == 0 && node->highCount >= 0));
-            assert((node->lowpos > i && node->lowCount == -1) || (node->lowpos == 0 && node->lowCount >= 0));
+            assert((node->highpos > i && node->highCount == -1) 
+                    || (node->highpos == 0 && node->highCount >= 0));
+            assert((node->lowpos > i && node->lowCount == -1) 
+                    || (node->lowpos == 0 && node->lowCount >= 0));
             
             size_t bucket = 0;
             
@@ -253,8 +255,8 @@ namespace pgj
     }
     
     template<typename T>
-    bool ptrie<T>::bestMatch(const encoding_t& encoding, uint& tree_pos, uint& e_index
-                                                ,uint& enc_pos, uint& bucketsize)
+    bool ptrie<T>::bestMatch(const encoding_t& encoding, uint& tree_pos, 
+                                uint& e_index, uint& enc_pos, uint& bucketsize)
     {
         assert(isConsistent());
         uint t_pos = 0;
@@ -324,7 +326,8 @@ namespace pgj
     }
     
     template<typename T>
-    uint ptrie<T>::splitNode(node_t* node, uint tree_pos, uint enc_pos, uint bucketsize, bool branch)
+    uint ptrie<T>::splitNode(node_t* node, uint tree_pos, uint enc_pos, 
+                                                uint bucketsize, bool branch)
     {
         assert(isConsistent());
         uint n_node_index = newNode();

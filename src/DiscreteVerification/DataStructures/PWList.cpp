@@ -114,9 +114,7 @@ std::ostream& operator<<(std::ostream& out, PWList& x){
 
         NonStrictMarking* PWListHybrid::getNextUnexplored() {
             ptriepointer<MetaData*> p = waiting_list->pop();
-            assert(passed.isConsistent());
             NonStrictMarkingBase* base = encoder.decode(p);
-            assert(passed.isConsistent());
             NonStrictMarking* m = new NonStrictMarking(*base);
             delete base;
             
