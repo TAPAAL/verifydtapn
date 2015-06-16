@@ -62,7 +62,7 @@ namespace pgj
                 else return 1;
             }
                 
-            for(size_t i = 0; i < numberOfBytes; i++)
+            for(int i = numberOfBytes - 1; i >= 0; i--)
             {
                 if(blob[i] < other.blob[i])
                     return -1;
