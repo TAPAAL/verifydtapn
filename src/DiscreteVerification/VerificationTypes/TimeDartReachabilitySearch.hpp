@@ -70,7 +70,7 @@ protected:
         virtual inline NonStrictMarkingBase* getBase(TimeDartBase* dart){
                 EncodedReachabilityTraceableDart* erd = (EncodedReachabilityTraceableDart*)dart;
 
-                return ((TimeDartPWPData*)pwList)->decode(*erd->encoding);
+                return ((TimeDartPWPData*)pwList)->decode(erd->encoding);
        };
 };
 

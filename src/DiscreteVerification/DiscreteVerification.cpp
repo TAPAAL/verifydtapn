@@ -160,7 +160,7 @@ namespace VerifyTAPN {
                         exit(1);
                     }                
                     if (options.getMemoryOptimization() == VerificationOptions::PTRIE) {
-                        WaitingList<ptriepointer<WaitingDart*> >* strategy = getWaitingList<ptriepointer<WaitingDart*> > (query, options);
+                        WaitingList<std::pair<WaitingDart*, ptriepointer<LivenessDart*> > >* strategy = getWaitingList<std::pair<WaitingDart*, ptriepointer<LivenessDart*> > > (query, options);
                         TimeDartLivenessPData verifier = TimeDartLivenessPData(tapn, *initialMarking, query, options, strategy);
                         VerifyAndPrint(
                                 tapn,

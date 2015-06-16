@@ -85,10 +85,10 @@ namespace VerifyTAPN {
 
         class TimeDartLivenessPWPData : public TimeDartLivenessPWBase {
         public:
-
+            typedef std::pair<WaitingDart*, ptriepointer<LivenessDart*> > waitingpair_t;
 
             
-            TimeDartLivenessPWPData(VerificationOptions options, WaitingList<ptriepointer<WaitingDart*> >* w_l, TAPN::TimedArcPetriNet& tapn, int nplaces, int mage): 
+            TimeDartLivenessPWPData(VerificationOptions options, WaitingList<waitingpair_t >* w_l, TAPN::TimedArcPetriNet& tapn, int nplaces, int mage): 
                     TimeDartLivenessPWBase(), 
                     options(options), 
                     waiting_list(w_l), 
@@ -114,7 +114,7 @@ namespace VerifyTAPN {
             
         private:
             VerificationOptions options;
-            WaitingList<ptriepointer<WaitingDart*> >* waiting_list;
+            WaitingList<waitingpair_t >* waiting_list;
             ptrie<LivenessDart*> passed;
             MarkingEncoder<LivenessDart*> encoder;
         };

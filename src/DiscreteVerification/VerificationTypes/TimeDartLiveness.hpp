@@ -65,7 +65,7 @@ namespace VerifyTAPN {
         class TimeDartLivenessPData : public TimeDartLiveness {
         public:
 
-            TimeDartLivenessPData(TAPN::TimedArcPetriNet& tapn, NonStrictMarkingBase& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<ptriepointer<WaitingDart*> >* waiting_list)
+            TimeDartLivenessPData(TAPN::TimedArcPetriNet& tapn, NonStrictMarkingBase& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<std::pair<WaitingDart*, ptriepointer<LivenessDart*> > >* waiting_list)
             : TimeDartLiveness(tapn, initialMarking, query, options) {
                 pwList = new TimeDartLivenessPWPData(options, waiting_list, tapn, tapn.getNumberOfPlaces(), tapn.getMaxConstant());
             };
@@ -79,8 +79,7 @@ namespace VerifyTAPN {
             
             virtual inline NonStrictMarkingBase* getBase(TimeDartBase* dart){
                 EncodedLivenessDart* eld = (EncodedLivenessDart*)dart;
-                ptriepointer<LivenessDart*>* ep = (ptriepointer<LivenessDart*>*)(eld->encoding);
-                return ((TimeDartLivenessPWPData*)pwList)->decode(*ep);
+                return ((TimeDartLivenessPWPData*)pwList)->decode(eld->encoding);
             };
         };
 
