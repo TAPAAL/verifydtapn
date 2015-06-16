@@ -83,10 +83,8 @@ public:
 	virtual T pop();
 	virtual size_t size() { return this->stack.size() +buffer.size(); };
 	virtual void flushBuffer();
-private:
-	int calculateWeight(NonStrictMarkingBase* marking);
-	int calculateWeight(LivenessDart* marking);
-	int calculateWeight(WaitingDart* marking);
+protected:
+	virtual int calculateWeight(NonStrictMarkingBase* marking);
 	AST::Query* normalizeQuery(AST::Query* q);
 	priority_queue buffer;
 	AST::Query* query;
@@ -118,10 +116,9 @@ public:
 	virtual T peek();
 	virtual T pop();
 	virtual size_t size() { return queue.size(); };
-private:
+protected:
 	AST::Query* normalizeQuery(AST::Query* q);
-	int calculateWeight(NonStrictMarkingBase* marking);
-	int calculateWeight(LivenessDart* marking);
+	virtual int calculateWeight(NonStrictMarkingBase* marking);
 	priority_queue queue;
 	AST::Query* query;
 };
@@ -138,11 +135,9 @@ public:
 	virtual T peek();
 	virtual T pop();
 	virtual size_t size() { return queue.size(); };
-private:
-	virtual int calculateWeight(NonStrictMarking* marking);
-	virtual int calculateWeight(TimeDartBase* marking){	assert(false); return 0; }
-	virtual int calculateWeight(ptriepointer<T>& payload);
-	virtual int calculateWeight(WaitingDart* payload){	assert(false);  return 0;}
+protected:
+        virtual int calculateWeight(T payload);
+        virtual int calculateWeight(NonStrictMarkingBase* marking);       
 
 	priority_queue queue;
 	AST::Query* query;
@@ -252,31 +247,18 @@ T HeuristicStackWaitingList<T>::peek()
 }
 
 template <class T>
+AST::Query* HeuristicStackWaitingList<T>::normalizeQuery(AST::Query* q){
+	AST::NormalizationVisitor visitor;
+	return visitor.normalize(*q);
+}
+
+template <class T>
 int HeuristicStackWaitingList<T>::calculateWeight(NonStrictMarkingBase* marking)
 {
 	LivenessWeightQueryVisitor weight(*marking);
 	IntResult weight_c;
 	query->accept(weight, weight_c);
 	return weight_c.value;
-}
-
-template <class T>
-int HeuristicStackWaitingList<T>::calculateWeight(LivenessDart* dart)
-{
-	return calculateWeight(dart->getBase());
-}
-
-template <class T>
-int HeuristicStackWaitingList<T>::calculateWeight(WaitingDart* dart)
-{
-	return calculateWeight(dart->dart->getBase());
-}
-
-
-template <class T>
-AST::Query* HeuristicStackWaitingList<T>::normalizeQuery(AST::Query* q){
-	AST::NormalizationVisitor visitor;
-	return visitor.normalize(*q);
 }
 
 template <class T>
@@ -332,24 +314,18 @@ T HeuristicWaitingList<T>::peek()
 }
 
 template <class T>
+AST::Query* HeuristicWaitingList<T>::normalizeQuery(AST::Query* q){
+	AST::NormalizationVisitor visitor;
+	return visitor.normalize(*q);
+}
+
+template <class T>
 int HeuristicWaitingList<T>::calculateWeight(NonStrictMarkingBase* marking)
 {
 	WeightQueryVisitor weight(*marking);
 	IntResult weight_c;
 	query->accept(weight, weight_c);
 	return weight_c.value;
-}
-
-template <class T>
-int HeuristicWaitingList<T>::calculateWeight(LivenessDart* dart)
-{
-	return calculateWeight(dart->getBase());
-}
-
-template <class T>
-AST::Query* HeuristicWaitingList<T>::normalizeQuery(AST::Query* q){
-	AST::NormalizationVisitor visitor;
-	return visitor.normalize(*q);
 }
 
 template <class T>
@@ -362,22 +338,23 @@ void MinFirstWaitingList<T>::add(NonStrictMarkingBase* weight, T payload)
 {
 	WeightedItem<T> weighted_item;
 	weighted_item.item = payload;
-        assert(false);
-//	weighted_item.weight = calculateWeight(payload);
+	weighted_item.weight = calculateWeight(payload);
 	queue.push(weighted_item);
 }
 
+
 template <class T>
-int MinFirstWaitingList<T>::calculateWeight(NonStrictMarking* marking)
+int MinFirstWaitingList<T>::calculateWeight(NonStrictMarkingBase* marking)
 {
-	return marking->meta->totalDelay;
+    assert(false);
+    return 0;
 }
 
 template <class T>
-int MinFirstWaitingList<T>::calculateWeight(ptriepointer<T>& payload)
+int MinFirstWaitingList<T>::calculateWeight(T)
 {
     assert(false);
-//	return payload.getMeta()->totalDelay;
+    return 0;
 }
 
 template <class T>
