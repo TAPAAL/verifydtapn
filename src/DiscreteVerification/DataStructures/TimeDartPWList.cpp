@@ -62,7 +62,7 @@ bool TimeDartPWPData::add(NonStrictMarkingBase* marking, int youngest, WaitingDa
 
         
         if(!res.first){
-            TimeDartBase* t = res.second.getMeta();
+            TimeDartBase* t = res.second.get_meta();
             bool inWaiting = t->getWaiting() < t->getPassed();
             t->setWaiting(min(t->getWaiting(),youngest));
 
@@ -86,7 +86,7 @@ bool TimeDartPWPData::add(NonStrictMarkingBase* marking, int youngest, WaitingDa
                 dart = new TimeDartBase(marking, youngest, INT_MAX);
         }
         stored++;
-        res.second.setMeta(dart);
+        res.second.set_meta(dart);
 	waiting_list->add(marking, res.second);
         if (this->trace) {
             // if trace, create new (persistent) encodingpointer as regular one gets deleted every time we pop from waiting.
@@ -99,7 +99,7 @@ TimeDartBase* TimeDartPWPData::getNextUnexplored(){
   
     ptriepointer<TimeDartBase*> p = waiting_list->pop();
     NonStrictMarkingBase* m = encoder.decode(p);
-    TimeDartBase* dart = p.getMeta();
+    TimeDartBase* dart = p.get_meta();
     dart->setBase(m);
     return dart;
 }

@@ -49,24 +49,24 @@ namespace pgj
         void set(const uint place, const bool value) const;
         void zero() const;
         void release() const;
-        void setMeta(T data);
-        T getMeta() const;
+        void set_meta(T data);
+        T get_meta() const;
         uchar operator[](int i);
         void pop_front(unsigned short);
         
         inline int cmp(const binarywrapper &other)
         {
-            if(numberOfBytes != other.numberOfBytes)
+            if(_nbytes != other._nbytes)
             {
-                if(numberOfBytes < other.numberOfBytes) return -1;
+                if(_nbytes < other._nbytes) return -1;
                 else return 1;
             }
                 
-            for(int i = numberOfBytes - 1; i >= 0; i--)
+            for(int i = _nbytes - 1; i >= 0; i--)
             {
-                if(blob[i] < other.blob[i])
+                if(_blob[i] < other._blob[i])
                     return -1;
-                else if (blob[i] > other.blob[i])
+                else if (_blob[i] > other._blob[i])
                     return 1;
             }
             
@@ -76,11 +76,11 @@ namespace pgj
         // Operators
         inline friend bool operator==(  const binarywrapper &enc1, 
                                         const binarywrapper &enc2) {
-            if(enc1.numberOfBytes != enc2.numberOfBytes)
+            if(enc1._nbytes != enc2._nbytes)
                 return false;
             
-            for(size_t i = 0; i < enc1.numberOfBytes; i++)
-                if(enc1.blob[i] != enc2.blob[i])
+            for(size_t i = 0; i < enc1._nbytes; i++)
+                if(enc1._blob[i] != enc2._blob[i])
                     return false;
             
             return true;
@@ -103,27 +103,27 @@ namespace pgj
         
         inline friend bool operator<(   const binarywrapper &enc1, 
                                         const binarywrapper &enc2) {
-            if(enc1.numberOfBytes != enc2.numberOfBytes)
-                return enc1.numberOfBytes < enc2.numberOfBytes;
+            if(enc1._nbytes != enc2._nbytes)
+                return enc1._nbytes < enc2._nbytes;
             
-            for(size_t i = 0; i < enc1.numberOfBytes; i++)
-                if(enc1.blob[i] < enc2.blob[i])
+            for(size_t i = 0; i < enc1._nbytes; i++)
+                if(enc1._blob[i] < enc2._blob[i])
                     return true;
-                else if (enc1.blob[i] > enc2.blob[i])
+                else if (enc1._blob[i] > enc2._blob[i])
                     return false;
             
             return false;
         }
         
     private:
-        uchar* blob;
-        unsigned short numberOfBytes;
-        T meta;
-        const static uchar masks[8];
+        uchar* _blob;
+        unsigned short _nbytes;
+        T _meta;
+        const static uchar _masks[8];
     };
     
     template<class T>
-    const uchar binarywrapper<T>::masks[8] = {
+    const uchar binarywrapper<T>::_masks[8] = {
         static_cast <uchar>(0x01),
         static_cast <uchar>(0x02),
         static_cast <uchar>(0x04),
@@ -157,9 +157,9 @@ namespace pgj
     template<class T>
     binarywrapper<T>::binarywrapper(uint size)
     {
-        numberOfBytes = (size + overhead(size)) / 8;
-        blob = new uchar[numberOfBytes];
-        memset(blob, 0x0, numberOfBytes);
+        _nbytes = (size + overhead(size)) / 8;
+        _blob = new uchar[_nbytes];
+        memset(_blob, 0x0, _nbytes);
     }
     
     template<class T>
@@ -167,16 +167,16 @@ namespace pgj
     {
          offset = offset / 8;
 
-        numberOfBytes = other.numberOfBytes;
-        if (numberOfBytes > offset)
-            numberOfBytes -= offset;
+        _nbytes = other._nbytes;
+        if (_nbytes > offset)
+            _nbytes -= offset;
         else {
-            numberOfBytes = 0;
+            _nbytes = 0;
         }
 
-        blob = new uchar[numberOfBytes];
-        memcpy(blob, &(other.blob[offset]), numberOfBytes);
-        setMeta(other.getMeta());
+        _blob = new uchar[_nbytes];
+        memcpy(_blob, &(other._blob[offset]), _nbytes);
+        set_meta(other.get_meta());
     }
     
     template<class T>
@@ -186,16 +186,16 @@ namespace pgj
         uint so = size + offset;
         offset = ((so - 1) / 8) - ((size - 1) / 8);
 
-        numberOfBytes = ((encodingsize + this->overhead(encodingsize)) / 8);
-        if (numberOfBytes > offset)
-            numberOfBytes -= offset;
+        _nbytes = ((encodingsize + this->overhead(encodingsize)) / 8);
+        if (_nbytes > offset)
+            _nbytes -= offset;
         else {
-            numberOfBytes = 0;
+            _nbytes = 0;
         }
 
-        blob = new uchar[numberOfBytes];
-        memcpy(blob, &(other.blob[offset]), numberOfBytes);
-        setMeta(other.getMeta());
+        _blob = new uchar[_nbytes];
+        memcpy(_blob, &(other._blob[offset]), _nbytes);
+        set_meta(other.get_meta());
     }
     
     template<class T>
@@ -206,21 +206,21 @@ namespace pgj
         uint so = size + offset;
         offset = ((so - 1) / 8) - ((size - 1) / 8);
 
-        numberOfBytes = ((encodingsize + this->overhead(encodingsize)) / 8);
-        if (numberOfBytes > offset)
-            numberOfBytes -= offset;
+        _nbytes = ((encodingsize + this->overhead(encodingsize)) / 8);
+        if (_nbytes > offset)
+            _nbytes -= offset;
         else {
-            numberOfBytes = 0;
+            _nbytes = 0;
         }
 
-        blob = &(raw[offset]);
+        _blob = &(raw[offset]);
     }
     
     template<class T>
     binarywrapper<T>::binarywrapper(uchar* raw, uint size)
     {
-        blob = raw;
-        numberOfBytes = size / 8 + (size % 8 ? 1 : 0);     
+        _blob = raw;
+        _nbytes = size / 8 + (size % 8 ? 1 : 0);     
     }
     
     // Copy and clones
@@ -228,18 +228,18 @@ namespace pgj
     binarywrapper<T> binarywrapper<T>::clone() const
     {
         binarywrapper<T> s;
-        s.numberOfBytes = numberOfBytes;
-        s.blob = new uchar[numberOfBytes];
-        memcpy(s.blob, blob, numberOfBytes);
-        s.meta = meta;
+        s._nbytes = _nbytes;
+        s._blob = new uchar[_nbytes];
+        memcpy(s._blob, _blob, _nbytes);
+        s._meta = _meta;
         return s; 
     }
     
     template<class T>
     void binarywrapper<T>::copy(const binarywrapper& other, uint offset)
     {
-        memcpy(&(blob[offset / 8]), other.blob, other.numberOfBytes);
-        meta = other.meta;
+        memcpy(&(_blob[offset / 8]), other._blob, other._nbytes);
+        _meta = other._meta;
     }
     
     template<class T>
@@ -247,8 +247,8 @@ namespace pgj
     {
         if(size > 0)
         {
-            blob = new char[size];
-            memcpy(blob, raw, size);
+            _blob = new char[size];
+            memcpy(_blob, raw, size);
         }
     }
         
@@ -258,8 +258,8 @@ namespace pgj
     {
         uint offset = place % 8;
         bool res2;
-        if (place / 8 < numberOfBytes)
-            res2 = (blob[place / 8] & masks[offset]) != 0;
+        if (place / 8 < _nbytes)
+            res2 = (_blob[place / 8] & _masks[offset]) != 0;
         else
             res2 = false;
 
@@ -269,19 +269,19 @@ namespace pgj
     template<class T>
     uint binarywrapper<T>::size() const
     {
-        return numberOfBytes;
+        return _nbytes;
     }
     
     template<class T>
     uchar* binarywrapper<T>::raw() const
     {
-        return blob; 
+        return _blob; 
     }
     
     template<class T>
     void binarywrapper<T>::print() const
     {
-        for (size_t i = 0; i < numberOfBytes * 8; i++)
+        for (size_t i = 0; i < _nbytes * 8; i++)
                 std::cout << this->at(i);
             std::cout << std::endl;
     }
@@ -290,80 +290,80 @@ namespace pgj
     template<class T>
     void binarywrapper<T>::pop_front(unsigned short int topop)
     {
-        if(numberOfBytes == 0) return;  // Special case, nothing to do!
+        if(_nbytes == 0) return;  // Special case, nothing to do!
         unsigned short int nbytes;
-        if(topop >= numberOfBytes)
+        if(topop >= _nbytes)
         {
-            topop = numberOfBytes;
+            topop = _nbytes;
             nbytes = 0;
         }
         else
         {
-            nbytes = numberOfBytes - topop;            
+            nbytes = _nbytes - topop;            
         }
         
         if(nbytes > 0)
         {
             uchar* tmpblob = new uchar[nbytes];
-            memcpy(tmpblob, &(blob[topop]), (nbytes));
-            delete[] blob;
-            blob = tmpblob;
+            memcpy(tmpblob, &(_blob[topop]), (nbytes));
+            delete[] _blob;
+            _blob = tmpblob;
         }
         else
         {
-            delete[] blob;
-            blob = NULL;
+            delete[] _blob;
+            _blob = NULL;
         }
-        numberOfBytes = nbytes;
+        _nbytes = nbytes;
     }
     
     template<class T>
     void binarywrapper<T>::set(const uint place, const bool value) const
     {
-        assert(place < numberOfBytes*8);
+        assert(place < _nbytes*8);
         uint offset = place % 8;
         uint theplace = place / 8;
         if (value) {
-            blob[theplace] |= masks[offset];
+            _blob[theplace] |= _masks[offset];
         } else {
-            blob[theplace] &= ~masks[offset];
+            _blob[theplace] &= ~_masks[offset];
         }    
     }
     
     template<class T>
     void binarywrapper<T>::zero() const
     {
-        if(numberOfBytes > 0 && blob != NULL)
+        if(_nbytes > 0 && _blob != NULL)
         {
-            memset(blob, 0x0, numberOfBytes); 
+            memset(_blob, 0x0, _nbytes); 
         }
     }
     
     template<class T>
     void binarywrapper<T>::release() const
     {
-        delete[] blob;
+        delete[] _blob;
     }
     
     template<class T>
-    void binarywrapper<T>::setMeta(T data)
+    void binarywrapper<T>::set_meta(T data)
     {
-        meta = data;
+        _meta = data;
     }
     
     template<class T>
-    T binarywrapper<T>::getMeta() const
+    T binarywrapper<T>::get_meta() const
     {
-        return meta;
+        return _meta;
     }
     
     template<class T>
     uchar binarywrapper<T>::operator[](int i)
     {
-       if (i >= numberOfBytes) {
+       if (i >= _nbytes) {
             return 0x0;
         }
-        return blob[i]; 
+        return _blob[i]; 
     }
 }
 

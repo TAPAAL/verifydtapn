@@ -17,7 +17,7 @@ namespace DiscreteVerification {
     template <>
     int MinFirstWaitingList<ptriepointer<MetaData*> >::calculateWeight(ptriepointer<MetaData*> payload)
     {
-        return payload.getMeta()->totalDelay;
+        return payload.get_meta()->totalDelay;
     }
 }
 }

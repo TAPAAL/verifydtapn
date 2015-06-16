@@ -66,7 +66,7 @@ namespace VerifyTAPN {
             discoveredMarkings++;
             std::pair<bool, ptriepointer<LivenessDart*> > res = passed.insert(encoder.encode(marking));
             if (!res.first) {
-                LivenessDart* td = res.second.getMeta();
+                LivenessDart* td = res.second.get_meta();
                 td->setBase(marking);
                 std::pair < LivenessDart*, bool> result(td, false);
                 td->setWaiting(min(td->getWaiting(), youngest));
@@ -101,7 +101,7 @@ namespace VerifyTAPN {
                 } else {
                     dart = new LivenessDart(marking, youngest, INT_MAX);
                 }
-                res.second.setMeta(dart);
+                res.second.set_meta(dart);
 
                 WaitingDart *wd;
                 if(options.getTrace()){

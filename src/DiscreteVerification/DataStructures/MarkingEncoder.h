@@ -63,10 +63,10 @@ namespace VerifyTAPN {
         {
             assert(scratchpad.raw() == raw);
             M* m = new M();
-            assert(pointer.container->isConsistent());
+            assert(pointer.container->consistent());
             const encoding_t remainder = pointer.remainder();
-            uint n = pointer.revsereWritePartialEncoding(scratchpad);
-            assert(pointer.container->isConsistent());
+            uint n = pointer.write_partial_encoding(scratchpad);
+            assert(pointer.container->consistent());
             uint r_offset = n - (n % 8);    // make sure n matches exactly on a byte
             
             uint cbit = 0;
@@ -80,28 +80,28 @@ namespace VerifyTAPN {
                 
                 while (cbit >= offset + countBitSize) {
                     data = data << 1;
-                    assert(pointer.container->isConsistent());
+                    assert(pointer.container->consistent());
                     if(cbit < n)
                     {
                         bit = scratchpad.at((n - 1) - cbit);
-                        assert(pointer.container->isConsistent());
+                        assert(pointer.container->consistent());
                     }
                     else
                     {
                         bit = remainder.at(cbit - r_offset);
-                        assert(pointer.container->isConsistent());
+                        assert(pointer.container->consistent());
                     }
                     
                     if (bit) {
                         data = data | 1;
-                        assert(pointer.container->isConsistent());
+                        assert(pointer.container->consistent());
                     }
                     if (cbit == 0) {
                         break;
                     }
                     cbit--;
                 }
-                assert(pointer.container->isConsistent());
+                assert(pointer.container->consistent());
                 while (cbit >= offset) {
                     count = count << 1;
 

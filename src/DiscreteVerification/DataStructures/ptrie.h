@@ -31,9 +31,9 @@ namespace pgj
             uint index;
         public:
             ptriepointer(ptrie<T>* container, uint i); 
-            T getMeta() const;
-            void setMeta(T);
-            uint revsereWritePartialEncoding(encoding_t&) const;
+            T get_meta() const;
+            void set_meta(T);
+            uint write_partial_encoding(encoding_t&) const;
             encoding_t& remainder() const;
             ptriepointer() : container(NULL), index(0) {};
     };
@@ -45,19 +45,19 @@ namespace pgj
     }
     
     template<typename T>
-    T ptriepointer<T>::getMeta() const
+    T ptriepointer<T>::get_meta() const
     {
-        return container->getEntry(index)->data.getMeta();
+        return container->get_entry(index)->_data.get_meta();
     }
     
     template<typename T>
-    void ptriepointer<T>::setMeta(T val)
+    void ptriepointer<T>::set_meta(T val)
     {
-        container->getEntry(index)->data.setMeta(val);
+        container->get_entry(index)->_data.set_meta(val);
     }
     
     template<typename T>
-    uint ptriepointer<T>::revsereWritePartialEncoding(encoding_t& encoding) const
+    uint ptriepointer<T>::write_partial_encoding(encoding_t& encoding) const
     {
         return container->writePathToRoot(index, encoding);
     }
@@ -65,7 +65,7 @@ namespace pgj
     template<typename T>
     binarywrapper<T>& ptriepointer<T>::remainder() const
     {
-        return container->getEntry(index)->data;
+        return container->get_entry(index)->_data;
     }
     
     template<typename T>
@@ -77,40 +77,40 @@ namespace pgj
             // nodes in the tree
             struct node_t
             {
-                uint highpos;           // branches
-                uint lowpos;
-                short int highCount;    // bucket-counts
-                short int lowCount;
-                uint parent;            // for back-traversal
-                uint* entries;          // back-pointers to data-array up to date
+                uint _highpos;           // branches
+                uint _lowpos;
+                short int _highcount;    // bucket-counts
+                short int _lowcount;
+                uint _parent;            // for back-traversal
+                uint* _entries;          // back-pointers to data-array up to date
             };
             
             struct entry_t
             {
-                encoding_t data;       // remainder-data, not in path of tree 
-                uint nodeindex;        // index of node
+                encoding_t _data;       // remainder-data, not in path of tree 
+                uint _nodeindex;        // index of node
             };
             
-            const uint blockSize;   // number to allocate at a time
-            uint nextFreeNode;      // location of next vacant node-location
-            uint nextFreeEntry;     // location of next vacant entry-node
+            const uint _blocksize;   // number to allocate at a time
+            uint _next_free_node;      // location of next vacant node-location
+            uint _next_free_entry;     // location of next vacant entry-node
             
-            std::vector<node_t*> nodeVector;    // Vector of arrays of nodes in tree
-            std::vector<entry_t*> entryVector;  // Vector of remainders
+            std::vector<node_t*> _nodevector;    // Vector of arrays of nodes in tree
+            std::vector<entry_t*> _entryvector;  // Vector of remainders
             
-            short int splitThreshold;
+            short int _threshold;
             
         protected:
-            node_t* getNode(uint index) const;
-            uint newNode();
+            node_t* get_node(uint index) const;
+            uint new_node();
             
-            entry_t* getEntry(uint index) const;
-            uint newEntry();
+            entry_t* get_entry(uint index) const;
+            uint new_entry();
             
-            bool bestMatch(const encoding_t& encoding, uint& tree_pos , uint& e_index,
+            bool best_match(const encoding_t& encoding, uint& tree_pos , uint& e_index,
                                 uint& enc_pos, uint& b_index, uint& bucketsize);
             
-            uint splitNode(node_t* node, uint tree_pos, uint enc_pos, 
+            uint split_node(node_t* node, uint tree_pos, uint enc_pos, 
                     uint bucketsize, bool branch);
 
             uint writePathToRoot(uint n_index, encoding_t& encoding) const;
@@ -121,116 +121,116 @@ namespace pgj
 
             std::pair<bool, ptriepointer<T> > insert(const encoding_t& encoding);
             std::pair<bool, ptriepointer<T> > find(const encoding_t& encoding);
-            bool isConsistent() const;
-            uint size() const { return nextFreeEntry; }
+            bool consistent() const;
+            uint size() const { return _next_free_entry; }
     };
     
     template<typename T>
     ptrie<T>::~ptrie() {
-        for(node_t* nodes : nodeVector)
+        for(node_t* nodes : _nodevector)
         {
             delete[] nodes;
         }
-        nodeVector.clear();
-        for(entry_t* ents : entryVector)
+        _nodevector.clear();
+        for(entry_t* ents : _entryvector)
         {
-            for(size_t i = 0; i < blockSize; ++i)
+            for(size_t i = 0; i < _blocksize; ++i)
             {
-                ents[i].data.release();
+                ents[i]._data.release();
             }
             delete[] ents;
         }
-        entryVector.clear();
+        _entryvector.clear();
     }
     
     template<typename T>
     ptrie<T>::ptrie() :
-            blockSize(1024), 
-            nextFreeNode(1), 
-            nextFreeEntry(0), 
-            nodeVector(), 
-            entryVector(), 
-            splitThreshold(sizeof(node_t) * 8)
+            _blocksize(1024), 
+            _next_free_node(1), 
+            _next_free_entry(0), 
+            _nodevector(), 
+            _entryvector(), 
+            _threshold(sizeof(node_t) * 8)
     {
-        nodeVector.push_back(new node_t[blockSize]);
-        nodeVector[0][0].entries = NULL;
-        nodeVector[0][0].highCount = 0;
-        nodeVector[0][0].lowCount = 0;
-        nodeVector[0][0].highpos = 0;
-        nodeVector[0][0].lowpos = 0;
-        nodeVector[0][0].parent = 0;
+        _nodevector.push_back(new node_t[_blocksize]);
+        _nodevector[0][0]._entries = NULL;
+        _nodevector[0][0]._highcount = 0;
+        _nodevector[0][0]._lowcount = 0;
+        _nodevector[0][0]._highpos = 0;
+        _nodevector[0][0]._lowpos = 0;
+        _nodevector[0][0]._parent = 0;
     }
     
     template<typename T>
     typename ptrie<T>::node_t*
-    ptrie<T>::getNode(uint index) const
+    ptrie<T>::get_node(uint index) const
     {
-        assert(index < nextFreeNode);
-        return &nodeVector[index / blockSize][index % blockSize];
+        assert(index < _next_free_node);
+        return &_nodevector[index / _blocksize][index % _blocksize];
     }
     
     template<typename T>
-    uint ptrie<T>::newNode()
+    uint ptrie<T>::new_node()
     {
-        uint next = nextFreeNode;
-        if(next % blockSize == 0)
+        uint next = _next_free_node;
+        if(next % _blocksize == 0)
         {
-            nodeVector.push_back(new node_t[blockSize]);
+            _nodevector.push_back(new node_t[_blocksize]);
         }
         
-        ++nextFreeNode;
+        ++_next_free_node;
         return next;
     }
     
     template<typename T>
     typename ptrie<T>::entry_t* 
-    ptrie<T>::getEntry(uint index) const
+    ptrie<T>::get_entry(uint index) const
     {
-        assert(index < nextFreeEntry);
-        return &entryVector[index / blockSize][index % blockSize];
+        assert(index < _next_free_entry);
+        return &_entryvector[index / _blocksize][index % _blocksize];
     }
     
     template<typename T>
-    uint ptrie<T>::newEntry()
+    uint ptrie<T>::new_entry()
     {
-        uint next = nextFreeEntry;
-        if(next % blockSize == 0)
+        uint next = _next_free_entry;
+        if(next % _blocksize == 0)
         {
-            entryVector.push_back(new entry_t[blockSize]);
+            _entryvector.push_back(new entry_t[_blocksize]);
         }
         
-        ++nextFreeEntry;
+        ++_next_free_entry;
         return next;
     }
     
     template<typename T>
-    bool ptrie<T>::isConsistent() const
+    bool ptrie<T>::consistent() const
     {
         return true;
-        for(size_t i = 0; i < nextFreeNode; ++i)
+        for(size_t i = 0; i < _next_free_node; ++i)
         {
-            node_t* node = getNode(i);
-            assert(node->highpos < nextFreeNode);
-            assert(node->lowpos < nextFreeNode);
-            assert(node->parent < nextFreeNode);
-            assert(node->parent == 0 && i == 0 || node->parent < i);
-            assert((node->highpos > i && node->highCount == -1) 
-                    || (node->highpos == 0 && node->highCount >= 0));
-            assert((node->lowpos > i && node->lowCount == -1) 
-                    || (node->lowpos == 0 && node->lowCount >= 0));
+            node_t* node = get_node(i);
+            assert(node->_highpos < _next_free_node);
+            assert(node->_lowpos < _next_free_node);
+            assert(node->_parent < _next_free_node);
+            assert(node->_parent == 0 && i == 0 || node->_parent < i);
+            assert((node->_highpos > i && node->_highcount == -1) 
+                    || (node->_highpos == 0 && node->_highcount >= 0));
+            assert((node->_lowpos > i && node->_lowcount == -1) 
+                    || (node->_lowpos == 0 && node->_lowcount >= 0));
             
             size_t bucket = 0;
             
-            if(node->highCount > 0)
-                bucket += node->highCount;
-            if(node->lowCount > 0)
-                bucket += node->lowCount;
+            if(node->_highcount > 0)
+                bucket += node->_highcount;
+            if(node->_lowcount > 0)
+                bucket += node->_lowcount;
 
-            assert(node->entries != NULL || bucket == 0);
+            assert(node->_entries != NULL || bucket == 0);
             for(size_t e = 0; e < bucket; ++e)
             {
-                assert(e < nextFreeEntry);
-                assert(getEntry(node->entries[e])->nodeindex == i);
+                assert(e < _next_free_entry);
+                assert(get_entry(node->_entries[e])->_nodeindex == i);
             }
         }
         return true;
@@ -239,29 +239,29 @@ namespace pgj
     template<typename T>
     uint ptrie<T>::writePathToRoot(uint e_index, encoding_t& encoding) const
     {
-        entry_t* ent = getEntry(e_index);
+        entry_t* ent = get_entry(e_index);
         size_t count = 0;
-        uint c_index = ent->nodeindex;
-        node_t* node = getNode(c_index);
-        assert(isConsistent());
+        uint c_index = ent->_nodeindex;
+        node_t* node = get_node(c_index);
+        assert(consistent());
         while(c_index != 0)
         {
-            uint p_index = node->parent;
-            node = getNode(p_index);
-            bool branch = c_index == node->highpos;
+            uint p_index = node->_parent;
+            node = get_node(p_index);
+            bool branch = c_index == node->_highpos;
             encoding.set(count, branch);
             ++count;
             c_index = p_index;
         }
-        assert(isConsistent());
+        assert(consistent());
         return count;
     }
     
     template<typename T>
-    bool ptrie<T>::bestMatch(const encoding_t& encoding, uint& tree_pos, 
+    bool ptrie<T>::best_match(const encoding_t& encoding, uint& tree_pos, 
                 uint& e_index, uint& enc_pos, uint& b_index, uint& bucketsize)
     {
-        assert(isConsistent());
+        assert(consistent());
         uint t_pos = 0;
         tree_pos = 0;
         enc_pos = 0;
@@ -274,12 +274,12 @@ namespace pgj
         do {
             tree_pos = t_pos;
             if (encoding.at(enc_pos)) {
-                t_pos = getNode(t_pos)->highpos;
+                t_pos = get_node(t_pos)->_highpos;
             } else {
-                t_pos = getNode(t_pos)->lowpos;
+                t_pos = get_node(t_pos)->_lowpos;
             }
 
-            assert(t_pos == 0 || getNode(t_pos)->parent == tree_pos);
+            assert(t_pos == 0 || get_node(t_pos)->_parent == tree_pos);
             
             enc_pos++;
 
@@ -289,16 +289,16 @@ namespace pgj
         
         assert(tree_pos != 0 || enc_pos == 0);
         
-        node_t* node = getNode(tree_pos);
+        node_t* node = get_node(tree_pos);
         
         // find out the size of the bucket
-        if (node->highCount > 0) {
-            bucketsize += node->highCount;
+        if (node->_highcount > 0) {
+            bucketsize += node->_highcount;
             
         }
         
-        if (node->lowCount > 0) {
-            bucketsize += node->lowCount;
+        if (node->_lowcount > 0) {
+            bucketsize += node->_lowcount;
         }
         
         // run through the stored data in the bucket, looking for matches
@@ -320,14 +320,14 @@ namespace pgj
             do
             {
                 b_index = (high + low) / 2 ;
-                entry_t* ent = getEntry(node->entries[b_index]);
+                entry_t* ent = get_entry(node->_entries[b_index]);
                 
-                int cmp = s_enc.cmp(ent->data);
+                int cmp = s_enc.cmp(ent->_data);
                 
                 if(cmp == 0)
                 {
                     found = true;
-                    e_index = node->entries[b_index];
+                    e_index = node->_entries[b_index];
                     break;
                 }
                 else if(cmp == 1)
@@ -374,17 +374,17 @@ namespace pgj
         }
         assert(tmp == b_index);*/
         
-        assert(isConsistent());        
+        assert(consistent());        
         return found;
     }
     
     template<typename T>
-    uint ptrie<T>::splitNode(node_t* node, uint tree_pos, uint enc_pos, 
+    uint ptrie<T>::split_node(node_t* node, uint tree_pos, uint enc_pos, 
                                                 uint bucketsize, bool branch)
     {
-        assert(isConsistent());
-        uint n_node_index = newNode();
-        node_t* n_node = getNode(n_node_index);
+        assert(consistent());
+        uint n_node_index = new_node();
+        node_t* n_node = get_node(n_node_index);
         uint* o_entries = NULL;
 
         // if we are overflowing in, split bucket
@@ -392,35 +392,35 @@ namespace pgj
         uint node_count = 0;
 
         if (branch) {
-            n_node->entries = new uint[n_node_count = node->highCount];
+            n_node->_entries = new uint[n_node_count = node->_highcount];
 
-            node->highpos = n_node_index;
-            node->highCount = -1;
+            node->_highpos = n_node_index;
+            node->_highcount = -1;
 
-            if (node->lowCount > 0)
+            if (node->_lowcount > 0)
             {
-                o_entries = new uint[node_count = node->lowCount];
+                o_entries = new uint[node_count = node->_lowcount];
             }
 
         } else {
-            n_node->entries = new uint[n_node_count = node->lowCount];
+            n_node->_entries = new uint[n_node_count = node->_lowcount];
             
-            node->lowpos = n_node_index;
-            node->lowCount = -1;
+            node->_lowpos = n_node_index;
+            node->_lowcount = -1;
 
-            if (node->highCount > 0)
+            if (node->_highcount > 0)
             {
-                o_entries = new uint[node_count = node->highCount];
+                o_entries = new uint[node_count = node->_highcount];
             }
         }
 
         assert(o_entries != NULL || node_count == 0);
         assert(n_node_count > 0);
         assert(tree_pos != n_node_index);
-        n_node->parent = tree_pos;
+        n_node->_parent = tree_pos;
 
-        n_node->lowCount = n_node->highCount = 0;
-        n_node->lowpos = n_node->highpos = 0;
+        n_node->_lowcount = n_node->_highcount = 0;
+        n_node->_lowpos = n_node->_highpos = 0;
 
         // because we are only really shifting around bits when enc_pos % 8 = 0
         // then we need to find out which bit of the first 8 we are
@@ -433,28 +433,28 @@ namespace pgj
 
         // Copy over the data to the new buckets
         for (size_t i = 0; i < bucketsize; i++) {
-            entry_t* entry = getEntry(node->entries[i]);
-            if (entry->data.at(r_pos) == branch) {
+            entry_t* entry = get_entry(node->_entries[i]);
+            if (entry->_data.at(r_pos) == branch) {
                 // Adjust counters
-                if (entry->data.at(r_pos + 1)) {
-                    n_node->highCount++;
+                if (entry->_data.at(r_pos + 1)) {
+                    n_node->_highcount++;
                 } else {
-                    n_node->lowCount++;
+                    n_node->_lowcount++;
                 }
 
                 // This goes to the new bucket, we can maybe remove a byte
                 if ((r_pos + 1) == 8) { 
                     // Tree tree is representing the first byte, remove it 
-                    entry->data.pop_front(1);
+                    entry->_data.pop_front(1);
                 }
 
                 assert(clistcount < n_node_count);
-                n_node->entries[clistcount] = node->entries[i];
-                entry->nodeindex = n_node_index;
+                n_node->_entries[clistcount] = node->_entries[i];
+                entry->_nodeindex = n_node_index;
                 clistcount++;
             } else {
                 assert(nlistcount < node_count);
-                o_entries[nlistcount] = node->entries[i];
+                o_entries[nlistcount] = node->_entries[i];
                 nlistcount++;
             }
         }
@@ -462,14 +462,14 @@ namespace pgj
         assert(clistcount == n_node_count);
         assert(nlistcount == node_count);
 
-        delete[] node->entries;
-        node->entries = o_entries; 
+        delete[] node->_entries;
+        node->_entries = o_entries; 
 
-        if (node->highCount == -1 && node->lowCount == -1) {
-            assert(node->entries == NULL);
+        if (node->_highcount == -1 && node->_lowcount == -1) {
+            assert(node->_entries == NULL);
         }
 
-        assert(isConsistent());
+        assert(consistent());
         return n_node_index;
     }
     
@@ -481,7 +481,7 @@ namespace pgj
         uint bucketsize;
         uint e_index;
         
-        if(bestMatch(encoding, tree_pos, e_index, enc_pos, bucketsize))
+        if(best_match(encoding, tree_pos, e_index, enc_pos, bucketsize))
         {
             return std::pair<bool, ptriepointer<T> >(true, 
                                                 ptriepointer<T>(this, e_index));
@@ -496,7 +496,7 @@ namespace pgj
     template<typename T>
     std::pair<bool, ptriepointer<T> > ptrie<T>::insert(const encoding_t& encoding)
     {
-        assert(isConsistent());
+        assert(consistent());
         size_t encsize = encoding.size() * 8;
         uint tree_pos;
         uint enc_pos;
@@ -504,28 +504,28 @@ namespace pgj
         uint e_index;
         uint b_index;
                 
-        if(bestMatch(encoding, tree_pos, e_index, enc_pos, b_index, bucketsize))
+        if(best_match(encoding, tree_pos, e_index, enc_pos, b_index, bucketsize))
         {   // We are not inserting duplicates, semantics of PTrie is a set.
-            assert(isConsistent());
+            assert(consistent());
             return std::pair<bool, ptriepointer<T> >(false, 
                                                 ptriepointer<T>(this, e_index));
         }
 
         // closest matched node
-        node_t* node = getNode(tree_pos);
+        node_t* node = get_node(tree_pos);
         
         // Else we need to insert it, start by doing a deep-copy, and putting
         // it into a new entry
-        uint ne_index = newEntry();
-        entry_t* n_entry = getEntry(ne_index);
+        uint ne_index = new_entry();
+        entry_t* n_entry = get_entry(ne_index);
         uint remainder_size = (encsize - enc_pos);
-        n_entry->data = encoding_t(  encoding, 
+        n_entry->_data = encoding_t(  encoding, 
                                     remainder_size, 
                                     enc_pos, 
                                     encsize);
-        assert(n_entry->data.raw() != encoding.raw());
+        assert(n_entry->_data.raw() != encoding.raw());
                 
-        n_entry->nodeindex = tree_pos;
+        n_entry->_nodeindex = tree_pos;
         
         // make a new bucket, add new entry to end, copy over old data
         bucketsize += 1;
@@ -534,7 +534,7 @@ namespace pgj
         {
             if(i < b_index)
             {
-                nbucket[i] = node->entries[i];
+                nbucket[i] = node->_entries[i];
             } 
             else if (i == b_index)
             {
@@ -542,33 +542,33 @@ namespace pgj
             }
             else
             {
-                nbucket[i] = node->entries[i - 1];
+                nbucket[i] = node->_entries[i - 1];
             }
         }
         // We added one to the bucket, now it is larger
 
         
         // remove old bucket and replace
-        delete[] node->entries;
-        node->entries = nbucket;
+        delete[] node->_entries;
+        node->_entries = nbucket;
         
         // increment correct counter
         short int count;
         bool branch = encoding.at(enc_pos);
         if (branch) {
-            count = (++node->highCount);
-            assert(node->highpos == 0);
+            count = (++node->_highcount);
+            assert(node->_highpos == 0);
         } else {
-            count = (++node->lowCount);
-            assert(node->lowpos == 0);
+            count = (++node->_lowcount);
+            assert(node->_lowpos == 0);
         }
         
         // if needed, split the node
-        if(count > splitThreshold)
+        if(count > _threshold)
         {
-            splitNode(node, tree_pos, enc_pos, bucketsize, branch);
+            split_node(node, tree_pos, enc_pos, bucketsize, branch);
         }
-        assert(isConsistent());
+        assert(consistent());
         return std::pair<bool, ptriepointer<T> >(true, 
                                             ptriepointer<T>(this, ne_index));
     }

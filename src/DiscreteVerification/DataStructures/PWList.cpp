@@ -65,12 +65,12 @@ std::ostream& operator<<(std::ostream& out, PWList& x){
             discoveredMarkings++;
             // reset the encoding array
 
-            assert(passed.isConsistent());
+            assert(passed.consistent());
 
             std::pair<bool, ptriepointer<MetaData*> > res = passed.insert(encoder.encode(marking));
 
             if(res.first){
-                res.second.setMeta(NULL);
+                res.second.set_meta(NULL);
                 if(isLiveness){
                     MetaData* meta;
                     if(makeTrace){
@@ -79,12 +79,12 @@ std::ostream& operator<<(std::ostream& out, PWList& x){
                     } else {
                         meta = new MetaData();
                     }
-                    res.second.setMeta(meta);
+                    res.second.set_meta(meta);
                     marking->meta = meta;
                 } else if(makeTrace){
                     MetaDataWithTraceAndEncoding* meta = new MetaDataWithTraceAndEncoding();
                     meta->generatedBy = marking->getGeneratedBy();
-                    res.second.setMeta(meta);
+                    res.second.set_meta(meta);
                     meta->ep = res.second;
                     meta->parent = parent;
                     
@@ -93,7 +93,7 @@ std::ostream& operator<<(std::ostream& out, PWList& x){
                 waiting_list->add(marking, res.second);
             } else{
                 if(isLiveness){
-                        marking->meta = res.second.getMeta();
+                        marking->meta = res.second.get_meta();
                         if(this->makeTrace){
                             ((MetaDataWithTrace*)marking->meta)->generatedBy = marking->getGeneratedBy();
                         }
@@ -111,7 +111,7 @@ std::ostream& operator<<(std::ostream& out, PWList& x){
             NonStrictMarking* m = encoder.decode(p);
             
             delete m->meta;
-            m->meta = p.getMeta();
+            m->meta = p.get_meta();
 
             
             if(makeTrace){
