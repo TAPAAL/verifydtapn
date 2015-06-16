@@ -54,6 +54,25 @@ namespace pgj
         uchar operator[](int i);
         void pop_front(unsigned short);
         
+        inline int cmp(const binarywrapper &other)
+        {
+            if(numberOfBytes != other.numberOfBytes)
+            {
+                if(numberOfBytes < other.numberOfBytes) return -1;
+                else return 1;
+            }
+                
+            for(size_t i = 0; i < numberOfBytes; i++)
+            {
+                if(blob[i] < other.blob[i])
+                    return -1;
+                else if (blob[i] > other.blob[i])
+                    return 1;
+            }
+            
+            return 0;
+        }
+        
         // Operators
         inline friend bool operator==(  const binarywrapper &enc1, 
                                         const binarywrapper &enc2) {

@@ -107,13 +107,13 @@ namespace pgj
             entry_t* getEntry(uint index) const;
             uint newEntry();
             
-            virtual bool bestMatch(const encoding_t& encoding, uint& tree_pos , uint& e_index,
+            bool bestMatch(const encoding_t& encoding, uint& tree_pos , uint& e_index,
                                 uint& enc_pos, uint& b_index, uint& bucketsize);
             
-            virtual uint splitNode(node_t* node, uint tree_pos, uint enc_pos, 
+            uint splitNode(node_t* node, uint tree_pos, uint enc_pos, 
                     uint bucketsize, bool branch);
 
-            virtual uint writePathToRoot(uint n_index, encoding_t& encoding) const;
+            uint writePathToRoot(uint n_index, encoding_t& encoding) const;
             
         public:
             ptrie();
@@ -313,10 +313,50 @@ namespace pgj
         bool found = false;
 
         e_index = std::numeric_limits<uint>::max();
-        
-        for(b_index = 0; b_index < bucketsize; ++b_index)
+        if(bucketsize > 0)
         {
-            entry_t* ent = getEntry(node->entries[b_index]);
+            int low = 0;
+            int high = bucketsize - 1;
+            do
+            {
+                b_index = (high + low) / 2 ;
+                entry_t* ent = getEntry(node->entries[b_index]);
+                
+                int cmp = s_enc.cmp(ent->data);
+                
+                if(cmp == 0)
+                {
+                    found = true;
+                    e_index = node->entries[b_index];
+                    break;
+                }
+                else if(cmp == 1)
+                {
+                    low = b_index + 1;
+                }
+                else //if cmp == -1
+                {
+                    high = b_index - 1;
+                }
+                
+                if(low > high)
+                {
+                    if(cmp == 1)
+                        b_index += 1;
+                    break;
+                }
+                assert(b_index < bucketsize);
+            } while(true);
+        }
+        else
+        {
+            b_index = 0;
+        }
+         
+        /*int tmp;// refference debug code!
+        for(tmp = 0; tmp < bucketsize; ++tmp)
+        {
+            entry_t* ent = getEntry(node->entries[tmp]);
             if(ent->data < s_enc)
             {
                 continue;
@@ -324,8 +364,7 @@ namespace pgj
             else
             if(ent->data == s_enc)
             {
-                found = ent->data == s_enc;                
-                e_index = node->entries[b_index];
+                assert(found);
                 break;
             }
             else
@@ -333,6 +372,7 @@ namespace pgj
                 break;
             }
         }
+        assert(tmp == b_index);*/
         
         assert(isConsistent());        
         return found;
