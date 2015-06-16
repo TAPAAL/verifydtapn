@@ -18,7 +18,7 @@ using namespace pgj;
 namespace VerifyTAPN {
     namespace DiscreteVerification {
 
-        template<typename T>
+        template<typename T, typename M = NonStrictMarkingBase>
         class MarkingEncoder
         {
         typedef binarywrapper<T> encoding_t;
@@ -37,13 +37,13 @@ namespace VerifyTAPN {
             MarkingEncoder(TAPN::TimedArcPetriNet& tapn, int knumber,
                                                         int nplaces, int mage);
             
-            NonStrictMarkingBase* decode
+            M* decode
                                             (const ptriepointer<T>& pointer);
-            encoding_t encode(NonStrictMarkingBase* marking);
+            encoding_t encode(M* marking);
         };
         
-        template<typename T>
-        MarkingEncoder<T>::MarkingEncoder(TAPN::TimedArcPetriNet& tapn,
+        template<typename T, typename M>
+        MarkingEncoder<T, M>::MarkingEncoder(TAPN::TimedArcPetriNet& tapn,
                                 int knumber, int nplaces, int mage):
             maxNumberOfTokens(knumber),
             maxAge(mage + 1),
@@ -58,11 +58,11 @@ namespace VerifyTAPN {
                 raw = (void*)scratchpad.raw();
         }
         
-        template<typename T>
-        NonStrictMarkingBase* MarkingEncoder<T>::decode(const ptriepointer<T>& pointer)
+        template<typename T, typename M>
+        M* MarkingEncoder<T, M>::decode(const ptriepointer<T>& pointer)
         {
             assert(scratchpad.raw() == raw);
-            NonStrictMarkingBase* m = new NonStrictMarkingBase();
+            M* m = new M();
             assert(pointer.container->isConsistent());
             const encoding_t remainder = pointer.remainder();
             uint n = pointer.revsereWritePartialEncoding(scratchpad);
@@ -144,8 +144,8 @@ namespace VerifyTAPN {
             return m;
         }
         
-        template<typename T>
-        binarywrapper<T> MarkingEncoder<T>::encode(NonStrictMarkingBase* marking)
+        template<typename T, typename M>
+        binarywrapper<T> MarkingEncoder<T, M>::encode(M* marking)
         {
             scratchpad.zero();
             int tc = 0;

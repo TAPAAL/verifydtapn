@@ -123,7 +123,7 @@ class PWListHybrid : public PWListBase {
             bool makeTrace;
             MetaDataWithTraceAndEncoding* parent;             
             ptrie<MetaData*> passed;
-            MarkingEncoder<MetaData*> encoder;
+            MarkingEncoder<MetaData*, NonStrictMarking> encoder;
 };
 
 std::ostream& operator<<(std::ostream& out, PWList& x);
