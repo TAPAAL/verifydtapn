@@ -170,7 +170,7 @@ namespace pgj
     uint ptrie<T>::newNode()
     {
         uint next = nextFreeNode;
-        if(nextFreeEntry % blockSize == 0)
+        if(next % blockSize == 0)
         {
             nodeVector.push_back(new node_t[blockSize]);
         }
@@ -191,7 +191,7 @@ namespace pgj
     uint ptrie<T>::newEntry()
     {
         uint next = nextFreeEntry;
-        if(nextFreeEntry % blockSize == 0)
+        if(next % blockSize == 0)
         {
             entryVector.push_back(new entry_t[blockSize]);
         }
@@ -203,6 +203,7 @@ namespace pgj
     template<typename T>
     bool ptrie<T>::isConsistent() const
     {
+        return true;
         for(size_t i = 0; i < nextFreeNode; ++i)
         {
             node_t* node = getNode(i);
@@ -227,6 +228,7 @@ namespace pgj
                 assert(getEntry(node->entries[e])->nodeindex == i);
             }
         }
+        return true;
     }
     
     template<typename T>

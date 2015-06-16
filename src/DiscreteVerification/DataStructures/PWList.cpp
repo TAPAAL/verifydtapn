@@ -46,7 +46,8 @@ NonStrictMarking* PWList::getNextUnexplored(){
     NonStrictMarking* m = waiting_list->pop();
     
     std::cout << "p:" << *m << std::endl;
-    std::cout << "m:it->" <<    m->meta->inTrace << ":passed->"  << m->meta->passed << std::endl;
+    if(m->meta != NULL)
+        std::cout << "m:it->" <<    m->meta->inTrace << ":passed->"  << m->meta->passed << std::endl;
     return m;
 }
 
@@ -66,7 +67,7 @@ std::ostream& operator<<(std::ostream& out, PWList& x){
 }
 
         bool PWListHybrid::add(NonStrictMarking* marking) {
-            std::cout << "a:" << *marking << std::endl;
+//            std::cout << "a:" << *marking << std::endl;
             discoveredMarkings++;
             // reset the encoding array
 
@@ -86,7 +87,6 @@ std::ostream& operator<<(std::ostream& out, PWList& x){
                     }
                     res.second.setMeta(meta);
                     marking->meta = meta;
-                    std::cout << "m:it->" << marking->meta->inTrace << ":passed->"  << marking->meta->passed << std::endl;
                 } else if(makeTrace){
                     MetaDataWithTraceAndEncoding* meta = new MetaDataWithTraceAndEncoding();
                     meta->generatedBy = marking->getGeneratedBy();
@@ -130,8 +130,9 @@ std::ostream& operator<<(std::ostream& out, PWList& x){
                     parent = (MetaDataWithTraceAndEncoding*)(m->meta);
                 }
             }
-            std::cout << "p:" << *m << std::endl;
-            std::cout << "m:it->" <<    m->meta->inTrace << ":passed->"  << m->meta->passed << std::endl;
+//            std::cout << "p:" << *m << std::endl;
+//            if(m->meta != NULL)
+//                std::cout << "m:it->" <<    m->meta->inTrace << ":passed->"  << m->meta->passed << std::endl;
             return m;
         }
 
