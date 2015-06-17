@@ -127,18 +127,18 @@ namespace ptrie
     
     template<typename T>
     ptrie_t<T>::~ptrie_t() {
-        for(node_t* nodes : _nodevector)
+        for(size_t i = 0; i < _nodevector.size(); ++i)
         {
-            delete[] nodes;
+            delete[] _nodevector[i];
         }
         _nodevector.clear();
-        for(entry_t* ents : _entryvector)
+        for(size_t i = 0; i < _entryvector.size(); ++i)
         {
-            for(size_t i = 0; i < _blocksize; ++i)
+            for(size_t b = 0; b < _blocksize; ++b)
             {
-                ents[i]._data.release();
+                _entryvector[i][b]._data.release();
             }
-            delete[] ents;
+            delete[] _entryvector[i];
         }
         _entryvector.clear();
     }
