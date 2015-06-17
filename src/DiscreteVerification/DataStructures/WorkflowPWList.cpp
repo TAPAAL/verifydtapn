@@ -165,20 +165,24 @@ namespace VerifyTAPN {
     	NonStrictMarking* WorkflowPWListHybrid::getCoveredMarking
                                 (NonStrictMarking* marking, bool useLinearSweep)
         {
+            assert(passed.consistent());
             visitor.set_target(marking);
             passed.visit(visitor);
             if(visitor.found())
             {
+                assert(passed.consistent());
                 return visitor.decode();
             }
             else
             {
+                assert(passed.consistent());
                 return NULL;
             }
         }
         
         NonStrictMarking* WorkflowPWListHybrid::getUnpassed()
         {
+            assert(passed.consistent());
             ptriepointer_t<MetaData*> it = passed.begin();
             for(; it != passed.end(); ++it)
             {
@@ -189,37 +193,38 @@ namespace VerifyTAPN {
                     return m;
                 }
             }
+            assert(passed.consistent());
             return NULL;
         }
         
     	bool WorkflowPWListHybrid::add(NonStrictMarking* marking)
         {
+            assert(passed.consistent());
             discoveredMarkings++;
             std::pair<bool, ptriepointer_t<MetaData*> > res = 
                                         passed.insert(encoder.encode(marking));
             
             if (!res.first) {
+                assert(passed.consistent());
                 return false;
             }
             else
             {
                 MetaData* meta;
-                if(makeTrace){
-                    MetaDataWithTraceAndEncoding* trace = 
-                                            new MetaDataWithTraceAndEncoding();
-                    trace->generatedBy = marking->getGeneratedBy();
-                    trace->ep = res.second;
-                    trace->parent = parent;
-                    trace->totalDelay = marking->calculateTotalDelay();
-                    meta = trace;
-                }
-                else
-                {
-                    meta = marking->meta;
-                }
+
+                MetaDataWithTraceAndEncoding* trace = 
+                                        new MetaDataWithTraceAndEncoding();
+                trace->generatedBy = marking->getGeneratedBy();
+                trace->ep = res.second;
+                trace->parent = parent;
+                trace->totalDelay = marking->calculateTotalDelay();
+                meta = trace;
+
                 res.second.set_meta(meta);
+                
                 stored++;
                 waiting_list->add(marking, res.second);
+                assert(passed.consistent());
                 return true;           
             }
         }
@@ -227,14 +232,20 @@ namespace VerifyTAPN {
         NonStrictMarking* WorkflowPWListHybrid::addToPassed
                                     (NonStrictMarking* marking, bool strong)
         {
+            assert(passed.consistent());
             discoveredMarkings++;
             std::pair<bool, ptriepointer_t<MetaData*> > res = 
-                                        passed.find(encoder.encode(marking));
+                                        passed.insert(encoder.encode(marking));
             last = marking;
             last_pointer = res.second;
             if (!res.first) {
-                marking->meta = res.second.get_meta();
-                return marking;
+                NonStrictMarking* old = new NonStrictMarking(*marking);
+                old->meta = res.second.get_meta();
+                MetaDataWithTraceAndEncoding* meta = 
+                        (MetaDataWithTraceAndEncoding*)old->meta;
+                old->setGeneratedBy(meta->generatedBy);
+                assert(passed.consistent());
+                return old;
             } else {
                 stored++;
 
@@ -246,14 +257,19 @@ namespace VerifyTAPN {
                 meta->parent = this->parent;
                 meta->generatedBy = marking->getGeneratedBy();
                 meta->totalDelay = marking->meta->totalDelay;
-
+                
+                res.second.set_meta(meta);
+                
+                assert(passed.consistent());
                 return NULL;
             }
         }
         
         void WorkflowPWListHybrid::addLastToWaiting()
         {
+            assert(passed.consistent());
             waiting_list->add(last, last_pointer);
+            assert(passed.consistent());
         }
         
         

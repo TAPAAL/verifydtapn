@@ -122,7 +122,7 @@ namespace ptrie
     class ptrie_t {
         typedef binarywrapper_t<T> encoding_t;  
         friend class ptriepointer_t<T>;
-        public:
+        private:
             
             // nodes in the tree
             struct node_t
@@ -272,7 +272,8 @@ namespace ptrie
     template<typename T>
     bool ptrie_t<T>::consistent() const
     {
-        return true;
+        assert(_next_free_node >= _nodevector.size());
+        assert(_next_free_entry >= _entryvector.size());
         for(size_t i = 0; i < _next_free_node; ++i)
         {
             node_t* node = get_node(i);

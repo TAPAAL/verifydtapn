@@ -90,6 +90,25 @@ int WorkflowSoundness::numberOfPassed()
     return passed;
 }
 
+int WorkflowSoundnessPTrie::numberOfPassed()
+{
+    int passed = 0;
+    while(passedStack.size()){
+        WorkflowSoundnessMetaDataWithEncoding* next = 
+        static_cast<WorkflowSoundnessMetaDataWithEncoding*>(passedStack.top());
+        
+        passedStack.pop();
+        if(next->passed) continue;
+        next->passed = true;
+        ++passed;
+        for(vector<MetaData*>::iterator iter = next->parents.begin();
+                iter != next->parents.end(); iter++){
+                passedStack.push(*iter);
+        }
+    }
+    return passed;
+}
+
 bool WorkflowSoundness::addToPW(NonStrictMarking* marking, NonStrictMarking* parent){
 	marking->cut(placeStats);
 
@@ -167,10 +186,19 @@ void WorkflowSoundness::addParentMeta(MetaData* meta, MetaData* parent)
 
 }
 
+void WorkflowSoundnessPTrie::addParentMeta(MetaData* meta, MetaData* parent)
+{
+    assert(meta != NULL);
+    assert(parent != NULL);
+    WorkflowSoundnessMetaDataWithEncoding* markingmeta = ((WorkflowSoundnessMetaDataWithEncoding*)meta);
+    markingmeta->parents.push_back(parent);
+
+}
+
 bool WorkflowSoundness::checkForCoveredMarking(NonStrictMarking* marking){
-	if(marking->size() <= options.getKBound()){
+/*	if(marking->size() <= options.getKBound()){
 		return false;	// Do not run check on small markings (invoke more rarely)
-	}
+	}*/
 
 	NonStrictMarking* covered = pwList->getCoveredMarking(marking, (marking->size() > linearSweepTreshold));
 	if(covered != NULL){

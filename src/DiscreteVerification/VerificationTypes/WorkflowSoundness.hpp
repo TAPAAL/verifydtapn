@@ -61,7 +61,7 @@ protected:
 	bool checkForCoveredMarking(NonStrictMarking* marking);
 	void getTrace(NonStrictMarking* base);
         ModelType calculateModelType();
-        void addParentMeta(MetaData* meta, MetaData* parent);
+        virtual void addParentMeta(MetaData* meta, MetaData* parent);
         
 protected:
     stack<MetaData*> passedStack;
@@ -78,7 +78,8 @@ class WorkflowSoundnessPTrie : public WorkflowSoundness
 public:
 	WorkflowSoundnessPTrie(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<ptriepointer_t<MetaData*> >* waiting_list);
     
-        
+        virtual void addParentMeta(MetaData* meta, MetaData* parent);
+        virtual int numberOfPassed();
         virtual void deleteMarking(NonStrictMarking* marking)
         {
             delete marking;
