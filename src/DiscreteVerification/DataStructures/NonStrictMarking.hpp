@@ -40,9 +40,6 @@ namespace DiscreteVerification {
     	WorkflowSoundnessMetaData() : MetaData(), parents() { totalDelay = INT_MAX;};
 		   vector<WorkflowSoundnessMetaData*> parents;
 	   };
-
-    // ugly forward declaration
-    class MetaData;
     
     struct MetaDataWithTraceAndEncoding : public MetaDataWithTrace {
         ptriepointer_t<MetaData*> ep;
