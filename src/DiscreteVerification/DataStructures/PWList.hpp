@@ -35,11 +35,12 @@ namespace DiscreteVerification {
         virtual NonStrictMarking* lookup(NonStrictMarking* marking){ return NULL; }
         virtual NonStrictMarking* getNextUnexplored() = 0;
         virtual long long explored()= 0;
+        virtual void deleteWaitingList(){};
         virtual ~PWListBase(){};
 	inline void setMaxNumTokensIfGreater(int i){ if(i>maxNumTokensInAnyMarking)	maxNumTokensInAnyMarking = i; };
     };
 
-class PWList : public PWListBase {
+class PWList : public virtual PWListBase {
 public:
 	typedef std::vector<NonStrictMarking*> NonStrictMarkingList;
 	typedef google::sparse_hash_map<size_t, NonStrictMarkingList> HashMap;
@@ -63,13 +64,14 @@ public: // inspectors
 public: // modifiers
 	virtual bool add(NonStrictMarking* marking);
 	virtual NonStrictMarking* getNextUnexplored();
+        virtual void deleteWaitingList(){delete waiting_list;};
 
 protected:
 	HashMap markings_storage;
 	WaitingList<NonStrictMarking*>* waiting_list;
 };
 
-class PWListHybrid : public PWListBase {
+class PWListHybrid : public virtual PWListBase {
         public:
             typedef unsigned int uint;
 
@@ -113,6 +115,8 @@ class PWListHybrid : public PWListBase {
             void printMemStats() {
 //                passed->printMemStats();
             }
+        
+            virtual void deleteWaitingList(){delete waiting_list;};
 
         public: // modifiers
             virtual bool add(NonStrictMarking* marking);

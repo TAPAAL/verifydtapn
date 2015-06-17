@@ -11,9 +11,25 @@ namespace VerifyTAPN {
 namespace DiscreteVerification {
 
 WorkflowSoundness::WorkflowSoundness(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking*>* waiting_list)
-: Workflow<NonStrictMarking>(tapn, initialMarking, query, options, waiting_list), passedStack(), minExec(INT_MAX), linearSweepTreshold(3), coveredMarking(NULL), modelType(calculateModelType()){
-
+: Workflow(tapn, initialMarking, query, options), passedStack(), minExec(INT_MAX), linearSweepTreshold(3), coveredMarking(NULL), modelType(calculateModelType()){
+    pwList = new WorkflowPWList(waiting_list);
 }
+
+
+WorkflowSoundness::WorkflowSoundness(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options)
+: Workflow(tapn, initialMarking, query, options), passedStack(), minExec(INT_MAX), linearSweepTreshold(3), coveredMarking(NULL), modelType(calculateModelType()){
+    
+};
+
+WorkflowSoundnessPTrie::WorkflowSoundnessPTrie(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<ptriepointer_t<MetaData*> >* waiting_list)
+: WorkflowSoundness(tapn, initialMarking, query, options) {
+    pwList = new WorkflowPWListHybrid(  tapn,
+                                        waiting_list, 
+                                        options.getKBound(), 
+                                        tapn.getNumberOfPlaces(), 
+                                        tapn.getMaxConstant());
+}
+
 
 bool WorkflowSoundness::verify(){
 	if(addToPW(&initialMarking, NULL)){

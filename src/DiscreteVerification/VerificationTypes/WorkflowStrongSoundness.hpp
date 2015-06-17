@@ -17,11 +17,13 @@
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
-class WorkflowStrongSoundnessReachability : public Workflow<NonStrictMarking>{
+class WorkflowStrongSoundnessReachability : public Workflow{
 public:
 
 	WorkflowStrongSoundnessReachability(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking*>* waiting_list);
 
+        WorkflowStrongSoundnessReachability(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options);
+        
 	bool verify();
 	void getTrace();
 
@@ -31,12 +33,29 @@ public:
         
 
 protected:
+        void findInOut();
 	bool addToPW(NonStrictMarking* marking, NonStrictMarking* parent);
 
 protected:
 	int maxValue;
 	TimedPlace* outPlace;
         int validChildren;
+};
+
+class WorkflowStrongSoundnessPTrie : public WorkflowStrongSoundnessReachability
+{
+public:
+    WorkflowStrongSoundnessPTrie(
+            TAPN::TimedArcPetriNet& tapn,
+            NonStrictMarking& initialMarking, 
+            AST::Query* query, 
+            VerificationOptions options, 
+            WaitingList<ptriepointer_t<MetaData*> >* waiting_list);
+    
+    virtual void deleteMarking(NonStrictMarking* marking)
+    {
+        delete marking;
+    }
 };
 
 } /* namespace DiscreteVerification */

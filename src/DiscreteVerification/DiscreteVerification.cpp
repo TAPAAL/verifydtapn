@@ -53,42 +53,59 @@ namespace VerifyTAPN {
 					exit(1);
 				}
 
-            	if (options.getMemoryOptimization() != VerificationOptions::NO_MEMORY_OPTIMIZATION) {
-					cout << "Workflow analysis currently does not support any memory optimizations (i.e. no PTries)." << endl;
-					exit(1);
-				}
-            	WaitingList<NonStrictMarking*>* strategy = getWaitingList<NonStrictMarking* > (query, options);
             	if(options.getWorkflowMode() == VerificationOptions::WORKFLOW_SOUNDNESS){
-            		WorkflowSoundness* verifier = new WorkflowSoundness(tapn, *initialMarking, query, options, strategy);
+            		WorkflowSoundness* verifier;
+                        if(options.getMemoryOptimization() == VerificationOptions::NO_MEMORY_OPTIMIZATION)
+                        {
+                            verifier = new WorkflowSoundness(tapn, *initialMarking, query, options, 
+                                    getWaitingList<NonStrictMarking* > (query, options));
+                        }
+                        else
+                        {
+                            verifier = new WorkflowSoundnessPTrie(tapn, *initialMarking, query, options, 
+                                    getWaitingList<ptriepointer_t<MetaData*> > (query, options));
+                        }
 
-					if(verifier->getModelType() == verifier->NOTTAWFN){
-						std::cerr << "Model is not a TAWFN!" << std::endl;
-						return -1;
-					}else if(verifier->getModelType() == verifier->ETAWFN){
-						std::cout << "Model is a ETAWFN" << std::endl << std::endl;
-					}else if(verifier->getModelType() == verifier->MTAWFN){
-						std::cout << "Model is a MTAWFN" << std::endl << std::endl;
-					}
-					VerifyAndPrint(
-                                                        tapn,
-							*verifier,
-							options,
-							query);
-					verifier->printExecutionTime(cout);
-					verifier->printMessages(cout);
+                            if(verifier->getModelType() == verifier->NOTTAWFN){
+                                    std::cerr << "Model is not a TAWFN!" << std::endl;
+                                    return -1;
+                            }else if(verifier->getModelType() == verifier->ETAWFN){
+                                    std::cout << "Model is a ETAWFN" << std::endl << std::endl;
+                            }else if(verifier->getModelType() == verifier->MTAWFN){
+                                    std::cout << "Model is a MTAWFN" << std::endl << std::endl;
+                            }
+                            VerifyAndPrint(
+                                            tapn,
+                                            *verifier,
+                                            options,
+                                            query);
+                            verifier->printExecutionTime(cout);
+                            verifier->printMessages(cout);
+                            verifier->cleanup();
             	}
             	else{
             		// Assumes correct structure of net!
-            		WorkflowStrongSoundnessReachability* verifier = new WorkflowStrongSoundnessReachability(tapn, *initialMarking, query, options, strategy);
+           		WorkflowStrongSoundnessReachability* verifier;
+                        if(options.getMemoryOptimization() == VerificationOptions::NO_MEMORY_OPTIMIZATION)
+                        {
+                            verifier = new  WorkflowStrongSoundnessReachability(tapn, *initialMarking, query, options, 
+                                    getWaitingList<NonStrictMarking* > (query, options));
+                        }
+                        else
+                        {
+                            verifier = new  WorkflowStrongSoundnessPTrie(tapn, *initialMarking, query, options, 
+                                    getWaitingList<ptriepointer_t<MetaData*> > (query, options));
+                        }
             		VerifyAndPrint(
                                                         tapn,
 							*verifier,
 							options,
 							query);
 					verifier->printExecutionTime(cout);
+                        verifier->cleanup();
             	}
 
-            	delete strategy;
+     
                 return 0;
             }
             

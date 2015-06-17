@@ -39,6 +39,8 @@ namespace VerifyTAPN {
 
             void printStats();
 
+            void cleanup(){ pwList->deleteWaitingList(); }
+            
         protected:
             bool isDelayPossible(U& marking);
             virtual bool addToPW(U* marking, U* parent) = 0;

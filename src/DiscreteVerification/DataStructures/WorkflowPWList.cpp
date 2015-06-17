@@ -155,9 +155,8 @@ namespace VerifyTAPN {
                             WaitingList<ptriepointer_t<MetaData*> >* w_l, 
                             int knumber, 
                             int nplaces, 
-                            int mage, 
-                            bool makeTrace) 
-            : PWListHybrid(tapn, w_l, knumber, nplaces, mage, false, makeTrace),
+                            int mage) 
+            : PWListHybrid(tapn, w_l, knumber, nplaces, mage, false, true),
                 visitor(encoder)
         {
             

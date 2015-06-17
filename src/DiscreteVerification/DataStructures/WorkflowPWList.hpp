@@ -20,8 +20,9 @@
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
-    class WorkflowPWListBasic
+    class WorkflowPWListBasic : virtual public PWListBase
     {
+    public:
     	virtual NonStrictMarking* getCoveredMarking(NonStrictMarking* marking, bool useLinearSweep) = 0;
         virtual NonStrictMarking* getUnpassed() = 0;
     	virtual bool add(NonStrictMarking* marking) = 0;
@@ -56,8 +57,7 @@ namespace DiscreteVerification {
                                 WaitingList<ptriepointer_t<MetaData*> >* w_l, 
                                 int knumber, 
                                 int nplaces, 
-                                int mage, 
-                                bool makeTrace);
+                                int mage);
     	virtual NonStrictMarking* getCoveredMarking(NonStrictMarking* marking, bool useLinearSweep);
         virtual NonStrictMarking* getUnpassed();
     	virtual bool add(NonStrictMarking* marking);

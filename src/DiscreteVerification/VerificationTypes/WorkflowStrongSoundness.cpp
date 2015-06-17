@@ -11,16 +11,46 @@ namespace VerifyTAPN {
     namespace DiscreteVerification {
 
         WorkflowStrongSoundnessReachability::WorkflowStrongSoundnessReachability(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking*>* waiting_list)
-        : Workflow<NonStrictMarking>(tapn, initialMarking, query, options, waiting_list), maxValue(-1), outPlace(NULL){
-            // Find timer place and store as out
+        : Workflow(tapn, initialMarking, query, options), maxValue(-1), outPlace(NULL){
+                pwList = new WorkflowPWList(waiting_list);
+                findInOut();
+        };
+        
+        WorkflowStrongSoundnessReachability::WorkflowStrongSoundnessReachability(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options)
+        : Workflow(tapn, initialMarking, query, options), maxValue(-1), outPlace(NULL){
+            findInOut();
+        };
+        
+        void WorkflowStrongSoundnessReachability::findInOut()
+        {
             for (TimedPlace::Vector::const_iterator iter = tapn.getPlaces().begin(); iter != tapn.getPlaces().end(); ++iter) {
                 if ((*iter)->getTransportArcs().empty() && (*iter)->getInputArcs().empty()) {
                     outPlace = *iter;
                     break;
                 }
             }
-        };
+        }
+        
+        WorkflowStrongSoundnessPTrie::WorkflowStrongSoundnessPTrie(
+                                TAPN::TimedArcPetriNet& tapn,
+                                NonStrictMarking& initialMarking,
+                                AST::Query* query,
+                                VerificationOptions options,
+                                WaitingList<ptriepointer_t<MetaData*> >* waiting_list) :
+                                WorkflowStrongSoundnessReachability(
+                                    tapn, 
+                                    initialMarking, 
+                                    query, 
+                                    options)
+        {
+            pwList = new WorkflowPWListHybrid(  tapn,
+                                                waiting_list, 
+                                                options.getKBound(), 
+                                                tapn.getNumberOfPlaces(), 
+                                                tapn.getMaxConstant());
+        }
 
+        
         bool WorkflowStrongSoundnessReachability::verify() {
             if (addToPW(&initialMarking, NULL)) {
                 return true;
