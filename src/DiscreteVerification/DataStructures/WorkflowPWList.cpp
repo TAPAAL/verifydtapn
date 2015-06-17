@@ -142,6 +142,96 @@ namespace VerifyTAPN {
         }
 
 
+        WorkflowPWListHybrid::WorkflowPWListHybrid(
+                            TAPN::TimedArcPetriNet& tapn,  
+                            WaitingList<ptriepointer<MetaData*> >* w_l, 
+                            int knumber, 
+                            int nplaces, 
+                            int mage, 
+                            bool makeTrace) 
+            : PWListHybrid(tapn, w_l, knumber, nplaces, mage, false, makeTrace),
+                visitor(encoder)
+        {
+            
+        }
+        
+    	NonStrictMarking* WorkflowPWListHybrid::getCoveredMarking
+                                (NonStrictMarking* marking, bool useLinearSweep)
+        {
+            visitor.set_target(marking);
+            passed.visit(visitor);
+            if(visitor.found())
+            {
+                return visitor.decode();
+            }
+            else
+            {
+                return NULL;
+            }
+        }
+        
+        NonStrictMarking* WorkflowPWListHybrid::getUnpassed()
+        {
+            ptriepointer<MetaData*> it = passed.begin();
+            for(; it != passed.end(); ++it)
+            {
+                if(!it.get_meta()->passed)
+                {
+                    NonStrictMarking* m = encoder.decode(it);
+                    m->meta = it.get_meta();
+                    return m;
+                }
+            }
+            return NULL;
+        }
+        
+    	bool WorkflowPWListHybrid::add(NonStrictMarking* marking)
+        {
+            discoveredMarkings++;
+            std::pair<bool, ptriepointer<MetaData*> > res = 
+                                        passed.insert(encoder.encode(marking));
+            
+            if (!res.first) {
+                return false;
+            }
+            else
+            {
+                MetaData* meta;
+                if(makeTrace){
+                    MetaDataWithTraceAndEncoding* trace = 
+                                            new MetaDataWithTraceAndEncoding();
+                    trace->generatedBy = marking->getGeneratedBy();
+                    trace->ep = res.second;
+                    trace->parent = parent;
+                    trace->totalDelay = marking->calculateTotalDelay();
+                    meta = trace;
+                }
+                else
+                {
+                    meta = marking->meta;
+                }
+                res.second.set_meta(meta);
+                stored++;
+                waiting_list->add(marking, res.second);
+                return true;           
+            }
+        }
+        
+        NonStrictMarking* WorkflowPWListHybrid::addToPassed
+                                                    (NonStrictMarking* marking)
+        {
+            discoveredMarkings++;
+            std::pair<bool, ptriepointer<MetaData*> > res = 
+                                        passed.find(encoder.encode(marking));
+            if (!res.first) {
+                marking->meta = res.second.get_meta();
+                return marking;
+            } else {
+                stored++;
+                return NULL;
+            }
+        }
+        
 
     }
 }

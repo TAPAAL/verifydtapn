@@ -1,5 +1,5 @@
 /* 
- * File:   PTrie.h
+ * File:   ptrie.h
  * Author: Peter G. Jensen
  *
  * Created on 10 June 2015, 18:44
@@ -9,10 +9,12 @@
 #define	PTRIE_H
 
 #include "binarywrapper.h"
+#include "visitor.h"
 #include <assert.h>
 #include <limits>
 #include <vector>
 #include <stdint.h>
+#include <stack>
 
 namespace pgj
 {
@@ -36,6 +38,12 @@ namespace pgj
             uint write_partial_encoding(encoding_t&) const;
             encoding_t& remainder() const;
             ptriepointer() : container(NULL), index(0) {};
+            
+            ptriepointer<T>& operator=(const ptriepointer<T>&);
+            ptriepointer<T>& operator++();
+            bool operator==(const ptriepointer<T>& other);
+            bool operator!=(const ptriepointer<T>& other);
+            
     };
     
     template<typename T>
@@ -43,6 +51,45 @@ namespace pgj
     container(container), index(i)
     {        
     }
+    
+    template<typename T>
+    ptriepointer<T>& ptriepointer<T>::operator=(const ptriepointer<T>& other)
+    {
+        container = other.container;
+        index = other.index;
+        return *this;
+    }
+    
+    template<typename T>
+    ptriepointer<T>& ptriepointer<T>::operator++()
+    {
+        ++index;
+        assert(index <= container->_next_free_entry);
+        return *this;
+    }
+    template<typename T>
+    bool ptriepointer<T>::operator==(const ptriepointer<T>& other)
+    {
+        return other.container == container && other.index == index;
+    }
+    
+    template<typename T>
+    bool ptriepointer<T>::operator!=(const ptriepointer<T>& other)
+    {
+        return !(*this == other);
+    }
+    
+    /*
+    template<typename T>
+    void swap(ptriepointer<T>& lhs, ptriepointer<T>& rhs)
+    {
+        ptrie<T>* container = lhs.container;
+        uint index = lhs.index;
+        lhs.container = rhs.container;
+        lhs.index = rhs.index;
+        rhs.index = index;
+        rhs.container = container;
+    }*/
     
     template<typename T>
     T ptriepointer<T>::get_meta() const
@@ -123,6 +170,10 @@ namespace pgj
             std::pair<bool, ptriepointer<T> > find(const encoding_t& encoding);
             bool consistent() const;
             uint size() const { return _next_free_entry; }
+            ptriepointer<T> begin();
+            ptriepointer<T> end();
+            
+            void visit(visitor_t<T>&);
     };
     
     template<typename T>
@@ -159,6 +210,18 @@ namespace pgj
         _nodevector[0][0]._highpos = 0;
         _nodevector[0][0]._lowpos = 0;
         _nodevector[0][0]._parent = 0;
+    }
+    
+    template<typename T>
+    ptriepointer<T> ptrie<T>::begin()
+    {
+        return ptriepointer<T>(this, 0);
+    }
+    
+    template<typename T>
+    ptriepointer<T> ptrie<T>::end()
+    {
+        return ptriepointer<T>(this, _next_free_entry);
     }
     
     template<typename T>
@@ -255,6 +318,56 @@ namespace pgj
         }
         assert(consistent());
         return count;
+    }
+    
+    template<typename T>
+    void ptrie<T>::visit(visitor_t<T>& visitor)
+    {
+        std::stack<std::pair<uint, uint> > waiting;
+        waiting.push(std::pair<uint, uint>(0, 0));
+
+        bool stop = false;
+        do{
+            uint distance = waiting.top().first;
+            uint n_index = waiting.top().second;
+            waiting.pop();
+            
+            visitor.back(distance);
+            
+            node_t* node = get_node(n_index);
+            bool skip = false;
+            do
+            {
+                if(node->_highpos != 0)
+                {
+                    waiting.push(std::pair<uint, uint>(distance, node->_highpos));
+                }                 
+                
+                if(node->_lowpos == 0) break;
+                else
+                {
+                    node_t* node = get_node(node->_lowpos);
+
+                    skip = visitor.set(distance, false);                   
+
+                    ++distance;
+                }
+                
+            } while(!skip);
+            
+            uint bucketsize = 0;
+            if(!skip)
+            {
+                if(node->_highcount > 0) bucketsize += node->_highcount;
+                if(node->_lowcount > 0) bucketsize += node->_lowcount;
+                
+                for(uint i = 0; i < bucketsize && !stop; ++i)
+                {
+                    stop = visitor.set_remainder(distance,
+                                    ptriepointer<T>(this, node->_entries[i]));
+                }
+            }            
+        } while(!waiting.empty() && !stop);
     }
     
     template<typename T>
@@ -480,8 +593,8 @@ namespace pgj
         uint enc_pos;
         uint bucketsize;
         uint e_index;
-        
-        if(best_match(encoding, tree_pos, e_index, enc_pos, bucketsize))
+        uint b_index;
+        if(best_match(encoding, tree_pos, e_index, enc_pos, b_index,  bucketsize))
         {
             return std::pair<bool, ptriepointer<T> >(true, 
                                                 ptriepointer<T>(this, e_index));

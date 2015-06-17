@@ -13,14 +13,19 @@
 #include <limits>
 #include <vector>
 #include "ptrie.h"
+#include "NonStrictMarkingBase.hpp"
+
 
 using namespace pgj;
 namespace VerifyTAPN {
     namespace DiscreteVerification {
 
+        class CoveredMarkingVisitor;
+        
         template<typename T, typename M = NonStrictMarkingBase>
         class MarkingEncoder
         {
+        friend class CoveredMarkingVisitor;
         typedef binarywrapper<T> encoding_t;
         private:
             const uint maxNumberOfTokens;
@@ -37,9 +42,8 @@ namespace VerifyTAPN {
             MarkingEncoder(TAPN::TimedArcPetriNet& tapn, int knumber,
                                                         int nplaces, int mage);
             
-            M* decode
-                                            (const ptriepointer<T>& pointer);
-            encoding_t encode(M* marking);
+            M* decode(const ptriepointer<T>& pointer);
+            encoding_t encode(M* marking);            
         };
         
         template<typename T, typename M>

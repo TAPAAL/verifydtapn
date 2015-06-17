@@ -69,7 +69,7 @@ public: // modifiers
 	virtual bool add(NonStrictMarking* marking);
 	virtual NonStrictMarking* getNextUnexplored();
 
-public:
+protected:
 	HashMap markings_storage;
 	WaitingList<NonStrictMarking*>* waiting_list;
 };
@@ -80,7 +80,13 @@ class PWListHybrid : public PWListBase {
 
         public:
 
-            PWListHybrid(TAPN::TimedArcPetriNet& tapn, WaitingList<ptriepointer<MetaData*> >* w_l, int knumber, int nplaces, int mage, bool isLiveness, bool makeTrace) :
+            PWListHybrid(   TAPN::TimedArcPetriNet& tapn,  
+                            WaitingList<ptriepointer<MetaData*> >* w_l, 
+                            int knumber, 
+                            int nplaces, 
+                            int mage, 
+                            bool isLiveness, 
+                            bool makeTrace) :
             PWListBase(isLiveness),
             waiting_list(w_l),
             makeTrace(makeTrace),
@@ -117,11 +123,13 @@ class PWListHybrid : public PWListBase {
             virtual bool add(NonStrictMarking* marking);
             virtual NonStrictMarking* getNextUnexplored();
 
-        public:
+        protected:
 
             WaitingList<ptriepointer<MetaData*> >* waiting_list;
             bool makeTrace;
+        public:
             MetaDataWithTraceAndEncoding* parent;             
+        protected:
             ptrie<MetaData*> passed;
             MarkingEncoder<MetaData*, NonStrictMarking> encoder;
 };
