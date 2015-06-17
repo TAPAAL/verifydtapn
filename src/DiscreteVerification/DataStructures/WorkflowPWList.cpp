@@ -116,15 +116,23 @@ namespace VerifyTAPN {
             return NULL;
         }
 
-        NonStrictMarking* WorkflowPWList::addToPassed(NonStrictMarking* marking) {
+        NonStrictMarking* WorkflowPWList::addToPassed(
+                                        NonStrictMarking* marking, bool strong) 
+        {
             discoveredMarkings++;
             NonStrictMarking* existing = lookup(marking);
             if (existing != NULL) {
+                last = existing;                
                 return existing;
             } else {
+                last = marking;
                 NonStrictMarkingList& m = markings_storage[marking->getHashKey()];
                 stored++;
                 m.push_back(marking);
+
+                if(strong) marking->meta = new MetaData();
+                else marking->meta = new WorkflowSoundnessMetaData();
+
                 return NULL;
             }
         }
@@ -218,19 +226,38 @@ namespace VerifyTAPN {
         }
         
         NonStrictMarking* WorkflowPWListHybrid::addToPassed
-                                                    (NonStrictMarking* marking)
+                                    (NonStrictMarking* marking, bool strong)
         {
             discoveredMarkings++;
             std::pair<bool, ptriepointer_t<MetaData*> > res = 
                                         passed.find(encoder.encode(marking));
+            last = marking;
+            last_pointer = res.second;
             if (!res.first) {
                 marking->meta = res.second.get_meta();
                 return marking;
             } else {
                 stored++;
+
+                if(strong) marking->meta = new MetaDataWithTraceAndEncoding();
+                else marking->meta = new WorkflowSoundnessMetaDataWithEncoding();
+                
+                MetaDataWithTraceAndEncoding* meta = (MetaDataWithTraceAndEncoding*) marking->meta;
+                meta->ep = res.second;
+                meta->parent = this->parent;
+                meta->generatedBy = marking->getGeneratedBy();
+                meta->totalDelay = marking->meta->totalDelay;
+
                 return NULL;
             }
         }
+        
+        void WorkflowPWListHybrid::addLastToWaiting()
+        {
+            waiting_list->add(last, last_pointer);
+        }
+        
+        
         
 
     }

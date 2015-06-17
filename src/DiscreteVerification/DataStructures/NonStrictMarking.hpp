@@ -38,12 +38,19 @@ namespace DiscreteVerification {
     struct WorkflowSoundnessMetaData : public MetaData {
 	   public:
     	WorkflowSoundnessMetaData() : MetaData(), parents() { totalDelay = INT_MAX;};
-		   vector<WorkflowSoundnessMetaData*> parents;
+		   vector<MetaData*> parents;
 	   };
     
     struct MetaDataWithTraceAndEncoding : public MetaDataWithTrace {
         ptriepointer_t<MetaData*> ep;
             MetaDataWithTraceAndEncoding* parent;
+    };
+    
+    struct WorkflowSoundnessMetaDataWithEncoding : public MetaDataWithTraceAndEncoding {
+    public:
+        WorkflowSoundnessMetaDataWithEncoding() : MetaDataWithTraceAndEncoding(), parents() 
+            { totalDelay = INT_MAX;};
+        vector<MetaData*> parents;
     };
     
     class NonStrictMarking : public NonStrictMarkingBase{

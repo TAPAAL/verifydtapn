@@ -20,21 +20,37 @@
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
-    class WorkflowPWList : public PWList {
-
+    class WorkflowPWListBasic
+    {
+    	virtual NonStrictMarking* getCoveredMarking(NonStrictMarking* marking, bool useLinearSweep) = 0;
+        virtual NonStrictMarking* getUnpassed() = 0;
+    	virtual bool add(NonStrictMarking* marking) = 0;
+        virtual NonStrictMarking* addToPassed(NonStrictMarking* marking, bool strong) = 0;
+        virtual void addLastToWaiting() = 0;
+    };
+    
+    class WorkflowPWList : public WorkflowPWListBasic, public PWList {
+    private:
+        NonStrictMarking* last;
     public:
         WorkflowPWList(WaitingList<NonStrictMarking*>* w_l);
-    	NonStrictMarking* getCoveredMarking(NonStrictMarking* marking, bool useLinearSweep);
-        NonStrictMarking* getUnpassed();
+    	virtual NonStrictMarking* getCoveredMarking(NonStrictMarking* marking, bool useLinearSweep);
+        virtual NonStrictMarking* getUnpassed();
     	virtual bool add(NonStrictMarking* marking);
-        NonStrictMarking* addToPassed(NonStrictMarking* marking);
+        virtual NonStrictMarking* addToPassed(NonStrictMarking* marking, bool strong);
         NonStrictMarking* lookup(NonStrictMarking* marking);
+        
+        virtual void addLastToWaiting(){
+		waiting_list->add(last, last);
+	}
 
     };
     
-    class WorkflowPWListHybrid : public PWListHybrid {
+    class WorkflowPWListHybrid : public WorkflowPWListBasic, public PWListHybrid {
     private:
         CoveredMarkingVisitor visitor;
+        ptriepointer_t<MetaData*> last_pointer;
+        NonStrictMarking* last;
     public:
         WorkflowPWListHybrid(TAPN::TimedArcPetriNet& tapn, 
                                 WaitingList<ptriepointer_t<MetaData*> >* w_l, 
@@ -42,10 +58,11 @@ namespace DiscreteVerification {
                                 int nplaces, 
                                 int mage, 
                                 bool makeTrace);
-    	NonStrictMarking* getCoveredMarking(NonStrictMarking* marking, bool useLinearSweep);
-        NonStrictMarking* getUnpassed();
+    	virtual NonStrictMarking* getCoveredMarking(NonStrictMarking* marking, bool useLinearSweep);
+        virtual NonStrictMarking* getUnpassed();
     	virtual bool add(NonStrictMarking* marking);
-        NonStrictMarking* addToPassed(NonStrictMarking* marking);
+        virtual NonStrictMarking* addToPassed(NonStrictMarking* marking, bool strong);
+        virtual void addLastToWaiting();
     };
 
 } /* namespace DiscreteVerification */

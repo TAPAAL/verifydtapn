@@ -36,6 +36,7 @@ public:
 	virtual void printExecutionTime(ostream& stream) = 0;
         
 protected:
+    void deleteMarking(NonStrictMarking*){};
 	TimedPlace* in;
 	TimedPlace* out;
 };

@@ -54,11 +54,6 @@ public: // inspectors
 		return (waiting_list->size() > 0);
 	};
 
-	virtual bool addToWaiting(NonStrictMarking* marking){
-		waiting_list->add(marking, marking);
-		return true;
-	}
-
 	virtual long long size() const {
 		return stored;
 	};

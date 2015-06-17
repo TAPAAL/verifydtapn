@@ -51,14 +51,17 @@ public:
 		}
 	}
         inline const ModelType getModelType() const{ return modelType; }
+        virtual int numberOfPassed();
+        
 protected:
 	bool addToPW(NonStrictMarking* marking, NonStrictMarking* parent);
 	bool checkForCoveredMarking(NonStrictMarking* marking);
 	void getTrace(NonStrictMarking* base);
         ModelType calculateModelType();
+        void addParentMeta(MetaData* meta, MetaData* parent);
         
 protected:
-    stack<WorkflowSoundnessMetaData*> passedStack;
+    stack<MetaData*> passedStack;
     int minExec;
     unsigned int linearSweepTreshold;
     NonStrictMarking* coveredMarking;

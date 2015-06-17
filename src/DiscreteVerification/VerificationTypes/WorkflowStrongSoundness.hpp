@@ -32,6 +32,7 @@ public:
 
 protected:
 	bool addToPW(NonStrictMarking* marking, NonStrictMarking* parent);
+
 protected:
 	int maxValue;
 	TimedPlace* outPlace;
