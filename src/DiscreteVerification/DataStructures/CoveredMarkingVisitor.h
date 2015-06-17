@@ -19,19 +19,19 @@
 #include "NonStrictMarking.hpp"
 
 
-using namespace pgj;
+using namespace ptrie;
 namespace VerifyTAPN {
 namespace DiscreteVerification {
     
     class CoveredMarkingVisitor
     : public visitor_t<MetaData*>
     {
-        typedef binarywrapper<MetaData*> encoding_t;
+        typedef binarywrapper_t<MetaData*> encoding_t;
         private:
             MarkingEncoder<MetaData*, NonStrictMarking>& encoder;
             NonStrictMarking* target;
             encoding_t scratchpad;
-            ptriepointer<MetaData*> match;
+            ptriepointer_t<MetaData*> match;
             bool _found;
             
         private:
@@ -43,7 +43,7 @@ namespace DiscreteVerification {
             virtual bool back(uint32_t index);
             virtual bool set(uint32_t index, bool value);
             virtual bool set_remainder(uint32_t index,
-                                            ptriepointer<MetaData*> pointer);
+                                            ptriepointer_t<MetaData*> pointer);
             void set_target(NonStrictMarking* m) {target = m;_found=false;}
             NonStrictMarking* decode();
             bool found(){return _found;}

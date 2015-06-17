@@ -16,7 +16,7 @@
 #include "WaitingList.hpp"
 #include "ptrie.h"
 #include "MarkingEncoder.h"
-using namespace pgj;
+using namespace ptrie;
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
@@ -81,7 +81,7 @@ class PWListHybrid : public PWListBase {
         public:
 
             PWListHybrid(   TAPN::TimedArcPetriNet& tapn,  
-                            WaitingList<ptriepointer<MetaData*> >* w_l, 
+                            WaitingList<ptriepointer_t<MetaData*> >* w_l, 
                             int knumber, 
                             int nplaces, 
                             int mage, 
@@ -100,7 +100,7 @@ class PWListHybrid : public PWListBase {
             friend std::ostream& operator<<(std::ostream& out, PWListHybrid& x);
 
         public: // inspectors
-            NonStrictMarking* decode(ptriepointer<MetaData*>& ep){
+            NonStrictMarking* decode(ptriepointer_t<MetaData*>& ep){
 
                 NonStrictMarkingBase* base = encoder.decode(ep);
                 NonStrictMarking* m = new NonStrictMarking(*base);
@@ -125,12 +125,11 @@ class PWListHybrid : public PWListBase {
 
         protected:
 
-            WaitingList<ptriepointer<MetaData*> >* waiting_list;
+            WaitingList<ptriepointer_t<MetaData*> >* waiting_list;
             bool makeTrace;
         public:
             MetaDataWithTraceAndEncoding* parent;             
-        protected:
-            ptrie<MetaData*> passed;
+            ptrie_t<MetaData*> passed;
             MarkingEncoder<MetaData*, NonStrictMarking> encoder;
 };
 

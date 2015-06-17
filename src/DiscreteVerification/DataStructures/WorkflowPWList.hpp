@@ -37,7 +37,7 @@ namespace DiscreteVerification {
         CoveredMarkingVisitor visitor;
     public:
         WorkflowPWListHybrid(TAPN::TimedArcPetriNet& tapn, 
-                                WaitingList<ptriepointer<MetaData*> >* w_l, 
+                                WaitingList<ptriepointer_t<MetaData*> >* w_l, 
                                 int knumber, 
                                 int nplaces, 
                                 int mage, 

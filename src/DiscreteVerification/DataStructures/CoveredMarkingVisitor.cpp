@@ -8,7 +8,7 @@
 #include "CoveredMarkingVisitor.h"
 
 
-using namespace pgj;
+using namespace ptrie;
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
@@ -65,7 +65,7 @@ namespace DiscreteVerification {
     }
     
     bool CoveredMarkingVisitor::set_remainder(uint32_t index, 
-                                                ptriepointer<MetaData*> pointer)
+                                            ptriepointer_t<MetaData*> pointer)
     {
         if(_found) return true;  // end
         uint size = scratchpad.size();

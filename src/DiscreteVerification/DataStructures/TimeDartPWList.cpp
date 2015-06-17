@@ -58,7 +58,7 @@ TimeDartBase* TimeDartPWHashMap::getNextUnexplored(){
 
 bool TimeDartPWPData::add(NonStrictMarkingBase* marking, int youngest, WaitingDart* parent, int upper, int start){
 	discoveredMarkings++;
-        std::pair<bool, ptriepointer<TimeDartBase*> > res = passed.insert(encoder.encode(marking));
+        std::pair<bool, ptriepointer_t<TimeDartBase*> > res = passed.insert(encoder.encode(marking));
 
         
         if(!res.first){
@@ -97,7 +97,7 @@ bool TimeDartPWPData::add(NonStrictMarkingBase* marking, int youngest, WaitingDa
 
 TimeDartBase* TimeDartPWPData::getNextUnexplored(){
   
-    ptriepointer<TimeDartBase*> p = waiting_list->pop();
+    ptriepointer_t<TimeDartBase*> p = waiting_list->pop();
     NonStrictMarkingBase* m = encoder.decode(p);
     TimeDartBase* dart = p.get_meta();
     dart->setBase(m);

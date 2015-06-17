@@ -116,7 +116,7 @@ namespace VerifyTAPN {
 
                 if (options.getMemoryOptimization() == VerificationOptions::PTRIE) {
                     //TODO fix initialization
-                    WaitingList<ptriepointer<MetaData*> >* strategy = getWaitingList<ptriepointer<MetaData*> > (query, options);
+                    WaitingList<ptriepointer_t<MetaData*> >* strategy = getWaitingList<ptriepointer_t<MetaData*> > (query, options);
                     if (query->getQuantifier() == EG || query->getQuantifier() == AF) {
                         LivenessSearchPTrie verifier = LivenessSearchPTrie(tapn, *initialMarking, query, options, strategy);
                         VerifyAndPrint(
@@ -160,7 +160,7 @@ namespace VerifyTAPN {
                         exit(1);
                     }                
                     if (options.getMemoryOptimization() == VerificationOptions::PTRIE) {
-                        WaitingList<std::pair<WaitingDart*, ptriepointer<LivenessDart*> > >* strategy = getWaitingList<std::pair<WaitingDart*, ptriepointer<LivenessDart*> > > (query, options);
+                        WaitingList<std::pair<WaitingDart*, ptriepointer_t<LivenessDart*> > >* strategy = getWaitingList<std::pair<WaitingDart*, ptriepointer_t<LivenessDart*> > > (query, options);
                         TimeDartLivenessPData verifier = TimeDartLivenessPData(tapn, *initialMarking, query, options, strategy);
                         VerifyAndPrint(
                                 tapn,

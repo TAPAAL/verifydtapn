@@ -16,44 +16,47 @@
 #include <stdint.h>
 #include <stack>
 
-namespace pgj
+namespace ptrie
 {
     typedef uint32_t uint;
     typedef unsigned char uchar;
     
     template<typename T>
-    class ptrie;
+    class ptrie_t;
     
     template<typename T>
-    class ptriepointer
+    class ptriepointer_t
     {
-        typedef binarywrapper<T> encoding_t;
+        typedef binarywrapper_t<T> encoding_t;
         public:
-            ptrie<T>* container;
+            ptrie_t<T>* container;
             uint index;
         public:
-            ptriepointer(ptrie<T>* container, uint i); 
+            ptriepointer_t(ptrie_t<T>* container, uint i); 
             T get_meta() const;
             void set_meta(T);
             uint write_partial_encoding(encoding_t&) const;
             encoding_t& remainder() const;
-            ptriepointer() : container(NULL), index(0) {};
             
-            ptriepointer<T>& operator=(const ptriepointer<T>&);
-            ptriepointer<T>& operator++();
-            bool operator==(const ptriepointer<T>& other);
-            bool operator!=(const ptriepointer<T>& other);
+            ptriepointer_t() : container(NULL), index(0) {};
+            
+            ptriepointer_t<T>& operator=(const ptriepointer_t<T>&);
+            ptriepointer_t<T>& operator++();
+            bool operator==(const ptriepointer_t<T>& other);
+            bool operator!=(const ptriepointer_t<T>& other);
             
     };
     
     template<typename T>
-    ptriepointer<T>::ptriepointer(ptrie<T>* container, uint i) : 
+    ptriepointer_t<T>::ptriepointer_t(ptrie_t<T>* container, uint i) : 
     container(container), index(i)
     {        
     }
     
     template<typename T>
-    ptriepointer<T>& ptriepointer<T>::operator=(const ptriepointer<T>& other)
+
+    ptriepointer_t<T>& ptriepointer_t<T>::operator=
+                                                (const ptriepointer_t<T>& other)
     {
         container = other.container;
         index = other.index;
@@ -61,20 +64,20 @@ namespace pgj
     }
     
     template<typename T>
-    ptriepointer<T>& ptriepointer<T>::operator++()
+    ptriepointer_t<T>& ptriepointer_t<T>::operator++()
     {
         ++index;
         assert(index <= container->_next_free_entry);
         return *this;
     }
     template<typename T>
-    bool ptriepointer<T>::operator==(const ptriepointer<T>& other)
+    bool ptriepointer_t<T>::operator==(const ptriepointer_t<T>& other)
     {
         return other.container == container && other.index == index;
     }
     
     template<typename T>
-    bool ptriepointer<T>::operator!=(const ptriepointer<T>& other)
+    bool ptriepointer_t<T>::operator!=(const ptriepointer_t<T>& other)
     {
         return !(*this == other);
     }
@@ -92,33 +95,33 @@ namespace pgj
     }*/
     
     template<typename T>
-    T ptriepointer<T>::get_meta() const
+    T ptriepointer_t<T>::get_meta() const
     {
         return container->get_entry(index)->_data.get_meta();
     }
     
     template<typename T>
-    void ptriepointer<T>::set_meta(T val)
+    void ptriepointer_t<T>::set_meta(T val)
     {
         container->get_entry(index)->_data.set_meta(val);
     }
     
     template<typename T>
-    uint ptriepointer<T>::write_partial_encoding(encoding_t& encoding) const
+    uint ptriepointer_t<T>::write_partial_encoding(encoding_t& encoding) const
     {
         return container->writePathToRoot(index, encoding);
     }
     
     template<typename T>
-    binarywrapper<T>& ptriepointer<T>::remainder() const
+    binarywrapper_t<T>& ptriepointer_t<T>::remainder() const
     {
         return container->get_entry(index)->_data;
     }
     
     template<typename T>
-    class ptrie {
-        typedef binarywrapper<T> encoding_t;  
-        friend class ptriepointer<T>;
+    class ptrie_t {
+        typedef binarywrapper_t<T> encoding_t;  
+        friend class ptriepointer_t<T>;
         public:
             
             // nodes in the tree
@@ -163,39 +166,39 @@ namespace pgj
             uint writePathToRoot(uint n_index, encoding_t& encoding) const;
             
         public:
-            ptrie();
-            ~ptrie();
+            ptrie_t();
+            ~ptrie_t();
 
-            std::pair<bool, ptriepointer<T> > insert(const encoding_t& encoding);
-            std::pair<bool, ptriepointer<T> > find(const encoding_t& encoding);
+            std::pair<bool, ptriepointer_t<T> > insert(const encoding_t& encoding);
+            std::pair<bool, ptriepointer_t<T> > find(const encoding_t& encoding);
             bool consistent() const;
             uint size() const { return _next_free_entry; }
-            ptriepointer<T> begin();
-            ptriepointer<T> end();
+            ptriepointer_t<T> begin();
+            ptriepointer_t<T> end();
             
             void visit(visitor_t<T>&);
     };
     
     template<typename T>
-    ptrie<T>::~ptrie() {
-        for(node_t* nodes : _nodevector)
+    ptrie_t<T>::~ptrie_t() {
+        for(size_t i = 0; i < _nodevector.size(); ++i)
         {
-            delete[] nodes;
+            delete[] _nodevector[i];
         }
         _nodevector.clear();
-        for(entry_t* ents : _entryvector)
+        for(size_t i = 0; i < _entryvector.size(); ++i)
         {
-            for(size_t i = 0; i < _blocksize; ++i)
+            for(size_t b = 0; b < _blocksize; ++b)
             {
-                ents[i]._data.release();
+                _entryvector[i][b]._data.release();
             }
-            delete[] ents;
+            delete[] _entryvector[i];
         }
         _entryvector.clear();
     }
     
     template<typename T>
-    ptrie<T>::ptrie() :
+    ptrie_t<T>::ptrie_t() :
             _blocksize(1024), 
             _next_free_node(1), 
             _next_free_entry(0), 
@@ -213,27 +216,27 @@ namespace pgj
     }
     
     template<typename T>
-    ptriepointer<T> ptrie<T>::begin()
+    ptriepointer_t<T> ptrie_t<T>::begin()
     {
-        return ptriepointer<T>(this, 0);
+        return ptriepointer_t<T>(this, 0);
     }
     
     template<typename T>
-    ptriepointer<T> ptrie<T>::end()
+    ptriepointer_t<T> ptrie_t<T>::end()
     {
-        return ptriepointer<T>(this, _next_free_entry);
+        return ptriepointer_t<T>(this, _next_free_entry);
     }
     
     template<typename T>
-    typename ptrie<T>::node_t*
-    ptrie<T>::get_node(uint index) const
+    typename ptrie_t<T>::node_t*
+    ptrie_t<T>::get_node(uint index) const
     {
         assert(index < _next_free_node);
         return &_nodevector[index / _blocksize][index % _blocksize];
     }
     
     template<typename T>
-    uint ptrie<T>::new_node()
+    uint ptrie_t<T>::new_node()
     {
         uint next = _next_free_node;
         if(next % _blocksize == 0)
@@ -246,15 +249,15 @@ namespace pgj
     }
     
     template<typename T>
-    typename ptrie<T>::entry_t* 
-    ptrie<T>::get_entry(uint index) const
+    typename ptrie_t<T>::entry_t* 
+    ptrie_t<T>::get_entry(uint index) const
     {
         assert(index < _next_free_entry);
         return &_entryvector[index / _blocksize][index % _blocksize];
     }
     
     template<typename T>
-    uint ptrie<T>::new_entry()
+    uint ptrie_t<T>::new_entry()
     {
         uint next = _next_free_entry;
         if(next % _blocksize == 0)
@@ -267,7 +270,7 @@ namespace pgj
     }
     
     template<typename T>
-    bool ptrie<T>::consistent() const
+    bool ptrie_t<T>::consistent() const
     {
         return true;
         for(size_t i = 0; i < _next_free_node; ++i)
@@ -300,7 +303,7 @@ namespace pgj
     }
     
     template<typename T>
-    uint ptrie<T>::writePathToRoot(uint e_index, encoding_t& encoding) const
+    uint ptrie_t<T>::writePathToRoot(uint e_index, encoding_t& encoding) const
     {
         entry_t* ent = get_entry(e_index);
         size_t count = 0;
@@ -321,7 +324,7 @@ namespace pgj
     }
     
     template<typename T>
-    void ptrie<T>::visit(visitor_t<T>& visitor)
+    void ptrie_t<T>::visit(visitor_t<T>& visitor)
     {
         std::stack<std::pair<uint, uint> > waiting;
         waiting.push(std::pair<uint, uint>(0, 0));
@@ -364,14 +367,14 @@ namespace pgj
                 for(uint i = 0; i < bucketsize && !stop; ++i)
                 {
                     stop = visitor.set_remainder(distance,
-                                    ptriepointer<T>(this, node->_entries[i]));
+                                    ptriepointer_t<T>(this, node->_entries[i]));
                 }
             }            
         } while(!waiting.empty() && !stop);
     }
     
     template<typename T>
-    bool ptrie<T>::best_match(const encoding_t& encoding, uint& tree_pos, 
+    bool ptrie_t<T>::best_match(const encoding_t& encoding, uint& tree_pos, 
                 uint& e_index, uint& enc_pos, uint& b_index, uint& bucketsize)
     {
         assert(consistent());
@@ -492,7 +495,7 @@ namespace pgj
     }
     
     template<typename T>
-    uint ptrie<T>::split_node(node_t* node, uint tree_pos, uint enc_pos, 
+    uint ptrie_t<T>::split_node(node_t* node, uint tree_pos, uint enc_pos, 
                                                 uint bucketsize, bool branch)
     {
         assert(consistent());
@@ -587,7 +590,7 @@ namespace pgj
     }
     
     template<typename T>
-    std::pair<bool, ptriepointer<T> > ptrie<T>::find(const encoding_t& encoding)
+    std::pair<bool, ptriepointer_t<T> > ptrie_t<T>::find(const encoding_t& encoding)
     {
         uint tree_pos;
         uint enc_pos;
@@ -596,18 +599,18 @@ namespace pgj
         uint b_index;
         if(best_match(encoding, tree_pos, e_index, enc_pos, b_index,  bucketsize))
         {
-            return std::pair<bool, ptriepointer<T> >(true, 
-                                                ptriepointer<T>(this, e_index));
+            return std::pair<bool, ptriepointer_t<T> >(true, 
+                                                ptriepointer_t<T>(this, e_index));
         }
         else
         {
-            return std::pair<bool, ptriepointer<T> >(false, 
-                                                ptriepointer<T>(this, e_index));
+            return std::pair<bool, ptriepointer_t<T> >(false, 
+                                                ptriepointer_t<T>(this, e_index));
         }
     }
     
     template<typename T>
-    std::pair<bool, ptriepointer<T> > ptrie<T>::insert(const encoding_t& encoding)
+    std::pair<bool, ptriepointer_t<T> > ptrie_t<T>::insert(const encoding_t& encoding)
     {
         assert(consistent());
         size_t encsize = encoding.size() * 8;
@@ -620,8 +623,8 @@ namespace pgj
         if(best_match(encoding, tree_pos, e_index, enc_pos, b_index, bucketsize))
         {   // We are not inserting duplicates, semantics of PTrie is a set.
             assert(consistent());
-            return std::pair<bool, ptriepointer<T> >(false, 
-                                                ptriepointer<T>(this, e_index));
+            return std::pair<bool, ptriepointer_t<T> >(false, 
+                                                ptriepointer_t<T>(this, e_index));
         }
 
         // closest matched node
@@ -682,8 +685,8 @@ namespace pgj
             split_node(node, tree_pos, enc_pos, bucketsize, branch);
         }
         assert(consistent());
-        return std::pair<bool, ptriepointer<T> >(true, 
-                                            ptriepointer<T>(this, ne_index));
+        return std::pair<bool, ptriepointer_t<T> >(true, 
+                                            ptriepointer_t<T>(this, ne_index));
     }
 }
 

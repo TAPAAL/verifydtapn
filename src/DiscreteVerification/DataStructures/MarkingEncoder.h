@@ -16,7 +16,7 @@
 #include "NonStrictMarkingBase.hpp"
 
 
-using namespace pgj;
+using namespace ptrie;
 namespace VerifyTAPN {
     namespace DiscreteVerification {
 
@@ -26,7 +26,8 @@ namespace VerifyTAPN {
         class MarkingEncoder
         {
         friend class CoveredMarkingVisitor;
-        typedef binarywrapper<T> encoding_t;
+        typedef binarywrapper_t<T> encoding_t;
+
         private:
             const uint maxNumberOfTokens;
             const uint maxAge;
@@ -42,8 +43,9 @@ namespace VerifyTAPN {
             MarkingEncoder(TAPN::TimedArcPetriNet& tapn, int knumber,
                                                         int nplaces, int mage);
             
-            M* decode(const ptriepointer<T>& pointer);
-            encoding_t encode(M* marking);            
+
+            M* decode(const ptriepointer_t<T>& pointer);
+            encoding_t encode(M* marking);
         };
         
         template<typename T, typename M>
@@ -63,7 +65,7 @@ namespace VerifyTAPN {
         }
         
         template<typename T, typename M>
-        M* MarkingEncoder<T, M>::decode(const ptriepointer<T>& pointer)
+        M* MarkingEncoder<T, M>::decode(const ptriepointer_t<T>& pointer)
         {
             assert(scratchpad.raw() == raw);
             M* m = new M();
@@ -149,7 +151,7 @@ namespace VerifyTAPN {
         }
         
         template<typename T, typename M>
-        binarywrapper<T> MarkingEncoder<T, M>::encode(M* marking)
+        binarywrapper_t<T> MarkingEncoder<T, M>::encode(M* marking)
         {
             scratchpad.zero();
             int tc = 0;

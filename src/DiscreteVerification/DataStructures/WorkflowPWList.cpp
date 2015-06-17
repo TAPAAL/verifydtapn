@@ -144,7 +144,7 @@ namespace VerifyTAPN {
 
         WorkflowPWListHybrid::WorkflowPWListHybrid(
                             TAPN::TimedArcPetriNet& tapn,  
-                            WaitingList<ptriepointer<MetaData*> >* w_l, 
+                            WaitingList<ptriepointer_t<MetaData*> >* w_l, 
                             int knumber, 
                             int nplaces, 
                             int mage, 
@@ -172,7 +172,7 @@ namespace VerifyTAPN {
         
         NonStrictMarking* WorkflowPWListHybrid::getUnpassed()
         {
-            ptriepointer<MetaData*> it = passed.begin();
+            ptriepointer_t<MetaData*> it = passed.begin();
             for(; it != passed.end(); ++it)
             {
                 if(!it.get_meta()->passed)
@@ -188,7 +188,7 @@ namespace VerifyTAPN {
     	bool WorkflowPWListHybrid::add(NonStrictMarking* marking)
         {
             discoveredMarkings++;
-            std::pair<bool, ptriepointer<MetaData*> > res = 
+            std::pair<bool, ptriepointer_t<MetaData*> > res = 
                                         passed.insert(encoder.encode(marking));
             
             if (!res.first) {
@@ -221,7 +221,7 @@ namespace VerifyTAPN {
                                                     (NonStrictMarking* marking)
         {
             discoveredMarkings++;
-            std::pair<bool, ptriepointer<MetaData*> > res = 
+            std::pair<bool, ptriepointer_t<MetaData*> > res = 
                                         passed.find(encoder.encode(marking));
             if (!res.first) {
                 marking->meta = res.second.get_meta();

@@ -10,10 +10,10 @@
 
 #include <stdint.h>
 
-namespace pgj
+namespace ptrie
 {
     template<typename T>
-    class ptriepointer;
+    class ptriepointer_t;
     
     template<typename T>
     class visitor_t
@@ -21,7 +21,7 @@ namespace pgj
     public:
         virtual bool back(uint32_t index) = 0;
         virtual bool set(uint32_t index, bool value) = 0;
-        virtual bool set_remainder(uint32_t index, ptriepointer<T> pointer) = 0;
+        virtual bool set_remainder(uint32_t index, ptriepointer_t<T> pointer) = 0;
     };
 }
 

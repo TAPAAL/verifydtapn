@@ -19,8 +19,8 @@ struct TraceDart;
 class TimeDartBase;
 class LivenessDart;
 
-typedef ptriepointer<TimeDartBase*> TimeDartEncodingPointer;  // used for memory-optimization for reachability
-typedef ptriepointer<LivenessDart*> LivenessDartEncodingPointer; // mem-optimization for liveness
+typedef ptriepointer_t<TimeDartBase*> TimeDartEncodingPointer;  // used for memory-optimization for reachability
+typedef ptriepointer_t<LivenessDart*> LivenessDartEncodingPointer; // mem-optimization for liveness
 
 
 typedef vector<WaitingDart*> TraceMetaDataList;
