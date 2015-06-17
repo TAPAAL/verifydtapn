@@ -14,14 +14,14 @@
 #include <vector>
 #include "ptrie.h"
 
-using namespace pgj;
+using namespace ptrie;
 namespace VerifyTAPN {
     namespace DiscreteVerification {
 
         template<typename T, typename M = NonStrictMarkingBase>
         class MarkingEncoder
         {
-        typedef binarywrapper<T> encoding_t;
+        typedef binarywrapper_t<T> encoding_t;
         private:
             const uint maxNumberOfTokens;
             const uint maxAge;
@@ -38,7 +38,7 @@ namespace VerifyTAPN {
                                                         int nplaces, int mage);
             
             M* decode
-                                            (const ptriepointer<T>& pointer);
+                                            (const ptriepointer_t<T>& pointer);
             encoding_t encode(M* marking);
         };
         
@@ -59,7 +59,7 @@ namespace VerifyTAPN {
         }
         
         template<typename T, typename M>
-        M* MarkingEncoder<T, M>::decode(const ptriepointer<T>& pointer)
+        M* MarkingEncoder<T, M>::decode(const ptriepointer_t<T>& pointer)
         {
             assert(scratchpad.raw() == raw);
             M* m = new M();
@@ -145,7 +145,7 @@ namespace VerifyTAPN {
         }
         
         template<typename T, typename M>
-        binarywrapper<T> MarkingEncoder<T, M>::encode(M* marking)
+        binarywrapper_t<T> MarkingEncoder<T, M>::encode(M* marking)
         {
             scratchpad.zero();
             int tc = 0;

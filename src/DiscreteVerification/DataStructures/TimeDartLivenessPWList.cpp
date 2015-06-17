@@ -64,7 +64,7 @@ namespace VerifyTAPN {
         std::pair<LivenessDart*, bool> TimeDartLivenessPWPData::add(NonStrictMarkingBase* marking, int youngest, WaitingDart* parent, int upper, int start) {
 
             discoveredMarkings++;
-            std::pair<bool, ptriepointer<LivenessDart*> > res = passed.insert(encoder.encode(marking));
+            std::pair<bool, ptriepointer_t<LivenessDart*> > res = passed.insert(encoder.encode(marking));
             if (!res.first) {
                 LivenessDart* td = res.second.get_meta();
                 td->setBase(marking);

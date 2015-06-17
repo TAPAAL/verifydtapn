@@ -51,7 +51,7 @@ public:
 
 class ReachabilitySearchPTrie : public ReachabilitySearch {
 public:
-    ReachabilitySearchPTrie(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<ptriepointer<MetaData*> >* waiting_list) 
+    ReachabilitySearchPTrie(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<ptriepointer_t<MetaData*> >* waiting_list) 
     : ReachabilitySearch(tapn,initialMarking, query, options)
     {
         pwList = new PWListHybrid(tapn, waiting_list, options.getKBound(), tapn.getNumberOfPlaces(), tapn.getMaxConstant(), false, options.getTrace() != VerificationOptions::NO_TRACE);

@@ -17,7 +17,7 @@
 #include "ptrie.h"
 #include "MarkingEncoder.h"
 
-using namespace pgj;
+using namespace ptrie;
 
 namespace VerifyTAPN {
     namespace DiscreteVerification {
@@ -91,17 +91,17 @@ namespace VerifyTAPN {
         class TimeDartPWPData : public TimeDartPWBase {
         public:
 
-            TimeDartPWPData(WaitingList<ptriepointer<TimeDartBase*> >* w_l, TAPN::TimedArcPetriNet& tapn, int knumber, int nplaces, int mage, bool trace) :
+            TimeDartPWPData(WaitingList<ptriepointer_t<TimeDartBase*> >* w_l, TAPN::TimedArcPetriNet& tapn, int knumber, int nplaces, int mage, bool trace) :
             TimeDartPWBase(trace), 
                     waiting_list(w_l), passed(), encoder(tapn, knumber, nplaces, mage) {
             };
             
-            NonStrictMarkingBase* decode(ptriepointer<TimeDartBase*>& ewp){
+            NonStrictMarkingBase* decode(ptriepointer_t<TimeDartBase*>& ewp){
                 return encoder.decode(ewp);
             }
         private:
-            WaitingList<ptriepointer<TimeDartBase*> >* waiting_list;
-            ptrie<TimeDartBase*> passed;
+            WaitingList<ptriepointer_t<TimeDartBase*> >* waiting_list;
+            ptrie_t<TimeDartBase*> passed;
             MarkingEncoder<TimeDartBase*> encoder;
             virtual bool add(NonStrictMarkingBase* marking, int youngest, WaitingDart* parent, int upper, int start);
             virtual TimeDartBase* getNextUnexplored();

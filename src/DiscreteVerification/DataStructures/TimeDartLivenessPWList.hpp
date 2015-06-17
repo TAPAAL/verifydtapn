@@ -85,7 +85,7 @@ namespace VerifyTAPN {
 
         class TimeDartLivenessPWPData : public TimeDartLivenessPWBase {
         public:
-            typedef std::pair<WaitingDart*, ptriepointer<LivenessDart*> > waitingpair_t;
+            typedef std::pair<WaitingDart*, ptriepointer_t<LivenessDart*> > waitingpair_t;
 
             
             TimeDartLivenessPWPData(VerificationOptions options, WaitingList<waitingpair_t >* w_l, TAPN::TimedArcPetriNet& tapn, int nplaces, int mage): 
@@ -108,14 +108,14 @@ namespace VerifyTAPN {
                 return (waiting_list->size() > 0);
             };
             virtual void flushBuffer();
-            NonStrictMarkingBase* decode(ptriepointer<LivenessDart*>& ewp){
+            NonStrictMarkingBase* decode(ptriepointer_t<LivenessDart*>& ewp){
                 return encoder.decode(ewp);
             }
             
         private:
             VerificationOptions options;
             WaitingList<waitingpair_t >* waiting_list;
-            ptrie<LivenessDart*> passed;
+            ptrie_t<LivenessDart*> passed;
             MarkingEncoder<LivenessDart*> encoder;
         };
 

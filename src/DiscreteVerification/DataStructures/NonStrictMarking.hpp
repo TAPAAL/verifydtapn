@@ -15,7 +15,7 @@
 #include "../../Core/TAPN/TAPN.hpp"
 #include "ptrie.h"
 
-using namespace pgj;
+using namespace ptrie;
 using namespace std;
 
 namespace VerifyTAPN {
@@ -45,7 +45,7 @@ namespace DiscreteVerification {
     class MetaData;
     
     struct MetaDataWithTraceAndEncoding : public MetaDataWithTrace {
-        ptriepointer<MetaData*> ep;
+        ptriepointer_t<MetaData*> ep;
             MetaDataWithTraceAndEncoding* parent;
     };
     

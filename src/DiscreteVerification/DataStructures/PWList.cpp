@@ -8,7 +8,7 @@
 #include "PWList.hpp"
 #include "ptrie.h"
 #include "MarkingEncoder.h"
-using namespace pgj;
+using namespace ptrie;
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
@@ -67,7 +67,7 @@ std::ostream& operator<<(std::ostream& out, PWList& x){
 
             assert(passed.consistent());
 
-            std::pair<bool, ptriepointer<MetaData*> > res = passed.insert(encoder.encode(marking));
+            std::pair<bool, ptriepointer_t<MetaData*> > res = passed.insert(encoder.encode(marking));
 
             if(res.first){
                 res.second.set_meta(NULL);
@@ -107,7 +107,7 @@ std::ostream& operator<<(std::ostream& out, PWList& x){
         }
 
         NonStrictMarking* PWListHybrid::getNextUnexplored() {
-            ptriepointer<MetaData*> p = waiting_list->pop();
+            ptriepointer_t<MetaData*> p = waiting_list->pop();
             NonStrictMarking* m = encoder.decode(p);
             
             delete m->meta;
