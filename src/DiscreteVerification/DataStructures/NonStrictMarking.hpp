@@ -51,7 +51,7 @@ namespace DiscreteVerification {
     
     class NonStrictMarking : public NonStrictMarkingBase{
     public:
-        NonStrictMarking():NonStrictMarkingBase(), meta(new MetaData()){}
+        NonStrictMarking():NonStrictMarkingBase(), meta(NULL){}
 	NonStrictMarking(const TAPN::TimedArcPetriNet& tapn, const std::vector<int>& v): NonStrictMarkingBase(tapn, v), meta(NULL){}
 	NonStrictMarking(const NonStrictMarkingBase& nsm):NonStrictMarkingBase(nsm), meta(NULL){
 
