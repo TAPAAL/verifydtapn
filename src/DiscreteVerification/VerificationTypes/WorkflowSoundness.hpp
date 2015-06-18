@@ -41,7 +41,8 @@ public:
 
 	virtual ~WorkflowSoundness();
 	bool verify();
-	virtual void getTrace();
+        virtual void getTrace(NonStrictMarking* marking);
+	virtual void getTrace() {this->getTrace(lastMarking);};
         
 	void printExecutionTime(ostream& stream){
 		stream << "Minimum execution time: " << minExec << endl;
@@ -49,8 +50,7 @@ public:
 	void printMessages(ostream& stream){
 		if(coveredMarking != NULL){
 			stream << "Covered marking: " << *coveredMarking << endl;
-                        lastMarking = coveredMarking;
-			this->getTrace();
+			getTrace(coveredMarking);
 		}
 	}
         inline const ModelType getModelType() const{ return modelType; }
@@ -61,6 +61,7 @@ protected:
 	bool checkForCoveredMarking(NonStrictMarking* marking);
         ModelType calculateModelType();
         virtual void addParentMeta(MetaData* meta, MetaData* parent);
+        virtual void setMetaParent(NonStrictMarking*){};
         
 protected:
     stack<MetaData*> passedStack;
@@ -83,7 +84,9 @@ public:
         {
 //            delete marking;
         }
-        virtual void getTrace();
+        virtual void getTrace(NonStrictMarking* marking);
+protected:
+        virtual void setMetaParent(NonStrictMarking*);
 };
 
 } /* namespace DiscreteVerification */

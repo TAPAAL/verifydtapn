@@ -170,8 +170,9 @@ namespace VerifyTAPN {
             passed.visit(visitor);
             if(visitor.found())
             {
+                NonStrictMarking* m = visitor.decode();
                 assert(passed.consistent());
-                return visitor.decode();
+                return m;
             }
             else
             {
@@ -183,8 +184,8 @@ namespace VerifyTAPN {
         NonStrictMarking* WorkflowPWListHybrid::getUnpassed()
         {
             assert(passed.consistent());
-            ptriepointer_t<MetaData*> it = passed.begin();
-            for(; it != passed.end(); ++it)
+            ptriepointer_t<MetaData*> it = passed.rbegin();
+            for(; it != passed.rend(); --it)
             {
                 if(!it.get_meta()->passed)
                 {

@@ -52,7 +52,7 @@ namespace DiscreteVerification {
             }
             
             if (count) {
-                return target_contains_token(data, count);
+                return !target_contains_token(data, count);
             }
             // should not really happen
             assert(false);
@@ -83,65 +83,62 @@ namespace DiscreteVerification {
             // check inclusion 
 
             bool bit;
-            uint data = 0;
-            uint count = 0;
-            uint cbit = index - 1;
-            
-            // unpack marking
-            while (cbit >= begin + encoder.countBitSize) {
-                data = data << 1;
-                
-                if(cbit < offset) bit = scratchpad.at(cbit);
-                else bit = remainder.at(cbit - offset);
-                
-                if(bit)
-                {
-                    data |= 1;
-                }
-                --cbit;
-            }
-            
-            while(cbit >= begin)
+            uint cbit = begin;
+            while(true)
             {
-                data = data << 1;
+                uint data = 0;
+                uint count = 0;
+                cbit += encoder.markingBitSize;
+                // unpack marking
+                while (cbit >= begin + encoder.countBitSize) {
+                    data = data << 1;
 
-                if(cbit < offset) bit = scratchpad.at(cbit);
-                else bit = remainder.at(cbit - offset);
+                    if(cbit < offset) bit = scratchpad.at(cbit);
+                    else bit = remainder.at(cbit - offset);
 
-                if(bit)
-                {
-                    data |= 1;
+                    if(bit)
+                    {
+                        data |= 1;
+                    }
+                    --cbit;
                 }
-                if(cbit == 0) break;
-                cbit--;                
-            }
-            
-            if (count) 
-            {
-                if(target_contains_token(data, count))
+
+                while(cbit >= begin)
                 {
-                    match = pointer;
-                    _found = true;
-                    return true;
+                    count = count << 1;
+
+                    if(cbit < offset) bit = scratchpad.at(cbit);
+                    else bit = remainder.at(cbit - offset);
+
+                    if(bit)
+                    {
+                        count |= 1;
+                    }
+                    if(cbit == 0) break;
+                    cbit--;                
+                }
+                begin += encoder.markingBitSize;
+                if (count) 
+                {
+                    if(!target_contains_token(data, count))
+                    {
+                        return false;
+                    }
                 }
                 else
                 {
-                    return false;
+                    break;
                 }
             }
-            else
-            {
-                return false; // continue search
-            }
         }
-        
-        assert(false);
-        return false;
+        match = pointer;
+        _found = true;
+        return true;
     }
     
     bool CoveredMarkingVisitor::back(uint32_t index)
     {
-        // safe to ignore here
+        return false;
     }
     
     bool CoveredMarkingVisitor::target_contains_token(uint placeage, uint count)
@@ -157,13 +154,13 @@ namespace DiscreteVerification {
         {
             if(it->getAge() == age)
             {
-                if(it->getCount() <= count) return false;// continue
-                else return true; // skip branch
+                if(it->getCount() <= count) return true; // continue
+                else return false; // skip branch
             }
-            else if(it->getAge() > age) return true;  // skip branch
+            else if(it->getAge() > age) return false;  // skip branch
         }
 
-        return true; // skip branch
+        return false; // skip branch
     }
     
     NonStrictMarking* CoveredMarkingVisitor::decode()

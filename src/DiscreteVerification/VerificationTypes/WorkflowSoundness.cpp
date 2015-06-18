@@ -40,7 +40,6 @@ bool WorkflowSoundness::verify(){
 	while(pwList->hasWaitingStates()){
 
 		NonStrictMarking* next_marking = pwList->getNextUnexplored();
-                
 		tmpParent = next_marking;
 		bool noDelay = false;
 
@@ -120,6 +119,7 @@ bool WorkflowSoundness::addToPW(NonStrictMarking* marking, NonStrictMarking* par
 	pwList->setMaxNumTokensIfGreater(size);
 	if(modelType == ETAWFN && size > options.getKBound()) {
 		lastMarking = marking;
+                setMetaParent(lastMarking);
 		return true;	// Terminate false
 	}
 
@@ -201,18 +201,19 @@ bool WorkflowSoundness::checkForCoveredMarking(NonStrictMarking* marking){
 	}
 
 	NonStrictMarking* covered = pwList->getCoveredMarking(marking, (marking->size() > linearSweepTreshold));
+
 	if(covered != NULL){
-		coveredMarking = covered;
-		return true;
+            coveredMarking = covered;
+            return true;
 	}
 
 	return false;
 }
 
-void WorkflowSoundness::getTrace(){
-    
+void WorkflowSoundness::getTrace(NonStrictMarking* marking){
+
 	stack < NonStrictMarking*> printStack;
-        NonStrictMarking* next = lastMarking;
+        NonStrictMarking* next = marking;
         if(next != NULL){
             do{
                 printStack.push(next);
@@ -220,30 +221,54 @@ void WorkflowSoundness::getTrace(){
             } while(next);
         }
         
-        printXMLTrace(lastMarking, printStack, query, tapn);
+        printXMLTrace(marking, printStack, query, tapn);
 
 }
 
 
-void WorkflowSoundnessPTrie::getTrace(){
-        stack < NonStrictMarking*> printStack;
+void WorkflowSoundnessPTrie::getTrace(NonStrictMarking* marking){
 
         PWListHybrid* pwhlist = dynamic_cast<PWListHybrid*>(this->pwList);
-        MetaDataWithTraceAndEncoding* next = 
-                static_cast<MetaDataWithTraceAndEncoding*>(lastMarking->meta);
-        NonStrictMarking* last = lastMarking;
-        printStack.push(lastMarking);
 
-        while(next != NULL){
+        stack < NonStrictMarking*> printStack;
 
-            NonStrictMarking* m = pwhlist->decode(next->ep);
-            m->setGeneratedBy(next->generatedBy);
-            last->setParent(m);
-            last = m;
-            printStack.push(m);
-            next = next->parent;
-        };
-        printXMLTrace(lastMarking, printStack, query, tapn);
+        if(marking != NULL){
+            printStack.push(marking);
+            
+            MetaDataWithTraceAndEncoding* meta = 
+                static_cast<MetaDataWithTraceAndEncoding*>(marking->meta);
+            if(meta)
+            {
+                marking->setGeneratedBy(meta->generatedBy);
+
+                meta = meta->parent;
+                while(meta != NULL)
+                {
+                    NonStrictMarking* next = pwhlist->decode(meta->ep);
+                    printStack.push(next);
+                    next->setGeneratedBy(meta->generatedBy);
+                    printStack.top()->setParent(next);
+                    meta = meta->parent;
+                }
+            }
+        }
+        
+        printXMLTrace(marking, printStack, query, tapn);
+}
+
+
+void WorkflowSoundnessPTrie::setMetaParent(NonStrictMarking* marking){
+    PWListHybrid* pwhlist = dynamic_cast<PWListHybrid*>(this->pwList);
+    
+    if(marking->meta == NULL)
+    {
+        marking->meta = new MetaDataWithTraceAndEncoding();
+    }
+
+    MetaDataWithTraceAndEncoding* mte = 
+                static_cast<MetaDataWithTraceAndEncoding*>(marking->meta);
+    mte->parent = pwhlist->parent;
+    mte->generatedBy = marking->getGeneratedBy();
 }
 
 WorkflowSoundness::ModelType WorkflowSoundness::calculateModelType() {

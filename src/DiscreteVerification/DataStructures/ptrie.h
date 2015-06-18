@@ -42,6 +42,7 @@ namespace ptrie
             
             ptriepointer_t<T>& operator=(const ptriepointer_t<T>&);
             ptriepointer_t<T>& operator++();
+            ptriepointer_t<T>& operator--();
             bool operator==(const ptriepointer_t<T>& other);
             bool operator!=(const ptriepointer_t<T>& other);
             
@@ -70,6 +71,14 @@ namespace ptrie
         assert(index <= container->_next_free_entry);
         return *this;
     }
+    
+    template<typename T>
+    ptriepointer_t<T>& ptriepointer_t<T>::operator--()
+    {
+        --index;
+        return *this;
+    }
+    
     template<typename T>
     bool ptriepointer_t<T>::operator==(const ptriepointer_t<T>& other)
     {
@@ -175,6 +184,8 @@ namespace ptrie
             uint size() const { return _next_free_entry; }
             ptriepointer_t<T> begin();
             ptriepointer_t<T> end();
+            ptriepointer_t<T> rbegin();
+            ptriepointer_t<T> rend();
             
             void visit(visitor_t<T>&);
     };
@@ -228,6 +239,18 @@ namespace ptrie
     }
     
     template<typename T>
+    ptriepointer_t<T> ptrie_t<T>::rbegin()
+    {
+        return ptriepointer_t<T>(this, _next_free_entry-1);
+    }
+    
+    template<typename T>
+    ptriepointer_t<T> ptrie_t<T>::rend()
+    {
+        return ptriepointer_t<T>(this, std::numeric_limits<uint>::max());
+    }
+    
+    template<typename T>
     typename ptrie_t<T>::node_t*
     ptrie_t<T>::get_node(uint index) const
     {
@@ -272,6 +295,7 @@ namespace ptrie
     template<typename T>
     bool ptrie_t<T>::consistent() const
     {
+        return true;
         assert(_next_free_node >= _nodevector.size());
         assert(_next_free_entry >= _entryvector.size());
         for(size_t i = 0; i < _next_free_node; ++i)
