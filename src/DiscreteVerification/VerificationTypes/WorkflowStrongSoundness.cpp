@@ -130,13 +130,37 @@ namespace VerifyTAPN {
                 printStack.push(next);
             }
 
-            if (options.getXmlTrace()) {
-                printXMLTrace(lastMarking, printStack, query, tapn);
-            } else {
-                    printHumanTrace(lastMarking, printStack, query->getQuantifier());
-            }
+            printXMLTrace(lastMarking, printStack, query, tapn);
         }
 
+        void WorkflowStrongSoundnessPTrie::getTrace() {
+
+            PWListHybrid* pwhlist = dynamic_cast<PWListHybrid*>(this->pwList);
+            
+            std::stack < NonStrictMarking*> printStack;
+            
+            NonStrictMarking* next = lastMarking;
+            MetaDataWithTraceAndEncoding* meta = 
+                static_cast<MetaDataWithTraceAndEncoding*>(lastMarking->meta);
+            
+            do {
+                NonStrictMarking* parent = 
+                        pwhlist->decode(meta->parent->ep);
+                parent->setGeneratedBy(meta->parent->generatedBy);
+                printStack.push(next);
+                next = parent;
+                meta = meta->parent;
+
+            } while (meta->parent != NULL && meta != NULL);
+
+            if (printStack.top() != next) {
+                printStack.push(next);
+            }
+
+            printXMLTrace(lastMarking, printStack, query, tapn);
+        }
+        
+        
         bool WorkflowStrongSoundnessReachability::addToPW(NonStrictMarking* marking, NonStrictMarking* parent) {
             marking->cut(placeStats);
             marking->setParent(parent);
@@ -168,9 +192,7 @@ namespace VerifyTAPN {
                         return true;
                     } else {
                         // search again to find maxdelay
-                        // copy data from new (PTRIE TODO: FIX)
-                        old->setParent(marking->getParent());
-                        old->setGeneratedBy(marking->getGeneratedBy());
+                        swapData(marking, old);
                         old->meta->totalDelay = totalDelay;
                         delete marking;
                         marking = old;
@@ -200,6 +222,22 @@ namespace VerifyTAPN {
             }
             return false;
         }
+        
+        void WorkflowStrongSoundnessReachability::swapData(NonStrictMarking* marking, NonStrictMarking* old)
+        {
+            old->setGeneratedBy(marking->getGeneratedBy());
+            old->setParent(marking->getParent());
+        }
 
+        void WorkflowStrongSoundnessPTrie::swapData(NonStrictMarking* marking, NonStrictMarking* parent)
+        {
+            PWListHybrid* pwhlist = dynamic_cast<PWListHybrid*>(this->pwList);
+            MetaDataWithTraceAndEncoding* meta = 
+                static_cast<MetaDataWithTraceAndEncoding*>(parent->meta);
+
+            meta->generatedBy = marking->getGeneratedBy();
+            meta->parent = pwhlist->parent;
+        }
+        
     } /* namespace DiscreteVerification */
 } /* namespace VerifyTAPN */

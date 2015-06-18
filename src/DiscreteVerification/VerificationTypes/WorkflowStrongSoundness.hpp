@@ -25,7 +25,7 @@ public:
         WorkflowStrongSoundnessReachability(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options);
         
 	bool verify();
-	void getTrace();
+	virtual void getTrace();
 
 	void printExecutionTime(ostream& stream){
 		stream << "Maximum execution time: " << (maxValue * tapn.getGCD()) << endl;
@@ -35,6 +35,7 @@ public:
 protected:
         void findInOut();
 	bool addToPW(NonStrictMarking* marking, NonStrictMarking* parent);
+        virtual void swapData(NonStrictMarking* marking, NonStrictMarking* old);
 
 protected:
 	int maxValue;
@@ -51,11 +52,14 @@ public:
             AST::Query* query, 
             VerificationOptions options, 
             WaitingList<ptriepointer_t<MetaData*> >* waiting_list);
-    
+    virtual void getTrace();
     virtual void deleteMarking(NonStrictMarking* marking)
     {
         delete marking;
     }
+
+protected:
+        virtual void swapData(NonStrictMarking* marking, NonStrictMarking* old);
 };
 
 } /* namespace DiscreteVerification */
