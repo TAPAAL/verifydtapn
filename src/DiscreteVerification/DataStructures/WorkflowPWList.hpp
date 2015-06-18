@@ -28,6 +28,7 @@ namespace DiscreteVerification {
     	virtual bool add(NonStrictMarking* marking) = 0;
         virtual NonStrictMarking* addToPassed(NonStrictMarking* marking, bool strong) = 0;
         virtual void addLastToWaiting() = 0;
+        virtual void setParent(NonStrictMarking*, NonStrictMarking*) = 0;
     };
     
     class WorkflowPWList : public WorkflowPWListBasic, public PWList {
@@ -44,6 +45,11 @@ namespace DiscreteVerification {
         virtual void addLastToWaiting(){
 		waiting_list->add(last, last);
 	}
+        
+        virtual void setParent(NonStrictMarking* marking, NonStrictMarking* parent)
+        {
+            marking->setParent(parent);
+        }
 
     };
     
@@ -63,6 +69,10 @@ namespace DiscreteVerification {
     	virtual bool add(NonStrictMarking* marking);
         virtual NonStrictMarking* addToPassed(NonStrictMarking* marking, bool strong);
         virtual void addLastToWaiting();
+        virtual void setParent(NonStrictMarking* marking, NonStrictMarking*)
+        {
+            ((MetaDataWithTraceAndEncoding*)marking->meta)->parent = parent;
+        }
     };
 
 } /* namespace DiscreteVerification */

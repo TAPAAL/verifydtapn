@@ -118,7 +118,7 @@ namespace VerifyTAPN {
 
         NonStrictMarking* WorkflowPWList::addToPassed(
                                         NonStrictMarking* marking, bool strong) 
-        {
+        {  
             discoveredMarkings++;
             NonStrictMarking* existing = lookup(marking);
             if (existing != NULL) {
@@ -210,20 +210,21 @@ namespace VerifyTAPN {
             }
             else
             {
-                MetaData* meta;
-
-                MetaDataWithTraceAndEncoding* trace = 
+                MetaDataWithTraceAndEncoding* meta = 
                                         new MetaDataWithTraceAndEncoding();
-                trace->generatedBy = marking->getGeneratedBy();
-                trace->ep = res.second;
-                trace->parent = parent;
-                trace->totalDelay = marking->calculateTotalDelay();
-                meta = trace;
-
+                meta->generatedBy = marking->getGeneratedBy();
+                meta->ep = res.second;
+                meta->parent = parent;
+                meta->totalDelay = marking->calculateTotalDelay();
+                
+                assert(res.second.get_meta() == NULL);
+                
                 res.second.set_meta(meta);
                 
                 stored++;
-                waiting_list->add(marking, res.second);
+                
+                // using min first waiting-list, weight is allready in pointer
+                waiting_list->add(NULL, res.second);
                 assert(passed.consistent());
                 return true;           
             }
@@ -236,15 +237,18 @@ namespace VerifyTAPN {
             discoveredMarkings++;
             std::pair<bool, ptriepointer_t<MetaData*> > res = 
                                         passed.insert(encoder.encode(marking));
-            last = marking;
-            last_pointer = res.second;
+
+
+            
             if (!res.first) {
-                NonStrictMarking* old = new NonStrictMarking(*marking);
-                old->meta = res.second.get_meta();
+                NonStrictMarking* old = encoder.decode(res.second);
+                
                 MetaDataWithTraceAndEncoding* meta = 
-                        (MetaDataWithTraceAndEncoding*)old->meta;
+                        (MetaDataWithTraceAndEncoding*)res.second.get_meta();
                 old->setGeneratedBy(meta->generatedBy);
+                old->meta = meta;
                 assert(passed.consistent());
+                last_pointer = res.second;
                 return old;
             } else {
                 stored++;
@@ -252,14 +256,15 @@ namespace VerifyTAPN {
                 if(strong) marking->meta = new MetaDataWithTraceAndEncoding();
                 else marking->meta = new WorkflowSoundnessMetaDataWithEncoding();
                 
-                MetaDataWithTraceAndEncoding* meta = (MetaDataWithTraceAndEncoding*) marking->meta;
+                MetaDataWithTraceAndEncoding* meta = 
+                                (MetaDataWithTraceAndEncoding*) marking->meta;
                 meta->ep = res.second;
                 meta->parent = this->parent;
                 meta->generatedBy = marking->getGeneratedBy();
                 meta->totalDelay = marking->meta->totalDelay;
                 
                 res.second.set_meta(meta);
-                
+                last_pointer = res.second;
                 assert(passed.consistent());
                 return NULL;
             }
@@ -268,7 +273,8 @@ namespace VerifyTAPN {
         void WorkflowPWListHybrid::addLastToWaiting()
         {
             assert(passed.consistent());
-            waiting_list->add(last, last_pointer);
+            // using min first waiting-list, weight is allready in pointer
+            waiting_list->add(NULL, last_pointer);
             assert(passed.consistent());
         }
         

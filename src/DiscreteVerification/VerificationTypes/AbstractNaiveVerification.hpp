@@ -66,7 +66,7 @@ namespace VerifyTAPN {
 
         template<typename T,typename U>
         AbstractNaiveVerification<T,U>::AbstractNaiveVerification(TAPN::TimedArcPetriNet& tapn, U& initialMarking, AST::Query* query, VerificationOptions options, T* pwList)
-        : Verification<U>(tapn, initialMarking, query, options), successorGenerator(tapn, *this), pwList(pwList) {
+        : Verification<U>(tapn, initialMarking, query, options), lastMarking(NULL), successorGenerator(tapn, *this), pwList(pwList) {
 
         };
 

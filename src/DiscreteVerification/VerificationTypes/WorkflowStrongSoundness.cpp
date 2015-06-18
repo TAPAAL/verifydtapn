@@ -117,7 +117,7 @@ namespace VerifyTAPN {
         }
 
         void WorkflowStrongSoundnessReachability::getTrace() {
-            /*std::stack < NonStrictMarking*> printStack;
+            std::stack < NonStrictMarking*> printStack;
             NonStrictMarking* next = lastMarking;
             do {
                 NonStrictMarking* parent = (NonStrictMarking*)next->getParent();
@@ -134,7 +134,7 @@ namespace VerifyTAPN {
                 printXMLTrace(lastMarking, printStack, query, tapn);
             } else {
                     printHumanTrace(lastMarking, printStack, query->getQuantifier());
-            }*/
+            }
         }
 
         bool WorkflowStrongSoundnessReachability::addToPW(NonStrictMarking* marking, NonStrictMarking* parent) {

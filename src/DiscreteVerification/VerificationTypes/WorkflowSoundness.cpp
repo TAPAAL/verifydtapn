@@ -38,9 +38,12 @@ bool WorkflowSoundness::verify(){
 
 	// Phase 1
 	while(pwList->hasWaitingStates()){
+
 		NonStrictMarking* next_marking = pwList->getNextUnexplored();
+                
 		tmpParent = next_marking;
 		bool noDelay = false;
+
 		Result res = successorGenerator.generateAndInsertSuccessors(*next_marking);
 		if(res == ADDTOPW_RETURNED_TRUE){
 			return false;
@@ -111,7 +114,6 @@ int WorkflowSoundnessPTrie::numberOfPassed()
 
 bool WorkflowSoundness::addToPW(NonStrictMarking* marking, NonStrictMarking* parent){
 	marking->cut(placeStats);
-
 	unsigned int size = marking->size();
 
 	// Check K-bound
@@ -122,16 +124,16 @@ bool WorkflowSoundness::addToPW(NonStrictMarking* marking, NonStrictMarking* par
 	}
 
 	// Map to existing marking if any
-	NonStrictMarking* old = pwList->addToPassed(marking, false);
         bool isNew = false;
+        marking->setParent(parent);
+        NonStrictMarking* old = pwList->addToPassed(marking, false);
 	if(old == NULL){
                 isNew = true;
-                marking->setParent(parent);
 	} else  {
             delete marking;
             marking = old;
         }
-        
+ 
 	// add to parents_set
 	if(parent != NULL){
                 addParentMeta(marking->meta, parent->meta);
@@ -144,12 +146,9 @@ bool WorkflowSoundness::addToPW(NonStrictMarking* marking, NonStrictMarking* par
 		marking->meta->totalDelay = 0;
 	}
 
-
-
 	// Test if final place
 	if(marking->numberOfTokensInPlace(out->getIndex()) > 0){
 		if(size == 1){
-                        addParentMeta(marking->meta, parent->meta);
                         passedStack.push(marking->meta);
 			// Set min
 			marking->meta->totalDelay = min(marking->meta->totalDelay, parent->meta->totalDelay);	// Transition
@@ -158,6 +157,7 @@ bool WorkflowSoundness::addToPW(NonStrictMarking* marking, NonStrictMarking* par
                             minExec = marking->meta->totalDelay;
                             lastMarking = marking;
                         }
+                        
 		}else{
 			lastMarking = marking;
 			return true;	// Terminate false
@@ -196,9 +196,9 @@ void WorkflowSoundnessPTrie::addParentMeta(MetaData* meta, MetaData* parent)
 }
 
 bool WorkflowSoundness::checkForCoveredMarking(NonStrictMarking* marking){
-/*	if(marking->size() <= options.getKBound()){
+	if(marking->size() <= options.getKBound()){
 		return false;	// Do not run check on small markings (invoke more rarely)
-	}*/
+	}
 
 	NonStrictMarking* covered = pwList->getCoveredMarking(marking, (marking->size() > linearSweepTreshold));
 	if(covered != NULL){
@@ -209,8 +209,8 @@ bool WorkflowSoundness::checkForCoveredMarking(NonStrictMarking* marking){
 	return false;
 }
 
-void WorkflowSoundness::getTrace(NonStrictMarking* base){
-    /*
+void WorkflowSoundness::getTrace(){
+    
 	stack < NonStrictMarking*> printStack;
         NonStrictMarking* next = lastMarking;
         if(next != NULL){
@@ -220,12 +220,30 @@ void WorkflowSoundness::getTrace(NonStrictMarking* base){
             } while(next);
         }
         
-	if(options.getXmlTrace()){
-		printXMLTrace(lastMarking, printStack, query, tapn);
-	} else {
-		printHumanTrace(lastMarking, printStack, query->getQuantifier());
-	}
-     * */
+        printXMLTrace(lastMarking, printStack, query, tapn);
+
+}
+
+
+void WorkflowSoundnessPTrie::getTrace(){
+        stack < NonStrictMarking*> printStack;
+
+        PWListHybrid* pwhlist = dynamic_cast<PWListHybrid*>(this->pwList);
+        MetaDataWithTraceAndEncoding* next = 
+                static_cast<MetaDataWithTraceAndEncoding*>(lastMarking->meta);
+        NonStrictMarking* last = lastMarking;
+        printStack.push(lastMarking);
+
+        while(next != NULL){
+
+            NonStrictMarking* m = pwhlist->decode(next->ep);
+            m->setGeneratedBy(next->generatedBy);
+            last->setParent(m);
+            last = m;
+            printStack.push(m);
+            next = next->parent;
+        };
+        printXMLTrace(lastMarking, printStack, query, tapn);
 }
 
 WorkflowSoundness::ModelType WorkflowSoundness::calculateModelType() {
