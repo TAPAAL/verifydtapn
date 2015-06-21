@@ -50,17 +50,6 @@ protected:
 	TimedPlace* out;
 };
 
-
-/*
- new WorkflowPWListHybrid(
-                    tapn,
-                    waiting_list,
-                    options.getKBound(),
-                    tapn.getNumberOfPlaces(),
-                    tapn.getMaxConstant()z
- 
- */
-
 } /* namespace DiscreteVerification */
 } /* namespace VerifyTAPN */
 #endif /* NONSTRICTSEARCH_HPP_ */

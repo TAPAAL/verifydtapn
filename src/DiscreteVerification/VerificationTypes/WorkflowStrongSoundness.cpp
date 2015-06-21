@@ -140,23 +140,34 @@ namespace VerifyTAPN {
             std::stack < NonStrictMarking*> printStack;
             
             NonStrictMarking* next = lastMarking;
-            MetaDataWithTraceAndEncoding* meta = 
-                static_cast<MetaDataWithTraceAndEncoding*>(lastMarking->meta);
-            
-            do {
-                NonStrictMarking* parent = 
-                        pwhlist->decode(meta->parent->ep);
-                parent->setGeneratedBy(meta->parent->generatedBy);
-                printStack.push(next);
-                next = parent;
-                meta = meta->parent;
+            if(next != NULL)
+            {
 
-            } while (meta->parent != NULL && meta != NULL);
-
-            if (printStack.top() != next) {
                 printStack.push(next);
+                MetaDataWithTraceAndEncoding* meta = 
+                        static_cast<MetaDataWithTraceAndEncoding*>(next->meta);
+
+                if(meta == NULL)
+                {
+                    // We assume the parent was not deleted on return
+                    NonStrictMarking* parent = (NonStrictMarking*)lastMarking->getParent();                
+                    if(parent != NULL) meta = 
+                        static_cast<MetaDataWithTraceAndEncoding*>(parent->meta);
+                }
+                else
+                {
+                    meta = meta->parent;
+                }
+                                
+                while(meta != NULL)
+                {
+                    next = pwhlist->decode(meta->ep);
+                    next->setGeneratedBy(meta->generatedBy);
+                    printStack.push(next);                    
+                    meta = meta->parent;
+                }
             }
-
+            
             printXMLTrace(lastMarking, printStack, query, tapn);
         }
         
