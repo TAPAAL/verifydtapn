@@ -271,6 +271,9 @@ WorkflowSoundness::ModelType WorkflowSoundness::calculateModelType() {
         }
 
 WorkflowSoundness::~WorkflowSoundness() {
+    delete lastMarking;
+    pwList->deleteWaitingList();
+    delete pwList;
 }
 
 } /* namespace DiscreteVerification */

@@ -13,6 +13,8 @@
 #include <limits>
 #include <vector>
 #include "ptrie.h"
+#include "NonStrictMarkingBase.hpp"
+
 
 using namespace ptrie;
 namespace VerifyTAPN {
@@ -22,6 +24,7 @@ namespace VerifyTAPN {
         class MarkingEncoder
         {
         typedef binarywrapper_t<T> encoding_t;
+
         private:
             const uint maxNumberOfTokens;
             const uint maxAge;
@@ -36,9 +39,10 @@ namespace VerifyTAPN {
         public:
             MarkingEncoder(TAPN::TimedArcPetriNet& tapn, int knumber,
                                                         int nplaces, int mage);
+            ~MarkingEncoder();
             
-            M* decode
-                                            (const ptriepointer_t<T>& pointer);
+
+            M* decode(const ptriepointer_t<T>& pointer);
             encoding_t encode(M* marking);
         };
         
@@ -56,6 +60,12 @@ namespace VerifyTAPN {
         {
                 scratchpad = encoding_t(markingBitSize);
                 raw = (void*)scratchpad.raw();
+        }
+        
+        template<typename T, typename M>
+        MarkingEncoder<T, M>::~MarkingEncoder()
+        {
+            scratchpad.release();
         }
         
         template<typename T, typename M>

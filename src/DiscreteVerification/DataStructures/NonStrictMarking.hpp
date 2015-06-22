@@ -8,7 +8,6 @@
 #ifndef NONSTRICTMARKING_HPP_
 #define NONSTRICTMARKING_HPP_
 
-#include <assert.h>
 #include <vector>
 #include "NonStrictMarkingBase.hpp"
 #include <iostream>
@@ -26,6 +25,7 @@ namespace DiscreteVerification {
    struct MetaData {
     public:
         MetaData() : passed(false), inTrace(false), totalDelay(0) {};
+        virtual ~MetaData(){};
         bool passed;
         bool inTrace;
         int totalDelay;
@@ -38,8 +38,10 @@ namespace DiscreteVerification {
     struct WorkflowSoundnessMetaData : public MetaData {
 	   public:
     	WorkflowSoundnessMetaData() : MetaData(), parents() { totalDelay = INT_MAX;};
-		   vector<WorkflowSoundnessMetaData*> parents;
+        virtual ~WorkflowSoundnessMetaData(){parents.clear();}
+		   vector<MetaData*> parents;
 	   };
+           
     
     struct MetaDataWithTraceAndEncoding : public MetaDataWithTrace {
         ptriepointer_t<MetaData*> ep;

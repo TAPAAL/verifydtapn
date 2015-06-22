@@ -95,9 +95,22 @@ namespace VerifyTAPN {
                     }
                     NonStrictMarking* covered = lookup(*iter);
                     if (covered != NULL) {
+                        // cleanup
+                        for (vector<NonStrictMarking*>::iterator del = coveredMarkings.begin();
+                                del != coveredMarkings.end(); ++del)
+                        {
+                            delete *del;
+                        }
                         return covered;
                     }
                     delete *iter;
+                }
+                
+                // Cleanup
+                for (vector<NonStrictMarking*>::iterator del = coveredMarkings.begin();
+                    del != coveredMarkings.end(); ++del)
+                {
+                    delete *del;
                 }
             }
             return NULL;
