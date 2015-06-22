@@ -46,7 +46,7 @@ public:
         
 protected:
     virtual void deleteMarking(NonStrictMarking* marking){
-       // delete marking;
+
     };
 	TimedPlace* in;
 	TimedPlace* out;

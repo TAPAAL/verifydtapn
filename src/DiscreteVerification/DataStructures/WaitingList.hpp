@@ -136,7 +136,7 @@ public:
 	virtual T pop();
 	virtual size_t size() { return queue.size(); };
 protected:
-        virtual int calculateWeight(T payload);
+        virtual int calculateWeight(T payload); 
 
 	priority_queue queue;
 	AST::Query* query;

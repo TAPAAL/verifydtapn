@@ -49,8 +49,7 @@ namespace VerifyTAPN {
                                                 tapn.getNumberOfPlaces(), 
                                                 tapn.getMaxConstant());
         }
-
-        
+       
         bool WorkflowStrongSoundnessReachability::verify() {
             
             if (outPlace == NULL)
