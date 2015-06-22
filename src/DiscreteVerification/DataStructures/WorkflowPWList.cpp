@@ -129,15 +129,23 @@ namespace VerifyTAPN {
             return NULL;
         }
 
-        NonStrictMarking* WorkflowPWList::addToPassed(NonStrictMarking* marking) {
+        NonStrictMarking* WorkflowPWList::addToPassed(
+                                        NonStrictMarking* marking, bool strong) 
+        {  
             discoveredMarkings++;
             NonStrictMarking* existing = lookup(marking);
             if (existing != NULL) {
+                last = existing;                
                 return existing;
             } else {
+                last = marking;
                 NonStrictMarkingList& m = markings_storage[marking->getHashKey()];
                 stored++;
                 m.push_back(marking);
+
+                if(strong) marking->meta = new MetaData();
+                else marking->meta = new WorkflowSoundnessMetaData();
+
                 return NULL;
             }
         }
