@@ -311,6 +311,7 @@ namespace VerifyTAPN {
                 if (arcAndTokens->isOK) {
                     indicesOfCurrentPermutation.push_back(arcAndTokens);
                 } else {
+                    delete arcAndTokens;
                     for(unsigned int i = 0; i < indicesOfCurrentPermutation.size(); ++i) delete indicesOfCurrentPermutation[i];
                     return false;
                 }
@@ -321,6 +322,7 @@ namespace VerifyTAPN {
                 if (arcAndTokens->isOK) {
                     indicesOfCurrentPermutation.push_back(arcAndTokens);
                 } else {
+                    delete arcAndTokens;
                     for(unsigned int i = 0; i < indicesOfCurrentPermutation.size(); ++i) delete indicesOfCurrentPermutation[i];
                     return false;
                 }

@@ -260,7 +260,15 @@ void WorkflowSoundnessPTrie::getTrace(NonStrictMarking* marking){
             }
         }
         
+        stack < NonStrictMarking*> clearStack = printStack;
         printXMLTrace(marking, printStack, query, tapn);
+        
+        while(!clearStack.empty())
+        {
+            if(clearStack.top() == lastMarking) break;  // deleted elsewhere
+            delete clearStack.top();
+            clearStack.pop();
+        }
 }
 
 
@@ -377,6 +385,7 @@ WorkflowSoundness::ModelType WorkflowSoundness::calculateModelType() {
         }
 
 WorkflowSoundness::~WorkflowSoundness() {
+    delete lastMarking;
     pwList->deleteWaitingList();
     delete pwList;
 }
