@@ -95,9 +95,22 @@ namespace VerifyTAPN {
                     }
                     NonStrictMarking* covered = lookup(*iter);
                     if (covered != NULL) {
+                        // cleanup
+                        for (vector<NonStrictMarking*>::iterator del = coveredMarkings.begin();
+                                del != coveredMarkings.end(); ++del)
+                        {
+                            delete *del;
+                        }
                         return covered;
                     }
                     delete *iter;
+                }
+                
+                // Cleanup
+                for (vector<NonStrictMarking*>::iterator del = coveredMarkings.begin();
+                    del != coveredMarkings.end(); ++del)
+                {
+                    delete *del;
                 }
             }
             return NULL;
@@ -175,25 +188,21 @@ namespace VerifyTAPN {
     	NonStrictMarking* WorkflowPWListHybrid::getCoveredMarking
                                 (NonStrictMarking* marking, bool useLinearSweep)
         {
-            assert(passed.consistent());
             visitor.set_target(marking);
             passed.visit(visitor);
             if(visitor.found())
             {
                 NonStrictMarking* m = visitor.decode();
-                assert(passed.consistent());
                 return m;
             }
             else
             {
-                assert(passed.consistent());
                 return NULL;
             }
         }
         
         NonStrictMarking* WorkflowPWListHybrid::getUnpassed()
         {
-            assert(passed.consistent());
             ptriepointer_t<MetaData*> it = passed.rbegin();
             for(; it != passed.rend(); --it)
             {
@@ -204,19 +213,16 @@ namespace VerifyTAPN {
                     return m;
                 }
             }
-            assert(passed.consistent());
             return NULL;
         }
         
     	bool WorkflowPWListHybrid::add(NonStrictMarking* marking)
         {
-            assert(passed.consistent());
             discoveredMarkings++;
             std::pair<bool, ptriepointer_t<MetaData*> > res = 
                                         passed.insert(encoder.encode(marking));
             
             if (!res.first) {
-                assert(passed.consistent());
                 return false;
             }
             else
@@ -228,15 +234,12 @@ namespace VerifyTAPN {
                 meta->parent = parent;
                 meta->totalDelay = marking->calculateTotalDelay();
                 
-                assert(res.second.get_meta() == NULL);
-                
                 res.second.set_meta(meta);
                 
                 stored++;
                 
                 // using min first waiting-list, weight is allready in pointer
                 waiting_list->add(NULL, res.second);
-                assert(passed.consistent());
                 return true;           
             }
         }
@@ -244,7 +247,6 @@ namespace VerifyTAPN {
         NonStrictMarking* WorkflowPWListHybrid::addToPassed
                                     (NonStrictMarking* marking, bool strong)
         {
-            assert(passed.consistent());
             discoveredMarkings++;
             std::pair<bool, ptriepointer_t<MetaData*> > res = 
                                         passed.insert(encoder.encode(marking));
@@ -258,7 +260,6 @@ namespace VerifyTAPN {
                         (MetaDataWithTraceAndEncoding*)res.second.get_meta();
                 old->setGeneratedBy(meta->generatedBy);
                 old->meta = meta;
-                assert(passed.consistent());
                 last_pointer = res.second;
                 return old;
             } else {
@@ -276,17 +277,14 @@ namespace VerifyTAPN {
                 
                 res.second.set_meta(meta);
                 last_pointer = res.second;
-                assert(passed.consistent());
                 return NULL;
             }
         }
         
         void WorkflowPWListHybrid::addLastToWaiting()
         {
-            assert(passed.consistent());
             // using min first waiting-list, weight is allready in pointer
             waiting_list->add(NULL, last_pointer);
-            assert(passed.consistent());
         }
         
         

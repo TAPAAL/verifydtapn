@@ -65,8 +65,6 @@ std::ostream& operator<<(std::ostream& out, PWList& x){
             discoveredMarkings++;
             // reset the encoding array
 
-            assert(passed.consistent());
-
             std::pair<bool, ptriepointer_t<MetaData*> > res = passed.insert(encoder.encode(marking));
 
             if(res.first){

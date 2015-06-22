@@ -8,7 +8,6 @@
 #ifndef NONSTRICTMARKING_HPP_
 #define NONSTRICTMARKING_HPP_
 
-#include <assert.h>
 #include <vector>
 #include "NonStrictMarkingBase.hpp"
 #include <iostream>

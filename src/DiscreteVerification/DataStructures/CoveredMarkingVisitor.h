@@ -9,7 +9,6 @@
 #define	COVEREDMARKINGVISITOR_H
 
 #include "binarywrapper.h"
-#include <assert.h>
 #include <limits>
 #include <vector>
 #include "ptrie.h"
