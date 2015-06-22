@@ -262,16 +262,19 @@ void WorkflowSoundnessPTrie::getTrace(NonStrictMarking* marking){
             }
             printStack.top()->setGeneratedBy(NULL);
         }
-        
+
+#ifdef CLEANUP
         stack < NonStrictMarking*> clearStack = printStack;
+#endif
         printXMLTrace(marking, printStack, query, tapn);
-        
+#ifdef CLEANUP
         while(!clearStack.empty())
         {
             if(clearStack.top() == lastMarking) break;  // deleted elsewhere
             delete clearStack.top();
             clearStack.pop();
         }
+#endif
 }
 
 

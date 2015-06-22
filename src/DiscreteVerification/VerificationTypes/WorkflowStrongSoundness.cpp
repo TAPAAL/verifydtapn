@@ -169,9 +169,12 @@ namespace VerifyTAPN {
                     meta = meta->parent;
                 }
             }
-            
+#ifdef CLEANUP
             std::stack < NonStrictMarking*> cleanup = printStack;
+#endif
             printXMLTrace(lastMarking, printStack, query, tapn);
+            
+#ifdef CLEANUP
             while(!cleanup.empty())
             {
                 if(cleanup.top() != lastMarking) // deleted elsewhere
@@ -184,6 +187,7 @@ namespace VerifyTAPN {
                     break;
                 }
             }
+#endif
         }
         
         
