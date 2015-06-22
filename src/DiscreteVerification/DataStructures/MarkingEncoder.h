@@ -42,6 +42,7 @@ namespace VerifyTAPN {
         public:
             MarkingEncoder(TAPN::TimedArcPetriNet& tapn, int knumber,
                                                         int nplaces, int mage);
+            ~MarkingEncoder();
             
 
             M* decode(const ptriepointer_t<T>& pointer);
@@ -62,6 +63,12 @@ namespace VerifyTAPN {
         {
                 scratchpad = encoding_t(markingBitSize);
                 raw = (void*)scratchpad.raw();
+        }
+        
+        template<typename T, typename M>
+        MarkingEncoder<T, M>::~MarkingEncoder()
+        {
+            scratchpad.release();
         }
         
         template<typename T, typename M>

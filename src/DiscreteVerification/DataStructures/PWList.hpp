@@ -116,7 +116,7 @@ class PWListHybrid : public virtual PWListBase {
 //                passed->printMemStats();
             }
         
-            virtual void deleteWaitingList(){/*delete waiting_list;*/};
+            virtual void deleteWaitingList(){delete waiting_list;};
 
         public: // modifiers
             virtual bool add(NonStrictMarking* marking);

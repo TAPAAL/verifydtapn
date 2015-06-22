@@ -32,14 +32,17 @@ namespace VerifyTAPN {
         class AbstractNaiveVerification : public Verification<U> {
         public:
             AbstractNaiveVerification(TAPN::TimedArcPetriNet& tapn, U& initialMarking, AST::Query* query, VerificationOptions options, T* pwList);
+            ~AbstractNaiveVerification()
+            {
 
+            }
+            
             void printTransitionStatistics() const {
                 successorGenerator.printTransitionStatistics(std::cout);
             }
 
             void printStats();
 
-            void cleanup(){ pwList->deleteWaitingList(); }
             
         protected:
             bool isDelayPossible(U& marking);

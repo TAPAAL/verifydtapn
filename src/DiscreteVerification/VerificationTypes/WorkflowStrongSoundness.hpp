@@ -24,6 +24,13 @@ public:
 
         WorkflowStrongSoundnessReachability(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options);
         
+        ~WorkflowStrongSoundnessReachability()
+        {
+            pwList->deleteWaitingList();
+            delete lastMarking;
+            delete pwList;
+        }
+        
 	bool verify();
 	virtual void getTrace();
 
@@ -32,11 +39,14 @@ public:
 	}
         
 
+        
+
 protected:
         void findInOut();
 	bool addToPW(NonStrictMarking* marking, NonStrictMarking* parent);
         virtual void swapData(NonStrictMarking* marking, NonStrictMarking* old);
-
+        virtual void clearTrace(){};    // cleanup
+        
 protected:
 	int maxValue;
 	TimedPlace* outPlace;
@@ -60,6 +70,7 @@ public:
 
 protected:
         virtual void swapData(NonStrictMarking* marking, NonStrictMarking* old);
+        virtual void clearTrace();
 };
 
 } /* namespace DiscreteVerification */

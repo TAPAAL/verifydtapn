@@ -192,15 +192,26 @@ namespace ptrie
     
     template<typename T>
     ptrie_t<T>::~ptrie_t() {
+        size_t deleted = 0;
         for(size_t i = 0; i < _nodevector.size(); ++i)
         {
+
+            for(size_t b = 0; b < _blocksize; ++b)
+            {
+                if(deleted >= _next_free_node) break;
+                ++deleted;
+                delete[] _nodevector[i][b]._entries;
+            }
             delete[] _nodevector[i];
         }
+        deleted = 0;
         _nodevector.clear();
         for(size_t i = 0; i < _entryvector.size(); ++i)
         {
             for(size_t b = 0; b < _blocksize; ++b)
             {
+                if(deleted >= _next_free_entry) break;
+                ++deleted;
                 _entryvector[i][b]._data.release();
             }
             delete[] _entryvector[i];

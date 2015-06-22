@@ -82,7 +82,7 @@ public:
         virtual int numberOfPassed();
         virtual void deleteMarking(NonStrictMarking* marking)
         {
-//            delete marking;
+            delete marking;
         }
         virtual void getTrace(NonStrictMarking* marking);
 protected:

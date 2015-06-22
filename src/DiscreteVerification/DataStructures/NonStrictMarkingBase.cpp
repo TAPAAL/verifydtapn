@@ -337,7 +337,11 @@ namespace VerifyTAPN {
                 }
             }
             
-            if(!hasOutArc) return true; // if no outgoing arcs, we have a deadlock!   
+            if(!hasOutArc)
+            {
+                delete[] status;
+                return true; // if no outgoing arcs, we have a deadlock!   
+            }
             
             
             // if any transition is enabled there is no deadlock

@@ -162,6 +162,16 @@ namespace VerifyTAPN {
             
         }
         
+        WorkflowPWListHybrid::~WorkflowPWListHybrid()
+        {
+            ptriepointer_t<MetaData*> begin = passed.begin();
+            while(begin != passed.end())
+            {
+                delete begin.get_meta();
+                ++ begin;
+            }
+        }
+        
     	NonStrictMarking* WorkflowPWListHybrid::getCoveredMarking
                                 (NonStrictMarking* marking, bool useLinearSweep)
         {

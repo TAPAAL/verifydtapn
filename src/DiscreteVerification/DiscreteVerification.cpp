@@ -81,7 +81,7 @@ namespace VerifyTAPN {
                                             query);
                             verifier->printExecutionTime(cout);
                             verifier->printMessages(cout);
-                            verifier->cleanup();
+                            delete verifier;
             	}
             	else{
             		// Assumes correct structure of net!
@@ -102,10 +102,10 @@ namespace VerifyTAPN {
 							options,
 							query);
 					verifier->printExecutionTime(cout);
-                        verifier->cleanup();
+                        delete verifier;
             	}
 
-     
+                
                 return 0;
             }
             

@@ -19,6 +19,12 @@ namespace DiscreteVerification {
         scratchpad = enc.scratchpad.clone();
     }
     
+    
+    CoveredMarkingVisitor::~CoveredMarkingVisitor()
+    {
+        scratchpad.release();
+    }
+    
     bool CoveredMarkingVisitor::set(uint32_t index, bool value)
     {
         if(_found) return true;  // end

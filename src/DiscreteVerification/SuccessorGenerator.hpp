@@ -340,6 +340,7 @@ namespace VerifyTAPN {
             while (changedSomething) {
                 changedSomething = false;
                 if(insertMarking(init_marking, transition, indicesOfCurrentPermutation)){
+                    for(unsigned int i = 0; i < indicesOfCurrentPermutation.size(); ++i) delete indicesOfCurrentPermutation[i];
                     return true;
                 }
 

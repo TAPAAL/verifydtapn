@@ -64,6 +64,7 @@ namespace DiscreteVerification {
                                 int knumber, 
                                 int nplaces, 
                                 int mage);
+        ~WorkflowPWListHybrid();
     	virtual NonStrictMarking* getCoveredMarking(NonStrictMarking* marking, bool useLinearSweep);
         virtual NonStrictMarking* getUnpassed();
     	virtual bool add(NonStrictMarking* marking);

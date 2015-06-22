@@ -52,6 +52,13 @@ namespace VerifyTAPN {
 
         
         bool WorkflowStrongSoundnessReachability::verify() {
+            
+            if (outPlace == NULL)
+            {
+                lastMarking = &initialMarking;
+                return true;
+            }
+                
             if (addToPW(&initialMarking, NULL)) {
                 return true;
             }
@@ -70,6 +77,7 @@ namespace VerifyTAPN {
                 bool noDelay = false;
                 Result res = successorGenerator.generateAndInsertSuccessors(*next_marking);
                 if (res == ADDTOPW_RETURNED_TRUE) {
+                    clearTrace();
                     return true;
                 } else if (res == ADDTOPW_RETURNED_FALSE_URGENTENABLED) {
                     noDelay = true;
@@ -82,17 +90,11 @@ namespace VerifyTAPN {
                     marking->setGeneratedBy(NULL);
                    
                     if (addToPW(marking, next_marking)) {
+                        clearTrace();
                         lastMarking = marking;
                         return true;
                     }
                     
-                    if(marking->meta &&
-                       marking->meta->totalDelay > options.getWorkflowBound()){
-                        // if the bound is exceeded, terminate
-                        marking->setParent(next_marking);
-                        lastMarking = marking;
-                        return true;
-                    }
                 }
                 if(validChildren != 0){
                     next_marking->setNumberOfChildren(validChildren);
@@ -100,6 +102,7 @@ namespace VerifyTAPN {
                     // remove childless markings from stack
                     while(!trace.empty() && trace.top()->getNumberOfChildren() <= 1){
                             trace.top()->meta->inTrace = false;
+                            deleteMarking(trace.top());
                             trace.pop();
                     }
                     if(trace.empty()){
@@ -107,9 +110,7 @@ namespace VerifyTAPN {
                         return false;
                     }
                     trace.top()->decrementNumberOfChildren();
-                }
-                
-                deleteMarking(next_marking);
+                }   
             }
             // should never reach here
             assert(false);
@@ -126,7 +127,7 @@ namespace VerifyTAPN {
 
             } while (next != NULL && next->getParent() != NULL);
 
-            if (printStack.top() != next) {
+            if (next != NULL && printStack.top() != next) {
                 printStack.push(next);
             }
 
@@ -153,6 +154,7 @@ namespace VerifyTAPN {
                     NonStrictMarking* parent = (NonStrictMarking*)lastMarking->getParent();                
                     if(parent != NULL) meta = 
                         static_cast<MetaDataWithTraceAndEncoding*>(parent->meta);
+                    delete parent;
                 }
                 else
                 {
@@ -163,12 +165,26 @@ namespace VerifyTAPN {
                 {
                     next = pwhlist->decode(meta->ep);
                     next->setGeneratedBy(meta->generatedBy);
+                    printStack.top()->setParent(next);
                     printStack.push(next);                    
                     meta = meta->parent;
                 }
             }
             
+            std::stack < NonStrictMarking*> cleanup = printStack;
             printXMLTrace(lastMarking, printStack, query, tapn);
+            while(!cleanup.empty())
+            {
+                if(cleanup.top() != lastMarking) // deleted elsewhere
+                {
+                    delete cleanup.top();
+                    cleanup.pop();
+                }
+                else
+                {
+                    break;
+                }
+            }
         }
         
         
@@ -186,10 +202,11 @@ namespace VerifyTAPN {
                 delete marking;
                 return false;
             }
-
+            
             /* Handle max */
             // Map to existing marking if any
             NonStrictMarking* old = (NonStrictMarking*)pwList->addToPassed(marking, true);
+            
             if(old != NULL) {
                 if(old->meta->totalDelay < totalDelay) {
                     if(old->meta->inTrace){
@@ -197,7 +214,6 @@ namespace VerifyTAPN {
                         lastMarking = marking;
                         // make sure we can print trace
                         marking->setNumberOfChildren(1);
-                        trace.push(marking);
                         maxValue = totalDelay;
                         deleteMarking(old);
                         return true;
@@ -219,6 +235,10 @@ namespace VerifyTAPN {
                 marking->meta->totalDelay = totalDelay;
             }
             
+            // if we reached bound
+            if(marking->meta->totalDelay > options.getWorkflowBound()) return true;
+            
+            
             if(marking->numberOfTokensInPlace(outPlace->getIndex()) == 0){
                 // if nonterminal, add to waiting
                 pwList->addLastToWaiting();
@@ -229,8 +249,12 @@ namespace VerifyTAPN {
                     maxValue = marking->meta->totalDelay;
                     if(lastMarking != NULL) deleteMarking(lastMarking);
                     lastMarking = marking;
+                    return false;
                 }
             }
+            
+            deleteMarking(marking);
+            
             return false;
         }
         
@@ -248,6 +272,16 @@ namespace VerifyTAPN {
 
             meta->generatedBy = marking->getGeneratedBy();
             meta->parent = pwhlist->parent;
+        }
+        
+        void WorkflowStrongSoundnessPTrie::clearTrace()
+        {
+            if(!trace.empty()) trace.pop(); // pop parent, used in getTrace
+            while(!trace.empty())
+            {
+                delete trace.top();
+                trace.pop();
+            }
         }
         
     } /* namespace DiscreteVerification */

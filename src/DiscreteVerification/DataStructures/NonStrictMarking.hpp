@@ -26,6 +26,7 @@ namespace DiscreteVerification {
    struct MetaData {
     public:
         MetaData() : passed(false), inTrace(false), totalDelay(0) {};
+        virtual ~MetaData(){};
         bool passed;
         bool inTrace;
         int totalDelay;
@@ -38,8 +39,10 @@ namespace DiscreteVerification {
     struct WorkflowSoundnessMetaData : public MetaData {
 	   public:
     	WorkflowSoundnessMetaData() : MetaData(), parents() { totalDelay = INT_MAX;};
+        virtual ~WorkflowSoundnessMetaData(){parents.clear();}
 		   vector<MetaData*> parents;
 	   };
+           
     
     struct MetaDataWithTraceAndEncoding : public MetaDataWithTrace {
         ptriepointer_t<MetaData*> ep;
@@ -50,7 +53,12 @@ namespace DiscreteVerification {
     public:
         WorkflowSoundnessMetaDataWithEncoding() : MetaDataWithTraceAndEncoding(), parents() 
             { totalDelay = INT_MAX;};
-        vector<MetaData*> parents;
+            virtual ~WorkflowSoundnessMetaDataWithEncoding()
+            {
+                parents.clear();
+            }
+            
+            vector<MetaData*> parents;
     };
     
     class NonStrictMarking : public NonStrictMarkingBase{

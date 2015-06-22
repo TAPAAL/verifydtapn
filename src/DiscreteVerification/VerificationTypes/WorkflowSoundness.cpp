@@ -118,7 +118,8 @@ bool WorkflowSoundness::addToPW(NonStrictMarking* marking, NonStrictMarking* par
 	// Check K-bound
 	pwList->setMaxNumTokensIfGreater(size);
 	if(modelType == ETAWFN && size > options.getKBound()) {
-		lastMarking = marking;
+                if(lastMarking != NULL) deleteMarking(lastMarking);
+                lastMarking = marking;
                 setMetaParent(lastMarking);
 		return true;	// Terminate false
 	}
@@ -154,11 +155,14 @@ bool WorkflowSoundness::addToPW(NonStrictMarking* marking, NonStrictMarking* par
 			marking->meta->totalDelay = min(marking->meta->totalDelay, parent->meta->totalDelay);	// Transition
                         // keep track of shortest trace
                         if (marking->meta->totalDelay < minExec) {
+                            if(lastMarking != NULL) deleteMarking(lastMarking);
                             minExec = marking->meta->totalDelay;
                             lastMarking = marking;
+                            return false;
                         }
                         
 		}else{
+                        if(lastMarking != NULL) deleteMarking(lastMarking);
 			lastMarking = marking;
 			return true;	// Terminate false
 		}
@@ -167,15 +171,18 @@ bool WorkflowSoundness::addToPW(NonStrictMarking* marking, NonStrictMarking* par
 		if(isNew){
                         pwList->addLastToWaiting();
 			if(parent != NULL && marking->canDeadlock(tapn, 0)){
+                                if(lastMarking != NULL) deleteMarking(lastMarking);
 				lastMarking = marking;
 				return true;
 			}
 			if(modelType == MTAWFN && checkForCoveredMarking(marking)){
-				lastMarking = marking;
+                                if(lastMarking != NULL) deleteMarking(lastMarking);
+                                lastMarking = marking;
 				return true;	// Terminate false
 			}
 		}
 	}
+        deleteMarking(marking);
 	return false;
 }
 
@@ -370,6 +377,8 @@ WorkflowSoundness::ModelType WorkflowSoundness::calculateModelType() {
         }
 
 WorkflowSoundness::~WorkflowSoundness() {
+    pwList->deleteWaitingList();
+    delete pwList;
 }
 
 } /* namespace DiscreteVerification */

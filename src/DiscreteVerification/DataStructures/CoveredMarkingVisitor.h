@@ -40,6 +40,7 @@ namespace DiscreteVerification {
         public:
             CoveredMarkingVisitor(
                             MarkingEncoder<MetaData*, NonStrictMarking>& enc);
+            ~CoveredMarkingVisitor();
             virtual bool back(uint32_t index);
             virtual bool set(uint32_t index, bool value);
             virtual bool set_remainder(uint32_t index,
