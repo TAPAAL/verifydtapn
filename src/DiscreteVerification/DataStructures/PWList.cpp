@@ -42,7 +42,7 @@ bool PWList::add(NonStrictMarking* marking){
 }
 
 NonStrictMarking* PWList::getNextUnexplored(){
-    NonStrictMarking* m = waiting_list->pop();   
+    NonStrictMarking* m = waiting_list->pop();
     return m;
 }
 
@@ -106,7 +106,8 @@ std::ostream& operator<<(std::ostream& out, PWList& x){
 
         NonStrictMarking* PWListHybrid::getNextUnexplored() {
             ptriepointer_t<MetaData*> p = waiting_list->pop();
-            NonStrictMarking* m = encoder.decode(p);            
+            NonStrictMarking* m = encoder.decode(p);
+            
             delete m->meta;
             m->meta = p.get_meta();
 

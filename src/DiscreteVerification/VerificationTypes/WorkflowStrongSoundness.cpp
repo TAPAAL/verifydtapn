@@ -110,7 +110,7 @@ namespace VerifyTAPN {
                         return false;
                     }
                     trace.top()->decrementNumberOfChildren();
-                }   
+                }
             }
             // should never reach here
             assert(false);
@@ -202,7 +202,7 @@ namespace VerifyTAPN {
                 delete marking;
                 return false;
             }
-            
+
             /* Handle max */
             // Map to existing marking if any
             NonStrictMarking* old = (NonStrictMarking*)pwList->addToPassed(marking, true);

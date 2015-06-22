@@ -43,7 +43,6 @@ namespace VerifyTAPN {
 
             void printStats();
 
-            
         protected:
             bool isDelayPossible(U& marking);
             virtual bool addToPW(U* marking, U* parent) = 0;

@@ -30,7 +30,6 @@ WorkflowSoundnessPTrie::WorkflowSoundnessPTrie(TAPN::TimedArcPetriNet& tapn, Non
                                         tapn.getMaxConstant());
 }
 
-
 bool WorkflowSoundness::verify(){
 	if(addToPW(&initialMarking, NULL)){
 		return false;
@@ -113,6 +112,7 @@ int WorkflowSoundnessPTrie::numberOfPassed()
 
 bool WorkflowSoundness::addToPW(NonStrictMarking* marking, NonStrictMarking* parent){
 	marking->cut(placeStats);
+
 	unsigned int size = marking->size();
 
 	// Check K-bound
@@ -146,6 +146,8 @@ bool WorkflowSoundness::addToPW(NonStrictMarking* marking, NonStrictMarking* par
 	}else{
 		marking->meta->totalDelay = 0;
 	}
+
+
 
 	// Test if final place
 	if(marking->numberOfTokensInPlace(out->getIndex()) > 0){
@@ -208,7 +210,6 @@ bool WorkflowSoundness::checkForCoveredMarking(NonStrictMarking* marking){
 	}
 
 	NonStrictMarking* covered = pwList->getCoveredMarking(marking, (marking->size() > linearSweepTreshold));
-
 	if(covered != NULL){
             coveredMarking = covered;
             return true;
@@ -258,6 +259,7 @@ void WorkflowSoundnessPTrie::getTrace(NonStrictMarking* marking){
                     meta = meta->parent;
                 }
             }
+            printStack.top()->setGeneratedBy(NULL);
         }
         
         stack < NonStrictMarking*> clearStack = printStack;
