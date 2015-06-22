@@ -130,8 +130,6 @@ bool WorkflowSoundness::addToPW(NonStrictMarking* marking, NonStrictMarking* par
         NonStrictMarking* old = pwList->addToPassed(marking, false);
 	if(old == NULL){
                 isNew = true;
-		marking->meta = new WorkflowSoundnessMetaData();
-                marking->setParent(parent);
 	} else  {
             delete marking;
             marking = old;
