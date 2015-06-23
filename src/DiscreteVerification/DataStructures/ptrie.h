@@ -184,7 +184,7 @@ namespace ptrie
             uint size() const { return _next_free_entry; }
             ptriepointer_t<T> begin();
             ptriepointer_t<T> end();
-            ptriepointer_t<T> rbegin();
+            ptriepointer_t<T> last();
             ptriepointer_t<T> rend();
             
             void visit(visitor_t<T>&);
@@ -250,7 +250,7 @@ namespace ptrie
     }
     
     template<typename T>
-    ptriepointer_t<T> ptrie_t<T>::rbegin()
+    ptriepointer_t<T> ptrie_t<T>::last()
     {
         return ptriepointer_t<T>(this, _next_free_entry-1);
     }

@@ -203,7 +203,7 @@ namespace VerifyTAPN {
         
         NonStrictMarking* WorkflowPWListHybrid::getUnpassed()
         {
-            ptriepointer_t<MetaData*> it = passed.rbegin();
+            ptriepointer_t<MetaData*> it = passed.last();
             for(; it != passed.rend(); --it)
             {
                 if(!it.get_meta()->passed)
