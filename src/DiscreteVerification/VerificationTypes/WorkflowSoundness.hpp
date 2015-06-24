@@ -35,7 +35,7 @@ public:
 		MTAWFN, ETAWFN, NOTTAWFN
 	};
         
-	WorkflowSoundness(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list);
+	WorkflowSoundness(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking*>* waiting_list);
 	virtual ~WorkflowSoundness();
 	bool verify();
 	virtual void getTrace(){

@@ -22,7 +22,7 @@ namespace DiscreteVerification {
     class WorkflowPWList : public PWList {
 
     public:
-        WorkflowPWList(WaitingList<NonStrictMarking>* w_l);
+        WorkflowPWList(WaitingList<NonStrictMarking*>* w_l);
     	NonStrictMarking* getCoveredMarking(NonStrictMarking* marking, bool useLinearSweep);
         NonStrictMarking* getUnpassed();
     	bool add(NonStrictMarking* marking);

@@ -32,7 +32,7 @@ namespace VerifyTAPN {
         class LivenessSearch : public AbstractNaiveVerification<PWListBase, NonStrictMarking> {
         public:
             LivenessSearch(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options);
-            LivenessSearch(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list);
+            LivenessSearch(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking*>* waiting_list);
             virtual ~LivenessSearch();
             bool verify();
 
@@ -52,7 +52,7 @@ namespace VerifyTAPN {
         class LivenessSearchPTrie : public LivenessSearch {
         public:
 
-            LivenessSearchPTrie(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<EncodingPointer<MetaData> >* waiting_list)
+            LivenessSearchPTrie(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<ptriepointer_t<MetaData*> >* waiting_list)
             : LivenessSearch(tapn, initialMarking, query, options) {
                 pwList = new PWListHybrid(tapn, waiting_list, options.getKBound(), tapn.getNumberOfPlaces(), tapn.getMaxConstant(), true, options.getTrace() == VerificationOptions::SOME_TRACE);
             };

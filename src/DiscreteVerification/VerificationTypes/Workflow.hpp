@@ -32,7 +32,7 @@ namespace DiscreteVerification {
 template<typename T>
 class Workflow : public AbstractNaiveVerification<WorkflowPWList,T> {
 public:    
-	Workflow(TAPN::TimedArcPetriNet& tapn, T& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list);
+	Workflow(TAPN::TimedArcPetriNet& tapn, T& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking*>* waiting_list);
 	virtual void printExecutionTime(ostream& stream) = 0;
         
 protected:
@@ -41,7 +41,7 @@ protected:
 };
 
 template<typename T>
-Workflow<T>::Workflow(TAPN::TimedArcPetriNet& tapn, T& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list)
+Workflow<T>::Workflow(TAPN::TimedArcPetriNet& tapn, T& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking*>* waiting_list)
 : AbstractNaiveVerification<WorkflowPWList,T>(tapn, initialMarking, query, options, new WorkflowPWList(waiting_list)), in(NULL), out(NULL){
     for (TimedPlace::Vector::const_iterator iter = tapn.getPlaces().begin(); iter != tapn.getPlaces().end(); iter++) {
         if ((*iter)->getType() == Dead) {
