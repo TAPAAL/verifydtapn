@@ -19,15 +19,36 @@
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
-    class WorkflowPWList : public PWList {
-
+    class WorkflowPWListBasic : virtual public PWListBase
+    {
+    public:
+    	virtual NonStrictMarking* getCoveredMarking(NonStrictMarking* marking, bool useLinearSweep) = 0;
+        virtual NonStrictMarking* getUnpassed() = 0;
+    	virtual bool add(NonStrictMarking* marking) = 0;
+        virtual NonStrictMarking* addToPassed(NonStrictMarking* marking, bool strong) = 0;
+        virtual void addLastToWaiting() = 0;
+        virtual void setParent(NonStrictMarking*, NonStrictMarking*) = 0;
+    };
+    
+    class WorkflowPWList : public WorkflowPWListBasic, public PWList {
+    private:
+        NonStrictMarking* last;
     public:
         WorkflowPWList(WaitingList<NonStrictMarking*>* w_l);
-    	NonStrictMarking* getCoveredMarking(NonStrictMarking* marking, bool useLinearSweep);
-        NonStrictMarking* getUnpassed();
-    	bool add(NonStrictMarking* marking);
-        NonStrictMarking* addToPassed(NonStrictMarking* marking);
+    	virtual NonStrictMarking* getCoveredMarking(NonStrictMarking* marking, bool useLinearSweep);
+        virtual NonStrictMarking* getUnpassed();
+    	virtual bool add(NonStrictMarking* marking);
+        virtual NonStrictMarking* addToPassed(NonStrictMarking* marking, bool strong);
         NonStrictMarking* lookup(NonStrictMarking* marking);
+        
+        virtual void addLastToWaiting(){
+		waiting_list->add(last, last);
+	}
+        
+        virtual void setParent(NonStrictMarking* marking, NonStrictMarking* parent)
+        {
+            marking->setParent(parent);
+        }
 
     };
 

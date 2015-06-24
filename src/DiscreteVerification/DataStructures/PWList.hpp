@@ -40,7 +40,7 @@ namespace DiscreteVerification {
 	inline void setMaxNumTokensIfGreater(int i){ if(i>maxNumTokensInAnyMarking)	maxNumTokensInAnyMarking = i; };
     };
 
-class PWList : public PWListBase {
+class PWList : public virtual PWListBase {
 public:
 	typedef std::vector<NonStrictMarking*> NonStrictMarkingList;
 	typedef google::sparse_hash_map<size_t, NonStrictMarkingList> HashMap;
@@ -54,11 +54,6 @@ public: // inspectors
 	virtual bool hasWaitingStates() {
 		return (waiting_list->size() > 0);
 	};
-
-	virtual bool addToWaiting(NonStrictMarking* marking){
-		waiting_list->add(marking, marking);
-		return true;
-	}
 
 	virtual long long size() const {
 		return stored;
@@ -76,13 +71,19 @@ protected:
 	WaitingList<NonStrictMarking*>* waiting_list;
 };
 
-class PWListHybrid : public PWListBase {
+class PWListHybrid : public virtual PWListBase {
         public:
             typedef unsigned int uint;
 
         public:
 
-            PWListHybrid(TAPN::TimedArcPetriNet& tapn, WaitingList<ptriepointer_t<MetaData*> >* w_l, int knumber, int nplaces, int mage, bool isLiveness, bool makeTrace) :
+            PWListHybrid(   TAPN::TimedArcPetriNet& tapn,  
+                            WaitingList<ptriepointer_t<MetaData*> >* w_l, 
+                            int knumber, 
+                            int nplaces, 
+                            int mage, 
+                            bool isLiveness, 
+                            bool makeTrace) :
             PWListBase(isLiveness),
             waiting_list(w_l),
             makeTrace(makeTrace),
@@ -121,10 +122,11 @@ class PWListHybrid : public PWListBase {
             virtual bool add(NonStrictMarking* marking);
             virtual NonStrictMarking* getNextUnexplored();
 
-        public:
+        protected:
 
             WaitingList<ptriepointer_t<MetaData*> >* waiting_list;
             bool makeTrace;
+        public:
             MetaDataWithTraceAndEncoding* parent;             
             ptrie_t<MetaData*> passed;
             MarkingEncoder<MetaData*, NonStrictMarking> encoder;

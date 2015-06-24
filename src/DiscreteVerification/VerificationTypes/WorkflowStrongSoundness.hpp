@@ -17,21 +17,36 @@
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
-class WorkflowStrongSoundnessReachability : public Workflow<NonStrictMarking>{
+class WorkflowStrongSoundnessReachability : public Workflow{
 public:
 
 	WorkflowStrongSoundnessReachability(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking*>* waiting_list);
 
+        WorkflowStrongSoundnessReachability(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options);
+        
+        ~WorkflowStrongSoundnessReachability()
+        {
+            pwList->deleteWaitingList();
+            delete lastMarking;
+            delete pwList;
+        }
+        
 	bool verify();
-	void getTrace();
+	virtual void getTrace();
 
 	void printExecutionTime(ostream& stream){
 		stream << "Maximum execution time: " << (maxValue * tapn.getGCD()) << endl;
 	}
         
 
+        
+
 protected:
+        void findInOut();
 	bool addToPW(NonStrictMarking* marking, NonStrictMarking* parent);
+        virtual void swapData(NonStrictMarking* marking, NonStrictMarking* old);
+        virtual void clearTrace(){};    // cleanup
+        
 protected:
 	int maxValue;
 	TimedPlace* outPlace;
