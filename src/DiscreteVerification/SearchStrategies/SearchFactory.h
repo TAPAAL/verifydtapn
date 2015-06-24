@@ -20,7 +20,7 @@ WaitingList<T>* getWaitingList(AST::Query* query, VerificationOptions& options){
 	if(options.getWorkflowMode() == options.WORKFLOW_SOUNDNESS){
 		WorkflowMinFirst<T> s;
 		strategy = s.createWaitingList(query);
-	} if(options.getWorkflowMode() == options.WORKFLOW_STRONG_SOUNDNESS){
+	} else if(options.getWorkflowMode() == options.WORKFLOW_STRONG_SOUNDNESS){
             NonStrictDFS<T> s;
             strategy = s.createWaitingList(query);
         } else if(query->getQuantifier() == EG || query->getQuantifier() == AF){

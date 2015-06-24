@@ -17,11 +17,11 @@
 #include "../SearchStrategies/WeightQueryVisitor.hpp"
 #include "../SearchStrategies/LivenessWeightQueryVisitor.hpp"
 #include "../../Core/QueryParser/NormalizationVisitor.hpp"
-#include "assert.h"
 #include <queue>
 #include <deque>
 #include <stack>
 #include <vector>
+#include <assert.h>
 #include "ptrie.h"
 
 namespace VerifyTAPN {

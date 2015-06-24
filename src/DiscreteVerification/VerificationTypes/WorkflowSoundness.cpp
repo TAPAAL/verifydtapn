@@ -52,9 +52,9 @@ bool WorkflowSoundness::verify(){
             if(next->passed) continue;
             next->passed = true;
             ++passed;
-            for(vector<WorkflowSoundnessMetaData*>::iterator iter = next->parents.begin();
+            for(vector<MetaData*>::iterator iter = next->parents.begin();
                     iter != next->parents.end(); iter++){
-                    passedStack.push(*iter);
+                    passedStack.push((WorkflowSoundnessMetaData*)*iter);
             }
         }
         
@@ -271,6 +271,9 @@ WorkflowSoundness::ModelType WorkflowSoundness::calculateModelType() {
         }
 
 WorkflowSoundness::~WorkflowSoundness() {
+    delete lastMarking;
+    pwList->deleteWaitingList();
+    delete pwList;
 }
 
 } /* namespace DiscreteVerification */
