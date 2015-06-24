@@ -20,6 +20,7 @@ static const std::string LEGACY = "legacy";
 static const std::string KEEP_DEAD = "keep-dead-tokens";
 static const std::string WORKFLOW = "workflow";
 static const std::string STRONG_WORKFLOW_BOUND = "strong-workflow-bound";
+static const std::string CALCULATE_CMAX = "calculate-cmax";
 
 std::ostream& operator<<(std::ostream& out, const Switch& flag) {
 	flag.print(out);
@@ -178,6 +179,9 @@ void ArgsParser::initialize() {
             boost::make_shared<SwitchWithArg > ("b", STRONG_WORKFLOW_BOUND,
             "Maximum delay bound for strong workflow analysis",
             0));
+    parsers.push_back(
+            boost::make_shared<Switch> ("n", CALCULATE_CMAX,
+            "Calculate the place bounds"));
 
     };
 
@@ -446,13 +450,17 @@ VerificationOptions ArgsParser::createVerificationOptions(const option_map& map)
 	assert(map.find(STRONG_WORKFLOW_BOUND) != map.end());
 	unsigned long long workflowBound = tryParseLongLong(*map.find(STRONG_WORKFLOW_BOUND));
 
+	assert(map.find(CALCULATE_CMAX) != map.end());
+	bool calculateCmax = boost::lexical_cast<bool>(
+			map.find(CALCULATE_CMAX)->second);
+
         
         assert(map.find(GCD) != map.end());
         bool enableGCDLowerGuards = boost::lexical_cast<bool>(
 			map.find(GCD)->second);
         
 	return VerificationOptions(search, verification, memoptimization, kbound, trace,
-			xml_trace, max_constant, keep_dead, enableGCDLowerGuards, workflow, workflowBound);
+			xml_trace, max_constant, keep_dead, enableGCDLowerGuards, workflow, workflowBound, calculateCmax);
 
 }
 }

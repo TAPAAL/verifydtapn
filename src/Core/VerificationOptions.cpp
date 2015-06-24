@@ -69,6 +69,9 @@ namespace VerifyTAPN {
                 out << "Bound is : " << options.getWorkflowBound() << std::endl;
             }
         } 
+	if(options.getCalculateCmax()) {
+	    out << "Calculating C-max" << std::endl;
+	}
         out << "Model file is: " << options.getInputFile() << std::endl;
         if(options.getQueryFile() != "")
             out << "Query file is: " << options.getQueryFile() << std::endl;
