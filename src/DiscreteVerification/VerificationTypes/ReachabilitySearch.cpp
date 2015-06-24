@@ -98,7 +98,7 @@ void ReachabilitySearch::getTrace(){
 
 void ReachabilitySearchPTrie::getTrace(){
 	stack < NonStrictMarking*> printStack;
-        PWListHybrid* pwhlist = (PWListHybrid*)(this->pwList);
+        PWListHybrid* pwhlist = dynamic_cast<PWListHybrid*>(this->pwList);
         MetaDataWithTraceAndEncoding* next = pwhlist->parent;
         NonStrictMarking* last = lastMarking;
         printStack.push(lastMarking);

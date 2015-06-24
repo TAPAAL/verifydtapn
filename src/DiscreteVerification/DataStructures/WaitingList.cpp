@@ -11,7 +11,7 @@ namespace DiscreteVerification {
     template <>
     int MinFirstWaitingList<NonStrictMarking*>::calculateWeight(NonStrictMarking* marking)
     {
-            return marking->meta->totalDelay;
+        return marking->meta->totalDelay;
     }
 
     template <>

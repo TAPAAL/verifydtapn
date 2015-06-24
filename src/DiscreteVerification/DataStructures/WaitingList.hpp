@@ -136,8 +136,7 @@ public:
 	virtual T pop();
 	virtual size_t size() { return queue.size(); };
 protected:
-        virtual int calculateWeight(T payload);
-        virtual int calculateWeight(NonStrictMarkingBase* marking);       
+        virtual int calculateWeight(T payload); 
 
 	priority_queue queue;
 	AST::Query* query;
@@ -342,20 +341,18 @@ void MinFirstWaitingList<T>::add(NonStrictMarkingBase* weight, T payload)
 	queue.push(weighted_item);
 }
 
-
 template <class T>
-int MinFirstWaitingList<T>::calculateWeight(NonStrictMarkingBase* marking)
+int MinFirstWaitingList<T>::calculateWeight(T tmp)
 {
     assert(false);
     return 0;
 }
 
-template <class T>
-int MinFirstWaitingList<T>::calculateWeight(T)
-{
-    assert(false);
-    return 0;
-}
+template <>
+int MinFirstWaitingList<NonStrictMarking*>::calculateWeight(NonStrictMarking* tmp);
+
+template <>
+int MinFirstWaitingList<ptriepointer_t<MetaData*> >::calculateWeight(ptriepointer_t<MetaData*> );
 
 template <class T>
 T MinFirstWaitingList<T>::pop()
