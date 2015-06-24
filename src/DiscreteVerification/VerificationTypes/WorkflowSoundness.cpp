@@ -10,7 +10,7 @@
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
-WorkflowSoundness::WorkflowSoundness(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list)
+WorkflowSoundness::WorkflowSoundness(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking*>* waiting_list)
 : Workflow<NonStrictMarking>(tapn, initialMarking, query, options, waiting_list), passedStack(), minExec(INT_MAX), linearSweepTreshold(3), coveredMarking(NULL), modelType(calculateModelType()){
 
 }
@@ -52,9 +52,9 @@ bool WorkflowSoundness::verify(){
             if(next->passed) continue;
             next->passed = true;
             ++passed;
-            for(vector<WorkflowSoundnessMetaData*>::iterator iter = next->parents.begin();
+            for(vector<MetaData*>::iterator iter = next->parents.begin();
                     iter != next->parents.end(); iter++){
-                    passedStack.push(*iter);
+                    passedStack.push((WorkflowSoundnessMetaData*)*iter);
             }
         }
         
@@ -271,6 +271,9 @@ WorkflowSoundness::ModelType WorkflowSoundness::calculateModelType() {
         }
 
 WorkflowSoundness::~WorkflowSoundness() {
+    delete lastMarking;
+    pwList->deleteWaitingList();
+    delete pwList;
 }
 
 } /* namespace DiscreteVerification */

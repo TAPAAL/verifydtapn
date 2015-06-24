@@ -14,7 +14,9 @@
 #include  "NonStrictMarking.hpp"
 #include "NonStrictMarking.hpp"
 #include "WaitingList.hpp"
-
+#include "ptrie.h"
+#include "MarkingEncoder.h"
+using namespace ptrie;
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
@@ -33,6 +35,7 @@ namespace DiscreteVerification {
         virtual NonStrictMarking* lookup(NonStrictMarking* marking){ return NULL; }
         virtual NonStrictMarking* getNextUnexplored() = 0;
         virtual long long explored()= 0;
+        virtual void deleteWaitingList(){};
         virtual ~PWListBase(){};
 	inline void setMaxNumTokensIfGreater(int i){ if(i>maxNumTokensInAnyMarking)	maxNumTokensInAnyMarking = i; };
     };
@@ -43,7 +46,7 @@ public:
 	typedef google::sparse_hash_map<size_t, NonStrictMarkingList> HashMap;
 public:
 	PWList() : PWListBase(false), markings_storage(256000), waiting_list(){};
-	PWList(WaitingList<NonStrictMarking>* w_l, bool isLiveness) :PWListBase(isLiveness), markings_storage(256000), waiting_list(w_l) {};
+	PWList(WaitingList<NonStrictMarking*>* w_l, bool isLiveness) :PWListBase(isLiveness), markings_storage(256000), waiting_list(w_l) {};
 	virtual ~PWList();
 	friend std::ostream& operator<<(std::ostream& out, PWList& x);
 
@@ -66,33 +69,36 @@ public: // inspectors
 public: // modifiers
 	virtual bool add(NonStrictMarking* marking);
 	virtual NonStrictMarking* getNextUnexplored();
+        virtual void deleteWaitingList(){delete waiting_list;};
 
-public:
+protected:
 	HashMap markings_storage;
-	WaitingList<NonStrictMarking>* waiting_list;
+	WaitingList<NonStrictMarking*>* waiting_list;
 };
 
 class PWListHybrid : public PWListBase {
         public:
             typedef unsigned int uint;
-            PTrie<MetaData>* passed;
 
         public:
 
-            PWListHybrid(TAPN::TimedArcPetriNet& tapn, WaitingList<EncodingPointer<MetaData> >* w_l, int knumber, int nplaces, int mage, bool isLiveness, bool makeTrace) :
+            PWListHybrid(TAPN::TimedArcPetriNet& tapn, WaitingList<ptriepointer_t<MetaData*> >* w_l, int knumber, int nplaces, int mage, bool isLiveness, bool makeTrace) :
             PWListBase(isLiveness),
             waiting_list(w_l),
-            makeTrace(makeTrace) {
+            makeTrace(makeTrace),
+            passed(),
+            encoder(tapn, knumber, nplaces, mage)
+            {
                 discoveredMarkings = 0;
-                passed = new PTrie<MetaData>(tapn, knumber,nplaces,mage);
                 parent = NULL;
             };
             virtual ~PWListHybrid();
             friend std::ostream& operator<<(std::ostream& out, PWListHybrid& x);
 
         public: // inspectors
-            NonStrictMarking* decode(EncodingPointer<MetaData>* ep){
-                NonStrictMarkingBase* base = this->passed->enumerateDecode(*ep);
+            NonStrictMarking* decode(ptriepointer_t<MetaData*>& ep){
+
+                NonStrictMarkingBase* base = encoder.decode(ep);
                 NonStrictMarking* m = new NonStrictMarking(*base);
                 delete base;
                 return m;
@@ -102,12 +108,14 @@ class PWListHybrid : public PWListBase {
             };
 
             virtual long long size() const {
-                return passed->stored;
+                return passed.size();
             };
             virtual long long explored() {return waiting_list->size();};
             void printMemStats() {
-                passed->printMemStats();
+//                passed->printMemStats();
             }
+        
+            virtual void deleteWaitingList(){delete waiting_list;};
 
         public: // modifiers
             virtual bool add(NonStrictMarking* marking);
@@ -115,9 +123,11 @@ class PWListHybrid : public PWListBase {
 
         public:
 
-             WaitingList<EncodingPointer<MetaData> >* waiting_list;
-             bool makeTrace;
-             MetaDataWithTraceAndEncoding* parent;
+            WaitingList<ptriepointer_t<MetaData*> >* waiting_list;
+            bool makeTrace;
+            MetaDataWithTraceAndEncoding* parent;             
+            ptrie_t<MetaData*> passed;
+            MarkingEncoder<MetaData*, NonStrictMarking> encoder;
 };
 
 std::ostream& operator<<(std::ostream& out, PWList& x);

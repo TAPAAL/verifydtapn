@@ -44,7 +44,7 @@ namespace VerifyTAPN {
                 bool keepDeadTokens, 
                 bool enableGCDLowerGuards,
                 WorkflowMode workflow,
-                long workflowBound,
+                long long workflowBound,
 		bool calculateCmax
                 ) : inputFile(""),
         queryFile(""),
@@ -124,7 +124,7 @@ namespace VerifyTAPN {
             return workflow;
         };
 
-        inline const long getWorkflowBound() const {
+        inline const long long getWorkflowBound() const {
             return workflowBound;
         };
 
@@ -151,7 +151,7 @@ namespace VerifyTAPN {
         bool keepDeadTokens;
         bool enableGCDLowerGuards;
         WorkflowMode workflow;
-        long workflowBound;
+        long long workflowBound;
         bool calculateCmax;
     };
 

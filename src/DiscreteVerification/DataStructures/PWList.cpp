@@ -6,11 +6,14 @@
  */
 
 #include "PWList.hpp"
-
+#include "ptrie.h"
+#include "MarkingEncoder.h"
+using namespace ptrie;
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
 bool PWList::add(NonStrictMarking* marking){
+
 	discoveredMarkings++;
 	NonStrictMarkingList& m = markings_storage[marking->getHashKey()];
 	for(NonStrictMarkingList::const_iterator iter = m.begin();
@@ -39,7 +42,8 @@ bool PWList::add(NonStrictMarking* marking){
 }
 
 NonStrictMarking* PWList::getNextUnexplored(){
-	return waiting_list->pop();
+    NonStrictMarking* m = waiting_list->pop();
+    return m;
 }
 
 PWList::~PWList() {
@@ -58,66 +62,62 @@ std::ostream& operator<<(std::ostream& out, PWList& x){
 }
 
         bool PWListHybrid::add(NonStrictMarking* marking) {
-
             discoveredMarkings++;
             // reset the encoding array
 
-            PTrie<MetaData>::Result res = passed->add(marking);
-            if(res.isNew){
-                res.encoding.setMetaData(NULL);
+            std::pair<bool, ptriepointer_t<MetaData*> > res = passed.insert(encoder.encode(marking));
+
+            if(res.first){
+                res.second.set_meta(NULL);
                 if(isLiveness){
                     MetaData* meta;
-                    if(this->makeTrace){
+                    if(makeTrace){
                         meta = new MetaDataWithTrace();   
                         ((MetaDataWithTrace*)meta)->generatedBy = marking->getGeneratedBy();
                     } else {
                         meta = new MetaData();
                     }
-                    res.encoding.setMetaData(meta);
+                    res.second.set_meta(meta);
                     marking->meta = meta;
-                } else if(this->makeTrace){
+                } else if(makeTrace){
                     MetaDataWithTraceAndEncoding* meta = new MetaDataWithTraceAndEncoding();
                     meta->generatedBy = marking->getGeneratedBy();
-                    res.encoding.setMetaData(meta);
-                    meta->ep = new EncodingPointer<MetaData > (res.encoding, res.pos);
+                    res.second.set_meta(meta);
+                    meta->ep = res.second;
                     meta->parent = parent;
                     
                     meta->totalDelay = marking->calculateTotalDelay();
                 }
-                this->waiting_list->add(marking, new EncodingPointer<MetaData > (res.encoding, res.pos));
+                waiting_list->add(marking, res.second);
             } else{
                 if(isLiveness){
-                        marking->meta = res.encoding.getMetaData();
+                        marking->meta = res.second.get_meta();
                         if(this->makeTrace){
                             ((MetaDataWithTrace*)marking->meta)->generatedBy = marking->getGeneratedBy();
                         }
                 }
                 if(isLiveness && !marking->meta->passed){
-                    this->waiting_list->add(marking, new EncodingPointer<MetaData > (res.encoding, res.pos));
+                    waiting_list->add(marking, res.second);
                     return true;
                 }
             }
-            return res.isNew;
+            return res.first;
         }
 
         NonStrictMarking* PWListHybrid::getNextUnexplored() {
-            EncodingPointer<MetaData>* p = waiting_list->pop();
-            NonStrictMarkingBase* base = passed->enumerateDecode(*p);
-            NonStrictMarking* m = new NonStrictMarking(*base);
-            delete base;
+            ptriepointer_t<MetaData*> p = waiting_list->pop();
+            NonStrictMarking* m = encoder.decode(p);
             
-            m->meta = p->encoding.getMetaData();
+            delete m->meta;
+            m->meta = p.get_meta();
+
             
-            if(this->makeTrace){
+            if(makeTrace){
                 if(isLiveness){
                         m->setGeneratedBy(((MetaDataWithTrace*)(m->meta))->generatedBy);
                 } else {
-                    this->parent = (MetaDataWithTraceAndEncoding*)(m->meta);
+                    parent = (MetaDataWithTraceAndEncoding*)(m->meta);
                 }
-            }
-            if(isLiveness || !this->makeTrace){
-                p->encoding.release();
-                delete p;
             }
             return m;
         }

@@ -80,7 +80,7 @@ namespace VerifyTAPN
 	class ArgsParser {
 		typedef std::vector< boost::shared_ptr<Switch> > parser_vec;
 	public:
-		ArgsParser() : parsers(), version(3,1,2) { initialize(); };
+		ArgsParser() : parsers(), version(3,1,3) { initialize(); };
 		virtual ~ArgsParser() {};
 
 		VerificationOptions parse(int argc, char* argv[]) const;

@@ -15,7 +15,7 @@ ReachabilitySearch::ReachabilitySearch(TAPN::TimedArcPetriNet& tapn, NonStrictMa
 
 }
     
-ReachabilitySearch::ReachabilitySearch(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking>* waiting_list)
+ReachabilitySearch::ReachabilitySearch(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking*>* waiting_list)
 	: AbstractNaiveVerification<PWListBase,NonStrictMarking>(tapn, initialMarking, query, options, new PWList(waiting_list, false)) {
     
 }

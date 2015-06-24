@@ -14,7 +14,7 @@
 #include "NonStrictMarkingBase.hpp"
 #include "WaitingList.hpp"
 #include "TimeDart.hpp"
-#include "PTrie.h"
+#include "MarkingEncoder.h"
 
 namespace VerifyTAPN {
     namespace DiscreteVerification {
@@ -63,7 +63,7 @@ namespace VerifyTAPN {
 
             TimeDartLivenessPWHashMap() : markings_storage(), waiting_list(){};
             
-            TimeDartLivenessPWHashMap(VerificationOptions options, WaitingList<WaitingDart>* w_l) : TimeDartLivenessPWBase(), options(options), markings_storage(256000), waiting_list(w_l) {
+            TimeDartLivenessPWHashMap(VerificationOptions options, WaitingList<WaitingDart*>* w_l) : TimeDartLivenessPWBase(), options(options), markings_storage(256000), waiting_list(w_l) {
             };
 
             ~TimeDartLivenessPWHashMap() {
@@ -80,15 +80,21 @@ namespace VerifyTAPN {
         private:
             VerificationOptions options;
             HashMap markings_storage;
-            WaitingList<WaitingDart>* waiting_list;
+            WaitingList<WaitingDart*>* waiting_list;
         };
 
         class TimeDartLivenessPWPData : public TimeDartLivenessPWBase {
         public:
-
+            typedef std::pair<WaitingDart*, ptriepointer_t<LivenessDart*> > waitingpair_t;
 
             
-            TimeDartLivenessPWPData(VerificationOptions options, WaitingList<EncodingPointer<WaitingDart> >* w_l, TAPN::TimedArcPetriNet& tapn, int nplaces, int mage) : TimeDartLivenessPWBase(), options(options), waiting_list(w_l), passed(tapn,  options.getKBound(), nplaces, mage) {
+            TimeDartLivenessPWPData(VerificationOptions options, WaitingList<waitingpair_t >* w_l, TAPN::TimedArcPetriNet& tapn, int nplaces, int mage): 
+                    TimeDartLivenessPWBase(), 
+                    options(options), 
+                    waiting_list(w_l), 
+                    passed(),
+                    encoder(tapn,  options.getKBound(), nplaces, mage) 
+            {
             };
 
             ~TimeDartLivenessPWPData() {
@@ -102,14 +108,15 @@ namespace VerifyTAPN {
                 return (waiting_list->size() > 0);
             };
             virtual void flushBuffer();
-            NonStrictMarkingBase* decode(EncodingPointer<LivenessDart> *ewp){
-                return passed.enumerateDecode(*ewp);
+            NonStrictMarkingBase* decode(ptriepointer_t<LivenessDart*>& ewp){
+                return encoder.decode(ewp);
             }
             
         private:
             VerificationOptions options;
-            WaitingList<EncodingPointer<WaitingDart> >* waiting_list;
-            PTrie<LivenessDart> passed;
+            WaitingList<waitingpair_t >* waiting_list;
+            ptrie_t<LivenessDart*> passed;
+            MarkingEncoder<LivenessDart*> encoder;
         };
 
     } /* namespace DiscreteVerification */

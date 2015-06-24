@@ -34,8 +34,8 @@ namespace VerifyTAPN {
             std::cout << "MC: " << tapn.getMaxConstant() << std::endl;
 #if DEBUG
             std::cout << "Places: " << std::endl;
-            for (TAPN::TimedPlace::Vector::const_iterator iter = tapn.get()->getPlaces().begin(); iter != tapn.get()->getPlaces().end(); iter++) {
-                std::cout << "Place " << iter->get()->GetIndex() << " has category " << iter->get()->GetType() << std::endl;
+            for (TAPN::TimedPlace::Vector::const_iterator iter = tapn.getPlaces().begin(); iter != tapn.getPlaces().end(); iter++) {
+                std::cout << "Place " << (*iter)->getIndex() << " has category " << (*iter)->getType() << std::endl;
             }
 #endif
 
@@ -57,7 +57,7 @@ namespace VerifyTAPN {
 					cout << "Workflow analysis currently does not support any memory optimizations (i.e. no PTries)." << endl;
 					exit(1);
 				}
-            	WaitingList<NonStrictMarking>* strategy = getWaitingList<NonStrictMarking > (query, options);
+            	WaitingList<NonStrictMarking*>* strategy = getWaitingList<NonStrictMarking* > (query, options);
             	if(options.getWorkflowMode() == VerificationOptions::WORKFLOW_SOUNDNESS){
             		WorkflowSoundness* verifier = new WorkflowSoundness(tapn, *initialMarking, query, options, strategy);
 
@@ -116,7 +116,7 @@ namespace VerifyTAPN {
 
                 if (options.getMemoryOptimization() == VerificationOptions::PTRIE) {
                     //TODO fix initialization
-                    WaitingList<EncodingPointer<MetaData> >* strategy = getWaitingList<EncodingPointer<MetaData> > (query, options);
+                    WaitingList<ptriepointer_t<MetaData*> >* strategy = getWaitingList<ptriepointer_t<MetaData*> > (query, options);
                     if (query->getQuantifier() == EG || query->getQuantifier() == AF) {
                         LivenessSearchPTrie verifier = LivenessSearchPTrie(tapn, *initialMarking, query, options, strategy);
                         VerifyAndPrint(
@@ -135,7 +135,7 @@ namespace VerifyTAPN {
                     }
                     delete strategy;
                 } else {
-                    WaitingList<NonStrictMarking>* strategy = getWaitingList<NonStrictMarking > (query, options);
+                    WaitingList<NonStrictMarking*>* strategy = getWaitingList<NonStrictMarking* > (query, options);
                     if (query->getQuantifier() == EG || query->getQuantifier() == AF) {
                         LivenessSearch verifier = LivenessSearch(tapn, *initialMarking, query, options, strategy);
                         VerifyAndPrint(
@@ -160,7 +160,7 @@ namespace VerifyTAPN {
                         exit(1);
                     }                
                     if (options.getMemoryOptimization() == VerificationOptions::PTRIE) {
-                        WaitingList<EncodingPointer<WaitingDart> >* strategy = getWaitingList<EncodingPointer<WaitingDart> > (query, options);
+                        WaitingList<std::pair<WaitingDart*, ptriepointer_t<LivenessDart*> > >* strategy = getWaitingList<std::pair<WaitingDart*, ptriepointer_t<LivenessDart*> > > (query, options);
                         TimeDartLivenessPData verifier = TimeDartLivenessPData(tapn, *initialMarking, query, options, strategy);
                         VerifyAndPrint(
                                 tapn,
@@ -169,7 +169,7 @@ namespace VerifyTAPN {
                                 query);
                         delete strategy;
                     } else {
-                        WaitingList<WaitingDart>* strategy = getWaitingList<WaitingDart > (query, options);
+                        WaitingList<WaitingDart*>* strategy = getWaitingList<WaitingDart* > (query, options);
                         TimeDartLiveness verifier = TimeDartLiveness(tapn, *initialMarking, query, options, strategy);
                         VerifyAndPrint(
                                 tapn,
@@ -190,7 +190,7 @@ namespace VerifyTAPN {
                                 query);
                         delete strategy;
                     } else {
-                        WaitingList<TimeDartBase>* strategy = getWaitingList<TimeDartBase > (query, options);
+                        WaitingList<TimeDartBase*>* strategy = getWaitingList<TimeDartBase* > (query, options);
                         TimeDartReachabilitySearch verifier = TimeDartReachabilitySearch(tapn, *initialMarking, query, options, strategy);
                         VerifyAndPrint(
                                 tapn,

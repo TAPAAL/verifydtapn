@@ -448,7 +448,7 @@ VerificationOptions ArgsParser::createVerificationOptions(const option_map& map)
 			tryParseInt(*map.find(WORKFLOW)));
         
 	assert(map.find(STRONG_WORKFLOW_BOUND) != map.end());
-	unsigned long workflowBound = tryParseLongLong(*map.find(STRONG_WORKFLOW_BOUND));
+	unsigned long long workflowBound = tryParseLongLong(*map.find(STRONG_WORKFLOW_BOUND));
 
 	assert(map.find(CALCULATE_CMAX) != map.end());
 	bool calculateCmax = boost::lexical_cast<bool>(

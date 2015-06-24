@@ -105,7 +105,6 @@ namespace VerifyTAPN {
                 }
                 deleteBase(waitingDart->dart->getBase());
             }
-
             return false;
         }
 

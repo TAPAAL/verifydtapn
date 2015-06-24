@@ -26,7 +26,6 @@
 #include "VerificationTypes/WorkflowSoundness.hpp"
 #include "VerificationTypes/WorkflowStrongSoundness.hpp"
 #include "SearchStrategies/SearchFactory.h"
-#include "DataStructures/PTrie.h"
 
 
 namespace VerifyTAPN {

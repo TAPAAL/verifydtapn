@@ -14,7 +14,10 @@
 #include "NonStrictMarkingBase.hpp"
 #include "WaitingList.hpp"
 #include "TimeDart.hpp"
-#include "PTrie.h"
+#include "ptrie.h"
+#include "MarkingEncoder.h"
+
+using namespace ptrie;
 
 namespace VerifyTAPN {
     namespace DiscreteVerification {
@@ -67,7 +70,7 @@ namespace VerifyTAPN {
             TimeDartPWHashMap() : TimeDartPWBase(false), waiting_list(), markings_storage(256000) {
             };
 
-            TimeDartPWHashMap(WaitingList<TimeDartBase>* w_l, bool trace) : TimeDartPWBase(trace), waiting_list(w_l), markings_storage(256000) {
+            TimeDartPWHashMap(WaitingList<TimeDartBase*>* w_l, bool trace) : TimeDartPWBase(trace), waiting_list(w_l), markings_storage(256000) {
             };
             virtual ~TimeDartPWHashMap();
             friend std::ostream& operator<<(std::ostream& out, TimeDartPWHashMap& x);
@@ -78,7 +81,7 @@ namespace VerifyTAPN {
                 return (waiting_list->size() > 0);
             };
         protected:
-            WaitingList<TimeDartBase>* waiting_list;
+            WaitingList<TimeDartBase*>* waiting_list;
         private:
             HashMap markings_storage;
         };
@@ -88,16 +91,18 @@ namespace VerifyTAPN {
         class TimeDartPWPData : public TimeDartPWBase {
         public:
 
-            TimeDartPWPData(WaitingList<EncodingPointer<TimeDartBase> >* w_l, TAPN::TimedArcPetriNet& tapn, int knumber, int nplaces, int mage, bool trace) :
-            TimeDartPWBase(trace), waiting_list(w_l), passed(tapn, knumber, nplaces, mage) {
+            TimeDartPWPData(WaitingList<ptriepointer_t<TimeDartBase*> >* w_l, TAPN::TimedArcPetriNet& tapn, int knumber, int nplaces, int mage, bool trace) :
+            TimeDartPWBase(trace), 
+                    waiting_list(w_l), passed(), encoder(tapn, knumber, nplaces, mage) {
             };
             
-            NonStrictMarkingBase* decode(EncodingPointer<TimeDartBase> *ewp){
-                return passed.enumerateDecode(*ewp);
+            NonStrictMarkingBase* decode(ptriepointer_t<TimeDartBase*>& ewp){
+                return encoder.decode(ewp);
             }
         private:
-            WaitingList<EncodingPointer<TimeDartBase> >* waiting_list;
-            PTrie<TimeDartBase> passed;
+            WaitingList<ptriepointer_t<TimeDartBase*> >* waiting_list;
+            ptrie_t<TimeDartBase*> passed;
+            MarkingEncoder<TimeDartBase*> encoder;
             virtual bool add(NonStrictMarkingBase* marking, int youngest, WaitingDart* parent, int upper, int start);
             virtual TimeDartBase* getNextUnexplored();
 

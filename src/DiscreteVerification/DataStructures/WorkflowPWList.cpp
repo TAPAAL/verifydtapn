@@ -5,7 +5,7 @@
 namespace VerifyTAPN {
     namespace DiscreteVerification {
 
-        WorkflowPWList::WorkflowPWList(WaitingList<NonStrictMarking>* w_l) : PWList(w_l, false) {
+        WorkflowPWList::WorkflowPWList(WaitingList<NonStrictMarking*>* w_l) : PWList(w_l, false) {
         };
 
         bool WorkflowPWList::add(NonStrictMarking* marking) {
@@ -95,9 +95,22 @@ namespace VerifyTAPN {
                     }
                     NonStrictMarking* covered = lookup(*iter);
                     if (covered != NULL) {
+                        // cleanup
+                        for (vector<NonStrictMarking*>::iterator del = coveredMarkings.begin();
+                                del != coveredMarkings.end(); ++del)
+                        {
+                            delete *del;
+                        }
                         return covered;
                     }
                     delete *iter;
+                }
+                
+                // Cleanup
+                for (vector<NonStrictMarking*>::iterator del = coveredMarkings.begin();
+                    del != coveredMarkings.end(); ++del)
+                {
+                    delete *del;
                 }
             }
             return NULL;
