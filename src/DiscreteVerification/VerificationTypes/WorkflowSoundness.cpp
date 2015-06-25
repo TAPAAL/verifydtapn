@@ -13,6 +13,7 @@ namespace DiscreteVerification {
 WorkflowSoundness::WorkflowSoundness(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking*>* waiting_list)
 : Workflow(tapn, initialMarking, query, options), passedStack(), minExec(INT_MAX), linearSweepTreshold(3), coveredMarking(NULL), modelType(calculateModelType()){
     pwList = new WorkflowPWList(waiting_list);
+
 }
 
 
@@ -28,7 +29,9 @@ WorkflowSoundnessPTrie::WorkflowSoundnessPTrie(TAPN::TimedArcPetriNet& tapn, Non
                                         options.getKBound(), 
                                         tapn.getNumberOfPlaces(), 
                                         tapn.getMaxConstant());
+
 }
+
 
 bool WorkflowSoundness::verify(){
 	if(addToPW(&initialMarking, NULL)){
@@ -110,6 +113,7 @@ int WorkflowSoundnessPTrie::numberOfPassed()
     return passed;
 }
 
+
 bool WorkflowSoundness::addToPW(NonStrictMarking* marking, NonStrictMarking* parent){
 	marking->cut(placeStats);
 
@@ -158,6 +162,7 @@ bool WorkflowSoundness::addToPW(NonStrictMarking* marking, NonStrictMarking* par
                         // keep track of shortest trace
                         if (marking->meta->totalDelay < minExec) {
                             if(lastMarking != NULL) deleteMarking(lastMarking);
+
                             minExec = marking->meta->totalDelay;
                             lastMarking = marking;
                             return false;
@@ -289,6 +294,8 @@ void WorkflowSoundnessPTrie::setMetaParent(NonStrictMarking* marking){
     mte->parent = pwhlist->parent;
     mte->generatedBy = marking->getGeneratedBy();
 }
+
+
 
 WorkflowSoundness::ModelType WorkflowSoundness::calculateModelType() {
             bool isin, isout;
