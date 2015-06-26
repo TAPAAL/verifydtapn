@@ -385,7 +385,7 @@ namespace ptrie
                 if(node->_lowpos == 0) break;
                 else
                 {
-                    node_t* node = get_node(node->_lowpos);
+                    node = get_node(node->_lowpos);
 
                     skip = visitor.set(distance, false);                   
 

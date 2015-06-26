@@ -57,7 +57,6 @@ namespace DiscreteVerification {
     private:
         CoveredMarkingVisitor visitor;
         ptriepointer_t<MetaData*> last_pointer;
-        NonStrictMarking* last;
     public:
         WorkflowPWListHybrid(TAPN::TimedArcPetriNet& tapn, 
                                 WaitingList<ptriepointer_t<MetaData*> >* w_l, 

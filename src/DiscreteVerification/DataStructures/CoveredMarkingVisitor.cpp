@@ -151,7 +151,7 @@ namespace DiscreteVerification {
     {
         if(count == 0) return true;
         
-        int age = floor(placeage / encoder.numberOfPlaces);
+        size_t age = floor(placeage / encoder.numberOfPlaces);
         uint place = (placeage % encoder.numberOfPlaces);
         const TokenList& tokens = target->getTokenList(place);
 
