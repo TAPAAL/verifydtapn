@@ -32,6 +32,7 @@ namespace DiscreteVerification {
             encoding_t scratchpad;
             ptriepointer_t<MetaData*> match;
             bool _found;
+            ptriepointer_t<MetaData*> _targetencoding;
             
         private:
             bool target_contains_token(uint placeage, uint count);
@@ -40,11 +41,12 @@ namespace DiscreteVerification {
             CoveredMarkingVisitor(
                             MarkingEncoder<MetaData*, NonStrictMarking>& enc);
             ~CoveredMarkingVisitor();
-            virtual bool back(uint32_t index);
-            virtual bool set(uint32_t index, bool value);
-            virtual bool set_remainder(uint32_t index,
+            virtual bool back(int index);
+            virtual bool set(int index, bool value);
+            virtual bool set_remainder(int index,
                                             ptriepointer_t<MetaData*> pointer);
-            void set_target(NonStrictMarking* m) {target = m;_found=false;}
+            void set_target(NonStrictMarking* m, ptriepointer_t<MetaData*> me)
+            {target = m;_found=false;_targetencoding = me;}
             NonStrictMarking* decode();
             bool found(){return _found;}
     };

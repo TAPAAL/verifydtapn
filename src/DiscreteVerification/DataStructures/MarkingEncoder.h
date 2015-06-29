@@ -84,12 +84,13 @@ namespace VerifyTAPN {
             
             uint cbit = 0;
             // foreach token
-            uint data = 0;
-            uint count = 0;
+      
             bool bit;
             for (uint i = 0; i < maxNumberOfTokens; i++) {
                 uint offset = offsetBitSize * i;
                 cbit = offset + offsetBitSize - 1;
+                uint data = 0;
+                uint count = 0;
                 
                 while (cbit >= offset + countBitSize) {
                     data = data << 1;
@@ -140,8 +141,6 @@ namespace VerifyTAPN {
                     uint place = (data % this->numberOfPlaces);
                     Token t = Token(age, count);
                     m->addTokenInPlace(tapn.getPlace(place), t);
-                    data = 0;
-                    count = 0;
                 }
                 else
                 {

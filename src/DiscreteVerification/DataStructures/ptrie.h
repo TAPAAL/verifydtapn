@@ -363,36 +363,41 @@ namespace ptrie
     void ptrie_t<T>::visit(visitor_t<T>& visitor)
     {
         std::stack<std::pair<uint, uint> > waiting;
-        waiting.push(std::pair<uint, uint>(0, 0));
+        waiting.push(std::pair<int, uint>(-1, 0));
 
         bool stop = false;
         do{
-            uint distance = waiting.top().first;
+            int distance = waiting.top().first;
             uint n_index = waiting.top().second;
             waiting.pop();
             
-            visitor.back(distance);
+            if(distance > -1)
+            {
+                visitor.back(distance);
+                visitor.set(distance, true);    // only high on stack
+            }
             
             node_t* node = get_node(n_index);
             bool skip = false;
             do
             {
+
                 if(node->_highpos != 0)
                 {
-                    waiting.push(std::pair<uint, uint>(distance, node->_highpos));
+                    waiting.push(std::pair<uint, uint>(distance + 1, node->_highpos));
                 }                 
                 
                 if(node->_lowpos == 0) break;
                 else
                 {
-                    node = get_node(node->_lowpos);
-
-                    skip = visitor.set(distance, false);                   
-
                     ++distance;
+                    node = get_node(node->_lowpos);
+                    skip = visitor.set(distance, false);
                 }
                 
             } while(!skip);
+            
+            distance += 1;
             
             uint bucketsize = 0;
             if(!skip)

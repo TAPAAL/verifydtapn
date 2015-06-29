@@ -25,17 +25,17 @@ namespace DiscreteVerification {
         scratchpad.release();
     }
     
-    bool CoveredMarkingVisitor::set(uint32_t index, bool value)
+    bool CoveredMarkingVisitor::set(int index, bool value)
     {
         if(_found) return true;  // end
         scratchpad.set(index, value);
         // If we have enough bits to constitute a single token (with placement)
-        if(index % encoder.offsetBitSize == 0 && index > 0)
+        if((index + 1) % encoder.offsetBitSize == 0 && index > 0)
         {
-            size_t begin = index - encoder.offsetBitSize;
+            size_t begin = (index / encoder.offsetBitSize) * encoder.offsetBitSize;
             uint data = 0;
             uint count = 0;
-            uint cbit = index - 1;
+            uint cbit = index;
             
             while (cbit >= begin + encoder.countBitSize) {
                 data = data << 1;
@@ -48,10 +48,10 @@ namespace DiscreteVerification {
             
             while(cbit >= begin)
             {
-                data = data << 1;
+                count = count << 1;
                 if(scratchpad.at(cbit))
                 {
-                    data |= 1;
+                    count |= 1;
                 }
                 if(cbit == 0) break;
                 cbit--;
@@ -70,79 +70,74 @@ namespace DiscreteVerification {
         }
     }
     
-    bool CoveredMarkingVisitor::set_remainder(uint32_t index, 
+    bool CoveredMarkingVisitor::set_remainder(int index, 
                                             ptriepointer_t<MetaData*> pointer)
     {
+        // special case, marking cannot cover itself
+        if(pointer.index == _targetencoding.index) return false;
         if(_found) return true;  // end
-        uint size = scratchpad.size();
-        size -= (index / 8);
-        encoding_t enc = pointer.remainder();
-        if(enc.size() > size)
-        {
-            return false;   // not a match, dont stop
-        }
-        else
-        {
-            encoding_t remainder = pointer.remainder();
-            uint offset = index - (index % 8);  // offset matches on a byte
-            uint begin = index - (index % encoder.offsetBitSize);
-            // check inclusion 
 
-            bool bit;
+        encoding_t remainder = pointer.remainder();
+        uint offset = index - (index % 8);  // offset matches on a byte
+        uint begin = (index / encoder.offsetBitSize ) * encoder.offsetBitSize;   // start from whole token
+        // check inclusion 
+
+        bool bit;
+        
+        while(true)
+        {
             uint cbit = begin;
-            while(true)
+            uint data = 0;
+            uint count = 0;
+            cbit += encoder.offsetBitSize - 1;
+            // unpack place/age/count
+            while (cbit >= begin + encoder.countBitSize) {
+                data = data << 1;
+
+                if(cbit < offset) bit = scratchpad.at(cbit);
+                else bit = remainder.at(cbit - offset);
+
+                if(bit)
+                {
+                    data |= 1;
+                }
+                --cbit;
+            }
+
+            while(cbit >= begin)
             {
-                uint data = 0;
-                uint count = 0;
-                cbit += encoder.markingBitSize;
-                // unpack marking
-                while (cbit >= begin + encoder.countBitSize) {
-                    data = data << 1;
+                count = count << 1;
 
-                    if(cbit < offset) bit = scratchpad.at(cbit);
-                    else bit = remainder.at(cbit - offset);
+                if(cbit < offset) bit = scratchpad.at(cbit);
+                else bit = remainder.at(cbit - offset);
 
-                    if(bit)
-                    {
-                        data |= 1;
-                    }
-                    --cbit;
-                }
-
-                while(cbit >= begin)
+                if(bit)
                 {
-                    count = count << 1;
-
-                    if(cbit < offset) bit = scratchpad.at(cbit);
-                    else bit = remainder.at(cbit - offset);
-
-                    if(bit)
-                    {
-                        count |= 1;
-                    }
-                    if(cbit == 0) break;
-                    cbit--;                
+                    count |= 1;
                 }
-                begin += encoder.markingBitSize;
-                if (count) 
+                if(cbit == 0) break;
+                cbit--;                
+            }
+            begin += encoder.offsetBitSize;
+            if (count) 
+            {
+                if(!target_contains_token(data, count))
                 {
-                    if(!target_contains_token(data, count))
-                    {
-                        return false;
-                    }
-                }
-                else
-                {
-                    break;
+                    return false;
                 }
             }
+            else
+            {
+                break;
+            }
         }
+        
         match = pointer;
         _found = true;
         return true;
     }
     
-    bool CoveredMarkingVisitor::back(uint32_t index)
+    bool CoveredMarkingVisitor::back(int index)
     {
         return false;
     }
@@ -154,13 +149,14 @@ namespace DiscreteVerification {
         size_t age = floor(placeage / encoder.numberOfPlaces);
         uint place = (placeage % encoder.numberOfPlaces);
         const TokenList& tokens = target->getTokenList(place);
+        
 
         for(    TokenList::const_iterator it = tokens.begin();
                 it != tokens.end(); ++it)
         {
             if(it->getAge() == age)
             {
-                if(it->getCount() <= count) return true; // continue
+                if(it->getCount() >= count) return true; // continue
                 else return false; // skip branch
             }
             else if(it->getAge() > age) return false;  // skip branch

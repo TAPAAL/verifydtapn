@@ -19,9 +19,9 @@ namespace ptrie
     class visitor_t
     {
     public:
-        virtual bool back(uint32_t index) = 0;
-        virtual bool set(uint32_t index, bool value) = 0;
-        virtual bool set_remainder(uint32_t index, ptriepointer_t<T> pointer) = 0;
+        virtual bool back(int index) = 0;
+        virtual bool set(int index, bool value) = 0;
+        virtual bool set_remainder(int index, ptriepointer_t<T> pointer) = 0;
     };
 }
 

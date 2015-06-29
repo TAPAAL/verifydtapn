@@ -209,9 +209,9 @@ void WorkflowSoundnessPTrie::addParentMeta(MetaData* meta, MetaData* parent)
 }
 
 bool WorkflowSoundness::checkForCoveredMarking(NonStrictMarking* marking){
-	if(marking->size() <= options.getKBound()){
+	/*if(marking->size() <= options.getKBound()){
 		return false;	// Do not run check on small markings (invoke more rarely)
-	}
+	}*/
 
 	NonStrictMarking* covered = pwList->getCoveredMarking(marking, (marking->size() > linearSweepTreshold));
 	if(covered != NULL){

@@ -88,7 +88,8 @@ namespace VerifyTAPN {
                 }
 
                 bool isFirst = true;
-                for (vector<NonStrictMarking*>::iterator iter = coveredMarkings.begin(); iter != coveredMarkings.end(); ++iter) {
+                for (vector<NonStrictMarking*>::iterator iter = coveredMarkings.begin(); 
+                        iter != coveredMarkings.end(); ++iter) {
                     if (isFirst) {
                         isFirst = false;
                         continue;
@@ -96,22 +97,15 @@ namespace VerifyTAPN {
                     NonStrictMarking* covered = lookup(*iter);
                     if (covered != NULL) {
                         // cleanup
-                        for (vector<NonStrictMarking*>::iterator del = coveredMarkings.begin();
-                                del != coveredMarkings.end(); ++del)
+                        for (;iter != coveredMarkings.end(); ++iter)
                         {
-                            delete *del;
+                            delete *iter;
                         }
                         return covered;
                     }
                     delete *iter;
                 }
                 
-                // Cleanup
-                for (vector<NonStrictMarking*>::iterator del = coveredMarkings.begin();
-                    del != coveredMarkings.end(); ++del)
-                {
-                    delete *del;
-                }
             }
             return NULL;
         }
@@ -188,7 +182,7 @@ namespace VerifyTAPN {
     	NonStrictMarking* WorkflowPWListHybrid::getCoveredMarking
                                 (NonStrictMarking* marking, bool useLinearSweep)
         {
-            visitor.set_target(marking);
+            visitor.set_target(marking, last_pointer);
             passed.visit(visitor);
             if(visitor.found())
             {
