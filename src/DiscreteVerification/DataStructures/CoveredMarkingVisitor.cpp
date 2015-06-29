@@ -14,15 +14,28 @@ namespace DiscreteVerification {
 
     CoveredMarkingVisitor::CoveredMarkingVisitor(
                             MarkingEncoder<MetaData*, NonStrictMarking>& enc)
-    : encoder(enc)
+    : encoder(enc), scratchpad(0)
     {
-        scratchpad = enc.scratchpad.clone();
+        
     }
     
     
     CoveredMarkingVisitor::~CoveredMarkingVisitor()
     {
         scratchpad.release();
+    }
+    
+    void CoveredMarkingVisitor::set_target(NonStrictMarking* m, ptriepointer_t<MetaData*> me)
+    {
+        target = m;
+        _found=false;
+        _targetencoding = me;
+        
+        if(encoder.scratchpad.size() > scratchpad.size())
+        {
+            scratchpad.release();
+            scratchpad = encoder.scratchpad.clone();
+        }
     }
     
     bool CoveredMarkingVisitor::set(int index, bool value)
@@ -33,7 +46,7 @@ namespace DiscreteVerification {
         if((index + 1) % encoder.offsetBitSize == 0 && index > 0)
         {
             size_t begin = (index / encoder.offsetBitSize) * encoder.offsetBitSize;
-            uint data = 0;
+            unsigned long long data = 0;
             uint count = 0;
             uint cbit = index;
             
@@ -87,7 +100,7 @@ namespace DiscreteVerification {
         while(true)
         {
             uint cbit = begin;
-            uint data = 0;
+            unsigned long long data = 0;
             uint count = 0;
             cbit += encoder.offsetBitSize - 1;
             // unpack place/age/count
@@ -142,12 +155,13 @@ namespace DiscreteVerification {
         return false;
     }
     
-    bool CoveredMarkingVisitor::target_contains_token(uint placeage, uint count)
+    bool CoveredMarkingVisitor::target_contains_token(unsigned long long placeage, uint count)
     {
         if(count == 0) return true;
         
-        size_t age = floor(placeage / encoder.numberOfPlaces);
-        uint place = (placeage % encoder.numberOfPlaces);
+        int age = floor(placeage / encoder.numberOfPlaces);
+        int place = (placeage % encoder.numberOfPlaces);
+        int cnt = count;
         const TokenList& tokens = target->getTokenList(place);
         
 
@@ -156,7 +170,7 @@ namespace DiscreteVerification {
         {
             if(it->getAge() == age)
             {
-                if(it->getCount() >= count) return true; // continue
+                if(it->getCount() >= cnt) return true; // continue
                 else return false; // skip branch
             }
             else if(it->getAge() > age) return false;  // skip branch

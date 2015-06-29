@@ -35,7 +35,7 @@ namespace DiscreteVerification {
             ptriepointer_t<MetaData*> _targetencoding;
             
         private:
-            bool target_contains_token(uint placeage, uint count);
+            bool target_contains_token(unsigned long long placeage, uint count);
             
         public:
             CoveredMarkingVisitor(
@@ -45,8 +45,7 @@ namespace DiscreteVerification {
             virtual bool set(int index, bool value);
             virtual bool set_remainder(int index,
                                             ptriepointer_t<MetaData*> pointer);
-            void set_target(NonStrictMarking* m, ptriepointer_t<MetaData*> me)
-            {target = m;_found=false;_targetencoding = me;}
+            void set_target(NonStrictMarking* m, ptriepointer_t<MetaData*> me);
             NonStrictMarking* decode();
             bool found(){return _found;}
     };

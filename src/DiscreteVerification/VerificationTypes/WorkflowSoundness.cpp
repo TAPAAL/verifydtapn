@@ -6,6 +6,7 @@
  */
 
 #include "WorkflowSoundness.hpp"
+#include <limits>
 
 namespace VerifyTAPN {
 namespace DiscreteVerification {
@@ -24,9 +25,10 @@ WorkflowSoundness::WorkflowSoundness(TAPN::TimedArcPetriNet& tapn, NonStrictMark
 
 WorkflowSoundnessPTrie::WorkflowSoundnessPTrie(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<ptriepointer_t<MetaData*> >* waiting_list)
 : WorkflowSoundness(tapn, initialMarking, query, options) {
+    int kbound = modelType == MTAWFN ? (std::numeric_limits<int>::max() - 1) : options.getKBound();
     pwList = new WorkflowPWListHybrid(  tapn,
                                         waiting_list, 
-                                        options.getKBound(), 
+                                        kbound, 
                                         tapn.getNumberOfPlaces(), 
                                         tapn.getMaxConstant());
 
