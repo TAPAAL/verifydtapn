@@ -217,11 +217,12 @@ namespace VerifyTAPN {
                         }
 
                         last = mc;
-                        mc->cut(placeStats);
-                        if(l == NULL) {                  // set specific last marking to last marking in delay if deadlock
-                            l = mc;
-                        }
 
+                        if(l == NULL) {                  // set specific last marking to last marking in delay if deadlock
+                            l = new NonStrictMarkingBase(*mc);
+                        }
+                        mc->cut(placeStats);
+                        
                         traceStack.push(mc);            // add delay marking to the trace
                         mc->setParent(NULL);            // set parrent
                         diff--;
