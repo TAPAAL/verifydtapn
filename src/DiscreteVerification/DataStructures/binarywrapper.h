@@ -10,6 +10,7 @@
 #include <iostream>
 #include <string.h>
 #include <assert.h>
+#include <stdint.h>
 
 #ifndef BINARYWRAPPER_H
 #define	BINARYWRAPPER_H
@@ -18,44 +19,175 @@ namespace ptrie
     typedef unsigned int uint;
     typedef unsigned char uchar;
     
+    /**
+     * Wrapper for binary data. This provides easy access to individual bits, 
+     * heap allocation and comparison. Notice that one has to make sure to 
+     * explicitly call release() if one wishes to deallocate (possibly shared data).
+     * 
+     */
     template<class T>
     class binarywrapper_t
     {
     public:
         // Constructors
+        /**
+         * Empty constructor, no data is allocated
+         */
+        inline
         binarywrapper_t();        
+        
+        /**
+         Allocates a room for at least size bits
+         */
+        inline
         binarywrapper_t(uint size);
+        
+        /**
+         * Constructor for copying over data from latest the offset'th bit.
+         * Detects overflows.
+         * @param other: wrapper to copy from
+         * @param offset: maximal number of bits to skip.
+         */
+        inline
         binarywrapper_t(const binarywrapper_t& other, uint offset);
         binarywrapper_t(const binarywrapper_t& other, uint size, uint offset, 
                                                             uint encodingsize);
         binarywrapper_t(uchar* raw, uint size, uint offset, uint encsize);
+	
+	/**
+         * Assign (not copy) raw data to pointer. Set number of bytes to size
+         * @param raw: some memory to point to
+         * @param size: number of bytes.
+         */
+        inline
         binarywrapper_t(uchar* raw, uint size);
         
-        // Destructor
+        /**
+         * Empty destructor. Does NOT deallocate data - do this with explicit
+         * call to release().
+         */
+        inline
         ~binarywrapper_t();
         
-        // Copy and clones
+        /**
+         * Makes a complete copy, including new heap-allocation
+         * @return an exact copy, but in a different area of the heap.
+         */
+        inline
         binarywrapper_t clone() const;
+        
+        /**
+         * Copy over data and meta-data from other, but insert only into target
+         * after offset bits.
+         * Notice that this can cause memory-corruption if there is not enough
+         * room in target, or to many bits are skipped.
+         * @param other: wrapper to copy from
+         * @param offset: bits to skip 
+         */
+        inline
         void copy(const binarywrapper_t& other, uint offset);
+        
+        /**
+         * Copy over size bytes form raw data. Assumes that current wrapper has
+         * enough room.
+         * @param raw: source data
+         * @param size: number of bytes to copy
+         */
+        inline
         void copy(const uchar* raw, uint size);
         
         // accessors
+        /**
+         * Get value of the place'th bit
+         * @param place: bit index
+         * @return 
+         */
+        inline
         bool at(const uint place) const;
+        
+        /**
+         * number of bytes allocated in heap
+         * @return 
+         */
+        inline
         uint size() const;
-        uchar* raw() const;
+        
+        /**
+         * Raw access to data
+         * @return 
+         */
+        inline
+        uchar*& raw();
+        
+        /**
+         * Raw access to data when in const setting
+         * @return 
+         */
+        inline
+        uchar* const_raw() const;
+        
+        /**
+         * pretty print of content
+         */
+        inline
         void print() const;
+        
+        /**
+         * finds the overhead (unused number of bits) when allocating for size
+         * bits.
+         * @param size: number of bits
+         * @return 
+         */
+        inline
         static size_t overhead(uint size);
         
         // modifiers
+        /**
+         * Change value of place'th bit 
+         * @param place: index of bit to change
+         * @param value: desired value
+         */
+        inline
         void set(const uint place, const bool value) const;
+        
+        /**
+         * Sets all memory on heap to 0 
+         */
+        inline
         void zero() const;
-        void release() const;
+        
+        /**
+         * Deallocates memory stored on heap
+         */
+        inline
+        void release();
+
         void set_meta(T data);
         T get_meta() const;
+                
+        /**
+         * Nice access to single bits
+         * @param i: index to access
+         * @return 
+         */
+        inline
         uchar operator[](int i);
+        
+        /**
+         * Removes a number of bytes from end of heap-allocated data if any is 
+         * allocated nothing happens if not. Bound-checks.
+         * @param number of bytes to remove.
+         */
+        inline
         void pop_front(unsigned short);
         
-        inline int cmp(const binarywrapper_t &other)
+        /**
+         * Compares two wrappers. Assumes that smaller number of bytes also means
+         * a smaller wrapper. Otherwise compares byte by byte.
+         * @param other: wrapper to compare to
+         * @return -1 if other is smaller, 0 if same, 1 if other is larger
+         */
+        inline int cmp(const binarywrapper_t &other) const
         {
             if(_nbytes != other._nbytes)
             {
@@ -63,63 +195,33 @@ namespace ptrie
                 else return 1;
             }
                 
-            for(int i = _nbytes - 1; i >= 0; i--)
-            {
-                if(_blob[i] < other._blob[i])
-                    return -1;
-                else if (_blob[i] > other._blob[i])
-                    return 1;
-            }
-            
-            return 0;
+            return memcmp(_blob, other.const_raw(), other._nbytes );
         }
-        
-        // Operators
+            
+        /**
+         * Compares wrappers bytes by bytes. If sizes do not match, they are not
+         * equal. If sizes match, compares byte by byte.
+         * @param enc1 
+         * @param enc2
+         * @return true if a match, false otherwise
+         */
         inline friend bool operator==(  const binarywrapper_t &enc1, 
                                         const binarywrapper_t &enc2) {
-            if(enc1._nbytes != enc2._nbytes)
-                return false;
-            
-            for(size_t i = 0; i < enc1._nbytes; i++)
-                if(enc1._blob[i] != enc2._blob[i])
-                    return false;
-            
-            return true;
-        }
-        
-       /* inline friend bool operator <=( const binarywrapper &enc1,
-                                        const binarywrapper &enc2)
-        {
-            if(enc1.numberOfBytes != enc2.numberOfBytes)
-                return enc1.numberOfBytes < enc2.numberOfBytes;
-            
-            for(size_t i = 0; i < enc1.numberOfBytes; i++)
-                if(enc1.blob[i] < enc2.blob[i])
-                    return true;
-                else if (enc1.blob[i] > enc2.blob[i])
-                    return false;
-            
-            return true;
-        }*/
-        
-        inline friend bool operator<(   const binarywrapper_t &enc1, 
-                                        const binarywrapper_t &enc2) {
-            if(enc1._nbytes != enc2._nbytes)
-                return enc1._nbytes < enc2._nbytes;
-            
-            for(size_t i = 0; i < enc1._nbytes; i++)
-                if(enc1._blob[i] < enc2._blob[i])
-                    return true;
-                else if (enc1._blob[i] > enc2._blob[i])
-                    return false;
-            
-            return false;
+            return enc1.cmp(enc2) == 0;
         }
         
     private:
+            
+        // blob of heap-allocated data
         uchar* _blob;
-        unsigned short _nbytes;
+            
+        // number of bytes allocated on heap
+         unsigned short _nbytes;
+        
+        // meta data to carry
         T _meta;
+            
+        // masks for single-bit access
         const static uchar _masks[8];
     };
     
@@ -274,7 +376,13 @@ namespace ptrie
     }
     
     template<class T>
-    uchar* binarywrapper_t<T>::raw() const
+    uchar*& binarywrapper_t<T>::raw()
+    {
+        return _blob; 
+    }
+    
+    template<class T>
+    uchar* binarywrapper_t<T>::const_raw() const
     {
         return _blob; 
     }
@@ -293,6 +401,8 @@ namespace ptrie
     {
         if(_nbytes == 0) return;  // Special case, nothing to do!
         unsigned short int nbytes;
+        
+        // make sure we do not remove to much, but as much as we can.
         if(topop >= _nbytes)
         {
             topop = _nbytes;
@@ -341,9 +451,10 @@ namespace ptrie
     }
     
     template<class T>
-    void binarywrapper_t<T>::release() const
+    void binarywrapper_t<T>::release()
     {
         delete[] _blob;
+        _blob = NULL;
     }
     
     template<class T>

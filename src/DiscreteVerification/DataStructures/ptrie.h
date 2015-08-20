@@ -462,7 +462,7 @@ namespace ptrie
         // start by creating an encoding that "points" to the "unmatched"
         // part of the encoding. Notice, this is a shallow copy, no actual
         // heap-allocation happens!
-        encoding_t s_enc = encoding_t(  encoding.raw(), 
+        encoding_t s_enc = encoding_t(  encoding.const_raw(), 
                                         (encsize - enc_pos), 
                                         enc_pos, 
                                         encsize);
@@ -487,18 +487,18 @@ namespace ptrie
                     e_index = node->_entries[b_index];
                     break;
                 }
-                else if(cmp == 1)
+                else if(cmp > 0)
                 {
                     low = b_index + 1;
                 }
-                else //if cmp == -1
+                else //if cmp < 0
                 {
                     high = b_index - 1;
                 }
                 
                 if(low > high)
                 {
-                    if(cmp == 1)
+                    if(cmp > 0)
                         b_index += 1;
                     break;
                 }
@@ -513,13 +513,13 @@ namespace ptrie
         /*int tmp;// refference debug code!
         for(tmp = 0; tmp < bucketsize; ++tmp)
         {
-            entry_t* ent = getEntry(node->entries[tmp]);
-            if(ent->data < s_enc)
+            entry_t* ent = get_entry(node->_entries[tmp]);
+            if(ent->_data.cmp(s_enc) < 0)
             {
                 continue;
             }
             else
-            if(ent->data == s_enc)
+            if(ent->_data == s_enc)
             {
                 assert(found);
                 break;
@@ -680,7 +680,7 @@ namespace ptrie
                                     remainder_size, 
                                     enc_pos, 
                                     encsize);
-        assert(n_entry->_data.raw() != encoding.raw());
+        //assert(n_entry->_data.const_raw() != encoding.const_raw());
                 
         n_entry->_nodeindex = tree_pos;
         
