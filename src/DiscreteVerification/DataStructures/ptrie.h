@@ -1,5 +1,5 @@
 /* 
- * File:   PTrie.h
+ * File:   ptrie.h
  * Author: Peter G. Jensen
  *
  * Created on 10 June 2015, 18:44
@@ -9,10 +9,12 @@
 #define	PTRIE_H
 
 #include "binarywrapper.h"
+#include "visitor.h"
 #include <assert.h>
 #include <limits>
 #include <vector>
 #include <stdint.h>
+#include <stack>
 
 namespace ptrie
 {
@@ -35,7 +37,15 @@ namespace ptrie
             void set_meta(T);
             uint write_partial_encoding(encoding_t&) const;
             encoding_t& remainder() const;
+            
             ptriepointer_t() : container(NULL), index(0) {};
+            
+            ptriepointer_t<T>& operator=(const ptriepointer_t<T>&);
+            ptriepointer_t<T>& operator++();
+            ptriepointer_t<T>& operator--();
+            bool operator==(const ptriepointer_t<T>& other);
+            bool operator!=(const ptriepointer_t<T>& other);
+            
     };
     
     template<typename T>
@@ -43,6 +53,55 @@ namespace ptrie
     container(container), index(i)
     {        
     }
+    
+    template<typename T>
+
+    ptriepointer_t<T>& ptriepointer_t<T>::operator=
+                                                (const ptriepointer_t<T>& other)
+    {
+        container = other.container;
+        index = other.index;
+        return *this;
+    }
+    
+    template<typename T>
+    ptriepointer_t<T>& ptriepointer_t<T>::operator++()
+    {
+        ++index;
+        assert(index <= container->_next_free_entry);
+        return *this;
+    }
+    
+    template<typename T>
+    ptriepointer_t<T>& ptriepointer_t<T>::operator--()
+    {
+        --index;
+        return *this;
+    }
+    
+    template<typename T>
+    bool ptriepointer_t<T>::operator==(const ptriepointer_t<T>& other)
+    {
+        return other.container == container && other.index == index;
+    }
+    
+    template<typename T>
+    bool ptriepointer_t<T>::operator!=(const ptriepointer_t<T>& other)
+    {
+        return !(*this == other);
+    }
+    
+    /*
+    template<typename T>
+    void swap(ptriepointer<T>& lhs, ptriepointer<T>& rhs)
+    {
+        ptrie<T>* container = lhs.container;
+        uint index = lhs.index;
+        lhs.container = rhs.container;
+        lhs.index = rhs.index;
+        rhs.index = index;
+        rhs.container = container;
+    }*/
     
     template<typename T>
     T ptriepointer_t<T>::get_meta() const
@@ -72,7 +131,7 @@ namespace ptrie
     class ptrie_t {
         typedef binarywrapper_t<T> encoding_t;  
         friend class ptriepointer_t<T>;
-        public:
+        private:
             
             // nodes in the tree
             struct node_t
@@ -123,6 +182,12 @@ namespace ptrie
             std::pair<bool, ptriepointer_t<T> > find(const encoding_t& encoding);
             bool consistent() const;
             uint size() const { return _next_free_entry; }
+            ptriepointer_t<T> begin();
+            ptriepointer_t<T> end();
+            ptriepointer_t<T> last();
+            ptriepointer_t<T> rend();
+            
+            void visit(visitor_t<T>&);
     };
     
     template<typename T>
@@ -173,6 +238,30 @@ namespace ptrie
     }
     
     template<typename T>
+    ptriepointer_t<T> ptrie_t<T>::begin()
+    {
+        return ptriepointer_t<T>(this, 0);
+    }
+    
+    template<typename T>
+    ptriepointer_t<T> ptrie_t<T>::end()
+    {
+        return ptriepointer_t<T>(this, _next_free_entry);
+    }
+    
+    template<typename T>
+    ptriepointer_t<T> ptrie_t<T>::last()
+    {
+        return ptriepointer_t<T>(this, _next_free_entry-1);
+    }
+    
+    template<typename T>
+    ptriepointer_t<T> ptrie_t<T>::rend()
+    {
+        return ptriepointer_t<T>(this, std::numeric_limits<uint>::max());
+    }
+    
+    template<typename T>
     typename ptrie_t<T>::node_t*
     ptrie_t<T>::get_node(uint index) const
     {
@@ -218,6 +307,8 @@ namespace ptrie
     bool ptrie_t<T>::consistent() const
     {
         return true;
+        assert(_next_free_node >= _nodevector.size());
+        assert(_next_free_entry >= _entryvector.size());
         for(size_t i = 0; i < _next_free_node; ++i)
         {
             node_t* node = get_node(i);
@@ -269,6 +360,61 @@ namespace ptrie
     }
     
     template<typename T>
+    void ptrie_t<T>::visit(visitor_t<T>& visitor)
+    {
+        std::stack<std::pair<uint, uint> > waiting;
+        waiting.push(std::pair<int, uint>(-1, 0));
+
+        bool stop = false;
+        do{
+            int distance = waiting.top().first;
+            uint n_index = waiting.top().second;
+            waiting.pop();
+            
+            if(distance > -1)
+            {
+                visitor.back(distance);
+                visitor.set(distance, true);    // only high on stack
+            }
+            
+            node_t* node = get_node(n_index);
+            bool skip = false;
+            do
+            {
+
+                if(node->_highpos != 0)
+                {
+                    waiting.push(std::pair<uint, uint>(distance + 1, node->_highpos));
+                }                 
+                
+                if(node->_lowpos == 0) break;
+                else
+                {
+                    ++distance;
+                    node = get_node(node->_lowpos);
+                    skip = visitor.set(distance, false);
+                }
+                
+            } while(!skip);
+            
+            distance += 1;
+            
+            uint bucketsize = 0;
+            if(!skip)
+            {
+                if(node->_highcount > 0) bucketsize += node->_highcount;
+                if(node->_lowcount > 0) bucketsize += node->_lowcount;
+                
+                for(uint i = 0; i < bucketsize && !stop; ++i)
+                {
+                    stop = visitor.set_remainder(distance,
+                                    ptriepointer_t<T>(this, node->_entries[i]));
+                }
+            }            
+        } while(!waiting.empty() && !stop);
+    }
+    
+    template<typename T>
     bool ptrie_t<T>::best_match(const encoding_t& encoding, uint& tree_pos, 
                 uint& e_index, uint& enc_pos, uint& b_index, uint& bucketsize)
     {
@@ -316,7 +462,7 @@ namespace ptrie
         // start by creating an encoding that "points" to the "unmatched"
         // part of the encoding. Notice, this is a shallow copy, no actual
         // heap-allocation happens!
-        encoding_t s_enc = encoding_t(  encoding.raw(), 
+        encoding_t s_enc = encoding_t(  encoding.const_raw(), 
                                         (encsize - enc_pos), 
                                         enc_pos, 
                                         encsize);
@@ -341,18 +487,18 @@ namespace ptrie
                     e_index = node->_entries[b_index];
                     break;
                 }
-                else if(cmp == 1)
+                else if(cmp > 0)
                 {
                     low = b_index + 1;
                 }
-                else //if cmp == -1
+                else //if cmp < 0
                 {
                     high = b_index - 1;
                 }
                 
                 if(low > high)
                 {
-                    if(cmp == 1)
+                    if(cmp > 0)
                         b_index += 1;
                     break;
                 }
@@ -367,13 +513,13 @@ namespace ptrie
         /*int tmp;// refference debug code!
         for(tmp = 0; tmp < bucketsize; ++tmp)
         {
-            entry_t* ent = getEntry(node->entries[tmp]);
-            if(ent->data < s_enc)
+            entry_t* ent = get_entry(node->_entries[tmp]);
+            if(ent->_data.cmp(s_enc) < 0)
             {
                 continue;
             }
             else
-            if(ent->data == s_enc)
+            if(ent->_data == s_enc)
             {
                 assert(found);
                 break;
@@ -491,8 +637,8 @@ namespace ptrie
         uint enc_pos;
         uint bucketsize;
         uint e_index;
-        
-        if(best_match(encoding, tree_pos, e_index, enc_pos, bucketsize))
+        uint b_index;
+        if(best_match(encoding, tree_pos, e_index, enc_pos, b_index,  bucketsize))
         {
             return std::pair<bool, ptriepointer_t<T> >(true, 
                                                 ptriepointer_t<T>(this, e_index));
@@ -534,7 +680,7 @@ namespace ptrie
                                     remainder_size, 
                                     enc_pos, 
                                     encsize);
-        assert(n_entry->_data.raw() != encoding.raw());
+        //assert(n_entry->_data.const_raw() != encoding.const_raw());
                 
         n_entry->_nodeindex = tree_pos;
         

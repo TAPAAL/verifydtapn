@@ -88,7 +88,8 @@ namespace VerifyTAPN {
                 }
 
                 bool isFirst = true;
-                for (vector<NonStrictMarking*>::iterator iter = coveredMarkings.begin(); iter != coveredMarkings.end(); ++iter) {
+                for (vector<NonStrictMarking*>::iterator iter = coveredMarkings.begin(); 
+                        iter != coveredMarkings.end(); ++iter) {
                     if (isFirst) {
                         isFirst = false;
                         continue;
@@ -96,22 +97,15 @@ namespace VerifyTAPN {
                     NonStrictMarking* covered = lookup(*iter);
                     if (covered != NULL) {
                         // cleanup
-                        for (vector<NonStrictMarking*>::iterator del = coveredMarkings.begin();
-                                del != coveredMarkings.end(); ++del)
+                        for (;iter != coveredMarkings.end(); ++iter)
                         {
-                            delete *del;
+                            delete *iter;
                         }
                         return covered;
                     }
                     delete *iter;
                 }
                 
-                // Cleanup
-                for (vector<NonStrictMarking*>::iterator del = coveredMarkings.begin();
-                    del != coveredMarkings.end(); ++del)
-                {
-                    delete *del;
-                }
             }
             return NULL;
         }
@@ -163,6 +157,132 @@ namespace VerifyTAPN {
         }
 
 
+        WorkflowPWListHybrid::WorkflowPWListHybrid(
+                            TAPN::TimedArcPetriNet& tapn,  
+                            WaitingList<ptriepointer_t<MetaData*> >* w_l, 
+                            int knumber, 
+                            int nplaces, 
+                            int mage) 
+            : PWListHybrid(tapn, w_l, knumber, nplaces, mage, false, true),
+                visitor(encoder)
+        {
+            
+        }
+        
+        WorkflowPWListHybrid::~WorkflowPWListHybrid()
+        {
+            ptriepointer_t<MetaData*> begin = passed.begin();
+            while(begin != passed.end())
+            {
+                delete begin.get_meta();
+                ++ begin;
+            }
+        }
+        
+    	NonStrictMarking* WorkflowPWListHybrid::getCoveredMarking
+                                (NonStrictMarking* marking, bool useLinearSweep)
+        {
+            visitor.set_target(marking, last_pointer);
+            passed.visit(visitor);
+            if(visitor.found())
+            {
+                NonStrictMarking* m = visitor.decode();
+                return m;
+            }
+            else
+            {
+                return NULL;
+            }
+        }
+        
+        NonStrictMarking* WorkflowPWListHybrid::getUnpassed()
+        {
+            ptriepointer_t<MetaData*> it = passed.last();
+            for(; it != passed.rend(); --it)
+            {
+                if(!it.get_meta()->passed)
+                {
+                    NonStrictMarking* m = encoder.decode(it);
+                    m->meta = it.get_meta();
+                    return m;
+                }
+            }
+            return NULL;
+        }
+        
+    	bool WorkflowPWListHybrid::add(NonStrictMarking* marking)
+        {
+            discoveredMarkings++;
+            std::pair<bool, ptriepointer_t<MetaData*> > res = 
+                                        passed.insert(encoder.encode(marking));
+            
+            if (!res.first) {
+                return false;
+            }
+            else
+            {
+                MetaDataWithTraceAndEncoding* meta = 
+                                        new MetaDataWithTraceAndEncoding();
+                meta->generatedBy = marking->getGeneratedBy();
+                meta->ep = res.second;
+                meta->parent = parent;
+                meta->totalDelay = marking->calculateTotalDelay();
+                
+                res.second.set_meta(meta);
+                
+                stored++;
+                
+                // using min first waiting-list, weight is allready in pointer
+                waiting_list->add(NULL, res.second);
+                return true;           
+            }
+        }
+        
+        NonStrictMarking* WorkflowPWListHybrid::addToPassed
+                                    (NonStrictMarking* marking, bool strong)
+        {
+            discoveredMarkings++;
+            std::pair<bool, ptriepointer_t<MetaData*> > res = 
+                                        passed.insert(encoder.encode(marking));
+
+
+            
+            if (!res.first) {
+                NonStrictMarking* old = encoder.decode(res.second);
+                
+                MetaDataWithTraceAndEncoding* meta = 
+                        (MetaDataWithTraceAndEncoding*)res.second.get_meta();
+                old->setGeneratedBy(meta->generatedBy);
+                old->meta = meta;
+                last_pointer = res.second;
+                return old;
+            } else {
+                stored++;
+
+                if(strong) marking->meta = new MetaDataWithTraceAndEncoding();
+                else marking->meta = new WorkflowSoundnessMetaDataWithEncoding();
+                
+                MetaDataWithTraceAndEncoding* meta = 
+                                (MetaDataWithTraceAndEncoding*) marking->meta;
+                meta->ep = res.second;
+                meta->parent = this->parent;
+                meta->generatedBy = marking->getGeneratedBy();
+                meta->totalDelay = marking->meta->totalDelay;
+                
+                res.second.set_meta(meta);
+                last_pointer = res.second;
+                return NULL;
+            }
+        }
+        
+        void WorkflowPWListHybrid::addLastToWaiting()
+        {
+            // using min first waiting-list, weight is allready in pointer
+            waiting_list->add(NULL, last_pointer);
+        }
+        
+        
+        
 
     }
 }

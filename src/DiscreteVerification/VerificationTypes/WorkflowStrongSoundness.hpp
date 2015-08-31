@@ -53,6 +53,26 @@ protected:
         int validChildren;
 };
 
+class WorkflowStrongSoundnessPTrie : public WorkflowStrongSoundnessReachability
+{
+public:
+    WorkflowStrongSoundnessPTrie(
+            TAPN::TimedArcPetriNet& tapn,
+            NonStrictMarking& initialMarking, 
+            AST::Query* query, 
+            VerificationOptions options, 
+            WaitingList<ptriepointer_t<MetaData*> >* waiting_list);
+    virtual void getTrace();
+    virtual void deleteMarking(NonStrictMarking* marking)
+    {
+        delete marking;
+    }
+
+protected:
+        virtual void swapData(NonStrictMarking* marking, NonStrictMarking* old);
+        virtual void clearTrace();
+};
+
 } /* namespace DiscreteVerification */
 } /* namespace VerifyTAPN */
 #endif /* NONSTRICTSEARCH_HPP_ */

@@ -20,9 +20,12 @@ using namespace ptrie;
 namespace VerifyTAPN {
     namespace DiscreteVerification {
 
+        class CoveredMarkingVisitor;
+        
         template<typename T, typename M = NonStrictMarkingBase>
         class MarkingEncoder
         {
+        friend class CoveredMarkingVisitor;
         typedef binarywrapper_t<T> encoding_t;
 
         private:
@@ -32,10 +35,9 @@ namespace VerifyTAPN {
             const uint countBitSize;
             const uint placeAgeBitSize;
             const uint offsetBitSize; 
-            uint markingBitSize;
+            const uint markingBitSize;
             TAPN::TimedArcPetriNet& tapn;
             encoding_t scratchpad;
-            void* raw;
         public:
             MarkingEncoder(TAPN::TimedArcPetriNet& tapn, int knumber,
                                                         int nplaces, int mage);
@@ -58,8 +60,7 @@ namespace VerifyTAPN {
             markingBitSize(offsetBitSize * (knumber ? knumber : 1)),
             tapn(tapn)
         {
-                scratchpad = encoding_t(markingBitSize);
-                raw = (void*)scratchpad.raw();
+                scratchpad = encoding_t(0);
         }
         
         template<typename T, typename M>
@@ -71,7 +72,10 @@ namespace VerifyTAPN {
         template<typename T, typename M>
         M* MarkingEncoder<T, M>::decode(const ptriepointer_t<T>& pointer)
         {
-            assert(scratchpad.raw() == raw);
+            // we allready know here that the scratchpad is large enough,
+            // it is monotonically increased when we encode, ie; no marking
+            // taking up more bits are currently in the ptrie.
+            
             M* m = new M();
             assert(pointer.container->consistent());
             const encoding_t remainder = pointer.remainder();
@@ -81,12 +85,13 @@ namespace VerifyTAPN {
             
             uint cbit = 0;
             // foreach token
-            uint data = 0;
-            uint count = 0;
+      
             bool bit;
             for (uint i = 0; i < maxNumberOfTokens; i++) {
                 uint offset = offsetBitSize * i;
                 cbit = offset + offsetBitSize - 1;
+                unsigned long long data = 0;
+                uint count = 0;
                 
                 while (cbit >= offset + countBitSize) {
                     data = data << 1;
@@ -137,8 +142,6 @@ namespace VerifyTAPN {
                     uint place = (data % this->numberOfPlaces);
                     Token t = Token(age, count);
                     m->addTokenInPlace(tapn.getPlace(place), t);
-                    data = 0;
-                    count = 0;
                 }
                 else
                 {
@@ -157,6 +160,25 @@ namespace VerifyTAPN {
         template<typename T, typename M>
         binarywrapper_t<T> MarkingEncoder<T, M>::encode(M* marking)
         {
+            // make sure we have space to encode marking
+            size_t count = 0;
+            for (vector<Place>::const_iterator pi = marking->getPlaceList().begin();
+                    pi != marking->getPlaceList().end();
+                    pi++) {
+                count += pi->tokens.size();
+            }
+            count *= offsetBitSize;
+            count /= 8;
+            count += 1;
+            
+            if(scratchpad.size() < count)
+            {
+                scratchpad.release();
+                scratchpad = encoding_t(count * 8);
+            }
+            
+
+
             scratchpad.zero();
             int tc = 0;
             uint bitcount = 0;

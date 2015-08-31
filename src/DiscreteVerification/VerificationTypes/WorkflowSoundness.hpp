@@ -26,6 +26,7 @@
 #include "../DataStructures/WaitingList.hpp"
 #include "Workflow.hpp"
 
+using namespace ptrie;
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
@@ -69,6 +70,23 @@ protected:
     NonStrictMarking* coveredMarking;
     ModelType modelType;
 
+};
+
+
+class WorkflowSoundnessPTrie : public WorkflowSoundness
+{
+public:
+	WorkflowSoundnessPTrie(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<ptriepointer_t<MetaData*> >* waiting_list);
+    
+        virtual void addParentMeta(MetaData* meta, MetaData* parent);
+        virtual int numberOfPassed();
+        virtual void deleteMarking(NonStrictMarking* marking)
+        {
+            delete marking;
+        }
+        virtual void getTrace(NonStrictMarking* marking);
+protected:
+        virtual void setMetaParent(NonStrictMarking*);
 };
 
 } /* namespace DiscreteVerification */

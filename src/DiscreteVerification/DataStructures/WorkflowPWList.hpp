@@ -15,6 +15,7 @@
 #include "NonStrictMarking.hpp"
 #include "WaitingList.hpp"
 #include "PWList.hpp"
+#include "CoveredMarkingVisitor.h"
 
 namespace VerifyTAPN {
 namespace DiscreteVerification {
@@ -50,6 +51,28 @@ namespace DiscreteVerification {
             marking->setParent(parent);
         }
 
+    };
+    
+    class WorkflowPWListHybrid : public WorkflowPWListBasic, public PWListHybrid {
+    private:
+        CoveredMarkingVisitor visitor;
+        ptriepointer_t<MetaData*> last_pointer;
+    public:
+        WorkflowPWListHybrid(TAPN::TimedArcPetriNet& tapn, 
+                                WaitingList<ptriepointer_t<MetaData*> >* w_l, 
+                                int knumber, 
+                                int nplaces, 
+                                int mage);
+        ~WorkflowPWListHybrid();
+    	virtual NonStrictMarking* getCoveredMarking(NonStrictMarking* marking, bool useLinearSweep);
+        virtual NonStrictMarking* getUnpassed();
+    	virtual bool add(NonStrictMarking* marking);
+        virtual NonStrictMarking* addToPassed(NonStrictMarking* marking, bool strong);
+        virtual void addLastToWaiting();
+        virtual void setParent(NonStrictMarking* marking, NonStrictMarking*)
+        {
+            ((MetaDataWithTraceAndEncoding*)marking->meta)->parent = parent;
+        }
     };
 
 } /* namespace DiscreteVerification */

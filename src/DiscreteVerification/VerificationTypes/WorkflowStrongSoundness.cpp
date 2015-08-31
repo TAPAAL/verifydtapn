@@ -16,6 +16,10 @@ namespace VerifyTAPN {
                 findInOut();
         };
         
+        WorkflowStrongSoundnessReachability::WorkflowStrongSoundnessReachability(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options)
+        : Workflow(tapn, initialMarking, query, options), maxValue(-1), outPlace(NULL){
+            findInOut();
+        };
         
         void WorkflowStrongSoundnessReachability::findInOut()
         {
@@ -25,8 +29,27 @@ namespace VerifyTAPN {
                     break;
                 }
             }
-        };
-
+        }
+        
+        WorkflowStrongSoundnessPTrie::WorkflowStrongSoundnessPTrie(
+                                TAPN::TimedArcPetriNet& tapn,
+                                NonStrictMarking& initialMarking,
+                                AST::Query* query,
+                                VerificationOptions options,
+                                WaitingList<ptriepointer_t<MetaData*> >* waiting_list) :
+                                WorkflowStrongSoundnessReachability(
+                                    tapn, 
+                                    initialMarking, 
+                                    query, 
+                                    options)
+        {
+            pwList = new WorkflowPWListHybrid(  tapn,
+                                                waiting_list, 
+                                                options.getKBound(), 
+                                                tapn.getNumberOfPlaces(), 
+                                                tapn.getMaxConstant());
+        }
+       
         bool WorkflowStrongSoundnessReachability::verify() {
             
             if (outPlace == NULL)
@@ -53,6 +76,7 @@ namespace VerifyTAPN {
                 bool noDelay = false;
                 Result res = successorGenerator.generateAndInsertSuccessors(*next_marking);
                 if (res == ADDTOPW_RETURNED_TRUE) {
+                    clearTrace();
                     return true;
                 } else if (res == ADDTOPW_RETURNED_FALSE_URGENTENABLED) {
                     noDelay = true;
@@ -65,7 +89,7 @@ namespace VerifyTAPN {
                     marking->setGeneratedBy(NULL);
                    
                     if (addToPW(marking, next_marking)) {
-
+                        clearTrace();
                         lastMarking = marking;
                         return true;
                     }
@@ -77,6 +101,7 @@ namespace VerifyTAPN {
                     // remove childless markings from stack
                     while(!trace.empty() && trace.top()->getNumberOfChildren() <= 1){
                             trace.top()->meta->inTrace = false;
+                            deleteMarking(trace.top());
                             trace.pop();
                     }
                     if(trace.empty()){
@@ -108,6 +133,64 @@ namespace VerifyTAPN {
             printXMLTrace(lastMarking, printStack, query, tapn);
         }
 
+        void WorkflowStrongSoundnessPTrie::getTrace() {
+
+            PWListHybrid* pwhlist = dynamic_cast<PWListHybrid*>(this->pwList);
+            
+            std::stack < NonStrictMarking*> printStack;
+            
+            NonStrictMarking* next = lastMarking;
+            if(next != NULL)
+            {
+
+                printStack.push(next);
+                MetaDataWithTraceAndEncoding* meta = 
+                        static_cast<MetaDataWithTraceAndEncoding*>(next->meta);
+
+                if(meta == NULL)
+                {
+                    // We assume the parent was not deleted on return
+                    NonStrictMarking* parent = (NonStrictMarking*)lastMarking->getParent();                
+                    if(parent != NULL) meta = 
+                        static_cast<MetaDataWithTraceAndEncoding*>(parent->meta);
+                    delete parent;
+                }
+                else
+                {
+                    meta = meta->parent;
+                }
+                                
+                while(meta != NULL)
+                {
+                    next = pwhlist->decode(meta->ep);
+                    next->setGeneratedBy(meta->generatedBy);
+                    printStack.top()->setParent(next);
+                    printStack.push(next);                    
+                    meta = meta->parent;
+                }
+            }
+#ifdef CLEANUP
+            std::stack < NonStrictMarking*> cleanup = printStack;
+#endif
+            printXMLTrace(lastMarking, printStack, query, tapn);
+            
+#ifdef CLEANUP
+            while(!cleanup.empty())
+            {
+                if(cleanup.top() != lastMarking) // deleted elsewhere
+                {
+                    delete cleanup.top();
+                    cleanup.pop();
+                }
+                else
+                {
+                    break;
+                }
+            }
+#endif
+        }
+        
+        
         bool WorkflowStrongSoundnessReachability::addToPW(NonStrictMarking* marking, NonStrictMarking* parent) {
             marking->cut(placeStats);
             marking->setParent(parent);
@@ -135,6 +218,7 @@ namespace VerifyTAPN {
                         // make sure we can print trace
                         marking->setNumberOfChildren(1);
                         maxValue = totalDelay;
+                        deleteMarking(old);
                         return true;
                     } else {
                         // search again to find maxdelay
@@ -145,12 +229,12 @@ namespace VerifyTAPN {
                         // fall through on purpose
                     }
                 } else {
+                    deleteMarking(old);
                     delete marking;
                     // already seen this maxage/marking combination
                     return false;
                 }
             } else {
-                marking->meta = new MetaData();
                 marking->meta->totalDelay = totalDelay;
             }
             
@@ -166,10 +250,14 @@ namespace VerifyTAPN {
                 // if terminal, update max_value and last marking of trace
                 if(maxValue < marking->meta->totalDelay) {
                     maxValue = marking->meta->totalDelay;
+                    if(lastMarking != NULL) deleteMarking(lastMarking);
                     lastMarking = marking;
                     return false;
                 }
             }
+            
+            deleteMarking(marking);
+            
             return false;
         }
         
@@ -179,5 +267,25 @@ namespace VerifyTAPN {
             old->setParent(marking->getParent());
         }
 
+        void WorkflowStrongSoundnessPTrie::swapData(NonStrictMarking* marking, NonStrictMarking* parent)
+        {
+            PWListHybrid* pwhlist = dynamic_cast<PWListHybrid*>(this->pwList);
+            MetaDataWithTraceAndEncoding* meta = 
+                static_cast<MetaDataWithTraceAndEncoding*>(parent->meta);
+
+            meta->generatedBy = marking->getGeneratedBy();
+            meta->parent = pwhlist->parent;
+        }
+        
+        void WorkflowStrongSoundnessPTrie::clearTrace()
+        {
+            if(!trace.empty()) trace.pop(); // pop parent, used in getTrace
+            while(!trace.empty())
+            {
+                delete trace.top();
+                trace.pop();
+            }
+        }
+        
     } /* namespace DiscreteVerification */
 } /* namespace VerifyTAPN */

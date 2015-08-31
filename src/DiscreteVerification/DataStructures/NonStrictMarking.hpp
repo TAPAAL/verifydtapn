@@ -48,6 +48,18 @@ namespace DiscreteVerification {
             MetaDataWithTraceAndEncoding* parent;
     };
     
+    struct WorkflowSoundnessMetaDataWithEncoding : public MetaDataWithTraceAndEncoding {
+    public:
+        WorkflowSoundnessMetaDataWithEncoding() : MetaDataWithTraceAndEncoding(), parents() 
+            { totalDelay = INT_MAX;};
+            virtual ~WorkflowSoundnessMetaDataWithEncoding()
+            {
+                parents.clear();
+            }
+            
+            vector<MetaData*> parents;
+    };
+    
     class NonStrictMarking : public NonStrictMarkingBase{
     public:
         NonStrictMarking():NonStrictMarkingBase(), meta(NULL){}
