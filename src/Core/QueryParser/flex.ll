@@ -38,9 +38,10 @@ blank [ \t]
 
 [0-9]+						{ yylval->number = atoi(yytext); return token::NUMBER; }
 ^EF							{ return token::EF; }
-^AG							{ return token::AG; }
-^AF							{ return token::AF; }
+AG							{ return token::AG; }
+AF							{ return token::AF; }
 ^EG							{ return token::EG; }
+^control                                                { return token::CONTROL; }
 or|\|\|						{ return token::OR; }
 and|&&						{ return token::AND; }
 true						{ return token::BOOL_TRUE; }
@@ -58,6 +59,7 @@ deadlock                                        { return token::DEADLOCK; }
 "+"							{return token::PLUS;}
 "-"							{return token::MINUS;}
 "*"							{return token::MULTIPLY;}
+":"                                                     {return token::COLON;}
 
 [a-zA-Z_][a-zA-Z_0-9]*      { yylval->string = new std::string(yytext); return token::IDENTIFIER; }
 

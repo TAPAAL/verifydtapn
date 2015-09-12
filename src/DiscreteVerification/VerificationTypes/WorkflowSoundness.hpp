@@ -40,7 +40,7 @@ public:
 	WorkflowSoundness(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options);
 
 	virtual ~WorkflowSoundness();
-	bool verify();
+	bool run();
         virtual void getTrace(NonStrictMarking* marking);
 	virtual void getTrace() {this->getTrace(lastMarking);};
         
@@ -57,7 +57,7 @@ public:
         virtual int numberOfPassed();
         
 protected:
-	bool addToPW(NonStrictMarking* marking, NonStrictMarking* parent);
+	bool handleSuccessor(NonStrictMarking* marking, NonStrictMarking* parent);
 	bool checkForCoveredMarking(NonStrictMarking* marking);
         ModelType calculateModelType();
         virtual void addParentMeta(MetaData* meta, MetaData* parent);

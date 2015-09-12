@@ -360,7 +360,7 @@ namespace VerifyTAPN{
                 };
         
                 
-		enum Quantifier { EF, AG, EG, AF};
+		enum Quantifier { EF, AG, EG, AF, CF, CG};
 
 		class Query : public Visitable
 		{

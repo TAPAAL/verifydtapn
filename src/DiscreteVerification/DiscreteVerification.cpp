@@ -132,8 +132,57 @@ namespace VerifyTAPN {
                         exit(1);
             }
             
-            
-            if (options.getVerificationType() == VerificationOptions::DISCRETE) {
+            if(query->getQuantifier() == CG || query->getQuantifier() == CF)
+            {
+                if(options.getTrace() != VerificationOptions::NO_TRACE)
+                {
+                    cout << "Traces are not supported for game synthesis" << std::endl;
+                    exit(1);
+                }
+                if(options.getVerificationType() != VerificationOptions::DISCRETE)
+                {
+                    cout << "TimeDarts are not supported for game synthesis" << std::endl;
+                    exit(1);                    
+                }
+                if(options.getGCDLowerGuardsEnabled())
+                {
+                    cout << "Lowering by GCD is not supported for game synthesis" << std::endl;
+                    exit(1);                    
+                }
+                if(options.getSearchType() == VerificationOptions::MINDELAYFIRST)
+                {
+                    cout << "Minimal delay search strategy is supported for game synthesis" << std::endl;
+                    exit(1);
+                }
+                if(query->getQuantifier() == CF)
+                {
+                    cout << "control: AF queries not yet supported" << std::endl;
+                    exit(1);
+                }
+                
+                if (options.getMemoryOptimization() == VerificationOptions::PTRIE) {
+                    WaitingList<ptriepointer_t<MetaData*> >* strategy = getWaitingList<ptriepointer_t<MetaData*> > (query, options);
+                    LivenessSearchPTrie verifier = LivenessSearchPTrie(tapn, *initialMarking, query, options, strategy);
+                    VerifyAndPrint(
+                            tapn,
+                            verifier,
+                            options,
+                            query);
+                    delete strategy;
+                }
+                else
+                {
+                    WaitingList<NonStrictMarking*>* strategy = getWaitingList<NonStrictMarking* > (query, options);
+                    LivenessSearch verifier = LivenessSearch(tapn, *initialMarking, query, options, strategy);
+                    VerifyAndPrint(
+                            tapn,
+                            verifier,
+                            options,
+                            query);
+                    delete strategy;
+                }
+                
+            } else if (options.getVerificationType() == VerificationOptions::DISCRETE) {
 
                 if (options.getMemoryOptimization() == VerificationOptions::PTRIE) {
                     //TODO fix initialization
@@ -227,7 +276,7 @@ namespace VerifyTAPN {
         }
 
         template<typename T> void VerifyAndPrint(TAPN::TimedArcPetriNet& tapn, Verification<T>& verifier, VerificationOptions& options, AST::Query* query) {
-            bool result = (!options.isWorkflow() && (query->getQuantifier() == AG || query->getQuantifier() == AF)) ? !verifier.verify() : verifier.verify();
+            bool result = (!options.isWorkflow() && (query->getQuantifier() == AG || query->getQuantifier() == AF)) ? !verifier.run() : verifier.run();
 
             if (options.getGCDLowerGuardsEnabled()) {
                 std::cout << "Lowering all guards by greatest common divisor: " << tapn.getGCD() << std::endl;

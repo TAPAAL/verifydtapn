@@ -34,14 +34,14 @@ public:
         ReachabilitySearch(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options);
 	ReachabilitySearch(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking*>* waiting_list);
 	virtual ~ReachabilitySearch();
-	bool verify();
+	bool run();
 
         virtual void deleteMarking(NonStrictMarking* m) {
             //dummy;
         };
         
 protected:
-	bool addToPW(NonStrictMarking* marking, NonStrictMarking* parent);
+	bool handleSuccessor(NonStrictMarking* marking, NonStrictMarking* parent);
 
 protected:
 	int validChildren;

@@ -45,10 +45,10 @@ namespace VerifyTAPN {
 
         protected:
             bool isDelayPossible(U& marking);
-            virtual bool addToPW(U* marking, U* parent) = 0;
+            virtual bool handleSuccessor(U* marking, U* parent) = 0;
 
-            inline bool addToPW(U* m) {
-                return addToPW(m, tmpParent);
+            inline bool handleSuccessor(U* m) {
+                return handleSuccessor(m, tmpParent);
             };
             
             U* getLastMarking() {

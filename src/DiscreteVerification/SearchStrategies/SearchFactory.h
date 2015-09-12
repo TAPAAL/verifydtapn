@@ -23,7 +23,7 @@ WaitingList<T>* getWaitingList(AST::Query* query, VerificationOptions& options){
 	} else if(options.getWorkflowMode() == options.WORKFLOW_STRONG_SOUNDNESS){
             NonStrictDFS<T> s;
             strategy = s.createWaitingList(query);
-        } else if(query->getQuantifier() == EG || query->getQuantifier() == AF){
+        } else if(  query->getQuantifier() == EG || query->getQuantifier() == AF){
 		//Liveness query, force DFS
 		switch(options.getSearchType()){
 		case VerificationOptions::DEPTHFIRST: {
@@ -47,7 +47,8 @@ WaitingList<T>* getWaitingList(AST::Query* query, VerificationOptions& options){
 			break;
 		}
 		}
-	}else if(query->getQuantifier() == EF || query->getQuantifier() == AG){
+	}else if(query->getQuantifier() == EF || query->getQuantifier() == AG ||
+                 query->getQuantifier() == CG || query->getQuantifier() == CF){
 		switch(options.getSearchType()){
 		case VerificationOptions::DEPTHFIRST: {
 			NonStrictDFS<T> s;

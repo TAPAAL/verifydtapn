@@ -35,8 +35,8 @@ WorkflowSoundnessPTrie::WorkflowSoundnessPTrie(TAPN::TimedArcPetriNet& tapn, Non
 }
 
 
-bool WorkflowSoundness::verify(){
-	if(addToPW(&initialMarking, NULL)){
+bool WorkflowSoundness::run(){
+	if(handleSuccessor(&initialMarking, NULL)){
 		return false;
 	}
 
@@ -59,7 +59,7 @@ bool WorkflowSoundness::verify(){
 			NonStrictMarking* marking = new NonStrictMarking(*next_marking);
 			marking->incrementAge();
 			marking->setGeneratedBy(NULL);
-			if(addToPW(marking, next_marking)){
+			if(handleSuccessor(marking, next_marking)){
 				return false;
 			}
 		}
@@ -116,7 +116,7 @@ int WorkflowSoundnessPTrie::numberOfPassed()
 }
 
 
-bool WorkflowSoundness::addToPW(NonStrictMarking* marking, NonStrictMarking* parent){
+bool WorkflowSoundness::handleSuccessor(NonStrictMarking* marking, NonStrictMarking* parent){
 	marking->cut(placeStats);
 
 	unsigned int size = marking->size();

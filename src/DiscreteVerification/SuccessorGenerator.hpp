@@ -441,7 +441,7 @@ namespace VerifyTAPN {
                 Token t(0, (*postsetIter)->getWeight());
                 m->addTokenInPlace((*postsetIter)->getOutputPlace(), t);
             }
-            return verifier.addToPW(m);
+            return verifier.handleSuccessor(m);
         }
 
         template<typename T>

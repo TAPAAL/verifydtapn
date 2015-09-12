@@ -209,7 +209,7 @@ bool TimeDartSuccessorGenerator::insertMarking(NonStrictMarkingBase& init_markin
 		Token t(0, (*postsetIter)->getWeight());
 		m->addTokenInPlace((*postsetIter)->getOutputPlace(), t);
 	}
-        return this->verifier.addToPW(m);
+        return this->verifier.handleSuccessor(m);
 	
 }
 

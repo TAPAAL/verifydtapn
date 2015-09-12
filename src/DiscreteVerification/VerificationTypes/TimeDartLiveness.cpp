@@ -10,7 +10,7 @@
 namespace VerifyTAPN {
     namespace DiscreteVerification {
 
-        bool TimeDartLiveness::verify() {
+        bool TimeDartLiveness::run() {
             if (addToPW(&initialMarking, NULL, INT_MAX)) {
                 return true;
             }

@@ -20,12 +20,12 @@ namespace VerifyTAPN {
             Verification(TAPN::TimedArcPetriNet& tapn, T& initialMarking, AST::Query* query, VerificationOptions options);
             virtual ~Verification() {
             };
-            virtual bool verify() = 0;
+            virtual bool run() = 0;
             virtual void printStats() = 0;
             virtual void printTransitionStatistics() const = 0;
             virtual void printPlaceStatistics();
             virtual unsigned int maxUsedTokens() = 0;
-            virtual bool addToPW(T* marking) = 0;
+            virtual bool handleSuccessor(T* marking) = 0;
 
             virtual void getTrace() {
                 std::cout << "Error generating trace" << std::endl;

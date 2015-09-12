@@ -35,7 +35,7 @@ namespace VerifyTAPN {
                 return dart->getBase();
             };
 
-            virtual inline bool addToPW(NonStrictMarkingBase* m) = 0;
+            virtual inline bool handleSuccessor(NonStrictMarkingBase* m) = 0;
             
         protected:
             int exploredMarkings;

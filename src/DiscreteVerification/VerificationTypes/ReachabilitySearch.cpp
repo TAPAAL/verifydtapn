@@ -20,8 +20,8 @@ ReachabilitySearch::ReachabilitySearch(TAPN::TimedArcPetriNet& tapn, NonStrictMa
     
 }
 
-bool ReachabilitySearch::verify(){
-	if(addToPW(&initialMarking, NULL)){
+bool ReachabilitySearch::run(){
+	if(handleSuccessor(&initialMarking, NULL)){
 		return true;
 	}
 
@@ -45,7 +45,7 @@ bool ReachabilitySearch::verify(){
 			NonStrictMarking* marking = new NonStrictMarking(next_marking);
 			marking->incrementAge();
 			marking->setGeneratedBy(NULL);
-                        if(addToPW(marking, &next_marking)){
+                        if(handleSuccessor(marking, &next_marking)){
                             return true;
                         }
 		}
@@ -56,7 +56,7 @@ bool ReachabilitySearch::verify(){
 	return false;
 }
 
-bool ReachabilitySearch::addToPW(NonStrictMarking* marking, NonStrictMarking* parent){
+bool ReachabilitySearch::handleSuccessor(NonStrictMarking* marking, NonStrictMarking* parent){
 	marking->cut(placeStats);
 	marking->setParent(parent);
         

@@ -20,8 +20,8 @@ LivenessSearch::LivenessSearch(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& i
 
 }
 
-bool LivenessSearch::verify(){
-	if(addToPW(&initialMarking, NULL)){
+bool LivenessSearch::run(){
+	if(handleSuccessor(&initialMarking, NULL)){
 		return true;
 	}
 
@@ -50,7 +50,7 @@ bool LivenessSearch::verify(){
 				NonStrictMarking* marking = new NonStrictMarking(next_marking);
 				marking->incrementAge();
 				marking->setGeneratedBy(NULL);
-                                if(addToPW(marking, &next_marking)){
+                                if(handleSuccessor(marking, &next_marking)){
                                     return true;
                                 }
                                 endOfMaxRun = false;
@@ -87,7 +87,7 @@ bool LivenessSearch::verify(){
 	return false;
 }
 
-bool LivenessSearch::addToPW(NonStrictMarking* marking, NonStrictMarking* parent){
+bool LivenessSearch::handleSuccessor(NonStrictMarking* marking, NonStrictMarking* parent){
 	marking->cut(placeStats);
 	marking->setParent(parent);
 	unsigned int size = marking->size();

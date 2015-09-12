@@ -35,12 +35,12 @@ namespace VerifyTAPN {
                 pwList = new TimeDartLivenessPWHashMap( options, waiting_list);
             };
             virtual ~TimeDartLiveness();
-            bool verify();
+            bool run();
 
             inline unsigned int maxUsedTokens() {
                 return pwList->maxNumTokensInAnyMarking;
             };
-            virtual inline bool addToPW(NonStrictMarkingBase* m){
+            virtual inline bool handleSuccessor(NonStrictMarkingBase* m){
                 return addToPW(m,tmpdart, tmpupper);
             };
         protected:
