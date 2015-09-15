@@ -7,6 +7,7 @@
 
 #include "DiscreteVerification.hpp"
 #include "DeadlockVisitor.hpp"
+#include "VerificationTypes/SafetySynthesis.h"
 
 namespace VerifyTAPN {
 
@@ -161,25 +162,30 @@ namespace VerifyTAPN {
                 }
                 
                 if (options.getMemoryOptimization() == VerificationOptions::PTRIE) {
-                    WaitingList<ptriepointer_t<MetaData*> >* strategy = getWaitingList<ptriepointer_t<MetaData*> > (query, options);
+/*                    WaitingList<ptriepointer_t<MetaData*> >* strategy = getWaitingList<ptriepointer_t<MetaData*> > (query, options);
                     LivenessSearchPTrie verifier = LivenessSearchPTrie(tapn, *initialMarking, query, options, strategy);
                     VerifyAndPrint(
                             tapn,
                             verifier,
                             options,
                             query);
-                    delete strategy;
+                    delete strategy;*/
+                    std::cout << "currently not supported " << std::endl;
+                    exit(1);
                 }
                 else
                 {
-                    WaitingList<NonStrictMarking*>* strategy = getWaitingList<NonStrictMarking* > (query, options);
-                    LivenessSearch verifier = LivenessSearch(tapn, *initialMarking, query, options, strategy);
-                    VerifyAndPrint(
-                            tapn,
-                            verifier,
-                            options,
-                            query);
-                    delete strategy;
+                    SafetySynthesis synthesis = SafetySynthesis(
+                            tapn, *initialMarking, query, options
+                            );
+                    if(synthesis.run())
+                    {
+                        std::cout << "Strategy exists" << std::endl;
+                    }
+                    else
+                    {
+                        std::cout << "No Strategy exists " << std::endl; 
+                    }
                 }
                 
             } else if (options.getVerificationType() == VerificationOptions::DISCRETE) {

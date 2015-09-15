@@ -32,6 +32,13 @@ public:
 	Token(int age, int count) : age(age), count(count) {  };
 	Token(const Token& t) : age(t.age), count(t.count) {  };
 
+        inline int cmp(const Token &t) const
+        {
+            // TODO check for overflow!
+            if(count != t.count) return count - t.count;
+            return age - t.age;
+        }
+        
 	inline bool equals(const Token &t) const { return (this->age == t.age && this->count == t.count); };
 
 	inline void add(int num){ count = count + num; };
@@ -152,6 +159,7 @@ public:
 		inline NonStrictMarkingBase* getParent() const { return parent; }
 		inline const TAPN::TimedTransition* getGeneratedBy() const { return generatedBy; }
 		bool equals(const NonStrictMarkingBase &m1) const;
+		int cmp(const NonStrictMarkingBase &m1) const;
                 inline int getNumberOfChildren(){
                     return children;
                 }
