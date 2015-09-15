@@ -40,7 +40,7 @@ class MarkingStore
          * Detault constructor
          */
         MarkingStore() : stored(0), m_tokens(0) {};
-        virtual ~MarkingStore() = 0;
+        virtual ~MarkingStore() {};
         
         /**
          * 
@@ -49,7 +49,7 @@ class MarkingStore
          * Pointer points to the newly inserted, or existing marking.
          */
         virtual
-        result_t insert(NonStrictMarkingBase* m) = 0;
+        result_t insert_and_dealloc(NonStrictMarkingBase* m) = 0;
         
         /**
          * Method for reconstructing a marking from a given pointer. The 

@@ -1,0 +1,54 @@
+/* 
+ * File:   Generator.h
+ * Author: Peter G. Jensen
+ *
+ * Created on 15 September 2015, 17:25
+ */
+
+#ifndef GENERATOR_H
+#define	GENERATOR_H
+
+#include <vector>
+#include <algorithm>
+#include "../Core/TAPN/TAPN.hpp"
+#include "DataStructures/NonStrictMarkingBase.hpp"
+#include "DataStructures/NonStrictMarking.hpp"
+
+namespace VerifyTAPN {
+    namespace DiscreteVerification {
+        class Generator {
+            typedef std::vector<const TAPN::TimedTransition*> transitions_t;
+            public:
+                enum Mode {CONTROLLABLE, ENVIRONMENT, ALL};
+            private:
+                const TAPN::TimedArcPetriNet& tapn; 
+                NonStrictMarkingBase* parent;
+                Mode mode;  
+                transitions_t allways_enabled;
+                std::vector<transitions_t> place_transition;
+                size_t successors;
+                size_t place;
+                size_t transition;
+                const TAPN::TimedTransition* current;
+                std::vector<size_t> permutation;
+                std::vector<size_t> base_permutation;
+            public:
+                Generator(TAPN::TimedArcPetriNet& tapn);
+                void from_marking(NonStrictMarkingBase* parent, Mode mode = ALL);
+                NonStrictMarkingBase* next_from_current();
+                NonStrictMarkingBase* next();
+                size_t children();
+                bool is_enabled();
+                
+        private:
+            NonStrictMarkingBase* next_no_input();
+            bool next_transition();
+        };
+       
+    }
+}
+
+
+
+#endif	/* GENERATOR_H */
+

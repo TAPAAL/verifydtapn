@@ -8,7 +8,7 @@
 #ifndef SIMPLEMARKINGSTORE_H
 #define	SIMPLEMARKINGSTORE_H
 #include <vector>
-#include "google/sparse_hash_set"
+#include "google/sparse_hash_map"
 #include "MetaData.h"
 #include "NonStrictMarkingBase.hpp"
 #include "MarkingStore.h"
@@ -54,7 +54,7 @@ class SimpleMarkingStore : public MarkingStore<T>
         typedef std::vector<Pointer*> pointer_list;
         
         // set is unordered version of map. Fine for this, we need no ordering.
-	typedef google::sparse_hash_set<size_t, pointer_list> map_t;  
+	typedef google::sparse_hash_map<size_t, pointer_list> map_t;  
         
         map_t store;
     public:
@@ -68,10 +68,10 @@ class SimpleMarkingStore : public MarkingStore<T>
             for(typename map_t::iterator it = store.begin();
                     it != store.end(); ++it )
             {
-                for(typename pointer_list::iterator pit = it->begin(); 
-                        pit != it->end(); ++pit)
+                for(typename pointer_list::iterator pit = it->second.begin(); 
+                        pit != it->second.end(); ++pit)
                 {
-                    delete pit->marking;
+                    delete (*pit)->marking;
                     delete *pit;
                 }
             }
@@ -85,25 +85,30 @@ class SimpleMarkingStore : public MarkingStore<T>
          */
         virtual
         typename
-        MarkingStore<T>::result_t insert(NonStrictMarkingBase* m)
+        MarkingStore<T>::result_t insert_and_dealloc(NonStrictMarkingBase* m)
         {
             size_t key = m->getHashKey();
+            pointer_list& location = store[key];
             typename
-            map_t::iterator location = store.find(key);
+            pointer_list::iterator pit = location.begin();
             typename
-            pointer_list::iterator pit = location->begin();
-            for(;pit != location->end(); ++pit)
+            MarkingStore<T>::result_t res; 
+            for(;pit != location.end(); ++pit)
             {
                 int cmp = (*pit)->marking->cmp(*m);
                 if(cmp == 0)
                 {
-                    return result_t(false, *pit);
+                    res.first = false;
+                    res.second = *pit;
+                    return res;
                 }
                 if(cmp > 0) break;
             }
             Pointer* p = new Pointer(m);
-            location->insert(pit, p);
-            return result_t(true, p);
+            
+            res.first = true;
+            res.second = *location.insert(pit, p);
+            return res;
         }
         
         /**

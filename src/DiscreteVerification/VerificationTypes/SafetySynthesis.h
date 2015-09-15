@@ -15,6 +15,7 @@
 #include "../SuccessorGenerator.hpp"
 #include "../QueryVisitor.hpp"
 #include "../DataStructures/NonStrictMarkingBase.hpp"
+#include "../Generator.h"
 
 
 namespace VerifyTAPN {
@@ -23,19 +24,30 @@ namespace DiscreteVerification {
 
 class SafetySynthesis {
 private:
+    struct SafetyMeta;
+    typedef MarkingStore<SafetyMeta> store_t;
+    typedef std::stack<store_t::Pointer*> stack_t;
+    
+    typedef std::forward_list<store_t::Pointer*> depends_t;
     
     struct SafetyMeta {
         bool loosing;
         bool waiting;
-        std::forward_list<SafetyMeta> dependers;        
+        bool processed;
+        size_t env_children;
+        size_t ctrl_children;
+        depends_t dependers;        
     };
     
+
     
-    MarkingStore<SafetyMeta>* store;
+    store_t* store;
     TAPN::TimedArcPetriNet& tapn;
     NonStrictMarking& initial_marking;
     AST::Query* query;
     VerificationOptions options;
+    std::vector<int> placeStats;
+    Generator generator;
 public:
     SafetySynthesis(
             TAPN::TimedArcPetriNet& tapn, 
@@ -47,7 +59,9 @@ public:
     
     virtual ~SafetySynthesis();
 private:
-
+    bool satisfies_query(NonStrictMarkingBase* m);
+    bool ctrl_successors(MarkingStore<SafetyMeta>::Pointer*, SafetyMeta&, stack_t& waiting);
+    bool env_successors(MarkingStore<SafetyMeta>::Pointer*, SafetyMeta&, stack_t& waiting);
 };
 }
 }
