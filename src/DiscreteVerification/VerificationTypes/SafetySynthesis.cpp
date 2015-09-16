@@ -18,7 +18,7 @@ SafetySynthesis::SafetySynthesis(   TAPN::TimedArcPetriNet& tapn,
                                 : tapn(tapn), initial_marking(initialMarking),
                                     query(query), options(options), 
                                     placeStats(tapn.getNumberOfPlaces()),
-                                    generator(tapn), discovered(0)
+                                    generator(tapn), discovered(0), explored(0)
 {
     store = new SimpleMarkingStore<SafetyMeta>();
 }
@@ -47,6 +47,7 @@ bool SafetySynthesis::run()
         
     while(!waiting.empty() && !m_0_res.second->get_meta_data().loosing)
     {
+        ++explored;
         store_t::Pointer* next = waiting.top();
         waiting.pop();
         
@@ -186,7 +187,7 @@ bool SafetySynthesis::successors(   store_t::Pointer* parent,
 
 void SafetySynthesis::print_stats() {
     std::cout << "  discovered markings:\t" << discovered << std::endl;
-    std::cout << "  explored markings:\t" << 0 << std::endl;
+    std::cout << "  explored markings:\t" << explored << std::endl;
     std::cout << "  stored markings:\t" << store->size() << std::endl;
 };
 

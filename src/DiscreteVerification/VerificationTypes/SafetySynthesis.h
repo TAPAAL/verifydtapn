@@ -49,6 +49,7 @@ private:
     std::vector<int> placeStats;
     Generator generator;
     size_t discovered;
+    size_t explored;
 public:
     SafetySynthesis(
             TAPN::TimedArcPetriNet& tapn, 
