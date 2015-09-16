@@ -26,23 +26,28 @@ namespace VerifyTAPN {
                 Mode mode;  
                 transitions_t allways_enabled;
                 std::vector<transitions_t> place_transition;
-                size_t successors;
+                size_t noinput_nr;
                 size_t place;
                 size_t transition;
                 const TAPN::TimedTransition* current;
                 std::vector<size_t> permutation;
                 std::vector<size_t> base_permutation;
+                bool done;
+                bool seen_urgent;
+                bool did_noinput;
             public:
                 Generator(TAPN::TimedArcPetriNet& tapn);
                 void from_marking(NonStrictMarkingBase* parent, Mode mode = ALL);
-                NonStrictMarkingBase* next_from_current();
-                NonStrictMarkingBase* next();
+                NonStrictMarkingBase* next(bool do_delay = false);
+                NonStrictMarkingBase* from_delay();
                 size_t children();
                 bool is_enabled();
                 
         private:
             NonStrictMarkingBase* next_no_input();
-            bool next_transition();
+            NonStrictMarkingBase* next_from_current();
+            bool next_transition(bool isfirst);
+            bool modes_match(const TAPN::TimedTransition* trans);
         };
        
     }

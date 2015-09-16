@@ -103,7 +103,15 @@ TimedTransition* TAPNXmlParser::parseTransition(const xml_node<>& transitionNode
                 urgent = true;
             }
         }
-	return new TimedTransition(name, id,urgent );
+
+        bool controllable = true;
+        xml_attribute<char>* player = transitionNode.first_attribute("player");
+        if(player != NULL)
+        {
+            std::string playerid = player->value();
+            controllable = playerid.compare("0") == 0;
+        }
+	return new TimedTransition(name, id, urgent, controllable);
 }
 
 TAPNXmlParser::ArcCollections TAPNXmlParser::parseArcs(const xml_node<>& root, const TimedPlace::Vector& places, const TimedTransition::Vector& transitions) const

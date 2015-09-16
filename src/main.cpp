@@ -102,6 +102,11 @@ int main(int argc, char* argv[])
             return 1;
         }
 
+        if(query->getQuantifier() == AST::CF || query->getQuantifier() == AST::CG)
+        {
+            options.setKeepDeadTokens(true);
+        }
+        
 	tapn->updatePlaceTypes(query, options);
         
         int result = DiscreteVerification::DiscreteVerification::run(*tapn, initialPlacement, query, options);

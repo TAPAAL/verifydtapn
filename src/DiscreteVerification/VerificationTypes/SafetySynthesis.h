@@ -60,8 +60,9 @@ public:
     virtual ~SafetySynthesis();
 private:
     bool satisfies_query(NonStrictMarkingBase* m);
-    bool ctrl_successors(MarkingStore<SafetyMeta>::Pointer*, SafetyMeta&, stack_t& waiting);
-    bool env_successors(MarkingStore<SafetyMeta>::Pointer*, SafetyMeta&, stack_t& waiting);
+    bool successors(MarkingStore<SafetyMeta>::Pointer*, SafetyMeta&, 
+                                            stack_t& waiting, bool controller);
+    void dependers_to_waiting(SafetyMeta& next_meta, stack_t& waiting);
 };
 }
 }

@@ -15,7 +15,7 @@ namespace VerifyTAPN {
                 place_transition(tapn.getPlaces().size()), permutation(), 
                 base_permutation()
         {
-            size_t maxarcs = 0;
+            size_t maxtokens = 0;
             for (auto transition : tapn.getTransitions()) {
                 
                 if (transition->getPreset().size() + transition->getTransportArcs().size() == 0) {
@@ -23,61 +23,106 @@ namespace VerifyTAPN {
                 }         
                 else
                 {
+                    size_t tokens = 0;
                     int index = std::numeric_limits<int>::max();
                     for(auto arc : transition->getPreset())
                     {
                         index = std::min(arc->getInputPlace().getIndex(), index);
+                        tokens += arc->getWeight();
                     }
                     
                     for(auto arc : transition->getTransportArcs())
                     {
                         index = std::min(arc->getSource().getIndex(), index);                        
+                        tokens += arc->getWeight();
                     }
                     place_transition[index].push_back(transition);
-                    maxarcs = std::max( transition->getPreset().size() + 
-                                        transition->getPostset().size(), 
-                                        maxarcs);
+                    maxtokens = std::max( tokens, 
+                                        maxtokens);
                 }
             }
-            base_permutation.resize(maxarcs);
+            base_permutation.resize(maxtokens);
         }
         
         void Generator::from_marking(NonStrictMarkingBase* parent, Mode mode)
         {
             this->parent = parent;
             this->mode = mode;
-            successors = 0;
+            noinput_nr = 0;
             place = 0;
             transition = 0;
-            current = 0;
+            current = NULL;
+            done = false;
+            seen_urgent = false;
+            did_noinput = false;
         }
         
-        NonStrictMarkingBase* Generator::next()
+        NonStrictMarkingBase* Generator::next(bool do_delay)
         {
+            if(done) return NULL;
             // easy ones, continue to we find a result or out of transitions
-            while(successors < allways_enabled.size())
+            while(!did_noinput && noinput_nr < allways_enabled.size())
             {
                 NonStrictMarkingBase* marking = next_no_input();
+                ++noinput_nr;
                 if(marking) return marking;
             }
-            
+
             // hard ones, continue to we find a result, or out of transitions
-            while(true)
+            while(next_transition(!did_noinput))
             {
+                did_noinput = true;
                 // from the current transition, try the next child
                 NonStrictMarkingBase* child = next_from_current();
                 if(child) return child;
-                // find the next transition
-                if(!next_transition()) return NULL;
             }
+            
+            done = true;                            
+            if(!seen_urgent && do_delay)
+            {
+                return from_delay();
+            }
+            return NULL;
+        }
+        
+        NonStrictMarkingBase* Generator::from_delay()
+        {
+            for(auto& place : parent->getPlaceList())
+            {
+                int inv = place.place->getInvariant().getBound();
+                if (place.maxTokenAge() == inv) {
+                    return NULL;
+                }
+            }
+            NonStrictMarkingBase* m = new NonStrictMarkingBase(*parent);
+            m->incrementAge();
+            return m;
+        }
+        
+        bool Generator::modes_match(const TAPN::TimedTransition* trans)
+        {
+            switch(mode)
+            {
+                case Mode::CONTROLLABLE:
+                    if(!trans->isControllable()) return false;
+                    break;
+                case Mode::ENVIRONMENT:
+                    if(trans->isControllable()) return false;
+                    break;
+            }
+            return true;
         }
         
         NonStrictMarkingBase* Generator::next_no_input()
         {
             // lowhanging fruits first!
             NonStrictMarkingBase* child = new NonStrictMarking(*parent);
-            auto& postset = allways_enabled[successors]->getPostset();
-            // could be optimized h
+            auto trans = allways_enabled[noinput_nr];
+            seen_urgent |= trans->isUrgent();            
+            if(!modes_match(trans)) return NULL;
+                
+            auto& postset = trans->getPostset();
+            // could be optimized 
             for(auto arc : postset)
             {
                 Token t = Token(0, arc->getWeight()); 
@@ -94,41 +139,49 @@ namespace VerifyTAPN {
             child->setParent(NULL);
             size_t arccounter = 0;
             int last_movable = -1;
-            for(auto& transport : current->getTransportArcs())
-            {
-                int t_index = permutation[arccounter];
-                int source = transport->getSource().getIndex();
-                auto& tokenlist = child->getTokenList(source);
-                const Token& token = tokenlist[t_index];
-                child->removeToken(source, token.getAge());
-                child->addTokenInPlace(transport->getDestination(), 
-                        token.getAge());
-                
-                if(t_index != 0 && transport->getInterval().contains(
-                        tokenlist[t_index-1].getAge()))
-                {
-                    last_movable = arccounter;
-                }
-                
-                ++arccounter;
-            }
-            
+
             for(auto& input : current->getPreset())
             {
-                int t_index = permutation[arccounter];
-                int source = input->getInputPlace().getIndex();
-                auto& tokenlist = child->getTokenList(source);
-                const Token& token = tokenlist[permutation[arccounter]];
-                child->removeToken(source, token.getAge());
-
-                if(t_index != 0 && input->getInterval().contains(
-                        tokenlist[t_index-1].getAge()))
+                for(size_t i = 0; i < input->getWeight(); ++i)
                 {
-                    last_movable = arccounter;
+                    int t_index = permutation[arccounter];
+                    int source = input->getInputPlace().getIndex();
+                    auto& tokenlist = child->getTokenList(source);
+                    const Token& token = tokenlist[permutation[arccounter]];
+                    child->removeToken(source, token.getAge());
+
+                    ++t_index;
+                    if(t_index != tokenlist.size() && input->getInterval().contains(
+                            tokenlist[t_index].getAge()))
+                    {
+                        last_movable = arccounter;
+                    }
+                    ++arccounter;
                 }
-                ++arccounter;
             }
-            
+
+            for(auto& transport : current->getTransportArcs())
+            {
+                for(size_t i = 0; i < transport->getWeight(); ++i)
+                {
+                    int t_index = permutation[arccounter];
+                    int source = transport->getSource().getIndex();
+                    auto& tokenlist = child->getTokenList(source);
+                    const Token token = tokenlist[t_index];
+                    child->removeToken(source, token.getAge());
+                    child->addTokenInPlace(transport->getDestination(), 
+                            token.getAge());
+
+                    ++t_index;
+                    if(t_index != tokenlist.size() && transport->getInterval().contains(
+                            tokenlist[t_index].getAge()))
+                    {
+                        last_movable = arccounter;
+                    }
+                    ++arccounter;
+                }
+            }
+                        
             for(auto& output : current->getPostset())
             {
                 Token t = Token(0, output->getWeight());
@@ -139,7 +192,7 @@ namespace VerifyTAPN {
             if(last_movable == -1) current = NULL;
             else
             {
-                permutation[last_movable] -= 1;
+                permutation[last_movable] += 1;
                 for(size_t i = last_movable + 1; i < arccounter; ++i)
                 {
                     permutation[i] = base_permutation[i];
@@ -148,11 +201,15 @@ namespace VerifyTAPN {
             return child;
         }
         
-        bool Generator::next_transition()
-        {
+        bool Generator::next_transition(bool isfirst)
+        {            
             do{
-                ++transition;
-                if(transition >= place_transition[place].size())
+                if(!isfirst)
+                    ++transition;
+                isfirst = false;
+
+                size_t placeindex = parent->getPlaceList()[place].place->getIndex();                
+                if(transition >= place_transition[placeindex].size())
                 {
                     ++place;
                     transition = 0;
@@ -163,11 +220,11 @@ namespace VerifyTAPN {
                 {
                     return false;
                 }
-
+                placeindex = parent->getPlaceList()[place].place->getIndex();
                 // if no transitions out, skip
-                if(place_transition[place].size() == 0) continue;
+                if(place_transition[placeindex].size() == 0) continue;
 
-                current = place_transition[place][transition];
+                current = place_transition[placeindex][transition];
                 if(is_enabled())
                     return true;
             } while (true);
@@ -175,6 +232,9 @@ namespace VerifyTAPN {
         
         bool Generator::is_enabled()
         {
+            // Check inhibitors
+            if(!modes_match(current)) return false;
+
             for(auto& inhib : current->getInhibitorArcs())
             {
                 size_t tokens = parent->numberOfTokensInPlace(
@@ -184,28 +244,9 @@ namespace VerifyTAPN {
                     return false;
                 }
             }   
+            
+            
             size_t arccounter = 0;
-            for(auto& transport : current->getTransportArcs())
-            {
-                base_permutation[arccounter] = 0;
-                int source = transport->getSource().getIndex();
-                int weight = transport->getWeight();
-                auto& tokenlist = parent->getTokenList(source);
-                for(size_t index = 0; index < tokenlist.size(); ++index)
-                {
-                    auto& token = tokenlist[index];
-                    if(transport->getInterval().contains(token.getAge()))
-                    {
-                        base_permutation[arccounter] = std::max(
-                                index, 
-                                base_permutation[arccounter]
-                                );
-                        weight -= token.getCount();
-                    }
-                }
-                if(weight > 0) return false;
-                ++arccounter;
-            }
             
             for(auto& input : current->getPreset())
             {
@@ -218,23 +259,55 @@ namespace VerifyTAPN {
                     auto& token = tokenlist[index];
                     if(input->getInterval().contains(token.getAge()))
                     {
-                        base_permutation[arccounter] = std::max(
-                                index, 
-                                base_permutation[arccounter]
-                                );
+                        for(size_t i = 0; i < std::min(weight, token.getCount()); ++i)
+                        {
+                            base_permutation[arccounter] = std::min(
+                                    index, 
+                                    base_permutation[arccounter]
+                                    );
+                            ++arccounter;
+                        }
                         weight -= token.getCount();
+                        if(weight < 0) break;
                     }
                 }
                 if(weight > 0) return false;
-                ++arccounter;
             }
+
+            for(auto& transport : current->getTransportArcs())
+            {
+                base_permutation[arccounter] = 0;
+                int source = transport->getSource().getIndex();
+                int weight = transport->getWeight();
+                auto& tokenlist = parent->getTokenList(source);
+                for(size_t index = 0; index < tokenlist.size(); ++index)
+                {
+                    auto& token = tokenlist[index];
+                    if(transport->getInterval().contains(token.getAge()))
+                    {
+                        for(size_t i = 0; i < std::min(weight, token.getCount()); ++i)
+                        {
+                            base_permutation[arccounter] = std::min(
+                                    index, 
+                                    base_permutation[arccounter]
+                                    );
+                            ++arccounter;
+                        }
+                        weight -= token.getCount();
+                        if(weight < 0) break;
+                    }
+                }
+                if(weight > 0) return false;
+            }
+
             permutation = base_permutation;
+            seen_urgent |= current->isUrgent();
             return true;
         }
 
         size_t Generator::children()
         {
-            return successors;
+            return noinput_nr;
         }
     }
 }

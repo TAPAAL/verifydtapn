@@ -25,6 +25,8 @@ SafetySynthesis::SafetySynthesis(   TAPN::TimedArcPetriNet& tapn,
 
 bool SafetySynthesis::satisfies_query(NonStrictMarkingBase* m)
 {
+    m->cut(placeStats);
+    if(m->size() > options.getKBound()) return false;
     QueryVisitor<NonStrictMarkingBase> checker(*m, tapn);
     BoolResult context;        
     query->accept(checker, context);
@@ -35,18 +37,10 @@ bool SafetySynthesis::run()
 {
     stack_t waiting;
     
-    initial_marking.cut(placeStats);
-    
     if(!satisfies_query(&initial_marking)) return false;
     
     store_t::result_t m_0_res = store->insert_and_dealloc(&initial_marking);
-    SafetyMeta meta = {
-                false, 
-                false, 
-                false, 
-                0,
-                0,
-                depends_t()};
+    SafetyMeta meta = {false, false, false, 0, 0, depends_t()};
     meta.waiting = true;
     m_0_res.second->set_meta_data(meta);
     waiting.push(m_0_res.second);
@@ -61,50 +55,26 @@ bool SafetySynthesis::run()
         
         if(next_meta.loosing == true)
         {
-            for(depends_t::iterator it = next_meta.dependers.begin();
-                    it != next_meta.dependers.end(); ++it)
-            {
-                store_t::Pointer* ancestor = *it;
-                SafetyMeta& a_meta = ancestor->get_meta_data();
-
-                if(a_meta.loosing) continue;
-
-                if(a_meta.env_children > 0)
-                {
-                    a_meta.loosing = true;
-                }
-                else
-                {
-                    a_meta.ctrl_children -= 1;
-                    a_meta.loosing = (a_meta.ctrl_children == 0);
-                }
-                
-                if(a_meta.loosing && !a_meta.waiting)
-                {
-                    a_meta.waiting = true;
-                    waiting.push(*it);
-                }
-            }
-            next_meta.dependers.clear();
+            dependers_to_waiting(next_meta, waiting);
         }
         else
         {
 
             assert(next_meta.loosing == false);
-            if(!next_meta.processed)
+            if(!next_meta.processed)    // first time we see the marking out of waiting
             {
                 // generate successors for environment
-                if(!env_successors(next, next_meta, waiting))
+                if(!successors(next, next_meta, waiting, false))
                 {
                     next_meta.loosing = true;
                     waiting.push(next);
                 }
             }
-
+            // if we are not yet loosing and all env successors have been explored
             if(!next_meta.loosing && next_meta.env_children == 0)
             {
                 // generate successors for controller
-                if(!ctrl_successors(next, next_meta, waiting))
+                if(!successors(next, next_meta, waiting, true))
                 {
                     next_meta.loosing = true;
                     waiting.push(next);
@@ -114,114 +84,103 @@ bool SafetySynthesis::run()
             next_meta.processed = true;
         }
     }
-    return false;
+    return !m_0_res.second->get_meta_data().loosing;
 }
 
-bool SafetySynthesis::env_successors(   store_t::Pointer* parent, 
-                                        SafetyMeta& meta, 
-                                        stack_t& waiting)
+void SafetySynthesis::dependers_to_waiting(SafetyMeta& next_meta, stack_t& waiting)
 {
-    NonStrictMarkingBase* marking = store->expand(parent);
-    generator.from_marking(marking, Generator::CONTROLLABLE);
-    std::cout << *marking << std::endl;
-    while(NonStrictMarkingBase* next = generator.next())
-    {        
-        std::cout << *next << std::endl;
-        next->cut(placeStats);
-        
-        if(next->size() > options.getKBound() ||
-                !satisfies_query(next)) 
+    for(auto ancestor : next_meta.dependers)
+    {
+        SafetyMeta& a_meta = ancestor->get_meta_data();
+
+        if(a_meta.loosing) continue;
+
+        if(a_meta.env_children > 0)
         {
-            delete next;
-            return false;
-        }
-        
-        store_t::result_t res = store->insert_and_dealloc(next);
-        store_t::Pointer* p = res.second;
-        if(res.first)
-        {
-            SafetyMeta childmeta = {
-                false, 
-                false, 
-                false, 
-                0,
-                0,
-                depends_t()};
-            
-            childmeta.dependers.push_front(parent);
-            p->set_meta_data(childmeta);            
-            meta.env_children += 1;
-            meta.waiting = true;
-            waiting.push(res.second);
+            a_meta.loosing = true;
         }
         else
         {
-            SafetyMeta& childmeta = p->get_meta_data();
-            if(!childmeta.loosing)
+            a_meta.ctrl_children -= 1;
+            a_meta.loosing = (a_meta.ctrl_children == 0);
+        }
+
+        if(a_meta.loosing && !a_meta.waiting)
+        {
+            a_meta.waiting = true;
+            waiting.push(ancestor);
+        }
+    }
+    next_meta.dependers.clear();
+}
+
+bool SafetySynthesis::successors(   store_t::Pointer* parent, 
+                                    SafetyMeta& meta, 
+                                    stack_t& waiting,
+                                    bool is_controller)
+{
+    NonStrictMarkingBase* marking = store->expand(parent);
+    generator.from_marking(marking, 
+            is_controller ? 
+                Generator::CONTROLLABLE : Generator::ENVIRONMENT);
+    
+    bool all_loosing = true;
+    
+//    std::cout << (controller ? "controller" : "env ") << std::endl;
+//    std::cout << *marking << std::endl;
+    /**
+     * TODO: Add all markings to a vector first, and THEN insert into passed.
+     * For evn at least, as if just ONE is loosing, then there is no need to 
+     * explore more!
+     * Similar CANNOT be done for ctrl successors. Here we just need *some*
+     * to not be loosing - which we only know fore sure when waiting is empty.
+     */
+    NonStrictMarkingBase* next = NULL;
+    bool some_child = false;
+    while(next = generator.next(is_controller))
+    {  
+        some_child = true;
+        if(!satisfies_query(next)) 
+        {
+            delete next;
+            
+            if(is_controller) 
             {
-                meta.env_children += 1;
-                childmeta.dependers.push_front(parent);
                 continue;
             }
-            else
-            {
-                return false;
-            }
-        }        
-    }
-    return true;
-}
-
-bool SafetySynthesis::ctrl_successors(  store_t::Pointer* parent, 
-                                        SafetyMeta& meta, 
-                                        stack_t& waiting)
-{
-    bool all_loosing = true;
-    bool some_child = false;
-    NonStrictMarkingBase* marking = store->expand(parent);
-    generator.from_marking(marking, Generator::CONTROLLABLE);
-    while(NonStrictMarkingBase* next = generator.next())
-    {
-        some_child = true;
-        next->cut(placeStats);
-        if(next->size() > options.getKBound() ||
-                !satisfies_query(next)) 
-        {
-            delete next;
+            else return false;
         }
+
+//        std::cout << "child : " << *next << std::endl;
         
         store_t::result_t res = store->insert_and_dealloc(next);
         store_t::Pointer* p = res.second;
         if(res.first)
         {
-            SafetyMeta childmeta = {
-                false, 
-                false, 
-                false, 
-                0,
-                0,
-                depends_t()};
+            SafetyMeta childmeta = {false, false, false, 0, 0, depends_t()};
+            p->set_meta_data(childmeta);
+            waiting.push(p);
+        }
+               
+        SafetyMeta& childmeta = p->get_meta_data();
+        if(!childmeta.loosing)
+        {
+            all_loosing = false;
+            if(is_controller) meta.ctrl_children += 1;
+            else meta.env_children += 1;
             
             childmeta.dependers.push_front(parent);
-            p->set_meta_data(childmeta);            
-            meta.ctrl_children += 1;
-            meta.waiting = true;
-            waiting.push(res.second);
-            all_loosing = false;
+            continue;
         }
-        else
-        {
-            SafetyMeta& childmeta = p->get_meta_data();
-            if(!childmeta.loosing)
-            {
-                meta.ctrl_children += 1;
-                childmeta.dependers.push_front(parent);
-                all_loosing = false;
-            }
-        }        
+        else if(!is_controller) return false;    
     }
-    if(!some_child) return true;
-    else return all_loosing;
+    
+    if(is_controller)
+    {
+        if(!some_child) return true;
+        else return !all_loosing;
+    }
+    else return true;
 }
 
 SafetySynthesis::~SafetySynthesis() {

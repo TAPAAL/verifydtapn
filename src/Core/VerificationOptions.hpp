@@ -112,6 +112,11 @@ namespace VerifyTAPN {
             return memOptimization;
         }
 
+        inline void setKeepDeadTokens(bool val)
+        {
+            keepDeadTokens = val;
+        }
+        
         inline const bool getKeepDeadTokens() const {
             return keepDeadTokens;
         };
