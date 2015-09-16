@@ -48,6 +48,7 @@ private:
     VerificationOptions options;
     std::vector<int> placeStats;
     Generator generator;
+    size_t discovered;
 public:
     SafetySynthesis(
             TAPN::TimedArcPetriNet& tapn, 
@@ -58,6 +59,8 @@ public:
     bool run();
     
     virtual ~SafetySynthesis();
+    size_t max_tokens() { return store->max_tokens(); };
+    void print_stats();
 private:
     bool satisfies_query(NonStrictMarkingBase* m);
     bool successors(MarkingStore<SafetyMeta>::Pointer*, SafetyMeta&, 

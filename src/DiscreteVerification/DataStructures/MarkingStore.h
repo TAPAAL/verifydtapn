@@ -32,6 +32,7 @@ class MarkingStore
         public:
             virtual void set_meta_data(T&) = 0;
             virtual T& get_meta_data() = 0;
+            virtual ~Pointer(){};
         };
         
         typedef std::pair<bool, Pointer*> result_t;
@@ -71,6 +72,7 @@ class MarkingStore
          * Number of markings currently in the store
          * @return 
          */
+        virtual 
         size_t size()
         {
             return stored;
@@ -80,6 +82,7 @@ class MarkingStore
          * Size of the largest marking stored
          * @return 
          */
+        virtual 
         size_t max_tokens()
         {
             return m_tokens;

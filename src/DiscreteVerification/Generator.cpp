@@ -109,6 +109,8 @@ namespace VerifyTAPN {
                 case Mode::ENVIRONMENT:
                     if(trans->isControllable()) return false;
                     break;
+                case Mode::ALL:
+                    break;
             }
             return true;
         }
@@ -142,9 +144,9 @@ namespace VerifyTAPN {
 
             for(auto& input : current->getPreset())
             {
-                for(size_t i = 0; i < input->getWeight(); ++i)
+                for(int i = 0; i < input->getWeight(); ++i)
                 {
-                    int t_index = permutation[arccounter];
+                    size_t t_index = permutation[arccounter];
                     int source = input->getInputPlace().getIndex();
                     auto& tokenlist = child->getTokenList(source);
                     const Token& token = tokenlist[permutation[arccounter]];
@@ -162,9 +164,9 @@ namespace VerifyTAPN {
 
             for(auto& transport : current->getTransportArcs())
             {
-                for(size_t i = 0; i < transport->getWeight(); ++i)
+                for(int i = 0; i < transport->getWeight(); ++i)
                 {
-                    int t_index = permutation[arccounter];
+                    size_t t_index = permutation[arccounter];
                     int source = transport->getSource().getIndex();
                     auto& tokenlist = child->getTokenList(source);
                     const Token token = tokenlist[t_index];
@@ -203,6 +205,7 @@ namespace VerifyTAPN {
         
         bool Generator::next_transition(bool isfirst)
         {            
+            if(parent->getPlaceList().size() == 0) return false;
             do{
                 if(!isfirst)
                     ++transition;
@@ -237,7 +240,7 @@ namespace VerifyTAPN {
 
             for(auto& inhib : current->getInhibitorArcs())
             {
-                size_t tokens = parent->numberOfTokensInPlace(
+                int tokens = parent->numberOfTokensInPlace(
                                             inhib->getInputPlace().getIndex());
                 if(tokens > inhib->getWeight())
                 {
@@ -259,7 +262,7 @@ namespace VerifyTAPN {
                     auto& token = tokenlist[index];
                     if(input->getInterval().contains(token.getAge()))
                     {
-                        for(size_t i = 0; i < std::min(weight, token.getCount()); ++i)
+                        for(int i = 0; i < std::min(weight, token.getCount()); ++i)
                         {
                             base_permutation[arccounter] = std::min(
                                     index, 
@@ -285,7 +288,7 @@ namespace VerifyTAPN {
                     auto& token = tokenlist[index];
                     if(transport->getInterval().contains(token.getAge()))
                     {
-                        for(size_t i = 0; i < std::min(weight, token.getCount()); ++i)
+                        for(int i = 0; i < std::min(weight, token.getCount()); ++i)
                         {
                             base_permutation[arccounter] = std::min(
                                     index, 

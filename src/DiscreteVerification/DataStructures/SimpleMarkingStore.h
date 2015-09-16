@@ -8,6 +8,7 @@
 #ifndef SIMPLEMARKINGSTORE_H
 #define	SIMPLEMARKINGSTORE_H
 #include <vector>
+#include <algorithm>
 #include "google/sparse_hash_map"
 #include "MetaData.h"
 #include "NonStrictMarkingBase.hpp"
@@ -37,6 +38,7 @@ class SimpleMarkingStore : public MarkingStore<T>
                 
             Pointer(NonStrictMarkingBase* marking, T& meta) 
                 : meta(meta), marking(marking){};
+            virtual ~Pointer(){};
                 
             void set_meta_data(T& data)
             {
@@ -104,6 +106,9 @@ class SimpleMarkingStore : public MarkingStore<T>
                 }
                 if(cmp > 0) break;
             }
+            this->stored += 1;
+            size_t size = m->size();
+            this->m_tokens = std::max(this->m_tokens, size);
             Pointer* p = new Pointer(m);
             
             res.first = true;

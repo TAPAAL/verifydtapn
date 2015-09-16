@@ -178,14 +178,11 @@ namespace VerifyTAPN {
                     SafetySynthesis synthesis = SafetySynthesis(
                             tapn, *initialMarking, query, options
                             );
-                    if(synthesis.run())
-                    {
-                        std::cout << "Strategy exists" << std::endl;
-                    }
-                    else
-                    {
-                        std::cout << "No Strategy exists " << std::endl; 
-                    }
+                    bool result = synthesis.run();
+                    synthesis.print_stats();
+                    std::cout << "Query is " << (result ? "satisfied" : "NOT satisfied") << "." << std::endl;
+                    std::cout << "Max number of tokens found in any reachable marking: ";
+                    std::cout << synthesis.max_tokens() << std::endl;
                 }
                 
             } else if (options.getVerificationType() == VerificationOptions::DISCRETE) {
