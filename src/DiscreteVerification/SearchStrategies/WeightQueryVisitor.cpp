@@ -106,7 +106,7 @@ namespace DiscreteVerification {
 
 		void WeightQueryVisitor::visit(const Query& query, Result& context)
 		{
-			query.getChild().accept(*this, context);
+			query.getConstChild().accept(*this, context);
 		}
 
 		int WeightQueryVisitor::compare(int numberOfTokensInPlace, const std::string& op, int n) const

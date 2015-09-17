@@ -43,7 +43,7 @@ namespace DiscreteVerification {
 
 		void PlaceVisitor::visit(const Query& query, Result& context)
 		{
-			query.getChild().accept(*this, context);
+			query.getConstChild().accept(*this, context);
 		}
                 
                 void PlaceVisitor::visit(const NumberExpression& expr, Result& context){};

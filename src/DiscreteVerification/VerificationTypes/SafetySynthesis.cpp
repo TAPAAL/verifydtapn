@@ -18,7 +18,8 @@ SafetySynthesis::SafetySynthesis(   TAPN::TimedArcPetriNet& tapn,
                                 : tapn(tapn), initial_marking(initialMarking),
                                     query(query), options(options), 
                                     placeStats(tapn.getNumberOfPlaces()),
-                                    generator(tapn), discovered(0), explored(0)
+                                    generator(tapn), discovered(0), explored(0),
+                                    largest(0)
 {
     store = new SimpleMarkingStore<SafetyMeta>();
 }
@@ -36,7 +37,7 @@ bool SafetySynthesis::satisfies_query(NonStrictMarkingBase* m)
 bool SafetySynthesis::run()
 {
     stack_t waiting;
-    
+    largest = initial_marking.size();
     if(!satisfies_query(&initial_marking)) return false;
     
     store_t::result_t m_0_res = store->insert_and_dealloc(&initial_marking);
@@ -74,11 +75,14 @@ bool SafetySynthesis::run()
             // if we are not yet loosing and all env successors have been explored
             if(!next_meta.loosing && next_meta.env_children == 0)
             {
-                // generate successors for controller
-                if(!successors(next, next_meta, waiting, true))
+                if(next_meta.ctrl_children == 0)
                 {
-                    next_meta.loosing = true;
-                    waiting.push(next);
+                    // generate successors for controller
+                    if(!successors(next, next_meta, waiting, true))
+                    {
+                        next_meta.loosing = true;
+                        waiting.push(next);
+                    }
                 }
             }
 
@@ -127,8 +131,8 @@ bool SafetySynthesis::successors(   store_t::Pointer* parent,
     
     bool all_loosing = true;
     
-//    std::cout << (controller ? "controller" : "env ") << std::endl;
-//    std::cout << *marking << std::endl;
+    std::cout << (is_controller ? "controller" : "env ") << std::endl;
+    std::cout << *marking << std::endl;
     /**
      * TODO: Add all markings to a vector first, and THEN insert into passed.
      * For evn at least, as if just ONE is loosing, then there is no need to 
@@ -140,10 +144,13 @@ bool SafetySynthesis::successors(   store_t::Pointer* parent,
     bool some_child = false;
     while(next = generator.next(is_controller))
     {  
+        largest = std::max(next->size(), largest);
         ++discovered;
         some_child = true;
+        std::cout << "child : " << *next << std::endl;
         if(!satisfies_query(next)) 
         {
+            std::cout << "does not satisfy phi" << std::endl;
             delete next;
             
             if(is_controller) 
@@ -152,10 +159,9 @@ bool SafetySynthesis::successors(   store_t::Pointer* parent,
             }
             else return false;
         }
-
-//        std::cout << "child : " << *next << std::endl;
         
         store_t::result_t res = store->insert_and_dealloc(next);
+
         store_t::Pointer* p = res.second;
         if(res.first)
         {

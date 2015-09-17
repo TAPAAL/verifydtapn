@@ -3,6 +3,7 @@
 
 #include <limits>
 #include <iostream>
+#include <algorithm>
 
 namespace VerifyTAPN {
 	namespace TAPN {
@@ -32,6 +33,16 @@ namespace VerifyTAPN {
 			inline const int getUpperBound() const { return upperBound; }
 			inline const bool isLowerBoundStrict() const { return leftStrict; }
 			inline const bool isUpperBoundStrict() const { return rightStrict; }
+                        inline bool setUpperBound(int bound, bool isStrict)
+                        {
+                            if(upperBound == bound) rightStrict |= isStrict;
+                            else if(upperBound > bound){
+                                rightStrict = isStrict;
+                                upperBound = bound;
+                            }
+                            if(upperBound < lowerBound) return false;
+                            else return true;
+                        }
 
 			inline const bool isZeroInfinity() const { return !leftStrict && lowerBound == 0 && upperBound == std::numeric_limits<int>().max() && rightStrict; }
                         inline const bool contains(int number) const

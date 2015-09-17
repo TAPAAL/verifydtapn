@@ -101,7 +101,7 @@ namespace DiscreteVerification {
 
 		void LivenessWeightQueryVisitor::visit(const Query& query, Result& context)
 		{
-			query.getChild().accept(*this, context);
+			query.getConstChild().accept(*this, context);
 		}
 
                 void LivenessWeightQueryVisitor::visit(const DeadlockExpression& expr, Result& context)

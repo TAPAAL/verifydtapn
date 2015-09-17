@@ -92,7 +92,7 @@ namespace VerifyTAPN
 		void NormalizationVisitor::visit(const Query& query, Result& context)
 		{
 			Tuple any = Tuple(false, NULL);
-			query.getChild().accept(*this, any);
+			query.getConstChild().accept(*this, any);
 
 			normalizedQuery = new AST::Query(query.getQuantifier(), static_cast<Tuple&>(any).returnExpr);
 		}

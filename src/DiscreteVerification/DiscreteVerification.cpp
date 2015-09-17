@@ -133,7 +133,7 @@ namespace VerifyTAPN {
                         exit(1);
             }
             
-            if(query->getQuantifier() == CG || query->getQuantifier() == CF)
+            if(true || query->getQuantifier() == CG || query->getQuantifier() == CF)
             {
                 if(options.getTrace() != VerificationOptions::NO_TRACE)
                 {
@@ -175,11 +175,24 @@ namespace VerifyTAPN {
                 }
                 else
                 {
+                    if(query->getQuantifier() == AST::EG || query->getQuantifier() == AST::AF)
+                    {
+                        tapn.setAllControllable(true);
+                    }
+                    else if(query->getQuantifier() == AST::EF || query->getQuantifier() || AST::AG)
+                    {
+                        tapn.setAllControllable(false);                        
+                        query->setChild(new NotExpression(query->getChild()));
+                    }                                        
+                    
                     SafetySynthesis synthesis = SafetySynthesis(
                             tapn, *initialMarking, query, options
                             );
                     bool result = synthesis.run();
                     synthesis.print_stats();
+                    
+                    if(query->getQuantifier() == AST::EF || query->getQuantifier() == AST::AF) result = !result;
+                    
                     std::cout << "Query is " << (result ? "satisfied" : "NOT satisfied") << "." << std::endl;
                     std::cout << "Max number of tokens found in any reachable marking: ";
                     std::cout << synthesis.max_tokens() << std::endl;

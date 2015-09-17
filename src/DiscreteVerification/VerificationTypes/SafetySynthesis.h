@@ -50,6 +50,7 @@ private:
     Generator generator;
     size_t discovered;
     size_t explored;
+    unsigned int largest;
 public:
     SafetySynthesis(
             TAPN::TimedArcPetriNet& tapn, 
@@ -60,7 +61,7 @@ public:
     bool run();
     
     virtual ~SafetySynthesis();
-    size_t max_tokens() { return store->max_tokens(); };
+    unsigned int max_tokens() { return largest; };
     void print_stats();
 private:
     bool satisfies_query(NonStrictMarkingBase* m);

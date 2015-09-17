@@ -158,7 +158,7 @@ namespace VerifyTAPN {
         
         template<typename T>
         void QueryVisitor<T>::visit(const Query& query,  AST::Result& context) {
-            query.getChild().accept(*this, context);
+            query.getConstChild().accept(*this, context);
             if (query.getQuantifier() == AG || query.getQuantifier() == AF) {
                 static_cast<BoolResult&>(context).value
                         = !static_cast<BoolResult&>(context).value;

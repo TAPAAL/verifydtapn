@@ -382,7 +382,9 @@ namespace VerifyTAPN{
 			virtual void accept(Visitor& visitor, Result& context) const;
 
 			Quantifier getQuantifier() const { return quantifier; }
-			const Expression& getChild() const { return *expr; }
+			const Expression& getConstChild() const { return *expr; }
+			Expression* getChild() { return expr; }
+                        void setChild(Expression* expr) { this->expr = expr; }
 			void setQuantifier(Quantifier q){ quantifier = q; }
 		private:
 			Quantifier quantifier;

@@ -59,6 +59,11 @@ class SymMarking;
                         inline const bool isControllable() const {
                             return controllable;
                         }
+                        
+                        inline void setControllable(bool value)
+                        {
+                            controllable = value;
+                        }
 
 		private: // data
 			std::string name;

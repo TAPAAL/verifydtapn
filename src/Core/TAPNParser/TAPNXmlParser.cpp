@@ -226,8 +226,17 @@ TransportArc* TAPNXmlParser::parseTransportArc(const rapidxml::xml_node<>& arcNo
             if((*target)->getId() == targetName) break;
             ++target;
         }
-
-	return new TransportArc(**source, **transition, **target, TimeInterval::createFor(interval), weight);
+        
+        TimeInterval tint = TimeInterval::createFor(interval);
+        if(!tint.setUpperBound((*target)->getInvariant().getBound(), 
+                (*target)->getInvariant().isBoundStrict()))
+        {
+            std::cout <<    "Invariant on " << (*target)->getName() <<
+                            " makes the guard " << interval << 
+                            " unsatisfiable for transport arc of transition " 
+                            << (*transition)->getName() << std::endl;
+        }
+	return new TransportArc(**source, **transition, **target,  tint, weight);
 }
 
 InhibitorArc* TAPNXmlParser::parseInhibitorArc(const rapidxml::xml_node<>& arcNode, const TimedPlace::Vector& places, const TimedTransition::Vector& transitions) const

@@ -280,6 +280,14 @@ namespace VerifyTAPN {
 			}
 		}
 
+                void TimedArcPetriNet::setAllControllable(bool value)
+                {
+                    for(auto& transition : transitions)
+                    {
+                        transition->setControllable(value);
+                    }
+                }
+                
 		void TimedArcPetriNet::updateMaxConstant(const TimeInterval& interval)
 		{
 			int lowerBound = interval.getLowerBound();

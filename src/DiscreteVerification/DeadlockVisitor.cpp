@@ -43,7 +43,7 @@ namespace VerifyTAPN {
         }
 
         void DeadlockVisitor::visit(const Query& query, Result& context) {
-            query.getChild().accept(*this, context);
+            query.getConstChild().accept(*this, context);
         }
 
         void DeadlockVisitor::visit(const DeadlockExpression& expr, Result& context) {

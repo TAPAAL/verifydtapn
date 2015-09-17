@@ -89,6 +89,7 @@ class SimpleMarkingStore : public MarkingStore<T>
         typename
         MarkingStore<T>::result_t insert_and_dealloc(NonStrictMarkingBase* m)
         {
+            assert(m->size() > 0);
             size_t key = m->getHashKey();
             pointer_list& location = store[key];
             typename
@@ -102,6 +103,7 @@ class SimpleMarkingStore : public MarkingStore<T>
                 {
                     res.first = false;
                     res.second = *pit;
+                    delete m;
                     return res;
                 }
                 if(cmp > 0) break;

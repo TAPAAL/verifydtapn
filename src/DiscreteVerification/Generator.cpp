@@ -242,7 +242,7 @@ namespace VerifyTAPN {
             {
                 int tokens = parent->numberOfTokensInPlace(
                                             inhib->getInputPlace().getIndex());
-                if(tokens > inhib->getWeight())
+                if(tokens >= inhib->getWeight())
                 {
                     return false;
                 }

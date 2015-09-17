@@ -61,6 +61,7 @@ namespace VerifyTAPN {
 			bool isNonStrict() const;
 			void calculateCausality(TimedPlace& p, std::vector< TimedPlace* >* result) const;
 			void updatePlaceTypes(const AST::Query* query, VerificationOptions options);
+                        void setAllControllable(bool value);
 		public: // modifiers
 			void initialize(bool useGlobalMaxConstant, bool disableLowerGuards);
 			bool containsOrphanTransitions();
