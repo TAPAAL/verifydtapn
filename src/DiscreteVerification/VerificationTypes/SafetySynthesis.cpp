@@ -43,7 +43,7 @@ bool SafetySynthesis::run()
     store_t::result_t m_0_res = store->insert_and_dealloc(&initial_marking);
 
     SafetyMeta& meta = m_0_res.second->get_meta_data();
-    meta = {UNKNOWN, false, 0, depends_t()};
+    meta = {UNKNOWN, false, false, 0, depends_t()};
     meta.waiting = true;
     
     waiting.push(m_0_res.second);
@@ -146,7 +146,8 @@ void SafetySynthesis::successors(   store_t::Pointer* parent,
     NonStrictMarkingBase* marking = store->expand(parent);
     generator.from_marking(marking, 
             is_controller ? 
-                Generator::CONTROLLABLE : Generator::ENVIRONMENT);
+                Generator::CONTROLLABLE : Generator::ENVIRONMENT,
+            meta.urgent);
     
 //    std::cout << (is_controller ? "controller" : "env ");
 //    std::cout << *marking << std::endl;
@@ -158,6 +159,7 @@ void SafetySynthesis::successors(   store_t::Pointer* parent,
     bool all_loosing = true;
     while(next = generator.next(is_controller))
     {  
+        meta.urgent |= generator.urgent();
         largest = std::max(next->size(), largest);
         ++discovered;
         ++number_of_children;
@@ -188,7 +190,7 @@ void SafetySynthesis::successors(   store_t::Pointer* parent,
 
         if(res.first)
         {
-            SafetyMeta childmeta = {UNKNOWN, false, 0, depends_t()};
+            SafetyMeta childmeta = {UNKNOWN, false, false, 0, depends_t()};
             p->set_meta_data(childmeta);
             successors.push(p);
             all_loosing = false;

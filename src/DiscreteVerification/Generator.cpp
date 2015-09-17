@@ -44,7 +44,7 @@ namespace VerifyTAPN {
             base_permutation.resize(maxtokens);
         }
         
-        void Generator::from_marking(NonStrictMarkingBase* parent, Mode mode)
+        void Generator::from_marking(NonStrictMarkingBase* parent, Mode mode, bool seen_urgent)
         {
             this->parent = parent;
             this->mode = mode;
@@ -53,7 +53,7 @@ namespace VerifyTAPN {
             transition = 0;
             current = NULL;
             done = false;
-            seen_urgent = false;
+            this->seen_urgent = seen_urgent;
             did_noinput = false;
         }
         

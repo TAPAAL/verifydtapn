@@ -39,6 +39,7 @@ private:
     
     struct SafetyMeta {
         MarkingState state;
+        bool urgent;
         bool waiting;                       // We only need stuff on waiting once
         size_t children;                    // Usefull.
         depends_t dependers;                // A punch of parents       
