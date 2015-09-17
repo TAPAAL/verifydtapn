@@ -41,12 +41,14 @@ bool SafetySynthesis::run()
     if(!satisfies_query(&initial_marking)) return false;
     
     store_t::result_t m_0_res = store->insert_and_dealloc(&initial_marking);
-    SafetyMeta meta = {false, false, false, 0, 0, depends_t()};
+
+    SafetyMeta& meta = m_0_res.second->get_meta_data();
+    meta = {UNKNOWN, false, 0, depends_t()};
     meta.waiting = true;
-    m_0_res.second->set_meta_data(meta);
+    
     waiting.push(m_0_res.second);
         
-    while(!waiting.empty() && !m_0_res.second->get_meta_data().loosing)
+    while(!waiting.empty() && meta.state != LOOSING && meta.state != WINNING)
     {
         ++explored;
         store_t::Pointer* next = waiting.top();
@@ -54,42 +56,35 @@ bool SafetySynthesis::run()
         
         SafetyMeta& next_meta = next->get_meta_data();
         next_meta.waiting = false;
-        
-        if(next_meta.loosing == true)
+        if( next_meta.state == LOOSING ||
+            next_meta.state == WINNING)
         {
             dependers_to_waiting(next_meta, waiting);
         }
         else
         {
 
-            assert(next_meta.loosing == false);
-            if(!next_meta.processed)    // first time we see the marking out of waiting
+            if(next_meta.state == UNKNOWN)    // first time we see the marking out of waiting
             {
+                next_meta.state = MAYBE_LOOSING;
                 // generate successors for environment
-                if(!successors(next, next_meta, waiting, false))
-                {
-                    next_meta.loosing = true;
-                    waiting.push(next);
-                }
+                successors(next, next_meta, waiting, false);
             }
             // if we are not yet loosing and all env successors have been explored
-            if(!next_meta.loosing && next_meta.env_children == 0)
+            if(next_meta.state == MAYBE_LOOSING && next_meta.children == 0)
             {
-                if(next_meta.ctrl_children == 0)
-                {
-                    // generate successors for controller
-                    if(!successors(next, next_meta, waiting, true))
-                    {
-                        next_meta.loosing = true;
-                        waiting.push(next);
-                    }
-                }
+                next_meta.state = MAYBE_WINNING;
+                // generate successors for controller
+                successors(next, next_meta, waiting, true);
             }
-
-            next_meta.processed = true;
+            
+            if(next_meta.state == LOOSING || next_meta.state == WINNING)
+            {
+                waiting.push(next);
+            }
         }
     }
-    return !m_0_res.second->get_meta_data().loosing;
+    return meta.state != LOOSING;
 }
 
 void SafetySynthesis::dependers_to_waiting(SafetyMeta& next_meta, stack_t& waiting)
@@ -97,29 +92,53 @@ void SafetySynthesis::dependers_to_waiting(SafetyMeta& next_meta, stack_t& waiti
     for(auto ancestor : next_meta.dependers)
     {
         SafetyMeta& a_meta = ancestor->get_meta_data();
-
-        if(a_meta.loosing) continue;
-
-        if(a_meta.env_children > 0)
+        bool determined = false;
+        switch(a_meta.state)
         {
-            a_meta.loosing = true;
+            case UNKNOWN:
+            case MAYBE_LOOSING:
+                if(next_meta.state == LOOSING)
+                {
+//                    std::cout << "LOOSING : " << ancestor << std::endl;
+                    a_meta.state = LOOSING;
+                    determined = true;
+                }
+                else --a_meta.children;
+                break;
+            case MAYBE_WINNING:
+                if(next_meta.state == WINNING)
+                {
+                    a_meta.state = WINNING;
+                    determined = true;
+                }
+                else --a_meta.children;
+                break;
+            default:
+                continue;   // no new information, skip
+        }
+        
+        if(determined)
+        {
+            if(!a_meta.waiting) waiting.push(ancestor);
+            a_meta.waiting = true;
         }
         else
         {
-            a_meta.ctrl_children -= 1;
-            a_meta.loosing = (a_meta.ctrl_children == 0);
-        }
-
-        if(a_meta.loosing && !a_meta.waiting)
-        {
-            a_meta.waiting = true;
-            waiting.push(ancestor);
+            if(a_meta.children == 0)
+            {
+                if(a_meta.state == MAYBE_WINNING)
+                    a_meta.state = next_meta.state;
+//                if(a_meta.state == LOOSING ) std::cout << "LOOSING : " << ancestor << std::endl;
+                // MAYBE_LOOSING should just be added and get the MAYBE_WINNING
+                if(!a_meta.waiting) waiting.push(ancestor);
+                a_meta.waiting = true;
+            }
         }
     }
     next_meta.dependers.clear();
 }
 
-bool SafetySynthesis::successors(   store_t::Pointer* parent, 
+void SafetySynthesis::successors(   store_t::Pointer* parent, 
                                     SafetyMeta& meta, 
                                     stack_t& waiting,
                                     bool is_controller)
@@ -129,66 +148,104 @@ bool SafetySynthesis::successors(   store_t::Pointer* parent,
             is_controller ? 
                 Generator::CONTROLLABLE : Generator::ENVIRONMENT);
     
-    bool all_loosing = true;
+//    std::cout << (is_controller ? "controller" : "env ");
+//    std::cout << *marking << std::endl;
     
-    std::cout << (is_controller ? "controller" : "env ") << std::endl;
-    std::cout << *marking << std::endl;
-    /**
-     * TODO: Add all markings to a vector first, and THEN insert into passed.
-     * For evn at least, as if just ONE is loosing, then there is no need to 
-     * explore more!
-     * Similar CANNOT be done for ctrl successors. Here we just need *some*
-     * to not be loosing - which we only know fore sure when waiting is empty.
-     */
     NonStrictMarkingBase* next = NULL;
-    bool some_child = false;
+    std::stack<store_t::Pointer*> successors;
+    size_t number_of_children = 0;
+    bool terminated = false;
+    bool all_loosing = true;
     while(next = generator.next(is_controller))
     {  
         largest = std::max(next->size(), largest);
         ++discovered;
-        some_child = true;
-        std::cout << "child : " << *next << std::endl;
+        ++number_of_children;
+        
+//        std::cout << "\tchild : " << *next << std::endl;
+
         if(!satisfies_query(next)) 
         {
-            std::cout << "does not satisfy phi" << std::endl;
+//            std::cout << "\t\tdoes not satisfy phi" << std::endl;
             delete next;
             
             if(is_controller) 
             {
                 continue;
             }
-            else return false;
+            else
+            {
+                meta.state = LOOSING;
+//                std::cout << "LOOSING : " << parent << std::endl;
+                terminated = true;
+                break;
+            }
         }
         
         store_t::result_t res = store->insert_and_dealloc(next);
 
         store_t::Pointer* p = res.second;
+
         if(res.first)
         {
-            SafetyMeta childmeta = {false, false, false, 0, 0, depends_t()};
+            SafetyMeta childmeta = {UNKNOWN, false, 0, depends_t()};
             p->set_meta_data(childmeta);
-            waiting.push(p);
+            successors.push(p);
+            all_loosing = false;
+//            std::cout << "\t\t" << p << std::endl;
+            continue;
         }
                
         SafetyMeta& childmeta = p->get_meta_data();
-        if(!childmeta.loosing)
+        if(!is_controller && childmeta.state == LOOSING)
         {
-            all_loosing = false;
-            if(is_controller) meta.ctrl_children += 1;
-            else meta.env_children += 1;
-            
-            childmeta.dependers.push_front(parent);
-            continue;
+            meta.state = LOOSING;
+//            std::cout << "LOOSING : " << parent << std::endl;
+            terminated = true;
+            break;
+        } 
+        else if(is_controller && (childmeta.state == WINNING || p == parent))
+        {
+            meta.state = WINNING;
+            terminated = true;
+            break;
         }
-        else if(!is_controller) return false;    
+        
+        if(childmeta.state != WINNING && childmeta.state != LOOSING)
+        {
+            successors.push(p);
+        }
+        all_loosing = all_loosing && (childmeta.state == LOOSING);
     }
+    
+    if(terminated) return; // Add nothing to waiting, we already have result
     
     if(is_controller)
     {
-        if(!some_child) return true;
-        else return !all_loosing;
+        if(number_of_children == 0)
+        {
+            meta.state = WINNING;
+            return;
+        } 
+        else if(all_loosing)
+        {
+            meta.state = LOOSING;
+//            std::cout << "LOOSING : " << parent << std::endl;
+            return;
+        }
     }
-    else return true;
+
+    while(!successors.empty())
+    {
+        meta.children += 1;
+        store_t::Pointer* child = successors.top();
+        successors.pop();
+        
+        child->get_meta_data().dependers.push_front(parent);
+        if(!child->get_meta_data().waiting) waiting.push(child);
+
+        child->get_meta_data().waiting = true;
+    }
 }
 
 void SafetySynthesis::print_stats() {

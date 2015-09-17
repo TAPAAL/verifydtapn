@@ -29,14 +29,19 @@ private:
     typedef std::stack<store_t::Pointer*> stack_t;
     
     typedef std::forward_list<store_t::Pointer*> depends_t;
+            
+    enum MarkingState {
+                        UNKNOWN,            // no successors generated yet
+                        MAYBE_LOOSING,      // Generated (some) successors for env
+                        LOOSING,            // env wins
+                        MAYBE_WINNING,      // Generated (some) successors for ctrl
+                        WINNING};           // ctrl surely wins
     
     struct SafetyMeta {
-        bool loosing;
-        bool waiting;
-        bool processed;
-        size_t env_children;
-        size_t ctrl_children;
-        depends_t dependers;        
+        MarkingState state;
+        bool waiting;                       // We only need stuff on waiting once
+        size_t children;                    // Usefull.
+        depends_t dependers;                // A punch of parents       
     };
     
 
@@ -65,7 +70,7 @@ public:
     void print_stats();
 private:
     bool satisfies_query(NonStrictMarkingBase* m);
-    bool successors(MarkingStore<SafetyMeta>::Pointer*, SafetyMeta&, 
+    void successors(MarkingStore<SafetyMeta>::Pointer*, SafetyMeta&, 
                                             stack_t& waiting, bool controller);
     void dependers_to_waiting(SafetyMeta& next_meta, stack_t& waiting);
 };
