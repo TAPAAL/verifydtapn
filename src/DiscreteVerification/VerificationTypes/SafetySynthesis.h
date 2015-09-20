@@ -28,20 +28,22 @@ private:
     typedef MarkingStore<SafetyMeta> store_t;
     typedef std::stack<store_t::Pointer*> stack_t;
     
-    typedef std::forward_list<store_t::Pointer*> depends_t;
+    typedef std::pair<bool, store_t::Pointer*> depender_t;
+    typedef std::forward_list<depender_t> depends_t;
             
     enum MarkingState {
                         UNKNOWN,            // no successors generated yet
-                        MAYBE_LOOSING,      // Generated (some) successors for env
+                        PROCESSED,          // Generated successors
+                        MAYBE_WINNING,      // If no env strategy, then winning
                         LOOSING,            // env wins
-                        MAYBE_WINNING,      // Generated (some) successors for ctrl
                         WINNING};           // ctrl surely wins
     
     struct SafetyMeta {
         MarkingState state;
         bool urgent;
         bool waiting;                       // We only need stuff on waiting once
-        size_t children;                    // Usefull.
+        size_t ctrl_children;                // Usefull.
+        size_t env_children;
         depends_t dependers;                // A punch of parents       
     };
     

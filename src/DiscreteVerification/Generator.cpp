@@ -189,7 +189,7 @@ namespace VerifyTAPN {
                 Token t = Token(0, output->getWeight());
                 child->addTokenInPlace(output->getOutputPlace(), t);
             }
-            
+
             // nobody can move
             if(last_movable == -1) current = NULL;
             else
@@ -253,7 +253,7 @@ namespace VerifyTAPN {
             
             for(auto& input : current->getPreset())
             {
-                base_permutation[arccounter] = 0;
+                base_permutation[arccounter] = std::numeric_limits<size_t>::max();
                 int source = input->getInputPlace().getIndex();
                 int weight = input->getWeight();
                 auto& tokenlist = parent->getTokenList(source);
@@ -279,7 +279,7 @@ namespace VerifyTAPN {
 
             for(auto& transport : current->getTransportArcs())
             {
-                base_permutation[arccounter] = 0;
+                base_permutation[arccounter] = std::numeric_limits<size_t>::max();
                 int source = transport->getSource().getIndex();
                 int weight = transport->getWeight();
                 auto& tokenlist = parent->getTokenList(source);

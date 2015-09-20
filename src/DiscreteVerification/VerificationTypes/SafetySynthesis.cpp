@@ -5,6 +5,7 @@
  * Created on 14 September 2015, 15:59
  */
 #include <assert.h>
+#include <set>
 #include "SafetySynthesis.h"
 #include "../DataStructures/SimpleMarkingStore.h"
 
@@ -43,7 +44,7 @@ bool SafetySynthesis::run()
     store_t::result_t m_0_res = store->insert_and_dealloc(&initial_marking);
 
     SafetyMeta& meta = m_0_res.second->get_meta_data();
-    meta = {UNKNOWN, false, false, 0, depends_t()};
+    meta = {UNKNOWN, false, false, 0, 0, depends_t()};
     meta.waiting = true;
     
     waiting.push(m_0_res.second);
@@ -63,23 +64,25 @@ bool SafetySynthesis::run()
         }
         else
         {
+            assert(next_meta.state == UNKNOWN);
+            next_meta.state = PROCESSED;
+            // generate successors for environment
+            successors(next, next_meta, waiting, false);
 
-            if(next_meta.state == UNKNOWN)    // first time we see the marking out of waiting
+            if(next_meta.state != LOOSING)
             {
-                next_meta.state = MAYBE_LOOSING;
-                // generate successors for environment
-                successors(next, next_meta, waiting, false);
-            }
-            // if we are not yet loosing and all env successors have been explored
-            if(next_meta.state == MAYBE_LOOSING && next_meta.children == 0)
-            {
-                next_meta.state = MAYBE_WINNING;
                 // generate successors for controller
                 successors(next, next_meta, waiting, true);
             }
             
+            if(next_meta.state == MAYBE_WINNING && next_meta.env_children == 0)
+            {
+                next_meta.state = WINNING;
+            }
+            
             if(next_meta.state == LOOSING || next_meta.state == WINNING)
             {
+                assert(next->get_meta_data().state != PROCESSED);
                 waiting.push(next);
             }
         }
@@ -91,48 +94,38 @@ void SafetySynthesis::dependers_to_waiting(SafetyMeta& next_meta, stack_t& waiti
 {
     for(auto ancestor : next_meta.dependers)
     {
-        SafetyMeta& a_meta = ancestor->get_meta_data();
-        bool determined = false;
-        switch(a_meta.state)
-        {
-            case UNKNOWN:
-            case MAYBE_LOOSING:
-                if(next_meta.state == LOOSING)
-                {
-//                    std::cout << "LOOSING : " << ancestor << std::endl;
-                    a_meta.state = LOOSING;
-                    determined = true;
-                }
-                else --a_meta.children;
-                break;
-            case MAYBE_WINNING:
-                if(next_meta.state == WINNING)
-                {
-                    a_meta.state = WINNING;
-                    determined = true;
-                }
-                else --a_meta.children;
-                break;
-            default:
-                continue;   // no new information, skip
-        }
+        SafetyMeta& a_meta = ancestor.second->get_meta_data();
+        if(a_meta.state == LOOSING || a_meta.state == WINNING) continue;
         
-        if(determined)
+        bool ctrl_child = ancestor.first;
+        if(ctrl_child)
         {
-            if(!a_meta.waiting) waiting.push(ancestor);
-            a_meta.waiting = true;
+            a_meta.ctrl_children -= 1;
+            if(next_meta.state == WINNING)
+            {
+                a_meta.state = MAYBE_WINNING;
+            } 
+                        
+            if(a_meta.ctrl_children == 0 && a_meta.state != MAYBE_WINNING)
+                    a_meta.state = LOOSING;
+            
         }
         else
         {
-            if(a_meta.children == 0)
-            {
-                if(a_meta.state == MAYBE_WINNING)
-                    a_meta.state = next_meta.state;
-//                if(a_meta.state == LOOSING ) std::cout << "LOOSING : " << ancestor << std::endl;
-                // MAYBE_LOOSING should just be added and get the MAYBE_WINNING
-                if(!a_meta.waiting) waiting.push(ancestor);
-                a_meta.waiting = true;
-            }
+            a_meta.env_children -= 1;  
+            if(next_meta.state == LOOSING) a_meta.state = LOOSING;
+        }        
+        
+        if(a_meta.env_children == 0 && a_meta.state == MAYBE_WINNING)
+        {
+            a_meta.state = WINNING;
+        }
+        
+        if(a_meta.state == WINNING || a_meta.state == LOOSING)
+        {
+            assert(ancestor.second->get_meta_data().state != PROCESSED);
+            if(!a_meta.waiting) waiting.push(ancestor.second);
+            a_meta.waiting = true;
         }
     }
     next_meta.dependers.clear();
@@ -153,7 +146,7 @@ void SafetySynthesis::successors(   store_t::Pointer* parent,
 //    std::cout << *marking << std::endl;
     
     NonStrictMarkingBase* next = NULL;
-    std::stack<store_t::Pointer*> successors;
+    std::set<store_t::Pointer*> successors;
     size_t number_of_children = 0;
     bool terminated = false;
     bool all_loosing = true;
@@ -164,7 +157,7 @@ void SafetySynthesis::successors(   store_t::Pointer* parent,
         ++discovered;
         ++number_of_children;
         
-//        std::cout << "\tchild : " << *next << std::endl;
+  //      std::cout << "\tchild : " << *next << std::endl;
 
         if(!satisfies_query(next)) 
         {
@@ -190,9 +183,9 @@ void SafetySynthesis::successors(   store_t::Pointer* parent,
 
         if(res.first)
         {
-            SafetyMeta childmeta = {UNKNOWN, false, false, 0, depends_t()};
+            SafetyMeta childmeta = {UNKNOWN, false, false, 0, 0, depends_t()};
             p->set_meta_data(childmeta);
-            successors.push(p);
+            successors.insert(p);
             all_loosing = false;
 //            std::cout << "\t\t" << p << std::endl;
             continue;
@@ -208,14 +201,14 @@ void SafetySynthesis::successors(   store_t::Pointer* parent,
         } 
         else if(is_controller && (childmeta.state == WINNING || p == parent))
         {
-            meta.state = WINNING;
+            meta.state = MAYBE_WINNING;
             terminated = true;
             break;
         }
         
         if(childmeta.state != WINNING && childmeta.state != LOOSING)
         {
-            successors.push(p);
+            successors.insert(p);
         }
         all_loosing = all_loosing && (childmeta.state == LOOSING);
     }
@@ -226,7 +219,7 @@ void SafetySynthesis::successors(   store_t::Pointer* parent,
     {
         if(number_of_children == 0)
         {
-            meta.state = WINNING;
+            meta.state = MAYBE_WINNING;
             return;
         } 
         else if(all_loosing)
@@ -237,17 +230,20 @@ void SafetySynthesis::successors(   store_t::Pointer* parent,
         }
     }
 
-    while(!successors.empty())
+    if(is_controller) meta.ctrl_children = successors.size();
+    else meta.env_children = successors.size();
+    
+    for(auto child : successors)
     {
-        meta.children += 1;
-        store_t::Pointer* child = successors.top();
-        successors.pop();
-        
-        child->get_meta_data().dependers.push_front(parent);
-        if(!child->get_meta_data().waiting) waiting.push(child);
-
-        child->get_meta_data().waiting = true;
-    }
+        child->get_meta_data().dependers.push_front(
+                                            depender_t(is_controller,parent));
+        if(child->get_meta_data().state == UNKNOWN && 
+                !child->get_meta_data().waiting)
+        {
+            child->get_meta_data().waiting = true;  
+            waiting.push(child);
+        } 
+    }    
 }
 
 void SafetySynthesis::print_stats() {
