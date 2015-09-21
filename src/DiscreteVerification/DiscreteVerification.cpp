@@ -175,11 +175,13 @@ namespace VerifyTAPN {
                 }
                 else
                 {
+                    // Only needed if verifying normal CTL/LTL with game-algorithm.
+                    // Notice that violating k-bound produces different results than in normal ctl semantics
                     if(query->getQuantifier() == AST::EG || query->getQuantifier() == AST::AF)
                     {
                         tapn.setAllControllable(true);
                     }
-                    else if(query->getQuantifier() == AST::EF || query->getQuantifier() || AST::AG)
+                    else if(query->getQuantifier() == AST::EF || query->getQuantifier() == AST::AG)
                     {
                         tapn.setAllControllable(false);                        
                         query->setChild(new NotExpression(query->getChild()));
