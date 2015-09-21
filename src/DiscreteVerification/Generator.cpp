@@ -69,6 +69,12 @@ namespace VerifyTAPN {
             }
 
             // hard ones, continue to we find a result, or out of transitions
+            if(did_noinput) // First iteration of while has happend
+            {                
+                NonStrictMarkingBase* child = next_from_current();
+                if(child) return child;
+            }
+            
             while(next_transition(!did_noinput))
             {
                 did_noinput = true;
@@ -141,20 +147,22 @@ namespace VerifyTAPN {
             child->setParent(NULL);
             size_t arccounter = 0;
             int last_movable = -1;
-
             for(auto& input : current->getPreset())
             {
                 for(int i = 0; i < input->getWeight(); ++i)
                 {
                     size_t t_index = permutation[arccounter];
+
                     int source = input->getInputPlace().getIndex();
                     auto& tokenlist = child->getTokenList(source);
-                    const Token& token = tokenlist[permutation[arccounter]];
+                    assert(t_index < tokenlist.size());
+                    const Token& token = tokenlist[t_index];
                     child->removeToken(source, token.getAge());
 
+                    auto& n_tokenlist = child->getTokenList(source);
                     ++t_index;
-                    if(t_index != tokenlist.size() && input->getInterval().contains(
-                            tokenlist[t_index].getAge()))
+                    if(t_index < n_tokenlist.size() && input->getInterval().contains(
+                            n_tokenlist[t_index].getAge()))
                     {
                         last_movable = arccounter;
                     }
@@ -169,14 +177,16 @@ namespace VerifyTAPN {
                     size_t t_index = permutation[arccounter];
                     int source = transport->getSource().getIndex();
                     auto& tokenlist = child->getTokenList(source);
+                    assert(t_index < tokenlist.size());
                     const Token token = tokenlist[t_index];
                     child->removeToken(source, token.getAge());
                     child->addTokenInPlace(transport->getDestination(), 
                             token.getAge());
 
+                    auto& n_tokenlist = child->getTokenList(source);
                     ++t_index;
-                    if(t_index != tokenlist.size() && transport->getInterval().contains(
-                            tokenlist[t_index].getAge()))
+                    if(t_index < n_tokenlist.size() && transport->getInterval().contains(
+                            n_tokenlist[t_index].getAge()))
                     {
                         last_movable = arccounter;
                     }

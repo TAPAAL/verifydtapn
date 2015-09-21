@@ -157,7 +157,7 @@ void SafetySynthesis::successors(   store_t::Pointer* parent,
         ++discovered;
         ++number_of_children;
         
-  //      std::cout << "\tchild : " << *next << std::endl;
+//        std::cout << "\tchild : " << *next << std::endl;
 
         if(!satisfies_query(next)) 
         {
