@@ -154,15 +154,14 @@ namespace VerifyTAPN {
                     size_t t_index = permutation[arccounter];
 
                     int source = input->getInputPlace().getIndex();
-                    auto& tokenlist = child->getTokenList(source);
+                    auto tokenlist = child->getTokenList(source);
                     assert(t_index < tokenlist.size());
                     const Token& token = tokenlist[t_index];
                     child->removeToken(source, token.getAge());
 
-                    auto& n_tokenlist = child->getTokenList(source);
                     ++t_index;
-                    if(t_index < n_tokenlist.size() && input->getInterval().contains(
-                            n_tokenlist[t_index].getAge()))
+                    if(t_index < tokenlist.size() && input->getInterval().contains(
+                            tokenlist[t_index].getAge()))
                     {
                         last_movable = arccounter;
                     }
@@ -176,17 +175,16 @@ namespace VerifyTAPN {
                 {
                     size_t t_index = permutation[arccounter];
                     int source = transport->getSource().getIndex();
-                    auto& tokenlist = child->getTokenList(source);
+                    auto tokenlist = child->getTokenList(source);
                     assert(t_index < tokenlist.size());
                     const Token token = tokenlist[t_index];
                     child->removeToken(source, token.getAge());
                     child->addTokenInPlace(transport->getDestination(), 
                             token.getAge());
 
-                    auto& n_tokenlist = child->getTokenList(source);
                     ++t_index;
-                    if(t_index < n_tokenlist.size() && transport->getInterval().contains(
-                            n_tokenlist[t_index].getAge()))
+                    if(t_index < tokenlist.size() && transport->getInterval().contains(
+                            tokenlist[t_index].getAge()))
                     {
                         last_movable = arccounter;
                     }

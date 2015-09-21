@@ -133,7 +133,7 @@ namespace VerifyTAPN {
                         exit(1);
             }
             
-            if(true || query->getQuantifier() == CG || query->getQuantifier() == CF)
+            if(query->getQuantifier() == CG || query->getQuantifier() == CF)
             {
                 if(options.getTrace() != VerificationOptions::NO_TRACE)
                 {

@@ -123,6 +123,7 @@ void SafetySynthesis::dependers_to_waiting(SafetyMeta& next_meta, stack_t& waiti
         
         if(a_meta.state == WINNING || a_meta.state == LOOSING)
         {
+//            if(a_meta.state == LOOSING) std::cout << "LOOSING : " << ancestor.second << std::endl;
             assert(ancestor.second->get_meta_data().state != PROCESSED);
             if(!a_meta.waiting) waiting.push(ancestor.second);
             a_meta.waiting = true;
@@ -143,7 +144,7 @@ void SafetySynthesis::successors(   store_t::Pointer* parent,
             meta.urgent);
     
 //    std::cout << (is_controller ? "controller" : "env ");
-//    std::cout << *marking << std::endl;
+//    std::cout << marking << " : " << *marking << std::endl;
     
     NonStrictMarkingBase* next = NULL;
     std::set<store_t::Pointer*> successors;
@@ -157,7 +158,7 @@ void SafetySynthesis::successors(   store_t::Pointer* parent,
         ++discovered;
         ++number_of_children;
         
-//        std::cout << "\tchild : " << *next << std::endl;
+//        std::cout << "\tchild  " <<  next << " : " << *next << std::endl;
 
         if(!satisfies_query(next)) 
         {
@@ -214,7 +215,7 @@ void SafetySynthesis::successors(   store_t::Pointer* parent,
     }
     
     if(terminated) return; // Add nothing to waiting, we already have result
-    
+
     if(is_controller)
     {
         if(number_of_children == 0)

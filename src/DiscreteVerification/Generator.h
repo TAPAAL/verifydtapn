@@ -38,7 +38,7 @@ namespace VerifyTAPN {
             public:
                 Generator(TAPN::TimedArcPetriNet& tapn);
                 void from_marking(NonStrictMarkingBase* parent, Mode mode = ALL, bool urgent = false);
-                NonStrictMarkingBase* next(bool do_delay = false);
+                NonStrictMarkingBase* next(bool do_delay = true);
                 NonStrictMarkingBase* from_delay();
                 size_t children();
                 bool is_enabled();
