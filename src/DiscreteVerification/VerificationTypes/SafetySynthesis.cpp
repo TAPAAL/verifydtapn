@@ -143,22 +143,22 @@ void SafetySynthesis::successors(   store_t::Pointer* parent,
                 Generator::CONTROLLABLE : Generator::ENVIRONMENT,
             meta.urgent);
     
-//    std::cout << (is_controller ? "controller" : "env ");
-//    std::cout << marking << " : " << *marking << std::endl;
+    std::cout << (is_controller ? "controller" : "env ");
+    std::cout << marking << " : " << *marking << std::endl;
     
     NonStrictMarkingBase* next = NULL;
     std::set<store_t::Pointer*> successors;
     size_t number_of_children = 0;
     bool terminated = false;
     bool all_loosing = true;
-    while(next = generator.next(is_controller))
+    while((next = generator.next(is_controller)) != NULL)
     {  
         meta.urgent |= generator.urgent();
         largest = std::max(next->size(), largest);
         ++discovered;
         ++number_of_children;
         
-//        std::cout << "\tchild  " <<  next << " : " << *next << std::endl;
+        std::cout << "\tchild  " <<  next << " : " << *next << std::endl;
 
         if(!satisfies_query(next)) 
         {

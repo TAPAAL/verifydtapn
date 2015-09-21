@@ -145,51 +145,54 @@ namespace VerifyTAPN {
             NonStrictMarkingBase* child = new NonStrictMarkingBase(*parent);
             child->setGeneratedBy(NULL);
             child->setParent(NULL);
-            size_t arccounter = 0;
+            int arccounter = 0;
             int last_movable = -1;
             for(auto& input : current->getPreset())
             {
-                for(int i = 0; i < input->getWeight(); ++i)
+                for(int i = input->getWeight() - 1; i >= 0; --i)
                 {
-                    size_t t_index = permutation[arccounter];
+                    size_t t_index = permutation[arccounter + i];
 
                     int source = input->getInputPlace().getIndex();
-                    auto tokenlist = child->getTokenList(source);
+                    auto& tokenlist = child->getTokenList(source);
+
+                    size_t t_next = t_index + 1;
+                    if(t_next < tokenlist.size() && input->getInterval().contains(
+                            tokenlist[t_next].getAge()))
+                    {
+                        last_movable = std::max(last_movable, arccounter + i);
+                    }
+
                     assert(t_index < tokenlist.size());
                     const Token& token = tokenlist[t_index];
                     child->removeToken(source, token.getAge());
-
-                    ++t_index;
-                    if(t_index < tokenlist.size() && input->getInterval().contains(
-                            tokenlist[t_index].getAge()))
-                    {
-                        last_movable = arccounter;
-                    }
-                    ++arccounter;
                 }
+                arccounter += input->getWeight();
             }
 
+            // This has a problem if source and destination are the same!
             for(auto& transport : current->getTransportArcs())
             {
-                for(int i = 0; i < transport->getWeight(); ++i)
+                for(int i = transport->getWeight() - 1; i >= 0; --i)
                 {
-                    size_t t_index = permutation[arccounter];
+                    size_t t_index = permutation[arccounter + i];
                     int source = transport->getSource().getIndex();
-                    auto tokenlist = child->getTokenList(source);
+                    auto& tokenlist = child->getTokenList(source);
+
+                    size_t t_next = t_index + 1;
+                    if(t_next < tokenlist.size() && transport->getInterval().contains(
+                            tokenlist[t_next].getAge()))
+                    {
+                        last_movable = std::max(last_movable, arccounter + i);
+                    }
+
                     assert(t_index < tokenlist.size());
                     const Token token = tokenlist[t_index];
                     child->removeToken(source, token.getAge());
                     child->addTokenInPlace(transport->getDestination(), 
                             token.getAge());
-
-                    ++t_index;
-                    if(t_index < tokenlist.size() && transport->getInterval().contains(
-                            tokenlist[t_index].getAge()))
-                    {
-                        last_movable = arccounter;
-                    }
-                    ++arccounter;
                 }
+                arccounter += transport->getWeight();
             }
                         
             for(auto& output : current->getPostset())
@@ -203,7 +206,7 @@ namespace VerifyTAPN {
             else
             {
                 permutation[last_movable] += 1;
-                for(size_t i = last_movable + 1; i < arccounter; ++i)
+                for(int i = last_movable + 1; i < arccounter; ++i)
                 {
                     permutation[i] = base_permutation[i];
                 }
@@ -261,7 +264,6 @@ namespace VerifyTAPN {
             
             for(auto& input : current->getPreset())
             {
-                base_permutation[arccounter] = std::numeric_limits<size_t>::max();
                 int source = input->getInputPlace().getIndex();
                 int weight = input->getWeight();
                 auto& tokenlist = parent->getTokenList(source);
@@ -270,12 +272,10 @@ namespace VerifyTAPN {
                     auto& token = tokenlist[index];
                     if(input->getInterval().contains(token.getAge()))
                     {
-                        for(int i = 0; i < std::min(weight, token.getCount()); ++i)
+                        int n_tokens = std::min(weight, token.getCount());
+                        for(int i = 0; i < n_tokens; ++i)
                         {
-                            base_permutation[arccounter] = std::min(
-                                    index, 
-                                    base_permutation[arccounter]
-                                    );
+                            base_permutation[arccounter] = index;
                             ++arccounter;
                         }
                         weight -= token.getCount();
@@ -287,7 +287,6 @@ namespace VerifyTAPN {
 
             for(auto& transport : current->getTransportArcs())
             {
-                base_permutation[arccounter] = std::numeric_limits<size_t>::max();
                 int source = transport->getSource().getIndex();
                 int weight = transport->getWeight();
                 auto& tokenlist = parent->getTokenList(source);
@@ -296,12 +295,10 @@ namespace VerifyTAPN {
                     auto& token = tokenlist[index];
                     if(transport->getInterval().contains(token.getAge()))
                     {
-                        for(int i = 0; i < std::min(weight, token.getCount()); ++i)
+                        int n_tokens = std::min(weight, token.getCount());
+                        for(int i = 0; i < n_tokens; ++i)
                         {
-                            base_permutation[arccounter] = std::min(
-                                    index, 
-                                    base_permutation[arccounter]
-                                    );
+                            base_permutation[arccounter] = index;
                             ++arccounter;
                         }
                         weight -= token.getCount();
