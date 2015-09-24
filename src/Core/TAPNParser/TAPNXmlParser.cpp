@@ -73,7 +73,8 @@ TimedPlace* TAPNXmlParser::parsePlace(const xml_node<>& placeNode) const
 	std::string name(placeNode.first_attribute("name")->value());
 
 	std::string invariantNode = placeNode.first_attribute("invariant")->value();
-	TimeInvariant timeInvariant = TimeInvariant::createFor(invariantNode);
+        
+	TimeInvariant timeInvariant = TimeInvariant::createFor(invariantNode, replace);
 	return new TimedPlace(name, id, timeInvariant);
 }
 
@@ -176,11 +177,8 @@ TimedInputArc* TAPNXmlParser::parseInputArc(const rapidxml::xml_node<>& arcNode,
 	std::string source = arcNode.first_attribute("source")->value();
 	std::string target = arcNode.first_attribute("target")->value();
 	std::string interval = arcNode.first_attribute("inscription")->value();
-	int weight = 1;
-	xml_attribute<char>* attribute = arcNode.first_attribute("weight");
-	if(attribute != NULL){
-		weight = atoi(attribute->value());
-	}
+
+	int weight = getWeight(arcNode.first_attribute("weight"));
 
         TimedPlace::Vector::const_iterator place = places.begin();
         while(place != places.end()){
@@ -194,7 +192,7 @@ TimedInputArc* TAPNXmlParser::parseInputArc(const rapidxml::xml_node<>& arcNode,
             ++transition;
         }     
 
-	return new TimedInputArc(**place, **transition, weight, TimeInterval::createFor(interval));
+	return new TimedInputArc(**place, **transition, weight, TimeInterval::createFor(interval, replace));
 }
 
 TransportArc* TAPNXmlParser::parseTransportArc(const rapidxml::xml_node<>& arcNode, const TimedPlace::Vector& places, const TimedTransition::Vector& transitions) const
@@ -203,12 +201,9 @@ TransportArc* TAPNXmlParser::parseTransportArc(const rapidxml::xml_node<>& arcNo
 	std::string transitionName = arcNode.first_attribute("transition")->value();
 	std::string targetName = arcNode.first_attribute("target")->value();
 	std::string interval = arcNode.first_attribute("inscription")->value();
-	int weight = 1;
-	xml_attribute<char>* attribute = arcNode.first_attribute("weight");
-	if(attribute != NULL){
-		weight = atoi(attribute->value());
-	}
 
+        int weight = getWeight(arcNode.first_attribute("weight"));
+                
         TimedPlace::Vector::const_iterator source = places.begin();
         while(source != places.end()){
             if((*source)->getId() == sourceName) break;
@@ -227,7 +222,7 @@ TransportArc* TAPNXmlParser::parseTransportArc(const rapidxml::xml_node<>& arcNo
             ++target;
         }
         
-        TimeInterval tint = TimeInterval::createFor(interval);
+        TimeInterval tint = TimeInterval::createFor(interval, replace);
         if(!tint.setUpperBound((*target)->getInvariant().getBound(), 
                 (*target)->getInvariant().isBoundStrict()))
         {
@@ -243,11 +238,8 @@ InhibitorArc* TAPNXmlParser::parseInhibitorArc(const rapidxml::xml_node<>& arcNo
 {
 	std::string source = arcNode.first_attribute("source")->value();
 	std::string target = arcNode.first_attribute("target")->value();
-	int weight = 1;
-	xml_attribute<char>* attribute = arcNode.first_attribute("weight");
-	if(attribute != NULL){
-		weight = atoi(attribute->value());
-	}
+
+	int weight = getWeight(arcNode.first_attribute("weight"));
 
         TimedPlace::Vector::const_iterator place = places.begin();
         while(place != places.end()){
@@ -268,12 +260,9 @@ OutputArc* TAPNXmlParser::parseOutputArc(const rapidxml::xml_node<>& arcNode, co
 {
 	std::string source = arcNode.first_attribute("source")->value();
 	std::string target = arcNode.first_attribute("target")->value();
-	int weight = 1;
-	xml_attribute<char>* attribute = arcNode.first_attribute("weight");
-	if(attribute != NULL){
-		weight = atoi(attribute->value());
-	}
 
+	int weight = getWeight(arcNode.first_attribute("weight"));
+	
         TimedTransition::Vector::const_iterator transition = transitions.begin();
         while(transition != transitions.end()){
             if((*transition)->getId() == source) break;
@@ -301,8 +290,12 @@ std::vector<int> TAPNXmlParser::parseInitialMarking(const rapidxml::xml_node<>& 
 		std::string placeName(placeNode->first_attribute("name")->value());
 
 		boost::algorithm::trim(initialMarkingValue);
-
-		int nTokens = boost::lexical_cast<int>(initialMarkingValue);
+                
+		int nTokens;
+                if(replace.count(initialMarkingValue))
+                    nTokens = replace.at(initialMarkingValue);
+                else
+                    nTokens = boost::lexical_cast<int>(initialMarkingValue);
 		totalInitTokens += nTokens;
 
 		if(nTokens > 0)
@@ -316,6 +309,18 @@ std::vector<int> TAPNXmlParser::parseInitialMarking(const rapidxml::xml_node<>& 
 	}
 
 	return markedPlaces;
+}
+
+int TAPNXmlParser::getWeight( xml_attribute<char>* attribute) const
+{
+    int weight = 1;
+    if(attribute != NULL){
+        if(replace.count(attribute->value()))
+            weight = replace.at(attribute->value());
+        else
+            weight = atoi(attribute->value());
+    }
+    return weight;
 }
 
 

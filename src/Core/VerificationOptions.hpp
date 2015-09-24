@@ -4,6 +4,7 @@
 #include <string>
 #include <iosfwd>
 #include <vector>
+#include <map>
 
 namespace VerifyTAPN {
 
@@ -45,7 +46,8 @@ namespace VerifyTAPN {
                 bool enableGCDLowerGuards,
                 WorkflowMode workflow,
                 long long workflowBound,
-		bool calculateCmax
+		bool calculateCmax,
+                std::map<std::string, int> replace
                 ) : inputFile(""),
         queryFile(""),
         searchType(searchType),
@@ -59,7 +61,9 @@ namespace VerifyTAPN {
         enableGCDLowerGuards(enableGCDLowerGuards),
         workflow(workflow),
         workflowBound(workflowBound),
-        calculateCmax(calculateCmax){
+        calculateCmax(calculateCmax),
+        replace(replace)
+        {
         };
 
     public: // inspectors
@@ -140,6 +144,10 @@ namespace VerifyTAPN {
         inline const bool getCalculateCmax() const {
             return calculateCmax;
         };
+        
+        inline const std::map<std::string, int> getReplacements() const {
+            return replace;
+        }
 
 
 
@@ -158,6 +166,7 @@ namespace VerifyTAPN {
         WorkflowMode workflow;
         long long workflowBound;
         bool calculateCmax;
+        std::map<std::string, int> replace;
     };
 
     std::ostream& operator<<(std::ostream& out, const VerificationOptions& options);

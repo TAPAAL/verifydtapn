@@ -4,6 +4,7 @@
 #include <limits>
 #include <iostream>
 #include <algorithm>
+#include <map>
 
 namespace VerifyTAPN {
 	namespace TAPN {
@@ -51,7 +52,7 @@ namespace VerifyTAPN {
                         }
                         
 		public: // statics
-			static TimeInterval createFor(const std::string& interval);
+			static TimeInterval createFor(const std::string& interval, const std::map<std::string, int> replace);
 
 
 		private: // data

@@ -3,6 +3,7 @@
 
 #include <string>
 #include <limits>
+#include <map>
 
 namespace VerifyTAPN {
 	namespace TAPN {
@@ -30,7 +31,7 @@ namespace VerifyTAPN {
 			inline const bool isBoundStrict() const { return strictComparison; }
 
 		public: // statics
-			static TimeInvariant createFor(const std::string& invariant);
+			static TimeInvariant createFor(const std::string& invariant, const std::map<std::string, int> replace);
 
 		private: // data
 			bool strictComparison;
