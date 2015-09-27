@@ -18,7 +18,7 @@ int main(int argc, char* argv[])
 	ArgsParser parser;
 	VerificationOptions options = parser.parse(argc, argv);
 
-	TAPNXmlParser modelParser;
+	TAPNXmlParser modelParser(options.getReplacements());
 	TAPN::TimedArcPetriNet* tapn;
 
 	try{
