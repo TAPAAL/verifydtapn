@@ -16,6 +16,7 @@
 #include "../QueryVisitor.hpp"
 #include "../DataStructures/NonStrictMarkingBase.hpp"
 #include "../Generator.h"
+#include "../DataStructures/Waiting.h"
 
 
 namespace VerifyTAPN {
@@ -26,7 +27,8 @@ class SafetySynthesis {
 private:
     struct SafetyMeta;
     typedef MarkingStore<SafetyMeta> store_t;
-    typedef std::stack<store_t::Pointer*> stack_t;
+    typedef weightedqueue_t<store_t::Pointer*> waiting_t;
+    typedef std::stack<store_t::Pointer*> backstack_t;
     
     typedef std::pair<bool, store_t::Pointer*> depender_t;
     typedef std::forward_list<depender_t> depends_t;
@@ -50,6 +52,7 @@ private:
 
     
     store_t* store;
+    waiting_t* waiting;
     TAPN::TimedArcPetriNet& tapn;
     NonStrictMarking& initial_marking;
     AST::Query* query;
@@ -74,8 +77,8 @@ public:
 private:
     bool satisfies_query(NonStrictMarkingBase* m);
     void successors(MarkingStore<SafetyMeta>::Pointer*, SafetyMeta&, 
-                                            stack_t& waiting, bool controller);
-    void dependers_to_waiting(SafetyMeta& next_meta, stack_t& waiting);
+                                            waiting_t& waiting, bool controller);
+    void dependers_to_waiting(SafetyMeta& next_meta, backstack_t& waiting);
 };
 }
 }

@@ -12,7 +12,7 @@ namespace VerifyTAPN {
          
         Generator::Generator(TAPN::TimedArcPetriNet& tapn) 
         : tapn(tapn), allways_enabled(), 
-                place_transition(tapn.getPlaces().size()), permutation(), 
+                place_transition(), permutation(), 
                 base_permutation()
         {
             size_t maxtokens = 0;
@@ -36,6 +36,7 @@ namespace VerifyTAPN {
                         index = std::min(arc->getSource().getIndex(), index);                        
                         tokens += arc->getWeight();
                     }
+                    while(index >= place_transition.size()) place_transition.push_back(transitions_t());
                     place_transition[index].push_back(transition);
                     maxtokens = std::max( tokens, 
                                         maxtokens);
@@ -223,7 +224,8 @@ namespace VerifyTAPN {
                 isfirst = false;
 
                 size_t placeindex = parent->getPlaceList()[place].place->getIndex();                
-                if(transition >= place_transition[placeindex].size())
+                if(place_transition.size() <= placeindex ||
+                        transition >= place_transition[placeindex].size())
                 {
                     ++place;
                     transition = 0;
@@ -236,7 +238,8 @@ namespace VerifyTAPN {
                 }
                 placeindex = parent->getPlaceList()[place].place->getIndex();
                 // if no transitions out, skip
-                if(place_transition[placeindex].size() == 0) continue;
+                if(place_transition.size() <= placeindex ||
+                        place_transition[placeindex].size() == 0) continue;
 
                 current = place_transition[placeindex][transition];
                 if(is_enabled())

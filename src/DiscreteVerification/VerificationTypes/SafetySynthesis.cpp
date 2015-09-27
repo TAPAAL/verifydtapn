@@ -27,6 +27,24 @@ SafetySynthesis::SafetySynthesis(   TAPN::TimedArcPetriNet& tapn,
         store = new PTrieMarkingStore<SafetyMeta>(tapn, options.getKBound());
     else 
         store = new SimpleMarkingStore<SafetyMeta>();
+    
+    switch(options.getSearchType())
+    {
+        case VerificationOptions::DEPTHFIRST:
+            waiting = new dfs_queue<store_t::Pointer*>();
+            break;
+/*        case VerificationOptions::COVERMOST:
+            waiting = new covermost_queue<store_t::Pointer*>(query);            
+            break;*/
+        case VerificationOptions::RANDOM:
+            waiting = new random_queue<store_t::Pointer*>();
+            break;
+        case VerificationOptions::BREADTHFIRST:
+        default:
+            waiting = new bfs_queue<store_t::Pointer*>();
+            break;
+    }
+        
 }
 
 bool SafetySynthesis::satisfies_query(NonStrictMarkingBase* m)
@@ -41,7 +59,7 @@ bool SafetySynthesis::satisfies_query(NonStrictMarkingBase* m)
 
 bool SafetySynthesis::run()
 {
-    stack_t waiting;
+    backstack_t back;
     largest = initial_marking.size();
     if(!satisfies_query(&initial_marking)) return false;
     
@@ -51,13 +69,25 @@ bool SafetySynthesis::run()
     meta = {UNKNOWN, false, false, 0, 0, depends_t()};
     meta.waiting = true;
     
-    waiting.push(m_0_res.second);
+    waiting->push(m_0_res.second);
         
-    while(!waiting.empty() && meta.state != LOOSING && meta.state != WINNING)
+    while(meta.state != LOOSING && meta.state != WINNING)
     {
         ++explored;
-        store_t::Pointer* next = waiting.top();
-        waiting.pop();
+        store_t::Pointer* next;
+        
+        while(!back.empty())
+        {
+            next = back.top();
+            back.pop();
+            dependers_to_waiting(store->get_meta(next), back);
+            store->free(next);
+            
+        }
+        
+        if(waiting->empty()) break;
+        
+        next = waiting->pop();
         
         SafetyMeta& next_meta = store->get_meta(next);
 //        std::cout   << "pop " << next << " State: " << &next_meta << " - > "
@@ -67,19 +97,20 @@ bool SafetySynthesis::run()
         if( next_meta.state == LOOSING ||
             next_meta.state == WINNING)
         {
-            dependers_to_waiting(next_meta, waiting);
+            // these are allready handled in back stack
+            continue;
         }
         else
         {
             assert(next_meta.state == UNKNOWN);
             next_meta.state = PROCESSED;
             // generate successors for environment
-            successors(next, next_meta, waiting, false);
+            successors(next, next_meta, *waiting, false);
 
             if(next_meta.state != LOOSING)
             {
                 // generate successors for controller
-                successors(next, next_meta, waiting, true);
+                successors(next, next_meta, *waiting, true);
             }
             
             if(next_meta.state == MAYBE_WINNING && next_meta.env_children == 0)
@@ -90,7 +121,7 @@ bool SafetySynthesis::run()
             if(next_meta.state == LOOSING || next_meta.state == WINNING)
             {
                 assert(store->get_meta(next).state != PROCESSED);
-                waiting.push(next);
+                back.push(next);
             }
         }
         store->free(next);
@@ -98,7 +129,7 @@ bool SafetySynthesis::run()
     return meta.state != LOOSING;
 }
 
-void SafetySynthesis::dependers_to_waiting(SafetyMeta& next_meta, stack_t& waiting)
+void SafetySynthesis::dependers_to_waiting(SafetyMeta& next_meta, backstack_t& back)
 {
     for(auto ancestor : next_meta.dependers)
     {
@@ -133,7 +164,7 @@ void SafetySynthesis::dependers_to_waiting(SafetyMeta& next_meta, stack_t& waiti
         {
 //            if(a_meta.state == LOOSING) std::cout << "LOOSING : " << ancestor.second << std::endl;
             assert(store->get_meta(ancestor.second).state != PROCESSED);
-            if(!a_meta.waiting) waiting.push(ancestor.second);
+            if(!a_meta.waiting) back.push(ancestor.second);
             a_meta.waiting = true;
         }
     }
@@ -142,7 +173,7 @@ void SafetySynthesis::dependers_to_waiting(SafetyMeta& next_meta, stack_t& waiti
 
 void SafetySynthesis::successors(   store_t::Pointer* parent, 
                                     SafetyMeta& meta, 
-                                    stack_t& waiting,
+                                    waiting_t& waiting,
                                     bool is_controller)
 {
     NonStrictMarkingBase* marking = store->expand(parent);

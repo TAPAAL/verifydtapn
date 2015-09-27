@@ -152,7 +152,7 @@ namespace VerifyTAPN {
                 }
                 if(options.getSearchType() == VerificationOptions::MINDELAYFIRST)
                 {
-                    cout << "Minimal delay search strategy is supported for game synthesis" << std::endl;
+                    cout << "Minimal delay search strategy is not supported for game synthesis" << std::endl;
                     exit(1);
                 }
                 if(query->getQuantifier() == CF)
