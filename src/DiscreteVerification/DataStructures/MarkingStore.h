@@ -30,8 +30,6 @@ class MarkingStore
          */
         class Pointer {
         public:
-            virtual void set_meta_data(T&) = 0;
-            virtual T& get_meta_data() = 0;
             virtual ~Pointer(){};
         };
         
@@ -68,6 +66,8 @@ class MarkingStore
         virtual
         void free(NonStrictMarkingBase* m){};
         
+        void free(Pointer* p){}
+        
         /**
          * Number of markings currently in the store
          * @return 
@@ -86,7 +86,13 @@ class MarkingStore
         size_t max_tokens()
         {
             return m_tokens;
-        }        
+        }      
+        
+        virtual 
+        T& get_meta(Pointer* p) = 0;
+        
+        virtual 
+        void set_meta(Pointer* p, T& meta) = 0;
 };
 }
 }

@@ -139,6 +139,24 @@ class SimpleMarkingStore : public MarkingStore<T>
         void free(NonStrictMarkingBase* m){
             // do nothing
         };
+        
+        virtual
+        void free(typename MarkingStore<T>::Pointer* p)
+        {
+            
+        }
+        
+        virtual 
+        T& get_meta(typename MarkingStore<T>::Pointer* p)
+        {
+            return static_cast<Pointer*>(p)->get_meta_data();
+        }
+        
+        virtual 
+        void set_meta(typename MarkingStore<T>::Pointer* p, T& meta)
+        {
+            static_cast<Pointer*>(p)->set_meta_data(meta);
+        }
 };
 }
 }

@@ -159,22 +159,7 @@ namespace VerifyTAPN {
                 {
                     cout << "control: AF queries not yet supported" << std::endl;
                     exit(1);
-                }
-                
-                if (options.getMemoryOptimization() == VerificationOptions::PTRIE) {
-/*                    WaitingList<ptriepointer_t<MetaData*> >* strategy = getWaitingList<ptriepointer_t<MetaData*> > (query, options);
-                    LivenessSearchPTrie verifier = LivenessSearchPTrie(tapn, *initialMarking, query, options, strategy);
-                    VerifyAndPrint(
-                            tapn,
-                            verifier,
-                            options,
-                            query);
-                    delete strategy;*/
-                    std::cout << "currently not supported " << std::endl;
-                    exit(1);
-                }
-                else
-                {
+                }                
                     // Only needed if verifying normal CTL/LTL with game-algorithm.
                     // Notice that violating k-bound produces different results than in normal ctl semantics
                     if(query->getQuantifier() == AST::EG || query->getQuantifier() == AST::AF)
@@ -198,7 +183,6 @@ namespace VerifyTAPN {
                     std::cout << "Query is " << (result ? "satisfied" : "NOT satisfied") << "." << std::endl;
                     std::cout << "Max number of tokens found in any reachable marking: ";
                     std::cout << synthesis.max_tokens() << std::endl;
-                }
                 
             } else if (options.getVerificationType() == VerificationOptions::DISCRETE) {
 

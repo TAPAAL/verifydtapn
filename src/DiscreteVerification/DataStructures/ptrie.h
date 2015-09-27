@@ -33,7 +33,7 @@ namespace ptrie
             uint index;
         public:
             ptriepointer_t(ptrie_t<T>* container, uint i); 
-            T get_meta() const;
+            T& get_meta() const;
             void set_meta(T);
             uint write_partial_encoding(encoding_t&) const;
             encoding_t& remainder() const;
@@ -104,7 +104,7 @@ namespace ptrie
     }*/
     
     template<typename T>
-    T ptriepointer_t<T>::get_meta() const
+    T &ptriepointer_t<T>::get_meta() const
     {
         return container->get_entry(index)->_data.get_meta();
     }

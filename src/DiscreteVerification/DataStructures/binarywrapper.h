@@ -163,7 +163,8 @@ namespace ptrie
         void release();
 
         void set_meta(T data);
-        T get_meta() const;
+        T const_get_meta() const;
+        T &get_meta();
                 
         /**
          * Nice access to single bits
@@ -279,7 +280,7 @@ namespace ptrie
 
         _blob = new uchar[_nbytes];
         memcpy(_blob, &(other._blob[offset]), _nbytes);
-        set_meta(other.get_meta());
+        set_meta(other.const_get_meta());
     }
     
     template<class T>
@@ -298,7 +299,7 @@ namespace ptrie
 
         _blob = new uchar[_nbytes];
         memcpy(_blob, &(other._blob[offset]), _nbytes);
-        set_meta(other.get_meta());
+        set_meta(other.const_get_meta());
     }
     
     template<class T>
@@ -464,7 +465,13 @@ namespace ptrie
     }
     
     template<class T>
-    T binarywrapper_t<T>::get_meta() const
+    T binarywrapper_t<T>::const_get_meta() const
+    {
+        return _meta;
+    }
+    
+    template<class T>
+    T& binarywrapper_t<T>::get_meta()
     {
         return _meta;
     }

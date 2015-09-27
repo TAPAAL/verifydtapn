@@ -88,7 +88,7 @@ class PWListHybrid : public virtual PWListBase {
             waiting_list(w_l),
             makeTrace(makeTrace),
             passed(),
-            encoder(tapn, knumber, nplaces, mage)
+            encoder(tapn, knumber)
             {
                 discoveredMarkings = 0;
                 parent = NULL;

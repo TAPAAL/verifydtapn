@@ -39,8 +39,7 @@ namespace VerifyTAPN {
             TAPN::TimedArcPetriNet& tapn;
             encoding_t scratchpad;
         public:
-            MarkingEncoder(TAPN::TimedArcPetriNet& tapn, int knumber,
-                                                        int nplaces, int mage);
+            MarkingEncoder(TAPN::TimedArcPetriNet& tapn, int knumber);
             ~MarkingEncoder();
             
 
@@ -50,12 +49,12 @@ namespace VerifyTAPN {
         
         template<typename T, typename M>
         MarkingEncoder<T, M>::MarkingEncoder(TAPN::TimedArcPetriNet& tapn,
-                                int knumber, int nplaces, int mage):
+                                int knumber):
             maxNumberOfTokens(knumber),
-            maxAge(mage + 1),
-            numberOfPlaces(nplaces),
+            maxAge(tapn.getMaxConstant() + 1),
+            numberOfPlaces(tapn.getNumberOfPlaces()),
             countBitSize(ceil(log2((knumber ? knumber : 1)) + 1)),
-            placeAgeBitSize(ceil(log2((nplaces * (mage + 1))) + 1)),
+            placeAgeBitSize(ceil(log2((numberOfPlaces * (tapn.getMaxConstant() + 1))) + 1)),
             offsetBitSize(placeAgeBitSize + countBitSize),
             markingBitSize(offsetBitSize * (knumber ? knumber : 1)),
             tapn(tapn)
