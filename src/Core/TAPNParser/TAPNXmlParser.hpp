@@ -21,7 +21,7 @@ namespace VerifyTAPN {
 			ArcCollections(const TimedInputArc::Vector& inputArcs, const OutputArc::Vector& outputArcs, const TransportArc::Vector& transportArcs, const InhibitorArc::Vector& inhibitorArcs) : inputArcs(inputArcs), outputArcs(outputArcs), transportArcs(transportArcs), inhibitorArcs(inhibitorArcs) {};
 		};
 	public: // construction
-		explicit TAPNXmlParser(const std::map<std::string, int> replace) : replace(replace) {};
+		explicit TAPNXmlParser(const std::map<std::string, int>& replace) : replace(replace) {};
 
 		virtual ~TAPNXmlParser() { /* empty */ };
 

@@ -430,20 +430,21 @@ std::map<std::string, int> ArgsParser::parseReplace(const option& option) const
                 val = param.substr(equal, split - equal);
             
             try{
-                int res = boost::lexical_cast<unsigned long long>(option.second);
+                int res = boost::lexical_cast<unsigned long long>(val);
                 replace[name] = res;
             } catch (boost::bad_lexical_cast & e) {
 		std::cout << "Invalid value '" << option.second << "' for option '--"
 				<< option.first << "'" << std::endl;
 		exit(1);
             }
+            if(split >= param.size()) break;
             ++split;
         }
         else
         {
             break;
         }
-        if(split >= param.size()) break;
+
     } while(split != std::string::npos);
     return replace;
 }

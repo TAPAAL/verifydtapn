@@ -52,7 +52,7 @@ namespace VerifyTAPN {
                         }
                         
 		public: // statics
-			static TimeInterval createFor(const std::string& interval, const std::map<std::string, int> replace);
+			static TimeInterval createFor(const std::string& interval, const std::map<std::string, int>& replace);
 
 
 		private: // data

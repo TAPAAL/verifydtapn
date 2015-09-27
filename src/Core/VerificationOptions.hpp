@@ -145,7 +145,7 @@ namespace VerifyTAPN {
             return calculateCmax;
         };
         
-        inline const std::map<std::string, int> getReplacements() const {
+        inline const std::map<std::string, int>& getReplacements() const {
             return replace;
         }
 

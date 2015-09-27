@@ -31,7 +31,7 @@ namespace VerifyTAPN {
 			inline const bool isBoundStrict() const { return strictComparison; }
 
 		public: // statics
-			static TimeInvariant createFor(const std::string& invariant, const std::map<std::string, int> replace);
+			static TimeInvariant createFor(const std::string& invariant, std::map<std::string, int> replace);
 
 		private: // data
 			bool strictComparison;
