@@ -62,7 +62,7 @@ bool SafetySynthesis::run()
     backstack_t back;
     largest = initial_marking.size();
     if(!satisfies_query(&initial_marking)) return false;
-    
+  
     store_t::result_t m_0_res = store->insert_and_dealloc(&initial_marking);
 
     SafetyMeta& meta = store->get_meta(m_0_res.second);
@@ -81,8 +81,7 @@ bool SafetySynthesis::run()
             next = back.top();
             back.pop();
             dependers_to_waiting(store->get_meta(next), back);
-            store->free(next);
-            
+            store->free(next);            
         }
         
         if(waiting->empty()) break;
@@ -162,7 +161,6 @@ void SafetySynthesis::dependers_to_waiting(SafetyMeta& next_meta, backstack_t& b
         
         if(a_meta.state == WINNING || a_meta.state == LOOSING)
         {
-//            if(a_meta.state == LOOSING) std::cout << "LOOSING : " << ancestor.second << std::endl;
             assert(store->get_meta(ancestor.second).state != PROCESSED);
             if(!a_meta.waiting) back.push(ancestor.second);
             a_meta.waiting = true;
@@ -183,10 +181,11 @@ void SafetySynthesis::successors(   store_t::Pointer* parent,
             meta.urgent);
     
 //    std::cout << (is_controller ? "controller" : "env ");
-//    std::cout << marking << " : " << *marking << std::endl;
+//    std::cout << " : " << *marking << std::endl;
     
     NonStrictMarkingBase* next = NULL;
-    std::set<store_t::Pointer*> successors;
+
+    std::stack<store_t::Pointer*> successors;
     size_t number_of_children = 0;
     bool terminated = false;
     bool all_loosing = true;
@@ -198,7 +197,7 @@ void SafetySynthesis::successors(   store_t::Pointer* parent,
         ++discovered;
         ++number_of_children;
         
-//        std::cout << "\tchild  " <<  next << " : " << *next << std::endl;
+//        std::cout << "\tchild  " << " : " << *next << std::endl;
 
         if(!satisfies_query(next)) 
         {
@@ -219,14 +218,14 @@ void SafetySynthesis::successors(   store_t::Pointer* parent,
         }
 
         store_t::result_t res = store->insert_and_dealloc(next);
-
+        
         store_t::Pointer* p = res.second;
 
         if(res.first)
         {
             SafetyMeta childmeta = {UNKNOWN, false, false, 0, 0, depends_t()};
             store->set_meta(p, childmeta);
-            successors.insert(p);
+            successors.push(p);
             all_loosing = false;
 //            std::cout << "\t\t" << p << std::endl;
             continue;
@@ -249,7 +248,7 @@ void SafetySynthesis::successors(   store_t::Pointer* parent,
         
         if(childmeta.state != WINNING && childmeta.state != LOOSING)
         {
-            successors.insert(p);
+            successors.push(p);
         }
         all_loosing = all_loosing && (childmeta.state == LOOSING);
     }
@@ -272,12 +271,14 @@ void SafetySynthesis::successors(   store_t::Pointer* parent,
             return;
         }
     }
-
-    if(is_controller) meta.ctrl_children = successors.size();
-    else meta.env_children = successors.size();
     
-    for(auto child : successors)
+    std::set<store_t::Pointer*> unique;
+    while(!successors.empty())
     {
+        store_t::Pointer* child = successors.top();
+        successors.pop();
+        if(!unique.insert(child).second) continue;  // only insert unique elements
+        
         SafetyMeta& childmeta = store->get_meta(child);
         childmeta.dependers.push_front(
                                             depender_t(is_controller,parent));
@@ -288,6 +289,9 @@ void SafetySynthesis::successors(   store_t::Pointer* parent,
             waiting.push(child);
         } 
     }    
+    
+    if(is_controller) meta.ctrl_children = unique.size();
+    else meta.env_children = unique.size();
 }
 
 void SafetySynthesis::print_stats() {
