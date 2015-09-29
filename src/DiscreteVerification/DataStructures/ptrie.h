@@ -159,6 +159,9 @@ namespace ptrie
             
             short int _threshold;
             
+            uint* buffer;
+            size_t buffersize;
+            
         protected:
             node_t* get_node(uint index) const;
             uint new_node();
@@ -200,7 +203,7 @@ namespace ptrie
             {
                 if(deleted >= _next_free_node) break;
                 ++deleted;
-                delete[] _nodevector[i][b]._entries;
+                free(_nodevector[i][b]._entries);
             }
             delete[] _nodevector[i];
         }
@@ -217,6 +220,7 @@ namespace ptrie
             delete[] _entryvector[i];
         }
         _entryvector.clear();
+        free(buffer);
     }
     
     template<typename T>
@@ -235,6 +239,8 @@ namespace ptrie
         _nodevector[0][0]._highpos = 0;
         _nodevector[0][0]._lowpos = 0;
         _nodevector[0][0]._parent = 0;
+        buffersize = 1024;
+        buffer = static_cast<uint*>(malloc(sizeof(uint) * buffersize));
     }
     
     template<typename T>
@@ -545,29 +551,33 @@ namespace ptrie
         uint* o_entries = NULL;
 
         // if we are overflowing in, split bucket
-        uint n_node_count = 0;
+        uint n_node_count;
         uint node_count = 0;
 
         if (branch) {
-            n_node->_entries = new uint[n_node_count = node->_highcount];
+            n_node_count = node->_highcount;
+            n_node->_entries = static_cast<uint*>(malloc(node->_highcount*sizeof(uint)));
 
             node->_highpos = n_node_index;
             node->_highcount = -1;
 
             if (node->_lowcount > 0)
             {
-                o_entries = new uint[node_count = node->_lowcount];
+                node_count = node->_lowcount;
+                o_entries = static_cast<uint*>(malloc(node->_lowcount*sizeof(uint)));
             }
 
         } else {
-            n_node->_entries = new uint[n_node_count = node->_lowcount];
+            n_node_count = node->_lowcount;
+            n_node->_entries = static_cast<uint*>(malloc(node->_lowcount*sizeof(uint)));
             
             node->_lowpos = n_node_index;
             node->_lowcount = -1;
 
             if (node->_highcount > 0)
             {
-                o_entries = new uint[node_count = node->_highcount];
+                node_count = node->_highcount;
+                o_entries = static_cast<uint*>(malloc(node->_highcount*sizeof(uint)));
             }
         }
 
@@ -619,7 +629,7 @@ namespace ptrie
         assert(clistcount == n_node_count);
         assert(nlistcount == node_count);
 
-        delete[] node->_entries;
+        free(node->_entries);
         node->_entries = o_entries; 
 
         if (node->_highcount == -1 && node->_lowcount == -1) {
@@ -685,29 +695,25 @@ namespace ptrie
         n_entry->_nodeindex = tree_pos;
         
         // make a new bucket, add new entry to end, copy over old data
+        uint oldbucketsize = bucketsize;
         bucketsize += 1;
-        uint* nbucket = new uint[bucketsize];
-        for(size_t i = 0; i < bucketsize; ++i)
-        {
-            if(i < b_index)
-            {
-                nbucket[i] = node->_entries[i];
-            } 
-            else if (i == b_index)
-            {
-                nbucket[i] = ne_index;
-            }
-            else
-            {
-                nbucket[i] = node->_entries[i - 1];
-            }
-        }
-        // We added one to the bucket, now it is larger
-
+        node->_entries = static_cast<uint*>(realloc(node->_entries, sizeof(uint) * bucketsize));
         
-        // remove old bucket and replace
-        delete[] node->_entries;
-        node->_entries = nbucket;
+        if(b_index == oldbucketsize)
+        {
+            node->_entries[b_index] = ne_index;
+        }
+        else
+        {
+            if(bucketsize > buffersize)
+            {
+                buffersize = bucketsize;
+                buffer = static_cast<uint*>(realloc(buffer, sizeof(uint)*buffersize));
+            }
+            memcpy(buffer, &(node->_entries[b_index]), sizeof(uint)*(oldbucketsize - b_index));
+            node->_entries[b_index] = ne_index;
+            memcpy(&(node->_entries[b_index+1]), buffer, sizeof(uint)*(oldbucketsize - b_index));
+        }
         
         // increment correct counter
         short int count;

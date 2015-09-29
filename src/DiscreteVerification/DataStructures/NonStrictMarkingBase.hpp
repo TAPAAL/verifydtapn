@@ -155,6 +155,9 @@ public:
 		int numberOfTokensInPlace(int placeId) const;
 		const TokenList& getTokenList(int placeId) const;
 		inline const PlaceList& getPlaceList() const{ return places; }
+                inline PlaceList& getPlaceList() {
+                    return places;
+                }
 		unsigned int size();
 		inline NonStrictMarkingBase* getParent() const { return parent; }
 		inline const TAPN::TimedTransition* getGeneratedBy() const { return generatedBy; }
