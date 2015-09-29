@@ -148,15 +148,22 @@ namespace VerifyTAPN {
             child->setParent(NULL);
             int arccounter = 0;
             int last_movable = -1;
+            PlaceList& placelist = child->getPlaceList();
+            auto pit = placelist.begin();
             for(auto& input : current->getPreset())
-            {
+            {               
+                int source = input->getInputPlace().getIndex();
+                    
+                while(pit->place->getIndex() != source)
+                { 
+                    ++pit; assert(pit != placelist.end());
+                }
+
+                auto& tokenlist = pit->tokens;
+                
                 for(int i = input->getWeight() - 1; i >= 0; --i)
                 {
-                    size_t t_index = permutation[arccounter + i];
-
-                    int source = input->getInputPlace().getIndex();
-                    auto& tokenlist = child->getTokenList(source);
-
+                    size_t t_index = permutation[arccounter + i];       
                     size_t t_next = t_index + 1;
                     if(t_next < tokenlist.size() && input->getInterval().contains(
                             tokenlist[t_next].getAge()))
@@ -165,20 +172,32 @@ namespace VerifyTAPN {
                     }
 
                     assert(t_index < tokenlist.size());
-                    const Token& token = tokenlist[t_index];
-                    child->removeToken(source, token.getAge());
+                    if(tokenlist[t_index].getCount() > 1) tokenlist[t_index].remove(1);
+                    else 
+                    {
+                        tokenlist.erase(tokenlist.begin() + t_index);
+                        if(tokenlist.size() == 0) pit = placelist.erase(pit);
+                    }
                 }
                 arccounter += input->getWeight();
             }
 
+            pit = placelist.begin();
             // This has a problem if source and destination are the same!
+            // TODO Also fix faster removal of tokens here!
             for(auto& transport : current->getTransportArcs())
             {
+                int source = transport->getSource().getIndex();
+                while(pit->place->getIndex() != source)
+                { 
+                    ++pit; assert(pit != placelist.end());
+                }
+
+                auto& tokenlist = pit->tokens;
+
                 for(int i = transport->getWeight() - 1; i >= 0; --i)
                 {
                     size_t t_index = permutation[arccounter + i];
-                    int source = transport->getSource().getIndex();
-                    auto& tokenlist = child->getTokenList(source);
 
                     size_t t_next = t_index + 1;
                     if(t_next < tokenlist.size() && transport->getInterval().contains(
@@ -195,11 +214,30 @@ namespace VerifyTAPN {
                 }
                 arccounter += transport->getWeight();
             }
-                        
+                       
+            pit = placelist.begin();
             for(auto& output : current->getPostset())
             {
-                Token t = Token(0, output->getWeight());
-                child->addTokenInPlace(output->getOutputPlace(), t);
+                while(pit != placelist.end() &&
+                        pit->place->getIndex() < output->getOutputPlace().getIndex()) 
+                    ++pit;
+                if(pit != placelist.end() &&
+                        pit->place->getIndex() == output->getOutputPlace().getIndex())
+                {
+                    if(pit->tokens[0].getAge() == 0) 
+                        pit->tokens[0].add(output->getWeight());
+                    else
+                    {
+                        pit->tokens.insert(
+                            pit->tokens.begin(), Token(0, output->getWeight()));
+                    }
+                }
+                else
+                {
+                    pit = placelist.insert(pit, Place(&output->getOutputPlace()));
+                    pit->tokens.insert(
+                            pit->tokens.begin(), Token(0, output->getWeight()));
+                }
             }
 
             // nobody can move
@@ -249,27 +287,42 @@ namespace VerifyTAPN {
         
         bool Generator::is_enabled()
         {
+
             // Check inhibitors
             if(!modes_match(current)) return false;
 
+            PlaceList& placelist = parent->getPlaceList();
+            auto pit = placelist.begin();
+            
             for(auto& inhib : current->getInhibitorArcs())
             {
-                int tokens = parent->numberOfTokensInPlace(
-                                            inhib->getInputPlace().getIndex());
-                if(tokens >= inhib->getWeight())
+                while(inhib->getInputPlace().getIndex() > pit->place->getIndex())
+                    ++pit;
+                
+                int tokens = inhib->getWeight();
+                if(pit != placelist.end() && 
+                        inhib->getInputPlace().getIndex() == pit->place->getIndex())
                 {
-                    return false;
+                    for(auto& t : pit->tokens)
+                        tokens -= t.getCount();
                 }
+                if(tokens <= 0) return false;
             }   
             
             
             size_t arccounter = 0;
-            
+            pit = placelist.begin();            
             for(auto& input : current->getPreset())
             {
                 int source = input->getInputPlace().getIndex();
+                while(pit != placelist.end() &&
+                        pit->place->getIndex() < source) ++pit;
+                
+                if(pit == placelist.end() || pit->place->getIndex() != source)
+                    return false;
+                
                 int weight = input->getWeight();
-                auto& tokenlist = parent->getTokenList(source);
+                auto& tokenlist = pit->tokens;
                 for(size_t index = 0; index < tokenlist.size(); ++index)
                 {
                     auto& token = tokenlist[index];
@@ -287,12 +340,19 @@ namespace VerifyTAPN {
                 }
                 if(weight > 0) return false;
             }
-
+            
+            pit = placelist.begin();
             for(auto& transport : current->getTransportArcs())
             {
                 int source = transport->getSource().getIndex();
+                while(pit != placelist.end() &&
+                        pit->place->getIndex() < source) ++pit;
+                
+                if(pit == placelist.end() || pit->place->getIndex() != source)
+                    return false;
+                
                 int weight = transport->getWeight();
-                auto& tokenlist = parent->getTokenList(source);
+                auto& tokenlist = pit->tokens;
                 for(size_t index = 0; index < tokenlist.size(); ++index)
                 {
                     auto& token = tokenlist[index];

@@ -21,6 +21,15 @@ namespace VerifyTAPN {
                     exit(1);
                 }
             }
+
+            for(auto it = preset.begin(); it != preset.end(); ++it)
+            {
+                if((*it)->getInputPlace().getIndex() > arc.getInputPlace().getIndex())
+                {
+                    preset.insert(it, &arc);
+                    return;
+                }
+            }            
             preset.push_back(&arc);
         }
 
@@ -36,14 +45,40 @@ namespace VerifyTAPN {
                     exit(1);
                 }
             }
+
+
+            for(auto it = transportArcs.begin(); it != transportArcs.end(); ++it)
+            {
+                if((*it)->getSource().getIndex() > arc.getSource().getIndex())
+                {
+                    transportArcs.insert(it, &arc);
+                    return;
+                }
+            }
             transportArcs.push_back(&arc);
         }
 
         void TimedTransition::addIncomingInhibitorArc(InhibitorArc& arc) {
+            for(auto it = inhibitorArcs.begin(); it != inhibitorArcs.end(); ++it)
+            {
+                if((*it)->getInputPlace().getIndex() > arc.getInputPlace().getIndex())
+                {
+                    inhibitorArcs.insert(it, &arc);
+                    return;
+                }
+            }
             inhibitorArcs.push_back(&arc);
         }
 
         void TimedTransition::addToPostset(OutputArc& arc) {
+            for(auto it = postset.begin(); it != postset.end(); ++it)
+            {
+                if((*it)->getOutputPlace().getIndex() > arc.getOutputPlace().getIndex())
+                {
+                    postset.insert(it, &arc);
+                    return;
+                }
+            }
             postset.push_back(&arc);
         }
     }
