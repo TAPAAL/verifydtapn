@@ -103,13 +103,14 @@ bool SafetySynthesis::run()
         {
             assert(next_meta.state == UNKNOWN);
             next_meta.state = PROCESSED;
+            NonStrictMarkingBase* marking = store->expand(next);
             // generate successors for environment
-            successors(next, next_meta, *waiting, false);
+            successors(next, marking, next_meta, *waiting, false);
 
             if(next_meta.state != LOOSING)
             {
                 // generate successors for controller
-                successors(next, next_meta, *waiting, true);
+                successors(next, marking, next_meta, *waiting, true);
             }
             
             if(next_meta.state == MAYBE_WINNING && next_meta.env_children == 0)
@@ -170,11 +171,11 @@ void SafetySynthesis::dependers_to_waiting(SafetyMeta& next_meta, backstack_t& b
 }
 
 void SafetySynthesis::successors(   store_t::Pointer* parent, 
+                                    NonStrictMarkingBase* marking,
                                     SafetyMeta& meta, 
                                     waiting_t& waiting,
                                     bool is_controller)
 {
-    NonStrictMarkingBase* marking = store->expand(parent);
     generator.from_marking(marking, 
             is_controller ? 
                 Generator::CONTROLLABLE : Generator::ENVIRONMENT,

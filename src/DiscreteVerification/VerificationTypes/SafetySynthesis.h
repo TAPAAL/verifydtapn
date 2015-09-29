@@ -76,7 +76,7 @@ public:
     void print_stats();
 private:
     bool satisfies_query(NonStrictMarkingBase* m);
-    void successors(MarkingStore<SafetyMeta>::Pointer*, SafetyMeta&, 
+    void successors(MarkingStore<SafetyMeta>::Pointer*, NonStrictMarkingBase*, SafetyMeta&,
                                             waiting_t& waiting, bool controller);
     void dependers_to_waiting(SafetyMeta& next_meta, backstack_t& waiting);
 };
