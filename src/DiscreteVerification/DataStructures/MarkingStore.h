@@ -66,8 +66,6 @@ class MarkingStore
         virtual
         void free(NonStrictMarkingBase* m){};
         
-        void free(Pointer* p){}
-        
         /**
          * Number of markings currently in the store
          * @return 

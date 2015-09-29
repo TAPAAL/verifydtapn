@@ -82,11 +82,6 @@ class PTrieMarkingStore : public MarkingStore<T>
         void free(NonStrictMarkingBase* m){
             delete m;
         };
-        
-        void free(typename MarkingStore<T>::Pointer* p)
-        {
-            delete p;
-        }
 
         virtual 
         T& get_meta(typename MarkingStore<T>::Pointer* p)

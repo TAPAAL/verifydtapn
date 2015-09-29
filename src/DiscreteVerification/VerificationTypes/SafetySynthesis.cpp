@@ -80,8 +80,7 @@ bool SafetySynthesis::run()
         {
             next = back.top();
             back.pop();
-            dependers_to_waiting(store->get_meta(next), back);
-            store->free(next);            
+            dependers_to_waiting(store->get_meta(next), back);       
         }
         
         if(waiting->empty()) break;
@@ -123,8 +122,8 @@ bool SafetySynthesis::run()
                 assert(store->get_meta(next).state != PROCESSED);
                 back.push(next);
             }
+            store->free(marking);
         }
-        store->free(next);
     }
     return meta.state != LOOSING;
 }
@@ -253,8 +252,6 @@ void SafetySynthesis::successors(   store_t::Pointer* parent,
         }
         all_loosing = all_loosing && (childmeta.state == LOOSING);
     }
-    
-    store->free(marking);
     
     if(terminated) return; // Add nothing to waiting, we already have result
 

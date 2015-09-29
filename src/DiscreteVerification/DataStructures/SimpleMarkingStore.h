@@ -140,12 +140,6 @@ class SimpleMarkingStore : public MarkingStore<T>
             // do nothing
         };
         
-        virtual
-        void free(typename MarkingStore<T>::Pointer* p)
-        {
-            
-        }
-        
         virtual 
         T& get_meta(typename MarkingStore<T>::Pointer* p)
         {
