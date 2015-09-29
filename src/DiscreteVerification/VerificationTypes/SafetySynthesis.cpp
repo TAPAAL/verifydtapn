@@ -245,6 +245,10 @@ void SafetySynthesis::successors(   store_t::Pointer* parent,
             terminated = true;
             break;
         }
+        else if(!is_controller && p == parent)
+        {
+            continue;
+        }
         
         if(childmeta.state != WINNING && childmeta.state != LOOSING)
         {
