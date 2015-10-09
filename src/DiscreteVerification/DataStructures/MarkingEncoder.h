@@ -141,7 +141,7 @@ namespace VerifyTAPN {
                     int age = floor(data / this->numberOfPlaces);
                     uint place = (data % this->numberOfPlaces);
                     auto tplace = &tapn.getPlace(place);
-                    size_t last = 0;
+                    size_t last = places.size()-1;
                     if(places.size() == 0)
                     {
                         last = 0;
