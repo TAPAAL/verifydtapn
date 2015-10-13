@@ -296,7 +296,8 @@ namespace VerifyTAPN {
             
             for(auto& inhib : current->getInhibitorArcs())
             {
-                while(inhib->getInputPlace().getIndex() > pit->place->getIndex())
+                while(pit != placelist.end() &&
+                        inhib->getInputPlace().getIndex() > pit->place->getIndex())
                     ++pit;
                 
                 int tokens = inhib->getWeight();
