@@ -142,6 +142,8 @@ namespace ptrie
                 short int _lowcount;
                 uint _parent;            // for back-traversal
                 uint* _entries;          // back-pointers to data-array up to date
+                bool _jump;
+                uchar _parent_index;
             };
             
             struct entry_t
@@ -239,6 +241,8 @@ namespace ptrie
         _nodevector[0][0]._highpos = 0;
         _nodevector[0][0]._lowpos = 0;
         _nodevector[0][0]._parent = 0;
+        _nodevector[0][0]._jump = false;
+        _nodevector[0][0]._parent_index = 0;
         buffersize = 1024;
         buffer = static_cast<uint*>(malloc(sizeof(uint) * buffersize));
     }
@@ -355,10 +359,24 @@ namespace ptrie
         while(c_index != 0)
         {
             uint p_index = node->_parent;
-            node = get_node(p_index);
-            bool branch = c_index == node->_highpos;
-            encoding.set(count, branch);
-            ++count;
+            if(node->_jump)
+            {
+                uchar pchar = node->_parent_index;
+                for(size_t i = 0; i < 8; ++i)
+                {
+                    encoding.set(count, (pchar & 0x80)); 
+                    ++count;
+                    pchar <<= 1;
+                }
+                node = get_node(p_index);
+            } 
+            else
+            {
+                node = get_node(p_index);
+                bool branch = c_index == node->_highpos;
+                encoding.set(count, branch);
+                ++count;
+            }
             c_index = p_index;
         }
         assert(consistent());
@@ -442,7 +460,7 @@ namespace ptrie
                 t_pos = get_node(t_pos)->_lowpos;
             }
 
-            assert(t_pos == 0 || get_node(t_pos)->_parent == tree_pos);
+            assert(t_pos == 0 || get_node(t_pos)->_jump || get_node(t_pos)->_parent == tree_pos);
             
             enc_pos++;
 
@@ -592,12 +610,28 @@ namespace ptrie
         // because we are only really shifting around bits when enc_pos % 8 = 0
         // then we need to find out which bit of the first 8 we are
         // splitting on in the "remainder"
-        uint r_pos = enc_pos % 8;
+        const uint r_pos = enc_pos % 8;
 
 
         size_t clistcount = 0;
         size_t nlistcount = 0;
 
+
+        if ((r_pos + 1) == 8) { 
+            size_t tmp_parent = n_node->_parent;
+            n_node->_jump = true;
+            
+            for(size_t i = 0; i < 7; ++i)
+                tmp_parent = get_node(tmp_parent)->_parent;
+            
+            n_node->_parent = tmp_parent;
+        }
+        else
+        {
+            n_node->_jump = false;
+        }
+
+        
         // Copy over the data to the new buckets
         for (size_t i = 0; i < bucketsize; i++) {
             entry_t* entry = get_entry(node->_entries[i]);
@@ -612,6 +646,10 @@ namespace ptrie
                 // This goes to the new bucket, we can maybe remove a byte
                 if ((r_pos + 1) == 8) { 
                     // Tree tree is representing the first byte, remove it 
+                    if(entry->_data.size() > 0)
+                    {
+                        n_node->_parent_index = entry->_data.raw()[0];
+                    }
                     entry->_data.pop_front(1);
                 }
 
