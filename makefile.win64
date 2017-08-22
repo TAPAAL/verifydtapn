@@ -4,7 +4,7 @@ SHELL    		= /bin/bash
 # Programs for processing
 LEX				= flex 
 YACC				= bison 
-CC				= i686-w64-mingw32-g++ 
+CC				= x86_64-w64-mingw32-g++ 
 CUT				= cut
 
 # Compiler and linker flags
@@ -15,6 +15,6 @@ LDFLAGS 		= -flto=4 -DBOOST_DISABLE_THREADS -DNDEBUG -DDISABLE_ASSERTX -static -
 # Input files
 SOURCES			= $(shell find * -name "*.cpp")	
 OBJECTS			= $(SOURCES:.cpp=.o)
-TARGET			= verifydtapn-win32
+TARGET			= verifydtapn-win64
 
 include rules.mk

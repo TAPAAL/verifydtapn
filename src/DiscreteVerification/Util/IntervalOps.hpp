@@ -9,20 +9,35 @@
 #define INTERVALOPS_HPP_
 
 #include <vector>
-#include "boost/numeric/interval.hpp"
+#include <limits>
 
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 namespace Util {
 
-typedef boost::numeric::interval_lib::rounded_math< int > rounding_policy;
-typedef boost::numeric::interval_lib::checking_no_nan< int > checking_policy;
-typedef boost::numeric::interval_lib::policies< rounding_policy, checking_policy > interval_policies;
-typedef boost::numeric::interval< int, interval_policies > interval;
+    struct interval {
+        int low, high;
+        interval(int l, int h) : low(l), high(h) 
+        {
+            if(low > high)
+            {
+                low = std::numeric_limits<int>::max();
+                high = std::numeric_limits<int>::min();
+            }
+        };
+        auto upper() const {return high; }
+        auto lower() const {return low; }
+        auto empty() const { return high < low; }
+    };
 
-void setAdd(std::vector< interval >& first, const interval& element);
-std::vector<interval > setIntersection(const std::vector<interval >& first,
-		const std::vector<interval >& second);
+    interval intersect(const interval& l, const interval r);
+    interval hull(const interval& l, const interval r);
+    bool overlap(const interval& l, const interval r);
+    
+    
+    void setAdd(std::vector< interval >& first, const interval& element);
+    std::vector<interval > setIntersection(const std::vector<interval >& first,
+                    const std::vector<interval >& second);
 
 } /* namespace Util */
 } /* namespace DiscreteVerification */
