@@ -8,8 +8,8 @@ CC				= gcc
 CUT				= cut
 
 # Compiler and linker flags
-COMMONFLAGS 		= -DBOOST_DISABLE_THREADS -DNDEBUG -DDISABLE_ASSERTX -O3 -Wall -mtune=core2 -mmacosx-version-min=10.9 -m64
-CFLAGS			= $(COMMONFLAGS) -I. -I -I/usr/local/include -I/opt/local/include -I 
+COMMONFLAGS 		= -DBOOST_DISABLE_THREADS -DNDEBUG -DDISABLE_ASSERTX -O3 -Wall -mtune=core2 -mmacosx-version-min=10.9 -m64 -std=c++14
+CFLAGS			= $(COMMONFLAGS) -I. -I/usr/local/include -I/opt/local/include -I/usr/local/ 
 LDFLAGS			= $(COMMONFLAGS) -lstdc++ 
 
 # Input files
