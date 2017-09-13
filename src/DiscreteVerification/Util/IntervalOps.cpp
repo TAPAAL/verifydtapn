@@ -59,7 +59,7 @@ interval hull(const interval& l, const interval r)
 bool overlap(const interval& l, const interval r)
 {
     auto i = intersect(l, r);
-    return i.empty();
+    return !i.empty();
 }
 
 void setAdd(vector< interval >& first, const interval& element){
