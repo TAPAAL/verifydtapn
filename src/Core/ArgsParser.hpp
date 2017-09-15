@@ -5,6 +5,7 @@
 #include <map>
 #include <string>
 #include <iosfwd>
+#include <memory>
 #include "VerificationOptions.hpp"
 #include "boost/lexical_cast.hpp"
 

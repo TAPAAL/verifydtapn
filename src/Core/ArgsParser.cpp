@@ -194,9 +194,8 @@ void ArgsParser::printHelp() const {
 			<< "Displays this help message." << std::endl;
 	std::cout << std::setw(WIDTH) << std::left << "-v [ --version ]"
 			<< "Displays version information." << std::endl;
-	for (parser_vec::const_iterator arg = parsers.begin(); arg != parsers.end();
-			arg++) {
-		std::cout << **arg;
+	for (auto& p : parsers) {
+		std::cout << *p;
 	}
 }
 ;
