@@ -1,7 +1,6 @@
 #include "ArgsParser.hpp"
 #include <iostream>
 #include <sstream>
-#include <memory>
 #include "boost/algorithm/string.hpp"
 #include "boost/lexical_cast.hpp"
 #include <iomanip>
@@ -135,52 +134,52 @@ void ArgsParser::initialize() {
     //       Each line in the description is assumed to fit within the remaining width
     //       of the console, so keep descriptions short, or implement manual word-wrapping :).
     parsers.push_back(
-            std::make_shared<SwitchWithArg > ("k", KBOUND_OPTION,
+            new SwitchWithArg ("k", KBOUND_OPTION,
             "Max tokens to use during exploration.", 0));
     parsers.push_back(
-            std::make_shared<SwitchWithArg > ("o", SEARCH_OPTION,
+            new SwitchWithArg ("o", SEARCH_OPTION,
             "Specify the desired search strategy.\n - 0: Breadth-First Search\n - 1: Depth-First Search\n - 2: Random Search\n - 3: Heuristic Search\n - 4: Default",
             4));
     parsers.push_back(
-            std::make_shared<SwitchWithArg > ("m", VERIFICATION_OPTION,
+            new SwitchWithArg ("m", VERIFICATION_OPTION,
             "Specify the desired verification method.\n - 0: Default (discrete)\n - 1: Time Darts",
             0));
     parsers.push_back(
-            std::make_shared<SwitchWithArg > ("p", MEMORY_OPTIMIZATION_OPTION,
+            new SwitchWithArg ("p", MEMORY_OPTIMIZATION_OPTION,
             "Specify the desired memory optimization.\n - 0: None \n - 1: PTrie",
             0)); 
     parsers.push_back(
-            std::make_shared<SwitchWithArg > ("t", TRACE_OPTION,
+            new SwitchWithArg ("t", TRACE_OPTION,
             "Specify the desired trace option.\n - 0: none\n - 1: some\n - 2: fastest",
             0));
     parsers.push_back(
-            std::make_shared<Switch > ("d", KEEP_DEAD,
+            new Switch ("d", KEEP_DEAD,
             "Do not discard dead tokens\n(used for boundedness checking)"));
     parsers.push_back(
-            std::make_shared<Switch > ("g", MAX_CONSTANT_OPTION,
+            new Switch ("g", MAX_CONSTANT_OPTION,
             "Use global maximum constant for \nextrapolation (as opposed to local \nconstants)."));
     parsers.push_back(
-            std::make_shared<Switch > ("s", LEGACY,
+            new Switch ("s", LEGACY,
             "Legacy option (no effect)."));
 
     parsers.push_back(
-            std::make_shared<Switch > ("x", XML_TRACE_OPTION,
+            new Switch ("x", XML_TRACE_OPTION,
             "Output trace in xml format for TAPAAL."));
 
     parsers.push_back(
-            std::make_shared<Switch >("c", GCD,
+            new Switch("c", GCD,
             "Enable lowering the guards by the greatest common divisor"));
     
     parsers.push_back(
-            std::make_shared<SwitchWithArg > ("w", WORKFLOW,
+            new SwitchWithArg ("w", WORKFLOW,
             "Workflow mode.\n - 0: Disabled\n - 1: Soundness (and min)\n - 2: Strong Soundness (and max)",
             0));
     parsers.push_back(
-            std::make_shared<SwitchWithArg > ("b", STRONG_WORKFLOW_BOUND,
+            new SwitchWithArg ("b", STRONG_WORKFLOW_BOUND,
             "Maximum delay bound for strong workflow analysis",
             0));
     parsers.push_back(
-            std::make_shared<Switch> ("n", CALCULATE_CMAX,
+            new Switch ("n", CALCULATE_CMAX,
             "Calculate the place bounds"));
 
     };
