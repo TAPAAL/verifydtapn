@@ -79,7 +79,7 @@ namespace VerifyTAPN
 	class ArgsParser {
 		typedef std::vector< Switch* > parser_vec;
 	public:
-		ArgsParser() : parsers(), version(3,2,0) { initialize(); };
+		ArgsParser() : parsers(), version(3,2,1) { initialize(); };
 		virtual ~ArgsParser() { for( auto p : parsers) delete p; };
 
 		VerificationOptions parse(int argc, char* argv[]) const;
