@@ -5,7 +5,6 @@
 #include <map>
 #include <string>
 #include <iosfwd>
-#include "boost/smart_ptr.hpp"
 #include "VerificationOptions.hpp"
 #include "boost/lexical_cast.hpp"
 
@@ -78,10 +77,10 @@ namespace VerifyTAPN
 	};
 
 	class ArgsParser {
-		typedef std::vector< boost::shared_ptr<Switch> > parser_vec;
+		typedef std::vector< Switch* > parser_vec;
 	public:
-		ArgsParser() : parsers(), version(3,2,0) { initialize(); };
-		virtual ~ArgsParser() {};
+		ArgsParser() : parsers(), version(3,2,1) { initialize(); };
+		virtual ~ArgsParser() { for( auto p : parsers) delete p; };
 
 		VerificationOptions parse(int argc, char* argv[]) const;
 	private:

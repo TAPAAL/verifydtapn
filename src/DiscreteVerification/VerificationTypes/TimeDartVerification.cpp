@@ -88,7 +88,7 @@ namespace VerifyTAPN {
                 Util::interval arcGuard((*arc)->getInterval().getLowerBound(), (*arc)->getInterval().getUpperBound());
                 Util::interval invGuard(0, (*arc)->getDestination().getInvariant().getBound());
 
-                Util::interval arcInterval = boost::numeric::intersect(arcGuard, invGuard);
+                Util::interval arcInterval = Util::intersect(arcGuard, invGuard);
                 vector<Util::interval > intervals;
                 int range;
                 if (arcInterval.upper() == INT_MAX) {

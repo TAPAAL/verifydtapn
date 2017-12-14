@@ -12,7 +12,6 @@ namespace DiscreteVerification {
 namespace Util {
 
 using namespace std;
-using namespace boost::numeric;
 
 vector<interval > setIntersection(const vector<interval >& first, const vector<interval >& second){
 	vector<interval > result;
@@ -29,7 +28,7 @@ vector<interval > setIntersection(const vector<interval >& first, const vector<i
 
 		interval intersection = intersect(first.at(i), second.at(j));
 
-		if(!empty(intersection)){
+		if(!intersection.empty()){
 			result.push_back(intersection);
 		}
 
@@ -44,6 +43,25 @@ vector<interval > setIntersection(const vector<interval >& first, const vector<i
 	return result;
 }
 
+interval intersect(const interval& l, const interval r)
+{
+    if(l.empty()) return l;
+    if(r.empty()) return r;
+    interval n(std::max(l.low, r.low), std::min(l.high, r.high));
+    return n;
+}
+
+interval hull(const interval& l, const interval r)
+{
+    return interval(std::min(l.low, r.low), std::max(l.high, r.high));
+}
+
+bool overlap(const interval& l, const interval r)
+{
+    auto i = intersect(l, r);
+    return !i.empty();
+}
+
 void setAdd(vector< interval >& first, const interval& element){
 
 	for(unsigned int i = 0; i < first.size(); i++){
@@ -55,13 +73,13 @@ void setAdd(vector< interval >& first, const interval& element){
 		} else if(overlap(element, first.at(i))){
 			interval u = hull(element, first.at(i));
 			// Merge with node
-			first.at(i).assign(u.lower(), u.upper());
+			first[i] = u;
 			// Clean up
 			for(i++; i < first.size(); i++){
 				if(first.at(i).lower() <= u.upper()){
 					// Merge items
 					if(first.at(i).upper() > u.upper()){
-						first.at(i-1).assign(first.at(i-1).lower(), first.at(i).upper());
+						first[i-1] = interval(first.at(i-1).lower(), first.at(i).upper());
 					}
 					first.erase(first.begin()+i);
 					i--;
