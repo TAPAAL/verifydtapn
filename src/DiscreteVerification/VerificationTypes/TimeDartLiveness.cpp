@@ -177,6 +177,7 @@ namespace VerifyTAPN {
                 return false;
             }
             assert(false);// all cases should be handled
+            return false;
         }
 
         void TimeDartLiveness::printStats() {

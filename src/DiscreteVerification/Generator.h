@@ -26,7 +26,7 @@ namespace VerifyTAPN {
                 Mode mode;  
                 transitions_t allways_enabled;
                 std::vector<transitions_t> place_transition;
-                size_t noinput_nr;
+                size_t num_children;
                 size_t place;
                 size_t transition;
                 const TAPN::TimedTransition* current;
@@ -42,6 +42,7 @@ namespace VerifyTAPN {
                 NonStrictMarkingBase* from_delay();
                 size_t children();
                 bool is_enabled();
+                bool inhibited(const TAPN::TimedTransition* trans) const;
                 bool urgent(){return seen_urgent;};
                 
         private:

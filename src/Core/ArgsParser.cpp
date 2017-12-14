@@ -183,7 +183,7 @@ void ArgsParser::initialize() {
             new Switch ("n", CALCULATE_CMAX,
             "Calculate the place bounds"));
     parsers.push_back(
-            boost::make_shared<SwitchWithStringArg>("r", REPLACE,
+            new SwitchWithStringArg("r", REPLACE,
             "Replace placeholder in model with value, format PLACEHOLDER=VALUE;..", ""));
 
     };

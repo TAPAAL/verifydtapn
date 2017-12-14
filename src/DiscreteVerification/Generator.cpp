@@ -49,7 +49,7 @@ namespace VerifyTAPN {
         {
             this->parent = parent;
             this->mode = mode;
-            noinput_nr = 0;
+            num_children = 0;
             place = 0;
             transition = 0;
             current = NULL;
@@ -62,10 +62,10 @@ namespace VerifyTAPN {
         {
             if(done) return NULL;
             // easy ones, continue to we find a result or out of transitions
-            while(!did_noinput && noinput_nr < allways_enabled.size())
+            while(!did_noinput && num_children < allways_enabled.size())
             {
                 NonStrictMarkingBase* marking = next_no_input();
-                ++noinput_nr;
+                ++num_children;
                 if(marking) return marking;
             }
 
@@ -73,7 +73,11 @@ namespace VerifyTAPN {
             if(did_noinput) // First iteration of while has happend
             {                
                 NonStrictMarkingBase* child = next_from_current();
-                if(child) return child;
+                if(child)
+                {
+                    ++num_children;
+                    return child;
+                }
             }
             
             while(next_transition(!did_noinput))
@@ -81,12 +85,17 @@ namespace VerifyTAPN {
                 did_noinput = true;
                 // from the current transition, try the next child
                 NonStrictMarkingBase* child = next_from_current();
-                if(child) return child;
+                if(child)
+                {
+                    ++num_children;
+                    return child;
+                }
             }
             
             done = true;                            
             if(!seen_urgent && do_delay)
             {
+                ++num_children;
                 return from_delay();
             }
             return NULL;
@@ -126,7 +135,8 @@ namespace VerifyTAPN {
         {
             // lowhanging fruits first!
             NonStrictMarkingBase* child = new NonStrictMarking(*parent);
-            auto trans = allways_enabled[noinput_nr];
+            auto trans = allways_enabled[num_children];
+            if(inhibited(trans)) return NULL;
             seen_urgent |= trans->isUrgent();            
             if(!modes_match(trans)) return NULL;
                 
@@ -192,11 +202,9 @@ namespace VerifyTAPN {
                 { 
                     ++pit; assert(pit != placelist.end());
                 }
-
-                auto& tokenlist = pit->tokens;
-
                 for(int i = transport->getWeight() - 1; i >= 0; --i)
                 {
+                    auto& tokenlist = pit->tokens;
                     size_t t_index = permutation[arccounter + i];
 
                     size_t t_next = t_index + 1;
@@ -211,10 +219,15 @@ namespace VerifyTAPN {
                     child->removeToken(source, token.getAge());
                     child->addTokenInPlace(transport->getDestination(), 
                             token.getAge());
+                    pit = placelist.begin();
+                    while(pit != placelist.end() && pit->place->getIndex() < source)
+                    { 
+                        ++pit;
+                    }                        
                 }
                 arccounter += transport->getWeight();
             }
-                       
+            
             pit = placelist.begin();
             for(auto& output : current->getPostset())
             {
@@ -246,7 +259,7 @@ namespace VerifyTAPN {
             {
                 permutation[last_movable] += 1;
                 for(int i = last_movable + 1; i < arccounter; ++i)
-                {
+                { 
                     permutation[i] = base_permutation[i];
                 }
             }
@@ -284,17 +297,12 @@ namespace VerifyTAPN {
                     return true;
             } while (true);
         }
-        
-        bool Generator::is_enabled()
-        {
 
-            // Check inhibitors
-            if(!modes_match(current)) return false;
-
+        bool Generator::inhibited(const TAPN::TimedTransition* trans) const {
             PlaceList& placelist = parent->getPlaceList();
             auto pit = placelist.begin();
             
-            for(auto& inhib : current->getInhibitorArcs())
+            for(auto& inhib : trans->getInhibitorArcs())
             {
                 while(pit != placelist.end() &&
                         inhib->getInputPlace().getIndex() > pit->place->getIndex())
@@ -307,9 +315,21 @@ namespace VerifyTAPN {
                     for(auto& t : pit->tokens)
                         tokens -= t.getCount();
                 }
-                if(tokens <= 0) return false;
+                if(tokens <= 0) return true;
             }   
+            return false;
+        }
+        
+        bool Generator::is_enabled()
+        {
+
+            // Check inhibitors
+            if(!modes_match(current)) return false;
+
+            PlaceList& placelist = parent->getPlaceList();
             
+            if(inhibited(current)) return false;
+            auto pit = placelist.begin();            
             
             size_t arccounter = 0;
             pit = placelist.begin();            
@@ -379,7 +399,7 @@ namespace VerifyTAPN {
 
         size_t Generator::children()
         {
-            return noinput_nr;
+            return num_children;
         }
     }
 }

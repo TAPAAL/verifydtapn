@@ -109,8 +109,9 @@ namespace VerifyTAPN {
         template<typename T,typename U>
         SRes AbstractNaiveVerification<T,U>::generateAndInsertSuccessors(NonStrictMarkingBase& from) {
             
+
             successorGenerator.from_marking(&from);
-            while(auto next = successorGenerator.next(true))
+            while(auto next = successorGenerator.next(false))
             {                
                 U* ptr = new U(*next);
                 delete next;
