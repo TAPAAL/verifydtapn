@@ -12,7 +12,6 @@
 
 #include "../DataStructures/MarkingStore.h"
 #include "../../Core/TAPN/TAPN.hpp"
-#include "../SuccessorGenerator.hpp"
 #include "../QueryVisitor.hpp"
 #include "../DataStructures/NonStrictMarkingBase.hpp"
 #include "../Generator.h"

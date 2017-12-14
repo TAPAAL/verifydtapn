@@ -18,17 +18,18 @@
 #include "../../Core/TAPN/TransportArc.hpp"
 #include "../../Core/TAPN/InhibitorArc.hpp"
 #include "../../Core/TAPN/OutputArc.hpp"
-#include "../SuccessorGenerator.hpp"
 #include "../QueryVisitor.hpp"
 #include "../DataStructures/NonStrictMarking.hpp"
 #include <stack>
 #include "ReachabilitySearch.hpp"
 #include "../DataStructures/WaitingList.hpp"
 #include "AbstractNaiveVerification.hpp"
+#include "../../Core/TAPN/TAPN.hpp"
 
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
+    using namespace TAPN;
 
 class Workflow : public AbstractNaiveVerification<WorkflowPWListBasic,NonStrictMarking> {
 public:    

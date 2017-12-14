@@ -74,7 +74,7 @@ namespace VerifyTAPN {
                 validChildren = 0;
 
                 bool noDelay = false;
-                Result res = successorGenerator.generateAndInsertSuccessors(*next_marking);
+                auto res = generateAndInsertSuccessors(*next_marking);
                 if (res == ADDTOPW_RETURNED_TRUE) {
                     clearTrace();
                     return true;

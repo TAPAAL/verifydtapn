@@ -38,7 +38,8 @@ bool LivenessSearch::run(){
 			validChildren = 0;
 
                         bool noDelay = false;
-                        Result res = successorGenerator.generateAndInsertSuccessors(next_marking);
+                        
+                        auto res = generateAndInsertSuccessors(next_marking);
                         if (res == ADDTOPW_RETURNED_TRUE) {
                             return true;
                         } else if (res == ADDTOPW_RETURNED_FALSE_URGENTENABLED) {
@@ -56,7 +57,7 @@ bool LivenessSearch::run(){
                                 endOfMaxRun = false;
 			}
                         // if no delay is possible, and no transition-based succecors are possible, we have reached a max run
-                        endOfMaxRun = endOfMaxRun && (!successorGenerator.doSuccessorsExist());
+                        endOfMaxRun = endOfMaxRun && successorGenerator.children() == 0;
 
 
 		} else {

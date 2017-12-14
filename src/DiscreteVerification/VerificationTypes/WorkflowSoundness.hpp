@@ -18,7 +18,6 @@
 #include "../../Core/TAPN/TransportArc.hpp"
 #include "../../Core/TAPN/InhibitorArc.hpp"
 #include "../../Core/TAPN/OutputArc.hpp"
-#include "../SuccessorGenerator.hpp"
 #include "../QueryVisitor.hpp"
 #include "../DataStructures/NonStrictMarking.hpp"
 #include <stack>

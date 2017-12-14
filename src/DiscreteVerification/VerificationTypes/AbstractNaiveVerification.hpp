@@ -18,7 +18,7 @@
 #include "../../Core/TAPN/TransportArc.hpp"
 #include "../../Core/TAPN/InhibitorArc.hpp"
 #include "../../Core/TAPN/OutputArc.hpp"
-#include "../SuccessorGenerator.hpp"
+#include "../Generator.h"
 #include "../QueryVisitor.hpp"
 #include "../DataStructures/NonStrictMarking.hpp"
 #include "Verification.hpp"
@@ -27,7 +27,11 @@
 namespace VerifyTAPN {
     namespace DiscreteVerification {
         using namespace std;
-        
+        enum SRes {
+            ADDTOPW_RETURNED_TRUE,
+            ADDTOPW_RETURNED_FALSE_URGENTENABLED,
+            ADDTOPW_RETURNED_FALSE
+        };        
         template<typename T, typename U>
         class AbstractNaiveVerification : public Verification<U> {
         public:
@@ -38,7 +42,7 @@ namespace VerifyTAPN {
             }
             
             void printTransitionStatistics() const {
-                successorGenerator.printTransitionStatistics(std::cout);
+                //successorGenerator.printTransitionStatistics(std::cout);
             }
 
             void printStats();
@@ -60,7 +64,8 @@ namespace VerifyTAPN {
             };
 
         protected:
-            SuccessorGenerator<U> successorGenerator;
+            SRes generateAndInsertSuccessors(NonStrictMarkingBase& from);
+            Generator successorGenerator;
             U* lastMarking;
             U* tmpParent;
             T* pwList;
@@ -68,7 +73,7 @@ namespace VerifyTAPN {
 
         template<typename T,typename U>
         AbstractNaiveVerification<T,U>::AbstractNaiveVerification(TAPN::TimedArcPetriNet& tapn, U& initialMarking, AST::Query* query, VerificationOptions options, T* pwList)
-        : Verification<U>(tapn, initialMarking, query, options), successorGenerator(tapn, *this), lastMarking(NULL), pwList(pwList) {
+        : Verification<U>(tapn, initialMarking, query, options), successorGenerator(tapn), lastMarking(NULL), pwList(pwList) {
 
         };
 
@@ -100,6 +105,24 @@ namespace VerifyTAPN {
             assert(false); // This happens if there are markings on places not in the TAPN
             return false;
         };
+        
+        template<typename T,typename U>
+        SRes AbstractNaiveVerification<T,U>::generateAndInsertSuccessors(NonStrictMarkingBase& from) {
+            
+            successorGenerator.from_marking(&from);
+            while(auto next = successorGenerator.next(true))
+            {                
+                U* ptr = new U(*next);
+                delete next;
+                if(handleSuccessor(ptr))
+                {
+                    return ADDTOPW_RETURNED_TRUE;
+                }
+            }
+            
+            return successorGenerator.urgent() ? SRes::ADDTOPW_RETURNED_FALSE_URGENTENABLED : SRes::ADDTOPW_RETURNED_FALSE;
+        }
+        
     }
 }
 #endif	/* ABSTRACTREACHABILITY_HPP */

@@ -47,7 +47,7 @@ bool WorkflowSoundness::run(){
 		tmpParent = next_marking;
 		bool noDelay = false;
 
-		Result res = successorGenerator.generateAndInsertSuccessors(*next_marking);
+		auto res = generateAndInsertSuccessors(*next_marking);
 		if(res == ADDTOPW_RETURNED_TRUE){
 			return false;
 		}  else if (res == ADDTOPW_RETURNED_FALSE_URGENTENABLED) {
