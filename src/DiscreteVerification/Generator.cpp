@@ -71,7 +71,12 @@ namespace VerifyTAPN {
 
             // hard ones, continue to we find a result, or out of transitions
             if(did_noinput) // First iteration of while has happend
-            {                
+            {
+                if(_trans != nullptr && _trans != current)
+                {
+                    _trans = nullptr;
+                    return nullptr;
+                }
                 NonStrictMarkingBase* child = next_from_current();
                 if(child)
                 {
@@ -82,6 +87,11 @@ namespace VerifyTAPN {
             
             while(next_transition(!did_noinput))
             {
+                if(_trans != nullptr && _trans != current)
+                {
+                    _trans = nullptr;
+                    return nullptr;
+                }
                 did_noinput = true;
                 // from the current transition, try the next child
                 NonStrictMarkingBase* child = next_from_current();
@@ -93,12 +103,12 @@ namespace VerifyTAPN {
             }
             
             done = true;                            
-            if(!seen_urgent && do_delay)
+            if(!seen_urgent && do_delay && _trans != nullptr)
             {
                 ++num_children;
                 return from_delay();
             }
-            return NULL;
+            return nullptr;
         }
         
         NonStrictMarkingBase* Generator::from_delay()
@@ -136,9 +146,9 @@ namespace VerifyTAPN {
             // lowhanging fruits first!
             NonStrictMarkingBase* child = new NonStrictMarking(*parent);
             auto trans = allways_enabled[num_children];
-            if(inhibited(trans)) return NULL;
+            if(inhibited(trans) || (_trans != nullptr && _trans != trans)) return nullptr;
             seen_urgent |= trans->isUrgent();            
-            if(!modes_match(trans)) return NULL;
+            if(!modes_match(trans)) return nullptr;
                 
             auto& postset = trans->getPostset();
             // could be optimized 
@@ -293,8 +303,11 @@ namespace VerifyTAPN {
                         place_transition[placeindex].size() == 0) continue;
 
                 current = place_transition[placeindex][transition];
-                if(is_enabled())
+                if(is_enabled(current, &base_permutation))
+                {
+                    permutation = base_permutation;
                     return true;
+                }
             } while (true);
         }
 
@@ -320,20 +333,20 @@ namespace VerifyTAPN {
             return false;
         }
         
-        bool Generator::is_enabled()
+        bool Generator::is_enabled(const TAPN::TimedTransition* trans, std::vector<size_t>* permutations)
         {
 
             // Check inhibitors
-            if(!modes_match(current)) return false;
+            if(!modes_match(trans)) return false;
 
             PlaceList& placelist = parent->getPlaceList();
             
-            if(inhibited(current)) return false;
+            if(inhibited(trans)) return false;
             auto pit = placelist.begin();            
             
             size_t arccounter = 0;
             pit = placelist.begin();            
-            for(auto& input : current->getPreset())
+            for(auto& input : trans->getPreset())
             {
                 int source = input->getInputPlace().getIndex();
                 while(pit != placelist.end() &&
@@ -349,11 +362,14 @@ namespace VerifyTAPN {
                     auto& token = tokenlist[index];
                     if(input->getInterval().contains(token.getAge()))
                     {
-                        int n_tokens = std::min(weight, token.getCount());
-                        for(int i = 0; i < n_tokens; ++i)
+                        if(permutations)
                         {
-                            base_permutation[arccounter] = index;
-                            ++arccounter;
+                            int n_tokens = std::min(weight, token.getCount());
+                            for(int i = 0; i < n_tokens; ++i)
+                            {
+                                (*permutations)[arccounter] = index;
+                                ++arccounter;
+                            }
                         }
                         weight -= token.getCount();
                         if(weight < 0) break;
@@ -363,7 +379,7 @@ namespace VerifyTAPN {
             }
             
             pit = placelist.begin();
-            for(auto& transport : current->getTransportArcs())
+            for(auto& transport : trans->getTransportArcs())
             {
                 int source = transport->getSource().getIndex();
                 while(pit != placelist.end() &&
@@ -379,11 +395,14 @@ namespace VerifyTAPN {
                     auto& token = tokenlist[index];
                     if(transport->getInterval().contains(token.getAge()))
                     {
-                        int n_tokens = std::min(weight, token.getCount());
-                        for(int i = 0; i < n_tokens; ++i)
+                        if(permutations)
                         {
-                            base_permutation[arccounter] = index;
-                            ++arccounter;
+                            int n_tokens = std::min(weight, token.getCount());
+                            for(int i = 0; i < n_tokens; ++i)
+                            {
+                                (*permutations)[arccounter] = index;
+                                ++arccounter;
+                            }
                         }
                         weight -= token.getCount();
                         if(weight < 0) break;
@@ -391,9 +410,8 @@ namespace VerifyTAPN {
                 }
                 if(weight > 0) return false;
             }
-
-            permutation = base_permutation;
-            seen_urgent |= current->isUrgent();
+            
+            seen_urgent |= trans->isUrgent();
             return true;
         }
 

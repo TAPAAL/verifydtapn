@@ -17,33 +17,35 @@
 namespace VerifyTAPN {
     namespace DiscreteVerification {
         class Generator {
-            typedef std::vector<const TAPN::TimedTransition*> transitions_t;
-            public:
-                enum Mode {CONTROLLABLE, ENVIRONMENT, ALL};
-            private:
-                const TAPN::TimedArcPetriNet& tapn; 
-                NonStrictMarkingBase* parent;
-                Mode mode;  
-                transitions_t allways_enabled;
-                std::vector<transitions_t> place_transition;
-                size_t num_children;
-                size_t place;
-                size_t transition;
-                const TAPN::TimedTransition* current;
-                std::vector<size_t> permutation;
-                std::vector<size_t> base_permutation;
-                bool done;
-                bool seen_urgent;
-                bool did_noinput;
-            public:
-                Generator(TAPN::TimedArcPetriNet& tapn);
-                void from_marking(NonStrictMarkingBase* parent, Mode mode = ALL, bool urgent = false);
-                NonStrictMarkingBase* next(bool do_delay = true);
-                NonStrictMarkingBase* from_delay();
-                size_t children();
-                bool is_enabled();
-                bool inhibited(const TAPN::TimedTransition* trans) const;
-                bool urgent(){return seen_urgent;};
+        typedef std::vector<const TAPN::TimedTransition*> transitions_t;
+        public:
+            enum Mode {CONTROLLABLE, ENVIRONMENT, ALL};
+        private:
+            const TAPN::TimedArcPetriNet& tapn; 
+            NonStrictMarkingBase* parent;
+            Mode mode;  
+            transitions_t allways_enabled;
+            std::vector<transitions_t> place_transition;
+            size_t num_children;
+            size_t place;
+            size_t transition;
+            const TAPN::TimedTransition* current;
+            std::vector<size_t> permutation;
+            std::vector<size_t> base_permutation;
+            bool done;
+            bool seen_urgent;
+            bool did_noinput;
+            const TAPN::TimedTransition* _trans = nullptr;
+        public:
+            Generator(TAPN::TimedArcPetriNet& tapn);
+            void from_marking(NonStrictMarkingBase* parent, Mode mode = ALL, bool urgent = false);
+            void only_transition(const TAPN::TimedTransition* trans) { current = _trans = trans; }
+            NonStrictMarkingBase* next(bool do_delay = true);
+            NonStrictMarkingBase* from_delay();
+            size_t children();
+            bool is_enabled(const TAPN::TimedTransition* trans, std::vector<size_t>* permutations = nullptr);
+            bool inhibited(const TAPN::TimedTransition* trans) const;
+            bool urgent(){return seen_urgent;};
                 
         private:
             NonStrictMarkingBase* next_no_input();
