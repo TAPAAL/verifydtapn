@@ -10,10 +10,10 @@
 namespace VerifyTAPN {
     namespace DiscreteVerification {
          
-        Generator::Generator(TAPN::TimedArcPetriNet& tapn) 
+        Generator::Generator(TAPN::TimedArcPetriNet& tapn, AST::Query* query) 
         : tapn(tapn), allways_enabled(), 
                 place_transition(), permutation(), 
-                base_permutation()
+                base_permutation(), query(query)
         {
             size_t maxtokens = 0;
             for (auto transition : tapn.getTransitions()) {

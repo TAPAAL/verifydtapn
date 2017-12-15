@@ -21,6 +21,7 @@ static const std::string WORKFLOW = "workflow";
 static const std::string STRONG_WORKFLOW_BOUND = "strong-workflow-bound";
 static const std::string CALCULATE_CMAX = "calculate-cmax";
 static const std::string REPLACE = "replace";
+static const std::string ORDER = "partial-order";
 
 std::ostream& operator<<(std::ostream& out, const Switch& flag) {
 	flag.print(out);
@@ -185,7 +186,10 @@ void ArgsParser::initialize() {
     parsers.push_back(
             new SwitchWithStringArg("r", REPLACE,
             "Replace placeholder in model with value, format PLACEHOLDER=VALUE;..", ""));
-
+    parsers.push_back(
+        new Switch("i", ORDER,
+        "Disable partial order reduction"));
+    
     };
 
 void ArgsParser::printHelp() const {
@@ -496,15 +500,17 @@ VerificationOptions ArgsParser::createVerificationOptions(const option_map& map)
 			map.find(CALCULATE_CMAX)->second);
 
         std::map<std::string, int> replace = parseReplace(*map.find(REPLACE));
-
         
         assert(map.find(GCD) != map.end());
         bool enableGCDLowerGuards = boost::lexical_cast<bool>(
 			map.find(GCD)->second);
+
+        bool order = boost::lexical_cast<bool>(
+			map.find(ORDER)->second);
         
 	return VerificationOptions(search, verification, memoptimization, kbound, trace,
 			xml_trace, max_constant, keep_dead, enableGCDLowerGuards, workflow,
-                        workflowBound, calculateCmax, replace);
+                        workflowBound, calculateCmax, replace, !order);
 
 }
 }

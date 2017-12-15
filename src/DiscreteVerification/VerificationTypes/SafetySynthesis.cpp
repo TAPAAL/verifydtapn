@@ -20,7 +20,7 @@ SafetySynthesis::SafetySynthesis(   TAPN::TimedArcPetriNet& tapn,
                                 : tapn(tapn), initial_marking(initialMarking),
                                     query(query), options(options), 
                                     placeStats(tapn.getNumberOfPlaces()),
-                                    generator(tapn), discovered(0), explored(0),
+                                    generator(tapn, query), discovered(0), explored(0),
                                     largest(0)
 {
     if(options.getMemoryOptimization() == VerificationOptions::PTRIE)

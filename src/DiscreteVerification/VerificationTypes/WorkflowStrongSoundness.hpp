@@ -8,7 +8,6 @@
 #ifndef WORKFLOWSTRONGSOUNDNESS_HPP_
 #define WORKFLOWSTRONGSOUNDNESS_HPP_
 
-#include "ReachabilitySearch.hpp"
 #include "../DataStructures/WorkflowPWList.hpp"
 #include "Workflow.hpp"
 #include <stack>

@@ -11,12 +11,12 @@ namespace VerifyTAPN {
 namespace DiscreteVerification {
 
 LivenessSearch::LivenessSearch(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options)
-	: AbstractNaiveVerification<PWListBase,NonStrictMarking>(tapn, initialMarking, query, options, NULL){
+	: AbstractNaiveVerification<PWListBase,NonStrictMarking,Generator>(tapn, initialMarking, query, options, NULL){
 
 }
     
 LivenessSearch::LivenessSearch(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking*>* waiting_list)
-	: AbstractNaiveVerification<PWListBase,NonStrictMarking>(tapn, initialMarking, query, options, new PWList(waiting_list, true)){
+	: AbstractNaiveVerification<PWListBase,NonStrictMarking,Generator>(tapn, initialMarking, query, options, new PWList(waiting_list, true)){
 
 }
 

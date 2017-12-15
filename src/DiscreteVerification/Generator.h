@@ -20,7 +20,7 @@ namespace VerifyTAPN {
         typedef std::vector<const TAPN::TimedTransition*> transitions_t;
         public:
             enum Mode {CONTROLLABLE, ENVIRONMENT, ALL};
-        private:
+        protected:
             const TAPN::TimedArcPetriNet& tapn; 
             NonStrictMarkingBase* parent;
             Mode mode;  
@@ -36,11 +36,13 @@ namespace VerifyTAPN {
             bool seen_urgent;
             bool did_noinput;
             const TAPN::TimedTransition* _trans = nullptr;
+            AST::Query* query;
         public:
-            Generator(TAPN::TimedArcPetriNet& tapn);
-            void from_marking(NonStrictMarkingBase* parent, Mode mode = ALL, bool urgent = false);
+            Generator(TAPN::TimedArcPetriNet& tapn, AST::Query* query);
+            virtual void from_marking(NonStrictMarkingBase* parent, Mode mode = ALL, bool urgent = false);
+            virtual NonStrictMarkingBase* next(bool do_delay = true);
+
             void only_transition(const TAPN::TimedTransition* trans) { current = _trans = trans; }
-            NonStrictMarkingBase* next(bool do_delay = true);
             NonStrictMarkingBase* from_delay();
             size_t children();
             bool is_enabled(const TAPN::TimedTransition* trans, std::vector<size_t>* permutations = nullptr);

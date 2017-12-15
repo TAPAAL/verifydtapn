@@ -28,7 +28,7 @@
 namespace VerifyTAPN {
     namespace DiscreteVerification {
 
-        class LivenessSearch : public AbstractNaiveVerification<PWListBase, NonStrictMarking> {
+        class LivenessSearch : public AbstractNaiveVerification<PWListBase, NonStrictMarking, Generator> {
         public:
             LivenessSearch(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options);
             LivenessSearch(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking*>* waiting_list);

@@ -8,6 +8,7 @@
 #include "DiscreteVerification.hpp"
 #include "DeadlockVisitor.hpp"
 #include "VerificationTypes/SafetySynthesis.h"
+#include "ReducingGenerator.hpp"
 
 namespace VerifyTAPN {
 
@@ -197,12 +198,24 @@ namespace VerifyTAPN {
                                 options,
                                 query);
                     } else if (query->getQuantifier() == EF || query->getQuantifier() == AG) {
-                        ReachabilitySearchPTrie verifier = ReachabilitySearchPTrie(tapn, *initialMarking, query, options, strategy);
-                        VerifyAndPrint(
-                                tapn,
-                                verifier,
-                                options,
-                                query);
+                        if(options.getPartialOrderReduction())
+                        {
+                            auto verifier = ReachabilitySearchPTrie<ReducingGenerator>(tapn, *initialMarking, query, options, strategy);
+                            VerifyAndPrint(
+                                    tapn,
+                                    verifier,
+                                    options,
+                                    query);
+                        }
+                        else
+                        {
+                            auto verifier = ReachabilitySearchPTrie<Generator>(tapn, *initialMarking, query, options, strategy);
+                            VerifyAndPrint(
+                                    tapn,
+                                    verifier,
+                                    options,
+                                    query);                            
+                        }
 
                     }
                     delete strategy;
@@ -216,12 +229,24 @@ namespace VerifyTAPN {
                                 options,
                                 query);
                     } else if (query->getQuantifier() == EF || query->getQuantifier() == AG) {
-                        ReachabilitySearch verifier = ReachabilitySearch(tapn, *initialMarking, query, options, strategy);
-                        VerifyAndPrint(
-                                tapn,
-                                verifier,
-                                options,
-                                query);
+                        if(options.getPartialOrderReduction())
+                        {
+                            auto verifier = ReachabilitySearch<ReducingGenerator>(tapn, *initialMarking, query, options, strategy);
+                            VerifyAndPrint(
+                                    tapn,
+                                    verifier,
+                                    options,
+                                    query);
+                        }
+                        else
+                        {
+                            auto verifier = ReachabilitySearch<Generator>(tapn, *initialMarking, query, options, strategy);
+                            VerifyAndPrint(
+                                    tapn,
+                                    verifier,
+                                    options,
+                                    query);                            
+                        }
                     }
                     delete strategy;
                 }

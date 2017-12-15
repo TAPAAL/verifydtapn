@@ -12,11 +12,11 @@ namespace VerifyTAPN {
 
         using namespace AST;
 
-        void DeadlockVisitor::visit(const NotExpression& expr, Result& context) {
+        void DeadlockVisitor::visit(NotExpression& expr, Result& context) {
             expr.getChild().accept(*this, context);
         }
 
-        void DeadlockVisitor::visit(const OrExpression& expr, Result& context) {
+        void DeadlockVisitor::visit(OrExpression& expr, Result& context) {
             BoolResult left, right;
             expr.getLeft().accept(*this, left);
             expr.getRight().accept(*this, right);
@@ -25,7 +25,7 @@ namespace VerifyTAPN {
                     = left.value || right.value;
         }
 
-        void DeadlockVisitor::visit(const AndExpression& expr, Result& context) {
+        void DeadlockVisitor::visit(AndExpression& expr, Result& context) {
             BoolResult left, right;
             expr.getLeft().accept(*this, left);
             expr.getRight().accept(*this, right);
@@ -34,43 +34,43 @@ namespace VerifyTAPN {
                     = left.value || right.value;
         }
 
-        void DeadlockVisitor::visit(const AtomicProposition& expr, Result& context) {
+        void DeadlockVisitor::visit(AtomicProposition& expr, Result& context) {
             static_cast<BoolResult&>(context).value = false;
         }
 
-        void DeadlockVisitor::visit(const BoolExpression& expr, Result& context) {
+        void DeadlockVisitor::visit(BoolExpression& expr, Result& context) {
             static_cast<BoolResult&>(context).value = false;
         }
 
-        void DeadlockVisitor::visit(const Query& query, Result& context) {
-            query.getConstChild().accept(*this, context);
+        void DeadlockVisitor::visit(Query& query, Result& context) {
+            query.getChild()->accept(*this, context);
         }
 
-        void DeadlockVisitor::visit(const DeadlockExpression& expr, Result& context) {
+        void DeadlockVisitor::visit(DeadlockExpression& expr, Result& context) {
             static_cast<BoolResult&>(context).value = true;
         }
         
-        void DeadlockVisitor::visit(const NumberExpression& expr, Result& context){
+        void DeadlockVisitor::visit(NumberExpression& expr, Result& context){
             static_cast<BoolResult&>(context).value = false;
         }
         
-        void DeadlockVisitor::visit(const IdentifierExpression& expr, Result& context){
+        void DeadlockVisitor::visit(IdentifierExpression& expr, Result& context){
             static_cast<BoolResult&>(context).value = false;
         }
         
-        void DeadlockVisitor::visit(const MultiplyExpression& expr, Result& context){
+        void DeadlockVisitor::visit(MultiplyExpression& expr, Result& context){
             static_cast<BoolResult&>(context).value = false;
         }
         
-        void DeadlockVisitor::visit(const MinusExpression& expr, Result& context){
+        void DeadlockVisitor::visit(MinusExpression& expr, Result& context){
             static_cast<BoolResult&>(context).value = false;
         }
         
-        void DeadlockVisitor::visit(const SubtractExpression& expr, Result& context){
+        void DeadlockVisitor::visit(SubtractExpression& expr, Result& context){
             static_cast<BoolResult&>(context).value = false;
         }
         
-        void DeadlockVisitor::visit(const PlusExpression& expr, Result& context){
+        void DeadlockVisitor::visit(PlusExpression& expr, Result& context){
             static_cast<BoolResult&>(context).value = false;
         }
     }

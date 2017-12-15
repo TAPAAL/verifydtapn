@@ -8,6 +8,8 @@
 #ifndef ABSTRACTREACHABILITY_HPP
 #define	ABSTRACTREACHABILITY_HPP
 
+#include <memory>
+
 #include "../DataStructures/PWList.hpp"
 #include "../../Core/TAPN/TAPN.hpp"
 #include "../../Core/QueryParser/AST.hpp"
@@ -32,7 +34,7 @@ namespace VerifyTAPN {
             ADDTOPW_RETURNED_FALSE_URGENTENABLED,
             ADDTOPW_RETURNED_FALSE
         };        
-        template<typename T, typename U>
+        template<typename T, typename U, typename S>
         class AbstractNaiveVerification : public Verification<U> {
         public:
             AbstractNaiveVerification(TAPN::TimedArcPetriNet& tapn, U& initialMarking, AST::Query* query, VerificationOptions options, T* pwList);
@@ -65,27 +67,27 @@ namespace VerifyTAPN {
 
         protected:
             SRes generateAndInsertSuccessors(NonStrictMarkingBase& from);
-            Generator successorGenerator;
+            S successorGenerator;
             U* lastMarking;
             U* tmpParent;
             T* pwList;
         };
 
-        template<typename T,typename U>
-        AbstractNaiveVerification<T,U>::AbstractNaiveVerification(TAPN::TimedArcPetriNet& tapn, U& initialMarking, AST::Query* query, VerificationOptions options, T* pwList)
-        : Verification<U>(tapn, initialMarking, query, options), successorGenerator(tapn), lastMarking(NULL), pwList(pwList) {
+        template<typename T,typename U, typename S>
+        AbstractNaiveVerification<T,U,S>::AbstractNaiveVerification(TAPN::TimedArcPetriNet& tapn, U& initialMarking, AST::Query* query, VerificationOptions options, T* pwList)
+        : Verification<U>(tapn, initialMarking, query, options), successorGenerator(tapn, query), lastMarking(NULL), pwList(pwList) {
 
         };
 
-        template<typename T,typename U>
-        void AbstractNaiveVerification<T,U>::printStats() {
+        template<typename T,typename U, typename S>
+        void AbstractNaiveVerification<T,U,S>::printStats() {
             std::cout << "  discovered markings:\t" << pwList->discoveredMarkings << std::endl;
             std::cout << "  explored markings:\t" << pwList->size() - pwList->explored() << std::endl;
             std::cout << "  stored markings:\t" << pwList->size() << std::endl;
         };
 
-        template<typename T,typename U>
-        bool AbstractNaiveVerification<T,U>::isDelayPossible(U& marking) {
+        template<typename T,typename U, typename S>
+        bool AbstractNaiveVerification<T,U,S>::isDelayPossible(U& marking) {
             const PlaceList& places = marking.getPlaceList();
             if (places.size() == 0) return true; //Delay always possible in empty markings
 
@@ -106,15 +108,14 @@ namespace VerifyTAPN {
             return false;
         };
         
-        template<typename T,typename U>
-        SRes AbstractNaiveVerification<T,U>::generateAndInsertSuccessors(NonStrictMarkingBase& from) {
+        template<typename T,typename U, typename S>
+        SRes AbstractNaiveVerification<T,U,S>::generateAndInsertSuccessors(NonStrictMarkingBase& from) {
             
 
             successorGenerator.from_marking(&from);
-            while(auto next = successorGenerator.next(false))
+            while(auto next = std::unique_ptr<NonStrictMarkingBase>(successorGenerator.next(false)))
             {                
                 U* ptr = new U(*next);
-                delete next;
                 if(handleSuccessor(ptr))
                 {
                     return ADDTOPW_RETURNED_TRUE;

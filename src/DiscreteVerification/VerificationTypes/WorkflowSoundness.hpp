@@ -21,7 +21,6 @@
 #include "../QueryVisitor.hpp"
 #include "../DataStructures/NonStrictMarking.hpp"
 #include <stack>
-#include "ReachabilitySearch.hpp"
 #include "../DataStructures/WaitingList.hpp"
 #include "Workflow.hpp"
 

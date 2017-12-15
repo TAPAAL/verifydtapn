@@ -27,21 +27,21 @@ namespace VerifyTAPN {
 			NormalizationVisitor() : normalizedQuery() { };
 			virtual ~NormalizationVisitor() {};
 
-			virtual void visit(const NotExpression& expr, Result& context);
-			virtual void visit(const OrExpression& expr, Result& context);
-			virtual void visit(const AndExpression& expr, Result& context);
-			virtual void visit(const AtomicProposition& expr, Result& context);
-			virtual void visit(const BoolExpression& expr, Result& context);
-			virtual void visit(const Query& query, Result& context);
-			virtual void visit(const DeadlockExpression& expr, Result& context);
-                        virtual void visit(const NumberExpression& expr, Result& context);
-                        virtual void visit(const IdentifierExpression& expr, Result& context);
-                        virtual void visit(const MultiplyExpression& expr, Result& context);
-                        virtual void visit(const MinusExpression& expr, Result& context);
-                        virtual void visit(const SubtractExpression& expr, Result& context);
-                        virtual void visit(const PlusExpression& expr, Result& context);
+			virtual void visit(NotExpression& expr, Result& context);
+			virtual void visit(OrExpression& expr, Result& context);
+			virtual void visit(AndExpression& expr, Result& context);
+			virtual void visit(AtomicProposition& expr, Result& context);
+			virtual void visit(BoolExpression& expr, Result& context);
+			virtual void visit(Query& query, Result& context);
+			virtual void visit(DeadlockExpression& expr, Result& context);
+                        virtual void visit(NumberExpression& expr, Result& context);
+                        virtual void visit(IdentifierExpression& expr, Result& context);
+                        virtual void visit(MultiplyExpression& expr, Result& context);
+                        virtual void visit(MinusExpression& expr, Result& context);
+                        virtual void visit(SubtractExpression& expr, Result& context);
+                        virtual void visit(PlusExpression& expr, Result& context);
 
-			AST::Query* normalize(const AST::Query& query) { Tuple any(false, NULL); query.accept(*this, any); 
+			AST::Query* normalize(AST::Query& query) { Tuple any(false, NULL); query.accept(*this, any); 
                         return normalizedQuery; };
 		private:
 			std::string negateOperator(const std::string& op) const;

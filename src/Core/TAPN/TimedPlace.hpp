@@ -46,6 +46,7 @@ namespace VerifyTAPN{
 			inline void setHasInhibitorArcs(bool inhibitorArcs) { containsInhibitorArcs = inhibitorArcs; }
 			inline void addInputArc(TimedInputArc& inputArc) { inputArcs.push_back(&inputArc); }
 			inline void addTransportArc(TransportArc& transportArc) { transportArcs.push_back(&transportArc); }
+                        inline void addProdTransportArc(TransportArc& transportArc) { prodTransportArcs.push_back(&transportArc); }
 			inline void addInhibitorArc(InhibitorArc& inhibitorArc) { inhibitorArcs.push_back(&inhibitorArc); }
 			inline void addOutputArc(OutputArc& outputArc) { outputArcs.push_back(&outputArc); }
 			inline void setType(PlaceType type){ this->type = type; }
@@ -61,6 +62,7 @@ namespace VerifyTAPN{
 			inline const TAPN::TimeInvariant& getInvariant() const { return timeInvariant; };
 			inline bool hasInhibitorArcs() const { return containsInhibitorArcs; };
 			inline const TransportArc::Vector& getTransportArcs() const { return transportArcs; }
+			inline const TransportArc::Vector& getProdTransportArcs() const { return prodTransportArcs; }
 			inline const InhibitorArc::Vector& getInhibitorArcs() const { return inhibitorArcs; }
 			inline const TimedInputArc::Vector& getInputArcs() const { return inputArcs; }
 			inline const OutputArc::Vector& getOutputArcs() const { return outputArcs; }
@@ -76,6 +78,7 @@ namespace VerifyTAPN{
 			bool containsInhibitorArcs;
 			TimedInputArc::Vector inputArcs;
 			TransportArc::Vector transportArcs;
+                        TransportArc::Vector prodTransportArcs;
 			InhibitorArc::Vector inhibitorArcs;
 			OutputArc::Vector outputArcs;
 		};

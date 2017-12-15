@@ -22,12 +22,12 @@ namespace VerifyTAPN {
         class QueryVisitor : public Visitor {
         public:
             
-            QueryVisitor(T& marking, TAPN::TimedArcPetriNet& tapn, int maxDelay) : marking(marking), tapn(tapn), maxDelay(maxDelay) {
+            QueryVisitor(T& marking, const TAPN::TimedArcPetriNet& tapn, int maxDelay) : marking(marking), tapn(tapn), maxDelay(maxDelay) {
                 deadlockChecked = false;
                 deadlocked = false;
             };
 
-            QueryVisitor(T& marking, TAPN::TimedArcPetriNet& tapn) : marking(marking), tapn(tapn), maxDelay(0) {
+            QueryVisitor(T& marking, const TAPN::TimedArcPetriNet& tapn) : marking(marking), tapn(tapn), maxDelay(0) {
                 deadlockChecked = false;
                 deadlocked = false;
             }
@@ -37,19 +37,19 @@ namespace VerifyTAPN {
  
         public: // visitor methods
 
-            virtual void visit(const NotExpression& expr, AST::Result& context);
-            virtual void visit(const OrExpression& expr, AST::Result& context);
-            virtual void visit(const AndExpression& expr, AST::Result& context);
-            virtual void visit(const AtomicProposition& expr, AST::Result& context);
-            virtual void visit(const BoolExpression& expr, AST::Result& context);
-            virtual void visit(const Query& query, AST::Result& context);
-            virtual void visit(const DeadlockExpression& expr, AST::Result& context);
-            virtual void visit(const NumberExpression& expr,  AST::Result& context);
-            virtual void visit(const IdentifierExpression& expr,  AST::Result& context);
-            virtual void visit(const MultiplyExpression& expr,  AST::Result& context);
-            virtual void visit(const MinusExpression& expr,  AST::Result& context);
-            virtual void visit(const SubtractExpression& expr,  AST::Result& context);
-            virtual void visit(const PlusExpression& expr,  AST::Result& context);
+            virtual void visit(NotExpression& expr, AST::Result& context);
+            virtual void visit(OrExpression& expr, AST::Result& context);
+            virtual void visit(AndExpression& expr, AST::Result& context);
+            virtual void visit(AtomicProposition& expr, AST::Result& context);
+            virtual void visit(BoolExpression& expr, AST::Result& context);
+            virtual void visit(Query& query, AST::Result& context);
+            virtual void visit(DeadlockExpression& expr, AST::Result& context);
+            virtual void visit(NumberExpression& expr,  AST::Result& context);
+            virtual void visit(IdentifierExpression& expr,  AST::Result& context);
+            virtual void visit(MultiplyExpression& expr,  AST::Result& context);
+            virtual void visit(MinusExpression& expr,  AST::Result& context);
+            virtual void visit(SubtractExpression& expr,  AST::Result& context);
+            virtual void visit(PlusExpression& expr,  AST::Result& context);
         private:
             bool compare(int numberOfTokensInPlace, const std::string& op, int n) const;
 
@@ -62,14 +62,15 @@ namespace VerifyTAPN {
         };
         
         template<typename T>
-        void QueryVisitor<T>::visit(const NotExpression& expr, AST::Result& context) {
+        void QueryVisitor<T>::visit(NotExpression& expr, AST::Result& context) {
             BoolResult c;
             expr.getChild().accept(*this, c);
-            static_cast<BoolResult&>(context).value = !c.value;
+            expr.eval = !c.value;
+            static_cast<BoolResult&>(context).value = expr.getChild().eval;
         }
 
         template<typename T>
-        void QueryVisitor<T>::visit(const OrExpression& expr, AST::Result& context) {
+        void QueryVisitor<T>::visit(OrExpression& expr, AST::Result& context) {
             BoolResult left, right;
             expr.getLeft().accept(*this, left);
             // use lazy evaluation
@@ -79,10 +80,11 @@ namespace VerifyTAPN {
                 expr.getRight().accept(*this, right);
                 static_cast<BoolResult&>(context).value = right.value;
             }
+            expr.eval = static_cast<BoolResult&>(context).value;
         }
 
         template<typename T>
-        void QueryVisitor<T>::visit(const AndExpression& expr, AST::Result& context) {
+        void QueryVisitor<T>::visit(AndExpression& expr, AST::Result& context) {
             BoolResult left, right;
             expr.getLeft().accept(*this, left);
             
@@ -93,11 +95,11 @@ namespace VerifyTAPN {
                 expr.getRight().accept(*this, right);
                 static_cast<BoolResult&>(context).value = right.value;
             }
+            expr.eval = static_cast<BoolResult&>(context).value;
         }
 
         template<typename T>
-
-        void QueryVisitor<T>::visit(const AtomicProposition& expr, AST::Result& context) {
+        void QueryVisitor<T>::visit(AtomicProposition& expr, AST::Result& context) {
             IntResult left;
             expr.getLeft().accept(*this, left);
             IntResult right;
@@ -105,74 +107,86 @@ namespace VerifyTAPN {
 
             static_cast<BoolResult&>(context).value 
                     = compare(left.value, expr.getOperator(), right.value);
+            expr.eval = static_cast<BoolResult&>(context).value;
         }
 
         template<typename T>
-        void QueryVisitor<T>::visit(const BoolExpression& expr, AST::Result& context) {
+        void QueryVisitor<T>::visit(BoolExpression& expr, AST::Result& context) {
             static_cast<BoolResult&>(context).value 
                     = expr.getValue();
+            expr.eval = expr.getValue();
         }
 
         template<typename T>
-        void QueryVisitor<T>::visit(const NumberExpression& expr,  AST::Result& context){
+        void QueryVisitor<T>::visit(NumberExpression& expr,  AST::Result& context){
             ((IntResult&)context).value = expr.getValue();
+            expr.eval = static_cast<IntResult&>(context).value;
         }
         
         template<typename T>
-        void QueryVisitor<T>::visit(const IdentifierExpression& expr, AST::Result& context){
+        void QueryVisitor<T>::visit(IdentifierExpression& expr, AST::Result& context){
             ((IntResult&)context).value = marking.numberOfTokensInPlace(expr.getPlace());
+            expr.eval = static_cast<IntResult&>(context).value;
         }
+
         template<typename T>
-        void QueryVisitor<T>::visit(const MultiplyExpression& expr,  AST::Result& context){
+        void QueryVisitor<T>::visit(MultiplyExpression& expr,  AST::Result& context){
             IntResult left;
             expr.getLeft().accept(*this, left);
             IntResult right;
             expr.getRight().accept(*this, right);
             ((IntResult&)context).value = left.value * right.value;
+            expr.eval = static_cast<IntResult&>(context).value;
         }
+
         template<typename T>
-        void QueryVisitor<T>::visit(const MinusExpression& expr,  AST::Result& context){
+        void QueryVisitor<T>::visit(MinusExpression& expr,  AST::Result& context){
             IntResult value;
             expr.getValue().accept(*this, value);
             ((IntResult&)context).value = -value.value;
+            expr.eval = static_cast<IntResult&>(context).value;
         }
         
         template<typename T>
-        void QueryVisitor<T>::visit(const SubtractExpression& expr,  AST::Result& context){
+        void QueryVisitor<T>::visit(SubtractExpression& expr,  AST::Result& context){
             IntResult left;
             expr.getLeft().accept(*this, left);
             IntResult right;
             expr.getRight().accept(*this, right);
             ((IntResult&)context).value = left.value - right.value;
+            expr.eval = static_cast<IntResult&>(context).value;
         }
         
         template<typename T>
-        void QueryVisitor<T>::visit(const PlusExpression& expr,  AST::Result& context){
+        void QueryVisitor<T>::visit(PlusExpression& expr,  AST::Result& context){
             IntResult left;
             expr.getLeft().accept(*this, left);
             IntResult right;
             expr.getRight().accept(*this, right);
             ((IntResult&)context).value = left.value + right.value;
+            expr.eval = static_cast<IntResult&>(context).value;
         }
         
         
         template<typename T>
-        void QueryVisitor<T>::visit(const Query& query,  AST::Result& context) {
-            query.getConstChild().accept(*this, context);
+        void QueryVisitor<T>::visit(Query& query,  AST::Result& context) {
+            query.getChild()->accept(*this, context);
             if (query.getQuantifier() == AG || query.getQuantifier() == AF) {
                 static_cast<BoolResult&>(context).value
                         = !static_cast<BoolResult&>(context).value;
             }
+            query.eval = static_cast<IntResult&>(context).value;
         }
         
         template<typename T>
-        void QueryVisitor<T>::visit(const DeadlockExpression& expr, AST::Result& context) {
+        void QueryVisitor<T>::visit(DeadlockExpression& expr, AST::Result& context) {
             if(!deadlockChecked){
                 deadlockChecked = true;
                 deadlocked = marking.canDeadlock(tapn, maxDelay);
             }
             static_cast<BoolResult&>(context).value 
                     = deadlocked;
+            expr.eval = static_cast<BoolResult&>(context).value;
         }
 
         template<typename T>
@@ -183,8 +197,8 @@ namespace VerifyTAPN {
             else if (op == ">=") return numberOfTokensInPlace >= n;
             else if (op == ">") return numberOfTokensInPlace > n;
             else if (op == "!=") return numberOfTokensInPlace != n;
-            else
-                throw std::exception();
+            assert(false);
+            return false;
         }
 
     } /* namespace DiscreteVerification */
