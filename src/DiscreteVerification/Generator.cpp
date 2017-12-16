@@ -111,7 +111,7 @@ namespace VerifyTAPN {
                 else
                 {
                     did_noinput = true;
-                    auto r = next(do_delay);
+                    auto r = Generator::next(do_delay);
                     if(r == nullptr)
                     {
                         _trans = nullptr;

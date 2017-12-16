@@ -114,11 +114,6 @@ namespace VerifyTAPN {
                 return;
             }
 
-            QueryVisitor<NonStrictMarkingBase> visitor(*parent, tapn);
-            BoolResult context;
-            query->accept(visitor, context);
-            interesting.clear();
-            query->accept(interesting, context);
             std::fill(_stubborn.begin(), _stubborn.end(), false);
             if(!_unprocessed.empty())
             {
@@ -138,6 +133,7 @@ namespace VerifyTAPN {
                     if(interval.contains(max_age))
                     {
                         auto t = a->getOutputTransition().getIndex();
+
                         if(!_stubborn[t])
                         {
                             _stubborn[t] = true;
@@ -163,7 +159,12 @@ namespace VerifyTAPN {
                 }
             }
             
-
+            QueryVisitor<NonStrictMarkingBase> visitor(*parent, tapn);
+            BoolResult context;
+            query->accept(visitor, context);
+            interesting.clear();
+            query->accept(interesting, context);
+            
             // compute the set of unprocessed
             for (size_t i = 0; i < interesting._incr.size(); ++i) {
                 if (interesting._incr[i])
@@ -256,7 +257,8 @@ namespace VerifyTAPN {
             }
             if(current)
             {
-                return Generator::next(false);
+                auto nxt = Generator::next(false);
+                return nxt;
             }
             while (!_ordering.empty()) {
                 done = false;
@@ -311,9 +313,9 @@ namespace VerifyTAPN {
                 expr.getLeft().accept(*this, context);
                 expr.getRight().accept(*this, context);
             } else {
-                if (!expr.getLeft().eval)
+                if (expr.getLeft().eval)
                     expr.getLeft().accept(*this, context);
-                else if (!expr.getRight().eval)
+                else if (expr.getRight().eval)
                     expr.getRight().accept(*this, context);
             }
         }
@@ -331,7 +333,7 @@ namespace VerifyTAPN {
         }
 
         static IncDecr ic(true, false);
-        static IncDecr dc(true, false);
+        static IncDecr dc(false, true);
 
         void InterestingVisitor::visit(AtomicProposition& expr, Result& context) {
             auto incdec = [this, &expr](bool id1, bool id2) {
