@@ -58,6 +58,11 @@ class light_deque
                 _front = _back = 0;
             }
         }
+        
+        void clear()
+        {
+            _front = _back = 0;
+        }
 };
 
 

@@ -66,7 +66,7 @@ namespace VerifyTAPN {
             BoolResult c;
             expr.getChild().accept(*this, c);
             expr.eval = !c.value;
-            static_cast<BoolResult&>(context).value = expr.getChild().eval;
+            static_cast<BoolResult&>(context).value = expr.eval;
         }
 
         template<typename T>

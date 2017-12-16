@@ -56,6 +56,7 @@ namespace VerifyTAPN {
             done = false;
             this->seen_urgent = seen_urgent;
             did_noinput = false;
+            _trans = nullptr;
         }
         
         NonStrictMarkingBase* Generator::next(bool do_delay)
@@ -85,24 +86,42 @@ namespace VerifyTAPN {
                 }
             }
             
-            while(next_transition(!did_noinput))
+            if(!_trans)
             {
-                if(_trans != nullptr && _trans != current)
+                while(next_transition(!did_noinput))
                 {
-                    _trans = nullptr;
-                    return nullptr;
+                    if(_trans != nullptr && _trans != current)
+                    {
+                        _trans = nullptr;
+                        return nullptr;
+                    }
+                    did_noinput = true;
+                    // from the current transition, try the next child
+                    NonStrictMarkingBase* child = next_from_current();
+                    if(child)
+                    {
+                        ++num_children;
+                        return child;
+                    }
                 }
-                did_noinput = true;
-                // from the current transition, try the next child
-                NonStrictMarkingBase* child = next_from_current();
-                if(child)
+            } 
+            else
+            {
+                if(did_noinput) current = nullptr;
+                else
                 {
-                    ++num_children;
-                    return child;
-                }
+                    did_noinput = true;
+                    auto r = next(do_delay);
+                    if(r == nullptr)
+                    {
+                        _trans = nullptr;
+                    }
+                    return r;
+                }                
             }
             
-            done = true;                            
+            done = true;
+            _trans = nullptr;
             if(!seen_urgent && do_delay && _trans != nullptr)
             {
                 ++num_children;

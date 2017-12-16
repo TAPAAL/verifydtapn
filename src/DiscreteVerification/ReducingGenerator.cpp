@@ -22,11 +22,13 @@ namespace VerifyTAPN {
             auto place = tapn.getPlaces()[i];
             for (auto arc : place->getOutputArcs()) {
                 auto t = arc->getInputTransition().getIndex();
+                assert(t < tapn.getTransitions().size());
                 if (!_stubborn[t]) _unprocessed.push_back(t);
                 _stubborn[t] = true;
             }
             for (auto arc : place->getProdTransportArcs()) {
                 auto t = arc->getTransition().getIndex();
+                assert(t < tapn.getTransitions().size());
                 if (!_stubborn[t]) _unprocessed.push_back(t);
                 _stubborn[t] = true;
             }
@@ -36,12 +38,15 @@ namespace VerifyTAPN {
             auto place = tapn.getPlaces()[i];
             for (auto arc : place->getInputArcs()) {
                 auto t = arc->getOutputTransition().getIndex();
+                assert(t < tapn.getTransitions().size());
                 if (!_stubborn[t]) _unprocessed.push_back(t);
                 _stubborn[t] = true;
             }
 
             for (auto arc : place->getTransportArcs()) {
+                if(&arc->getSource() == &arc->getDestination()) continue;
                 auto t = arc->getTransition().getIndex();
+                assert(t < tapn.getTransitions().size());
                 if (!_stubborn[t]) _unprocessed.push_back(t);
                 _stubborn[t] = true;
             }
@@ -53,6 +58,7 @@ namespace VerifyTAPN {
             for(auto arc : place->getInhibitorArcs())
             {
                 auto t = arc->getOutputTransition().getIndex();
+                assert(t < tapn.getTransitions().size());
                 if (!_stubborn[t]) _unprocessed.push_back(t);
                 _stubborn[t] = true;
             }
@@ -62,7 +68,7 @@ namespace VerifyTAPN {
         void ReducingGenerator::from_marking(NonStrictMarkingBase* parent, Mode mode, bool urgent) {
             Generator::from_marking(parent, mode, urgent);
             std::fill(_enabled.begin(), _enabled.end(), false);
-
+            assert(_ordering.empty());
             auto& trans = tapn.getTransitions();
             ecnt = 0;
             can_reduce = false;
@@ -71,25 +77,42 @@ namespace VerifyTAPN {
                 if (is_enabled(t)) {
                     _enabled[i] = true;
                     _ordering.push_back(i);
+                    if(t->isUrgent() && !_unprocessed.empty())
+                    {
+                        assert(i < tapn.getTransitions().size());
+                        _unprocessed.push_back(i);
+                    }
                     ++ecnt;
                 }
 
             }
 
-            if (ecnt <= 1) return;
+            if (ecnt <= 1) 
+            {
+                _ordering.clear();
+                return;
+            }
 
-            can_reduce = urgent || seen_urgent;
+            const TAPN::TimedPlace* inv_place = nullptr;
+            int32_t max_age = -1;
+            can_reduce = urgent || !_unprocessed.empty();
             if (!can_reduce) {
                 for (auto& place : parent->getPlaceList()) {
                     int inv = place.place->getInvariant().getBound();
-                    if (place.maxTokenAge() == inv) {
+                    max_age = place.maxTokenAge();
+                    if (max_age == inv) {
                         can_reduce = true;
+                        inv_place = place.place;
                         break;
                     }
                 }
             }
 
-            if (!can_reduce) return;
+            if (!can_reduce) 
+            {
+                _ordering.clear();
+                return;
+            }
 
             QueryVisitor<NonStrictMarkingBase> visitor(*parent, tapn);
             BoolResult context;
@@ -97,7 +120,49 @@ namespace VerifyTAPN {
             interesting.clear();
             query->accept(interesting, context);
             std::fill(_stubborn.begin(), _stubborn.end(), false);
-
+            if(!_unprocessed.empty())
+            {
+                // reason for urgency is an urgent edge
+                _stubborn[_unprocessed.front()] = true;
+                auto t = tapn.getTransitions()[_unprocessed.front()];
+                for(auto a : t->getInhibitorArcs())
+                    preSetOf(a->getInputPlace().getIndex());
+            }
+            else
+            {
+                // reason for urgency is an invariant
+                assert(inv_place);
+                for(auto a : inv_place->getInputArcs())
+                {
+                    auto& interval = a->getInterval();
+                    if(interval.contains(max_age))
+                    {
+                        auto t = a->getOutputTransition().getIndex();
+                        if(!_stubborn[t])
+                        {
+                            _stubborn[t] = true;
+                            assert(t < tapn.getTransitions().size());
+                            _unprocessed.push_back(t);
+                        }
+                    }
+                }
+                for(auto a : inv_place->getTransportArcs())
+                {
+                    if(&a->getDestination() == &a->getSource()) continue;
+                    auto& interval = a->getInterval();
+                    if(interval.contains(max_age))
+                    {
+                        uint32_t t = a->getTransition().getIndex();
+                        if(!_stubborn[t])
+                        {
+                            _stubborn[t] = true;
+                            assert(t < tapn.getTransitions().size());
+                            _unprocessed.push_back(t);
+                        }
+                    }
+                }
+            }
+            
 
             // compute the set of unprocessed
             for (size_t i = 0; i < interesting._incr.size(); ++i) {
@@ -107,13 +172,40 @@ namespace VerifyTAPN {
                     postSetOf(i);
             }
 
-            assert(!interesting.deadlock);
+            if(interesting.deadlock)
+            {
+                // for now, just pick a single enabled, 
+                // verifypn has a good heuristic for this
+                for(size_t i = 0; i < _enabled.size(); ++i)
+                {
+                    if(_enabled[i])
+                    {
+                        auto trans = tapn.getTransitions()[i];
+                        for(auto a : trans->getPreset())
+                            postSetOf(a->getInputPlace().getIndex());
+                        for(auto a : trans->getTransportArcs())
+                            postSetOf(a->getSource().getIndex());
+                        for(auto a : trans->getInhibitorArcs())
+                        {
+                            auto& place = a->getInputPlace();
+                            for(auto arc : place.getInhibitorArcs())
+                            {
+                                preSetOf(arc->getInputPlace().getIndex());
+                            }                            
+                        }
+                        break;
+                    }
+                }
+                
+            }
 
-            // lets construct the set of transitions
+            // Closure computation time!
             while (!_unprocessed.empty()) {
                 uint32_t tr = _unprocessed.front();
                 _unprocessed.pop_front();
                 auto trans = tapn.getTransitions()[tr];
+                assert(tr < tapn.getTransitions().size());
+                assert(trans);
                 if (_enabled[tr]) {
                     for(auto a : trans->getPreset())
                         postSetOf(a->getInputPlace().getIndex());
@@ -156,13 +248,24 @@ namespace VerifyTAPN {
         }
 
         NonStrictMarkingBase* ReducingGenerator::next(bool do_delay) {
-            if (ecnt <= 1 || !can_reduce) return Generator::next(do_delay);
-            if(current) return Generator::next(do_delay);
+            if (ecnt <= 1 || !can_reduce) 
+            {
+                assert(_ordering.empty());
+                auto nxt = Generator::next(do_delay);
+                return nxt;
+            }
+            if(current)
+            {
+                return Generator::next(false);
+            }
             while (!_ordering.empty()) {
+                done = false;
+                did_noinput = false;
                 auto t = _ordering.front();
                 _ordering.pop_front();
                 if (_stubborn[t]) {
                     auto trans = tapn.getTransitions()[t];
+
 #ifndef NDEBUG
                     bool en =
 #endif
@@ -173,9 +276,20 @@ namespace VerifyTAPN {
                     break;
                 }
             }
-            if(current) return Generator::next(do_delay);
-            if(done) return nullptr;
+            if(current)
+            {
+                auto next = Generator::next(false);
+                assert(next);
+                return next;
+            }
+            if(done) 
+            {
+                assert(_ordering.empty());
+                return nullptr;
+            }
             done = true;
+            assert(_ordering.empty());
+            _trans = nullptr;
             if(do_delay) return from_delay();
             return nullptr;
         }
@@ -197,9 +311,9 @@ namespace VerifyTAPN {
                 expr.getLeft().accept(*this, context);
                 expr.getRight().accept(*this, context);
             } else {
-                if (expr.getLeft().eval)
+                if (!expr.getLeft().eval)
                     expr.getLeft().accept(*this, context);
-                else if (expr.getRight().eval)
+                else if (!expr.getRight().eval)
                     expr.getRight().accept(*this, context);
             }
         }
@@ -209,9 +323,9 @@ namespace VerifyTAPN {
                 expr.getLeft().accept(*this, context);
                 expr.getRight().accept(*this, context);
             } else {
-                if (expr.getLeft().eval)
+                if (!expr.getLeft().eval)
                     expr.getLeft().accept(*this, context);
-                else if (expr.getRight().eval)
+                else if (!expr.getRight().eval)
                     expr.getRight().accept(*this, context);
             }
         }
@@ -246,7 +360,7 @@ namespace VerifyTAPN {
                     incdec(true, false);
                 else if (expr.eval && negated)
                     incdec(false, true);
-            } else if (expr.getOperator() == "==") {
+            } else if (expr.getOperator() == "=") {
                 if (!expr.eval && !negated) {
                     if (expr.getLeft().eval < expr.getRight().eval)
                         incdec(true, false);
