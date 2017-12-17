@@ -330,7 +330,7 @@ namespace VerifyTAPN {
             } while (true);
         }
 
-        bool Generator::inhibited(const TAPN::TimedTransition* trans) const {
+        const TAPN::InhibitorArc* Generator::inhibited(const TAPN::TimedTransition* trans) const {
             PlaceList& placelist = parent->getPlaceList();
             auto pit = placelist.begin();
             
@@ -347,20 +347,14 @@ namespace VerifyTAPN {
                     for(auto& t : pit->tokens)
                         tokens -= t.getCount();
                 }
-                if(tokens <= 0) return true;
+                if(tokens <= 0) return inhib;
             }   
-            return false;
+            return nullptr;
         }
         
-        bool Generator::is_enabled(const TAPN::TimedTransition* trans, std::vector<size_t>* permutations)
+        const TAPN::TimedPlace* Generator::compute_missing(const TAPN::TimedTransition* trans, std::vector<size_t>* permutations)
         {
-
-            // Check inhibitors
-            if(!modes_match(trans)) return false;
-
             PlaceList& placelist = parent->getPlaceList();
-            
-            if(inhibited(trans)) return false;
             auto pit = placelist.begin();            
             
             size_t arccounter = 0;
@@ -372,7 +366,7 @@ namespace VerifyTAPN {
                         pit->place->getIndex() < source) ++pit;
                 
                 if(pit == placelist.end() || pit->place->getIndex() != source)
-                    return false;
+                    return &input->getInputPlace();
                 
                 int weight = input->getWeight();
                 auto& tokenlist = pit->tokens;
@@ -394,7 +388,7 @@ namespace VerifyTAPN {
                         if(weight < 0) break;
                     }
                 }
-                if(weight > 0) return false;
+                if(weight > 0) return &input->getInputPlace();
             }
             
             pit = placelist.begin();
@@ -405,7 +399,7 @@ namespace VerifyTAPN {
                         pit->place->getIndex() < source) ++pit;
                 
                 if(pit == placelist.end() || pit->place->getIndex() != source)
-                    return false;
+                    return &transport->getSource();
                 
                 int weight = transport->getWeight();
                 auto& tokenlist = pit->tokens;
@@ -427,9 +421,22 @@ namespace VerifyTAPN {
                         if(weight < 0) break;
                     }
                 }
-                if(weight > 0) return false;
-            }
+                if(weight > 0) return &transport->getSource();
+            }            
+            return nullptr;
+        }
+        
+        bool Generator::is_enabled(const TAPN::TimedTransition* trans, std::vector<size_t>* permutations)
+        {
+
+            // Check inhibitors
+            if(!modes_match(trans)) return false;
+
             
+            if(inhibited(trans)) return false;
+
+            auto missing_tokens = compute_missing(trans, permutations);
+            if(missing_tokens) return false;
             seen_urgent |= trans->isUrgent();
             return true;
         }

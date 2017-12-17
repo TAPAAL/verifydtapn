@@ -46,7 +46,8 @@ namespace VerifyTAPN {
             NonStrictMarkingBase* from_delay();
             size_t children();
             bool is_enabled(const TAPN::TimedTransition* trans, std::vector<size_t>* permutations = nullptr);
-            bool inhibited(const TAPN::TimedTransition* trans) const;
+            const TAPN::TimedPlace* compute_missing(const TAPN::TimedTransition* trans, std::vector<size_t>* permutations);
+            const TAPN::InhibitorArc* inhibited(const TAPN::TimedTransition* trans) const;
             bool urgent(){return seen_urgent;};
                 
         private:

@@ -38,7 +38,7 @@ namespace VerifyTAPN {
             return zt;
         }
     
-        bool ReducingGenerator::postSetOf(size_t i, bool check_age) {
+        bool ReducingGenerator::postSetOf(size_t i, bool check_age, TAPN::TimeInterval interval) {
             auto place = tapn.getPlaces()[i];
             bool zt = false;
             if(check_age)
@@ -53,6 +53,7 @@ namespace VerifyTAPN {
             for (auto arc : place->getInputArcs()) {
                 auto t = arc->getOutputTransition().getIndex();
                 assert(t < tapn.getTransitions().size());
+                if(!interval.intersects(arc->getInterval())) continue;
                 if (!_stubborn[t]) _unprocessed.push_back(t);
                 zt |= _enabled[t] && tapn.getTransitions()[t]->isUrgent();
                 _stubborn[t] = true;
@@ -62,6 +63,7 @@ namespace VerifyTAPN {
                 if(&arc->getSource() == &arc->getDestination()) continue;
                 auto t = arc->getTransition().getIndex();
                 assert(t < tapn.getTransitions().size());
+                if(!interval.intersects(arc->getInterval())) continue;
                 if (!_stubborn[t]) _unprocessed.push_back(t);
                 zt |= _enabled[t] && tapn.getTransitions()[t]->isUrgent();
                 _stubborn[t] = true;
@@ -248,42 +250,93 @@ namespace VerifyTAPN {
                 assert(trans);
                 if (_enabled[tr]) {
                     for(auto a : trans->getPreset())
-                        added_zt |= postSetOf(a->getInputPlace().getIndex(), !added_zt);
+                        added_zt |= postSetOf(a->getInputPlace().getIndex(), !added_zt, a->getInterval());
                     for(auto a : trans->getPostset())
                         added_zt |= inhibPostSetOf(a->getOutputPlace().getIndex());
                     for(auto a : trans->getTransportArcs())
                     {
-                        added_zt |= postSetOf(a->getSource().getIndex(), !added_zt);
+                        added_zt |= postSetOf(a->getSource().getIndex(), !added_zt, a->getInterval());
                         added_zt |= inhibPostSetOf(a->getDestination().getIndex());
                     }
                 } else {
-                    for(auto a : trans->getPreset())
+                    
+                    if(auto inhib = inhibited(trans))
                     {
-                        auto pid = a->getInputPlace().getIndex();
-                        if(parent->numberOfTokensInPlace(pid) < a->getWeight())
+                        auto& p = inhib->getInputPlace();
+                        auto& tl = parent->getTokenList(p.getIndex());
+                        for(auto& arc : p.getInputArcs())
                         {
-                            added_zt |= preSetOf(pid);
-                            break;
+                            uint32_t trans = arc->getOutputTransition().getIndex();
+                            if(!_stubborn[trans])
+                            {
+                                for(auto& t : tl)
+                                    if(arc->getInterval().contains(t.getAge()))
+                                    {
+                                        _stubborn[trans] = true;
+                                        _unprocessed.push_back(trans);
+                                        break;
+                                    }
+                            }
+                        }
+                        for(auto& arc : p.getTransportArcs())
+                        {
+                            uint32_t trans = arc->getTransition().getIndex();
+                            if(!_stubborn[trans])
+                            {
+                                for(auto& t : tl)
+                                    if(arc->getInterval().contains(t.getAge()))
+                                    {
+                                        _stubborn[trans] = true;
+                                        _unprocessed.push_back(trans);
+                                        break;
+                                    }
+                            }
                         }
                     }
-
-                    for(auto a : trans->getTransportArcs())
+                    else
                     {
-                        auto pid = a->getSource().getIndex();
-                        if(parent->numberOfTokensInPlace(pid) < a->getWeight())
+                        // first we need to find the non-enabler
+                        auto place = compute_missing(trans, nullptr);
+                        bool found = false;
+                        // add preset if zero is in guard
+                        TAPN::TimeInterval interval;
+                        for(auto a : trans->getPreset())
                         {
-                            added_zt |= preSetOf(pid);
-                            break;
+                            if(&a->getInputPlace() == place)
+                            {
+                                interval = a->getInterval();
+                                if(interval.contains(0))
+                                    added_zt |= preSetOf(place->getIndex());
+                                found = true;
+                                break;
+                            }
                         }
-                    }
-
-                    for(auto a : trans->getInhibitorArcs())
-                    {
-                        auto pid = a->getInputPlace().getIndex();
-                        if(parent->numberOfTokensInPlace(pid) >= a->getWeight())
+                        
+                        if(!found)
                         {
-                            added_zt |= postSetOf(pid, !added_zt);
-                            break;
+                            for(auto a : trans->getTransportArcs())
+                            {
+                                if(&a->getSource() == place)
+                                {
+                                    interval = a->getInterval();
+                                    if(a->getInterval().contains(0))
+                                        added_zt |= preSetOf(place->getIndex());
+                                    break;
+                                }
+                            }
+                        }
+
+                        // take care of transport-arcs
+                        for(auto a : place->getProdTransportArcs())
+                        {
+                            auto t = &a->getTransition();
+                            uint32_t id = t->getIndex();
+                            if(_stubborn[id]) continue;
+                            if(a->getInterval().intersects(interval))
+                            {
+                                _stubborn[id] = true;
+                                _unprocessed.push_back(id);
+                            }                            
                         }
                     }
                 }

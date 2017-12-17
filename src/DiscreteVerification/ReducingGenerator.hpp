@@ -65,7 +65,7 @@ namespace DiscreteVerification {
         light_deque<uint32_t> _unprocessed, _ordering;
 
         bool preSetOf(size_t i);
-        bool postSetOf(size_t i, bool check_age);
+        bool postSetOf(size_t i, bool check_age, TAPN::TimeInterval interval = TAPN::TimeInterval());
         bool inhibPostSetOf(size_t i);
         void zero_time_set(int32_t max_age, const TAPN::TimedPlace*, const TAPN::TimedTransition*);
         bool ample_set();
