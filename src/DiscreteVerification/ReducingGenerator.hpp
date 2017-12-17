@@ -64,12 +64,12 @@ namespace DiscreteVerification {
         bool can_reduce = false;
         light_deque<uint32_t> _unprocessed, _ordering;
 
-        void preSetOf(size_t i);
-        void postSetOf(size_t i);
-        void inhibPostSetOf(size_t i);
-        void zero_time_set(int32_t max_age, const TAPN::TimedPlace*);
-        void ample_set();
-        void compute_closure();
+        bool preSetOf(size_t i);
+        bool postSetOf(size_t i, bool check_age);
+        bool inhibPostSetOf(size_t i);
+        void zero_time_set(int32_t max_age, const TAPN::TimedPlace*, const TAPN::TimedTransition*);
+        bool ample_set();
+        bool compute_closure(bool added_zt);
     public:
         ReducingGenerator(TAPN::TimedArcPetriNet& tapn, AST::Query* query) 
         : Generator(tapn, query), interesting(tapn), _enabled(tapn.getTransitions().size()), _stubborn(tapn.getTransitions().size()) {};

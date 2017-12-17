@@ -18,28 +18,43 @@
 namespace VerifyTAPN {
     namespace DiscreteVerification {
 
-        void ReducingGenerator::preSetOf(size_t i) {
+        bool ReducingGenerator::preSetOf(size_t i) {
             auto place = tapn.getPlaces()[i];
+            bool zt = false;
             for (auto arc : place->getOutputArcs()) {
                 auto t = arc->getInputTransition().getIndex();
                 assert(t < tapn.getTransitions().size());
                 if (!_stubborn[t]) _unprocessed.push_back(t);
+                zt |= _enabled[t] && tapn.getTransitions()[t]->isUrgent();
                 _stubborn[t] = true;
             }
             for (auto arc : place->getProdTransportArcs()) {
                 auto t = arc->getTransition().getIndex();
                 assert(t < tapn.getTransitions().size());
                 if (!_stubborn[t]) _unprocessed.push_back(t);
+                zt |= _enabled[t] && tapn.getTransitions()[t]->isUrgent();
                 _stubborn[t] = true;
             }
+            return zt;
         }
     
-        void ReducingGenerator::postSetOf(size_t i) {
+        bool ReducingGenerator::postSetOf(size_t i, bool check_age) {
             auto place = tapn.getPlaces()[i];
+            bool zt = false;
+            if(check_age)
+            {
+                auto& tl = parent->getTokenList(place->getIndex());
+                if(!tl.empty())
+                {
+                    if (place->getInvariant().getBound() == tl.back().getAge())
+                        zt = true;
+                }                
+            }
             for (auto arc : place->getInputArcs()) {
                 auto t = arc->getOutputTransition().getIndex();
                 assert(t < tapn.getTransitions().size());
                 if (!_stubborn[t]) _unprocessed.push_back(t);
+                zt |= _enabled[t] && tapn.getTransitions()[t]->isUrgent();
                 _stubborn[t] = true;
             }
 
@@ -48,20 +63,25 @@ namespace VerifyTAPN {
                 auto t = arc->getTransition().getIndex();
                 assert(t < tapn.getTransitions().size());
                 if (!_stubborn[t]) _unprocessed.push_back(t);
+                zt |= _enabled[t] && tapn.getTransitions()[t]->isUrgent();
                 _stubborn[t] = true;
             }
+            return zt;
         }
         
-        void ReducingGenerator::inhibPostSetOf(size_t i)
+        bool ReducingGenerator::inhibPostSetOf(size_t i)
         {
+            bool zt = false;
             auto place = tapn.getPlaces()[i];
             for(auto arc : place->getInhibitorArcs())
             {
                 auto t = arc->getOutputTransition().getIndex();
                 assert(t < tapn.getTransitions().size());
                 if (!_stubborn[t]) _unprocessed.push_back(t);
+                zt |= _enabled[t] && tapn.getTransitions()[t]->isUrgent();
                 _stubborn[t] = true;
             }
+            return zt;
         }
 
 
@@ -70,6 +90,7 @@ namespace VerifyTAPN {
             std::fill(_enabled.begin(), _enabled.end(), false);
             assert(_ordering.empty());
             auto& trans = tapn.getTransitions();
+            const TAPN::TimedTransition* urg_trans = nullptr;
             ecnt = 0;
             can_reduce = false;
             for (uint32_t i = 0; i < trans.size(); ++i) {
@@ -77,10 +98,10 @@ namespace VerifyTAPN {
                 if (is_enabled(t)) {
                     _enabled[i] = true;
                     _ordering.push_back(i);
-                    if(t->isUrgent() && !_unprocessed.empty())
+                    if(urg_trans == nullptr && t->isUrgent())
                     {
                         assert(i < tapn.getTransitions().size());
-                        _unprocessed.push_back(i);
+                        urg_trans = t;
                     }
                     ++ecnt;
                 }
@@ -115,19 +136,23 @@ namespace VerifyTAPN {
 
             std::fill(_stubborn.begin(), _stubborn.end(), false);
 
-            zero_time_set(max_age, inv_place);
-            ample_set();
-            compute_closure();
+            bool added_zero_time = ample_set();
+            added_zero_time |= compute_closure(added_zero_time);
+            if(!added_zero_time)
+            {
+                zero_time_set(max_age, inv_place, urg_trans);
+                compute_closure(true);
+            }
+
         }
         
-        void ReducingGenerator::zero_time_set(int32_t max_age, const TAPN::TimedPlace* inv_place)
+        void ReducingGenerator::zero_time_set(int32_t max_age, const TAPN::TimedPlace* inv_place, const TAPN::TimedTransition* trans)
         {
-            if(!_unprocessed.empty())
+            if(trans)
             {
                 // reason for urgency is an urgent edge
-                _stubborn[_unprocessed.front()] = true;
-                auto t = tapn.getTransitions()[_unprocessed.front()];
-                for(auto a : t->getInhibitorArcs())
+                _stubborn[trans->getIndex()] = true;
+                for(auto a : trans->getInhibitorArcs())
                     preSetOf(a->getInputPlace().getIndex());
             }
             else
@@ -167,8 +192,9 @@ namespace VerifyTAPN {
             }            
         }
         
-        void ReducingGenerator::ample_set()
+        bool ReducingGenerator::ample_set()
         {
+            bool added_zt = false;
             QueryVisitor<NonStrictMarkingBase> visitor(*parent, tapn);
             BoolResult context;
             query->accept(visitor, context);
@@ -178,9 +204,9 @@ namespace VerifyTAPN {
             // compute the set of unprocessed
             for (size_t i = 0; i < interesting._incr.size(); ++i) {
                 if (interesting._incr[i])
-                    preSetOf(i);
+                    added_zt |= preSetOf(i);
                 if (interesting._decr[i])
-                    postSetOf(i);
+                    added_zt |= postSetOf(i, !added_zt);
             }
 
             if(interesting.deadlock)
@@ -193,24 +219,25 @@ namespace VerifyTAPN {
                     {
                         auto trans = tapn.getTransitions()[i];
                         for(auto a : trans->getPreset())
-                            postSetOf(a->getInputPlace().getIndex());
+                            added_zt |= postSetOf(a->getInputPlace().getIndex(), !added_zt);
                         for(auto a : trans->getTransportArcs())
-                            postSetOf(a->getSource().getIndex());
+                            added_zt |= postSetOf(a->getSource().getIndex(), !added_zt);
                         for(auto a : trans->getInhibitorArcs())
                         {
                             auto& place = a->getInputPlace();
                             for(auto arc : place.getInhibitorArcs())
                             {
-                                preSetOf(arc->getInputPlace().getIndex());
+                                added_zt |= preSetOf(arc->getInputPlace().getIndex());
                             }                            
                         }
                         break;
                     }
                 }
-            }            
+            }    
+            return added_zt;
         }
         
-        void ReducingGenerator::compute_closure()
+        bool ReducingGenerator::compute_closure(bool added_zt)
         {
             // Closure computation time!
             while (!_unprocessed.empty()) {
@@ -221,18 +248,18 @@ namespace VerifyTAPN {
                 assert(trans);
                 if (_enabled[tr]) {
                     for(auto a : trans->getPreset())
-                        postSetOf(a->getInputPlace().getIndex());
+                        added_zt |= postSetOf(a->getInputPlace().getIndex(), !added_zt);
                     for(auto a : trans->getTransportArcs())
-                        postSetOf(a->getSource().getIndex());
+                        added_zt |= postSetOf(a->getSource().getIndex(), !added_zt);
                     for(auto a : trans->getInhibitorArcs())
-                        inhibPostSetOf(a->getInputPlace().getIndex());
+                        added_zt |= inhibPostSetOf(a->getInputPlace().getIndex());
                 } else {
                     for(auto a : trans->getPreset())
                     {
                         auto pid = a->getInputPlace().getIndex();
                         if(parent->numberOfTokensInPlace(pid) < a->getWeight())
                         {
-                            preSetOf(pid);
+                            added_zt |= preSetOf(pid);
                             break;
                         }
                     }
@@ -242,7 +269,7 @@ namespace VerifyTAPN {
                         auto pid = a->getSource().getIndex();
                         if(parent->numberOfTokensInPlace(pid) < a->getWeight())
                         {
-                            preSetOf(pid);
+                            added_zt |= preSetOf(pid);
                             break;
                         }
                     }
@@ -252,12 +279,13 @@ namespace VerifyTAPN {
                         auto pid = a->getInputPlace().getIndex();
                         if(parent->numberOfTokensInPlace(pid) >= a->getWeight())
                         {
-                            postSetOf(pid);
+                            added_zt |= postSetOf(pid, !added_zt);
                             break;
                         }
                     }
                 }
-            }            
+            } 
+            return added_zt;
         }
 
         NonStrictMarkingBase* ReducingGenerator::next(bool do_delay) {
