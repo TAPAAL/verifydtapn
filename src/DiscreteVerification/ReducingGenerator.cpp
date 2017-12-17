@@ -249,10 +249,13 @@ namespace VerifyTAPN {
                 if (_enabled[tr]) {
                     for(auto a : trans->getPreset())
                         added_zt |= postSetOf(a->getInputPlace().getIndex(), !added_zt);
+                    for(auto a : trans->getPostset())
+                        added_zt |= inhibPostSetOf(a->getOutputPlace().getIndex());
                     for(auto a : trans->getTransportArcs())
+                    {
                         added_zt |= postSetOf(a->getSource().getIndex(), !added_zt);
-                    for(auto a : trans->getInhibitorArcs())
-                        added_zt |= inhibPostSetOf(a->getInputPlace().getIndex());
+                        added_zt |= inhibPostSetOf(a->getDestination().getIndex());
+                    }
                 } else {
                     for(auto a : trans->getPreset())
                     {
