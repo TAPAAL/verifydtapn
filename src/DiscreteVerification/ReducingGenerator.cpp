@@ -84,7 +84,6 @@ namespace VerifyTAPN {
                     }
                     ++ecnt;
                 }
-
             }
 
             if (ecnt <= 1) 
@@ -115,6 +114,14 @@ namespace VerifyTAPN {
             }
 
             std::fill(_stubborn.begin(), _stubborn.end(), false);
+
+            zero_time_set(max_age, inv_place);
+            ample_set();
+            compute_closure();
+        }
+        
+        void ReducingGenerator::zero_time_set(int32_t max_age, const TAPN::TimedPlace* inv_place)
+        {
             if(!_unprocessed.empty())
             {
                 // reason for urgency is an urgent edge
@@ -157,8 +164,11 @@ namespace VerifyTAPN {
                         }
                     }
                 }
-            }
-            
+            }            
+        }
+        
+        void ReducingGenerator::ample_set()
+        {
             QueryVisitor<NonStrictMarkingBase> visitor(*parent, tapn);
             BoolResult context;
             query->accept(visitor, context);
@@ -197,9 +207,11 @@ namespace VerifyTAPN {
                         break;
                     }
                 }
-                
-            }
-
+            }            
+        }
+        
+        void ReducingGenerator::compute_closure()
+        {
             // Closure computation time!
             while (!_unprocessed.empty()) {
                 uint32_t tr = _unprocessed.front();
@@ -245,7 +257,7 @@ namespace VerifyTAPN {
                         }
                     }
                 }
-            }
+            }            
         }
 
         NonStrictMarkingBase* ReducingGenerator::next(bool do_delay) {
