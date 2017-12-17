@@ -30,9 +30,8 @@ bool TimeDartReachabilitySearch::run(){
                 if(options.getTrace() != VerificationOptions::NO_TRACE){
                     this->tmpdart = ((ReachabilityTraceableDart*)&dart)->trace;
                 }
-		for(TimedTransition::Vector::const_iterator transition_iter = tapn.getTransitions().begin();
-				transition_iter != tapn.getTransitions().end(); transition_iter++){
-			TimedTransition& transition = **transition_iter;
+		for(auto t : tapn.getTransitions()){
+			auto& transition = *t;
 			pair<int,int> calculatedStart = calculateStart(transition, dart.getBase());
 			if(calculatedStart.first == -1){	// Transition cannot be enabled in marking
 				continue;
@@ -47,7 +46,7 @@ bool TimeDartReachabilitySearch::run(){
 					Mpp.incrementAge(start);
 
                                         this->tmpupper = start;
-                                        if(successorGenerator.generateAndInsertSuccessors(Mpp, transition)){
+                                        if(generateAndInsertSuccessors(Mpp, transition)){
                                             return true;
                                         }
 				}else{
@@ -56,7 +55,7 @@ bool TimeDartReachabilitySearch::run(){
 						NonStrictMarkingBase Mpp(*dart.getBase());
 						Mpp.incrementAge(n);
                                                 this->tmpupper = n;
-                                                if(successorGenerator.generateAndInsertSuccessors(Mpp, transition)){
+                                                if(generateAndInsertSuccessors(Mpp, transition)){
                                                     return true;
                                                 }
 					}

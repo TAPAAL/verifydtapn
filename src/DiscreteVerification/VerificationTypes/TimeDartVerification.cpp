@@ -1,5 +1,6 @@
 #include "TimeDartVerification.hpp"
 #include "../DeadlockVisitor.hpp"
+#include "../Generator.h"
 
 namespace VerifyTAPN {
     namespace DiscreteVerification {
@@ -7,19 +8,26 @@ namespace VerifyTAPN {
         using namespace std;
 
         TimeDartVerification::TimeDartVerification(TAPN::TimedArcPetriNet& tapn, VerificationOptions options, AST::Query* query, NonStrictMarkingBase& initialMarking) :
-        Verification<NonStrictMarkingBase>(tapn, initialMarking, query, options), exploredMarkings(0), allwaysEnabled(), successorGenerator(tapn, *this) {
+        Verification<NonStrictMarkingBase>(tapn, initialMarking, query, options), exploredMarkings(0), allwaysEnabled() {
             loop = false;
             deadlock = false;
             //Find the transitions which don't have input arcs
-            for (TimedTransition::Vector::const_iterator iter = tapn.getTransitions().begin(); iter != tapn.getTransitions().end(); iter++) {
-                if ((*iter)->getPreset().size() + (*iter)->getTransportArcs().size() == 0) {
-                    allwaysEnabled.push_back((*iter));
+            for (auto t : tapn.getTransitions()) {
+                if (t->getPreset().size() + t->getTransportArcs().size() == 0) {
+                    allwaysEnabled.push_back(t);
                 }
-                if ((*iter)->isUrgent()) { // no implementation for urgency in timedart engine yet
+                if (t->isUrgent()) { // no implementation for urgency in timedart engine yet
                     cout << "The TimeDart engine cannot handle urgent transitions" << endl;
                     exit(1);
                 }
             }
+        /*    if(options.getPartialOrderReduction())
+            {
+                std::cout << "TimeDarts and partial order reduction no supported" << std::endl;
+                exit(1);
+            }
+            else*/
+                successorGenerator = std::make_unique<Generator>(tapn, query);                
         };
         
         pair<int, int> TimeDartVerification::calculateStart(const TAPN::TimedTransition& transition, NonStrictMarkingBase* marking) {
@@ -172,6 +180,19 @@ namespace VerifyTAPN {
             }
 
             return invariantPart;
+        }
+        
+        bool TimeDartVerification::generateAndInsertSuccessors(NonStrictMarkingBase& marking, const TAPN::TimedTransition& transition)
+        {
+            successorGenerator->from_marking(&marking);
+            if(!successorGenerator->only_transition(&transition))
+                return false;
+            while(auto next = successorGenerator->next(false))
+            {
+                if(handleSuccessor(next))
+                    return true;
+            }
+            return false;
         }
 
         void TimeDartVerification::getTrace() {

@@ -13,7 +13,8 @@ namespace VerifyTAPN {
         Generator::Generator(TAPN::TimedArcPetriNet& tapn, AST::Query* query) 
         : tapn(tapn), allways_enabled(), 
                 place_transition(), permutation(), 
-                base_permutation(), query(query)
+                base_permutation(), query(query),
+                transitionStatistics(tapn.getTransitions().size())
         {
             size_t maxtokens = 0;
             for (auto transition : tapn.getTransitions()) {
@@ -57,6 +58,18 @@ namespace VerifyTAPN {
             this->seen_urgent = seen_urgent;
             did_noinput = false;
             _trans = nullptr;
+        }
+        
+        bool Generator::only_transition(const TAPN::TimedTransition* trans)
+        {
+            current = _trans = trans;
+            if(is_enabled(trans, &base_permutation))
+            {
+                permutation = base_permutation;
+                return true;
+            }
+            current = _trans = nullptr;
+            return false;
         }
         
         NonStrictMarkingBase* Generator::next(bool do_delay)
@@ -176,6 +189,7 @@ namespace VerifyTAPN {
                 Token t = Token(0, arc->getWeight()); 
                 child->addTokenInPlace(arc->getOutputPlace(), t);
             }
+            ++transitionStatistics[trans->getIndex()];
             return child;
         }
         
@@ -281,6 +295,7 @@ namespace VerifyTAPN {
                             pit->tokens.begin(), Token(0, output->getWeight()));
                 }
             }
+            ++transitionStatistics[current->getIndex()];
 
             // nobody can move
             if(last_movable == -1) current = NULL;
@@ -445,5 +460,20 @@ namespace VerifyTAPN {
         {
             return num_children;
         }
+        
+        void Generator::printTransitionStatistics(std::ostream& out) const {
+            out << std::endl << "TRANSITION STATISTICS";
+            for (unsigned int i=0;i<transitionStatistics.size();i++) {
+                    if ((i) % 6 == 0) {
+                            out << std::endl;
+                            out << "<" << tapn.getTransitions()[i]->getName() << ":" << transitionStatistics[i] << ">";
+                    }
+                    else {
+                            out << " <"  <<tapn.getTransitions()[i]->getName() << ":" << transitionStatistics[i] << ">";
+                    }
+            }
+            out << std::endl;
+            out << std::endl;
+	}
     }
 }

@@ -56,9 +56,8 @@ namespace VerifyTAPN {
                 waitingDart->dart->setPassed(waitingDart->w);
                 this->tmpdart = waitingDart;
                 // Iterate over transitions
-                for (TimedTransition::Vector::const_iterator transition_iter = tapn.getTransitions().begin();
-                        transition_iter != tapn.getTransitions().end(); transition_iter++) {
-                    TimedTransition& transition = **transition_iter;
+                for (auto t : tapn.getTransitions()) {
+                    auto& transition = *t;
 
                     // Calculate enabled set
                     pair<int, int> calculatedStart = calculateStart(transition, waitingDart->dart->getBase());
@@ -87,7 +86,7 @@ namespace VerifyTAPN {
 
                             this->tmpupper = _end;
 
-                            if(successorGenerator.generateAndInsertSuccessors(Mpp, transition)){
+                            if(generateAndInsertSuccessors(Mpp, transition)){
                                 return true;
                             }
                             
@@ -125,7 +124,7 @@ namespace VerifyTAPN {
                 start = marking->getYoungest();
             }
             marking->cut(placeStats);
-            const TimedTransition* transition = marking->getGeneratedBy();
+            auto transition = marking->getGeneratedBy();
             unsigned int size = marking->size();
 
             pwList->setMaxNumTokensIfGreater(size);

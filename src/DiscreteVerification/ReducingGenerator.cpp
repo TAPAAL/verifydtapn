@@ -367,10 +367,8 @@ namespace VerifyTAPN {
 #ifndef NDEBUG
                     bool en =
 #endif
-                    is_enabled(trans, &base_permutation);
-                    assert(en);
-                    permutation = base_permutation;
                     only_transition(trans);
+                    assert(en);
                     break;
                 }
             }

@@ -44,7 +44,7 @@ namespace VerifyTAPN {
             }
             
             void printTransitionStatistics() const {
-                //successorGenerator.printTransitionStatistics(std::cout);
+                successorGenerator.printTransitionStatistics(std::cout);
             }
 
             void printStats();
