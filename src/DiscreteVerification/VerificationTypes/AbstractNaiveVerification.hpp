@@ -116,6 +116,7 @@ namespace VerifyTAPN {
             while(auto next = std::unique_ptr<NonStrictMarkingBase>(successorGenerator.next(false)))
             {                
                 U* ptr = new U(*next);
+                ptr->setGeneratedBy(successorGenerator.last_fired());
                 if(handleSuccessor(ptr))
                 {
                     return ADDTOPW_RETURNED_TRUE;

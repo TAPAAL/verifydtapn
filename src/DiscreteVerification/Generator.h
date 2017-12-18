@@ -38,6 +38,7 @@ namespace VerifyTAPN {
             const TAPN::TimedTransition* _trans = nullptr;
             AST::Query* query;
             std::vector<uint32_t> transitionStatistics;
+            const TAPN::TimedTransition* _last_fired = nullptr;
         public:
             Generator(TAPN::TimedArcPetriNet& tapn, AST::Query* query);
             virtual void from_marking(NonStrictMarkingBase* parent, Mode mode = ALL, bool urgent = false);
@@ -51,7 +52,7 @@ namespace VerifyTAPN {
             const TAPN::InhibitorArc* inhibited(const TAPN::TimedTransition* trans) const;
             bool urgent(){return seen_urgent;};
             void printTransitionStatistics(std::ostream& out) const;
-                
+            const TAPN::TimedTransition* last_fired() const { return _last_fired; }
         private:
             NonStrictMarkingBase* next_no_input();
             NonStrictMarkingBase* next_from_current();

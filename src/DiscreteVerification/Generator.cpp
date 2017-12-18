@@ -154,6 +154,7 @@ namespace VerifyTAPN {
             }
             NonStrictMarkingBase* m = new NonStrictMarkingBase(*parent);
             m->incrementAge();
+            _last_fired = nullptr;
             return m;
         }
         
@@ -189,6 +190,7 @@ namespace VerifyTAPN {
                 Token t = Token(0, arc->getWeight()); 
                 child->addTokenInPlace(arc->getOutputPlace(), t);
             }
+            _last_fired = trans;
             ++transitionStatistics[trans->getIndex()];
             return child;
         }
@@ -295,6 +297,7 @@ namespace VerifyTAPN {
                             pit->tokens.begin(), Token(0, output->getWeight()));
                 }
             }
+            _last_fired = current;
             ++transitionStatistics[current->getIndex()];
 
             // nobody can move

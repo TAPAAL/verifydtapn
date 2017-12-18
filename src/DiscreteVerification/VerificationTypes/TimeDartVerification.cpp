@@ -189,6 +189,7 @@ namespace VerifyTAPN {
                 return false;
             while(auto next = successorGenerator->next(false))
             {
+                next->setGeneratedBy(successorGenerator->last_fired());
                 if(handleSuccessor(next))
                     return true;
             }

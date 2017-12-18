@@ -138,7 +138,7 @@ namespace VerifyTAPN {
 
             std::fill(_stubborn.begin(), _stubborn.end(), false);
 
-            bool added_zero_time = ample_set();
+            bool added_zero_time = ample_set(inv_place, urg_trans);
             added_zero_time |= compute_closure(added_zero_time);
             if(!added_zero_time)
             {
@@ -194,7 +194,7 @@ namespace VerifyTAPN {
             }            
         }
         
-        bool ReducingGenerator::ample_set()
+        bool ReducingGenerator::ample_set(const TAPN::TimedPlace* inv_place, const TAPN::TimedTransition* trans)
         {
             bool added_zt = false;
             QueryVisitor<NonStrictMarkingBase> visitor(*parent, tapn);
@@ -211,11 +211,37 @@ namespace VerifyTAPN {
                     added_zt |= postSetOf(i, !added_zt);
             }
 
-            if(interesting.deadlock)
+            if(interesting.deadlock && !trans && !added_zt)
             {
                 // for now, just pick a single enabled, 
                 // verifypn has a good heuristic for this
-                for(size_t i = 0; i < _enabled.size(); ++i)
+                size_t min = 0;
+                size_t max = _enabled.size();
+                if(inv_place)
+                {
+                    for(auto a : inv_place->getInputArcs())
+                    {
+                        if(_enabled[a->getOutputTransition().getIndex()])
+                        {
+                            min = a->getOutputTransition().getIndex();
+                            max = min + 1;
+                            break;
+                        }
+                    }
+                    if(max != min + 1)
+                    {
+                        for(auto a : inv_place->getTransportArcs())
+                        {
+                            if(_enabled[a->getTransition().getIndex()])
+                            {
+                                min = a->getTransition().getIndex();
+                                max = min + 1;
+                                break;
+                            }
+                        }
+                    }
+                }
+                for(size_t i = min; i < max; ++i)
                 {
                     if(_enabled[i])
                     {

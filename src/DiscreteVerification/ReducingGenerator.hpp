@@ -68,7 +68,7 @@ namespace DiscreteVerification {
         bool postSetOf(size_t i, bool check_age, TAPN::TimeInterval interval = TAPN::TimeInterval());
         bool inhibPostSetOf(size_t i);
         void zero_time_set(int32_t max_age, const TAPN::TimedPlace*, const TAPN::TimedTransition*);
-        bool ample_set();
+        bool ample_set(const TAPN::TimedPlace* inv_place, const TAPN::TimedTransition* trans);
         bool compute_closure(bool added_zt);
     public:
         ReducingGenerator(TAPN::TimedArcPetriNet& tapn, AST::Query* query) 
