@@ -3,6 +3,9 @@
 
 #include <limits>
 #include <iostream>
+#include <algorithm>
+#include <map>
+#include <cassert>
 
 namespace VerifyTAPN {
 	namespace TAPN {
@@ -32,11 +35,37 @@ namespace VerifyTAPN {
 			inline const int getUpperBound() const { return upperBound; }
 			inline const bool isLowerBoundStrict() const { return leftStrict; }
 			inline const bool isUpperBoundStrict() const { return rightStrict; }
+                        inline bool setUpperBound(int bound, bool isStrict)
+                        {
+                            if(upperBound == bound) rightStrict |= isStrict;
+                            else if(upperBound > bound){
+                                rightStrict = isStrict;
+                                upperBound = bound;
+                            }
+                            if(upperBound < lowerBound) return false;
+                            else return true;
+                        }
 
-			inline const bool isZeroInfinity() const { return !leftStrict && lowerBound == 0 && upperBound == std::numeric_limits<int>().max() && rightStrict; }
-
+			inline const bool isZeroInfinity() const { return !leftStrict && lowerBound == 0 && upperBound == std::numeric_limits<int>::max() && rightStrict; }
+                        inline const bool contains(int number) const
+                        {
+                            return number >= lowerBound && number <= upperBound;
+                        }
+                        inline bool intersects(const TimeInterval& other) const
+                        {
+                            assert(!leftStrict);
+                            assert(!other.leftStrict);
+                            assert(!rightStrict || upperBound == std::numeric_limits<int>().max());
+                            assert(!other.rightStrict || other.upperBound == std::numeric_limits<int>().max());
+                            if(other.lowerBound >= lowerBound &&
+                               other.lowerBound <= upperBound) return true;
+                            if(lowerBound >= other.lowerBound &&
+                               lowerBound <= other.upperBound) return true;
+                            return false;
+                        }
+                        
 		public: // statics
-			static TimeInterval createFor(const std::string& interval);
+			static TimeInterval createFor(const std::string& interval, const std::map<std::string, int>& replace);
 
 
 		private: // data

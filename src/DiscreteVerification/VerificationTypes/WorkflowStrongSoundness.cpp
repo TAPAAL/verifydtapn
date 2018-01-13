@@ -50,7 +50,7 @@ namespace VerifyTAPN {
                                                 tapn.getMaxConstant());
         }
        
-        bool WorkflowStrongSoundnessReachability::verify() {
+        bool WorkflowStrongSoundnessReachability::run() {
             
             if (outPlace == NULL)
             {
@@ -58,7 +58,7 @@ namespace VerifyTAPN {
                 return true;
             }
                 
-            if (addToPW(&initialMarking, NULL)) {
+            if (handleSuccessor(&initialMarking, NULL)) {
                 return true;
             }
 
@@ -74,7 +74,7 @@ namespace VerifyTAPN {
                 validChildren = 0;
 
                 bool noDelay = false;
-                Result res = successorGenerator.generateAndInsertSuccessors(*next_marking);
+                auto res = generateAndInsertSuccessors(*next_marking);
                 if (res == ADDTOPW_RETURNED_TRUE) {
                     clearTrace();
                     return true;
@@ -88,7 +88,7 @@ namespace VerifyTAPN {
                     marking->incrementAge();
                     marking->setGeneratedBy(NULL);
                    
-                    if (addToPW(marking, next_marking)) {
+                    if (handleSuccessor(marking, next_marking)) {
                         clearTrace();
                         lastMarking = marking;
                         return true;
@@ -191,7 +191,7 @@ namespace VerifyTAPN {
         }
         
         
-        bool WorkflowStrongSoundnessReachability::addToPW(NonStrictMarking* marking, NonStrictMarking* parent) {
+        bool WorkflowStrongSoundnessReachability::handleSuccessor(NonStrictMarking* marking, NonStrictMarking* parent) {
             marking->cut(placeStats);
             marking->setParent(parent);
             

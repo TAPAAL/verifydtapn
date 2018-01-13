@@ -8,7 +8,6 @@
 #ifndef WORKFLOWSTRONGSOUNDNESS_HPP_
 #define WORKFLOWSTRONGSOUNDNESS_HPP_
 
-#include "ReachabilitySearch.hpp"
 #include "../DataStructures/WorkflowPWList.hpp"
 #include "Workflow.hpp"
 #include <stack>
@@ -31,7 +30,7 @@ public:
             delete pwList;
         }
         
-	bool verify();
+	bool run();
 	virtual void getTrace();
 
 	void printExecutionTime(ostream& stream){
@@ -43,7 +42,7 @@ public:
 
 protected:
         void findInOut();
-	bool addToPW(NonStrictMarking* marking, NonStrictMarking* parent);
+	bool handleSuccessor(NonStrictMarking* marking, NonStrictMarking* parent);
         virtual void swapData(NonStrictMarking* marking, NonStrictMarking* old);
         virtual void clearTrace(){};    // cleanup
         

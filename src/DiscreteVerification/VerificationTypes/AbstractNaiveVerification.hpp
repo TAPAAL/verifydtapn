@@ -8,6 +8,8 @@
 #ifndef ABSTRACTREACHABILITY_HPP
 #define	ABSTRACTREACHABILITY_HPP
 
+#include <memory>
+
 #include "../DataStructures/PWList.hpp"
 #include "../../Core/TAPN/TAPN.hpp"
 #include "../../Core/QueryParser/AST.hpp"
@@ -18,7 +20,7 @@
 #include "../../Core/TAPN/TransportArc.hpp"
 #include "../../Core/TAPN/InhibitorArc.hpp"
 #include "../../Core/TAPN/OutputArc.hpp"
-#include "../SuccessorGenerator.hpp"
+#include "../Generator.h"
 #include "../QueryVisitor.hpp"
 #include "../DataStructures/NonStrictMarking.hpp"
 #include "Verification.hpp"
@@ -27,8 +29,12 @@
 namespace VerifyTAPN {
     namespace DiscreteVerification {
         using namespace std;
-        
-        template<typename T, typename U>
+        enum SRes {
+            ADDTOPW_RETURNED_TRUE,
+            ADDTOPW_RETURNED_FALSE_URGENTENABLED,
+            ADDTOPW_RETURNED_FALSE
+        };        
+        template<typename T, typename U, typename S>
         class AbstractNaiveVerification : public Verification<U> {
         public:
             AbstractNaiveVerification(TAPN::TimedArcPetriNet& tapn, U& initialMarking, AST::Query* query, VerificationOptions options, T* pwList);
@@ -45,10 +51,10 @@ namespace VerifyTAPN {
 
         protected:
             bool isDelayPossible(U& marking);
-            virtual bool addToPW(U* marking, U* parent) = 0;
+            virtual bool handleSuccessor(U* marking, U* parent) = 0;
 
-            inline bool addToPW(U* m) {
-                return addToPW(m, tmpParent);
+            inline bool handleSuccessor(U* m) {
+                return handleSuccessor(m, tmpParent);
             };
             
             U* getLastMarking() {
@@ -60,27 +66,28 @@ namespace VerifyTAPN {
             };
 
         protected:
-            SuccessorGenerator<U> successorGenerator;
+            SRes generateAndInsertSuccessors(NonStrictMarkingBase& from);
+            S successorGenerator;
             U* lastMarking;
             U* tmpParent;
             T* pwList;
         };
 
-        template<typename T,typename U>
-        AbstractNaiveVerification<T,U>::AbstractNaiveVerification(TAPN::TimedArcPetriNet& tapn, U& initialMarking, AST::Query* query, VerificationOptions options, T* pwList)
-        : Verification<U>(tapn, initialMarking, query, options), successorGenerator(tapn, *this), lastMarking(NULL), pwList(pwList) {
+        template<typename T,typename U, typename S>
+        AbstractNaiveVerification<T,U,S>::AbstractNaiveVerification(TAPN::TimedArcPetriNet& tapn, U& initialMarking, AST::Query* query, VerificationOptions options, T* pwList)
+        : Verification<U>(tapn, initialMarking, query, options), successorGenerator(tapn, query), lastMarking(NULL), pwList(pwList) {
 
         };
 
-        template<typename T,typename U>
-        void AbstractNaiveVerification<T,U>::printStats() {
+        template<typename T,typename U, typename S>
+        void AbstractNaiveVerification<T,U,S>::printStats() {
             std::cout << "  discovered markings:\t" << pwList->discoveredMarkings << std::endl;
             std::cout << "  explored markings:\t" << pwList->size() - pwList->explored() << std::endl;
             std::cout << "  stored markings:\t" << pwList->size() << std::endl;
         };
 
-        template<typename T,typename U>
-        bool AbstractNaiveVerification<T,U>::isDelayPossible(U& marking) {
+        template<typename T,typename U, typename S>
+        bool AbstractNaiveVerification<T,U,S>::isDelayPossible(U& marking) {
             const PlaceList& places = marking.getPlaceList();
             if (places.size() == 0) return true; //Delay always possible in empty markings
 
@@ -100,6 +107,25 @@ namespace VerifyTAPN {
             assert(false); // This happens if there are markings on places not in the TAPN
             return false;
         };
+        
+        template<typename T,typename U, typename S>
+        SRes AbstractNaiveVerification<T,U,S>::generateAndInsertSuccessors(NonStrictMarkingBase& from) {
+            
+
+            successorGenerator.from_marking(&from);
+            while(auto next = std::unique_ptr<NonStrictMarkingBase>(successorGenerator.next(false)))
+            {                
+                U* ptr = new U(*next);
+                ptr->setGeneratedBy(successorGenerator.last_fired());
+                if(handleSuccessor(ptr))
+                {
+                    return ADDTOPW_RETURNED_TRUE;
+                }
+            }
+            
+            return successorGenerator.urgent() ? SRes::ADDTOPW_RETURNED_FALSE_URGENTENABLED : SRes::ADDTOPW_RETURNED_FALSE;
+        }
+        
     }
 }
 #endif	/* ABSTRACTREACHABILITY_HPP */

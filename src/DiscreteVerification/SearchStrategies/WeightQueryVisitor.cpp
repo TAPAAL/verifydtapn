@@ -10,12 +10,12 @@
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
-		void WeightQueryVisitor::visit(const NotExpression& expr, Result& context)
+		void WeightQueryVisitor::visit(NotExpression& expr, Result& context)
 		{
 			assert(false);
 		}
 
-		void WeightQueryVisitor::visit(const OrExpression& expr, Result& context)
+		void WeightQueryVisitor::visit(OrExpression& expr, Result& context)
 		{
 			IntResult left, right;
 			expr.getLeft().accept(*this, left);
@@ -25,7 +25,7 @@ namespace DiscreteVerification {
                                 = min(left.value, right.value);
 		}
 
-		void WeightQueryVisitor::visit(const AndExpression& expr, Result& context)
+		void WeightQueryVisitor::visit(AndExpression& expr, Result& context)
 		{
 			IntResult left, right;
                         
@@ -45,12 +45,12 @@ namespace DiscreteVerification {
                                 = left.value+right.value;
 		}
 
-                void WeightQueryVisitor::visit(const DeadlockExpression& expr, Result& context)
+                void WeightQueryVisitor::visit(DeadlockExpression& expr, Result& context)
 		{
                     static_cast<IntResult&>(context).value = 0;
 		}
 
-		void WeightQueryVisitor::visit(const AtomicProposition& expr, Result& context)
+		void WeightQueryVisitor::visit(AtomicProposition& expr, Result& context)
 		{
                     IntResult left;
                     expr.getLeft().accept(*this, left);
@@ -60,15 +60,15 @@ namespace DiscreteVerification {
                                 = compare(left.value, expr.getOperator(), right.value);
 		}
 
-                void WeightQueryVisitor::visit(const NumberExpression& expr, Result& context){
+                void WeightQueryVisitor::visit(NumberExpression& expr, Result& context){
                     ((IntResult&)context).value = expr.getValue();
                 }
 
-                void WeightQueryVisitor::visit(const IdentifierExpression& expr, Result& context){
+                void WeightQueryVisitor::visit(IdentifierExpression& expr, Result& context){
                     ((IntResult&)context).value = marking.numberOfTokensInPlace(expr.getPlace());
                 }
                 
-                void WeightQueryVisitor::visit(const MultiplyExpression& expr, Result& context){
+                void WeightQueryVisitor::visit(MultiplyExpression& expr, Result& context){
                     IntResult left;
                     expr.getLeft().accept(*this, left);
                     IntResult right;
@@ -76,13 +76,13 @@ namespace DiscreteVerification {
                     ((IntResult&)context).value = left.value * right.value;
                 }
                 
-                void WeightQueryVisitor::visit(const MinusExpression& expr, Result& context){
+                void WeightQueryVisitor::visit(MinusExpression& expr, Result& context){
                     IntResult value;
                     expr.getValue().accept(*this, value);
                     ((IntResult&)context).value = -value.value;
                 }
 
-                void WeightQueryVisitor::visit(const SubtractExpression& expr, Result& context){
+                void WeightQueryVisitor::visit(SubtractExpression& expr, Result& context){
                     IntResult left;
                     expr.getLeft().accept(*this, left);
                     IntResult right;
@@ -90,7 +90,7 @@ namespace DiscreteVerification {
                     ((IntResult&)context).value = left.value - right.value;
                 }
 
-                void WeightQueryVisitor::visit(const PlusExpression& expr, Result& context){
+                void WeightQueryVisitor::visit(PlusExpression& expr, Result& context){
                     IntResult left;
                     expr.getLeft().accept(*this, left);
                     IntResult right;
@@ -98,15 +98,15 @@ namespace DiscreteVerification {
                     ((IntResult&)context).value = left.value + right.value;
                 }
                 
-		void WeightQueryVisitor::visit(const BoolExpression& expr, Result& context)
+		void WeightQueryVisitor::visit(BoolExpression& expr, Result& context)
 		{
 			static_cast<IntResult&>(context).value
                                 = expr.getValue()? 0 : std::numeric_limits<int>::max();
 		}
 
-		void WeightQueryVisitor::visit(const Query& query, Result& context)
+		void WeightQueryVisitor::visit(Query& query, Result& context)
 		{
-			query.getChild().accept(*this, context);
+			query.getChild()->accept(*this, context);
 		}
 
 		int WeightQueryVisitor::compare(int numberOfTokensInPlace, const std::string& op, int n) const

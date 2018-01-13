@@ -35,6 +35,7 @@ namespace VerifyTAPN {
 				TransportArc* arc = *iter;
 				arc->getTransition().addTransportArcGoingThrough(*arc);
 				arc->getSource().addTransportArc(*arc);
+                                arc->getDestination().addProdTransportArc(*arc);
 				updateMaxConstant(arc->getInterval());
 			}
 
@@ -260,7 +261,7 @@ namespace VerifyTAPN {
 			}
 		}
 
-		void TimedArcPetriNet::updatePlaceTypes(const AST::Query* query, VerificationOptions options){
+		void TimedArcPetriNet::updatePlaceTypes(AST::Query* query, VerificationOptions options){
 
                         AST::IntVectorResult placeNumbers;
 			DiscreteVerification::PlaceVisitor visitor;
@@ -280,6 +281,14 @@ namespace VerifyTAPN {
 			}
 		}
 
+                void TimedArcPetriNet::setAllControllable(bool value)
+                {
+                    for(auto& transition : transitions)
+                    {
+                        transition->setControllable(value);
+                    }
+                }
+                
 		void TimedArcPetriNet::updateMaxConstant(const TimeInterval& interval)
 		{
 			int lowerBound = interval.getLowerBound();

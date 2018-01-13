@@ -93,7 +93,7 @@ namespace VerifyTAPN {
 
             TimeDartPWPData(WaitingList<ptriepointer_t<TimeDartBase*> >* w_l, TAPN::TimedArcPetriNet& tapn, int knumber, int nplaces, int mage, bool trace) :
             TimeDartPWBase(trace), 
-                    waiting_list(w_l), passed(), encoder(tapn, knumber, nplaces, mage) {
+                    waiting_list(w_l), passed(), encoder(tapn, knumber) {
             };
             
             NonStrictMarkingBase* decode(ptriepointer_t<TimeDartBase*>& ewp){

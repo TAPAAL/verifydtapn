@@ -20,6 +20,8 @@ static const std::string KEEP_DEAD = "keep-dead-tokens";
 static const std::string WORKFLOW = "workflow";
 static const std::string STRONG_WORKFLOW_BOUND = "strong-workflow-bound";
 static const std::string CALCULATE_CMAX = "calculate-cmax";
+static const std::string REPLACE = "replace";
+static const std::string ORDER = "partial-order";
 
 std::ostream& operator<<(std::ostream& out, const Switch& flag) {
 	flag.print(out);
@@ -181,7 +183,13 @@ void ArgsParser::initialize() {
     parsers.push_back(
             new Switch ("n", CALCULATE_CMAX,
             "Calculate the place bounds"));
-
+    parsers.push_back(
+            new SwitchWithStringArg("r", REPLACE,
+            "Replace placeholder in model with value, format PLACEHOLDER=VALUE;..", ""));
+    parsers.push_back(
+        new Switch("i", ORDER,
+        "Disable partial order reduction"));
+    
     };
 
 void ArgsParser::printHelp() const {
@@ -404,6 +412,45 @@ unsigned long long ArgsParser::tryParseLongLong(const option& option) const {
 	return result;
 }
 
+std::map<std::string, int> ArgsParser::parseReplace(const option& option) const
+{
+    std::map<std::string, int> replace;
+    const std::string param = option.second;
+    
+    size_t split = 0;
+    do {
+        size_t equal = param.find("=", split);
+        if(equal != std::string::npos)
+        {
+            std::string name = param.substr(split, equal - split);
+            std::string val;
+            split = param.find(":", equal);
+            ++equal;
+            if(split == std::string::npos)
+                val = param.substr(equal, param.size() - equal);
+            else
+                val = param.substr(equal, split - equal);
+            
+            try{
+                int res = boost::lexical_cast<unsigned long long>(val);
+                replace[name] = res;
+            } catch (boost::bad_lexical_cast & e) {
+		std::cout << "Invalid value '" << option.second << "' for option '--"
+				<< option.first << "'" << std::endl;
+		exit(1);
+            }
+            if(split >= param.size()) break;
+            ++split;
+        }
+        else
+        {
+            break;
+        }
+
+    } while(split != std::string::npos);
+    return replace;
+}
+
 std::vector<std::string> ArgsParser::parseIncPlaces(
 		const std::string& string) const {
 	std::vector<std::string> vec;
@@ -452,13 +499,18 @@ VerificationOptions ArgsParser::createVerificationOptions(const option_map& map)
 	bool calculateCmax = boost::lexical_cast<bool>(
 			map.find(CALCULATE_CMAX)->second);
 
+        std::map<std::string, int> replace = parseReplace(*map.find(REPLACE));
         
         assert(map.find(GCD) != map.end());
         bool enableGCDLowerGuards = boost::lexical_cast<bool>(
 			map.find(GCD)->second);
+
+        bool order = boost::lexical_cast<bool>(
+			map.find(ORDER)->second);
         
 	return VerificationOptions(search, verification, memoptimization, kbound, trace,
-			xml_trace, max_constant, keep_dead, enableGCDLowerGuards, workflow, workflowBound, calculateCmax);
+			xml_trace, max_constant, keep_dead, enableGCDLowerGuards, workflow,
+                        workflowBound, calculateCmax, replace, !order);
 
 }
 }

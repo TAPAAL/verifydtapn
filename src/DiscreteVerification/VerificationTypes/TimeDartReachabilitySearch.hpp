@@ -34,16 +34,16 @@ public:
             pwList = new TimeDartPWHashMap(waiting_list, options.getTrace());
         };
         virtual ~TimeDartReachabilitySearch();
-	bool verify();
+	bool run();
 
 	inline unsigned int maxUsedTokens(){ return pwList->maxNumTokensInAnyMarking; };
-        virtual inline bool addToPW(NonStrictMarkingBase* m){
-            return addToPW(m,tmpdart, tmpupper);
+        virtual inline bool handleSuccessor(NonStrictMarkingBase* m){
+            return handleSuccessor(m,tmpdart, tmpupper);
         };
 protected:
     WaitingDart* tmpdart;
     int tmpupper;
-	bool addToPW(NonStrictMarkingBase* marking, WaitingDart* parent, int upper);
+	bool handleSuccessor(NonStrictMarkingBase* marking, WaitingDart* parent, int upper);
 
 protected:
 	int validChildren;

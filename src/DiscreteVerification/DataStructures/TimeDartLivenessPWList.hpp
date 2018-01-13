@@ -93,7 +93,7 @@ namespace VerifyTAPN {
                     options(options), 
                     waiting_list(w_l), 
                     passed(),
-                    encoder(tapn,  options.getKBound(), nplaces, mage) 
+                    encoder(tapn,  options.getKBound()) 
             {
             };
 

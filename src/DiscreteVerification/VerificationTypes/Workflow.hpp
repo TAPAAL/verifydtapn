@@ -18,22 +18,22 @@
 #include "../../Core/TAPN/TransportArc.hpp"
 #include "../../Core/TAPN/InhibitorArc.hpp"
 #include "../../Core/TAPN/OutputArc.hpp"
-#include "../SuccessorGenerator.hpp"
 #include "../QueryVisitor.hpp"
 #include "../DataStructures/NonStrictMarking.hpp"
 #include <stack>
-#include "ReachabilitySearch.hpp"
 #include "../DataStructures/WaitingList.hpp"
 #include "AbstractNaiveVerification.hpp"
+#include "../../Core/TAPN/TAPN.hpp"
 
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
+    using namespace TAPN;
 
-class Workflow : public AbstractNaiveVerification<WorkflowPWListBasic,NonStrictMarking> {
+class Workflow : public AbstractNaiveVerification<WorkflowPWListBasic,NonStrictMarking,Generator> {
 public:    
 	Workflow(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options)
-        : AbstractNaiveVerification<WorkflowPWListBasic,NonStrictMarking>(tapn, initialMarking, query, options, NULL), in(NULL), out(NULL){
+        : AbstractNaiveVerification<WorkflowPWListBasic,NonStrictMarking,Generator>(tapn, initialMarking, query, options, NULL), in(NULL), out(NULL){
     
             for (TimedPlace::Vector::const_iterator iter = tapn.getPlaces().begin(); 
                     iter != tapn.getPlaces().end(); iter++) {

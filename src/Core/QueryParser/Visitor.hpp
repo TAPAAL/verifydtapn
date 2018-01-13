@@ -35,19 +35,19 @@ namespace VerifyTAPN
 		{
 		public:
 			virtual ~Visitor() { };
-			virtual void visit(const NotExpression& expr, Result& context) = 0;
-			virtual void visit(const OrExpression& expr, Result& context) = 0;
-			virtual void visit(const AndExpression& expr, Result& context) = 0;
-			virtual void visit(const AtomicProposition& expr, Result& context) = 0;
-			virtual void visit(const BoolExpression& expr, Result& context) = 0;
-			virtual void visit(const Query& query, Result& context) = 0;
-                        virtual void visit(const DeadlockExpression& expr, Result& context) = 0;
-                        virtual void visit(const NumberExpression& expr, Result& context) = 0;
-                        virtual void visit(const IdentifierExpression& expr, Result& context) = 0;
-                        virtual void visit(const MultiplyExpression& expr, Result& context) = 0;
-                        virtual void visit(const MinusExpression& expr, Result& context) = 0;
-                        virtual void visit(const SubtractExpression& expr, Result& context) = 0;
-                        virtual void visit(const PlusExpression& expr, Result& context) = 0;
+			virtual void visit(NotExpression& expr, Result& context) = 0;
+			virtual void visit(OrExpression& expr, Result& context) = 0;
+			virtual void visit(AndExpression& expr, Result& context) = 0;
+			virtual void visit(AtomicProposition& expr, Result& context) = 0;
+			virtual void visit(BoolExpression& expr, Result& context) = 0;
+			virtual void visit(Query& query, Result& context) = 0;
+                        virtual void visit(DeadlockExpression& expr, Result& context) = 0;
+                        virtual void visit(NumberExpression& expr, Result& context) = 0;
+                        virtual void visit(IdentifierExpression& expr, Result& context) = 0;
+                        virtual void visit(MultiplyExpression& expr, Result& context) = 0;
+                        virtual void visit(MinusExpression& expr, Result& context) = 0;
+                        virtual void visit(SubtractExpression& expr, Result& context) = 0;
+                        virtual void visit(PlusExpression& expr, Result& context) = 0;
 		};
 	}
 }

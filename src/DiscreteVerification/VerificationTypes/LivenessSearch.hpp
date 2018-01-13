@@ -18,7 +18,6 @@
 #include "../../Core/TAPN/TransportArc.hpp"
 #include "../../Core/TAPN/InhibitorArc.hpp"
 #include "../../Core/TAPN/OutputArc.hpp"
-#include "../SuccessorGenerator.hpp"
 #include "../QueryVisitor.hpp"
 #include "../DataStructures/NonStrictMarking.hpp"
 #include <stack>
@@ -29,19 +28,19 @@
 namespace VerifyTAPN {
     namespace DiscreteVerification {
 
-        class LivenessSearch : public AbstractNaiveVerification<PWListBase, NonStrictMarking> {
+        class LivenessSearch : public AbstractNaiveVerification<PWListBase, NonStrictMarking, Generator> {
         public:
             LivenessSearch(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options);
             LivenessSearch(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking*>* waiting_list);
             virtual ~LivenessSearch();
-            bool verify();
+            bool run();
 
             virtual void deleteMarking(NonStrictMarking* m) {
                 //dummy
             };
 
         protected:
-            bool addToPW(NonStrictMarking* marking, NonStrictMarking* parent);
+            bool handleSuccessor(NonStrictMarking* marking, NonStrictMarking* parent);
 
         public:
             void getTrace();

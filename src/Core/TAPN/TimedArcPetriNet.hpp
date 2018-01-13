@@ -60,7 +60,8 @@ namespace VerifyTAPN {
 			inline const bool isPlaceAtIndexUntimed(int index) const { return places[index]->isUntimed(); }
 			bool isNonStrict() const;
 			void calculateCausality(TimedPlace& p, std::vector< TimedPlace* >* result) const;
-			void updatePlaceTypes(const AST::Query* query, VerificationOptions options);
+			void updatePlaceTypes(AST::Query* query, VerificationOptions options);
+                        void setAllControllable(bool value);
 		public: // modifiers
 			void initialize(bool useGlobalMaxConstant, bool disableLowerGuards);
 			bool containsOrphanTransitions();

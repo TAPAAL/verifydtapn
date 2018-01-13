@@ -21,7 +21,7 @@ namespace VerifyTAPN {
 			ArcCollections(const TimedInputArc::Vector& inputArcs, const OutputArc::Vector& outputArcs, const TransportArc::Vector& transportArcs, const InhibitorArc::Vector& inhibitorArcs) : inputArcs(inputArcs), outputArcs(outputArcs), transportArcs(transportArcs), inhibitorArcs(inhibitorArcs) {};
 		};
 	public: // construction
-		explicit TAPNXmlParser() {};
+		explicit TAPNXmlParser(const std::map<std::string, int>& replace) : replace(replace) {};
 
 		virtual ~TAPNXmlParser() { /* empty */ };
 
@@ -47,6 +47,9 @@ namespace VerifyTAPN {
 		TransportArc* parseTransportArc(const rapidxml::xml_node<>& arcNode, const TimedPlace::Vector& places, const TimedTransition::Vector& transitions) const;
 		OutputArc* parseOutputArc(const rapidxml::xml_node<>& arcNode, const TimedPlace::Vector& places, const TimedTransition::Vector& transitions) const;
 		std::vector<int> parseInitialMarking(const rapidxml::xml_node<>& root, const TimedArcPetriNet& tapn) const;
+                int getWeight(rapidxml::xml_attribute<char>* attribute) const;
+                
+                const std::map<std::string, int>& replace;
 	};
 }
 

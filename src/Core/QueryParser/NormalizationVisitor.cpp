@@ -6,7 +6,7 @@ namespace VerifyTAPN
 	namespace AST
 	{
 
-		void NormalizationVisitor::visit(const NotExpression& expr, Result& context)
+		void NormalizationVisitor::visit(NotExpression& expr, Result& context)
 		{
 			Tuple& tuple = static_cast<Tuple&>(context);
 			Tuple any = Tuple(!tuple.negate, NULL);
@@ -14,7 +14,7 @@ namespace VerifyTAPN
 			tuple.returnExpr = static_cast<Tuple&>(any).returnExpr;
 		}
 
-		void NormalizationVisitor::visit(const OrExpression& expr, Result& context)
+		void NormalizationVisitor::visit(OrExpression& expr, Result& context)
 		{
 			Tuple& tuple = static_cast<Tuple&>(context);
 			Tuple left = Tuple(tuple.negate, NULL), right = Tuple(tuple.negate, NULL);
@@ -29,7 +29,7 @@ namespace VerifyTAPN
 			}
 		}
 
-		void NormalizationVisitor::visit(const AndExpression& expr, Result& context)
+		void NormalizationVisitor::visit(AndExpression& expr, Result& context)
 		{
 			Tuple& tuple = static_cast<Tuple&>(context);
 			Tuple left = Tuple(tuple.negate, NULL), right = Tuple(tuple.negate, NULL);
@@ -44,7 +44,7 @@ namespace VerifyTAPN
 			}
 		}
 
-		void NormalizationVisitor::visit(const AtomicProposition& expr, Result& context)
+		void NormalizationVisitor::visit(AtomicProposition& expr, Result& context)
 		{
 			Tuple& tuple = static_cast<Tuple&>(context);
 			std::string op;
@@ -56,30 +56,30 @@ namespace VerifyTAPN
 			tuple.returnExpr = new AtomicProposition(&expr.getLeft(), &op, &expr.getRight());// dont visit arithmetics for now
 		}
                 
-                void NormalizationVisitor::visit(const NumberExpression& expr, Result& context){
+                void NormalizationVisitor::visit(NumberExpression& expr, Result& context){
                 }
                 
-                void NormalizationVisitor::visit(const IdentifierExpression& expr, Result& context){
+                void NormalizationVisitor::visit(IdentifierExpression& expr, Result& context){
                 }
                 
-                void NormalizationVisitor::visit(const MultiplyExpression& expr, Result& context){
+                void NormalizationVisitor::visit(MultiplyExpression& expr, Result& context){
                 }
                 
-                void NormalizationVisitor::visit(const MinusExpression& expr, Result& context){
+                void NormalizationVisitor::visit(MinusExpression& expr, Result& context){
                 }
                 
-                void NormalizationVisitor::visit(const SubtractExpression& expr, Result& context){
+                void NormalizationVisitor::visit(SubtractExpression& expr, Result& context){
                 }
                 
-                void NormalizationVisitor::visit(const PlusExpression& expr, Result& context){
+                void NormalizationVisitor::visit(PlusExpression& expr, Result& context){
                 }
                 
-                void NormalizationVisitor::visit(const DeadlockExpression& expr, Result& context) {
+                void NormalizationVisitor::visit(DeadlockExpression& expr, Result& context) {
 			Tuple& tuple = static_cast<Tuple&>(context);
 			tuple.returnExpr = new DeadlockExpression();                  
                 }
                 
-		void NormalizationVisitor::visit(const BoolExpression& expr, Result& context)
+		void NormalizationVisitor::visit(BoolExpression& expr, Result& context)
 		{
 			Tuple& tuple = static_cast<Tuple&>(context);
 			if(tuple.negate){
@@ -89,10 +89,10 @@ namespace VerifyTAPN
 			}
 		}
 
-		void NormalizationVisitor::visit(const Query& query, Result& context)
+		void NormalizationVisitor::visit(Query& query, Result& context)
 		{
 			Tuple any = Tuple(false, NULL);
-			query.getChild().accept(*this, any);
+			query.getChild()->accept(*this, any);
 
 			normalizedQuery = new AST::Query(query.getQuantifier(), static_cast<Tuple&>(any).returnExpr);
 		}

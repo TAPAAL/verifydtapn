@@ -42,8 +42,8 @@ namespace VerifyTAPN{
 %token <string> IDENTIFIER LESS LESSEQUAL EQUAL GREATEREQUAL GREATER
 %token <number> NUMBER    
 %token END      0
-%token EF AG AF EG
-%token LPARAN RPARAN
+%token EF AG AF EG CONTROL
+%token LPARAN RPARAN COLON
 %token OR AND NOT
 %token BOOL_TRUE BOOL_FALSE
 %token DEADLOCK
@@ -63,6 +63,8 @@ query			: EF expression { $$ = new VerifyTAPN::AST::Query(VerifyTAPN::AST::EF, $
                         | AG expression { $$ = new VerifyTAPN::AST::Query(VerifyTAPN::AST::AG, $2); driver.setAST($$); }
                         | EG expression { $$ = new VerifyTAPN::AST::Query(VerifyTAPN::AST::EG, $2); driver.setAST($$); }
                         | AF expression { $$ = new VerifyTAPN::AST::Query(VerifyTAPN::AST::AF, $2); driver.setAST($$); }
+                        | CONTROL COLON AF expression {$$ = new VerifyTAPN::AST::Query(VerifyTAPN::AST::CF, $4); driver.setAST($$);}
+                        | CONTROL COLON AG expression {$$ = new VerifyTAPN::AST::Query(VerifyTAPN::AST::CG, $4); driver.setAST($$);}
                         ;
 
 expression              : parExpression             { $$ = $1; }

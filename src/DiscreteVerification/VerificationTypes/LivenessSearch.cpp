@@ -11,17 +11,17 @@ namespace VerifyTAPN {
 namespace DiscreteVerification {
 
 LivenessSearch::LivenessSearch(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options)
-	: AbstractNaiveVerification<PWListBase,NonStrictMarking>(tapn, initialMarking, query, options, NULL){
+	: AbstractNaiveVerification<PWListBase,NonStrictMarking,Generator>(tapn, initialMarking, query, options, NULL){
 
 }
     
 LivenessSearch::LivenessSearch(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking*>* waiting_list)
-	: AbstractNaiveVerification<PWListBase,NonStrictMarking>(tapn, initialMarking, query, options, new PWList(waiting_list, true)){
+	: AbstractNaiveVerification<PWListBase,NonStrictMarking,Generator>(tapn, initialMarking, query, options, new PWList(waiting_list, true)){
 
 }
 
-bool LivenessSearch::verify(){
-	if(addToPW(&initialMarking, NULL)){
+bool LivenessSearch::run(){
+	if(handleSuccessor(&initialMarking, NULL)){
 		return true;
 	}
 
@@ -38,7 +38,8 @@ bool LivenessSearch::verify(){
 			validChildren = 0;
 
                         bool noDelay = false;
-                        Result res = successorGenerator.generateAndInsertSuccessors(next_marking);
+                        
+                        auto res = generateAndInsertSuccessors(next_marking);
                         if (res == ADDTOPW_RETURNED_TRUE) {
                             return true;
                         } else if (res == ADDTOPW_RETURNED_FALSE_URGENTENABLED) {
@@ -50,13 +51,13 @@ bool LivenessSearch::verify(){
 				NonStrictMarking* marking = new NonStrictMarking(next_marking);
 				marking->incrementAge();
 				marking->setGeneratedBy(NULL);
-                                if(addToPW(marking, &next_marking)){
+                                if(handleSuccessor(marking, &next_marking)){
                                     return true;
                                 }
                                 endOfMaxRun = false;
 			}
                         // if no delay is possible, and no transition-based succecors are possible, we have reached a max run
-                        endOfMaxRun = endOfMaxRun && (!successorGenerator.doSuccessorsExist());
+                        endOfMaxRun = endOfMaxRun && successorGenerator.children() == 0;
 
 
 		} else {
@@ -87,7 +88,7 @@ bool LivenessSearch::verify(){
 	return false;
 }
 
-bool LivenessSearch::addToPW(NonStrictMarking* marking, NonStrictMarking* parent){
+bool LivenessSearch::handleSuccessor(NonStrictMarking* marking, NonStrictMarking* parent){
 	marking->cut(placeStats);
 	marking->setParent(parent);
 	unsigned int size = marking->size();

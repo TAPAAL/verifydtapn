@@ -89,6 +89,7 @@ namespace VerifyTAPN
 		unsigned int tryParseInt(const option& option) const;
 		unsigned long long tryParseLongLong(const option& option) const;
 		std::vector<std::string> parseIncPlaces(const std::string& string) const;
+                std::map<std::string, int> parseReplace(const option& option) const;
 		void initialize();
 		void printHelp() const;
 		void printVersion() const;

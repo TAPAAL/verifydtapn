@@ -4,9 +4,10 @@
 #include "../../Core/TAPN/TAPN.hpp"
 #include "../DataStructures/NonStrictMarkingBase.hpp"
 #include "../Util/IntervalOps.hpp"
-#include "../TimeDartSuccessorGenerator.hpp"
 #include "Verification.hpp"
 #include "../DataStructures/TimeDart.hpp"
+#include "../Generator.h"
+#include "../ReducingGenerator.hpp"
 #include <stack>
 
 namespace VerifyTAPN {
@@ -26,7 +27,7 @@ namespace VerifyTAPN {
             int maxPossibleDelay(NonStrictMarkingBase* marking);
 
             void printTransitionStatistics() const {
-                successorGenerator.printTransitionStatistics(std::cout);
+                successorGenerator->printTransitionStatistics(std::cout);
             }
             
             void getTrace();
@@ -35,7 +36,7 @@ namespace VerifyTAPN {
                 return dart->getBase();
             };
 
-            virtual inline bool addToPW(NonStrictMarkingBase* m) = 0;
+            virtual inline bool handleSuccessor(NonStrictMarkingBase* m) { assert(false); return false; }
             
         protected:
             int exploredMarkings;
@@ -43,8 +44,9 @@ namespace VerifyTAPN {
             bool loop;         
             bool deadlock;
             WaitingDart* lastMarking;
-            TimeDartSuccessorGenerator successorGenerator;
-
+            std::shared_ptr<Generator> successorGenerator;
+            
+            bool generateAndInsertSuccessors(NonStrictMarkingBase& marking, const TAPN::TimedTransition& transition);
         };
     }
 }

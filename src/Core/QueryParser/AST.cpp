@@ -8,12 +8,12 @@ namespace VerifyTAPN
 			return new NotExpression(*this);
 		}
 
-		void NotExpression::accept(Visitor& visitor, Result& context) const
+		void NotExpression::accept(Visitor& visitor, Result& context)
 		{
 			visitor.visit(*this, context);
 		}
 
-		void BoolExpression::accept(Visitor& visitor, Result& context) const
+		void BoolExpression::accept(Visitor& visitor, Result& context)
 		{
 			visitor.visit(*this, context);
 		}
@@ -23,7 +23,7 @@ namespace VerifyTAPN
 			return new BoolExpression(*this);
 		}
 
-                void DeadlockExpression::accept(Visitor& visitor, Result& context) const
+                void DeadlockExpression::accept(Visitor& visitor, Result& context)
 		{      
 			visitor.visit(*this, context);
 		}
@@ -33,7 +33,7 @@ namespace VerifyTAPN
 			return new DeadlockExpression(*this);
 		}
         
-		void AtomicProposition::accept(Visitor& visitor, Result& context) const
+		void AtomicProposition::accept(Visitor& visitor, Result& context)
 		{
 			visitor.visit(*this, context);
 		}
@@ -48,7 +48,7 @@ namespace VerifyTAPN
 			return new AndExpression(*this);
 		}
                 
-		void AndExpression::accept(Visitor& visitor, Result& context) const
+		void AndExpression::accept(Visitor& visitor, Result& context)
 		{
 			visitor.visit(*this, context);
 		}
@@ -58,12 +58,12 @@ namespace VerifyTAPN
 			return new OrExpression(*this);
 		}
 
-                void OrExpression::accept(Visitor& visitor, Result& context) const
+                void OrExpression::accept(Visitor& visitor, Result& context)
 		{
 			visitor.visit(*this, context);
 		}
                 
-		void PlusExpression::accept(Visitor& visitor, Result& context) const
+		void PlusExpression::accept(Visitor& visitor, Result& context)
 		{
 			visitor.visit(*this, context);
 		}
@@ -73,7 +73,7 @@ namespace VerifyTAPN
 			return new PlusExpression(*this);
 		}
                 
-                void SubtractExpression::accept(Visitor& visitor, Result& context) const
+                void SubtractExpression::accept(Visitor& visitor, Result& context)
 		{
 			visitor.visit(*this, context);
 		}
@@ -83,7 +83,7 @@ namespace VerifyTAPN
 			return new SubtractExpression(*this);
 		}
                 
-                void MinusExpression::accept(Visitor& visitor, Result& context) const
+                void MinusExpression::accept(Visitor& visitor, Result& context)
 		{
 			visitor.visit(*this, context);
 		}
@@ -93,7 +93,7 @@ namespace VerifyTAPN
 			return new MinusExpression(*this);
 		}
 
-                void MultiplyExpression::accept(Visitor& visitor, Result& context) const
+                void MultiplyExpression::accept(Visitor& visitor, Result& context)
 		{
 			visitor.visit(*this, context);
 		}
@@ -103,7 +103,7 @@ namespace VerifyTAPN
 			return new MultiplyExpression(*this);
 		}
                 
-                void NumberExpression::accept(Visitor& visitor, Result& context) const
+                void NumberExpression::accept(Visitor& visitor, Result& context)
 		{
 			visitor.visit(*this, context);
 		}
@@ -113,7 +113,7 @@ namespace VerifyTAPN
 			return new NumberExpression(*this);
 		} 
                 
-                void IdentifierExpression::accept(Visitor& visitor, Result& context) const
+                void IdentifierExpression::accept(Visitor& visitor, Result& context)
 		{
 			visitor.visit(*this, context);
 		}
@@ -128,7 +128,7 @@ namespace VerifyTAPN
 			return new Query(*this);
 		}
 
-		void Query::accept(Visitor& visitor, Result& context) const
+		void Query::accept(Visitor& visitor, Result& context)
 		{
 			visitor.visit(*this, context);
 		}

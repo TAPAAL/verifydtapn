@@ -33,7 +33,7 @@ namespace ptrie
             uint index;
         public:
             ptriepointer_t(ptrie_t<T>* container, uint i); 
-            T get_meta() const;
+            T& get_meta() const;
             void set_meta(T);
             uint write_partial_encoding(encoding_t&) const;
             encoding_t& remainder() const;
@@ -104,7 +104,7 @@ namespace ptrie
     }*/
     
     template<typename T>
-    T ptriepointer_t<T>::get_meta() const
+    T &ptriepointer_t<T>::get_meta() const
     {
         return container->get_entry(index)->_data.get_meta();
     }
@@ -133,14 +133,27 @@ namespace ptrie
         friend class ptriepointer_t<T>;
         private:
             
-            // nodes in the tree
-            struct node_t
+            /*
+            typing scheme
+                nnnxxxqq
+                n=bit num mod 8
+                x=2^x children
+                q=currently unused
+             */
+                        
+            template<uchar width>
+            struct jumpnode_t
             {
-                uint _highpos;           // branches
-                uint _lowpos;
-                short int _highcount;    // bucket-counts
-                short int _lowcount;
-                uint _parent;            // for back-traversal
+                uint _positions[width];
+                uint _parent;
+                uchar _type;
+                uchar _path;
+            };
+            
+            // nodes in the tree
+            struct node_t : public jumpnode_t<2>
+            {
+                short int _count[2];      // bucket-counts
                 uint* _entries;          // back-pointers to data-array up to date
             };
             
@@ -158,6 +171,9 @@ namespace ptrie
             std::vector<entry_t*> _entryvector;  // Vector of remainders
             
             short int _threshold;
+            
+            uint* buffer;
+            size_t buffersize;
             
         protected:
             node_t* get_node(uint index) const;
@@ -200,7 +216,7 @@ namespace ptrie
             {
                 if(deleted >= _next_free_node) break;
                 ++deleted;
-                delete[] _nodevector[i][b]._entries;
+                free(_nodevector[i][b]._entries);
             }
             delete[] _nodevector[i];
         }
@@ -217,6 +233,7 @@ namespace ptrie
             delete[] _entryvector[i];
         }
         _entryvector.clear();
+        free(buffer);
     }
     
     template<typename T>
@@ -230,11 +247,15 @@ namespace ptrie
     {
         _nodevector.push_back(new node_t[_blocksize]);
         _nodevector[0][0]._entries = NULL;
-        _nodevector[0][0]._highcount = 0;
-        _nodevector[0][0]._lowcount = 0;
-        _nodevector[0][0]._highpos = 0;
-        _nodevector[0][0]._lowpos = 0;
+        _nodevector[0][0]._count[1] = 0;
+        _nodevector[0][0]._count[0] = 0;
+        _nodevector[0][0]._positions[1] = 0;
+        _nodevector[0][0]._positions[0] = 0;
         _nodevector[0][0]._parent = 0;
+        _nodevector[0][0]._type = 0;
+        _nodevector[0][0]._path = 0;
+        buffersize = 1024;
+        buffer = static_cast<uint*>(malloc(sizeof(uint) * buffersize));
     }
     
     template<typename T>
@@ -312,21 +333,21 @@ namespace ptrie
         for(size_t i = 0; i < _next_free_node; ++i)
         {
             node_t* node = get_node(i);
-            assert(node->_highpos < _next_free_node);
-            assert(node->_lowpos < _next_free_node);
+            assert(node->_positions[1] < _next_free_node);
+            assert(node->_positions[0] < _next_free_node);
             assert(node->_parent < _next_free_node);
             assert(node->_parent == 0 && i == 0 || node->_parent < i);
-            assert((node->_highpos > i && node->_highcount == -1) 
-                    || (node->_highpos == 0 && node->_highcount >= 0));
-            assert((node->_lowpos > i && node->_lowcount == -1) 
-                    || (node->_lowpos == 0 && node->_lowcount >= 0));
+            assert((node->_positions[1] > i && node->_count[1] == -1) 
+                    || (node->_positions[1] == 0 && node->_count[1] >= 0));
+            assert((node->_positions[0] > i && node->_count[0] == -1) 
+                    || (node->_positions[0] == 0 && node->_count[0] >= 0));
             
             size_t bucket = 0;
             
-            if(node->_highcount > 0)
-                bucket += node->_highcount;
-            if(node->_lowcount > 0)
-                bucket += node->_lowcount;
+            if(node->_count[1] > 0)
+                bucket += node->_count[1];
+            if(node->_count[0] > 0)
+                bucket += node->_count[0];
 
             assert(node->_entries != NULL || bucket == 0);
             for(size_t e = 0; e < bucket; ++e)
@@ -349,10 +370,24 @@ namespace ptrie
         while(c_index != 0)
         {
             uint p_index = node->_parent;
-            node = get_node(p_index);
-            bool branch = c_index == node->_highpos;
-            encoding.set(count, branch);
-            ++count;
+            if(node->_type)
+            {
+                uchar pchar = node->_path;
+                for(size_t i = 0; i < 8; ++i)
+                {
+                    encoding.set(count, (pchar & 0x80)); 
+                    ++count;
+                    pchar <<= 1;
+                }
+                node = get_node(p_index);
+            } 
+            else
+            {
+                node = get_node(p_index);
+                bool branch = c_index == node->_positions[1];
+                encoding.set(count, branch);
+                ++count;
+            }
             c_index = p_index;
         }
         assert(consistent());
@@ -382,16 +417,16 @@ namespace ptrie
             do
             {
 
-                if(node->_highpos != 0)
+                if(node->_positions[1] != 0)
                 {
-                    waiting.push(std::pair<uint, uint>(distance + 1, node->_highpos));
+                    waiting.push(std::pair<uint, uint>(distance + 1, node->_positions[1]));
                 }                 
                 
-                if(node->_lowpos == 0) break;
+                if(node->_positions[0] == 0) break;
                 else
                 {
                     ++distance;
-                    node = get_node(node->_lowpos);
+                    node = get_node(node->_positions[0]);
                     skip = visitor.set(distance, false);
                 }
                 
@@ -402,8 +437,8 @@ namespace ptrie
             uint bucketsize = 0;
             if(!skip)
             {
-                if(node->_highcount > 0) bucketsize += node->_highcount;
-                if(node->_lowcount > 0) bucketsize += node->_lowcount;
+                if(node->_count[1] > 0) bucketsize += node->_count[1];
+                if(node->_count[0] > 0) bucketsize += node->_count[0];
                 
                 for(uint i = 0; i < bucketsize && !stop; ++i)
                 {
@@ -431,12 +466,12 @@ namespace ptrie
         do {
             tree_pos = t_pos;
             if (encoding.at(enc_pos)) {
-                t_pos = get_node(t_pos)->_highpos;
+                t_pos = get_node(t_pos)->_positions[1];
             } else {
-                t_pos = get_node(t_pos)->_lowpos;
+                t_pos = get_node(t_pos)->_positions[0];
             }
 
-            assert(t_pos == 0 || get_node(t_pos)->_parent == tree_pos);
+            assert(t_pos == 0 || get_node(t_pos)->_type || get_node(t_pos)->_parent == tree_pos);
             
             enc_pos++;
 
@@ -449,13 +484,13 @@ namespace ptrie
         node_t* node = get_node(tree_pos);
         
         // find out the size of the bucket
-        if (node->_highcount > 0) {
-            bucketsize += node->_highcount;
+        if (node->_count[1] > 0) {
+            bucketsize += node->_count[1];
             
         }
         
-        if (node->_lowcount > 0) {
-            bucketsize += node->_lowcount;
+        if (node->_count[0] > 0) {
+            bucketsize += node->_count[0];
         }
         
         // run through the stored data in the bucket, looking for matches
@@ -545,29 +580,33 @@ namespace ptrie
         uint* o_entries = NULL;
 
         // if we are overflowing in, split bucket
-        uint n_node_count = 0;
+        uint n_node_count;
         uint node_count = 0;
 
         if (branch) {
-            n_node->_entries = new uint[n_node_count = node->_highcount];
+            n_node_count = node->_count[1];
+            n_node->_entries = static_cast<uint*>(malloc(node->_count[1]*sizeof(uint)));
 
-            node->_highpos = n_node_index;
-            node->_highcount = -1;
+            node->_positions[1] = n_node_index;
+            node->_count[1] = -1;
 
-            if (node->_lowcount > 0)
+            if (node->_count[0] > 0)
             {
-                o_entries = new uint[node_count = node->_lowcount];
+                node_count = node->_count[0];
+                o_entries = static_cast<uint*>(malloc(node->_count[0]*sizeof(uint)));
             }
 
         } else {
-            n_node->_entries = new uint[n_node_count = node->_lowcount];
+            n_node_count = node->_count[0];
+            n_node->_entries = static_cast<uint*>(malloc(node->_count[0]*sizeof(uint)));
             
-            node->_lowpos = n_node_index;
-            node->_lowcount = -1;
+            node->_positions[0] = n_node_index;
+            node->_count[0] = -1;
 
-            if (node->_highcount > 0)
+            if (node->_count[1] > 0)
             {
-                o_entries = new uint[node_count = node->_highcount];
+                node_count = node->_count[1];
+                o_entries = static_cast<uint*>(malloc(node->_count[1]*sizeof(uint)));
             }
         }
 
@@ -576,32 +615,52 @@ namespace ptrie
         assert(tree_pos != n_node_index);
         n_node->_parent = tree_pos;
 
-        n_node->_lowcount = n_node->_highcount = 0;
-        n_node->_lowpos = n_node->_highpos = 0;
+        n_node->_count[0] = n_node->_count[1] = 0;
+        n_node->_positions[0] = n_node->_positions[1] = 0;
 
         // because we are only really shifting around bits when enc_pos % 8 = 0
         // then we need to find out which bit of the first 8 we are
         // splitting on in the "remainder"
-        uint r_pos = enc_pos % 8;
+        const uint r_pos = enc_pos % 8;
 
 
         size_t clistcount = 0;
         size_t nlistcount = 0;
 
+
+        if ((r_pos + 1) == 8) { 
+            size_t tmp_parent = n_node->_parent;
+            n_node->_type = 1;
+            
+            for(size_t i = 0; i < 7; ++i)
+                tmp_parent = get_node(tmp_parent)->_parent;
+            
+            n_node->_parent = tmp_parent;
+        }
+        else
+        {
+            n_node->_type = 0;
+        }
+
+        
         // Copy over the data to the new buckets
         for (size_t i = 0; i < bucketsize; i++) {
             entry_t* entry = get_entry(node->_entries[i]);
             if (entry->_data.at(r_pos) == branch) {
                 // Adjust counters
                 if (entry->_data.at(r_pos + 1)) {
-                    n_node->_highcount++;
+                    n_node->_count[1]++;
                 } else {
-                    n_node->_lowcount++;
+                    n_node->_count[0]++;
                 }
 
                 // This goes to the new bucket, we can maybe remove a byte
                 if ((r_pos + 1) == 8) { 
                     // Tree tree is representing the first byte, remove it 
+                    if(entry->_data.size() > 0)
+                    {
+                        n_node->_path = entry->_data.raw()[0];
+                    }
                     entry->_data.pop_front(1);
                 }
 
@@ -619,10 +678,10 @@ namespace ptrie
         assert(clistcount == n_node_count);
         assert(nlistcount == node_count);
 
-        delete[] node->_entries;
+        free(node->_entries);
         node->_entries = o_entries; 
 
-        if (node->_highcount == -1 && node->_lowcount == -1) {
+        if (node->_count[1] == -1 && node->_count[0] == -1) {
             assert(node->_entries == NULL);
         }
 
@@ -685,39 +744,35 @@ namespace ptrie
         n_entry->_nodeindex = tree_pos;
         
         // make a new bucket, add new entry to end, copy over old data
+        uint oldbucketsize = bucketsize;
         bucketsize += 1;
-        uint* nbucket = new uint[bucketsize];
-        for(size_t i = 0; i < bucketsize; ++i)
-        {
-            if(i < b_index)
-            {
-                nbucket[i] = node->_entries[i];
-            } 
-            else if (i == b_index)
-            {
-                nbucket[i] = ne_index;
-            }
-            else
-            {
-                nbucket[i] = node->_entries[i - 1];
-            }
-        }
-        // We added one to the bucket, now it is larger
-
+        node->_entries = static_cast<uint*>(realloc(node->_entries, sizeof(uint) * bucketsize));
         
-        // remove old bucket and replace
-        delete[] node->_entries;
-        node->_entries = nbucket;
+        if(b_index == oldbucketsize)
+        {
+            node->_entries[b_index] = ne_index;
+        }
+        else
+        {
+            if(bucketsize > buffersize)
+            {
+                buffersize = bucketsize;
+                buffer = static_cast<uint*>(realloc(buffer, sizeof(uint)*buffersize));
+            }
+            memcpy(buffer, &(node->_entries[b_index]), sizeof(uint)*(oldbucketsize - b_index));
+            node->_entries[b_index] = ne_index;
+            memcpy(&(node->_entries[b_index+1]), buffer, sizeof(uint)*(oldbucketsize - b_index));
+        }
         
         // increment correct counter
         short int count;
         bool branch = encoding.at(enc_pos);
         if (branch) {
-            count = (++node->_highcount);
-            assert(node->_highpos == 0);
+            count = (++node->_count[1]);
+            assert(node->_positions[1] == 0);
         } else {
-            count = (++node->_lowcount);
-            assert(node->_lowpos == 0);
+            count = (++node->_count[0]);
+            assert(node->_positions[0] == 0);
         }
         
         // if needed, split the node

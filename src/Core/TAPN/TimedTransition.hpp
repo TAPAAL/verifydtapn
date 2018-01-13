@@ -20,7 +20,8 @@ class SymMarking;
 		public: // typedefs
 			typedef std::vector<TimedTransition*> Vector;
 		public:
-			TimedTransition(const std::string& name, const std::string& id, bool urgent) : name(name), id(id), preset(), postset(), transportArcs(), index(-1), untimedPostset(true), urgent(urgent) { };
+			TimedTransition(const std::string& name, const std::string& id, bool urgent, bool controllable)
+                        : name(name), id(id), preset(), postset(), transportArcs(), index(-1), untimedPostset(true), urgent(urgent), controllable(controllable) { };
 			TimedTransition() : name("*EMPTY*"), id("-1"), preset(), postset(), transportArcs(), index(-1), untimedPostset(true),urgent(false) { };
 			virtual ~TimedTransition() { /* empty */ }
 
@@ -55,6 +56,14 @@ class SymMarking;
                         inline const bool isUrgent() const {
                             return urgent;
                         }
+                        inline const bool isControllable() const {
+                            return controllable;
+                        }
+                        
+                        inline void setControllable(bool value)
+                        {
+                            controllable = value;
+                        }
 
 		private: // data
 			std::string name;
@@ -66,6 +75,7 @@ class SymMarking;
 			unsigned int index;
 			bool untimedPostset;
                         bool urgent;
+                        bool controllable;
 		};
 
 		inline std::ostream& operator<<(std::ostream& out, const TimedTransition& transition)

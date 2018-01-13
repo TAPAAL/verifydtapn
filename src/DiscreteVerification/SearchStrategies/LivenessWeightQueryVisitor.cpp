@@ -10,12 +10,12 @@
 namespace VerifyTAPN {
 namespace DiscreteVerification {
 
-		void LivenessWeightQueryVisitor::visit(const NotExpression& expr, Result& context)
+		void LivenessWeightQueryVisitor::visit(NotExpression& expr, Result& context)
 		{
 			assert(false);
 		}
 
-		void LivenessWeightQueryVisitor::visit(const OrExpression& expr, Result& context)
+		void LivenessWeightQueryVisitor::visit(OrExpression& expr, Result& context)
 		{
 			IntResult left, right;
 			expr.getLeft().accept(*this, left);
@@ -25,7 +25,7 @@ namespace DiscreteVerification {
                                 = min(static_cast<IntResult>(left).value, static_cast<IntResult>(right).value);
 		}
 
-		void LivenessWeightQueryVisitor::visit(const AndExpression& expr, Result& context)
+		void LivenessWeightQueryVisitor::visit(AndExpression& expr, Result& context)
 		{
 			IntResult left, right;
                         
@@ -45,7 +45,7 @@ namespace DiscreteVerification {
 		}
 
 
-		void LivenessWeightQueryVisitor::visit(const AtomicProposition& expr, Result& context)
+		void LivenessWeightQueryVisitor::visit(AtomicProposition& expr, Result& context)
 		{
                     IntResult left;
                     expr.getLeft().accept(*this, left);
@@ -55,15 +55,15 @@ namespace DiscreteVerification {
                                 = compare(left.value, expr.getOperator(), right.value);
 		}
 
-                void LivenessWeightQueryVisitor::visit(const NumberExpression& expr, Result& context){
+                void LivenessWeightQueryVisitor::visit(NumberExpression& expr, Result& context){
                     ((IntResult&)context).value = expr.getValue();
                 }
 
-                void LivenessWeightQueryVisitor::visit(const IdentifierExpression& expr, Result& context){
+                void LivenessWeightQueryVisitor::visit(IdentifierExpression& expr, Result& context){
                     ((IntResult&)context).value = marking.numberOfTokensInPlace(expr.getPlace());
                 }
                 
-                void LivenessWeightQueryVisitor::visit(const MultiplyExpression& expr, Result& context){
+                void LivenessWeightQueryVisitor::visit(MultiplyExpression& expr, Result& context){
                     IntResult left;
                     expr.getLeft().accept(*this, left);
                     IntResult right;
@@ -71,13 +71,13 @@ namespace DiscreteVerification {
                     ((IntResult&)context).value = left.value * right.value;
                 }
                 
-                void LivenessWeightQueryVisitor::visit(const MinusExpression& expr, Result& context){
+                void LivenessWeightQueryVisitor::visit(MinusExpression& expr, Result& context){
                     IntResult value;
                     expr.getValue().accept(*this, value);
                     ((IntResult&)context).value = -value.value;
                 }
 
-                void LivenessWeightQueryVisitor::visit(const SubtractExpression& expr, Result& context){
+                void LivenessWeightQueryVisitor::visit(SubtractExpression& expr, Result& context){
                     IntResult left;
                     expr.getLeft().accept(*this, left);
                     IntResult right;
@@ -85,7 +85,7 @@ namespace DiscreteVerification {
                     ((IntResult&)context).value = left.value - right.value;
                 }
 
-                void LivenessWeightQueryVisitor::visit(const PlusExpression& expr, Result& context){
+                void LivenessWeightQueryVisitor::visit(PlusExpression& expr, Result& context){
                     IntResult left;
                     expr.getLeft().accept(*this, left);
                     IntResult right;
@@ -93,18 +93,18 @@ namespace DiscreteVerification {
                     ((IntResult&)context).value = left.value + right.value;
                 }
 
-		void LivenessWeightQueryVisitor::visit(const BoolExpression& expr, Result& context)
+		void LivenessWeightQueryVisitor::visit(BoolExpression& expr, Result& context)
 		{
 			static_cast<IntResult&>(context).value 
                                 = expr.getValue()? 0 : std::numeric_limits<int>::max();
 		}
 
-		void LivenessWeightQueryVisitor::visit(const Query& query, Result& context)
+		void LivenessWeightQueryVisitor::visit(Query& query, Result& context)
 		{
-			query.getChild().accept(*this, context);
+			query.getChild()->accept(*this, context);
 		}
 
-                void LivenessWeightQueryVisitor::visit(const DeadlockExpression& expr, Result& context)
+                void LivenessWeightQueryVisitor::visit(DeadlockExpression& expr, Result& context)
 		{
                         static_cast<IntResult&>(context).value = 0;
 		}

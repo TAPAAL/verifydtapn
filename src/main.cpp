@@ -18,7 +18,7 @@ int main(int argc, char* argv[])
 	ArgsParser parser;
 	VerificationOptions options = parser.parse(argc, argv);
 
-	TAPNXmlParser modelParser;
+	TAPNXmlParser modelParser(options.getReplacements());
 	TAPN::TimedArcPetriNet* tapn;
 
 	try{
@@ -78,6 +78,13 @@ int main(int argc, char* argv[])
                     return 1;
             }
             
+            if(options.getTrace() != VerificationOptions::NO_TRACE && 
+                    (query->getQuantifier() == AST::CF || query->getQuantifier() == AST::CG))
+            {
+                std::cout << "Traces are not supported for game-synthesis" << std::endl;
+                return 1;
+            }
+            
             if(options.getTrace() == VerificationOptions::FASTEST_TRACE &&
                (options.getSearchType() != VerificationOptions::DEFAULT ||
                 query->getQuantifier() == AST::EG || query->getQuantifier() == AST::AF || options.getVerificationType() == VerificationOptions::TIMEDART)) {
@@ -95,6 +102,11 @@ int main(int argc, char* argv[])
             return 1;
         }
 
+        if(query->getQuantifier() == AST::CF || query->getQuantifier() == AST::CG)
+        {
+            options.setKeepDeadTokens(true);
+        }
+        
 	tapn->updatePlaceTypes(query, options);
         
         int result = DiscreteVerification::DiscreteVerification::run(*tapn, initialPlacement, query, options);

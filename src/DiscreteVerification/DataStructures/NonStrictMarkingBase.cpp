@@ -200,20 +200,34 @@ namespace VerifyTAPN {
         NonStrictMarkingBase::~NonStrictMarkingBase() {
         }
 
-        bool NonStrictMarkingBase::equals(const NonStrictMarkingBase &m1) const {
-            if (m1.places.size() != places.size()) return false;
-
+        int NonStrictMarkingBase::cmp(const NonStrictMarkingBase &m1) const
+        {
+            if (m1.places.size() != places.size()) 
+                return (int)places.size() - (int)m1.places.size();
+            
             PlaceList::const_iterator p_iter = m1.places.begin();
-            for (PlaceList::const_iterator iter = places.begin(); iter != places.end(); iter++, p_iter++) {
-                if (iter->place->getIndex() != p_iter->place->getIndex()) return false;
-                if (iter->tokens.size() != p_iter->tokens.size()) return false;
+            PlaceList::const_iterator iter = places.begin();
+            
+            for (;iter != places.end(); iter++, p_iter++) {
+                
+                if (iter->place->getIndex() != p_iter->place->getIndex()) 
+                    return (int) iter->place->getIndex() - (int)p_iter->place->getIndex();
+                
+                if (iter->tokens.size() != p_iter->tokens.size())
+                    return (int)iter->tokens.size() - (int)p_iter->tokens.size();
+                
                 TokenList::const_iterator pt_iter = p_iter->tokens.begin();
-                for (TokenList::const_iterator t_iter = iter->tokens.begin(); t_iter != iter->tokens.end(); t_iter++, pt_iter++) {
-                    if (!t_iter->equals(*pt_iter)) return false;
+                TokenList::const_iterator t_iter = iter->tokens.begin(); 
+                for (;t_iter != iter->tokens.end(); t_iter++, pt_iter++) {
+                    int res = t_iter->cmp(*pt_iter);
+                    if(res != 0) return res;
                 }
             }
-
-            return true;
+            return 0;
+        }
+        
+        bool NonStrictMarkingBase::equals(const NonStrictMarkingBase &m1) const {
+            return cmp(m1) == 0;
         }
 
         std::ostream& operator<<(std::ostream& out, NonStrictMarkingBase& x) {

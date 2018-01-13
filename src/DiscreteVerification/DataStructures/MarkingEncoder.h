@@ -39,8 +39,7 @@ namespace VerifyTAPN {
             TAPN::TimedArcPetriNet& tapn;
             encoding_t scratchpad;
         public:
-            MarkingEncoder(TAPN::TimedArcPetriNet& tapn, int knumber,
-                                                        int nplaces, int mage);
+            MarkingEncoder(TAPN::TimedArcPetriNet& tapn, int knumber);
             ~MarkingEncoder();
             
 
@@ -50,12 +49,12 @@ namespace VerifyTAPN {
         
         template<typename T, typename M>
         MarkingEncoder<T, M>::MarkingEncoder(TAPN::TimedArcPetriNet& tapn,
-                                int knumber, int nplaces, int mage):
+                                int knumber):
             maxNumberOfTokens(knumber),
-            maxAge(mage + 1),
-            numberOfPlaces(nplaces),
+            maxAge(tapn.getMaxConstant() + 1),
+            numberOfPlaces(tapn.getNumberOfPlaces()),
             countBitSize(ceil(log2((knumber ? knumber : 1)) + 1)),
-            placeAgeBitSize(ceil(log2((nplaces * (mage + 1))) + 1)),
+            placeAgeBitSize(ceil(log2((numberOfPlaces * (tapn.getMaxConstant() + 1))) + 1)),
             offsetBitSize(placeAgeBitSize + countBitSize),
             markingBitSize(offsetBitSize * (knumber ? knumber : 1)),
             tapn(tapn)
@@ -87,6 +86,7 @@ namespace VerifyTAPN {
             // foreach token
       
             bool bit;
+            PlaceList& places = m->getPlaceList();
             for (uint i = 0; i < maxNumberOfTokens; i++) {
                 uint offset = offsetBitSize * i;
                 cbit = offset + offsetBitSize - 1;
@@ -140,8 +140,22 @@ namespace VerifyTAPN {
                 if (count) {
                     int age = floor(data / this->numberOfPlaces);
                     uint place = (data % this->numberOfPlaces);
-                    Token t = Token(age, count);
-                    m->addTokenInPlace(tapn.getPlace(place), t);
+                    auto tplace = &tapn.getPlace(place);
+                    size_t last = places.size()-1;
+                    if(places.size() == 0)
+                    {
+                        last = 0;
+                        places.push_back(Place(tplace));
+                    }
+                    else
+                    {
+                        if(places[last].place != tplace)
+                        {
+                            places.push_back(Place(tplace));
+                        }
+                        last = places.size() - 1;
+                    }
+                    places[last].tokens.push_back(Token(age, count));
                 }
                 else
                 {

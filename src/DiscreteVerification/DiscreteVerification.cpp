@@ -7,6 +7,8 @@
 
 #include "DiscreteVerification.hpp"
 #include "DeadlockVisitor.hpp"
+#include "VerificationTypes/SafetySynthesis.h"
+#include "ReducingGenerator.hpp"
 
 namespace VerifyTAPN {
 
@@ -132,8 +134,58 @@ namespace VerifyTAPN {
                         exit(1);
             }
             
-            
-            if (options.getVerificationType() == VerificationOptions::DISCRETE) {
+            if(query->getQuantifier() == CG || query->getQuantifier() == CF)
+            {
+                if(options.getTrace() != VerificationOptions::NO_TRACE)
+                {
+                    cout << "Traces are not supported for game synthesis" << std::endl;
+                    exit(1);
+                }
+                if(options.getVerificationType() != VerificationOptions::DISCRETE)
+                {
+                    cout << "TimeDarts are not supported for game synthesis" << std::endl;
+                    exit(1);                    
+                }
+                if(options.getGCDLowerGuardsEnabled())
+                {
+                    cout << "Lowering by GCD is not supported for game synthesis" << std::endl;
+                    exit(1);                    
+                }
+                if(options.getSearchType() == VerificationOptions::MINDELAYFIRST)
+                {
+                    cout << "Minimal delay search strategy is not supported for game synthesis" << std::endl;
+                    exit(1);
+                }
+                if(query->getQuantifier() == CF)
+                {
+                    cout << "control: AF queries not yet supported" << std::endl;
+                    exit(1);
+                }                
+                    // Only needed if verifying normal CTL/LTL with game-algorithm.
+                    // Notice that violating k-bound produces different results than in normal ctl semantics
+                    if(query->getQuantifier() == AST::EG || query->getQuantifier() == AST::AF)
+                    {
+                        tapn.setAllControllable(true);
+                    }
+                    else if(query->getQuantifier() == AST::EF || query->getQuantifier() == AST::AG)
+                    {
+                        tapn.setAllControllable(false);                        
+                        query->setChild(new NotExpression(query->getChild()));
+                    }                                        
+                    
+                    SafetySynthesis synthesis = SafetySynthesis(
+                            tapn, *initialMarking, query, options
+                            );
+                    bool result = synthesis.run();
+                    synthesis.print_stats();
+                    
+                    if(query->getQuantifier() == AST::EF || query->getQuantifier() == AST::AF) result = !result;
+                    
+                    std::cout << "Query is " << (result ? "satisfied" : "NOT satisfied") << "." << std::endl;
+                    std::cout << "Max number of tokens found in any reachable marking: ";
+                    std::cout << synthesis.max_tokens() << std::endl;
+                
+            } else if (options.getVerificationType() == VerificationOptions::DISCRETE) {
 
                 if (options.getMemoryOptimization() == VerificationOptions::PTRIE) {
                     //TODO fix initialization
@@ -146,12 +198,24 @@ namespace VerifyTAPN {
                                 options,
                                 query);
                     } else if (query->getQuantifier() == EF || query->getQuantifier() == AG) {
-                        ReachabilitySearchPTrie verifier = ReachabilitySearchPTrie(tapn, *initialMarking, query, options, strategy);
-                        VerifyAndPrint(
-                                tapn,
-                                verifier,
-                                options,
-                                query);
+                        if(options.getPartialOrderReduction())
+                        {
+                            auto verifier = ReachabilitySearchPTrie<ReducingGenerator>(tapn, *initialMarking, query, options, strategy);
+                            VerifyAndPrint(
+                                    tapn,
+                                    verifier,
+                                    options,
+                                    query);
+                        }
+                        else
+                        {
+                            auto verifier = ReachabilitySearchPTrie<Generator>(tapn, *initialMarking, query, options, strategy);
+                            VerifyAndPrint(
+                                    tapn,
+                                    verifier,
+                                    options,
+                                    query);                            
+                        }
 
                     }
                     delete strategy;
@@ -165,12 +229,24 @@ namespace VerifyTAPN {
                                 options,
                                 query);
                     } else if (query->getQuantifier() == EF || query->getQuantifier() == AG) {
-                        ReachabilitySearch verifier = ReachabilitySearch(tapn, *initialMarking, query, options, strategy);
-                        VerifyAndPrint(
-                                tapn,
-                                verifier,
-                                options,
-                                query);
+                        if(options.getPartialOrderReduction())
+                        {
+                            auto verifier = ReachabilitySearch<ReducingGenerator>(tapn, *initialMarking, query, options, strategy);
+                            VerifyAndPrint(
+                                    tapn,
+                                    verifier,
+                                    options,
+                                    query);
+                        }
+                        else
+                        {
+                            auto verifier = ReachabilitySearch<Generator>(tapn, *initialMarking, query, options, strategy);
+                            VerifyAndPrint(
+                                    tapn,
+                                    verifier,
+                                    options,
+                                    query);                            
+                        }
                     }
                     delete strategy;
                 }
@@ -227,7 +303,7 @@ namespace VerifyTAPN {
         }
 
         template<typename T> void VerifyAndPrint(TAPN::TimedArcPetriNet& tapn, Verification<T>& verifier, VerificationOptions& options, AST::Query* query) {
-            bool result = (!options.isWorkflow() && (query->getQuantifier() == AG || query->getQuantifier() == AF)) ? !verifier.verify() : verifier.verify();
+            bool result = (!options.isWorkflow() && (query->getQuantifier() == AG || query->getQuantifier() == AF)) ? !verifier.run() : verifier.run();
 
             if (options.getGCDLowerGuardsEnabled()) {
                 std::cout << "Lowering all guards by greatest common divisor: " << tapn.getGCD() << std::endl;

@@ -8,9 +8,9 @@ CC				= g++
 CUT				= cut
 
 # Compiler and linker flags
-CFLAGS 			=  -DBOOST_DISABLE_THREADS -DNDEBUG -DDISABLE_ASSERTX -static -O3 -Wall -mtune=core2
+CFLAGS 			= -std=c++14 -DBOOST_DISABLE_THREADS -DNDEBUG -DDISABLE_ASSERTX -static -O3 -Wall -mtune=core2
 
-LDFLAGS 		= -DBOOST_DISABLE_THREADS -DNDEBUG -DDISABLE_ASSERTX -static -O3 -Wall -mtune=core2
+LDFLAGS 		= -std=c++14 -DBOOST_DISABLE_THREADS -DNDEBUG -DDISABLE_ASSERTX -static -O3 -Wall -mtune=core2
 
 # Input files
 SOURCES			= $(shell find * -name "*.cpp")	

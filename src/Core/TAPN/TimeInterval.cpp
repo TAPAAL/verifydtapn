@@ -6,7 +6,7 @@
 namespace VerifyTAPN {
 	namespace TAPN {
 		using namespace boost::algorithm;
-		TimeInterval TimeInterval::createFor(const std::string& interval)
+		TimeInterval TimeInterval::createFor(const std::string& interval, const std::map<std::string, int>& replace)
 		{
 			bool leftStrict = boost::algorithm::icontains(interval, "(");
 			bool rightStrict = boost::algorithm::icontains(interval,")");
@@ -18,12 +18,20 @@ namespace VerifyTAPN {
 			trim(strLowerBound);
 			std::string strUpperBound = splitVector[1].substr(0,splitVector[1].size()-1);
 			trim(strUpperBound);
+                        
+                        int lowerBound;
+                        if(replace.count(strLowerBound) > 0)
+                            lowerBound = replace.at(strLowerBound);
+                        else
+                            lowerBound = boost::lexical_cast<int>(strLowerBound);
 
-			int lowerBound = boost::lexical_cast<int>(strLowerBound);
 			int upperBound = std::numeric_limits<int>().max();
 
 			if(!iequals(strUpperBound, "inf"))
 			{
+                           if(replace.count(strUpperBound) > 0)
+                                upperBound = replace.at(strUpperBound);
+                            else
 				upperBound = boost::lexical_cast<int>(strUpperBound);
 			}
 

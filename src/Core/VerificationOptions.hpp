@@ -4,6 +4,7 @@
 #include <string>
 #include <iosfwd>
 #include <vector>
+#include <map>
 
 namespace VerifyTAPN {
 
@@ -45,7 +46,9 @@ namespace VerifyTAPN {
                 bool enableGCDLowerGuards,
                 WorkflowMode workflow,
                 long long workflowBound,
-		bool calculateCmax
+		bool calculateCmax,
+                std::map<std::string, int> replace,
+                bool order
                 ) : inputFile(""),
         queryFile(""),
         searchType(searchType),
@@ -59,7 +62,10 @@ namespace VerifyTAPN {
         enableGCDLowerGuards(enableGCDLowerGuards),
         workflow(workflow),
         workflowBound(workflowBound),
-        calculateCmax(calculateCmax){
+        calculateCmax(calculateCmax),
+        replace(replace),
+        partialOrder(order)
+        {
         };
 
     public: // inspectors
@@ -112,6 +118,11 @@ namespace VerifyTAPN {
             return memOptimization;
         }
 
+        inline void setKeepDeadTokens(bool val)
+        {
+            keepDeadTokens = val;
+        }
+        
         inline const bool getKeepDeadTokens() const {
             return keepDeadTokens;
         };
@@ -135,6 +146,15 @@ namespace VerifyTAPN {
         inline const bool getCalculateCmax() const {
             return calculateCmax;
         };
+        
+        inline const std::map<std::string, int>& getReplacements() const {
+            return replace;
+        }
+        
+        inline bool getPartialOrderReduction() const
+        {
+            return partialOrder;
+        }
 
 
 
@@ -153,6 +173,8 @@ namespace VerifyTAPN {
         WorkflowMode workflow;
         long long workflowBound;
         bool calculateCmax;
+        std::map<std::string, int> replace;
+        bool partialOrder;
     };
 
     std::ostream& operator<<(std::ostream& out, const VerificationOptions& options);
