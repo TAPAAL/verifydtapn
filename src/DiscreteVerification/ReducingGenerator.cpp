@@ -117,7 +117,7 @@ namespace VerifyTAPN {
 
             const TAPN::TimedPlace* inv_place = nullptr;
             int32_t max_age = -1;
-            can_reduce = urgent || !_unprocessed.empty();
+            can_reduce = urgent || !_unprocessed.empty() || urg_trans != nullptr;
             if (!can_reduce) {
                 for (auto& place : parent->getPlaceList()) {
                     int inv = place.place->getInvariant().getBound();
