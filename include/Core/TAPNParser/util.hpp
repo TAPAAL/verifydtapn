@@ -8,7 +8,7 @@ namespace VerifyTAPN {
     std::string readFile(const std::string &filename);
 
     template<class T>
-    const std::string toString(T t) {
+    std::string toString(T t) {
         std::stringstream s;
         s << t;
         return s.str();

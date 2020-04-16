@@ -5,8 +5,7 @@
 #include <limits>
 #include <map>
 
-namespace VerifyTAPN {
-    namespace TAPN {
+namespace VerifyTAPN::TAPN {
 
         class TimeInvariant {
         public:
@@ -17,21 +16,17 @@ namespace VerifyTAPN {
 
             TimeInvariant(bool strictComparison, int bound) : strictComparison(strictComparison), bound(bound) {};
 
-            TimeInvariant(const TimeInvariant &ti) : strictComparison(ti.strictComparison), bound(ti.bound) {};
+            TimeInvariant(const TimeInvariant &ti) = default;
 
-            TimeInvariant &operator=(const TimeInvariant &ti) {
-                strictComparison = ti.strictComparison;
-                bound = ti.bound;
-                return *this;
-            }
+            TimeInvariant &operator=(const TimeInvariant &ti) = default;
 
             virtual ~TimeInvariant() { /* Empty */ };
         public: // inspectors
             void print(std::ostream &out) const;
 
-            inline const int getBound() const { return bound; }
+            inline int getBound() const { return bound; }
 
-            inline const bool isBoundStrict() const { return strictComparison; }
+            inline bool isBoundStrict() const { return strictComparison; }
 
         public: // statics
             static TimeInvariant createFor(const std::string &invariant, std::map<std::string, int> replace);
@@ -54,7 +49,5 @@ namespace VerifyTAPN {
             return out;
         }
     }
-
-}
 
 #endif /* VERIFYTAPN_TAPN_TIMEINVARIANT_HPP_ */

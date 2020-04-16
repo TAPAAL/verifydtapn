@@ -26,7 +26,7 @@ namespace VerifyTAPN::TAPN {
 
     void TimeInvariant::print(std::ostream &out) const {
         std::string comparison = strictComparison ? "<" : "<=";
-        std::string strBound = bound == std::numeric_limits<int>::max() ? "inf" : boost::lexical_cast<std::string>(bound);
+        std::string strBound = bound == std::numeric_limits<int>::max() ? "inf" : std::to_string(bound);
 
         out << comparison << " " << strBound;
     }

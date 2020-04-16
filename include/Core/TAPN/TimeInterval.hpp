@@ -7,8 +7,7 @@
 #include <map>
 #include <cassert>
 
-namespace VerifyTAPN {
-    namespace TAPN {
+namespace VerifyTAPN::TAPN {
 
         class TimeInterval {
         public: // Construction
@@ -21,16 +20,9 @@ namespace VerifyTAPN {
                                                                                               rightStrict(
                                                                                                       rightStrict) {};
 
-            TimeInterval(const TimeInterval &ti) : leftStrict(ti.leftStrict), lowerBound(ti.lowerBound),
-                                                   upperBound(ti.upperBound), rightStrict(ti.rightStrict) {};
+            TimeInterval(const TimeInterval &ti) = default;
 
-            TimeInterval &operator=(const TimeInterval &ti) {
-                leftStrict = ti.leftStrict;
-                lowerBound = ti.lowerBound;
-                upperBound = ti.upperBound;
-                rightStrict = ti.rightStrict;
-                return *this;
-            }
+            TimeInterval &operator=(const TimeInterval &ti) = default;
 
             virtual ~TimeInterval() { /* empty */ }
 
@@ -40,13 +32,13 @@ namespace VerifyTAPN {
         public: // inspectors
             void print(std::ostream &out) const;
 
-            inline const int getLowerBound() const { return lowerBound; }
+            inline int getLowerBound() const { return lowerBound; }
 
-            inline const int getUpperBound() const { return upperBound; }
+            inline int getUpperBound() const { return upperBound; }
 
-            inline const bool isLowerBoundStrict() const { return leftStrict; }
+            inline bool isLowerBoundStrict() const { return leftStrict; }
 
-            inline const bool isUpperBoundStrict() const { return rightStrict; }
+            inline bool isUpperBoundStrict() const { return rightStrict; }
 
             inline bool setUpperBound(int bound, bool isStrict) {
                 if (upperBound == bound) rightStrict |= isStrict;
@@ -58,11 +50,11 @@ namespace VerifyTAPN {
                 else return true;
             }
 
-            inline const bool isZeroInfinity() const {
+            inline bool isZeroInfinity() const {
                 return !leftStrict && lowerBound == 0 && upperBound == std::numeric_limits<int>::max() && rightStrict;
             }
 
-            inline const bool contains(int number) const {
+            inline bool contains(int number) const {
                 return number >= lowerBound && number <= upperBound;
             }
 
@@ -96,6 +88,5 @@ namespace VerifyTAPN {
             return out;
         }
     }
-}
 
 #endif /* VERIFYTAPN_TAPN_TIMEINTERVAL_HPP_ */
