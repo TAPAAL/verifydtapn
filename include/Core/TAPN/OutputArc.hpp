@@ -16,7 +16,7 @@ namespace VerifyTAPN::TAPN {
         OutputArc(TimedTransition &transition, TimedPlace &place, const int weight)
                 : transition(transition), place(place), weight(weight) {};
 
-        virtual ~OutputArc() { /* empty */ }
+        virtual ~OutputArc() = default;
 
     public: // modifiers
         TimedPlace &getOutputPlace() const;

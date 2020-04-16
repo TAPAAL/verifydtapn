@@ -17,7 +17,7 @@ namespace VerifyTAPN::TAPN {
                                                                                          transition(transition),
                                                                                          weight(weight) {};
 
-        virtual ~InhibitorArc() { /* empty */ }
+        virtual ~InhibitorArc() = default;
 
     public: // modifiers
         inline TimedPlace &getInputPlace() const { return place; }
