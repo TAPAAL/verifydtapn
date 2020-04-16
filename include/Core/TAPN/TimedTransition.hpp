@@ -21,7 +21,8 @@ namespace VerifyTAPN {
             typedef std::vector<TimedTransition *> Vector;
         public:
             TimedTransition(std::string name, std::string id, bool urgent, bool controllable)
-                    : name(std::move(name)), id(std::move(id)), preset(), postset(), transportArcs(), index(-1), untimedPostset(true),
+                    : name(std::move(name)), id(std::move(id)), preset(), postset(), transportArcs(), index(-1),
+                      untimedPostset(true),
                       urgent(urgent), controllable(controllable) {};
 
             TimedTransition() : name("*EMPTY*"), id("-1"), preset(), postset(), transportArcs(), index(-1),

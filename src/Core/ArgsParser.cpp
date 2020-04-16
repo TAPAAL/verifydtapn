@@ -242,7 +242,7 @@ namespace VerifyTAPN {
         }
 
         option_map options;
-        for (const auto & flag : flags) {
+        for (const auto &flag : flags) {
             bool handled = false;
             for (auto parser : parsers) {
                 if (parser->handles(flag)) {

@@ -7,474 +7,474 @@
 
 namespace VerifyTAPN::AST {
 
-        class Visitable {
-        public:
-            virtual void accept(Visitor &visitor, Result &context) = 0;
+    class Visitable {
+    public:
+        virtual void accept(Visitor &visitor, Result &context) = 0;
 
-            int32_t eval = 0;
+        int32_t eval = 0;
+    };
+
+    class Expression : public Visitable {
+    public:
+
+        virtual ~Expression() = default;;
+
+        virtual Expression *clone() const = 0;
+    };
+
+    class NotExpression : public Expression {
+    public:
+
+        explicit NotExpression(Expression *expr) : expr(expr) {
         };
 
-        class Expression : public Visitable {
-        public:
-
-            virtual ~Expression() = default;;
-
-            virtual Expression *clone() const = 0;
+        NotExpression(const NotExpression &other) : expr(other.expr->clone()) {
         };
 
-        class NotExpression : public Expression {
-        public:
-
-            explicit NotExpression(Expression *expr) : expr(expr) {
-            };
-
-            NotExpression(const NotExpression &other) : expr(other.expr->clone()) {
-            };
-
-            NotExpression &operator=(const NotExpression &other) {
-                if (&other != this) {
-                    delete expr;
-                    expr = other.expr->clone();
-                }
-
-                return *this;
-            }
-
-            ~NotExpression() override {
+        NotExpression &operator=(const NotExpression &other) {
+            if (&other != this) {
                 delete expr;
-            };
-
-            NotExpression *clone() const override;
-
-            void accept(Visitor &visitor, Result &context) override;
-
-            Expression &getChild() const {
-                return *expr;
+                expr = other.expr->clone();
             }
 
-        private:
-            Expression *expr;
+            return *this;
+        }
+
+        ~NotExpression() override {
+            delete expr;
         };
 
-        class DeadlockExpression : public Expression {
-        public:
+        NotExpression *clone() const override;
 
-            explicit DeadlockExpression() = default;;
+        void accept(Visitor &visitor, Result &context) override;
 
-            ~DeadlockExpression() override = default;;
+        Expression &getChild() const {
+            return *expr;
+        }
 
-            DeadlockExpression *clone() const override;
+    private:
+        Expression *expr;
+    };
 
-            void accept(Visitor &visitor, Result &context) override;
+    class DeadlockExpression : public Expression {
+    public:
+
+        explicit DeadlockExpression() = default;;
+
+        ~DeadlockExpression() override = default;;
+
+        DeadlockExpression *clone() const override;
+
+        void accept(Visitor &visitor, Result &context) override;
+    };
+
+    class BoolExpression : public Expression {
+    public:
+
+        explicit BoolExpression(bool value) : value(value) {
         };
 
-        class BoolExpression : public Expression {
-        public:
+        ~BoolExpression() override = default;;
 
-            explicit BoolExpression(bool value) : value(value) {
-            };
+        BoolExpression *clone() const override;
 
-            ~BoolExpression() override = default;;
+        void accept(Visitor &visitor, Result &context) override;
 
-            BoolExpression *clone() const override;
+        bool getValue() const {
+            return value;
+        };
+    private:
+        bool value;
+    };
 
-            void accept(Visitor &visitor, Result &context) override;
+    class AtomicProposition : public Expression {
+    public:
 
-            bool getValue() const {
-                return value;
-            };
-        private:
-            bool value;
+        AtomicProposition(ArithmeticExpression *left, std::string *op, ArithmeticExpression *right) : left(left),
+                                                                                                      op(op->begin(),
+                                                                                                         op->end()),
+                                                                                                      right(right) {
         };
 
-        class AtomicProposition : public Expression {
-        public:
+        AtomicProposition(const AtomicProposition &other) : left(other.left), op(other.op), right(other.right) {
+        };
 
-            AtomicProposition(ArithmeticExpression *left, std::string *op, ArithmeticExpression *right) : left(left),
-                                                                                                          op(op->begin(),
-                                                                                                             op->end()),
-                                                                                                          right(right) {
-            };
-
-            AtomicProposition(const AtomicProposition &other) : left(other.left), op(other.op), right(other.right) {
-            };
-
-            AtomicProposition &operator=(const AtomicProposition &other) {
-                if (&other != this) {
-                    left = other.left;
-                    op = other.op;
-                    right = other.right;
-                }
-                return *this;
+        AtomicProposition &operator=(const AtomicProposition &other) {
+            if (&other != this) {
+                left = other.left;
+                op = other.op;
+                right = other.right;
             }
+            return *this;
+        }
 
-            ~AtomicProposition() override = default;;
+        ~AtomicProposition() override = default;;
 
-            ArithmeticExpression &getLeft() const {
-                return *left;
-            };
-
-            ArithmeticExpression &getRight() const {
-                return *right;
-            };
-
-            std::string getOperator() const {
-                return op;
-            };
-
-            AtomicProposition *clone() const override;
-
-            void accept(Visitor &visitor, Result &context) override;
-
-        private:
-            ArithmeticExpression *left;
-            std::string op;
-            ArithmeticExpression *right;
+        ArithmeticExpression &getLeft() const {
+            return *left;
         };
 
-        class AndExpression : public Expression {
-        public:
+        ArithmeticExpression &getRight() const {
+            return *right;
+        };
 
-            AndExpression(Expression *left, Expression *right) : left(left), right(right) {
-            };
+        std::string getOperator() const {
+            return op;
+        };
 
-            AndExpression(const AndExpression &other) : left(other.left->clone()), right(other.right->clone()) {
-            };
+        AtomicProposition *clone() const override;
 
-            AndExpression &operator=(const AndExpression &other) {
-                if (&other != this) {
-                    delete left;
-                    delete right;
+        void accept(Visitor &visitor, Result &context) override;
 
-                    left = other.left->clone();
-                    right = other.right->clone();
-                }
-                return *this;
-            }
+    private:
+        ArithmeticExpression *left;
+        std::string op;
+        ArithmeticExpression *right;
+    };
 
-            ~AndExpression() override {
+    class AndExpression : public Expression {
+    public:
+
+        AndExpression(Expression *left, Expression *right) : left(left), right(right) {
+        };
+
+        AndExpression(const AndExpression &other) : left(other.left->clone()), right(other.right->clone()) {
+        };
+
+        AndExpression &operator=(const AndExpression &other) {
+            if (&other != this) {
                 delete left;
                 delete right;
+
+                left = other.left->clone();
+                right = other.right->clone();
             }
+            return *this;
+        }
 
-            AndExpression *clone() const override;
+        ~AndExpression() override {
+            delete left;
+            delete right;
+        }
 
-            void accept(Visitor &visitor, Result &context) override;
+        AndExpression *clone() const override;
 
-            Expression &getLeft() const {
-                return *left;
-            }
+        void accept(Visitor &visitor, Result &context) override;
 
-            Expression &getRight() const {
-                return *right;
-            }
+        Expression &getLeft() const {
+            return *left;
+        }
 
-        private:
-            Expression *left;
-            Expression *right;
+        Expression &getRight() const {
+            return *right;
+        }
+
+    private:
+        Expression *left;
+        Expression *right;
+    };
+
+    class OrExpression : public Expression {
+    public:
+
+        OrExpression(Expression *left, Expression *right) : left(left), right(right) {
         };
 
-        class OrExpression : public Expression {
-        public:
+        OrExpression(const OrExpression &other) : left(other.left->clone()), right(other.right->clone()) {
+        };
 
-            OrExpression(Expression *left, Expression *right) : left(left), right(right) {
-            };
-
-            OrExpression(const OrExpression &other) : left(other.left->clone()), right(other.right->clone()) {
-            };
-
-            OrExpression &operator=(const OrExpression &other) {
-                if (&other != this) {
-                    delete left;
-                    delete right;
-
-                    left = other.left->clone();
-                    right = other.right->clone();
-                }
-                return *this;
-            }
-
-            ~OrExpression() override {
+        OrExpression &operator=(const OrExpression &other) {
+            if (&other != this) {
                 delete left;
                 delete right;
-            };
 
-
-            OrExpression *clone() const override;
-
-            void accept(Visitor &visitor, Result &context) override;
-
-            Expression &getLeft() const {
-                return *left;
+                left = other.left->clone();
+                right = other.right->clone();
             }
+            return *this;
+        }
 
-            Expression &getRight() const {
-                return *right;
-            }
-
-        private:
-            Expression *left;
-            Expression *right;
+        ~OrExpression() override {
+            delete left;
+            delete right;
         };
 
-        class ArithmeticExpression : public Visitable {
-        public:
 
-            virtual ~ArithmeticExpression() = default;;
+        OrExpression *clone() const override;
 
-            virtual ArithmeticExpression *clone() const = 0;
+        void accept(Visitor &visitor, Result &context) override;
+
+        Expression &getLeft() const {
+            return *left;
+        }
+
+        Expression &getRight() const {
+            return *right;
+        }
+
+    private:
+        Expression *left;
+        Expression *right;
+    };
+
+    class ArithmeticExpression : public Visitable {
+    public:
+
+        virtual ~ArithmeticExpression() = default;;
+
+        virtual ArithmeticExpression *clone() const = 0;
+    };
+
+    class OperationExpression : public ArithmeticExpression {
+    protected:
+
+        OperationExpression(ArithmeticExpression *left, ArithmeticExpression *right) : left(left), right(right) {
         };
 
-        class OperationExpression : public ArithmeticExpression {
-        protected:
-
-            OperationExpression(ArithmeticExpression *left, ArithmeticExpression *right) : left(left), right(right) {
-            };
-
-            OperationExpression(const OperationExpression &other) : left(other.left), right(other.right) {
-            };
-
-            OperationExpression &operator=(const OperationExpression &other) {
-                if (&other != this) {
-                    delete left;
-                    left = other.left;
-                    delete right;
-                    right = other.right;
-                }
-                return *this;
-            }
-
-            ~OperationExpression() override = default;;
-
-        public:
-
-            ArithmeticExpression &getLeft() {
-                return *left;
-            };
-
-            ArithmeticExpression &getRight() {
-                return *right;
-            };
-
-        protected:
-            ArithmeticExpression *left;
-            ArithmeticExpression *right;
+        OperationExpression(const OperationExpression &other) : left(other.left), right(other.right) {
         };
 
-        class PlusExpression : public OperationExpression {
-        public:
-
-            PlusExpression(ArithmeticExpression *left, ArithmeticExpression *right)
-                    : OperationExpression(left, right) {
-            };
-
-            PlusExpression(const PlusExpression &other) = default;
-
-            PlusExpression &operator=(const PlusExpression &other) {
-                if (&other != this) {
-                    left = other.left;
-                    right = other.right;
-                }
-                return *this;
+        OperationExpression &operator=(const OperationExpression &other) {
+            if (&other != this) {
+                delete left;
+                left = other.left;
+                delete right;
+                right = other.right;
             }
+            return *this;
+        }
 
-            ~PlusExpression() override = default;;
+        ~OperationExpression() override = default;;
 
-            PlusExpression *clone() const override;
+    public:
 
-            void accept(Visitor &visitor, Result &context) override;
-
+        ArithmeticExpression &getLeft() {
+            return *left;
         };
 
-        class SubtractExpression : public OperationExpression {
-        public:
-
-            SubtractExpression(ArithmeticExpression *left, ArithmeticExpression *right)
-                    : OperationExpression(left, right) {
-            };
-
-            SubtractExpression(const SubtractExpression &other) = default;;
-
-            SubtractExpression &operator=(const SubtractExpression &other) {
-                if (&other != this) {
-                    left = other.left;
-                    right = other.right;
-                }
-                return *this;
-            }
-
-            ~SubtractExpression() override = default;;
-
-            SubtractExpression *clone() const override;
-
-            void accept(Visitor &visitor, Result &context) override;
+        ArithmeticExpression &getRight() {
+            return *right;
         };
 
-        class MinusExpression : public ArithmeticExpression {
-        public:
+    protected:
+        ArithmeticExpression *left;
+        ArithmeticExpression *right;
+    };
 
-            explicit MinusExpression(ArithmeticExpression *value) : value(value) {
-            };
+    class PlusExpression : public OperationExpression {
+    public:
 
-            MinusExpression(const MinusExpression &other)
-                    : value(other.value) {
-            };
-
-            MinusExpression &operator=(const MinusExpression &other) {
-                if (&other != this) {
-                    value = other.value;
-                }
-                return *this;
-            }
-
-            ArithmeticExpression &getValue() const {
-                return *value;
-            };
-
-            ~MinusExpression() override = default;;
-
-            MinusExpression *clone() const override;
-
-            void accept(Visitor &visitor, Result &context) override;
-
-        private:
-            ArithmeticExpression *value;
+        PlusExpression(ArithmeticExpression *left, ArithmeticExpression *right)
+                : OperationExpression(left, right) {
         };
 
-        class MultiplyExpression : public OperationExpression {
-        public:
+        PlusExpression(const PlusExpression &other) = default;
 
-            MultiplyExpression(ArithmeticExpression *left, ArithmeticExpression *right)
-                    : OperationExpression(left, right) {
-            };
-
-            MultiplyExpression(const MultiplyExpression &other)
-                    = default;
-
-            MultiplyExpression &operator=(const MultiplyExpression &other) {
-                if (&other != this) {
-                    left = other.left;
-                    right = other.right;
-                }
-                return *this;
+        PlusExpression &operator=(const PlusExpression &other) {
+            if (&other != this) {
+                left = other.left;
+                right = other.right;
             }
+            return *this;
+        }
 
-            ~MultiplyExpression() override = default;;
+        ~PlusExpression() override = default;;
 
-            MultiplyExpression *clone() const override;
+        PlusExpression *clone() const override;
 
-            void accept(Visitor &visitor, Result &context) override;
+        void accept(Visitor &visitor, Result &context) override;
+
+    };
+
+    class SubtractExpression : public OperationExpression {
+    public:
+
+        SubtractExpression(ArithmeticExpression *left, ArithmeticExpression *right)
+                : OperationExpression(left, right) {
         };
 
-        class NumberExpression : public ArithmeticExpression {
-        public:
+        SubtractExpression(const SubtractExpression &other) = default;;
 
-            explicit NumberExpression(int i) : value(i) {
+        SubtractExpression &operator=(const SubtractExpression &other) {
+            if (&other != this) {
+                left = other.left;
+                right = other.right;
             }
+            return *this;
+        }
 
-            NumberExpression(const NumberExpression &other) : value(other.value) {
-            };
+        ~SubtractExpression() override = default;;
 
-            NumberExpression &operator=(const NumberExpression &other) {
+        SubtractExpression *clone() const override;
+
+        void accept(Visitor &visitor, Result &context) override;
+    };
+
+    class MinusExpression : public ArithmeticExpression {
+    public:
+
+        explicit MinusExpression(ArithmeticExpression *value) : value(value) {
+        };
+
+        MinusExpression(const MinusExpression &other)
+                : value(other.value) {
+        };
+
+        MinusExpression &operator=(const MinusExpression &other) {
+            if (&other != this) {
                 value = other.value;
-                return *this;
-            };
-
-            int getValue() const {
-                return value;
-            };
-
-            ~NumberExpression() override = default;;
-
-            NumberExpression *clone() const override;
-
-            void accept(Visitor &visitor, Result &context) override;
-
-        private:
-            int value;
-        };
-
-        class IdentifierExpression : public ArithmeticExpression {
-        public:
-
-            explicit IdentifierExpression(int placeIndex) : place(placeIndex) {
             }
+            return *this;
+        }
 
-            IdentifierExpression(const IdentifierExpression &other) : place(other.place) {
-            };
-
-            IdentifierExpression &operator=(const IdentifierExpression &other) {
-                place = other.place;
-                return *this;
-            };
-
-            int getPlace() const {
-                return place;
-            };
-
-            ~IdentifierExpression() override = default;;
-
-            IdentifierExpression *clone() const override;
-
-            void accept(Visitor &visitor, Result &context) override;
-
-        private:
-            int place;
+        ArithmeticExpression &getValue() const {
+            return *value;
         };
 
-        enum Quantifier {
-            EF, AG, EG, AF, CF, CG
+        ~MinusExpression() override = default;;
+
+        MinusExpression *clone() const override;
+
+        void accept(Visitor &visitor, Result &context) override;
+
+    private:
+        ArithmeticExpression *value;
+    };
+
+    class MultiplyExpression : public OperationExpression {
+    public:
+
+        MultiplyExpression(ArithmeticExpression *left, ArithmeticExpression *right)
+                : OperationExpression(left, right) {
         };
 
-        class Query : public Visitable {
-        public:
+        MultiplyExpression(const MultiplyExpression &other)
+        = default;
 
-            Query(Quantifier quantifier, Expression *expr) : quantifier(quantifier), expr(expr) {
-            };
-
-            Query(const Query &other) : quantifier(other.quantifier), expr(other.expr->clone()) {
-            };
-
-            Query &operator=(const Query &other) {
-                if (&other != this) {
-                    delete expr;
-                    expr = other.expr->clone();
-                }
-                return *this;
+        MultiplyExpression &operator=(const MultiplyExpression &other) {
+            if (&other != this) {
+                left = other.left;
+                right = other.right;
             }
+            return *this;
+        }
 
-            virtual ~Query() {
+        ~MultiplyExpression() override = default;;
+
+        MultiplyExpression *clone() const override;
+
+        void accept(Visitor &visitor, Result &context) override;
+    };
+
+    class NumberExpression : public ArithmeticExpression {
+    public:
+
+        explicit NumberExpression(int i) : value(i) {
+        }
+
+        NumberExpression(const NumberExpression &other) : value(other.value) {
+        };
+
+        NumberExpression &operator=(const NumberExpression &other) {
+            value = other.value;
+            return *this;
+        };
+
+        int getValue() const {
+            return value;
+        };
+
+        ~NumberExpression() override = default;;
+
+        NumberExpression *clone() const override;
+
+        void accept(Visitor &visitor, Result &context) override;
+
+    private:
+        int value;
+    };
+
+    class IdentifierExpression : public ArithmeticExpression {
+    public:
+
+        explicit IdentifierExpression(int placeIndex) : place(placeIndex) {
+        }
+
+        IdentifierExpression(const IdentifierExpression &other) : place(other.place) {
+        };
+
+        IdentifierExpression &operator=(const IdentifierExpression &other) {
+            place = other.place;
+            return *this;
+        };
+
+        int getPlace() const {
+            return place;
+        };
+
+        ~IdentifierExpression() override = default;;
+
+        IdentifierExpression *clone() const override;
+
+        void accept(Visitor &visitor, Result &context) override;
+
+    private:
+        int place;
+    };
+
+    enum Quantifier {
+        EF, AG, EG, AF, CF, CG
+    };
+
+    class Query : public Visitable {
+    public:
+
+        Query(Quantifier quantifier, Expression *expr) : quantifier(quantifier), expr(expr) {
+        };
+
+        Query(const Query &other) : quantifier(other.quantifier), expr(other.expr->clone()) {
+        };
+
+        Query &operator=(const Query &other) {
+            if (&other != this) {
                 delete expr;
+                expr = other.expr->clone();
             }
+            return *this;
+        }
 
-            virtual Query *clone() const;
+        virtual ~Query() {
+            delete expr;
+        }
 
-            void accept(Visitor &visitor, Result &context) override;
+        virtual Query *clone() const;
 
-            Quantifier getQuantifier() const {
-                return quantifier;
-            }
+        void accept(Visitor &visitor, Result &context) override;
 
-            const Expression &getConstChild() const {
-                return *expr;
-            }
+        Quantifier getQuantifier() const {
+            return quantifier;
+        }
 
-            Expression *getChild() {
-                return expr;
-            }
+        const Expression &getConstChild() const {
+            return *expr;
+        }
 
-            void setChild(Expression *expr) {
-                this->expr = expr;
-            }
+        Expression *getChild() {
+            return expr;
+        }
 
-            void setQuantifier(Quantifier q) {
-                quantifier = q;
-            }
+        void setChild(Expression *expr) {
+            this->expr = expr;
+        }
 
-        private:
-            Quantifier quantifier;
-            Expression *expr;
-        };
-    }
+        void setQuantifier(Quantifier q) {
+            quantifier = q;
+        }
+
+    private:
+        Quantifier quantifier;
+        Expression *expr;
+    };
+}
 
 #endif /* AST_HPP_ */

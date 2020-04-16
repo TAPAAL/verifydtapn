@@ -27,11 +27,11 @@
 
 namespace VerifyTAPN::DiscreteVerification {
 
-        template<class T>
-        class NonStrictDFS : public SearchStrategy<T> {
-        public:
-            virtual WaitingList <T> *createWaitingList(AST::Query *query) const { return new StackWaitingList<T>; };
-        };
+    template<class T>
+    class NonStrictDFS : public SearchStrategy<T> {
+    public:
+        virtual WaitingList <T> *createWaitingList(AST::Query *query) const { return new StackWaitingList<T>; };
+    };
 
-    }
+}
 #endif /* NONSTRICTDFS_HPP_ */

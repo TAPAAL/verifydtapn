@@ -15,66 +15,66 @@
 
 namespace VerifyTAPN::DiscreteVerification {
 
-        class WorkflowStrongSoundnessReachability : public Workflow {
-        public:
+    class WorkflowStrongSoundnessReachability : public Workflow {
+    public:
 
-            WorkflowStrongSoundnessReachability(TAPN::TimedArcPetriNet &tapn, NonStrictMarking &initialMarking,
-                                                AST::Query *query, VerificationOptions options,
-                                                WaitingList<NonStrictMarking *> *waiting_list);
+        WorkflowStrongSoundnessReachability(TAPN::TimedArcPetriNet &tapn, NonStrictMarking &initialMarking,
+                                            AST::Query *query, VerificationOptions options,
+                                            WaitingList<NonStrictMarking *> *waiting_list);
 
-            WorkflowStrongSoundnessReachability(TAPN::TimedArcPetriNet &tapn, NonStrictMarking &initialMarking,
-                                                AST::Query *query, VerificationOptions options);
+        WorkflowStrongSoundnessReachability(TAPN::TimedArcPetriNet &tapn, NonStrictMarking &initialMarking,
+                                            AST::Query *query, VerificationOptions options);
 
-            ~WorkflowStrongSoundnessReachability() {
-                pwList->deleteWaitingList();
-                delete lastMarking;
-                delete pwList;
-            }
+        ~WorkflowStrongSoundnessReachability() {
+            pwList->deleteWaitingList();
+            delete lastMarking;
+            delete pwList;
+        }
 
-            bool run();
+        bool run();
 
-            virtual void getTrace();
+        virtual void getTrace();
 
-            void printExecutionTime(ostream &stream) override {
-                stream << "Maximum execution time: " << (maxValue * tapn.getGCD()) << endl;
-            }
+        void printExecutionTime(ostream &stream) override {
+            stream << "Maximum execution time: " << (maxValue * tapn.getGCD()) << endl;
+        }
 
 
-        protected:
-            void findInOut();
+    protected:
+        void findInOut();
 
-            bool handleSuccessor(NonStrictMarking *marking, NonStrictMarking *parent);
+        bool handleSuccessor(NonStrictMarking *marking, NonStrictMarking *parent);
 
-            virtual void swapData(NonStrictMarking *marking, NonStrictMarking *old);
+        virtual void swapData(NonStrictMarking *marking, NonStrictMarking *old);
 
-            virtual void clearTrace() {};    // cleanup
+        virtual void clearTrace() {};    // cleanup
 
-        protected:
-            int maxValue;
-            TimedPlace *outPlace;
-            int validChildren{};
-        };
+    protected:
+        int maxValue;
+        TimedPlace *outPlace;
+        int validChildren{};
+    };
 
-        class WorkflowStrongSoundnessPTrie : public WorkflowStrongSoundnessReachability {
-        public:
-            WorkflowStrongSoundnessPTrie(
-                    TAPN::TimedArcPetriNet &tapn,
-                    NonStrictMarking &initialMarking,
-                    AST::Query *query,
-                    VerificationOptions options,
-                    WaitingList <ptriepointer_t<MetaData *>> *waiting_list);
+    class WorkflowStrongSoundnessPTrie : public WorkflowStrongSoundnessReachability {
+    public:
+        WorkflowStrongSoundnessPTrie(
+                TAPN::TimedArcPetriNet &tapn,
+                NonStrictMarking &initialMarking,
+                AST::Query *query,
+                VerificationOptions options,
+                WaitingList <ptriepointer_t<MetaData *>> *waiting_list);
 
-            void getTrace() override;
+        void getTrace() override;
 
-            void deleteMarking(NonStrictMarking *marking) override {
-                delete marking;
-            }
+        void deleteMarking(NonStrictMarking *marking) override {
+            delete marking;
+        }
 
-        protected:
-            void swapData(NonStrictMarking *marking, NonStrictMarking *old) override;
+    protected:
+        void swapData(NonStrictMarking *marking, NonStrictMarking *old) override;
 
-            void clearTrace() override;
-        };
+        void clearTrace() override;
+    };
 
-    } /* namespace VerifyTAPN */
+} /* namespace VerifyTAPN */
 #endif /* NONSTRICTSEARCH_HPP_ */

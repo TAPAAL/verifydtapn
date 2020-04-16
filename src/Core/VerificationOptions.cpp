@@ -59,8 +59,9 @@ namespace VerifyTAPN {
             << std::endl;
         out << "k-bound is: " << options.getKBound() << std::endl;
         out << "Generating " << enumToString(options.getTrace()) << " trace";
-        if (options.getTrace() != VerificationOptions::NO_TRACE) out << " in " << (options.getXmlTrace() ? "xml format"
-                                                                                                         : "human readable format");
+        if (options.getTrace() != VerificationOptions::NO_TRACE)
+            out << " in " << (options.getXmlTrace() ? "xml format"
+                                                    : "human readable format");
         out << std::endl;
         out << "Using "
             << (options.getGlobalMaxConstantsEnabled() ? "global maximum constant" : "local maximum constants")

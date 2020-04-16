@@ -27,33 +27,33 @@
 
 namespace VerifyTAPN::DiscreteVerification {
 
-        using namespace TAPN;
+    using namespace TAPN;
 
-        class Workflow : public AbstractNaiveVerification<WorkflowPWListBasic, NonStrictMarking, Generator> {
-        public:
-            Workflow(TAPN::TimedArcPetriNet &tapn, NonStrictMarking &initialMarking, AST::Query *query,
-                     const VerificationOptions& options)
-                    : AbstractNaiveVerification<WorkflowPWListBasic, NonStrictMarking, Generator>(tapn, initialMarking,
-                                                                                                  query, options, NULL),
-                      in(nullptr), out(nullptr) {
+    class Workflow : public AbstractNaiveVerification<WorkflowPWListBasic, NonStrictMarking, Generator> {
+    public:
+        Workflow(TAPN::TimedArcPetriNet &tapn, NonStrictMarking &initialMarking, AST::Query *query,
+                 const VerificationOptions &options)
+                : AbstractNaiveVerification<WorkflowPWListBasic, NonStrictMarking, Generator>(tapn, initialMarking,
+                                                                                              query, options, NULL),
+                  in(nullptr), out(nullptr) {
 
-                for (TimedPlace::Vector::const_iterator iter = tapn.getPlaces().begin();
-                     iter != tapn.getPlaces().end(); iter++) {
-                    if ((*iter)->getType() == Dead) {
-                        (*iter)->setType(Std);
-                    }
+            for (TimedPlace::Vector::const_iterator iter = tapn.getPlaces().begin();
+                 iter != tapn.getPlaces().end(); iter++) {
+                if ((*iter)->getType() == Dead) {
+                    (*iter)->setType(Std);
                 }
             }
+        }
 
-            virtual void printExecutionTime(ostream &stream) = 0;
+        virtual void printExecutionTime(ostream &stream) = 0;
 
-        protected:
-            virtual void deleteMarking(NonStrictMarking *marking) {
+    protected:
+        virtual void deleteMarking(NonStrictMarking *marking) {
 
-            };
-            TimedPlace *in;
-            TimedPlace *out;
         };
+        TimedPlace *in;
+        TimedPlace *out;
+    };
 
-    } /* namespace VerifyTAPN */
+} /* namespace VerifyTAPN */
 #endif /* NONSTRICTSEARCH_HPP_ */

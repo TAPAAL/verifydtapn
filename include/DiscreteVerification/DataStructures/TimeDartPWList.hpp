@@ -20,109 +20,110 @@
 using namespace ptrie;
 
 namespace VerifyTAPN::DiscreteVerification {
-        class TimeDartPWBase;
+    class TimeDartPWBase;
 
-        class TimeDartPWHashMap;
+    class TimeDartPWHashMap;
 
-        class TimeDartPWPData;
+    class TimeDartPWPData;
 
-        class TimeDartPWBase {
-        public:
+    class TimeDartPWBase {
+    public:
 
-            explicit TimeDartPWBase(bool trace) : trace(trace), discoveredMarkings(0), maxNumTokensInAnyMarking(-1), stored(0),
-                                         last(nullptr) {
-            };
-
-            virtual ~TimeDartPWBase() = default;;
-
-        public:
-
-            virtual bool hasWaitingStates() = 0;
-
-            long long size() const {
-                return stored;
-            };
-
-            virtual bool
-            add(NonStrictMarkingBase *marking, int youngest, WaitingDart *parent, int upper, int start) = 0;
-
-            virtual TimeDartBase *getNextUnexplored() = 0;
-
-            inline void setMaxNumTokensIfGreater(int i) {
-                if (i > maxNumTokensInAnyMarking) maxNumTokensInAnyMarking = i;
-            };
-
-            TraceDart *getLast() {
-                return last;
-            };
-
-            bool trace;
-            int discoveredMarkings;
-            int maxNumTokensInAnyMarking;
-            long long stored;
-        protected:
-            TraceDart *last;
+        explicit TimeDartPWBase(bool trace) : trace(trace), discoveredMarkings(0), maxNumTokensInAnyMarking(-1),
+                                              stored(0),
+                                              last(nullptr) {
         };
 
-        class TimeDartPWHashMap : public TimeDartPWBase {
-        public:
-            typedef std::vector<TimeDartBase *> TimeDartList;
-            typedef google::sparse_hash_map<size_t, TimeDartList> HashMap;
-        public:
+        virtual ~TimeDartPWBase() = default;;
 
-            TimeDartPWHashMap() : TimeDartPWBase(false), waiting_list(), markings_storage(256000) {
-            };
+    public:
 
-            TimeDartPWHashMap(WaitingList<TimeDartBase *> *w_l, bool trace) : TimeDartPWBase(trace), waiting_list(w_l),
-                                                                              markings_storage(256000) {
-            };
+        virtual bool hasWaitingStates() = 0;
 
-            ~TimeDartPWHashMap() override;
-
-            friend std::ostream &operator<<(std::ostream &out, TimeDartPWHashMap &x);
-
-            bool add(NonStrictMarkingBase *marking, int youngest, WaitingDart *parent, int upper, int start) override;
-
-            TimeDartBase *getNextUnexplored() override;
-
-            bool hasWaitingStates() override {
-                return (waiting_list->size() > 0);
-            };
-        protected:
-            WaitingList<TimeDartBase *> *waiting_list;
-        private:
-            HashMap markings_storage;
+        long long size() const {
+            return stored;
         };
 
-        std::ostream &operator<<(std::ostream &out, TimeDartPWHashMap &x);
+        virtual bool
+        add(NonStrictMarkingBase *marking, int youngest, WaitingDart *parent, int upper, int start) = 0;
 
-        class TimeDartPWPData : public TimeDartPWBase {
-        public:
+        virtual TimeDartBase *getNextUnexplored() = 0;
 
-            TimeDartPWPData(WaitingList <ptriepointer_t<TimeDartBase *>> *w_l, TAPN::TimedArcPetriNet &tapn,
-                            int knumber, int nplaces, int mage, bool trace) :
-                    TimeDartPWBase(trace),
-                    waiting_list(w_l), passed(), encoder(tapn, knumber) {
-            };
-
-            NonStrictMarkingBase *decode(ptriepointer_t<TimeDartBase *> &ewp) {
-                return encoder.decode(ewp);
-            }
-
-        private:
-            WaitingList <ptriepointer_t<TimeDartBase *>> *waiting_list;
-            ptrie_t<TimeDartBase *> passed;
-            MarkingEncoder<TimeDartBase *> encoder;
-
-            bool add(NonStrictMarkingBase *marking, int youngest, WaitingDart *parent, int upper, int start) override;
-
-            TimeDartBase *getNextUnexplored() override;
-
-            bool hasWaitingStates() override {
-                return (waiting_list->size() > 0);
-            };
-
+        inline void setMaxNumTokensIfGreater(int i) {
+            if (i > maxNumTokensInAnyMarking) maxNumTokensInAnyMarking = i;
         };
 
-    } /* namespace VerifyTAPN */
+        TraceDart *getLast() {
+            return last;
+        };
+
+        bool trace;
+        int discoveredMarkings;
+        int maxNumTokensInAnyMarking;
+        long long stored;
+    protected:
+        TraceDart *last;
+    };
+
+    class TimeDartPWHashMap : public TimeDartPWBase {
+    public:
+        typedef std::vector<TimeDartBase *> TimeDartList;
+        typedef google::sparse_hash_map<size_t, TimeDartList> HashMap;
+    public:
+
+        TimeDartPWHashMap() : TimeDartPWBase(false), waiting_list(), markings_storage(256000) {
+        };
+
+        TimeDartPWHashMap(WaitingList<TimeDartBase *> *w_l, bool trace) : TimeDartPWBase(trace), waiting_list(w_l),
+                                                                          markings_storage(256000) {
+        };
+
+        ~TimeDartPWHashMap() override;
+
+        friend std::ostream &operator<<(std::ostream &out, TimeDartPWHashMap &x);
+
+        bool add(NonStrictMarkingBase *marking, int youngest, WaitingDart *parent, int upper, int start) override;
+
+        TimeDartBase *getNextUnexplored() override;
+
+        bool hasWaitingStates() override {
+            return (waiting_list->size() > 0);
+        };
+    protected:
+        WaitingList<TimeDartBase *> *waiting_list;
+    private:
+        HashMap markings_storage;
+    };
+
+    std::ostream &operator<<(std::ostream &out, TimeDartPWHashMap &x);
+
+    class TimeDartPWPData : public TimeDartPWBase {
+    public:
+
+        TimeDartPWPData(WaitingList <ptriepointer_t<TimeDartBase *>> *w_l, TAPN::TimedArcPetriNet &tapn,
+                        int knumber, int nplaces, int mage, bool trace) :
+                TimeDartPWBase(trace),
+                waiting_list(w_l), passed(), encoder(tapn, knumber) {
+        };
+
+        NonStrictMarkingBase *decode(ptriepointer_t<TimeDartBase *> &ewp) {
+            return encoder.decode(ewp);
+        }
+
+    private:
+        WaitingList <ptriepointer_t<TimeDartBase *>> *waiting_list;
+        ptrie_t<TimeDartBase *> passed;
+        MarkingEncoder<TimeDartBase *> encoder;
+
+        bool add(NonStrictMarkingBase *marking, int youngest, WaitingDart *parent, int upper, int start) override;
+
+        TimeDartBase *getNextUnexplored() override;
+
+        bool hasWaitingStates() override {
+            return (waiting_list->size() > 0);
+        };
+
+    };
+
+} /* namespace VerifyTAPN */
 #endif /* PWLIST_HPP_ */

@@ -12,14 +12,14 @@
 
 namespace VerifyTAPN::DiscreteVerification {
 
-        template<class T>
-        class SearchStrategy {
-        public:
-            virtual ~SearchStrategy() = default;;
+    template<class T>
+    class SearchStrategy {
+    public:
+        virtual ~SearchStrategy() = default;;
 
-            virtual WaitingList<T> *createWaitingList(AST::Query *query) const = 0;
-        };
+        virtual WaitingList<T> *createWaitingList(AST::Query *query) const = 0;
+    };
 
-    }
+}
 
 #endif /* SEARCHSTRATEGY_HPP_ */

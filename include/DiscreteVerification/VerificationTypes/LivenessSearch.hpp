@@ -28,47 +28,47 @@
 
 namespace VerifyTAPN::DiscreteVerification {
 
-        class LivenessSearch : public AbstractNaiveVerification<PWListBase, NonStrictMarking, Generator> {
-        public:
-            LivenessSearch(TAPN::TimedArcPetriNet &tapn, NonStrictMarking &initialMarking, AST::Query *query,
-                           const VerificationOptions& options);
+    class LivenessSearch : public AbstractNaiveVerification<PWListBase, NonStrictMarking, Generator> {
+    public:
+        LivenessSearch(TAPN::TimedArcPetriNet &tapn, NonStrictMarking &initialMarking, AST::Query *query,
+                       const VerificationOptions &options);
 
-            LivenessSearch(TAPN::TimedArcPetriNet &tapn, NonStrictMarking &initialMarking, AST::Query *query,
-                           const VerificationOptions& options, WaitingList<NonStrictMarking *> *waiting_list);
+        LivenessSearch(TAPN::TimedArcPetriNet &tapn, NonStrictMarking &initialMarking, AST::Query *query,
+                       const VerificationOptions &options, WaitingList<NonStrictMarking *> *waiting_list);
 
-            virtual ~LivenessSearch();
+        virtual ~LivenessSearch();
 
-            bool run();
+        bool run();
 
-            virtual void deleteMarking(NonStrictMarking *m) {
-                //dummy
-            };
-
-        protected:
-            bool handleSuccessor(NonStrictMarking *marking, NonStrictMarking *parent);
-
-        public:
-            void getTrace();
-
-        protected:
-            int validChildren{};
+        virtual void deleteMarking(NonStrictMarking *m) {
+            //dummy
         };
 
-        class LivenessSearchPTrie : public LivenessSearch {
-        public:
+    protected:
+        bool handleSuccessor(NonStrictMarking *marking, NonStrictMarking *parent);
 
-            LivenessSearchPTrie(TAPN::TimedArcPetriNet &tapn, NonStrictMarking &initialMarking, AST::Query *query,
-                                VerificationOptions options, WaitingList<ptriepointer_t<MetaData *> > *waiting_list)
-                    : LivenessSearch(tapn, initialMarking, query, std::move(options)) {
-                pwList = new PWListHybrid(tapn, waiting_list, options.getKBound(), tapn.getNumberOfPlaces(),
-                                          tapn.getMaxConstant(), true,
-                                          options.getTrace() == VerificationOptions::SOME_TRACE);
-            };
+    public:
+        void getTrace();
 
-            void deleteMarking(NonStrictMarking *m) override {
-                delete m;
-            };
+    protected:
+        int validChildren{};
+    };
 
+    class LivenessSearchPTrie : public LivenessSearch {
+    public:
+
+        LivenessSearchPTrie(TAPN::TimedArcPetriNet &tapn, NonStrictMarking &initialMarking, AST::Query *query,
+                            VerificationOptions options, WaitingList<ptriepointer_t<MetaData *> > *waiting_list)
+                : LivenessSearch(tapn, initialMarking, query, std::move(options)) {
+            pwList = new PWListHybrid(tapn, waiting_list, options.getKBound(), tapn.getNumberOfPlaces(),
+                                      tapn.getMaxConstant(), true,
+                                      options.getTrace() == VerificationOptions::SOME_TRACE);
         };
-    } /* namespace VerifyTAPN */
+
+        void deleteMarking(NonStrictMarking *m) override {
+            delete m;
+        };
+
+    };
+} /* namespace VerifyTAPN */
 #endif /* NONSTRICTSEARCH_HPP_ */

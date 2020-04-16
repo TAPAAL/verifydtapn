@@ -30,12 +30,12 @@ namespace VerifyTAPN {
     class Switch {
     public:
         Switch(std::string name, std::string long_name, std::string description) : name(std::move(name)),
-                                                                                                        long_name(std::move(
-                                                                                                                long_name)),
-                                                                                                        description(std::move(
-                                                                                                                description)),
-                                                                                                        handled_option(
-                                                                                                                false) {};
+                                                                                   long_name(std::move(
+                                                                                           long_name)),
+                                                                                   description(std::move(
+                                                                                           description)),
+                                                                                   handled_option(
+                                                                                           false) {};
 
         virtual ~Switch() = default;;
     public:
@@ -68,7 +68,7 @@ namespace VerifyTAPN {
     public:
         SwitchWithStringArg(const std::string &name, const std::string &long_name, const std::string &description,
                             std::string default_value) : Switch(name, long_name, description),
-                                                                default_value(std::move(default_value)) {};
+                                                         default_value(std::move(default_value)) {};
 
         ~SwitchWithStringArg() override = default;;
 

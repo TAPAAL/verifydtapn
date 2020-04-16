@@ -5,47 +5,47 @@
 #include "TimeInterval.hpp"
 
 namespace VerifyTAPN::TAPN {
-        class TimedTransition;
+    class TimedTransition;
 
-        class TimedPlace;
+    class TimedPlace;
 
-        class TimedInputArc {
-        public: // typedefs
-            typedef std::vector<TimedInputArc *> Vector;
-        public:
-            TimedInputArc(TimedPlace &place, TimedTransition &transition, const int weight)
-                    : interval(), place(place), transition(transition), weight(weight) {};
+    class TimedInputArc {
+    public: // typedefs
+        typedef std::vector<TimedInputArc *> Vector;
+    public:
+        TimedInputArc(TimedPlace &place, TimedTransition &transition, const int weight)
+                : interval(), place(place), transition(transition), weight(weight) {};
 
-            TimedInputArc(TimedPlace &place, TimedTransition &transition, const int weight, const TimeInterval& interval)
-                    : interval(interval), place(place), transition(transition), weight(weight) {};
+        TimedInputArc(TimedPlace &place, TimedTransition &transition, const int weight, const TimeInterval &interval)
+                : interval(interval), place(place), transition(transition), weight(weight) {};
 
-            virtual ~TimedInputArc() { /* empty */}
+        virtual ~TimedInputArc() { /* empty */}
 
-        public: // modifiers
-            inline TimedPlace &getInputPlace() const { return place; }
+    public: // modifiers
+        inline TimedPlace &getInputPlace() const { return place; }
 
-            inline TimedTransition &getOutputTransition() const { return transition; }
+        inline TimedTransition &getOutputTransition() const { return transition; }
 
-            const inline TimeInterval &getInterval() const { return interval; }
+        const inline TimeInterval &getInterval() const { return interval; }
 
-            inline void divideIntervalBy(int divider) { interval.divideBoundsBy(divider); };
+        inline void divideIntervalBy(int divider) { interval.divideBoundsBy(divider); };
 
-        public: // Inspectors
-            void print(std::ostream &out) const;
+    public: // Inspectors
+        void print(std::ostream &out) const;
 
-            inline const int getWeight() const { return weight; }
+        inline const int getWeight() const { return weight; }
 
-        private:
-            TimeInterval interval;
-            TimedPlace &place;
-            TimedTransition &transition;
-            const int weight;
-        };
+    private:
+        TimeInterval interval;
+        TimedPlace &place;
+        TimedTransition &transition;
+        const int weight;
+    };
 
-        inline std::ostream &operator<<(std::ostream &out, const TimedInputArc &arc) {
-            arc.print(out);
-            return out;
-        }
+    inline std::ostream &operator<<(std::ostream &out, const TimedInputArc &arc) {
+        arc.print(out);
+        return out;
     }
+}
 
 #endif /* VERIFYTAPN_TAPN_TIMEDINPUTARC_HPP_ */

@@ -18,108 +18,108 @@
 
 namespace VerifyTAPN::TAPN {
 
-		class TimedArcPetriNet {
+    class TimedArcPetriNet {
 
-		public:// construction
-			TimedArcPetriNet(TimedPlace::Vector &places,
-							 TimedTransition::Vector &transitions,
-							 TimedInputArc::Vector &inputArcs,
-							 OutputArc::Vector &outputArcs,
-							 TransportArc::Vector &transportArcs,
-							 InhibitorArc::Vector &inhibitorArcs)
-					: places(places), transitions(transitions), inputArcs(inputArcs), outputArcs(outputArcs),
-					  transportArcs(transportArcs), inhibitorArcs(inhibitorArcs), maxConstant(0), gcd(1) {};
+    public:// construction
+        TimedArcPetriNet(TimedPlace::Vector &places,
+                         TimedTransition::Vector &transitions,
+                         TimedInputArc::Vector &inputArcs,
+                         OutputArc::Vector &outputArcs,
+                         TransportArc::Vector &transportArcs,
+                         InhibitorArc::Vector &inhibitorArcs)
+                : places(places), transitions(transitions), inputArcs(inputArcs), outputArcs(outputArcs),
+                  transportArcs(transportArcs), inhibitorArcs(inhibitorArcs), maxConstant(0), gcd(1) {};
 
-			~TimedArcPetriNet() {
-				// call delete on all data
-				for (auto & place : places) delete place;
-				for (auto & transition : transitions) delete transition;
-				for (auto & inputArc : inputArcs) delete inputArc;
-				for (auto & outputArc : outputArcs) delete outputArc;
-				for (auto & transportArc : transportArcs) delete transportArc;
-				for (auto & inhibitorArc : inhibitorArcs) delete inhibitorArc;
-			}
+        ~TimedArcPetriNet() {
+            // call delete on all data
+            for (auto &place : places) delete place;
+            for (auto &transition : transitions) delete transition;
+            for (auto &inputArc : inputArcs) delete inputArc;
+            for (auto &outputArc : outputArcs) delete outputArc;
+            for (auto &transportArc : transportArcs) delete transportArc;
+            for (auto &inhibitorArc : inhibitorArcs) delete inhibitorArc;
+        }
 
-		public: // inspectors
-			void print(std::ostream &out) const;
+    public: // inspectors
+        void print(std::ostream &out) const;
 
-			inline int getPlaceIndex(const TimedPlace &p) const { return p.getIndex(); };
+        inline int getPlaceIndex(const TimedPlace &p) const { return p.getIndex(); };
 
-			int getPlaceIndex(const std::string &placeName) const;
+        int getPlaceIndex(const std::string &placeName) const;
 
-			const TimedPlace &getPlace(const int placeIndex) const { return *places[placeIndex]; }
+        const TimedPlace &getPlace(const int placeIndex) const { return *places[placeIndex]; }
 
-			const TimedTransition::Vector &getTransitions() const { return transitions; }
+        const TimedTransition::Vector &getTransitions() const { return transitions; }
 
-			const TimedInputArc::Vector &getInputArcs() const { return inputArcs; }
+        const TimedInputArc::Vector &getInputArcs() const { return inputArcs; }
 
-			const TransportArc::Vector &getTransportArcs() const { return transportArcs; }
+        const TransportArc::Vector &getTransportArcs() const { return transportArcs; }
 
-			const InhibitorArc::Vector &getInhibitorArcs() const { return inhibitorArcs; }
+        const InhibitorArc::Vector &getInhibitorArcs() const { return inhibitorArcs; }
 
-			const TimedPlace::Vector &getPlaces() const { return places; };
+        const TimedPlace::Vector &getPlaces() const { return places; };
 
-			int getNumberOfConsumingArcs() const { return inputArcs.size() + transportArcs.size(); }
+        int getNumberOfConsumingArcs() const { return inputArcs.size() + transportArcs.size(); }
 
-			const OutputArc::Vector &getOutputArcs() const { return outputArcs; }
+        const OutputArc::Vector &getOutputArcs() const { return outputArcs; }
 
-			int getNumberOfOutputArcs() const { return outputArcs.size(); }
+        int getNumberOfOutputArcs() const { return outputArcs.size(); }
 
-			int getNumberOfPlaces() const { return places.size(); };
+        int getNumberOfPlaces() const { return places.size(); };
 
-			inline int getMaxConstant() const { return maxConstant; };
+        inline int getMaxConstant() const { return maxConstant; };
 
-			inline int getGCD() const { return gcd; };
+        inline int getGCD() const { return gcd; };
 
-			inline bool isPlaceAtIndexUntimed(int index) const { return places[index]->isUntimed(); }
+        inline bool isPlaceAtIndexUntimed(int index) const { return places[index]->isUntimed(); }
 
-			bool isNonStrict() const;
+        bool isNonStrict() const;
 
-			void calculateCausality(TimedPlace &p, std::vector<TimedPlace *> *result) const;
+        void calculateCausality(TimedPlace &p, std::vector<TimedPlace *> *result) const;
 
-			void updatePlaceTypes(AST::Query *query, const VerificationOptions &options);
+        void updatePlaceTypes(AST::Query *query, const VerificationOptions &options);
 
-			void setAllControllable(bool value);
+        void setAllControllable(bool value);
 
-		public: // modifiers
-			void initialize(bool useGlobalMaxConstant, bool disableLowerGuards);
+    public: // modifiers
+        void initialize(bool useGlobalMaxConstant, bool disableLowerGuards);
 
-			bool containsOrphanTransitions();
+        bool containsOrphanTransitions();
 
-			void GCDLowerGuards();
+        void GCDLowerGuards();
 
 
-		private: // modifiers
-			void makeTAPNConservative();
+    private: // modifiers
+        void makeTAPNConservative();
 
-			void updateMaxConstant(const TimeInterval &interval);
+        void updateMaxConstant(const TimeInterval &interval);
 
-			void updateMaxConstant(const TimeInvariant &invariant);
+        void updateMaxConstant(const TimeInvariant &invariant);
 
-			void markUntimedPlaces();
+        void markUntimedPlaces();
 
-			void findMaxConstants();
+        void findMaxConstants();
 
-		private: // data
-			TimedPlace::Vector places;
-			TimedTransition::Vector transitions;
-			TimedInputArc::Vector inputArcs;
-			OutputArc::Vector outputArcs;
-			TransportArc::Vector transportArcs;
-			InhibitorArc::Vector inhibitorArcs;
-			int maxConstant;
-			int gcd;
-		};
+    private: // data
+        TimedPlace::Vector places;
+        TimedTransition::Vector transitions;
+        TimedInputArc::Vector inputArcs;
+        OutputArc::Vector outputArcs;
+        TransportArc::Vector transportArcs;
+        InhibitorArc::Vector inhibitorArcs;
+        int maxConstant;
+        int gcd;
+    };
 
-		inline std::ostream &operator<<(std::ostream &out, const VerifyTAPN::TAPN::TimedArcPetriNet &tapn) {
-			tapn.print(out);
-			return out;
-		}
+    inline std::ostream &operator<<(std::ostream &out, const VerifyTAPN::TAPN::TimedArcPetriNet &tapn) {
+        tapn.print(out);
+        return out;
+    }
 
-		inline std::size_t getHashValue(const TimedTransition &transition) {
-			boost::hash<std::string> hasher;
-			return hasher(transition.getName());
-		}
-	}
+    inline std::size_t getHashValue(const TimedTransition &transition) {
+        boost::hash<std::string> hasher;
+        return hasher(transition.getName());
+    }
+}
 
 #endif /* VERIFYTAPN_TAPN_TimedArcPetriNet_HPP_ */

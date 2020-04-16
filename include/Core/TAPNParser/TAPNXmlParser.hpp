@@ -20,7 +20,8 @@ namespace VerifyTAPN {
         public:
             ArcCollections(TimedInputArc::Vector inputArcs, OutputArc::Vector outputArcs,
                            TransportArc::Vector transportArcs, InhibitorArc::Vector inhibitorArcs)
-                    : inputArcs(std::move(inputArcs)), outputArcs(std::move(outputArcs)), transportArcs(std::move(transportArcs)),
+                    : inputArcs(std::move(inputArcs)), outputArcs(std::move(outputArcs)),
+                      transportArcs(std::move(transportArcs)),
                       inhibitorArcs(std::move(inhibitorArcs)) {};
         };
 

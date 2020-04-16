@@ -27,80 +27,81 @@
 using namespace ptrie;
 namespace VerifyTAPN::DiscreteVerification {
 
-        class WorkflowSoundness : public Workflow {
-        public:
-            enum ModelType {
-                MTAWFN, ETAWFN, NOTTAWFN
-            };
-
-            WorkflowSoundness(TAPN::TimedArcPetriNet &tapn, NonStrictMarking &initialMarking, AST::Query *query,
-                              VerificationOptions options, WaitingList<NonStrictMarking *> *waiting_list);
-
-            WorkflowSoundness(TAPN::TimedArcPetriNet &tapn, NonStrictMarking &initialMarking, AST::Query *query,
-                              VerificationOptions options);
-
-            virtual ~WorkflowSoundness();
-
-            bool run();
-
-            virtual void getTrace(NonStrictMarking *marking);
-
-            virtual void getTrace() { this->getTrace(lastMarking); };
-
-            void printExecutionTime(ostream &stream) override {
-                stream << "Minimum execution time: " << minExec << endl;
-            }
-
-            void printMessages(ostream &stream) {
-                if (coveredMarking != nullptr) {
-                    stream << "Covered marking: " << *coveredMarking << endl;
-                    getTrace(coveredMarking);
-                }
-            }
-
-            inline ModelType getModelType() const { return modelType; }
-
-            virtual int numberOfPassed();
-
-        protected:
-            bool handleSuccessor(NonStrictMarking *marking, NonStrictMarking *parent);
-
-            bool checkForCoveredMarking(NonStrictMarking *marking);
-
-            ModelType calculateModelType();
-
-            virtual void addParentMeta(MetaData *meta, MetaData *parent);
-
-            virtual void setMetaParent(NonStrictMarking *) {};
-
-        protected:
-            stack<MetaData *> passedStack{};
-            int minExec;
-            unsigned int linearSweepTreshold;
-            NonStrictMarking *coveredMarking;
-            ModelType modelType;
-
+    class WorkflowSoundness : public Workflow {
+    public:
+        enum ModelType {
+            MTAWFN, ETAWFN, NOTTAWFN
         };
 
+        WorkflowSoundness(TAPN::TimedArcPetriNet &tapn, NonStrictMarking &initialMarking, AST::Query *query,
+                          VerificationOptions options, WaitingList<NonStrictMarking *> *waiting_list);
 
-        class WorkflowSoundnessPTrie : public WorkflowSoundness {
-        public:
-            WorkflowSoundnessPTrie(TAPN::TimedArcPetriNet &tapn, NonStrictMarking &initialMarking, AST::Query *query,
-                                   const VerificationOptions& options, WaitingList<ptriepointer_t<MetaData *> > *waiting_list);
+        WorkflowSoundness(TAPN::TimedArcPetriNet &tapn, NonStrictMarking &initialMarking, AST::Query *query,
+                          VerificationOptions options);
 
-            void addParentMeta(MetaData *meta, MetaData *parent) override;
+        virtual ~WorkflowSoundness();
 
-            int numberOfPassed() override;
+        bool run();
 
-            void deleteMarking(NonStrictMarking *marking) override {
-                delete marking;
+        virtual void getTrace(NonStrictMarking *marking);
+
+        virtual void getTrace() { this->getTrace(lastMarking); };
+
+        void printExecutionTime(ostream &stream) override {
+            stream << "Minimum execution time: " << minExec << endl;
+        }
+
+        void printMessages(ostream &stream) {
+            if (coveredMarking != nullptr) {
+                stream << "Covered marking: " << *coveredMarking << endl;
+                getTrace(coveredMarking);
             }
+        }
 
-            void getTrace(NonStrictMarking *marking) override;
+        inline ModelType getModelType() const { return modelType; }
 
-        protected:
-            void setMetaParent(NonStrictMarking *) override;
-        };
+        virtual int numberOfPassed();
 
-    } /* namespace VerifyTAPN */
+    protected:
+        bool handleSuccessor(NonStrictMarking *marking, NonStrictMarking *parent);
+
+        bool checkForCoveredMarking(NonStrictMarking *marking);
+
+        ModelType calculateModelType();
+
+        virtual void addParentMeta(MetaData *meta, MetaData *parent);
+
+        virtual void setMetaParent(NonStrictMarking *) {};
+
+    protected:
+        stack<MetaData *> passedStack{};
+        int minExec;
+        unsigned int linearSweepTreshold;
+        NonStrictMarking *coveredMarking;
+        ModelType modelType;
+
+    };
+
+
+    class WorkflowSoundnessPTrie : public WorkflowSoundness {
+    public:
+        WorkflowSoundnessPTrie(TAPN::TimedArcPetriNet &tapn, NonStrictMarking &initialMarking, AST::Query *query,
+                               const VerificationOptions &options,
+                               WaitingList<ptriepointer_t<MetaData *> > *waiting_list);
+
+        void addParentMeta(MetaData *meta, MetaData *parent) override;
+
+        int numberOfPassed() override;
+
+        void deleteMarking(NonStrictMarking *marking) override {
+            delete marking;
+        }
+
+        void getTrace(NonStrictMarking *marking) override;
+
+    protected:
+        void setMetaParent(NonStrictMarking *) override;
+    };
+
+} /* namespace VerifyTAPN */
 #endif /* NONSTRICTSEARCH_HPP_ */
