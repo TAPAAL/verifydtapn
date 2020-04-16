@@ -10,8 +10,7 @@
 #include "../ReducingGenerator.hpp"
 #include <stack>
 
-namespace VerifyTAPN {
-    namespace DiscreteVerification {
+namespace VerifyTAPN::DiscreteVerification {
 
         using namespace rapidxml;
 
@@ -55,6 +54,5 @@ namespace VerifyTAPN {
             bool generateAndInsertSuccessors(NonStrictMarkingBase &marking, const TAPN::TimedTransition &transition);
         };
     }
-}
 
 #endif

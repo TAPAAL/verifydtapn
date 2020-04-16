@@ -2,6 +2,7 @@
 #define VERIFYTAPN_TAPN_TIMEDTRANSITION_HPP_
 
 #include <string>
+#include <utility>
 #include <vector>
 #include "TimedInputArc.hpp"
 #include "TransportArc.hpp"
@@ -19,8 +20,8 @@ namespace VerifyTAPN {
         public: // typedefs
             typedef std::vector<TimedTransition *> Vector;
         public:
-            TimedTransition(const std::string &name, const std::string &id, bool urgent, bool controllable)
-                    : name(name), id(id), preset(), postset(), transportArcs(), index(-1), untimedPostset(true),
+            TimedTransition(std::string name, std::string id, bool urgent, bool controllable)
+                    : name(std::move(name)), id(std::move(id)), preset(), postset(), transportArcs(), index(-1), untimedPostset(true),
                       urgent(urgent), controllable(controllable) {};
 
             TimedTransition() : name("*EMPTY*"), id("-1"), preset(), postset(), transportArcs(), index(-1),
@@ -57,7 +58,7 @@ namespace VerifyTAPN {
 
             const inline InhibitorArc::Vector &getInhibitorArcs() const { return inhibitorArcs; }
 
-            inline const unsigned int getPresetSize() const {
+            inline unsigned int getPresetSize() const {
                 return getNumberOfInputArcs() + getNumberOfTransportArcs();
             }
 
@@ -65,25 +66,25 @@ namespace VerifyTAPN {
 
             const inline OutputArc::Vector &getPostset() const { return postset; }
 
-            inline const unsigned int getPostsetSize() const { return postset.size() + transportArcs.size(); }
+            inline unsigned int getPostsetSize() const { return postset.size() + transportArcs.size(); }
 
-            inline const unsigned int getNumberOfInputArcs() const { return preset.size(); };
+            inline unsigned int getNumberOfInputArcs() const { return preset.size(); };
 
-            inline const unsigned int getNumberOfTransportArcs() const { return transportArcs.size(); };
+            inline unsigned int getNumberOfTransportArcs() const { return transportArcs.size(); };
 
-            inline const bool isConservative() const { return preset.size() == postset.size(); }
+            inline bool isConservative() const { return preset.size() == postset.size(); }
 
-            inline const unsigned int getIndex() const { return index; }
+            inline unsigned int getIndex() const { return index; }
 
-            inline const bool hasUntimedPostset() const { return untimedPostset; }
+            inline bool hasUntimedPostset() const { return untimedPostset; }
 
             inline void setUntimedPostset(bool untimed) { untimedPostset = untimed; }
 
-            inline const bool isUrgent() const {
+            inline bool isUrgent() const {
                 return urgent;
             }
 
-            inline const bool isControllable() const {
+            inline bool isControllable() const {
                 return controllable;
             }
 
@@ -101,7 +102,7 @@ namespace VerifyTAPN {
             unsigned int index;
             bool untimedPostset;
             bool urgent;
-            bool controllable;
+            bool controllable{};
         };
 
         inline std::ostream &operator<<(std::ostream &out, const TimedTransition &transition) {

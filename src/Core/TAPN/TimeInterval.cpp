@@ -3,8 +3,7 @@
 #include <boost/lexical_cast.hpp>
 #include <vector>
 
-namespace VerifyTAPN {
-    namespace TAPN {
+namespace VerifyTAPN::TAPN {
         using namespace boost::algorithm;
 
         TimeInterval TimeInterval::createFor(const std::string &interval, const std::map<std::string, int> &replace) {
@@ -25,7 +24,7 @@ namespace VerifyTAPN {
             else
                 lowerBound = boost::lexical_cast<int>(strLowerBound);
 
-            int upperBound = std::numeric_limits<int>().max();
+            int upperBound = std::numeric_limits<int>::max();
 
             if (!iequals(strUpperBound, "inf")) {
                 if (replace.count(strUpperBound) > 0)
@@ -41,10 +40,9 @@ namespace VerifyTAPN {
             std::string leftParenthesis = leftStrict ? "(" : "[";
             std::string rightParenthesis = rightStrict ? ")" : "]";
 
-            std::string strLowerBound = boost::lexical_cast<std::string>(lowerBound);
+            auto strLowerBound = std::to_string(lowerBound);
             std::string strUpperBound =
-                    upperBound == std::numeric_limits<int>().max() ? "inf" : boost::lexical_cast<std::string>(
-                            upperBound);
+                    upperBound == std::numeric_limits<int>::max() ? "inf" : std::to_string(upperBound);
 
             out << leftParenthesis << strLowerBound << "," << strUpperBound << rightParenthesis;
         }
@@ -53,9 +51,8 @@ namespace VerifyTAPN {
             if (lowerBound != 0) {
                 lowerBound = lowerBound / divider;
             }
-            if (upperBound != std::numeric_limits<int>().max()) {
+            if (upperBound != std::numeric_limits<int>::max()) {
                 upperBound = upperBound / divider;
             }
         }
     }
-}

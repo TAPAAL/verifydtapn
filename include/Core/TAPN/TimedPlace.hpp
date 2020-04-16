@@ -3,6 +3,7 @@
 #define VERIFYYAPN_TAPN_TIMEDPLACE_HPP_
 
 #include <string>
+#include <utility>
 #include <vector>
 #include <iostream>
 #include "TimeInvariant.hpp"
@@ -11,8 +12,7 @@
 #include "TransportArc.hpp"
 #include "InhibitorArc.hpp"
 
-namespace VerifyTAPN {
-    namespace TAPN {
+namespace VerifyTAPN::TAPN {
         enum PlaceType {
             Inv, Dead, Std
         };
@@ -24,7 +24,7 @@ namespace VerifyTAPN {
                 return bottom;
             }
 
-            static const int BottomIndex() {
+            static int BottomIndex() {
                 return -1;
             }
 
@@ -34,8 +34,8 @@ namespace VerifyTAPN {
             typedef std::vector<TimedPlace *> Vector;
 
         public: // construction / destruction
-            TimedPlace(const std::string &name, const std::string &id, const TimeInvariant timeInvariant)
-                    : name(name), id(id), timeInvariant(timeInvariant), index(-2), untimed(false), maxConstant(0),
+            TimedPlace(std::string name, std::string id, const TimeInvariant& timeInvariant)
+                    : name(std::move(name)), id(std::move(id)), timeInvariant(timeInvariant), index(-2), untimed(false), maxConstant(0),
                       containsInhibitorArcs(false), inputArcs(), transportArcs(), inhibitorArcs() {};
 
             TimedPlace() : name(BOTTOM_NAME), timeInvariant(), index(BottomIndex()), untimed(false), maxConstant(0),
@@ -67,7 +67,7 @@ namespace VerifyTAPN {
             void divideInvariantBy(int divider);
 
         public: // inspection
-            inline const PlaceType getType() const { return type; }
+            inline PlaceType getType() const { return type; }
 
             const std::string &getName() const;
 
@@ -77,9 +77,9 @@ namespace VerifyTAPN {
 
             inline int getIndex() const { return index; };
 
-            inline const bool isUntimed() const { return untimed; }
+            inline bool isUntimed() const { return untimed; }
 
-            inline const int getMaxConstant() const { return maxConstant; }
+            inline int getMaxConstant() const { return maxConstant; }
 
             inline const TAPN::TimeInvariant &getInvariant() const { return timeInvariant; };
 
@@ -126,5 +126,4 @@ namespace VerifyTAPN {
             return !(a.getName() == b.getName());
         }
     }
-}
 #endif /* VERIFYYAPN_TAPN_TIMEDPLACE_HPP_ */

@@ -4,8 +4,7 @@
 #include <vector>
 #include "TimeInterval.hpp"
 
-namespace VerifyTAPN {
-    namespace TAPN {
+namespace VerifyTAPN::TAPN {
         class TimedTransition;
 
         class TimedPlace;
@@ -17,7 +16,7 @@ namespace VerifyTAPN {
             TimedInputArc(TimedPlace &place, TimedTransition &transition, const int weight)
                     : interval(), place(place), transition(transition), weight(weight) {};
 
-            TimedInputArc(TimedPlace &place, TimedTransition &transition, const int weight, TimeInterval interval)
+            TimedInputArc(TimedPlace &place, TimedTransition &transition, const int weight, const TimeInterval& interval)
                     : interval(interval), place(place), transition(transition), weight(weight) {};
 
             virtual ~TimedInputArc() { /* empty */}
@@ -48,6 +47,5 @@ namespace VerifyTAPN {
             return out;
         }
     }
-}
 
 #endif /* VERIFYTAPN_TAPN_TIMEDINPUTARC_HPP_ */
