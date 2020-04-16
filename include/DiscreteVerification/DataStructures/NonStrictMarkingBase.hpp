@@ -8,7 +8,7 @@
 #ifndef NonStrictMarkingBase_HPP_
 #define NonStrictMarkingBase_HPP_
 
-#include <assert.h>
+#include <cassert>
 #include <vector>
 #include "boost/functional/hash.hpp"
 #include <iostream>
@@ -17,8 +17,7 @@
 
 using namespace std;
 
-namespace VerifyTAPN {
-    namespace DiscreteVerification {
+namespace VerifyTAPN::DiscreteVerification {
 
         class Place;
 
@@ -33,7 +32,7 @@ namespace VerifyTAPN {
         public:
             Token(int age, int count) : age(age), count(count) {};
 
-            Token(const Token &t) : age(t.age), count(t.count) {};
+            Token(const Token &t) = default;
 
             inline int cmp(const Token &t) const {
                 // TODO check for overflow!
@@ -81,11 +80,11 @@ namespace VerifyTAPN {
             const TAPN::TimedPlace *place;
             TokenList tokens;
 
-            Place(const TAPN::TimedPlace *place) : place(place) {};
+            explicit Place(const TAPN::TimedPlace *place) : place(place) {};
 
             Place(const Place &p) : place(p.place) {
-                for (TokenList::const_iterator it = p.tokens.begin(); it != p.tokens.end(); it++) {
-                    tokens.push_back(*it);
+                for (const auto & token : p.tokens) {
+                    tokens.push_back(token);
                 }
             };
 
@@ -98,36 +97,36 @@ namespace VerifyTAPN {
 
             inline int numberOfTokens() const {
                 int count = 0;
-                for (TokenList::const_iterator iter = tokens.begin(); iter != tokens.end(); iter++) {
-                    count += iter->getCount();
+                for (const auto & token : tokens) {
+                    count += token.getCount();
                 }
                 return count;
             }
 
             inline int maxTokenAge() const {
                 int max = -1;
-                for (TokenList::const_iterator iter = tokens.begin(); iter != tokens.end(); iter++) {
-                    if (iter->getAge() > max) max = iter->getAge();
+                for (const auto & token : tokens) {
+                    if (token.getAge() > max) max = token.getAge();
                 }
                 return max;
             }
 
             // Ages all tokens by 1
             inline void incrementAge() {
-                for (TokenList::iterator iter = tokens.begin(); iter != tokens.end(); iter++) {
-                    iter->incrementAge();
+                for (auto & token : tokens) {
+                    token.incrementAge();
                 }
             }
 
             inline void incrementAge(int age) {
-                for (TokenList::iterator iter = tokens.begin(); iter != tokens.end(); iter++) {
-                    iter->incrementAge(age);
+                for (auto & token : tokens) {
+                    token.incrementAge(age);
                 }
             }
 
             inline void decrementAge() {
-                for (TokenList::iterator iter = tokens.begin(); iter != tokens.end(); iter++) {
-                    iter->decrementAge();
+                for (auto & token : tokens) {
+                    token.decrementAge();
                 }
             }
 
@@ -158,9 +157,9 @@ namespace VerifyTAPN {
 
         public: // inspectors
 
-            bool canDeadlock(const TAPN::TimedArcPetriNet &tapn, const int maxDelay, bool ignoreCanDelay) const;
+            bool canDeadlock(const TAPN::TimedArcPetriNet &tapn, int maxDelay, bool ignoreCanDelay) const;
 
-            inline const bool canDeadlock(const TAPN::TimedArcPetriNet &tapn, const int maxDelay) const {
+            inline bool canDeadlock(const TAPN::TimedArcPetriNet &tapn, const int maxDelay) const {
                 return canDeadlock(tapn, maxDelay, false);
             };
 
@@ -205,20 +204,20 @@ namespace VerifyTAPN {
             void addTokenInPlace(const TAPN::TimedPlace &place, Token &token);
 
             inline void incrementAge() {
-                for (PlaceList::iterator iter = places.begin(); iter != places.end(); iter++) {
-                    iter->incrementAge();
+                for (auto & place : places) {
+                    place.incrementAge();
                 }
             }
 
             inline void incrementAge(int age) {
-                for (PlaceList::iterator iter = places.begin(); iter != places.end(); iter++) {
-                    iter->incrementAge(age);
+                for (auto & place : places) {
+                    place.incrementAge(age);
                 }
             }
 
             inline void decrementAge() {
-                for (PlaceList::iterator iter = places.begin(); iter != places.end(); iter++) {
-                    iter->decrementAge();
+                for (auto & place : places) {
+                    place.decrementAge();
                 }
             }
 
@@ -254,7 +253,7 @@ namespace VerifyTAPN {
             int makeBase();
 
             virtual NonStrictMarkingBase &Clone() {
-                NonStrictMarkingBase *clone = new NonStrictMarkingBase(*this);
+                auto *clone = new NonStrictMarkingBase(*this);
                 return *clone;
             };
 
@@ -269,7 +268,6 @@ namespace VerifyTAPN {
 
         std::ostream &operator<<(std::ostream &out, NonStrictMarkingBase &x);
 
-    } /* namespace DiscreteVerification */
-} /* namespace VerifyTAPN */
+    } /* namespace VerifyTAPN */
 
 #endif /* NonStrictMarkingBase_HPP_ */

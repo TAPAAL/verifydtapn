@@ -25,9 +25,7 @@
 
 #include <stack>
 
-namespace VerifyTAPN {
-
-    namespace DiscreteVerification {
+namespace VerifyTAPN::DiscreteVerification {
 
         template<class T>
         class NonStrictRandom : public SearchStrategy<T> {
@@ -36,5 +34,4 @@ namespace VerifyTAPN {
         };
 
     }
-}
 #endif /* NONSTRICTDFS_HPP_ */

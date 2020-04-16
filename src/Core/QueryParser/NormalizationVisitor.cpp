@@ -1,19 +1,18 @@
 #include "Core/QueryParser/NormalizationVisitor.hpp"
 #include "Core/QueryParser/AST.hpp"
 
-namespace VerifyTAPN {
-    namespace AST {
+namespace VerifyTAPN::AST {
 
         void NormalizationVisitor::visit(NotExpression &expr, Result &context) {
-            Tuple &tuple = static_cast<Tuple &>(context);
-            Tuple any = Tuple(!tuple.negate, NULL);
+            auto &tuple = static_cast<Tuple &>(context);
+            Tuple any = Tuple(!tuple.negate, nullptr);
             expr.getChild().accept(*this, any);
             tuple.returnExpr = static_cast<Tuple &>(any).returnExpr;
         }
 
         void NormalizationVisitor::visit(OrExpression &expr, Result &context) {
-            Tuple &tuple = static_cast<Tuple &>(context);
-            Tuple left = Tuple(tuple.negate, NULL), right = Tuple(tuple.negate, NULL);
+            auto &tuple = static_cast<Tuple &>(context);
+            Tuple left = Tuple(tuple.negate, nullptr), right = Tuple(tuple.negate, nullptr);
             if (tuple.negate) {
                 expr.getLeft().accept(*this, left);
                 expr.getRight().accept(*this, right);
@@ -28,8 +27,8 @@ namespace VerifyTAPN {
         }
 
         void NormalizationVisitor::visit(AndExpression &expr, Result &context) {
-            Tuple &tuple = static_cast<Tuple &>(context);
-            Tuple left = Tuple(tuple.negate, NULL), right = Tuple(tuple.negate, NULL);
+            auto &tuple = static_cast<Tuple &>(context);
+            Tuple left = Tuple(tuple.negate, nullptr), right = Tuple(tuple.negate, nullptr);
             if (tuple.negate) {
                 expr.getLeft().accept(*this, left);
                 expr.getRight().accept(*this, right);
@@ -44,7 +43,7 @@ namespace VerifyTAPN {
         }
 
         void NormalizationVisitor::visit(AtomicProposition &expr, Result &context) {
-            Tuple &tuple = static_cast<Tuple &>(context);
+            auto &tuple = static_cast<Tuple &>(context);
             std::string op;
             if (tuple.negate) {
                 op = negateOperator(expr.getOperator());
@@ -74,17 +73,17 @@ namespace VerifyTAPN {
         }
 
         void NormalizationVisitor::visit(DeadlockExpression &expr, Result &context) {
-            Tuple &tuple = static_cast<Tuple &>(context);
+            auto &tuple = static_cast<Tuple &>(context);
             tuple.returnExpr = new DeadlockExpression();
         }
 
         void NormalizationVisitor::visit(BoolExpression &expr, Result &context) {
-            Tuple &tuple = static_cast<Tuple &>(context);
+            auto &tuple = static_cast<Tuple &>(context);
             tuple.returnExpr = new BoolExpression(tuple.negate == !expr.getValue());
         }
 
         void NormalizationVisitor::visit(Query &query, Result &context) {
-            Tuple any = Tuple(false, NULL);
+            Tuple any = Tuple(false, nullptr);
             query.getChild()->accept(*this, any);
 
             normalizedQuery = new AST::Query(query.getQuantifier(), static_cast<Tuple &>(any).returnExpr);
@@ -107,4 +106,3 @@ namespace VerifyTAPN {
             }
         }
     }
-}
