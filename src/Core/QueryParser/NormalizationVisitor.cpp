@@ -1,5 +1,5 @@
-#include "NormalizationVisitor.hpp"
-#include "AST.hpp"
+#include "Core/QueryParser/NormalizationVisitor.hpp"
+#include "Core/QueryParser/AST.hpp"
 
 namespace VerifyTAPN
 {

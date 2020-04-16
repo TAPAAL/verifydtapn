@@ -1,6 +1,6 @@
-#include "OutputArc.hpp"
-#include "TimedPlace.hpp"
-#include "TimedTransition.hpp"
+#include "Core/TAPN/OutputArc.hpp"
+#include "Core/TAPN/TimedPlace.hpp"
+#include "Core/TAPN/TimedTransition.hpp"
 
 namespace VerifyTAPN {
 	namespace TAPN {

@@ -5,7 +5,7 @@
  *      Author: MathiasGS
  */
 
-#include "PlaceVisitor.hpp"
+#include "DiscreteVerification/PlaceVisitor.hpp"
 
 namespace VerifyTAPN {
 namespace DiscreteVerification {

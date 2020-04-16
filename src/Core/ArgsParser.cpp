@@ -1,10 +1,12 @@
-#include "ArgsParser.hpp"
+#include "Core/ArgsParser.hpp"
+
 #include <iostream>
 #include <sstream>
-#include "boost/algorithm/string.hpp"
-#include "boost/lexical_cast.hpp"
 #include <iomanip>
-#include "boost/tokenizer.hpp"
+
+#include <boost/algorithm/string.hpp>
+#include <boost/lexical_cast.hpp>
+#include <boost/tokenizer.hpp>
 
 namespace VerifyTAPN {
 static const std::string KBOUND_OPTION = "k-bound";

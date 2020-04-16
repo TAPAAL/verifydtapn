@@ -1,7 +1,8 @@
 %{                                            /* -*- C++ -*- */
 # include <string>
-# include "../TAPNQueryParser.hpp"
-# include "parser.hpp"
+# include "Core/QueryParser/TAPNQueryParser.hpp"
+# include "Parser.hpp"
+# include "lexer_def.h"
  
 /* Work around an incompatibility in flex (at least versions
    2.5.31 through 2.5.33): it generates code that does

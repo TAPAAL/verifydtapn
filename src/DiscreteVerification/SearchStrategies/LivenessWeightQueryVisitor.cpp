@@ -5,7 +5,7 @@
  *      Author: MathiasGS
  */
 
-#include "LivenessWeightQueryVisitor.hpp"
+#include "DiscreteVerification/SearchStrategies/LivenessWeightQueryVisitor.hpp"
 
 namespace VerifyTAPN {
 namespace DiscreteVerification {

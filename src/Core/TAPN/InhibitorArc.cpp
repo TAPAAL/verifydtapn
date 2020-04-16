@@ -1,6 +1,6 @@
-#include "InhibitorArc.hpp"
-#include "TimedTransition.hpp"
-#include "TimedPlace.hpp"
+#include "Core/TAPN/InhibitorArc.hpp"
+#include "Core/TAPN/TimedTransition.hpp"
+#include "Core/TAPN/TimedPlace.hpp"
 
 namespace VerifyTAPN {
 	namespace TAPN {

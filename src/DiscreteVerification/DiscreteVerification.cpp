@@ -5,10 +5,10 @@
  *      Author: jakob
  */
 
-#include "DiscreteVerification.hpp"
-#include "DeadlockVisitor.hpp"
-#include "VerificationTypes/SafetySynthesis.h"
-#include "ReducingGenerator.hpp"
+#include "DiscreteVerification/DiscreteVerification.hpp"
+#include "DiscreteVerification/DeadlockVisitor.hpp"
+#include "DiscreteVerification/VerificationTypes/SafetySynthesis.h"
+#include "DiscreteVerification/ReducingGenerator.hpp"
 
 namespace VerifyTAPN {
 

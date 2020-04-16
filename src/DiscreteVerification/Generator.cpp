@@ -4,7 +4,7 @@
  *
  * Created on 15 September 2015, 17:25
  */
-#include "Generator.h"
+#include "DiscreteVerification/Generator.h"
 
 
 namespace VerifyTAPN {

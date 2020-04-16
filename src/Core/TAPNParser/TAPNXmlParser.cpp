@@ -1,10 +1,12 @@
-#include "TAPNXmlParser.hpp"
+#include "Core/TAPNParser/TAPNXmlParser.hpp"
+#include "Core/TAPNParser/util.hpp"
+
 #include <string>
 #include <algorithm>
-#include "boost/bind.hpp"
-#include "boost/algorithm/string.hpp"
-#include "boost/lexical_cast.hpp"
-#include "util.hpp"
+
+#include <boost/bind.hpp>
+#include <boost/algorithm/string.hpp>
+#include <boost/lexical_cast.hpp>
 
 namespace VerifyTAPN {
 using namespace rapidxml;

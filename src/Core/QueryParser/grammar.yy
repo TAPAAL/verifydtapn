@@ -5,8 +5,8 @@
 %define namespace "VerifyTAPN"
 
 %code requires {
-# include <string>
-#include "../AST.hpp"
+#include <string>
+#include "Core/QueryParser/AST.hpp"
 namespace VerifyTAPN{
 	class TAPNQueryParser;
 }
@@ -36,7 +36,8 @@ namespace VerifyTAPN{
 };
 
 %code{
-	#include "../TAPNQueryParser.hpp"
+	#include "Core/QueryParser/TAPNQueryParser.hpp"
+	#include "lexer_def.h"
 }
 
 %token <string> IDENTIFIER LESS LESSEQUAL EQUAL GREATEREQUAL GREATER

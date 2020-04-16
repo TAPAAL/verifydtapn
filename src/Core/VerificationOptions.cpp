@@ -1,4 +1,4 @@
-#include "VerificationOptions.hpp"
+#include "Core/VerificationOptions.hpp"
 #include <iostream>
 
 namespace VerifyTAPN {

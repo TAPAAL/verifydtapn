@@ -1,6 +1,6 @@
 
 
-#include "WorkflowPWList.hpp"
+#include "DiscreteVerification/DataStructures/WorkflowPWList.hpp"
 
 namespace VerifyTAPN {
     namespace DiscreteVerification {

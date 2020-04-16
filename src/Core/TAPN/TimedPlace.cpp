@@ -1,4 +1,4 @@
-#include "TimedPlace.hpp"
+#include "Core/TAPN/TimedPlace.hpp"
 
 namespace VerifyTAPN{
 	namespace TAPN{

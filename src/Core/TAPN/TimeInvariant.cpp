@@ -1,6 +1,7 @@
-#include "TimeInvariant.hpp"
-#include "boost/algorithm/string.hpp"
-#include "boost/lexical_cast.hpp"
+#include "Core/TAPN/TimeInvariant.hpp"
+
+#include <boost/algorithm/string.hpp>
+#include <boost/lexical_cast.hpp>
 
 namespace VerifyTAPN {
 	namespace TAPN {

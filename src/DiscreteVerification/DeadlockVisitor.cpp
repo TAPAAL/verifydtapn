@@ -5,7 +5,7 @@
  *      Author: Peter Gjoel Jensen
  */
 
-#include "DeadlockVisitor.hpp"
+#include "DiscreteVerification/DeadlockVisitor.hpp"
 
 namespace VerifyTAPN {
     namespace DiscreteVerification {

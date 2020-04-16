@@ -5,7 +5,7 @@
  *      Author: MathiasGS
  */
 
-#include "NonStrictMarkingBase.hpp"
+#include "DiscreteVerification/DataStructures/NonStrictMarkingBase.hpp"
 #include <limits>
 
 using namespace std;

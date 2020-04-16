@@ -1,6 +1,7 @@
-#include "TAPNQueryParser.hpp"
-#include "AST.hpp"
+#include "Core/QueryParser/TAPNQueryParser.hpp"
+#include "Parser.hpp"
 #include <fstream>
+
 namespace VerifyTAPN
 {
 

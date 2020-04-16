@@ -5,7 +5,7 @@
  * Created on 18 June 2015, 14:23
  */
 
-#include "CoveredMarkingVisitor.h"
+#include "DiscreteVerification/DataStructures/CoveredMarkingVisitor.h"
 
 
 using namespace ptrie;

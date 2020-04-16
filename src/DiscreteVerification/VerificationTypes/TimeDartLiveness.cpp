@@ -5,7 +5,7 @@
  *      Author: MathiasGS
  */
 
-#include "TimeDartLiveness.hpp"
+#include "DiscreteVerification/VerificationTypes/TimeDartLiveness.hpp"
 
 namespace VerifyTAPN {
     namespace DiscreteVerification {

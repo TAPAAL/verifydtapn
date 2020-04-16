@@ -1,0 +1,7 @@
+
+add_library(VerificationTypes LivenessSearch.cpp TimeDartLiveness.cpp TimeDartVerification.cpp WorkflowStrongSoundness.cpp SafetySynthesis.cpp TimeDartReachabilitySearch.cpp WorkflowSoundness.cpp)
+
+
+add_dependencies(VerificationTypes ptrie-ext)
+
+target_link_libraries(VerificationTypes Util DataStructures)

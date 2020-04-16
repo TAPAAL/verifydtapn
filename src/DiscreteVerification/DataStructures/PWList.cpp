@@ -5,9 +5,9 @@
  *      Author: MathiasGS
  */
 
-#include "PWList.hpp"
-#include "ptrie.h"
-#include "MarkingEncoder.h"
+#include "DiscreteVerification/DataStructures/PWList.hpp"
+#include "DiscreteVerification/DataStructures/ptrie.h"
+#include "DiscreteVerification/DataStructures/MarkingEncoder.h"
 using namespace ptrie;
 namespace VerifyTAPN {
 namespace DiscreteVerification {

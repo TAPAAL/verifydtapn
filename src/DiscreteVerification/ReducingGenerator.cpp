@@ -11,8 +11,8 @@
  * Created on December 14, 2017, 8:44 PM
  */
 
-#include "ReducingGenerator.hpp"
-#include "QueryVisitor.hpp"
+#include "DiscreteVerification/ReducingGenerator.hpp"
+#include "DiscreteVerification/QueryVisitor.hpp"
 
 
 namespace VerifyTAPN {

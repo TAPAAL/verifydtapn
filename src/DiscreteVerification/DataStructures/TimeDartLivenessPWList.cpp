@@ -5,7 +5,7 @@
  *      Author: MathiasGS
  */
 
-#include "TimeDartLivenessPWList.hpp"
+#include "DiscreteVerification/DataStructures/TimeDartLivenessPWList.hpp"
 
 namespace VerifyTAPN {
     namespace DiscreteVerification {

@@ -5,7 +5,7 @@
  *      Author: jakob
  */
 
-#include "IntervalOps.hpp"
+#include "DiscreteVerification/Util/IntervalOps.hpp"
 
 namespace VerifyTAPN {
 namespace DiscreteVerification {

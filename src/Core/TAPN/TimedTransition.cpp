@@ -1,6 +1,7 @@
+#include "Core/TAPN/TimedTransition.hpp"
+#include "Core/TAPN/TimedPlace.hpp"
+
 #include <cstdlib>
-#include "TimedTransition.hpp"
-#include "TimedPlace.hpp"
 
 namespace VerifyTAPN {
     namespace TAPN {

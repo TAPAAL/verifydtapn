@@ -5,7 +5,7 @@
  *      Author: MathiasGS
  */
 
-#include "LivenessSearch.hpp"
+#include "DiscreteVerification/VerificationTypes/LivenessSearch.hpp"
 
 namespace VerifyTAPN {
 namespace DiscreteVerification {

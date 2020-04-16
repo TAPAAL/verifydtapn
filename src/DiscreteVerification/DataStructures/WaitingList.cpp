@@ -5,7 +5,7 @@
  *      Author: Peter G. Jensen
  */
 
-#include "WaitingList.hpp"
+#include "DiscreteVerification/DataStructures/WaitingList.hpp"
 namespace VerifyTAPN {
 namespace DiscreteVerification {
     template <>

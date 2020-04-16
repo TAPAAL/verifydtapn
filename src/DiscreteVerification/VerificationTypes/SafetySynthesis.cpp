@@ -4,11 +4,13 @@
  * 
  * Created on 14 September 2015, 15:59
  */
-#include <assert.h>
+#include "DiscreteVerification/VerificationTypes/SafetySynthesis.h"
+#include "DiscreteVerification/DataStructures/SimpleMarkingStore.h"
+#include "DiscreteVerification/DataStructures/PTrieMarkingStore.h"
+
+#include <cassert>
 #include <set>
-#include "SafetySynthesis.h"
-#include "../DataStructures/SimpleMarkingStore.h"
-#include "../DataStructures/PTrieMarkingStore.h"
+
 
 namespace VerifyTAPN {
 namespace DiscreteVerification {

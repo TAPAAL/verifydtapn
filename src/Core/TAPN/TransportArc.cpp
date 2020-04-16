@@ -1,6 +1,6 @@
-#include "TransportArc.hpp"
-#include "TimedTransition.hpp"
-#include "TimedPlace.hpp"
+#include "Core/TAPN/TransportArc.hpp"
+#include "Core/TAPN/TimedTransition.hpp"
+#include "Core/TAPN/TimedPlace.hpp"
 
 namespace VerifyTAPN
 {

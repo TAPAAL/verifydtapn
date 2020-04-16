@@ -5,7 +5,7 @@
  *      Author: MathiasGS
  */
 
-#include "WorkflowSoundness.hpp"
+#include "DiscreteVerification/VerificationTypes/WorkflowSoundness.hpp"
 #include <limits>
 
 namespace VerifyTAPN {

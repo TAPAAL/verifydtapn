@@ -5,7 +5,7 @@
  *      Author: MathiasGS
  */
 
-#include "TimeDartReachabilitySearch.hpp"
+#include "DiscreteVerification/VerificationTypes/TimeDartReachabilitySearch.hpp"
 
 namespace VerifyTAPN {
 namespace DiscreteVerification {

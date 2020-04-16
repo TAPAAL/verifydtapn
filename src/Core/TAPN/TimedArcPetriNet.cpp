@@ -1,6 +1,6 @@
-#include "TimedArcPetriNet.hpp"
+#include "Core/TAPN/TimedArcPetriNet.hpp"
+#include "Core/TAPN/TimeInterval.hpp"
 
-#include "TimeInterval.hpp"
 #include <limits>
 
 namespace VerifyTAPN {
