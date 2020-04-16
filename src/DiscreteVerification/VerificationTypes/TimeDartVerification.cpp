@@ -2,12 +2,11 @@
 #include "DiscreteVerification/DeadlockVisitor.hpp"
 #include "DiscreteVerification/Generator.h"
 
-namespace VerifyTAPN {
-    namespace DiscreteVerification {
+namespace VerifyTAPN::DiscreteVerification {
 
         using namespace std;
 
-        TimeDartVerification::TimeDartVerification(TAPN::TimedArcPetriNet &tapn, VerificationOptions options,
+        TimeDartVerification::TimeDartVerification(TAPN::TimedArcPetriNet &tapn, const VerificationOptions& options,
                                                    AST::Query *query, NonStrictMarkingBase &initialMarking) :
                 Verification<NonStrictMarkingBase>(tapn, initialMarking, query, options), exploredMarkings(0),
                 allwaysEnabled() {
@@ -211,10 +210,10 @@ namespace VerifyTAPN {
 
             stack<NonStrictMarkingBase *> traceStack;
 
-            TraceDart *trace = (TraceDart *) lastMarking;
+            auto *trace = (TraceDart *) lastMarking;
             int upper = trace->start;
-            NonStrictMarkingBase *last = NULL;
-            NonStrictMarkingBase *l = NULL;
+            NonStrictMarkingBase *last = nullptr;
+            NonStrictMarkingBase *l = nullptr;
 
             DeadlockVisitor deadlockVisitor = DeadlockVisitor();
             AST::BoolResult queryContainsDeadlock;
@@ -239,45 +238,45 @@ namespace VerifyTAPN {
                 }
 
                 while (diff) {  // while there is some delay in trace
-                    NonStrictMarkingBase *mc = new NonStrictMarkingBase(*base);
+                    auto *mc = new NonStrictMarkingBase(*base);
                     mc->incrementAge(trace->start + diff);
-                    mc->setGeneratedBy(NULL);       // NULL indicates that it is a delay transition
+                    mc->setGeneratedBy(nullptr);       // NULL indicates that it is a delay transition
 
-                    if (last != NULL) {
+                    if (last != nullptr) {
                         last->setParent(mc);        // set the parent of the last marking
                         mc->setNumberOfChildren(1);
                     }
 
                     last = mc;
 
-                    if (l == NULL) {                  // set specific last marking to last marking in delay if deadlock
+                    if (l == nullptr) {                  // set specific last marking to last marking in delay if deadlock
                         l = new NonStrictMarkingBase(*mc);
                     }
                     mc->cut(placeStats);
 
                     traceStack.push(mc);            // add delay marking to the trace
-                    mc->setParent(NULL);            // set parrent
+                    mc->setParent(nullptr);            // set parrent
                     diff--;
                 }
             }
             if (l ==
-                NULL) {                            // set last marking to first reached marking satisfying the prop if not set prior to this.
+                nullptr) {                            // set last marking to first reached marking satisfying the prop if not set prior to this.
                 l = new NonStrictMarkingBase(*getBase(lastMarking->dart));
                 trace = ((TraceDart *) lastMarking);
                 l->incrementAge(trace->start);
                 l->cut(placeStats);
-                l->setParent(NULL);
+                l->setParent(nullptr);
                 l->setGeneratedBy(((TraceDart *) lastMarking)->generatedBy);
             }
-            while (trace != NULL) {
+            while (trace != nullptr) {
                 int lower = trace->start;
 
                 // create "last delay marking"
                 NonStrictMarkingBase *base = getBase(trace->dart);
-                NonStrictMarkingBase *m = new NonStrictMarkingBase(*base);
+                auto *m = new NonStrictMarkingBase(*base);
                 m->setGeneratedBy(trace->generatedBy);
                 m->incrementAge(lower);
-                m->setParent(NULL);
+                m->setParent(nullptr);
                 if (upper == INT_MAX) {
                     upper = tapn.getMaxConstant();
                 }
@@ -285,11 +284,11 @@ namespace VerifyTAPN {
                 if (upper > lower) {
                     int diff = upper - lower;   // amount to delay
                     while (diff) {
-                        NonStrictMarkingBase *mc = new NonStrictMarkingBase(*base);
-                        mc->setParent(NULL);
+                        auto *mc = new NonStrictMarkingBase(*base);
+                        mc->setParent(nullptr);
                         mc->incrementAge(lower + diff);
-                        mc->setGeneratedBy(NULL);       // NULL indicates that it is a delay transition
-                        if (last != NULL) {
+                        mc->setGeneratedBy(nullptr);       // NULL indicates that it is a delay transition
+                        if (last != nullptr) {
                             last->setParent(mc);          // set the parent of the last marking
                             mc->setNumberOfChildren(1);
                         }
@@ -302,7 +301,7 @@ namespace VerifyTAPN {
                         diff--;
                     }
                 }
-                if (last != NULL) {
+                if (last != nullptr) {
                     last->setParent(m);
                     m->setNumberOfChildren(1);
                 }
@@ -326,4 +325,3 @@ namespace VerifyTAPN {
         }
 
     }
-}

@@ -19,8 +19,7 @@
 
 using namespace ptrie;
 
-namespace VerifyTAPN {
-    namespace DiscreteVerification {
+namespace VerifyTAPN::DiscreteVerification {
         class TimeDartPWBase;
 
         class TimeDartPWHashMap;
@@ -30,12 +29,11 @@ namespace VerifyTAPN {
         class TimeDartPWBase {
         public:
 
-            TimeDartPWBase(bool trace) : trace(trace), discoveredMarkings(0), maxNumTokensInAnyMarking(-1), stored(0),
-                                         last(NULL) {
+            explicit TimeDartPWBase(bool trace) : trace(trace), discoveredMarkings(0), maxNumTokensInAnyMarking(-1), stored(0),
+                                         last(nullptr) {
             };
 
-            virtual ~TimeDartPWBase() {
-            };
+            virtual ~TimeDartPWBase() = default;;
 
         public:
 
@@ -79,15 +77,15 @@ namespace VerifyTAPN {
                                                                               markings_storage(256000) {
             };
 
-            virtual ~TimeDartPWHashMap();
+            ~TimeDartPWHashMap() override;
 
             friend std::ostream &operator<<(std::ostream &out, TimeDartPWHashMap &x);
 
-            virtual bool add(NonStrictMarkingBase *marking, int youngest, WaitingDart *parent, int upper, int start);
+            bool add(NonStrictMarkingBase *marking, int youngest, WaitingDart *parent, int upper, int start) override;
 
-            virtual TimeDartBase *getNextUnexplored();
+            TimeDartBase *getNextUnexplored() override;
 
-            virtual bool hasWaitingStates() {
+            bool hasWaitingStates() override {
                 return (waiting_list->size() > 0);
             };
         protected:
@@ -116,16 +114,15 @@ namespace VerifyTAPN {
             ptrie_t<TimeDartBase *> passed;
             MarkingEncoder<TimeDartBase *> encoder;
 
-            virtual bool add(NonStrictMarkingBase *marking, int youngest, WaitingDart *parent, int upper, int start);
+            bool add(NonStrictMarkingBase *marking, int youngest, WaitingDart *parent, int upper, int start) override;
 
-            virtual TimeDartBase *getNextUnexplored();
+            TimeDartBase *getNextUnexplored() override;
 
-            virtual bool hasWaitingStates() {
+            bool hasWaitingStates() override {
                 return (waiting_list->size() > 0);
             };
 
         };
 
-    } /* namespace DiscreteVerification */
-} /* namespace VerifyTAPN */
+    } /* namespace VerifyTAPN */
 #endif /* PWLIST_HPP_ */

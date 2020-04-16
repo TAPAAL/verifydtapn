@@ -20,7 +20,7 @@ namespace VerifyTAPN {
         class TimeDartVerification : public Verification<NonStrictMarkingBase> {
         public:
 
-            TimeDartVerification(TAPN::TimedArcPetriNet &tapn, VerificationOptions options, AST::Query *query,
+            TimeDartVerification(TAPN::TimedArcPetriNet &tapn, const VerificationOptions& options, AST::Query *query,
                                  NonStrictMarkingBase &initialMarking);
 
             std::pair<int, int> calculateStart(const TAPN::TimedTransition &transition, NonStrictMarkingBase *marking);
@@ -46,10 +46,10 @@ namespace VerifyTAPN {
 
         protected:
             int exploredMarkings;
-            vector<const TAPN::TimedTransition *> allwaysEnabled;
+            vector<const TAPN::TimedTransition *> allwaysEnabled{};
             bool loop;
             bool deadlock;
-            WaitingDart *lastMarking;
+            WaitingDart *lastMarking{};
             std::shared_ptr<Generator> successorGenerator;
 
             bool generateAndInsertSuccessors(NonStrictMarkingBase &marking, const TAPN::TimedTransition &transition);

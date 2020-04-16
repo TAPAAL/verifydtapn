@@ -7,8 +7,7 @@
 
 #include "DiscreteVerification/DataStructures/TimeDartPWList.hpp"
 
-namespace VerifyTAPN {
-    namespace DiscreteVerification {
+namespace VerifyTAPN::DiscreteVerification {
         TimeDartPWHashMap::~TimeDartPWHashMap() {
             // We don't care, it is deallocated on program execution done
         }
@@ -17,21 +16,19 @@ namespace VerifyTAPN {
         TimeDartPWHashMap::add(NonStrictMarkingBase *marking, int youngest, WaitingDart *parent, int upper, int start) {
             discoveredMarkings++;
             TimeDartList &m = markings_storage[marking->getHashKey()];
-            for (TimeDartList::const_iterator iter = m.begin();
-                 iter != m.end();
-                 iter++) {
-                if ((*iter)->getBase()->equals(*marking)) {
-                    bool inWaiting = (*iter)->getWaiting() < (*iter)->getPassed();
+            for (auto iter : m) {
+                if (iter->getBase()->equals(*marking)) {
+                    bool inWaiting = iter->getWaiting() < iter->getPassed();
 
-                    (*iter)->setWaiting(min((*iter)->getWaiting(), youngest));
+                    iter->setWaiting(min(iter->getWaiting(), youngest));
 
-                    if ((*iter)->getWaiting() < (*iter)->getPassed() && !inWaiting) {
-                        waiting_list->add((*iter)->getBase(), (*iter));
+                    if (iter->getWaiting() < iter->getPassed() && !inWaiting) {
+                        waiting_list->add(iter->getBase(), iter);
                         if (this->trace) {
-                            ((ReachabilityTraceableDart *) (*iter))->trace = new TraceDart((*iter), parent, youngest,
+                            ((ReachabilityTraceableDart *) iter)->trace = new TraceDart(iter, parent, youngest,
                                                                                            start, upper,
                                                                                            marking->getGeneratedBy());
-                            this->last = ((ReachabilityTraceableDart *) (*iter))->trace;
+                            this->last = ((ReachabilityTraceableDart *) iter)->trace;
                         }
                     }
 
@@ -114,10 +111,9 @@ namespace VerifyTAPN {
 
         std::ostream &operator<<(std::ostream &out, TimeDartPWHashMap &x) {
             out << "Passed and waiting:" << std::endl;
-            for (TimeDartPWHashMap::HashMap::iterator iter = x.markings_storage.begin();
-                 iter != x.markings_storage.end(); iter++) {
-                for (TimeDartPWHashMap::TimeDartList::iterator m_iter = iter->second.begin();
-                     m_iter != iter->second.end(); m_iter++) {
+            for (auto & iter : x.markings_storage) {
+                for (auto m_iter = iter.second.begin();
+                     m_iter != iter.second.end(); m_iter++) {
                     out << "- " << *m_iter << std::endl;
                 }
             }
@@ -125,5 +121,4 @@ namespace VerifyTAPN {
             return out;
         }
 
-    } /* namespace DiscreteVerification */
-} /* namespace VerifyTAPN */
+    } /* namespace VerifyTAPN */

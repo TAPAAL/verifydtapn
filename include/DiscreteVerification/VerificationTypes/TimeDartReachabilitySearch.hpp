@@ -16,12 +16,12 @@
 #include "../QueryVisitor.hpp"
 #include "../DataStructures/NonStrictMarkingBase.hpp"
 #include <stack>
+#include <utility>
 #include "TimeDartVerification.hpp"
 #include "../DataStructures/TimeDart.hpp"
 #include "../Util/IntervalOps.hpp"
 
-namespace VerifyTAPN {
-    namespace DiscreteVerification {
+namespace VerifyTAPN::DiscreteVerification {
 
         using namespace rapidxml;
 
@@ -29,10 +29,10 @@ namespace VerifyTAPN {
         public:
             TimeDartReachabilitySearch(TAPN::TimedArcPetriNet &tapn, NonStrictMarkingBase &initialMarking,
                                        AST::Query *query, VerificationOptions options)
-                    : TimeDartVerification(tapn, options, query, initialMarking), trace(10000) {};
+                    : TimeDartVerification(tapn, std::move(options), query, initialMarking), trace(10000) {};
 
             TimeDartReachabilitySearch(TAPN::TimedArcPetriNet &tapn, NonStrictMarkingBase &initialMarking,
-                                       AST::Query *query, VerificationOptions options,
+                                       AST::Query *query, const VerificationOptions& options,
                                        WaitingList<TimeDartBase *> *waiting_list)
                     : TimeDartVerification(tapn, options, query, initialMarking), trace(10000) {
                 pwList = new TimeDartPWHashMap(waiting_list, options.getTrace());
@@ -44,20 +44,20 @@ namespace VerifyTAPN {
 
             inline unsigned int maxUsedTokens() { return pwList->maxNumTokensInAnyMarking; };
 
-            virtual inline bool handleSuccessor(NonStrictMarkingBase *m) {
+            inline bool handleSuccessor(NonStrictMarkingBase *m) override {
                 return handleSuccessor(m, tmpdart, tmpupper);
             };
         protected:
-            WaitingDart *tmpdart;
-            int tmpupper;
+            WaitingDart *tmpdart{};
+            int tmpupper{};
 
             bool handleSuccessor(NonStrictMarkingBase *marking, WaitingDart *parent, int upper);
 
         protected:
-            int validChildren;
-            google::sparse_hash_map<NonStrictMarkingBase *, TraceList> trace;
-            TimeDartPWBase *pwList;
-            vector<const TAPN::TimedTransition *> allwaysEnabled;
+            int validChildren{};
+            google::sparse_hash_map<NonStrictMarkingBase *, TraceList> trace{};
+            TimeDartPWBase *pwList{};
+            vector<const TAPN::TimedTransition *> allwaysEnabled{};
 
             virtual inline void deleteBase(NonStrictMarkingBase *base) {
                 // Dummy
@@ -70,24 +70,23 @@ namespace VerifyTAPN {
         class TimeDartReachabilitySearchPData : public TimeDartReachabilitySearch {
         public:
             TimeDartReachabilitySearchPData(TAPN::TimedArcPetriNet &tapn, NonStrictMarkingBase &initialMarking,
-                                            AST::Query *query, VerificationOptions options,
+                                            AST::Query *query, const VerificationOptions& options,
                                             WaitingList<TimeDartEncodingPointer> *waiting_list)
                     : TimeDartReachabilitySearch(tapn, initialMarking, query, options) {
                 pwList = new TimeDartPWPData(waiting_list, tapn, options.getKBound(), tapn.getNumberOfPlaces(),
                                              tapn.getMaxConstant(), options.getTrace());
             };
         protected:
-            virtual inline void deleteBase(NonStrictMarkingBase *base) {
+            inline void deleteBase(NonStrictMarkingBase *base) override {
                 delete base;
             };
 
-            virtual inline NonStrictMarkingBase *getBase(TimeDartBase *dart) {
-                EncodedReachabilityTraceableDart *erd = (EncodedReachabilityTraceableDart *) dart;
+            inline NonStrictMarkingBase *getBase(TimeDartBase *dart) override {
+                auto *erd = (EncodedReachabilityTraceableDart *) dart;
 
                 return ((TimeDartPWPData *) pwList)->decode(erd->encoding);
             };
         };
 
-    } /* namespace DiscreteVerification */
-} /* namespace VerifyTAPN */
+    } /* namespace VerifyTAPN */
 #endif /* NONSTRICTSEARCH_HPP_ */
