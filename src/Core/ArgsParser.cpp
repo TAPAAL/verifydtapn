@@ -226,7 +226,7 @@ namespace VerifyTAPN {
 
         std::vector<std::string> flags;
         unsigned int i = 1;
-        unsigned int size = static_cast<unsigned int>(argc);
+        auto size = static_cast<unsigned int>(argc);
         while (i < size) {
             std::string arg(argv[i]);
             if (boost::istarts_with(arg, "-")) {
@@ -242,18 +242,16 @@ namespace VerifyTAPN {
         }
 
         option_map options;
-        for (std::vector<std::string>::const_iterator flag = flags.begin();
-             flag != flags.end(); flag++) {
+        for (const auto & flag : flags) {
             bool handled = false;
-            for (parser_vec::const_iterator it = parsers.begin();
-                 it != parsers.end(); it++) {
-                if ((*it)->handles(*flag)) {
-                    options.insert((*it)->parse(*flag));
+            for (auto parser : parsers) {
+                if (parser->handles(flag)) {
+                    options.insert(parser->parse(flag));
                     handled = true;
                 }
             }
             if (!handled) {
-                std::cout << "Unknown option flag '" << *flag << "'" << std::endl;
+                std::cout << "Unknown option flag '" << flag << "'" << std::endl;
                 std::cout << "Use '-h' to see a list of valid options."
                           << std::endl;
                 exit(1);
@@ -261,10 +259,9 @@ namespace VerifyTAPN {
         }
 
         // Put in default values for non-specified options
-        for (parser_vec::const_iterator it = parsers.begin(); it != parsers.end();
-             it++) {
-            if (!(*it)->handledOption()) {
-                options.insert((*it)->getDefaultOption());
+        for (auto parser : parsers) {
+            if (!parser->handledOption()) {
+                options.insert(parser->getDefaultOption());
             }
         }
 
@@ -413,11 +410,11 @@ namespace VerifyTAPN {
 
         size_t split = 0;
         do {
-            size_t equal = param.find("=", split);
+            size_t equal = param.find('=', split);
             if (equal != std::string::npos) {
                 std::string name = param.substr(split, equal - split);
                 std::string val;
-                split = param.find(":", equal);
+                split = param.find(':', equal);
                 ++equal;
                 if (split == std::string::npos)
                     val = param.substr(equal, param.size() - equal);

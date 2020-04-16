@@ -1,6 +1,7 @@
 #ifndef ARGSPARSER_HPP_
 #define ARGSPARSER_HPP_
 
+#include <utility>
 #include <vector>
 #include <map>
 #include <string>
@@ -28,15 +29,15 @@ namespace VerifyTAPN {
 
     class Switch {
     public:
-        Switch(const std::string &name, const std::string &long_name, const std::string &description) : name(name),
-                                                                                                        long_name(
-                                                                                                                long_name),
-                                                                                                        description(
-                                                                                                                description),
+        Switch(std::string name, std::string long_name, std::string description) : name(std::move(name)),
+                                                                                                        long_name(std::move(
+                                                                                                                long_name)),
+                                                                                                        description(std::move(
+                                                                                                                description)),
                                                                                                         handled_option(
                                                                                                                 false) {};
 
-        virtual ~Switch() {};
+        virtual ~Switch() = default;;
     public:
         inline const std::string &getShortName() const { return name; };
 
@@ -66,16 +67,16 @@ namespace VerifyTAPN {
     class SwitchWithStringArg : public Switch {
     public:
         SwitchWithStringArg(const std::string &name, const std::string &long_name, const std::string &description,
-                            const std::string &default_value) : Switch(name, long_name, description),
-                                                                default_value(default_value) {};
+                            std::string default_value) : Switch(name, long_name, description),
+                                                                default_value(std::move(default_value)) {};
 
-        virtual ~SwitchWithStringArg() {};
+        ~SwitchWithStringArg() override = default;;
 
-        virtual option parse(const std::string &flag);
+        option parse(const std::string &flag) override;
 
-        virtual void print(std::ostream &out) const;
+        void print(std::ostream &out) const override;
 
-        virtual option getDefaultOption() const { return option(getLongName(), default_value); };
+        option getDefaultOption() const override { return option(getLongName(), default_value); };
     private:
         std::string default_value;
     };
@@ -86,14 +87,14 @@ namespace VerifyTAPN {
                       unsigned int default_value) : Switch(name, long_name, description),
                                                     default_value(default_value) {};
 
-        virtual ~SwitchWithArg() {};
+        ~SwitchWithArg() override = default;;
 
-        virtual option parse(const std::string &flag);
+        option parse(const std::string &flag) override;
 
-        virtual void print(std::ostream &out) const;
+        void print(std::ostream &out) const override;
 
-        virtual option getDefaultOption() const {
-            return option(getLongName(), boost::lexical_cast<std::string>(default_value));
+        option getDefaultOption() const override {
+            return option(getLongName(), std::to_string(default_value));
         };
     private:
         unsigned int default_value;

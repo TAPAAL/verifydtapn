@@ -5,8 +5,7 @@
 #include <iostream>
 #include "Visitor.hpp"
 
-namespace VerifyTAPN {
-    namespace AST {
+namespace VerifyTAPN::AST {
 
         class Visitable {
         public:
@@ -18,8 +17,7 @@ namespace VerifyTAPN {
         class Expression : public Visitable {
         public:
 
-            virtual ~Expression() {
-            };
+            virtual ~Expression() = default;;
 
             virtual Expression *clone() const = 0;
         };
@@ -42,13 +40,13 @@ namespace VerifyTAPN {
                 return *this;
             }
 
-            virtual ~NotExpression() {
-                if (expr) delete expr;
+            ~NotExpression() override {
+                delete expr;
             };
 
-            virtual NotExpression *clone() const;
+            NotExpression *clone() const override;
 
-            virtual void accept(Visitor &visitor, Result &context);
+            void accept(Visitor &visitor, Result &context) override;
 
             Expression &getChild() const {
                 return *expr;
@@ -61,15 +59,13 @@ namespace VerifyTAPN {
         class DeadlockExpression : public Expression {
         public:
 
-            explicit DeadlockExpression() {
-            };
+            explicit DeadlockExpression() = default;;
 
-            virtual ~DeadlockExpression() {
-            };
+            ~DeadlockExpression() override = default;;
 
-            virtual DeadlockExpression *clone() const;
+            DeadlockExpression *clone() const override;
 
-            virtual void accept(Visitor &visitor, Result &context);
+            void accept(Visitor &visitor, Result &context) override;
         };
 
         class BoolExpression : public Expression {
@@ -78,12 +74,11 @@ namespace VerifyTAPN {
             explicit BoolExpression(bool value) : value(value) {
             };
 
-            virtual ~BoolExpression() {
-            };
+            ~BoolExpression() override = default;;
 
-            virtual BoolExpression *clone() const;
+            BoolExpression *clone() const override;
 
-            virtual void accept(Visitor &visitor, Result &context);
+            void accept(Visitor &visitor, Result &context) override;
 
             bool getValue() const {
                 return value;
@@ -113,8 +108,7 @@ namespace VerifyTAPN {
                 return *this;
             }
 
-            virtual ~AtomicProposition() {
-            };
+            ~AtomicProposition() override = default;;
 
             ArithmeticExpression &getLeft() const {
                 return *left;
@@ -128,9 +122,9 @@ namespace VerifyTAPN {
                 return op;
             };
 
-            virtual AtomicProposition *clone() const;
+            AtomicProposition *clone() const override;
 
-            virtual void accept(Visitor &visitor, Result &context);
+            void accept(Visitor &visitor, Result &context) override;
 
         private:
             ArithmeticExpression *left;
@@ -158,14 +152,14 @@ namespace VerifyTAPN {
                 return *this;
             }
 
-            virtual ~AndExpression() {
-                if (left) delete left;
-                if (right) delete right;
+            ~AndExpression() override {
+                delete left;
+                delete right;
             }
 
-            virtual AndExpression *clone() const;
+            AndExpression *clone() const override;
 
-            void accept(Visitor &visitor, Result &context);
+            void accept(Visitor &visitor, Result &context) override;
 
             Expression &getLeft() const {
                 return *left;
@@ -200,15 +194,15 @@ namespace VerifyTAPN {
                 return *this;
             }
 
-            virtual ~OrExpression() {
-                if (left) delete left;
-                if (right) delete right;
+            ~OrExpression() override {
+                delete left;
+                delete right;
             };
 
 
-            virtual OrExpression *clone() const;
+            OrExpression *clone() const override;
 
-            virtual void accept(Visitor &visitor, Result &context);
+            void accept(Visitor &visitor, Result &context) override;
 
             Expression &getLeft() const {
                 return *left;
@@ -226,8 +220,7 @@ namespace VerifyTAPN {
         class ArithmeticExpression : public Visitable {
         public:
 
-            virtual ~ArithmeticExpression() {
-            };
+            virtual ~ArithmeticExpression() = default;;
 
             virtual ArithmeticExpression *clone() const = 0;
         };
@@ -251,8 +244,7 @@ namespace VerifyTAPN {
                 return *this;
             }
 
-            virtual ~OperationExpression() {
-            };
+            ~OperationExpression() override = default;;
 
         public:
 
@@ -276,9 +268,7 @@ namespace VerifyTAPN {
                     : OperationExpression(left, right) {
             };
 
-            PlusExpression(const PlusExpression &other)
-                    : OperationExpression(other) {
-            };
+            PlusExpression(const PlusExpression &other) = default;
 
             PlusExpression &operator=(const PlusExpression &other) {
                 if (&other != this) {
@@ -288,12 +278,11 @@ namespace VerifyTAPN {
                 return *this;
             }
 
-            virtual ~PlusExpression() {
-            };
+            ~PlusExpression() override = default;;
 
-            virtual PlusExpression *clone() const;
+            PlusExpression *clone() const override;
 
-            virtual void accept(Visitor &visitor, Result &context);
+            void accept(Visitor &visitor, Result &context) override;
 
         };
 
@@ -304,9 +293,7 @@ namespace VerifyTAPN {
                     : OperationExpression(left, right) {
             };
 
-            SubtractExpression(const SubtractExpression &other)
-                    : OperationExpression(other) {
-            };
+            SubtractExpression(const SubtractExpression &other) = default;;
 
             SubtractExpression &operator=(const SubtractExpression &other) {
                 if (&other != this) {
@@ -316,18 +303,17 @@ namespace VerifyTAPN {
                 return *this;
             }
 
-            virtual ~SubtractExpression() {
-            };
+            ~SubtractExpression() override = default;;
 
-            virtual SubtractExpression *clone() const;
+            SubtractExpression *clone() const override;
 
-            virtual void accept(Visitor &visitor, Result &context);
+            void accept(Visitor &visitor, Result &context) override;
         };
 
         class MinusExpression : public ArithmeticExpression {
         public:
 
-            MinusExpression(ArithmeticExpression *value) : value(value) {
+            explicit MinusExpression(ArithmeticExpression *value) : value(value) {
             };
 
             MinusExpression(const MinusExpression &other)
@@ -345,12 +331,11 @@ namespace VerifyTAPN {
                 return *value;
             };
 
-            virtual ~MinusExpression() {
-            };
+            ~MinusExpression() override = default;;
 
-            virtual MinusExpression *clone() const;
+            MinusExpression *clone() const override;
 
-            virtual void accept(Visitor &visitor, Result &context);
+            void accept(Visitor &visitor, Result &context) override;
 
         private:
             ArithmeticExpression *value;
@@ -364,8 +349,7 @@ namespace VerifyTAPN {
             };
 
             MultiplyExpression(const MultiplyExpression &other)
-                    : OperationExpression(other) {
-            };
+                    = default;
 
             MultiplyExpression &operator=(const MultiplyExpression &other) {
                 if (&other != this) {
@@ -375,18 +359,17 @@ namespace VerifyTAPN {
                 return *this;
             }
 
-            virtual ~MultiplyExpression() {
-            };
+            ~MultiplyExpression() override = default;;
 
-            virtual MultiplyExpression *clone() const;
+            MultiplyExpression *clone() const override;
 
-            virtual void accept(Visitor &visitor, Result &context);
+            void accept(Visitor &visitor, Result &context) override;
         };
 
         class NumberExpression : public ArithmeticExpression {
         public:
 
-            NumberExpression(int i) : value(i) {
+            explicit NumberExpression(int i) : value(i) {
             }
 
             NumberExpression(const NumberExpression &other) : value(other.value) {
@@ -401,12 +384,11 @@ namespace VerifyTAPN {
                 return value;
             };
 
-            virtual ~NumberExpression() {
-            };
+            ~NumberExpression() override = default;;
 
-            virtual NumberExpression *clone() const;
+            NumberExpression *clone() const override;
 
-            virtual void accept(Visitor &visitor, Result &context);
+            void accept(Visitor &visitor, Result &context) override;
 
         private:
             int value;
@@ -415,7 +397,7 @@ namespace VerifyTAPN {
         class IdentifierExpression : public ArithmeticExpression {
         public:
 
-            IdentifierExpression(int placeIndex) : place(placeIndex) {
+            explicit IdentifierExpression(int placeIndex) : place(placeIndex) {
             }
 
             IdentifierExpression(const IdentifierExpression &other) : place(other.place) {
@@ -430,12 +412,11 @@ namespace VerifyTAPN {
                 return place;
             };
 
-            virtual ~IdentifierExpression() {
-            };
+            ~IdentifierExpression() override = default;;
 
-            virtual IdentifierExpression *clone() const;
+            IdentifierExpression *clone() const override;
 
-            virtual void accept(Visitor &visitor, Result &context);
+            void accept(Visitor &visitor, Result &context) override;
 
         private:
             int place;
@@ -463,12 +444,12 @@ namespace VerifyTAPN {
             }
 
             virtual ~Query() {
-                if (expr) delete expr;
+                delete expr;
             }
 
             virtual Query *clone() const;
 
-            virtual void accept(Visitor &visitor, Result &context);
+            void accept(Visitor &visitor, Result &context) override;
 
             Quantifier getQuantifier() const {
                 return quantifier;
@@ -495,6 +476,5 @@ namespace VerifyTAPN {
             Expression *expr;
         };
     }
-}
 
 #endif /* AST_HPP_ */
