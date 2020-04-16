@@ -21,12 +21,12 @@
 #include "../QueryVisitor.hpp"
 #include "../DataStructures/NonStrictMarking.hpp"
 #include <stack>
+#include <utility>
 #include "Verification.hpp"
 #include "../DataStructures/WaitingList.hpp"
 #include "AbstractNaiveVerification.hpp"
 
-namespace VerifyTAPN {
-    namespace DiscreteVerification {
+namespace VerifyTAPN::DiscreteVerification {
 
         class LivenessSearch : public AbstractNaiveVerification<PWListBase, NonStrictMarking, Generator> {
         public:
@@ -59,17 +59,16 @@ namespace VerifyTAPN {
 
             LivenessSearchPTrie(TAPN::TimedArcPetriNet &tapn, NonStrictMarking &initialMarking, AST::Query *query,
                                 VerificationOptions options, WaitingList<ptriepointer_t<MetaData *> > *waiting_list)
-                    : LivenessSearch(tapn, initialMarking, query, options) {
+                    : LivenessSearch(tapn, initialMarking, query, std::move(options)) {
                 pwList = new PWListHybrid(tapn, waiting_list, options.getKBound(), tapn.getNumberOfPlaces(),
                                           tapn.getMaxConstant(), true,
                                           options.getTrace() == VerificationOptions::SOME_TRACE);
             };
 
-            virtual void deleteMarking(NonStrictMarking *m) {
+            void deleteMarking(NonStrictMarking *m) override {
                 delete m;
             };
 
         };
-    } /* namespace DiscreteVerification */
-} /* namespace VerifyTAPN */
+    } /* namespace VerifyTAPN */
 #endif /* NONSTRICTSEARCH_HPP_ */

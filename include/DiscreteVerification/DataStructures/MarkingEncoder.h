@@ -18,8 +18,7 @@
 
 
 using namespace ptrie;
-namespace VerifyTAPN {
-    namespace DiscreteVerification {
+namespace VerifyTAPN::DiscreteVerification {
 
         class CoveredMarkingVisitor;
 
@@ -136,7 +135,7 @@ namespace VerifyTAPN {
                     uint place = (data % this->numberOfPlaces);
                     auto tplace = &tapn.getPlace(place);
                     size_t last = places.size() - 1;
-                    if (places.size() == 0) {
+                    if (places.empty()) {
                         last = 0;
                         places.push_back(Place(tplace));
                     } else {
@@ -163,7 +162,7 @@ namespace VerifyTAPN {
         binarywrapper_t<T> MarkingEncoder<T, M>::encode(M *marking) {
             // make sure we have space to encode marking
             size_t count = 0;
-            for (vector<Place>::const_iterator pi = marking->getPlaceList().begin();
+            for (auto pi = marking->getPlaceList().begin();
                  pi != marking->getPlaceList().end();
                  pi++) {
                 count += pi->tokens.size();
@@ -182,19 +181,17 @@ namespace VerifyTAPN {
             int tc = 0;
             uint bitcount = 0;
 
-            for (vector<Place>::const_iterator pi = marking->getPlaceList().begin();
+            for (auto pi = marking->getPlaceList().begin();
                  pi != marking->getPlaceList().end();
                  pi++) { // for each place
 
                 int pc = pi->place->getIndex();
 
-                for (TokenList::const_iterator ti = pi->tokens.begin(); // for each token-element
-                     ti != pi->tokens.end();
-                     ti++) {
+                for (const auto & token : pi->tokens) {
 
 
                     int offset = tc * this->offsetBitSize; // the offset of the variables for this token
-                    uint number = ti->getCount();
+                    uint number = token.getCount();
                     bitcount = 0;
                     while (number) { // set the vars while there are bits left
 
@@ -202,7 +199,7 @@ namespace VerifyTAPN {
                         bitcount++;
                         number = number >> 1;
                     }
-                    uint pos = pc + this->numberOfPlaces * ti->getAge(); // the enumerated configuration of the token
+                    uint pos = pc + this->numberOfPlaces * token.getAge(); // the enumerated configuration of the token
                     bitcount = countBitSize;
                     /* binary */
                     while (pos) { // set the vars while there are bits left
@@ -219,7 +216,6 @@ namespace VerifyTAPN {
                 return encoding_t(scratchpad.raw(), ((tc - 1) * offsetBitSize) + bitcount);
         }
     }
-}
 
 
 #endif    /* MARKINGENCODER_H */

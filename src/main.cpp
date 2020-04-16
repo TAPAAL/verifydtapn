@@ -12,7 +12,7 @@ using namespace VerifyTAPN;
 using namespace VerifyTAPN::TAPN;
 
 int main(int argc, char *argv[]) {
-    srand(time(NULL));
+    srand(time(nullptr));
 
     ArgsParser parser;
     VerificationOptions options = parser.parse(argc, argv);
@@ -42,7 +42,7 @@ int main(int argc, char *argv[]) {
 
     std::vector<int> initialPlacement(modelParser.parseMarking(options.getInputFile(), *tapn));
 
-    AST::Query *query = NULL;
+    AST::Query *query = nullptr;
     if (options.getWorkflowMode() == VerificationOptions::WORKFLOW_SOUNDNESS ||
         options.getWorkflowMode() == VerificationOptions::WORKFLOW_STRONG_SOUNDNESS) {
         if (options.getGCDLowerGuardsEnabled()) {

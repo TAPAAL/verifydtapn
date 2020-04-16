@@ -7,8 +7,7 @@
 
 #include "DiscreteVerification/SearchStrategies/LivenessWeightQueryVisitor.hpp"
 
-namespace VerifyTAPN {
-    namespace DiscreteVerification {
+namespace VerifyTAPN::DiscreteVerification {
 
         void LivenessWeightQueryVisitor::visit(NotExpression &expr, Result &context) {
             assert(false);
@@ -117,5 +116,4 @@ namespace VerifyTAPN {
                 throw std::exception();
         }
 
-    } /* namespace DiscreteVerification */
-} /* namespace VerifyTAPN */
+    } /* namespace VerifyTAPN */

@@ -12,45 +12,44 @@
 #include "../DataStructures/NonStrictMarking.hpp"
 #include "../../Core/QueryParser/AST.hpp"
 #include <exception>
-#include <limits.h>
+#include <climits>
 
-namespace VerifyTAPN {
-    namespace DiscreteVerification {
+namespace VerifyTAPN::DiscreteVerification {
 
         using namespace AST;
 
         class LivenessWeightQueryVisitor : public Visitor {
         public:
-            LivenessWeightQueryVisitor(NonStrictMarkingBase &marking) : marking(marking) {};
+            explicit LivenessWeightQueryVisitor(NonStrictMarkingBase &marking) : marking(marking) {};
 
-            virtual ~LivenessWeightQueryVisitor() {};
+            ~LivenessWeightQueryVisitor() override = default;;
 
         public: // visitor methods
-            virtual void visit(NotExpression &expr, Result &context);
+            void visit(NotExpression &expr, Result &context) override;
 
-            virtual void visit(OrExpression &expr, Result &context);
+            void visit(OrExpression &expr, Result &context) override;
 
-            virtual void visit(AndExpression &expr, Result &context);
+            void visit(AndExpression &expr, Result &context) override;
 
-            virtual void visit(AtomicProposition &expr, Result &context);
+            void visit(AtomicProposition &expr, Result &context) override;
 
-            virtual void visit(BoolExpression &expr, Result &context);
+            void visit(BoolExpression &expr, Result &context) override;
 
-            virtual void visit(Query &query, Result &context);
+            void visit(Query &query, Result &context) override;
 
-            virtual void visit(DeadlockExpression &expr, Result &context);
+            void visit(DeadlockExpression &expr, Result &context) override;
 
-            virtual void visit(NumberExpression &expr, Result &context);
+            void visit(NumberExpression &expr, Result &context) override;
 
-            virtual void visit(IdentifierExpression &expr, Result &context);
+            void visit(IdentifierExpression &expr, Result &context) override;
 
-            virtual void visit(MultiplyExpression &expr, Result &context);
+            void visit(MultiplyExpression &expr, Result &context) override;
 
-            virtual void visit(MinusExpression &expr, Result &context);
+            void visit(MinusExpression &expr, Result &context) override;
 
-            virtual void visit(SubtractExpression &expr, Result &context);
+            void visit(SubtractExpression &expr, Result &context) override;
 
-            virtual void visit(PlusExpression &expr, Result &context);
+            void visit(PlusExpression &expr, Result &context) override;
 
         private:
             int compare(int numberOfTokensInPlace, const std::string &op, int n) const;
@@ -59,6 +58,5 @@ namespace VerifyTAPN {
             const NonStrictMarkingBase &marking;
         };
 
-    } /* namespace DiscreteVerification */
-} /* namespace VerifyTAPN */
+    } /* namespace VerifyTAPN */
 #endif /* LIVENESSQUERYVISITOR_HPP_ */
