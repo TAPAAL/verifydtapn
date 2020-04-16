@@ -26,10 +26,10 @@ namespace VerifyTAPN {
             typedef binarywrapper_t<MetaData *> encoding_t;
         private:
             MarkingEncoder<MetaData *, NonStrictMarking> &encoder;
-            NonStrictMarking *target;
+            NonStrictMarking *target{};
             encoding_t scratchpad;
             ptriepointer_t<MetaData *> match;
-            bool _found;
+            bool _found{};
             ptriepointer_t<MetaData *> _targetencoding;
 
         private:

@@ -9,8 +9,7 @@
 
 
 using namespace ptrie;
-namespace VerifyTAPN {
-    namespace DiscreteVerification {
+namespace VerifyTAPN::DiscreteVerification {
 
         CoveredMarkingVisitor::CoveredMarkingVisitor(
                 MarkingEncoder<MetaData *, NonStrictMarking> &enc)
@@ -143,12 +142,11 @@ namespace VerifyTAPN {
             const TokenList &tokens = target->getTokenList(place);
 
 
-            for (TokenList::const_iterator it = tokens.begin();
-                 it != tokens.end(); ++it) {
-                if (it->getAge() == age) {
-                    if (it->getCount() >= cnt) return true; // continue
+            for (const auto & token : tokens) {
+                if (token.getAge() == age) {
+                    if (token.getCount() >= cnt) return true; // continue
                     else return false; // skip branch
-                } else if (it->getAge() > age) return false;  // skip branch
+                } else if (token.getAge() > age) return false;  // skip branch
             }
 
             return false; // skip branch
@@ -161,4 +159,3 @@ namespace VerifyTAPN {
         }
 
     }
-}

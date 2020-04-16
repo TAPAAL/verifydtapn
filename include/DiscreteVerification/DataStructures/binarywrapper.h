@@ -5,12 +5,12 @@
  * Created on 10 June 2015, 19:20
  */
 
-#include <math.h>
-#include <stdio.h>
+#include <cmath>
+#include <cstdio>
 #include <iostream>
-#include <string.h>
-#include <assert.h>
-#include <stdint.h>
+#include <cstring>
+#include <cassert>
+#include <cstdint>
 
 #ifndef BINARYWRAPPER_H
 #define    BINARYWRAPPER_H
@@ -38,7 +38,7 @@ namespace ptrie {
          Allocates a room for at least size bits
          */
         inline
-        binarywrapper_t(uint size);
+        explicit binarywrapper_t(uint size);
 
         /**
          * Constructor for copying over data from latest the offset'th bit.
@@ -103,7 +103,7 @@ namespace ptrie {
          * @return 
          */
         inline
-        bool at(const uint place) const;
+        bool at(uint place) const;
 
         /**
          * number of bytes allocated in heap
@@ -148,7 +148,7 @@ namespace ptrie {
          * @param value: desired value
          */
         inline
-        void set(const uint place, const bool value) const;
+        void set(uint place, bool value) const;
 
         /**
          * Sets all memory on heap to 0 
@@ -248,12 +248,10 @@ namespace ptrie {
     }
 
     template<class T>
-    binarywrapper_t<T>::~binarywrapper_t() {
-
-    }
+    binarywrapper_t<T>::~binarywrapper_t() = default;
 
     template<class T>
-    binarywrapper_t<T>::binarywrapper_t() {}
+    binarywrapper_t<T>::binarywrapper_t() = default;
 
     template<class T>
     binarywrapper_t<T>::binarywrapper_t(uint size) {
@@ -394,7 +392,7 @@ namespace ptrie {
         }
 
         if (nbytes > 0) {
-            uchar *tmpblob = new uchar[nbytes];
+            auto *tmpblob = new uchar[nbytes];
             memcpy(tmpblob, &(_blob[topop]), (nbytes));
             delete[] _blob;
             _blob = tmpblob;
