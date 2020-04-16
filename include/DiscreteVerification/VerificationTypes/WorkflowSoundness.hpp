@@ -25,8 +25,7 @@
 #include "Workflow.hpp"
 
 using namespace ptrie;
-namespace VerifyTAPN {
-    namespace DiscreteVerification {
+namespace VerifyTAPN::DiscreteVerification {
 
         class WorkflowSoundness : public Workflow {
         public:
@@ -48,18 +47,18 @@ namespace VerifyTAPN {
 
             virtual void getTrace() { this->getTrace(lastMarking); };
 
-            void printExecutionTime(ostream &stream) {
+            void printExecutionTime(ostream &stream) override {
                 stream << "Minimum execution time: " << minExec << endl;
             }
 
             void printMessages(ostream &stream) {
-                if (coveredMarking != NULL) {
+                if (coveredMarking != nullptr) {
                     stream << "Covered marking: " << *coveredMarking << endl;
                     getTrace(coveredMarking);
                 }
             }
 
-            inline const ModelType getModelType() const { return modelType; }
+            inline ModelType getModelType() const { return modelType; }
 
             virtual int numberOfPassed();
 
@@ -89,20 +88,19 @@ namespace VerifyTAPN {
             WorkflowSoundnessPTrie(TAPN::TimedArcPetriNet &tapn, NonStrictMarking &initialMarking, AST::Query *query,
                                    const VerificationOptions& options, WaitingList<ptriepointer_t<MetaData *> > *waiting_list);
 
-            virtual void addParentMeta(MetaData *meta, MetaData *parent);
+            void addParentMeta(MetaData *meta, MetaData *parent) override;
 
-            virtual int numberOfPassed();
+            int numberOfPassed() override;
 
-            virtual void deleteMarking(NonStrictMarking *marking) {
+            void deleteMarking(NonStrictMarking *marking) override {
                 delete marking;
             }
 
-            virtual void getTrace(NonStrictMarking *marking);
+            void getTrace(NonStrictMarking *marking) override;
 
         protected:
-            virtual void setMetaParent(NonStrictMarking *);
+            void setMetaParent(NonStrictMarking *) override;
         };
 
-    } /* namespace DiscreteVerification */
-} /* namespace VerifyTAPN */
+    } /* namespace VerifyTAPN */
 #endif /* NONSTRICTSEARCH_HPP_ */

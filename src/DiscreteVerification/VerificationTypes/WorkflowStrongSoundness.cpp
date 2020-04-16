@@ -7,15 +7,16 @@
 
 #include "DiscreteVerification/VerificationTypes/WorkflowStrongSoundness.hpp"
 
-namespace VerifyTAPN {
-    namespace DiscreteVerification {
+#include <utility>
+
+namespace VerifyTAPN::DiscreteVerification {
 
         WorkflowStrongSoundnessReachability::WorkflowStrongSoundnessReachability(TAPN::TimedArcPetriNet &tapn,
                                                                                  NonStrictMarking &initialMarking,
                                                                                  AST::Query *query,
                                                                                  VerificationOptions options,
                                                                                  WaitingList<NonStrictMarking *> *waiting_list)
-                : Workflow(tapn, initialMarking, query, options), maxValue(-1), outPlace(NULL) {
+                : Workflow(tapn, initialMarking, query, std::move(options)), maxValue(-1), outPlace(nullptr) {
             pwList = new WorkflowPWList(waiting_list);
             findInOut();
         };
@@ -24,7 +25,7 @@ namespace VerifyTAPN {
                                                                                  NonStrictMarking &initialMarking,
                                                                                  AST::Query *query,
                                                                                  VerificationOptions options)
-                : Workflow(tapn, initialMarking, query, options), maxValue(-1), outPlace(NULL) {
+                : Workflow(tapn, initialMarking, query, std::move(options)), maxValue(-1), outPlace(nullptr) {
             findInOut();
         };
 
@@ -48,7 +49,7 @@ namespace VerifyTAPN {
                         tapn,
                         initialMarking,
                         query,
-                        options) {
+                        std::move(options)) {
             pwList = new WorkflowPWListHybrid(tapn,
                                               waiting_list,
                                               options.getKBound(),
@@ -58,7 +59,7 @@ namespace VerifyTAPN {
 
         bool WorkflowStrongSoundnessReachability::run() {
 
-            if (outPlace == NULL) {
+            if (outPlace == nullptr) {
                 lastMarking = &initialMarking;
                 return true;
             }
@@ -125,11 +126,11 @@ namespace VerifyTAPN {
             std::stack<NonStrictMarking *> printStack;
             NonStrictMarking *next = lastMarking;
             do {
-                NonStrictMarking *parent = (NonStrictMarking *) next->getParent();
+                auto *parent = (NonStrictMarking *) next->getParent();
                 printStack.push(next);
                 next = parent;
 
-            } while (next != NULL && next->getParent() != NULL);
+            } while (next != nullptr && next->getParent() != nullptr);
 
             if (next != NULL && printStack.top() != next) {
                 printStack.push(next);
@@ -145,16 +146,16 @@ namespace VerifyTAPN {
             std::stack<NonStrictMarking *> printStack;
 
             NonStrictMarking *next = lastMarking;
-            if (next != NULL) {
+            if (next != nullptr) {
 
                 printStack.push(next);
-                MetaDataWithTraceAndEncoding *meta =
+                auto *meta =
                         static_cast<MetaDataWithTraceAndEncoding *>(next->meta);
 
-                if (meta == NULL) {
+                if (meta == nullptr) {
                     // We assume the parent was not deleted on return
                     NonStrictMarking *parent = (NonStrictMarking *) lastMarking->getParent();
-                    if (parent != NULL)
+                    if (parent != nullptr)
                         meta =
                                 static_cast<MetaDataWithTraceAndEncoding *>(parent->meta);
                     delete parent;
@@ -162,7 +163,7 @@ namespace VerifyTAPN {
                     meta = meta->parent;
                 }
 
-                while (meta != NULL) {
+                while (meta != nullptr) {
                     next = pwhlist->decode(meta->ep);
                     next->setGeneratedBy(meta->generatedBy);
                     printStack.top()->setParent(next);
@@ -211,7 +212,7 @@ namespace VerifyTAPN {
             // Map to existing marking if any
             NonStrictMarking *old = (NonStrictMarking *) pwList->addToPassed(marking, true);
 
-            if (old != NULL) {
+            if (old != nullptr) {
                 if (old->meta->totalDelay < totalDelay) {
                     if (old->meta->inTrace) {
                         // delay loop
@@ -269,7 +270,7 @@ namespace VerifyTAPN {
 
         void WorkflowStrongSoundnessPTrie::swapData(NonStrictMarking *marking, NonStrictMarking *parent) {
             PWListHybrid *pwhlist = dynamic_cast<PWListHybrid *>(this->pwList);
-            MetaDataWithTraceAndEncoding *meta =
+            auto *meta =
                     static_cast<MetaDataWithTraceAndEncoding *>(parent->meta);
 
             meta->generatedBy = marking->getGeneratedBy();
@@ -284,5 +285,4 @@ namespace VerifyTAPN {
             }
         }
 
-    } /* namespace DiscreteVerification */
-} /* namespace VerifyTAPN */
+    } /* namespace VerifyTAPN */
