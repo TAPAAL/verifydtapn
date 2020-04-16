@@ -25,18 +25,17 @@
 #include "AbstractNaiveVerification.hpp"
 #include "../../Core/TAPN/TAPN.hpp"
 
-namespace VerifyTAPN {
-    namespace DiscreteVerification {
+namespace VerifyTAPN::DiscreteVerification {
 
         using namespace TAPN;
 
         class Workflow : public AbstractNaiveVerification<WorkflowPWListBasic, NonStrictMarking, Generator> {
         public:
             Workflow(TAPN::TimedArcPetriNet &tapn, NonStrictMarking &initialMarking, AST::Query *query,
-                     VerificationOptions options)
+                     const VerificationOptions& options)
                     : AbstractNaiveVerification<WorkflowPWListBasic, NonStrictMarking, Generator>(tapn, initialMarking,
                                                                                                   query, options, NULL),
-                      in(NULL), out(NULL) {
+                      in(nullptr), out(nullptr) {
 
                 for (TimedPlace::Vector::const_iterator iter = tapn.getPlaces().begin();
                      iter != tapn.getPlaces().end(); iter++) {
@@ -56,6 +55,5 @@ namespace VerifyTAPN {
             TimedPlace *out;
         };
 
-    } /* namespace DiscreteVerification */
-} /* namespace VerifyTAPN */
+    } /* namespace VerifyTAPN */
 #endif /* NONSTRICTSEARCH_HPP_ */

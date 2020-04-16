@@ -7,8 +7,7 @@
 
 #include "DiscreteVerification/SearchStrategies/WeightQueryVisitor.hpp"
 
-namespace VerifyTAPN {
-    namespace DiscreteVerification {
+namespace VerifyTAPN::DiscreteVerification {
 
         void WeightQueryVisitor::visit(NotExpression &expr, Result &context) {
             assert(false);
@@ -113,5 +112,4 @@ namespace VerifyTAPN {
                 throw std::exception();
         }
 
-    } /* namespace DiscreteVerification */
-} /* namespace VerifyTAPN */
+    } /* namespace VerifyTAPN */

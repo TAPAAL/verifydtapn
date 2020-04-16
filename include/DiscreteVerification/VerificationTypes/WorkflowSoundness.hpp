@@ -75,7 +75,7 @@ namespace VerifyTAPN {
             virtual void setMetaParent(NonStrictMarking *) {};
 
         protected:
-            stack<MetaData *> passedStack;
+            stack<MetaData *> passedStack{};
             int minExec;
             unsigned int linearSweepTreshold;
             NonStrictMarking *coveredMarking;
@@ -87,7 +87,7 @@ namespace VerifyTAPN {
         class WorkflowSoundnessPTrie : public WorkflowSoundness {
         public:
             WorkflowSoundnessPTrie(TAPN::TimedArcPetriNet &tapn, NonStrictMarking &initialMarking, AST::Query *query,
-                                   VerificationOptions options, WaitingList<ptriepointer_t<MetaData *> > *waiting_list);
+                                   const VerificationOptions& options, WaitingList<ptriepointer_t<MetaData *> > *waiting_list);
 
             virtual void addParentMeta(MetaData *meta, MetaData *parent);
 

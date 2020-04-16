@@ -7,15 +7,15 @@
 
 #include "DiscreteVerification/VerificationTypes/WorkflowSoundness.hpp"
 #include <limits>
+#include <utility>
 
-namespace VerifyTAPN {
-    namespace DiscreteVerification {
+namespace VerifyTAPN::DiscreteVerification {
 
         WorkflowSoundness::WorkflowSoundness(TAPN::TimedArcPetriNet &tapn, NonStrictMarking &initialMarking,
                                              AST::Query *query, VerificationOptions options,
                                              WaitingList<NonStrictMarking *> *waiting_list)
-                : Workflow(tapn, initialMarking, query, options), passedStack(), minExec(INT_MAX),
-                  linearSweepTreshold(3), coveredMarking(NULL), modelType(calculateModelType()) {
+                : Workflow(tapn, initialMarking, query, std::move(options)), passedStack(), minExec(INT_MAX),
+                  linearSweepTreshold(3), coveredMarking(nullptr), modelType(calculateModelType()) {
             pwList = new WorkflowPWList(waiting_list);
 
         }
@@ -23,13 +23,13 @@ namespace VerifyTAPN {
 
         WorkflowSoundness::WorkflowSoundness(TAPN::TimedArcPetriNet &tapn, NonStrictMarking &initialMarking,
                                              AST::Query *query, VerificationOptions options)
-                : Workflow(tapn, initialMarking, query, options), passedStack(), minExec(INT_MAX),
-                  linearSweepTreshold(3), coveredMarking(NULL), modelType(calculateModelType()) {
+                : Workflow(tapn, initialMarking, query, std::move(options)), passedStack(), minExec(INT_MAX),
+                  linearSweepTreshold(3), coveredMarking(nullptr), modelType(calculateModelType()) {
 
         };
 
         WorkflowSoundnessPTrie::WorkflowSoundnessPTrie(TAPN::TimedArcPetriNet &tapn, NonStrictMarking &initialMarking,
-                                                       AST::Query *query, VerificationOptions options,
+                                                       AST::Query *query, const VerificationOptions& options,
                                                        WaitingList<ptriepointer_t<MetaData *> > *waiting_list)
                 : WorkflowSoundness(tapn, initialMarking, query, options) {
             int kbound = modelType == MTAWFN ? (std::numeric_limits<int>::max() - 1) : options.getKBound();
@@ -139,7 +139,7 @@ namespace VerifyTAPN {
             bool isNew = false;
             marking->setParent(parent);
             NonStrictMarking *old = pwList->addToPassed(marking, false);
-            if (old == NULL) {
+            if (old == nullptr) {
                 isNew = true;
             } else {
                 delete marking;
@@ -147,9 +147,9 @@ namespace VerifyTAPN {
             }
 
             // add to parents_set
-            if (parent != NULL) {
+            if (parent != nullptr) {
                 addParentMeta(marking->meta, parent->meta);
-                if (marking->getGeneratedBy() == NULL) {
+                if (marking->getGeneratedBy() == nullptr) {
                     marking->meta->totalDelay = min(marking->meta->totalDelay,
                                                     parent->meta->totalDelay + 1);    // Delay
                 } else {
@@ -209,8 +209,8 @@ namespace VerifyTAPN {
         }
 
         void WorkflowSoundnessPTrie::addParentMeta(MetaData *meta, MetaData *parent) {
-            assert(meta != NULL);
-            assert(parent != NULL);
+            assert(meta != nullptr);
+            assert(parent != nullptr);
             WorkflowSoundnessMetaDataWithEncoding *markingmeta = ((WorkflowSoundnessMetaDataWithEncoding *) meta);
             markingmeta->parents.push_back(parent);
 
@@ -222,7 +222,7 @@ namespace VerifyTAPN {
             }
 
             NonStrictMarking *covered = pwList->getCoveredMarking(marking, (marking->size() > linearSweepTreshold));
-            if (covered != NULL) {
+            if (covered != nullptr) {
                 coveredMarking = covered;
                 return true;
             }
@@ -234,7 +234,7 @@ namespace VerifyTAPN {
 
             stack<NonStrictMarking *> printStack;
             NonStrictMarking *next = marking;
-            if (next != NULL) {
+            if (next != nullptr) {
                 do {
                     printStack.push(next);
                     next = (NonStrictMarking *) next->getParent();
@@ -252,16 +252,16 @@ namespace VerifyTAPN {
 
             stack<NonStrictMarking *> printStack;
 
-            if (marking != NULL) {
+            if (marking != nullptr) {
                 printStack.push(marking);
 
-                MetaDataWithTraceAndEncoding *meta =
+                auto *meta =
                         static_cast<MetaDataWithTraceAndEncoding *>(marking->meta);
                 if (meta) {
                     marking->setGeneratedBy(meta->generatedBy);
 
                     meta = meta->parent;
-                    while (meta != NULL) {
+                    while (meta != nullptr) {
                         NonStrictMarking *next = pwhlist->decode(meta->ep);
                         printStack.push(next);
                         next->setGeneratedBy(meta->generatedBy);
@@ -290,11 +290,11 @@ namespace VerifyTAPN {
         void WorkflowSoundnessPTrie::setMetaParent(NonStrictMarking *marking) {
             PWListHybrid *pwhlist = dynamic_cast<PWListHybrid *>(this->pwList);
 
-            if (marking->meta == NULL) {
+            if (marking->meta == nullptr) {
                 marking->meta = new MetaDataWithTraceAndEncoding();
             }
 
-            MetaDataWithTraceAndEncoding *mte =
+            auto *mte =
                     static_cast<MetaDataWithTraceAndEncoding *>(marking->meta);
             mte->parent = pwhlist->parent;
             mte->generatedBy = marking->getGeneratedBy();
@@ -371,7 +371,7 @@ namespace VerifyTAPN {
 
             }
 
-            if (in == NULL || out == NULL || in == out) {
+            if (in == nullptr || out == nullptr || in == out) {
                 return NOTTAWFN;
             }
 
@@ -410,5 +410,4 @@ namespace VerifyTAPN {
             delete pwList;
         }
 
-    } /* namespace DiscreteVerification */
-} /* namespace VerifyTAPN */
+    } /* namespace VerifyTAPN */

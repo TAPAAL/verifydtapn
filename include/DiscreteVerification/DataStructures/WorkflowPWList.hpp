@@ -17,8 +17,7 @@
 #include "PWList.hpp"
 #include "CoveredMarkingVisitor.h"
 
-namespace VerifyTAPN {
-    namespace DiscreteVerification {
+namespace VerifyTAPN::DiscreteVerification {
 
         class WorkflowPWListBasic : virtual public PWListBase {
         public:
@@ -26,7 +25,7 @@ namespace VerifyTAPN {
 
             virtual NonStrictMarking *getUnpassed() = 0;
 
-            virtual bool add(NonStrictMarking *marking) = 0;
+            bool add(NonStrictMarking *marking) override = 0;
 
             virtual NonStrictMarking *addToPassed(NonStrictMarking *marking, bool strong) = 0;
 
@@ -37,25 +36,25 @@ namespace VerifyTAPN {
 
         class WorkflowPWList : public WorkflowPWListBasic, public PWList {
         private:
-            NonStrictMarking *last;
+            NonStrictMarking *last{};
         public:
-            WorkflowPWList(WaitingList<NonStrictMarking *> *w_l);
+            explicit WorkflowPWList(WaitingList<NonStrictMarking *> *w_l);
 
-            virtual NonStrictMarking *getCoveredMarking(NonStrictMarking *marking, bool useLinearSweep);
+            NonStrictMarking *getCoveredMarking(NonStrictMarking *marking, bool useLinearSweep) override;
 
-            virtual NonStrictMarking *getUnpassed();
+            NonStrictMarking *getUnpassed() override;
 
-            virtual bool add(NonStrictMarking *marking);
+            bool add(NonStrictMarking *marking) override;
 
-            virtual NonStrictMarking *addToPassed(NonStrictMarking *marking, bool strong);
+            NonStrictMarking *addToPassed(NonStrictMarking *marking, bool strong) override;
 
-            NonStrictMarking *lookup(NonStrictMarking *marking);
+            NonStrictMarking *lookup(NonStrictMarking *marking) override;
 
-            virtual void addLastToWaiting() {
+            void addLastToWaiting() override {
                 waiting_list->add(last, last);
             }
 
-            virtual void setParent(NonStrictMarking *marking, NonStrictMarking *parent) {
+            void setParent(NonStrictMarking *marking, NonStrictMarking *parent) override {
                 marking->setParent(parent);
             }
 
@@ -72,23 +71,22 @@ namespace VerifyTAPN {
                                  int nplaces,
                                  int mage);
 
-            ~WorkflowPWListHybrid();
+            ~WorkflowPWListHybrid() override;
 
-            virtual NonStrictMarking *getCoveredMarking(NonStrictMarking *marking, bool useLinearSweep);
+            NonStrictMarking *getCoveredMarking(NonStrictMarking *marking, bool useLinearSweep) override;
 
-            virtual NonStrictMarking *getUnpassed();
+            NonStrictMarking *getUnpassed() override;
 
-            virtual bool add(NonStrictMarking *marking);
+            bool add(NonStrictMarking *marking) override;
 
-            virtual NonStrictMarking *addToPassed(NonStrictMarking *marking, bool strong);
+            NonStrictMarking *addToPassed(NonStrictMarking *marking, bool strong) override;
 
-            virtual void addLastToWaiting();
+            void addLastToWaiting() override;
 
-            virtual void setParent(NonStrictMarking *marking, NonStrictMarking *) {
+            void setParent(NonStrictMarking *marking, NonStrictMarking *) override {
                 ((MetaDataWithTraceAndEncoding *) marking->meta)->parent = parent;
             }
         };
 
-    } /* namespace DiscreteVerification */
-} /* namespace VerifyTAPN */
+    } /* namespace VerifyTAPN */
 #endif /* PWLIST_HPP_ */
