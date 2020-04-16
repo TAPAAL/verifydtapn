@@ -158,7 +158,7 @@ namespace VerifyTAPN {
 
         public: // inspectors
 
-            const bool canDeadlock(const TAPN::TimedArcPetriNet &tapn, const int maxDelay, bool ignoreCanDelay) const;
+            bool canDeadlock(const TAPN::TimedArcPetriNet &tapn, const int maxDelay, bool ignoreCanDelay) const;
 
             inline const bool canDeadlock(const TAPN::TimedArcPetriNet &tapn, const int maxDelay) const {
                 return canDeadlock(tapn, maxDelay, false);

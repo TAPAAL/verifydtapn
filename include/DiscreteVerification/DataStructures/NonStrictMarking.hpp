@@ -17,31 +17,30 @@
 
 using namespace std;
 
-namespace VerifyTAPN {
-    namespace DiscreteVerification {
+namespace VerifyTAPN::DiscreteVerification {
 
         class NonStrictMarking : public NonStrictMarkingBase {
         public:
-            NonStrictMarking() : NonStrictMarkingBase(), meta(NULL) {}
+            NonStrictMarking() : NonStrictMarkingBase(), meta(nullptr) {}
 
             NonStrictMarking(const TAPN::TimedArcPetriNet &tapn, const std::vector<int> &v) : NonStrictMarkingBase(tapn,
                                                                                                                    v),
-                                                                                              meta(NULL) {}
+                                                                                              meta(nullptr) {}
 
-            NonStrictMarking(const NonStrictMarkingBase &nsm) : NonStrictMarkingBase(nsm), meta(NULL) {
+            explicit NonStrictMarking(const NonStrictMarkingBase &nsm) : NonStrictMarkingBase(nsm), meta(nullptr) {
 
             }
 
-            NonStrictMarking(const NonStrictMarking &nsm) : NonStrictMarkingBase(nsm), meta(NULL) {
+            NonStrictMarking(const NonStrictMarking &nsm) : NonStrictMarkingBase(nsm), meta(nullptr) {
 
             }
 
             inline int calculateTotalDelay() {
                 int totalDelay = 0;
-                NonStrictMarking *parent = (NonStrictMarking *) this->getParent();
+                auto *parent = (NonStrictMarking *) this->getParent();
                 if (parent && parent->meta) {
                     totalDelay = parent->meta->totalDelay;
-                    if (this->getGeneratedBy() == NULL) ++totalDelay;
+                    if (this->getGeneratedBy() == nullptr) ++totalDelay;
                 }
                 return totalDelay;
             }
@@ -49,7 +48,6 @@ namespace VerifyTAPN {
         public:
             MetaData *meta;
         };
-    } /* namespace DiscreteVerification */
-} /* namespace VerifyTAPN */
+    } /* namespace VerifyTAPN */
 
 #endif /* NONSTRICTMARKING_HPP_ */

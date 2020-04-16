@@ -16,8 +16,7 @@
 using namespace std;
 using namespace ptrie;
 
-namespace VerifyTAPN {
-    namespace DiscreteVerification {
+namespace VerifyTAPN::DiscreteVerification {
 
         class NonStrictMarking;
 
@@ -25,21 +24,21 @@ namespace VerifyTAPN {
         public:
             MetaData() : passed(false), inTrace(false), totalDelay(0) {};
 
-            virtual ~MetaData() {};
+            virtual ~MetaData() = default;;
             bool passed;
             bool inTrace;
             int totalDelay;
         };
 
         struct MetaDataWithTrace : public MetaData {
-            const TAPN::TimedTransition *generatedBy;
+            const TAPN::TimedTransition *generatedBy{};
         };
 
         struct WorkflowSoundnessMetaData : public MetaData {
         public:
             WorkflowSoundnessMetaData() : MetaData(), parents() { totalDelay = INT_MAX; };
 
-            virtual ~WorkflowSoundnessMetaData() { parents.clear(); }
+            ~WorkflowSoundnessMetaData() override { parents.clear(); }
 
             vector<MetaData *> parents;
         };
@@ -47,7 +46,7 @@ namespace VerifyTAPN {
 
         struct MetaDataWithTraceAndEncoding : public MetaDataWithTrace {
             ptriepointer_t<MetaData *> ep;
-            MetaDataWithTraceAndEncoding *parent;
+            MetaDataWithTraceAndEncoding *parent{};
         };
 
         struct WorkflowSoundnessMetaDataWithEncoding : public MetaDataWithTraceAndEncoding {
@@ -55,13 +54,12 @@ namespace VerifyTAPN {
             WorkflowSoundnessMetaDataWithEncoding()
                     : MetaDataWithTraceAndEncoding(), parents() { totalDelay = INT_MAX; };
 
-            virtual ~WorkflowSoundnessMetaDataWithEncoding() {
+            ~WorkflowSoundnessMetaDataWithEncoding() override {
                 parents.clear();
             }
 
             vector<MetaData *> parents;
         };
     }
-}
 #endif    /* METADATA_H */
 

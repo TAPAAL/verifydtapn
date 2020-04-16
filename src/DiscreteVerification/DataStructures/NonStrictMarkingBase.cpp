@@ -10,22 +10,21 @@
 
 using namespace std;
 
-namespace VerifyTAPN {
-    namespace DiscreteVerification {
+namespace VerifyTAPN::DiscreteVerification {
 
         TokenList NonStrictMarkingBase::emptyTokenList = TokenList();
 
-        NonStrictMarkingBase::NonStrictMarkingBase() : children(0), parent(NULL), generatedBy(NULL) {
+        NonStrictMarkingBase::NonStrictMarkingBase() : children(0), parent(nullptr), generatedBy(nullptr) {
             // empty constructor
         }
 
         NonStrictMarkingBase::NonStrictMarkingBase(const TAPN::TimedArcPetriNet &tapn, const std::vector<int> &v)
-                : children(0), parent(NULL), generatedBy(NULL) {
+                : children(0), parent(nullptr), generatedBy(nullptr) {
             int prevPlaceId = -1;
-            for (std::vector<int>::const_iterator iter = v.begin(); iter != v.end(); iter++) {
-                if (*iter == prevPlaceId) {
+            for (int iter : v) {
+                if (iter == prevPlaceId) {
                     Place &p = places.back();
-                    if (p.tokens.size() == 0) {
+                    if (p.tokens.empty()) {
                         Token t(0, 1);
                         p.tokens.push_back(t);
                     } else {
@@ -33,12 +32,12 @@ namespace VerifyTAPN {
                     }
                 } else {
 
-                    Place p(&tapn.getPlace(*iter));
+                    Place p(&tapn.getPlace(iter));
                     Token t(0, 1);
                     p.tokens.push_back(t);
                     places.push_back(p);
                 }
-                prevPlaceId = *iter;
+                prevPlaceId = iter;
             }
         }
 
@@ -51,8 +50,8 @@ namespace VerifyTAPN {
 
         unsigned int NonStrictMarkingBase::size() {
             int count = 0;
-            for (PlaceList::const_iterator iter = places.begin(); iter != places.end(); iter++) {
-                for (TokenList::const_iterator it = iter->tokens.begin(); it != iter->tokens.end(); it++) {
+            for (const auto & place : places) {
+                for (auto it = place.tokens.begin(); it != place.tokens.end(); it++) {
                     count += it->getCount();
                 }
             }
@@ -61,9 +60,9 @@ namespace VerifyTAPN {
 
         int NonStrictMarkingBase::numberOfTokensInPlace(int placeId) const {
             int count = 0;
-            for (PlaceList::const_iterator iter = places.begin(); iter != places.end(); iter++) {
-                if (iter->place->getIndex() == placeId) {
-                    for (TokenList::const_iterator it = iter->tokens.begin(); it != iter->tokens.end(); it++) {
+            for (const auto & place : places) {
+                if (place.place->getIndex() == placeId) {
+                    for (auto it = place.tokens.begin(); it != place.tokens.end(); it++) {
                         count = count + it->getCount();
                     }
                 }
@@ -72,18 +71,18 @@ namespace VerifyTAPN {
         }
 
         const TokenList &NonStrictMarkingBase::getTokenList(int placeId) const {
-            for (PlaceList::const_iterator iter = places.begin(); iter != places.end(); iter++) {
-                if (iter->place->getIndex() == placeId) return iter->tokens;
+            for (const auto & place : places) {
+                if (place.place->getIndex() == placeId) return place.tokens;
             }
             return emptyTokenList;
         }
 
         bool NonStrictMarkingBase::removeToken(int placeId, int age) {
-            for (PlaceList::iterator pit = places.begin(); pit != places.end(); pit++) {
-                if (pit->place->getIndex() == placeId) {
-                    for (TokenList::iterator tit = pit->tokens.begin(); tit != pit->tokens.end(); tit++) {
+            for (auto & place : places) {
+                if (place.place->getIndex() == placeId) {
+                    for (auto tit = place.tokens.begin(); tit != place.tokens.end(); tit++) {
                         if (tit->getAge() == age) {
-                            return removeToken(*pit, *tit);
+                            return removeToken(place, *tit);
                         }
                     }
                 }
@@ -101,11 +100,11 @@ namespace VerifyTAPN {
                 token.remove(1);
                 return true;
             } else {
-                for (TokenList::iterator iter = place.tokens.begin(); iter != place.tokens.end(); iter++) {
+                for (auto iter = place.tokens.begin(); iter != place.tokens.end(); iter++) {
                     if (iter->getAge() == token.getAge()) {
                         place.tokens.erase(iter);
                         if (place.tokens.empty()) {
-                            for (PlaceList::iterator it = places.begin(); it != places.end(); it++) {
+                            for (auto it = places.begin(); it != places.end(); it++) {
                                 if (it->place->getIndex() == place.place->getIndex()) {
                                     places.erase(it);
                                     return true;
@@ -120,17 +119,17 @@ namespace VerifyTAPN {
         }
 
         void NonStrictMarkingBase::addTokenInPlace(TAPN::TimedPlace &place, int age) {
-            for (PlaceList::iterator pit = places.begin(); pit != places.end(); pit++) {
-                if (pit->place->getIndex() == place.getIndex()) {
-                    for (TokenList::iterator tit = pit->tokens.begin(); tit != pit->tokens.end(); tit++) {
+            for (auto & pit : places) {
+                if (pit.place->getIndex() == place.getIndex()) {
+                    for (auto tit = pit.tokens.begin(); tit != pit.tokens.end(); tit++) {
                         if (tit->getAge() == age) {
                             Token t(age, 1);
-                            addTokenInPlace(*pit, t);
+                            addTokenInPlace(pit, t);
                             return;
                         }
                     }
                     Token t(age, 1);
-                    addTokenInPlace(*pit, t);
+                    addTokenInPlace(pit, t);
                     return;
                 }
             }
@@ -140,7 +139,7 @@ namespace VerifyTAPN {
 
             // Insert place
             bool inserted = false;
-            for (PlaceList::iterator it = places.begin(); it != places.end(); it++) {
+            for (auto it = places.begin(); it != places.end(); it++) {
                 if (it->place->getIndex() > place.getIndex()) {
                     places.insert(it, p);
                     inserted = true;
@@ -153,9 +152,9 @@ namespace VerifyTAPN {
         }
 
         void NonStrictMarkingBase::addTokenInPlace(const TAPN::TimedPlace &place, Token &token) {
-            for (PlaceList::iterator pit = places.begin(); pit != places.end(); pit++) {
-                if (pit->place->getIndex() == place.getIndex()) {
-                    addTokenInPlace(*pit, token);
+            for (auto & pit : places) {
+                if (pit.place->getIndex() == place.getIndex()) {
+                    addTokenInPlace(pit, token);
                     return;
                 }
             }
@@ -165,7 +164,7 @@ namespace VerifyTAPN {
 
             // Insert place
             bool inserted = false;
-            for (PlaceList::iterator it = places.begin(); it != places.end(); it++) {
+            for (auto it = places.begin(); it != places.end(); it++) {
                 if (it->place->getIndex() > place.getIndex()) {
                     places.insert(it, p);
                     inserted = true;
@@ -179,15 +178,15 @@ namespace VerifyTAPN {
 
         void NonStrictMarkingBase::addTokenInPlace(Place &place, Token &token) {
             if (token.getCount() == 0) return;
-            for (TokenList::iterator iter = place.tokens.begin(); iter != place.tokens.end(); iter++) {
-                if (iter->getAge() == token.getAge()) {
-                    iter->add(token.getCount());
+            for (auto & iter : place.tokens) {
+                if (iter.getAge() == token.getAge()) {
+                    iter.add(token.getCount());
                     return;
                 }
             }
             // Insert token
             bool inserted = false;
-            for (TokenList::iterator it = place.tokens.begin(); it != place.tokens.end(); it++) {
+            for (auto it = place.tokens.begin(); it != place.tokens.end(); it++) {
                 if (it->getAge() > token.getAge()) {
                     place.tokens.insert(it, token);
                     inserted = true;
@@ -199,15 +198,14 @@ namespace VerifyTAPN {
             }
         }
 
-        NonStrictMarkingBase::~NonStrictMarkingBase() {
-        }
+        NonStrictMarkingBase::~NonStrictMarkingBase() = default;
 
         int NonStrictMarkingBase::cmp(const NonStrictMarkingBase &m1) const {
             if (m1.places.size() != places.size())
                 return (int) places.size() - (int) m1.places.size();
 
-            PlaceList::const_iterator p_iter = m1.places.begin();
-            PlaceList::const_iterator iter = places.begin();
+            auto p_iter = m1.places.begin();
+            auto iter = places.begin();
 
             for (; iter != places.end(); iter++, p_iter++) {
 
@@ -217,8 +215,8 @@ namespace VerifyTAPN {
                 if (iter->tokens.size() != p_iter->tokens.size())
                     return (int) iter->tokens.size() - (int) p_iter->tokens.size();
 
-                TokenList::const_iterator pt_iter = p_iter->tokens.begin();
-                TokenList::const_iterator t_iter = iter->tokens.begin();
+                auto pt_iter = p_iter->tokens.begin();
+                auto t_iter = iter->tokens.begin();
                 for (; t_iter != iter->tokens.end(); t_iter++, pt_iter++) {
                     int res = t_iter->cmp(*pt_iter);
                     if (res != 0) return res;
@@ -232,8 +230,8 @@ namespace VerifyTAPN {
         }
 
         std::ostream &operator<<(std::ostream &out, NonStrictMarkingBase &x) {
-            for (PlaceList::iterator iter = x.places.begin(); iter != x.places.end(); iter++) {
-                for (TokenList::iterator it = iter->tokens.begin(); it != iter->tokens.end(); it++) {
+            for (auto iter = x.places.begin(); iter != x.places.end(); iter++) {
+                for (auto it = iter->tokens.begin(); it != iter->tokens.end(); it++) {
                     out << "(" << iter->place->getName() << ", " << it->getAge() << ", " << it->getCount() << ")";
                 }
                 if (iter != x.places.end() - 1) {
@@ -244,7 +242,7 @@ namespace VerifyTAPN {
             return out;
         }
 
-        const bool NonStrictMarkingBase::canDeadlock(const TAPN::TimedArcPetriNet &tapn, const int maxDelay,
+        bool NonStrictMarkingBase::canDeadlock(const TAPN::TimedArcPetriNet &tapn, const int maxDelay,
                                                      bool ignoreCanDelay) const {
             bool canDelay = true;
             bool allMC = true;
@@ -258,7 +256,7 @@ namespace VerifyTAPN {
                  tit != tapn.getTransitions().end(); ++tit) {
                 int presetSize = (*tit)->getPresetSize();
                 int index = (*tit)->getIndex();
-                if (presetSize == 0 && (*tit)->getInhibitorArcs().size() == 0) {
+                if (presetSize == 0 && (*tit)->getInhibitorArcs().empty()) {
                     delete[] status;
                     return false; // if empty preset, we can always fire a transition
                 }
@@ -267,12 +265,11 @@ namespace VerifyTAPN {
                 status[index] = presetSize;
             }
 
-            for (PlaceList::const_iterator place_iter = this->places.begin();
-                 place_iter != this->places.end(); ++place_iter) {
-                int numtokens = place_iter->numberOfTokens();
+            for (const auto & place : this->places) {
+                int numtokens = place.numberOfTokens();
                 // for regular input arcs
-                for (TAPN::TimedInputArc::Vector::const_iterator arc_iter = place_iter->place->getInputArcs().begin();
-                     arc_iter != place_iter->place->getInputArcs().end(); ++arc_iter) {
+                for (auto arc_iter = place.place->getInputArcs().begin();
+                     arc_iter != place.place->getInputArcs().end(); ++arc_iter) {
                     hasOutArc = true;
                     int id = (*arc_iter)->getOutputTransition().getIndex();
                     int weight = (*arc_iter)->getWeight();
@@ -282,8 +279,8 @@ namespace VerifyTAPN {
                         int lb = (*arc_iter)->getInterval().getLowerBound();
                         int ub = (*arc_iter)->getInterval().getUpperBound();
                         // decrement if token can satisfy the bounds
-                        for (TokenList::const_iterator tokenit = place_iter->tokens.begin();
-                             tokenit != place_iter->tokens.end(); ++tokenit) {
+                        for (auto tokenit = place.tokens.begin();
+                             tokenit != place.tokens.end(); ++tokenit) {
                             int age = tokenit->getAge() + maxDelay;
                             if (age >= lb) {
                                 if (age <= ub) {
@@ -302,8 +299,8 @@ namespace VerifyTAPN {
                 }
 
                 // for transport arcs
-                for (TAPN::TransportArc::Vector::const_iterator arc_iter = place_iter->place->getTransportArcs().begin();
-                     arc_iter != place_iter->place->getTransportArcs().end(); ++arc_iter) {
+                for (auto arc_iter = place.place->getTransportArcs().begin();
+                     arc_iter != place.place->getTransportArcs().end(); ++arc_iter) {
                     hasOutArc = true;
                     int id = (*arc_iter)->getTransition().getIndex();
                     int weight = (*arc_iter)->getWeight();
@@ -314,8 +311,8 @@ namespace VerifyTAPN {
                         int destination_invariant = (*arc_iter)->getDestination().getInvariant().getBound();
                         int ub = min((*arc_iter)->getInterval().getUpperBound(), destination_invariant);
                         // decrement if token can satisfy the bounds
-                        for (TokenList::const_iterator tokenit = place_iter->tokens.begin();
-                             tokenit != place_iter->tokens.end(); ++tokenit) {
+                        for (auto tokenit = place.tokens.begin();
+                             tokenit != place.tokens.end(); ++tokenit) {
                             int age = tokenit->getAge() + maxDelay;
                             if (age >= lb) {
                                 if (age <= ub) {
@@ -334,8 +331,8 @@ namespace VerifyTAPN {
                 }
 
                 // for inhibitor arcs
-                for (TAPN::InhibitorArc::Vector::const_iterator arc_iter = place_iter->place->getInhibitorArcs().begin();
-                     arc_iter != place_iter->place->getInhibitorArcs().end(); ++arc_iter) {
+                for (auto arc_iter = place.place->getInhibitorArcs().begin();
+                     arc_iter != place.place->getInhibitorArcs().end(); ++arc_iter) {
                     int id = (*arc_iter)->getOutputTransition().getIndex();
                     // no precheck if it was disabled, actual calculation is just as fast
                     if (numtokens >= (*arc_iter)->getWeight())        // we satisfy the inhibitor
@@ -343,12 +340,12 @@ namespace VerifyTAPN {
                 }
 
                 if (canDelay) { // if delay is still possible
-                    int invariant = place_iter->place->getInvariant().getBound();
-                    if (invariant <= place_iter->maxTokenAge() + maxDelay) {       // if we have reached the invariant
+                    int invariant = place.place->getInvariant().getBound();
+                    if (invariant <= place.maxTokenAge() + maxDelay) {       // if we have reached the invariant
                         canDelay = false;                               // we cannot delay
                     } else {
                         if (allMC) {                                      // if all up till now have been equal MC
-                            allMC = place_iter->allMaximumConstant(maxDelay);   // check if this one is to
+                            allMC = place.allMaximumConstant(maxDelay);   // check if this one is to
                         }
                     }
                 }
@@ -398,18 +395,18 @@ namespace VerifyTAPN {
                 //set age of too old tokens to max age
                 int count = 0;
                 int total = 0;
-                for (TokenList::iterator token_iter = place_iter->tokens.begin();
+                for (auto token_iter = place_iter->tokens.begin();
                      token_iter != place_iter->tokens.end(); token_iter++) {
                     if (token_iter->getAge() >
                         place_iter->place->getMaxConstant()) { // this will also removed dead tokens
-                        TokenList::iterator beginDelete = token_iter;
+                        auto beginDelete = token_iter;
                         if (place_iter->place->getType() == TAPN::Std) {
                             for (; token_iter != place_iter->tokens.end(); token_iter++) {
                                 count += token_iter->getCount();
                             }
                         } else if (place_iter->place->getType() == TAPN::Dead) {
                             // if we remove some dead tokens update place statistics
-                            if (place_iter->tokens.size() > 0) {
+                            if (!place_iter->tokens.empty()) {
                                 placeCount[place_iter->place->getIndex()] = std::numeric_limits<int>::max();
                             }
                         }
@@ -438,11 +435,10 @@ namespace VerifyTAPN {
 
         int NonStrictMarkingBase::getYoungest() {
             int youngest = INT_MAX;
-            for (PlaceList::const_iterator place_iter = getPlaceList().begin();
-                 place_iter != getPlaceList().end(); place_iter++) {
-                if (youngest > place_iter->tokens.front().getAge() &&
-                    place_iter->tokens.front().getAge() <= place_iter->place->getMaxConstant()) {
-                    youngest = place_iter->tokens.front().getAge();
+            for (const auto & place_iter : getPlaceList()) {
+                if (youngest > place_iter.tokens.front().getAge() &&
+                    place_iter.tokens.front().getAge() <= place_iter.place->getMaxConstant()) {
+                    youngest = place_iter.tokens.front().getAge();
                 }
             }
 
@@ -458,10 +454,10 @@ namespace VerifyTAPN {
 #endif
             int youngest = getYoungest();
 
-            for (PlaceList::iterator place_iter = places.begin(); place_iter != places.end(); place_iter++) {
-                for (TokenList::iterator token_iter = place_iter->tokens.begin();
-                     token_iter != place_iter->tokens.end(); token_iter++) {
-                    if (token_iter->getAge() != place_iter->place->getMaxConstant() + 1) {
+            for (auto & place : places) {
+                for (auto token_iter = place.tokens.begin();
+                     token_iter != place.tokens.end(); token_iter++) {
+                    if (token_iter->getAge() != place.place->getMaxConstant() + 1) {
                         token_iter->setAge(token_iter->getAge() - youngest);
                     }
 #ifdef DEBUG
@@ -480,5 +476,4 @@ namespace VerifyTAPN {
             return youngest;
         }
 
-    } /* namespace DiscreteVerification */
-} /* namespace VerifyTAPN */
+    } /* namespace VerifyTAPN */
