@@ -324,10 +324,9 @@ namespace VerifyTAPN::DiscreteVerification {
     const TAPN::TimedPlace *
     Generator::compute_missing(const TAPN::TimedTransition *trans, std::vector<size_t> *permutations) {
         PlaceList &placelist = parent->getPlaceList();
-        auto pit;
 
         size_t arccounter = 0;
-        pit = placelist.begin();
+        auto pit = placelist.begin();
         for (auto &input : trans->getPreset()) {
             int source = input->getInputPlace().getIndex();
             while (pit != placelist.end() &&
