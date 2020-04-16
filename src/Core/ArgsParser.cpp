@@ -1,7 +1,6 @@
 #include "Core/ArgsParser.hpp"
 
 #include <iostream>
-#include <sstream>
 #include <iomanip>
 
 #include <boost/algorithm/string.hpp>

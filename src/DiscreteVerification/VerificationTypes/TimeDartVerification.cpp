@@ -1,6 +1,5 @@
 #include "DiscreteVerification/VerificationTypes/TimeDartVerification.hpp"
 #include "DiscreteVerification/DeadlockVisitor.hpp"
-#include "DiscreteVerification/Generator.h"
 
 namespace VerifyTAPN::DiscreteVerification {
 

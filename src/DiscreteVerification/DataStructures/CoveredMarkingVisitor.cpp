@@ -129,7 +129,7 @@ namespace VerifyTAPN::DiscreteVerification {
         return true;
     }
 
-    bool CoveredMarkingVisitor::back(int index) {
+    bool CoveredMarkingVisitor::back(int) {
         return false;
     }
 

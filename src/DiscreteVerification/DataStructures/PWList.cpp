@@ -7,7 +7,6 @@
 
 #include "DiscreteVerification/DataStructures/PWList.hpp"
 #include "DiscreteVerification/DataStructures/ptrie.h"
-#include "DiscreteVerification/DataStructures/MarkingEncoder.h"
 
 using namespace ptrie;
 namespace VerifyTAPN::DiscreteVerification {
