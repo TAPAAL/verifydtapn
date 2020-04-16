@@ -10,10 +10,10 @@
 
 #include "binarywrapper.h"
 #include "visitor.h"
-#include <assert.h>
+#include <cassert>
 #include <limits>
 #include <vector>
-#include <stdint.h>
+#include <cstdint>
 #include <stack>
 
 namespace ptrie {
@@ -540,7 +540,7 @@ namespace ptrie {
         assert(consistent());
         uint n_node_index = new_node();
         node_t *n_node = get_node(n_node_index);
-        uint *o_entries = NULL;
+        uint *o_entries = nullptr;
 
         // if we are overflowing in, split bucket
         uint n_node_count;
@@ -571,7 +571,7 @@ namespace ptrie {
             }
         }
 
-        assert(o_entries != NULL || node_count == 0);
+        assert(o_entries != nullptr || node_count == 0);
         assert(n_node_count > 0);
         assert(tree_pos != n_node_index);
         n_node->_parent = tree_pos;

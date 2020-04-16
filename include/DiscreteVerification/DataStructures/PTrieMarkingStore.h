@@ -14,8 +14,7 @@
 #include "MarkingEncoder.h"
 #include "ptrie.h"
 
-namespace VerifyTAPN {
-    namespace DiscreteVerification {
+namespace VerifyTAPN::DiscreteVerification {
         template<typename T = MetaData *>
         class PTrieMarkingStore : public MarkingStore<T> {
         public:
@@ -33,9 +32,7 @@ namespace VerifyTAPN {
                       encoder(tapn, knumber),
                       store() {}
 
-            virtual ~PTrieMarkingStore() {
-
-            }
+            virtual ~PTrieMarkingStore() = default;
 
             /**
              *
@@ -51,7 +48,7 @@ namespace VerifyTAPN {
                         store.insert(encoder.encode(m));
                 delete m;
                 if (res.first) this->stored += 1;
-                typename MarkingStore<T>::Pointer *
+                auto *
                         p = reinterpret_cast<typename MarkingStore<T>::Pointer *>(res.second.index);
                 return typename MarkingStore<T>::result_t(res.first, p);
             }
@@ -95,7 +92,6 @@ namespace VerifyTAPN {
 
         };
     }
-}
 
 #endif    /* PTRIEMARKINGSTORE_H */
 

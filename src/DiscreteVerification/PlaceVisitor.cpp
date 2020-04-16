@@ -7,8 +7,7 @@
 
 #include "DiscreteVerification/PlaceVisitor.hpp"
 
-namespace VerifyTAPN {
-    namespace DiscreteVerification {
+namespace VerifyTAPN::DiscreteVerification {
 
         void PlaceVisitor::visit(NotExpression &expr, Result &context) {
             expr.getChild().accept(*this, context);
@@ -42,7 +41,7 @@ namespace VerifyTAPN {
         void PlaceVisitor::visit(NumberExpression &expr, Result &context) {};
 
         void PlaceVisitor::visit(IdentifierExpression &expr, Result &context) {
-            AST::IntVectorResult &v = static_cast< AST::IntVectorResult & >(context);
+            auto &v = static_cast< AST::IntVectorResult & >(context);
             v.value.push_back(expr.getPlace());
         };
 
@@ -54,5 +53,4 @@ namespace VerifyTAPN {
             expr.getLeft().accept(*this, context);
             expr.getRight().accept(*this, context);
         };
-    } /* namespace DiscreteVerification */
-} /* namespace VerifyTAPN */
+    } /* namespace VerifyTAPN */

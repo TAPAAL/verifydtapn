@@ -4,8 +4,7 @@
 #include <vector>
 #include <iostream>
 
-namespace VerifyTAPN {
-    namespace TAPN {
+namespace VerifyTAPN::TAPN {
         class TimedPlace;
 
         class TimedTransition;
@@ -27,7 +26,7 @@ namespace VerifyTAPN {
         public: // inspectors
             void print(std::ostream &out) const;
 
-            inline const int getWeight() const { return weight; }
+            inline int getWeight() const { return weight; }
 
         private:
             TimedTransition &transition;
@@ -40,6 +39,5 @@ namespace VerifyTAPN {
             return out;
         }
     }
-}
 
 #endif /* VERIFYTAPN_TAPN_OUTPUTARC_HPP_ */
