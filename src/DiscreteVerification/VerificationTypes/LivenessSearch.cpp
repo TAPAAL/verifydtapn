@@ -7,18 +7,17 @@
 
 #include "DiscreteVerification/VerificationTypes/LivenessSearch.hpp"
 
-namespace VerifyTAPN {
-    namespace DiscreteVerification {
+namespace VerifyTAPN::DiscreteVerification {
 
         LivenessSearch::LivenessSearch(TAPN::TimedArcPetriNet &tapn, NonStrictMarking &initialMarking,
-                                       AST::Query *query, VerificationOptions options)
+                                       AST::Query *query, const VerificationOptions& options)
                 : AbstractNaiveVerification<PWListBase, NonStrictMarking, Generator>(tapn, initialMarking, query,
                                                                                      options, NULL) {
 
         }
 
         LivenessSearch::LivenessSearch(TAPN::TimedArcPetriNet &tapn, NonStrictMarking &initialMarking,
-                                       AST::Query *query, VerificationOptions options,
+                                       AST::Query *query, const VerificationOptions& options,
                                        WaitingList<NonStrictMarking *> *waiting_list)
                 : AbstractNaiveVerification<PWListBase, NonStrictMarking, Generator>(tapn, initialMarking, query,
                                                                                      options,
@@ -143,9 +142,6 @@ namespace VerifyTAPN {
             }
         }
 
-        LivenessSearch::~LivenessSearch() {
+        LivenessSearch::~LivenessSearch() = default;
 
-        }
-
-    } /* namespace DiscreteVerification */
-} /* namespace VerifyTAPN */
+    } /* namespace VerifyTAPN */

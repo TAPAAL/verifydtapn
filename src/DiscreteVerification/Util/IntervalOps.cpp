@@ -7,16 +7,14 @@
 
 #include "DiscreteVerification/Util/IntervalOps.hpp"
 
-namespace VerifyTAPN {
-    namespace DiscreteVerification {
-        namespace Util {
+namespace VerifyTAPN::DiscreteVerification::Util {
 
             using namespace std;
 
             vector<interval> setIntersection(const vector<interval> &first, const vector<interval> &second) {
                 vector<interval> result;
 
-                if (first.size() < 1 || second.size() < 1) {
+                if (first.empty() || second.empty()) {
                     return result;
                 }
 
@@ -89,6 +87,4 @@ namespace VerifyTAPN {
                 first.push_back(element);
             }
 
-        } /* namespace Util */
-    } /* namespace DiscreteVerification */
-} /* namespace VerifyTAPN */
+        } /* namespace VerifyTAPN */

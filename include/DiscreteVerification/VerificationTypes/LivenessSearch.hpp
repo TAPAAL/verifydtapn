@@ -31,10 +31,10 @@ namespace VerifyTAPN {
         class LivenessSearch : public AbstractNaiveVerification<PWListBase, NonStrictMarking, Generator> {
         public:
             LivenessSearch(TAPN::TimedArcPetriNet &tapn, NonStrictMarking &initialMarking, AST::Query *query,
-                           VerificationOptions options);
+                           const VerificationOptions& options);
 
             LivenessSearch(TAPN::TimedArcPetriNet &tapn, NonStrictMarking &initialMarking, AST::Query *query,
-                           VerificationOptions options, WaitingList<NonStrictMarking *> *waiting_list);
+                           const VerificationOptions& options, WaitingList<NonStrictMarking *> *waiting_list);
 
             virtual ~LivenessSearch();
 
@@ -51,7 +51,7 @@ namespace VerifyTAPN {
             void getTrace();
 
         protected:
-            int validChildren;
+            int validChildren{};
         };
 
         class LivenessSearchPTrie : public LivenessSearch {

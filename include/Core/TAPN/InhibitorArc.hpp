@@ -4,8 +4,7 @@
 #include <vector>
 #include "TimeInterval.hpp"
 
-namespace VerifyTAPN {
-    namespace TAPN {
+namespace VerifyTAPN::TAPN {
         class TimedTransition;
 
         class TimedPlace;
@@ -28,7 +27,7 @@ namespace VerifyTAPN {
         public: // Inspectors
             void print(std::ostream &out) const;
 
-            inline const int getWeight() const { return weight; }
+            inline int getWeight() const { return weight; }
 
         private:
             TimedPlace &place;
@@ -41,7 +40,5 @@ namespace VerifyTAPN {
             return out;
         }
     }
-
-}
 
 #endif /* INHIBITORARC_HPP_ */

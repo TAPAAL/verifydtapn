@@ -14,8 +14,7 @@
 #include "DataStructures/NonStrictMarkingBase.hpp"
 #include "DataStructures/NonStrictMarking.hpp"
 
-namespace VerifyTAPN {
-    namespace DiscreteVerification {
+namespace VerifyTAPN::DiscreteVerification {
         class Generator {
             typedef std::vector<const TAPN::TimedTransition *> transitions_t;
         public:
@@ -24,19 +23,19 @@ namespace VerifyTAPN {
             };
         protected:
             const TAPN::TimedArcPetriNet &tapn;
-            NonStrictMarkingBase *parent;
+            NonStrictMarkingBase *parent{};
             Mode mode;
             transitions_t allways_enabled;
             std::vector<transitions_t> place_transition;
-            size_t num_children;
-            size_t place;
-            size_t transition;
-            const TAPN::TimedTransition *current;
+            size_t num_children{};
+            size_t place{};
+            size_t transition{};
+            const TAPN::TimedTransition *current{};
             std::vector<size_t> permutation;
             std::vector<size_t> base_permutation;
-            bool done;
-            bool seen_urgent;
-            bool did_noinput;
+            bool done{};
+            bool seen_urgent{};
+            bool did_noinput{};
             const TAPN::TimedTransition *_trans = nullptr;
             AST::Query *query;
             std::vector<uint32_t> transitionStatistics;
@@ -78,7 +77,6 @@ namespace VerifyTAPN {
         };
 
     }
-}
 
 
 #endif    /* GENERATOR_H */
