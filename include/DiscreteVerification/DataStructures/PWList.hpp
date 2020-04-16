@@ -18,14 +18,13 @@
 #include <iostream>
 
 using namespace ptrie;
-namespace VerifyTAPN {
-    namespace DiscreteVerification {
+namespace VerifyTAPN::DiscreteVerification {
 
         class PWListBase {
         public:
             PWListBase() : stored(0), discoveredMarkings(0), maxNumTokensInAnyMarking(-1), isLiveness(false) {};
 
-            PWListBase(bool isLiveness) : stored(0), discoveredMarkings(0), maxNumTokensInAnyMarking(-1),
+            explicit PWListBase(bool isLiveness) : stored(0), discoveredMarkings(0), maxNumTokensInAnyMarking(-1),
                                           isLiveness(isLiveness) {};
             int stored;
             int discoveredMarkings;
@@ -38,7 +37,7 @@ namespace VerifyTAPN {
 
             virtual bool add(NonStrictMarking *marking) = 0;
 
-            virtual NonStrictMarking *lookup(NonStrictMarking *marking) { return NULL; }
+            virtual NonStrictMarking *lookup(NonStrictMarking *marking) { return nullptr; }
 
             virtual NonStrictMarking *getNextUnexplored() = 0;
 
@@ -46,7 +45,7 @@ namespace VerifyTAPN {
 
             virtual void deleteWaitingList() {};
 
-            virtual ~PWListBase() {};
+            virtual ~PWListBase() = default;;
 
             inline void setMaxNumTokensIfGreater(int i) {
                 if (i > maxNumTokensInAnyMarking)
@@ -65,27 +64,27 @@ namespace VerifyTAPN {
                                                                             markings_storage(256000),
                                                                             waiting_list(w_l) {};
 
-            virtual ~PWList();
+            ~PWList() override;
 
             friend std::ostream &operator<<(std::ostream &out, PWList &x);
 
         public: // inspectors
-            virtual bool hasWaitingStates() {
+            bool hasWaitingStates() override {
                 return (waiting_list->size() > 0);
             };
 
-            virtual long long size() const {
+            long long size() const override {
                 return stored;
             };
 
-            virtual long long explored() { return waiting_list->size(); };
+            long long explored() override { return waiting_list->size(); };
 
         public: // modifiers
-            virtual bool add(NonStrictMarking *marking);
+            bool add(NonStrictMarking *marking) override;
 
-            virtual NonStrictMarking *getNextUnexplored();
+            NonStrictMarking *getNextUnexplored() override;
 
-            virtual void deleteWaitingList() { delete waiting_list; };
+            void deleteWaitingList() override { delete waiting_list; };
 
         protected:
             HashMap markings_storage;
@@ -111,10 +110,10 @@ namespace VerifyTAPN {
                     passed(),
                     encoder(tapn, knumber) {
                 discoveredMarkings = 0;
-                parent = NULL;
+                parent = nullptr;
             };
 
-            virtual ~PWListHybrid();
+            ~PWListHybrid() override;
 
             friend std::ostream &operator<<(std::ostream &out, PWListHybrid &x);
 
@@ -122,31 +121,31 @@ namespace VerifyTAPN {
             NonStrictMarking *decode(ptriepointer_t<MetaData *> &ep) {
 
                 NonStrictMarkingBase *base = encoder.decode(ep);
-                NonStrictMarking *m = new NonStrictMarking(*base);
+                auto *m = new NonStrictMarking(*base);
                 delete base;
                 return m;
             };
 
-            virtual bool hasWaitingStates() {
+            bool hasWaitingStates() override {
                 return (waiting_list->size() > 0);
             };
 
-            virtual long long size() const {
+            long long size() const override {
                 return passed.size();
             };
 
-            virtual long long explored() { return waiting_list->size(); };
+            long long explored() override { return waiting_list->size(); };
 
             void printMemStats() {
 //                passed->printMemStats();
             }
 
-            virtual void deleteWaitingList() { delete waiting_list; };
+            void deleteWaitingList() override { delete waiting_list; };
 
         public: // modifiers
-            virtual bool add(NonStrictMarking *marking);
+            bool add(NonStrictMarking *marking) override;
 
-            virtual NonStrictMarking *getNextUnexplored();
+            NonStrictMarking *getNextUnexplored() override;
 
         protected:
 
@@ -160,6 +159,5 @@ namespace VerifyTAPN {
 
         std::ostream &operator<<(std::ostream &out, PWList &x);
 
-    } /* namespace DiscreteVerification */
-} /* namespace VerifyTAPN */
+    } /* namespace VerifyTAPN */
 #endif /* PWLIST_HPP_ */

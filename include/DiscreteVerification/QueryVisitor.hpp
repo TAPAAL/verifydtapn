@@ -13,8 +13,7 @@
 #include "../Core/QueryParser/AST.hpp"
 #include <exception>
 
-namespace VerifyTAPN {
-    namespace DiscreteVerification {
+namespace VerifyTAPN::DiscreteVerification {
 
         using namespace AST;
 
@@ -33,36 +32,35 @@ namespace VerifyTAPN {
                 deadlocked = false;
             }
 
-            virtual ~QueryVisitor() {
-            };
+            ~QueryVisitor() override = default;;
 
         public: // visitor methods
 
-            virtual void visit(NotExpression &expr, AST::Result &context);
+            void visit(NotExpression &expr, AST::Result &context) override;
 
-            virtual void visit(OrExpression &expr, AST::Result &context);
+            void visit(OrExpression &expr, AST::Result &context) override;
 
-            virtual void visit(AndExpression &expr, AST::Result &context);
+            void visit(AndExpression &expr, AST::Result &context) override;
 
-            virtual void visit(AtomicProposition &expr, AST::Result &context);
+            void visit(AtomicProposition &expr, AST::Result &context) override;
 
-            virtual void visit(BoolExpression &expr, AST::Result &context);
+            void visit(BoolExpression &expr, AST::Result &context) override;
 
-            virtual void visit(Query &query, AST::Result &context);
+            void visit(Query &query, AST::Result &context) override;
 
-            virtual void visit(DeadlockExpression &expr, AST::Result &context);
+            void visit(DeadlockExpression &expr, AST::Result &context) override;
 
-            virtual void visit(NumberExpression &expr, AST::Result &context);
+            void visit(NumberExpression &expr, AST::Result &context) override;
 
-            virtual void visit(IdentifierExpression &expr, AST::Result &context);
+            void visit(IdentifierExpression &expr, AST::Result &context) override;
 
-            virtual void visit(MultiplyExpression &expr, AST::Result &context);
+            void visit(MultiplyExpression &expr, AST::Result &context) override;
 
-            virtual void visit(MinusExpression &expr, AST::Result &context);
+            void visit(MinusExpression &expr, AST::Result &context) override;
 
-            virtual void visit(SubtractExpression &expr, AST::Result &context);
+            void visit(SubtractExpression &expr, AST::Result &context) override;
 
-            virtual void visit(PlusExpression &expr, AST::Result &context);
+            void visit(PlusExpression &expr, AST::Result &context) override;
 
         private:
             bool compare(int numberOfTokensInPlace, const std::string &op, int n) const;
@@ -215,6 +213,5 @@ namespace VerifyTAPN {
             return false;
         }
 
-    } /* namespace DiscreteVerification */
-} /* namespace VerifyTAPN */
+    } /* namespace VerifyTAPN */
 #endif /* QUERYVISITOR_HPP_ */

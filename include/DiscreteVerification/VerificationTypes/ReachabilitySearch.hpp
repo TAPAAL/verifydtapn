@@ -25,19 +25,18 @@
 #include "../DataStructures/WaitingList.hpp"
 #include "AbstractNaiveVerification.hpp"
 
-namespace VerifyTAPN {
-    namespace DiscreteVerification {
+namespace VerifyTAPN::DiscreteVerification {
 
         template<typename S>
         class ReachabilitySearch : public AbstractNaiveVerification<PWListBase, NonStrictMarking, S> {
         public:
             ReachabilitySearch(TAPN::TimedArcPetriNet &tapn, NonStrictMarking &initialMarking, AST::Query *query,
-                               VerificationOptions options)
+                               const VerificationOptions& options)
                     : AbstractNaiveVerification<PWListBase, NonStrictMarking, S>(tapn, initialMarking, query, options,
                                                                                  NULL) {}
 
             ReachabilitySearch(TAPN::TimedArcPetriNet &tapn, NonStrictMarking &initialMarking, AST::Query *query,
-                               VerificationOptions options, WaitingList<NonStrictMarking *> *waiting_list)
+                               const VerificationOptions& options, WaitingList<NonStrictMarking *> *waiting_list)
                     : AbstractNaiveVerification<PWListBase, NonStrictMarking, S>(tapn, initialMarking, query, options,
                                                                                  new PWList(waiting_list, false)) {}
 
@@ -65,9 +64,9 @@ namespace VerifyTAPN {
 
                     // Generate next markings
                     if (!noDelay && this->isDelayPossible(next_marking)) {
-                        NonStrictMarking *marking = new NonStrictMarking(next_marking);
+                        auto *marking = new NonStrictMarking(next_marking);
                         marking->incrementAge();
-                        marking->setGeneratedBy(NULL);
+                        marking->setGeneratedBy(nullptr);
                         if (handleSuccessor(marking, &next_marking)) {
                             return true;
                         }
@@ -115,7 +114,7 @@ namespace VerifyTAPN {
             }
 
         protected:
-            int validChildren;
+            int validChildren{};
         public:
             virtual void getTrace() {
                 stack<NonStrictMarking *> printStack;
@@ -132,7 +131,7 @@ namespace VerifyTAPN {
         class ReachabilitySearchPTrie : public ReachabilitySearch<S> {
         public:
             ReachabilitySearchPTrie(TAPN::TimedArcPetriNet &tapn, NonStrictMarking &initialMarking, AST::Query *query,
-                                    VerificationOptions options, WaitingList <ptriepointer_t<MetaData *>> *waiting_list)
+                                    const VerificationOptions& options, WaitingList <ptriepointer_t<MetaData *>> *waiting_list)
                     : ReachabilitySearch<S>(tapn, initialMarking, query, options) {
                 this->pwList = new PWListHybrid(tapn, waiting_list, options.getKBound(), tapn.getNumberOfPlaces(),
                                                 tapn.getMaxConstant(), false,
@@ -145,11 +144,11 @@ namespace VerifyTAPN {
 
             virtual void getTrace() {
                 stack<NonStrictMarking *> printStack;
-                PWListHybrid *pwhlist = dynamic_cast<PWListHybrid *>(this->pwList);
+                auto *pwhlist = dynamic_cast<PWListHybrid *>(this->pwList);
                 MetaDataWithTraceAndEncoding *next = pwhlist->parent;
                 NonStrictMarking *last = this->lastMarking;
                 printStack.push(this->lastMarking);
-                while (next != NULL) {
+                while (next != nullptr) {
                     NonStrictMarking *m = pwhlist->decode(next->ep);
                     m->setGeneratedBy(next->generatedBy);
                     last->setParent(m);
@@ -162,6 +161,5 @@ namespace VerifyTAPN {
 
         };
 
-    } /* namespace DiscreteVerification */
-} /* namespace VerifyTAPN */
+    } /* namespace VerifyTAPN */
 #endif /* NONSTRICTSEARCH_HPP_ */

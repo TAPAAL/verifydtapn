@@ -10,22 +10,19 @@
 #include "DiscreteVerification/DataStructures/MarkingEncoder.h"
 
 using namespace ptrie;
-namespace VerifyTAPN {
-    namespace DiscreteVerification {
+namespace VerifyTAPN::DiscreteVerification {
 
         bool PWList::add(NonStrictMarking *marking) {
 
             discoveredMarkings++;
             NonStrictMarkingList &m = markings_storage[marking->getHashKey()];
-            for (NonStrictMarkingList::const_iterator iter = m.begin();
-                 iter != m.end();
-                 iter++) {
-                if ((*iter)->equals(*marking)) {
+            for (auto iter : m) {
+                if (iter->equals(*marking)) {
                     if (isLiveness) {
-                        marking->meta = (*iter)->meta;
+                        marking->meta = iter->meta;
                         if (!marking->meta->passed) {
-                            (*iter)->setGeneratedBy(marking->getGeneratedBy());
-                            waiting_list->add(*iter, *iter);
+                            iter->setGeneratedBy(marking->getGeneratedBy());
+                            waiting_list->add(iter, iter);
                             return true;
                         }
                     }
@@ -53,10 +50,9 @@ namespace VerifyTAPN {
 
         std::ostream &operator<<(std::ostream &out, PWList &x) {
             out << "Passed and waiting:" << std::endl;
-            for (PWList::HashMap::iterator iter = x.markings_storage.begin();
-                 iter != x.markings_storage.end(); iter++) {
-                for (PWList::NonStrictMarkingList::iterator m_iter = iter->second.begin();
-                     m_iter != iter->second.end(); m_iter++) {
+            for (auto & iter : x.markings_storage) {
+                for (auto m_iter = iter.second.begin();
+                     m_iter != iter.second.end(); m_iter++) {
                     out << "- " << *m_iter << std::endl;
                 }
             }
@@ -83,7 +79,7 @@ namespace VerifyTAPN {
                     res.second.set_meta(meta);
                     marking->meta = meta;
                 } else if (makeTrace) {
-                    MetaDataWithTraceAndEncoding *meta = new MetaDataWithTraceAndEncoding();
+                    auto *meta = new MetaDataWithTraceAndEncoding();
                     meta->generatedBy = marking->getGeneratedBy();
                     res.second.set_meta(meta);
                     meta->ep = res.second;
@@ -130,5 +126,4 @@ namespace VerifyTAPN {
         }
 
 
-    } /* namespace DiscreteVerification */
-} /* namespace VerifyTAPN */
+    } /* namespace VerifyTAPN */
