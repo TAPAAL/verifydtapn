@@ -7,8 +7,7 @@
 #include "DiscreteVerification/Generator.h"
 
 
-namespace VerifyTAPN {
-    namespace DiscreteVerification {
+namespace VerifyTAPN::DiscreteVerification {
 
         Generator::Generator(TAPN::TimedArcPetriNet &tapn, AST::Query *query)
                 : tapn(tapn), allways_enabled(),
@@ -32,7 +31,7 @@ namespace VerifyTAPN {
                         index = std::min(arc->getSource().getIndex(), index);
                         tokens += arc->getWeight();
                     }
-                    while (index >= place_transition.size()) place_transition.push_back(transitions_t());
+                    while (index >= place_transition.size()) place_transition.emplace_back();
                     place_transition[index].push_back(transition);
                     maxtokens = std::max(tokens,
                                          maxtokens);
@@ -47,7 +46,7 @@ namespace VerifyTAPN {
             num_children = 0;
             place = 0;
             transition = 0;
-            current = NULL;
+            current = nullptr;
             done = false;
             this->seen_urgent = seen_urgent;
             did_noinput = false;
@@ -65,7 +64,7 @@ namespace VerifyTAPN {
         }
 
         NonStrictMarkingBase *Generator::next(bool do_delay) {
-            if (done) return NULL;
+            if (done) return nullptr;
             // easy ones, continue to we find a result or out of transitions
             while (!did_noinput && num_children < allways_enabled.size()) {
                 NonStrictMarkingBase *marking = next_no_input();
@@ -126,10 +125,10 @@ namespace VerifyTAPN {
             for (auto &place : parent->getPlaceList()) {
                 int inv = place.place->getInvariant().getBound();
                 if (place.maxTokenAge() == inv) {
-                    return NULL;
+                    return nullptr;
                 }
             }
-            NonStrictMarkingBase *m = new NonStrictMarkingBase(*parent);
+            auto *m = new NonStrictMarkingBase(*parent);
             m->incrementAge();
             _last_fired = nullptr;
             return m;
@@ -169,10 +168,10 @@ namespace VerifyTAPN {
         }
 
         NonStrictMarkingBase *Generator::next_from_current() {
-            if (current == NULL) return NULL;
-            NonStrictMarkingBase *child = new NonStrictMarkingBase(*parent);
-            child->setGeneratedBy(NULL);
-            child->setParent(NULL);
+            if (current == nullptr) return nullptr;
+            auto *child = new NonStrictMarkingBase(*parent);
+            child->setGeneratedBy(nullptr);
+            child->setParent(nullptr);
             int arccounter = 0;
             int last_movable = -1;
             PlaceList &placelist = child->getPlaceList();
@@ -199,7 +198,7 @@ namespace VerifyTAPN {
                     if (tokenlist[t_index].getCount() > 1) tokenlist[t_index].remove(1);
                     else {
                         tokenlist.erase(tokenlist.begin() + t_index);
-                        if (tokenlist.size() == 0) pit = placelist.erase(pit);
+                        if (tokenlist.empty()) pit = placelist.erase(pit);
                     }
                 }
                 arccounter += input->getWeight();
@@ -260,7 +259,7 @@ namespace VerifyTAPN {
             ++transitionStatistics[current->getIndex()];
 
             // nobody can move
-            if (last_movable == -1) current = NULL;
+            if (last_movable == -1) current = nullptr;
             else {
                 permutation[last_movable] += 1;
                 for (int i = last_movable + 1; i < arccounter; ++i) {
@@ -271,7 +270,7 @@ namespace VerifyTAPN {
         }
 
         bool Generator::next_transition(bool isfirst) {
-            if (parent->getPlaceList().size() == 0) return false;
+            if (parent->getPlaceList().empty()) return false;
             do {
                 if (!isfirst)
                     ++transition;
@@ -291,7 +290,7 @@ namespace VerifyTAPN {
                 placeindex = parent->getPlaceList()[place].place->getIndex();
                 // if no transitions out, skip
                 if (place_transition.size() <= placeindex ||
-                    place_transition[placeindex].size() == 0)
+                    place_transition[placeindex].empty())
                     continue;
 
                 current = place_transition[placeindex][transition];
@@ -420,4 +419,3 @@ namespace VerifyTAPN {
             out << std::endl;
         }
     }
-}

@@ -31,9 +31,7 @@
 #include <iostream>
 
 
-namespace VerifyTAPN {
-
-    namespace DiscreteVerification {
+namespace VerifyTAPN::DiscreteVerification {
 
         class DiscreteVerification {
         public:
@@ -60,14 +58,12 @@ namespace VerifyTAPN {
             static void
             createTransitionSubNodes(NonStrictMarking *old, NonStrictMarking *current, rapidxml::xml_document<> &doc,
                                      rapidxml::xml_node<> *transitionNode, const TAPN::TimedPlace &place,
-                                     const TAPN::TimeInterval &interval, const int weight);
+                                     const TAPN::TimeInterval &interval, int weight);
 
             static void generateTraceStack(NonStrictMarking *m, std::stack<NonStrictMarking *> *stack,
-                                           std::stack<NonStrictMarking *> *liveness = NULL);
+                                           std::stack<NonStrictMarking *> *liveness = nullptr);
         };
 
     }
-
-}
 
 #endif /* DISCRETEVERIFICATION_HPP_ */
