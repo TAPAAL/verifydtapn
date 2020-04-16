@@ -10,9 +10,7 @@
 #include "DiscreteVerification/VerificationTypes/SafetySynthesis.h"
 #include "DiscreteVerification/ReducingGenerator.hpp"
 
-namespace VerifyTAPN {
-
-    namespace DiscreteVerification {
+namespace VerifyTAPN::DiscreteVerification {
 
         template<typename T>
         void VerifyAndPrint(TAPN::TimedArcPetriNet &tapn, Verification<T> &verifier, VerificationOptions &options,
@@ -337,5 +335,3 @@ namespace VerifyTAPN {
             }
         }
     }
-
-}

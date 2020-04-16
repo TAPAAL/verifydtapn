@@ -18,8 +18,7 @@
 
 
 using namespace ptrie;
-namespace VerifyTAPN {
-    namespace DiscreteVerification {
+namespace VerifyTAPN::DiscreteVerification {
 
         class CoveredMarkingVisitor
                 : public visitor_t<MetaData *> {
@@ -36,17 +35,17 @@ namespace VerifyTAPN {
             bool target_contains_token(unsigned long long placeage, uint count);
 
         public:
-            CoveredMarkingVisitor(
+            explicit CoveredMarkingVisitor(
                     MarkingEncoder<MetaData *, NonStrictMarking> &enc);
 
             ~CoveredMarkingVisitor();
 
-            virtual bool back(int index);
+            bool back(int index) override;
 
-            virtual bool set(int index, bool value);
+            bool set(int index, bool value) override;
 
-            virtual bool set_remainder(int index,
-                                       ptriepointer_t<MetaData *> pointer);
+            bool set_remainder(int index,
+                                       ptriepointer_t<MetaData *> pointer) override;
 
             void set_target(NonStrictMarking *m, ptriepointer_t<MetaData *> me);
 
@@ -56,7 +55,6 @@ namespace VerifyTAPN {
         };
 
     }
-}
 
 #endif    /* BINARYMARKINGVISITOR_H */
 
