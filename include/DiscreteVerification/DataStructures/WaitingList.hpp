@@ -23,17 +23,16 @@
 #include <deque>
 #include <stack>
 #include <vector>
-#include <assert.h>
+#include <cassert>
 
-namespace VerifyTAPN {
-    namespace DiscreteVerification {
+namespace VerifyTAPN::DiscreteVerification {
 
         template<class T>
         class WaitingList {
         public:
-            WaitingList() {};
+            WaitingList() = default;;
 
-            virtual ~WaitingList() {};
+            virtual ~WaitingList() = default;;
 
             virtual void add(NonStrictMarkingBase *weight, T payload) = 0;
 
@@ -88,10 +87,9 @@ namespace VerifyTAPN {
         public:
             typedef std::priority_queue<WeightedItem<T>, std::vector<WeightedItem<T> >, less<T> > priority_queue;
 
-            HeuristicStackWaitingList(AST::Query *q) : buffer(), query(normalizeQuery(q)) {};
+            explicit HeuristicStackWaitingList(AST::Query *q) : buffer(), query(normalizeQuery(q)) {};
 
-            ~HeuristicStackWaitingList() {
-            };
+            ~HeuristicStackWaitingList() = default;;
 
             virtual void add(NonStrictMarkingBase *weight, T payload);
 
@@ -136,7 +134,7 @@ namespace VerifyTAPN {
         public:
             typedef std::priority_queue<WeightedItem<T>, std::vector<WeightedItem<T> >, less<T> > priority_queue;
         public:
-            HeuristicWaitingList(AST::Query *q) : queue(), query(normalizeQuery(q)) {};
+            explicit HeuristicWaitingList(AST::Query *q) : queue(), query(normalizeQuery(q)) {};
 
             virtual ~HeuristicWaitingList();
 
@@ -162,18 +160,18 @@ namespace VerifyTAPN {
         public:
             typedef std::priority_queue<WeightedItem<T>, std::vector<WeightedItem<T> >, less<T> > priority_queue;
         public:
-            MinFirstWaitingList(AST::Query *q) : queue(), query(q) {};
+            explicit MinFirstWaitingList(AST::Query *q) : queue(), query(q) {};
 
-            virtual ~MinFirstWaitingList();
+            ~MinFirstWaitingList() override;
 
         public:
-            virtual void add(NonStrictMarkingBase *weight, T payload);
+            void add(NonStrictMarkingBase *weight, T payload) override;
 
-            virtual T peek();
+            T peek() override;
 
-            virtual T pop();
+            T pop() override;
 
-            virtual size_t size() { return queue.size(); };
+            size_t size() override { return queue.size(); };
         protected:
             virtual int calculateWeight(T payload);
 
@@ -251,8 +249,7 @@ namespace VerifyTAPN {
         }
 
         template<class T>
-        StackWaitingList<T>::~StackWaitingList() {
-        }
+        StackWaitingList<T>::~StackWaitingList() = default;
 
         template<class T>
         std::ostream &operator<<(std::ostream &out, WaitingList<T> &x) {
@@ -324,8 +321,7 @@ namespace VerifyTAPN {
         }
 
         template<class T>
-        QueueWaitingList<T>::~QueueWaitingList() {
-        }
+        QueueWaitingList<T>::~QueueWaitingList() = default;
 
         template<class T>
         void HeuristicWaitingList<T>::add(NonStrictMarkingBase *weight, T payload) {
@@ -365,8 +361,7 @@ namespace VerifyTAPN {
         }
 
         template<class T>
-        HeuristicWaitingList<T>::~HeuristicWaitingList() {
-        }
+        HeuristicWaitingList<T>::~HeuristicWaitingList() = default;
 
         template<class T>
         void MinFirstWaitingList<T>::add(NonStrictMarkingBase *weight, T payload) {
@@ -404,8 +399,7 @@ namespace VerifyTAPN {
         }
 
         template<class T>
-        MinFirstWaitingList<T>::~MinFirstWaitingList() {
-        }
+        MinFirstWaitingList<T>::~MinFirstWaitingList() = default;
 
 
         template<class T>
@@ -437,8 +431,7 @@ namespace VerifyTAPN {
         }
 
         template<class T>
-        RandomWaitingList<T>::~RandomWaitingList() {
-        }
+        RandomWaitingList<T>::~RandomWaitingList() = default;
 
         template<class T>
         void RandomStackWaitingList<T>::add(NonStrictMarkingBase *weight, T payload) {
@@ -477,9 +470,7 @@ namespace VerifyTAPN {
         }
 
         template<class T>
-        RandomStackWaitingList<T>::~RandomStackWaitingList() {
-        }
+        RandomStackWaitingList<T>::~RandomStackWaitingList() = default;
 
-    } /* namespace DiscreteVerification */
-} /* namespace VerifyTAPN */
+    } /* namespace VerifyTAPN */
 #endif /* WAITINGLIST_HPP_ */

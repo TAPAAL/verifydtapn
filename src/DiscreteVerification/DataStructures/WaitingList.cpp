@@ -7,8 +7,7 @@
 
 #include "DiscreteVerification/DataStructures/WaitingList.hpp"
 
-namespace VerifyTAPN {
-    namespace DiscreteVerification {
+namespace VerifyTAPN::DiscreteVerification {
         template<>
         int MinFirstWaitingList<NonStrictMarking *>::calculateWeight(NonStrictMarking *marking) {
             return marking->meta->totalDelay;
@@ -19,4 +18,3 @@ namespace VerifyTAPN {
             return payload.get_meta()->totalDelay;
         }
     }
-}
