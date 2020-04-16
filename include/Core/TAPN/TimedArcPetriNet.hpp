@@ -16,9 +16,7 @@
 #include "../../DiscreteVerification/PlaceVisitor.hpp"
 #include "../VerificationOptions.hpp"
 
-namespace VerifyTAPN {
-
-	namespace TAPN {
+namespace VerifyTAPN::TAPN {
 
 		class TimedArcPetriNet {
 
@@ -34,12 +32,12 @@ namespace VerifyTAPN {
 
 			~TimedArcPetriNet() {
 				// call delete on all data
-				for (unsigned int i = 0; i < places.size(); ++i) delete places[i];
-				for (unsigned int i = 0; i < transitions.size(); ++i) delete transitions[i];
-				for (unsigned int i = 0; i < inputArcs.size(); ++i) delete inputArcs[i];
-				for (unsigned int i = 0; i < outputArcs.size(); ++i) delete outputArcs[i];
-				for (unsigned int i = 0; i < transportArcs.size(); ++i) delete transportArcs[i];
-				for (unsigned int i = 0; i < inhibitorArcs.size(); ++i) delete inhibitorArcs[i];
+				for (auto & place : places) delete place;
+				for (auto & transition : transitions) delete transition;
+				for (auto & inputArc : inputArcs) delete inputArc;
+				for (auto & outputArc : outputArcs) delete outputArc;
+				for (auto & transportArc : transportArcs) delete transportArc;
+				for (auto & inhibitorArc : inhibitorArcs) delete inhibitorArc;
 			}
 
 		public: // inspectors
@@ -61,19 +59,19 @@ namespace VerifyTAPN {
 
 			const TimedPlace::Vector &getPlaces() const { return places; };
 
-			const int getNumberOfConsumingArcs() const { return inputArcs.size() + transportArcs.size(); }
+			int getNumberOfConsumingArcs() const { return inputArcs.size() + transportArcs.size(); }
 
 			const OutputArc::Vector &getOutputArcs() const { return outputArcs; }
 
-			const int getNumberOfOutputArcs() const { return outputArcs.size(); }
+			int getNumberOfOutputArcs() const { return outputArcs.size(); }
 
 			int getNumberOfPlaces() const { return places.size(); };
 
 			inline int getMaxConstant() const { return maxConstant; };
 
-			const inline int getGCD() const { return gcd; };
+			inline int getGCD() const { return gcd; };
 
-			inline const bool isPlaceAtIndexUntimed(int index) const { return places[index]->isUntimed(); }
+			inline bool isPlaceAtIndexUntimed(int index) const { return places[index]->isUntimed(); }
 
 			bool isNonStrict() const;
 
@@ -123,6 +121,5 @@ namespace VerifyTAPN {
 			return hasher(transition.getName());
 		}
 	}
-}
 
 #endif /* VERIFYTAPN_TAPN_TimedArcPetriNet_HPP_ */

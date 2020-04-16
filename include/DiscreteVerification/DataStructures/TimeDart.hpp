@@ -11,8 +11,7 @@
 #include "NonStrictMarking.hpp"
 #include "ptrie.h"
 
-namespace VerifyTAPN {
-    namespace DiscreteVerification {
+namespace VerifyTAPN::DiscreteVerification {
 
         struct WaitingDart;
         struct TraceDart;
@@ -34,9 +33,7 @@ namespace VerifyTAPN {
                     : base(base), waiting(waiting), passed(passed) {
             }
 
-            ~TimeDartBase() {
-
-            }
+            ~TimeDartBase() = default;
 
             //Getters
             inline NonStrictMarkingBase *getBase() { return base; }
@@ -62,7 +59,7 @@ namespace VerifyTAPN {
         class ReachabilityTraceableDart : public TimeDartBase {
         public:
             ReachabilityTraceableDart(NonStrictMarkingBase *base, int waiting, int passed)
-                    : TimeDartBase(base, waiting, passed), trace(NULL) {
+                    : TimeDartBase(base, waiting, passed), trace(nullptr) {
             }
 
             TraceDart *trace;
@@ -82,7 +79,7 @@ namespace VerifyTAPN {
         class LivenessDart : public TimeDartBase {
         public:
             LivenessDart(NonStrictMarkingBase *base, int waiting, int passed)
-                    : TimeDartBase(base, waiting, passed), traceData(NULL) {
+                    : TimeDartBase(base, waiting, passed), traceData(nullptr) {
             }
 
             TraceMetaDataList *traceData;
@@ -111,8 +108,8 @@ namespace VerifyTAPN {
 
             ~WaitingDart() {
 
-                if (parent != NULL && ((LivenessDart *) parent->dart)->traceData != NULL) {
-                    for (TraceMetaDataList::iterator iter = ((LivenessDart *) parent->dart)->traceData->begin();
+                if (parent != nullptr && ((LivenessDart *) parent->dart)->traceData != nullptr) {
+                    for (auto iter = ((LivenessDart *) parent->dart)->traceData->begin();
                          iter != ((LivenessDart *) parent->dart)->traceData->end(); iter++) {
                         if ((*iter) == this) {
                             ((LivenessDart *) parent->dart)->traceData->erase(iter);
@@ -121,7 +118,7 @@ namespace VerifyTAPN {
                     }
                     if (((LivenessDart *) parent->dart)->traceData->empty()) {
                         delete ((LivenessDart *) parent->dart)->traceData;
-                        ((LivenessDart *) parent->dart)->traceData = NULL;
+                        ((LivenessDart *) parent->dart)->traceData = nullptr;
                     }
                 }
             }
@@ -144,6 +141,5 @@ namespace VerifyTAPN {
 
         };
     }
-}
 
 #endif /* TIMEDART_HPP_ */
