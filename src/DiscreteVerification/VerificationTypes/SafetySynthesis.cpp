@@ -12,8 +12,7 @@
 #include <set>
 
 
-namespace VerifyTAPN {
-    namespace DiscreteVerification {
+namespace VerifyTAPN::DiscreteVerification {
 
         SafetySynthesis::SafetySynthesis(TAPN::TimedArcPetriNet &tapn,
                                          NonStrictMarking &initialMarking,
@@ -164,13 +163,13 @@ namespace VerifyTAPN {
 //    std::cout << (is_controller ? "controller" : "env ");
 //    std::cout << " : " << *marking << std::endl;
 
-            NonStrictMarkingBase *next = NULL;
+            NonStrictMarkingBase *next = nullptr;
 
             std::stack<store_t::Pointer *> successors;
             size_t number_of_children = 0;
             bool terminated = false;
             bool all_loosing = true;
-            while ((next = generator.next(is_controller)) != NULL) {
+            while ((next = generator.next(is_controller)) != nullptr) {
 
                 meta.urgent |= generator.urgent();
                 largest = std::max(next->size(), largest);
@@ -269,5 +268,4 @@ namespace VerifyTAPN {
             delete store;
         }
     }
-}
 

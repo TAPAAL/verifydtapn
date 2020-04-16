@@ -14,9 +14,9 @@ namespace VerifyTAPN {
 
     class TAPNQueryParser {
     public:
-        TAPNQueryParser(const VerifyTAPN::TAPN::TimedArcPetriNet &tapn) : ast(NULL), net(tapn) {};
+        explicit TAPNQueryParser(const VerifyTAPN::TAPN::TimedArcPetriNet &tapn) : ast(nullptr), net(tapn) {};
 
-        virtual ~TAPNQueryParser() {};
+        virtual ~TAPNQueryParser() = default;;
 
     private:
         void scan_begin();

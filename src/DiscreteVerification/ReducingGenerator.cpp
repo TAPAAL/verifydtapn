@@ -15,8 +15,7 @@
 #include "DiscreteVerification/QueryVisitor.hpp"
 
 
-namespace VerifyTAPN {
-    namespace DiscreteVerification {
+namespace VerifyTAPN::DiscreteVerification {
 
         bool ReducingGenerator::preSetOf(size_t i) {
             auto place = tapn.getPlaces()[i];
@@ -38,7 +37,7 @@ namespace VerifyTAPN {
             return zt;
         }
 
-        bool ReducingGenerator::postSetOf(size_t i, bool check_age, TAPN::TimeInterval interval) {
+        bool ReducingGenerator::postSetOf(size_t i, bool check_age, const TAPN::TimeInterval& interval) {
             auto place = tapn.getPlaces()[i];
             bool zt = false;
             if (check_age) {
@@ -521,4 +520,3 @@ namespace VerifyTAPN {
 
 
     }
-}

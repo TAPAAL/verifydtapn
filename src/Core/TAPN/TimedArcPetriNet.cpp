@@ -57,7 +57,7 @@ namespace VerifyTAPN::TAPN {
     }
 
     bool TimedArcPetriNet::containsOrphanTransitions() {
-        if (transitions.size() > 0) {
+        if (!transitions.empty()) {
             auto iter = transitions.begin();
             while (iter != transitions.end()) {
                 if ((*iter)->getPresetSize() == 0 && (*iter)->getPostsetSize() == 0) {
@@ -310,7 +310,7 @@ namespace VerifyTAPN::TAPN {
             out << ", ";
         }
 
-        if (transportArcs.size() > 0) {
+        if (!transportArcs.empty()) {
             out << std::endl << "  Transport Arcs: ";
             for (auto transportArc : transportArcs) {
                 out << *transportArc;
@@ -318,7 +318,7 @@ namespace VerifyTAPN::TAPN {
             }
         }
 
-        if (inhibitorArcs.size() > 0) {
+        if (!inhibitorArcs.empty()) {
             out << std::endl << "  Inhibitor Arcs: ";
             for (auto inhibitorArc : inhibitorArcs) {
                 out << *inhibitorArc;

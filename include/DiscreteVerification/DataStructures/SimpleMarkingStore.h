@@ -19,8 +19,7 @@
 /**
  * Base class for storing markings
  */
-namespace VerifyTAPN {
-    namespace DiscreteVerification {
+namespace VerifyTAPN::DiscreteVerification {
         template<typename T = MetaData *>
         class SimpleMarkingStore : public MarkingStore<T> {
         public:
@@ -34,13 +33,13 @@ namespace VerifyTAPN {
                 T meta;
                 NonStrictMarkingBase *marking;
             public:
-                Pointer(NonStrictMarkingBase *marking)
+                explicit Pointer(NonStrictMarkingBase *marking)
                         : meta(), marking(marking) {};
 
                 Pointer(NonStrictMarkingBase *marking, T &meta)
                         : meta(meta), marking(marking) {};
 
-                virtual ~Pointer() {};
+                virtual ~Pointer() = default;;
 
                 void set_meta_data(T &data) {
                     meta = data;
@@ -107,7 +106,7 @@ namespace VerifyTAPN {
                 this->stored += 1;
                 size_t size = m->size();
                 this->m_tokens = std::max(this->m_tokens, size);
-                Pointer *p = new Pointer(m);
+                auto *p = new Pointer(m);
 
                 res.first = true;
                 res.second = *location.insert(pit, p);
@@ -146,7 +145,6 @@ namespace VerifyTAPN {
             }
         };
     }
-}
 
 
 #endif    /* SIMPLEMARKINGSTORE_H */

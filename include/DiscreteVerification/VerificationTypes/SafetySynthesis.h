@@ -18,8 +18,7 @@
 #include "../DataStructures/Waiting.h"
 
 
-namespace VerifyTAPN {
-    namespace DiscreteVerification {
+namespace VerifyTAPN::DiscreteVerification {
 
 
         class SafetySynthesis {
@@ -85,7 +84,6 @@ namespace VerifyTAPN {
             void dependers_to_waiting(SafetyMeta &next_meta, backstack_t &waiting);
         };
     }
-}
 
 #endif    /* SAFETYSYNTHESIS_H */
 

@@ -10,18 +10,16 @@
 
 #include "../DataStructures/WaitingList.hpp"
 
-namespace VerifyTAPN {
-    namespace DiscreteVerification {
+namespace VerifyTAPN::DiscreteVerification {
 
         template<class T>
         class SearchStrategy {
         public:
-            virtual ~SearchStrategy() {};
+            virtual ~SearchStrategy() = default;;
 
             virtual WaitingList<T> *createWaitingList(AST::Query *query) const = 0;
         };
 
     }
-}
 
 #endif /* SEARCHSTRATEGY_HPP_ */

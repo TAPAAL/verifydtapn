@@ -3,6 +3,7 @@
 
 #include "Core/TAPN/TAPN.hpp"
 #include <rapidxml.hpp>
+#include <utility>
 
 namespace VerifyTAPN {
     using namespace VerifyTAPN::TAPN;
@@ -17,10 +18,10 @@ namespace VerifyTAPN {
             InhibitorArc::Vector inhibitorArcs;
 
         public:
-            ArcCollections(const TimedInputArc::Vector &inputArcs, const OutputArc::Vector &outputArcs,
-                           const TransportArc::Vector &transportArcs, const InhibitorArc::Vector &inhibitorArcs)
-                    : inputArcs(inputArcs), outputArcs(outputArcs), transportArcs(transportArcs),
-                      inhibitorArcs(inhibitorArcs) {};
+            ArcCollections(TimedInputArc::Vector inputArcs, OutputArc::Vector outputArcs,
+                           TransportArc::Vector transportArcs, InhibitorArc::Vector inhibitorArcs)
+                    : inputArcs(std::move(inputArcs)), outputArcs(std::move(outputArcs)), transportArcs(std::move(transportArcs)),
+                      inhibitorArcs(std::move(inhibitorArcs)) {};
         };
 
     public: // construction

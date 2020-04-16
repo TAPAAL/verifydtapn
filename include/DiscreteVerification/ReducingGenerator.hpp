@@ -11,8 +11,7 @@
 #include "Generator.h"
 #include "DataStructures/light_deque.h"
 
-namespace VerifyTAPN {
-    namespace DiscreteVerification {
+namespace VerifyTAPN::DiscreteVerification {
 
         struct IncDecr : public Result {
             IncDecr(bool i, bool d)
@@ -27,37 +26,37 @@ namespace VerifyTAPN {
         public: // visitor methods
             friend class ReducingGenerator;
 
-            InterestingVisitor(TAPN::TimedArcPetriNet &tapn)
+            explicit InterestingVisitor(TAPN::TimedArcPetriNet &tapn)
                     : _incr(tapn.getPlaces().size()), _decr(tapn.getPlaces().size()) {
                 _incr.shrink_to_fit();
                 _decr.shrink_to_fit();
             };
 
-            virtual void visit(NotExpression &expr, Result &context);
+            void visit(NotExpression &expr, Result &context) override;
 
-            virtual void visit(OrExpression &expr, Result &context);
+            void visit(OrExpression &expr, Result &context) override;
 
-            virtual void visit(AndExpression &expr, Result &context);
+            void visit(AndExpression &expr, Result &context) override;
 
-            virtual void visit(AtomicProposition &expr, Result &context);
+            void visit(AtomicProposition &expr, Result &context) override;
 
-            virtual void visit(BoolExpression &expr, Result &context);
+            void visit(BoolExpression &expr, Result &context) override;
 
-            virtual void visit(Query &query, Result &context);
+            void visit(Query &query, Result &context) override;
 
-            virtual void visit(DeadlockExpression &expr, Result &context);
+            void visit(DeadlockExpression &expr, Result &context) override;
 
-            virtual void visit(NumberExpression &expr, Result &context);
+            void visit(NumberExpression &expr, Result &context) override;
 
-            virtual void visit(IdentifierExpression &expr, Result &context);
+            void visit(IdentifierExpression &expr, Result &context) override;
 
-            virtual void visit(MultiplyExpression &expr, Result &context);
+            void visit(MultiplyExpression &expr, Result &context) override;
 
-            virtual void visit(MinusExpression &expr, Result &context);
+            void visit(MinusExpression &expr, Result &context) override;
 
-            virtual void visit(SubtractExpression &expr, Result &context);
+            void visit(SubtractExpression &expr, Result &context) override;
 
-            virtual void visit(PlusExpression &expr, Result &context);
+            void visit(PlusExpression &expr, Result &context) override;
 
             bool isNegated() { return negated; }
 
@@ -82,7 +81,7 @@ namespace VerifyTAPN {
 
             bool preSetOf(size_t i);
 
-            bool postSetOf(size_t i, bool check_age, TAPN::TimeInterval interval = TAPN::TimeInterval());
+            bool postSetOf(size_t i, bool check_age, const TAPN::TimeInterval& interval = TAPN::TimeInterval());
 
             bool inhibPostSetOf(size_t i);
 
@@ -97,13 +96,12 @@ namespace VerifyTAPN {
                     : Generator(tapn, query), interesting(tapn), _enabled(tapn.getTransitions().size()),
                       _stubborn(tapn.getTransitions().size()) {};
 
-            virtual void from_marking(NonStrictMarkingBase *parent, Mode mode = ALL, bool urgent = false);
+            void from_marking(NonStrictMarkingBase *parent, Mode mode = ALL, bool urgent = false) override;
 
-            virtual NonStrictMarkingBase *next(bool do_delay = true);
+            NonStrictMarkingBase *next(bool do_delay = true) override;
         };
 
     }
-}
 
 #endif /* REDUCINGGENERATOR_HPP */
 

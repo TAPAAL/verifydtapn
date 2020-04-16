@@ -11,8 +11,7 @@
 #include "SearchStrategies.hpp"
 #include "../DataStructures/WaitingList.hpp"
 
-namespace VerifyTAPN {
-    namespace DiscreteVerification {
+namespace VerifyTAPN::DiscreteVerification {
 
         template<class T>
         WaitingList<T> *getWaitingList(AST::Query *query, VerificationOptions &options) {
@@ -86,6 +85,5 @@ namespace VerifyTAPN {
         }
 
     }
-}
 
 #endif /* SEARCHFACTORY_H_ */
