@@ -12,8 +12,7 @@
 
 #include <rapidxml.hpp>
 /* Adding declarations to make it compatible with gcc 4.7 and greater */
-namespace rapidxml {
-    namespace internal {
+namespace rapidxml::internal {
         template<class OutIt, class Ch>
         inline OutIt print_children(OutIt out, const xml_node <Ch> *node, int flags, int indent);
 
@@ -41,12 +40,12 @@ namespace rapidxml {
         template<class OutIt, class Ch>
         inline OutIt print_pi_node(OutIt out, const xml_node <Ch> *node, int flags, int indent);
     }
-}
 
 #include <rapidxml_print.hpp>
+#include <utility>
+#include <utility>
 
-namespace VerifyTAPN {
-    namespace DiscreteVerification {
+namespace VerifyTAPN::DiscreteVerification {
         template<typename T>
         class Verification {
         public:
@@ -54,8 +53,7 @@ namespace VerifyTAPN {
             Verification(TAPN::TimedArcPetriNet &tapn, T &initialMarking, AST::Query *query,
                          VerificationOptions options);
 
-            virtual ~Verification() {
-            };
+            virtual ~Verification() = default;;
 
             virtual bool run() = 0;
 
@@ -83,27 +81,27 @@ namespace VerifyTAPN {
 
             void createTransitionSubNodes(T *old, T *current, rapidxml::xml_document<> &doc,
                                           rapidxml::xml_node<> *transitionNode, const TAPN::TimedPlace &place,
-                                          const TAPN::TimeInterval &interval, const int weight);
+                                          const TAPN::TimeInterval &interval, int weight);
 
             rapidxml::xml_node<> *
             createTokenNode(rapidxml::xml_document<> &doc, const TAPN::TimedPlace &place, const Token &token);
 
-            void generateTraceStack(T *m, std::stack<T *> *result, std::stack<T *> *liveness = NULL);
+            void generateTraceStack(T *m, std::stack<T *> *result, std::stack<T *> *liveness = nullptr);
 
-            stack<T *> trace;
+            stack<T *> trace{};
         protected:
             TAPN::TimedArcPetriNet &tapn;
             T &initialMarking;
             AST::Query *query;
             VerificationOptions options;
-            std::vector<int> placeStats;
+            std::vector<int> placeStats{};
 
         };
 
         template<typename T>
         Verification<T>::Verification(TAPN::TimedArcPetriNet &tapn, T &initialMarking, AST::Query *query,
                                       VerificationOptions options)
-                : tapn(tapn), initialMarking(initialMarking), query(query), options(options),
+                : tapn(tapn), initialMarking(initialMarking), query(query), options(std::move(std::move(options))),
                   placeStats(tapn.getNumberOfPlaces()) {
 
         }
@@ -188,7 +186,7 @@ namespace VerifyTAPN {
                     if (m->getNumberOfChildren() > 0) {
                         std::cout << "\tDeadlock" << std::endl;
                     } else {
-                        for (PlaceList::const_iterator iter = m->getPlaceList().begin();
+                        for (auto iter = m->getPlaceList().begin();
                              iter != m->getPlaceList().end(); iter++) {
                             if (iter->place->getInvariant().getBound() != std::numeric_limits<int>::max()) {
                                 //Invariant, deadlock
@@ -467,6 +465,5 @@ namespace VerifyTAPN {
             }
         }
     }
-}
 
 #endif

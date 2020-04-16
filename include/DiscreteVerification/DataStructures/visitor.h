@@ -8,7 +8,7 @@
 #ifndef VISITOR_H
 #define    VISITOR_H
 
-#include <stdint.h>
+#include <cstdint>
 
 namespace ptrie {
     template<typename T>

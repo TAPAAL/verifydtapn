@@ -11,13 +11,12 @@
 #include <queue>
 #include <stack>
 #include <vector>
-#include <time.h>
+#include <ctime>
 #include "NonStrictMarkingBase.hpp"
 #include "../SearchStrategies/WeightQueryVisitor.hpp"
 #include "../../Core/QueryParser/AST.hpp"
 
-namespace VerifyTAPN {
-    namespace DiscreteVerification {
+namespace VerifyTAPN::DiscreteVerification {
         class WeightQueryVisitor;
 
         template<typename T>
@@ -115,7 +114,7 @@ namespace VerifyTAPN {
 
                 T item;
 
-                const bool operator<(const weighteditem_t &other) const {
+                bool operator<(const weighteditem_t &other) const {
                     return weight > other.weight;
                 }
             };
@@ -125,7 +124,7 @@ namespace VerifyTAPN {
             size_t weight = 0;
 
         public:
-            covermost_queue(AST::Query *q) : query(q) {
+            explicit covermost_queue(AST::Query *q) : query(q) {
             }
 
             virtual
@@ -156,7 +155,6 @@ namespace VerifyTAPN {
             }
         };
     }
-}
 
 #endif    /* WAITING_H */
 

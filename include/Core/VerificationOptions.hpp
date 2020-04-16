@@ -3,6 +3,8 @@
 
 #include <string>
 #include <iosfwd>
+#include <utility>
+#include <utility>
 #include <vector>
 #include <map>
 
@@ -31,8 +33,7 @@ namespace VerifyTAPN {
             NOT_WORKFLOW, WORKFLOW_SOUNDNESS, WORKFLOW_STRONG_SOUNDNESS
         };
 
-        VerificationOptions() {
-        }
+        VerificationOptions() = default;
 
         VerificationOptions(
                 SearchType searchType,
@@ -63,45 +64,45 @@ namespace VerifyTAPN {
             workflow(workflow),
             workflowBound(workflowBound),
             calculateCmax(calculateCmax),
-            replace(replace),
+            replace(std::move(std::move(replace))),
             partialOrder(order) {
         };
 
     public: // inspectors
 
-        const std::string getInputFile() const {
+        std::string getInputFile() const {
             return inputFile;
         }
 
         void setInputFile(std::string input) {
-            inputFile = input;
+            inputFile = std::move(input);
         }
 
-        const std::string getQueryFile() const {
+        std::string getQueryFile() const {
             return queryFile;
         }
 
         void setQueryFile(std::string input) {
-            queryFile = input;
+            queryFile = std::move(input);
         }
 
-        inline const unsigned int getKBound() const {
+        inline unsigned int getKBound() const {
             return k_bound;
         }
 
-        inline const Trace getTrace() const {
+        inline Trace getTrace() const {
             return trace;
         };
 
-        inline const bool getXmlTrace() const {
+        inline bool getXmlTrace() const {
             return xml_trace;
         };
 
-        inline const bool getGlobalMaxConstantsEnabled() const {
+        inline bool getGlobalMaxConstantsEnabled() const {
             return useGlobalMaxConstants;
         }
 
-        inline const SearchType getSearchType() const {
+        inline SearchType getSearchType() const {
             return searchType;
         }
 
@@ -109,11 +110,11 @@ namespace VerifyTAPN {
             searchType = type;
         }
 
-        inline const VerificationType getVerificationType() const {
+        inline VerificationType getVerificationType() const {
             return verificationType;
         }
 
-        inline const MemoryOptimization getMemoryOptimization() const {
+        inline MemoryOptimization getMemoryOptimization() const {
             return memOptimization;
         }
 
@@ -121,19 +122,19 @@ namespace VerifyTAPN {
             keepDeadTokens = val;
         }
 
-        inline const bool getKeepDeadTokens() const {
+        inline bool getKeepDeadTokens() const {
             return keepDeadTokens;
         };
 
-        inline const bool getGCDLowerGuardsEnabled() const {
+        inline bool getGCDLowerGuardsEnabled() const {
             return enableGCDLowerGuards;
         }
 
-        inline const WorkflowMode getWorkflowMode() const {
+        inline WorkflowMode getWorkflowMode() const {
             return workflow;
         };
 
-        inline const long long getWorkflowBound() const {
+        inline long long getWorkflowBound() const {
             return workflowBound;
         };
 
@@ -141,7 +142,7 @@ namespace VerifyTAPN {
             return workflow != NOT_WORKFLOW;
         }
 
-        inline const bool getCalculateCmax() const {
+        inline bool getCalculateCmax() const {
             return calculateCmax;
         };
 
@@ -160,17 +161,17 @@ namespace VerifyTAPN {
         SearchType searchType;
         VerificationType verificationType;
         MemoryOptimization memOptimization;
-        unsigned int k_bound;
+        unsigned int k_bound{};
         Trace trace;
-        bool xml_trace;
-        bool useGlobalMaxConstants;
-        bool keepDeadTokens;
-        bool enableGCDLowerGuards;
+        bool xml_trace{};
+        bool useGlobalMaxConstants{};
+        bool keepDeadTokens{};
+        bool enableGCDLowerGuards{};
         WorkflowMode workflow;
-        long long workflowBound;
-        bool calculateCmax;
+        long long workflowBound{};
+        bool calculateCmax{};
         std::map<std::string, int> replace;
-        bool partialOrder;
+        bool partialOrder{};
     };
 
     std::ostream &operator<<(std::ostream &out, const VerificationOptions &options);
