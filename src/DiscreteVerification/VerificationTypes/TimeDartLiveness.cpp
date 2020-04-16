@@ -7,8 +7,7 @@
 
 #include "DiscreteVerification/VerificationTypes/TimeDartLiveness.hpp"
 
-namespace VerifyTAPN {
-    namespace DiscreteVerification {
+namespace VerifyTAPN::DiscreteVerification {
 
         bool TimeDartLiveness::run() {
             if (addToPW(&initialMarking, NULL, INT_MAX)) {
@@ -21,9 +20,9 @@ namespace VerifyTAPN {
                 exploredMarkings++;
 
                 // Add trace meta data ("add to trace")
-                if (waitingDart->parent != NULL) {
-                    if (((LivenessDart *) waitingDart->parent->dart)->traceData == NULL) {
-                        TraceMetaDataList *list = new TraceMetaDataList();
+                if (waitingDart->parent != nullptr) {
+                    if (((LivenessDart *) waitingDart->parent->dart)->traceData == nullptr) {
+                        auto *list = new TraceMetaDataList();
                         ((LivenessDart *) waitingDart->parent->dart)->traceData = list;
                     }
                     ((LivenessDart *) waitingDart->parent->dart)->traceData->push_back(waitingDart);
@@ -31,7 +30,7 @@ namespace VerifyTAPN {
 
                 // Detect ability to delay forever
                 if (canDelayForever(waitingDart->dart->getBase())) {
-                    NonStrictMarkingBase *lm = new NonStrictMarkingBase(*waitingDart->dart->getBase());
+                    auto *lm = new NonStrictMarkingBase(*waitingDart->dart->getBase());
                     lm->setGeneratedBy(waitingDart->dart->getBase()->getGeneratedBy());
                     // lastMarking = new TraceList(lm, waitingDart.upper);
                     lastMarking = waitingDart;
@@ -46,7 +45,7 @@ namespace VerifyTAPN {
 
                 // Skip if already passed
                 if (passed <= waitingDart->w) {
-                    if (waitingDart->parent != NULL) {
+                    if (waitingDart->parent != nullptr) {
                         ((LivenessDart *) waitingDart->parent->dart)->traceData->pop_back();
                     }
                     pwList->popWaiting();
@@ -188,9 +187,6 @@ namespace VerifyTAPN {
             std::cout << "  stored markings:\t" << pwList->size() << std::endl;
         }
 
-        TimeDartLiveness::~TimeDartLiveness() {
+        TimeDartLiveness::~TimeDartLiveness() = default;
 
-        }
-
-    } /* namespace DiscreteVerification */
-} /* namespace VerifyTAPN */
+    } /* namespace VerifyTAPN */

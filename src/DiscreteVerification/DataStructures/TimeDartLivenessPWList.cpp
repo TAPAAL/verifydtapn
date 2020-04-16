@@ -7,28 +7,25 @@
 
 #include "DiscreteVerification/DataStructures/TimeDartLivenessPWList.hpp"
 
-namespace VerifyTAPN {
-    namespace DiscreteVerification {
+namespace VerifyTAPN::DiscreteVerification {
 
         std::pair<LivenessDart *, bool>
         TimeDartLivenessPWHashMap::add(NonStrictMarkingBase *marking, int youngest, WaitingDart *parent, int upper,
                                        int start) {
             discoveredMarkings++;
             TimeDartList &m = markings_storage[marking->getHashKey()];
-            for (TimeDartList::const_iterator iter = m.begin();
-                 iter != m.end();
-                 iter++) {
-                if ((*iter)->getBase()->equals(*marking)) {
-                    std::pair<LivenessDart *, bool> result(*iter, false);
-                    (*iter)->setWaiting(min((*iter)->getWaiting(), youngest));
+            for (auto iter : m) {
+                if (iter->getBase()->equals(*marking)) {
+                    std::pair<LivenessDart *, bool> result(iter, false);
+                    iter->setWaiting(min(iter->getWaiting(), youngest));
 
-                    if ((*iter)->getWaiting() < (*iter)->getPassed()) {
+                    if (iter->getWaiting() < iter->getPassed()) {
                         if (options.getTrace()) {
-                            waiting_list->add((*iter)->getBase(), new TraceDart((*iter), parent, youngest, start, upper,
+                            waiting_list->add(iter->getBase(), new TraceDart(iter, parent, youngest, start, upper,
                                                                                 marking->getGeneratedBy()));
 
                         } else {
-                            waiting_list->add((*iter)->getBase(), new WaitingDart((*iter), parent, youngest, upper));
+                            waiting_list->add(iter->getBase(), new WaitingDart(iter, parent, youngest, upper));
                         }
                         result.second = true;
                     }
@@ -37,7 +34,7 @@ namespace VerifyTAPN {
                 }
             }
             stored++;
-            LivenessDart *dart = new LivenessDart(marking, youngest, INT_MAX);
+            auto *dart = new LivenessDart(marking, youngest, INT_MAX);
             m.push_back(dart);
             if (options.getTrace()) {
 
@@ -143,10 +140,9 @@ namespace VerifyTAPN {
 
         std::ostream &operator<<(std::ostream &out, TimeDartLivenessPWHashMap &x) {
             out << "Passed and waiting:" << std::endl;
-            for (TimeDartLivenessPWHashMap::HashMap::iterator iter = x.markings_storage.begin();
-                 iter != x.markings_storage.end(); iter++) {
-                for (TimeDartLivenessPWHashMap::TimeDartList::iterator m_iter = iter->second.begin();
-                     m_iter != iter->second.end(); m_iter++) {
+            for (auto & iter : x.markings_storage) {
+                for (auto m_iter = iter.second.begin();
+                     m_iter != iter.second.end(); m_iter++) {
                     out << "- " << *m_iter << std::endl;
                 }
             }
@@ -154,5 +150,4 @@ namespace VerifyTAPN {
             return out;
         }
 
-    } /* namespace DiscreteVerification */
-} /* namespace VerifyTAPN */
+    } /* namespace VerifyTAPN */

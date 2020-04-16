@@ -10,14 +10,15 @@
 
 #include "WaitingList.hpp"
 #include <iostream>
+#include <utility>
+#include <utility>
 #include "google/sparse_hash_map"
 #include "NonStrictMarkingBase.hpp"
 #include "WaitingList.hpp"
 #include "TimeDart.hpp"
 #include "MarkingEncoder.h"
 
-namespace VerifyTAPN {
-    namespace DiscreteVerification {
+namespace VerifyTAPN::DiscreteVerification {
         class TimeDartLivenessPWBase;
 
         class TimeDartLivenessPWHashMap;
@@ -32,8 +33,7 @@ namespace VerifyTAPN {
             TimeDartLivenessPWBase() : discoveredMarkings(0), maxNumTokensInAnyMarking(-1), stored(0) {
             };
 
-            virtual ~TimeDartLivenessPWBase() {
-            };
+            virtual ~TimeDartLivenessPWBase() = default;;
 
 
         public: // inspectors
@@ -69,26 +69,25 @@ namespace VerifyTAPN {
             TimeDartLivenessPWHashMap() : markings_storage(), waiting_list() {};
 
             TimeDartLivenessPWHashMap(VerificationOptions options, WaitingList<WaitingDart *> *w_l)
-                    : TimeDartLivenessPWBase(), options(options), markings_storage(256000), waiting_list(w_l) {
+                    : TimeDartLivenessPWBase(), options(std::move(std::move(options))), markings_storage(256000), waiting_list(w_l) {
             };
 
-            ~TimeDartLivenessPWHashMap() {
-            };
+            ~TimeDartLivenessPWHashMap() override = default;;
 
             friend std::ostream &operator<<(std::ostream &out, TimeDartLivenessPWHashMap &x);
 
-            virtual std::pair<LivenessDart *, bool>
-            add(NonStrictMarkingBase *base, int youngest, WaitingDart *parent, int upper, int start);
+            std::pair<LivenessDart *, bool>
+            add(NonStrictMarkingBase *base, int youngest, WaitingDart *parent, int upper, int start) override;
 
-            virtual WaitingDart *getNextUnexplored();
+            WaitingDart *getNextUnexplored() override;
 
-            virtual void popWaiting();
+            void popWaiting() override;
 
-            virtual bool hasWaitingStates() {
+            bool hasWaitingStates() override {
                 return (waiting_list->size() > 0);
             };
 
-            virtual void flushBuffer();
+            void flushBuffer() override;
 
         private:
             VerificationOptions options;
@@ -101,7 +100,7 @@ namespace VerifyTAPN {
             typedef std::pair<WaitingDart *, ptriepointer_t<LivenessDart *> > waitingpair_t;
 
 
-            TimeDartLivenessPWPData(VerificationOptions options, WaitingList <waitingpair_t> *w_l,
+            TimeDartLivenessPWPData(const VerificationOptions& options, WaitingList <waitingpair_t> *w_l,
                                     TAPN::TimedArcPetriNet &tapn, int nplaces, int mage) :
                     TimeDartLivenessPWBase(),
                     options(options),
@@ -110,23 +109,22 @@ namespace VerifyTAPN {
                     encoder(tapn, options.getKBound()) {
             };
 
-            ~TimeDartLivenessPWPData() {
-            };
+            ~TimeDartLivenessPWPData() override = default;;
 
             friend std::ostream &operator<<(std::ostream &out, TimeDartLivenessPWHashMap &x);
 
-            virtual std::pair<LivenessDart *, bool>
-            add(NonStrictMarkingBase *base, int youngest, WaitingDart *parent, int upper, int start);
+            std::pair<LivenessDart *, bool>
+            add(NonStrictMarkingBase *base, int youngest, WaitingDart *parent, int upper, int start) override;
 
-            virtual WaitingDart *getNextUnexplored();
+            WaitingDart *getNextUnexplored() override;
 
-            virtual void popWaiting();
+            void popWaiting() override;
 
-            virtual bool hasWaitingStates() {
+            bool hasWaitingStates() override {
                 return (waiting_list->size() > 0);
             };
 
-            virtual void flushBuffer();
+            void flushBuffer() override;
 
             NonStrictMarkingBase *decode(ptriepointer_t<LivenessDart *> &ewp) {
                 return encoder.decode(ewp);
@@ -139,6 +137,5 @@ namespace VerifyTAPN {
             MarkingEncoder<LivenessDart *> encoder;
         };
 
-    } /* namespace DiscreteVerification */
-} /* namespace VerifyTAPN */
+    } /* namespace VerifyTAPN */
 #endif /* PWLIST_HPP_ */

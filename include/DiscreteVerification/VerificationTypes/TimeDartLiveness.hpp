@@ -16,23 +16,23 @@
 #include "../QueryVisitor.hpp"
 #include "../DataStructures/NonStrictMarkingBase.hpp"
 #include <stack>
+#include <utility>
 #include "TimeDartVerification.hpp"
 #include "../DataStructures/TimeDart.hpp"
 #include "../Util/IntervalOps.hpp"
 
-namespace VerifyTAPN {
-    namespace DiscreteVerification {
+namespace VerifyTAPN::DiscreteVerification {
 
         class TimeDartLiveness : public TimeDartVerification {
         public:
 
             TimeDartLiveness(TAPN::TimedArcPetriNet &tapn, NonStrictMarkingBase &initialMarking, AST::Query *query,
                              VerificationOptions options)
-                    : TimeDartVerification(tapn, options, query, initialMarking) {
+                    : TimeDartVerification(tapn, std::move(options), query, initialMarking) {
             };
 
             TimeDartLiveness(TAPN::TimedArcPetriNet &tapn, NonStrictMarkingBase &initialMarking, AST::Query *query,
-                             VerificationOptions options, WaitingList<WaitingDart *> *waiting_list)
+                             const VerificationOptions& options, WaitingList<WaitingDart *> *waiting_list)
                     : TimeDartVerification(tapn, options, query, initialMarking) {
                 pwList = new TimeDartLivenessPWHashMap(options, waiting_list);
             };
@@ -45,20 +45,20 @@ namespace VerifyTAPN {
                 return pwList->maxNumTokensInAnyMarking;
             };
 
-            virtual inline bool handleSuccessor(NonStrictMarkingBase *m) {
+            inline bool handleSuccessor(NonStrictMarkingBase *m) override {
                 return addToPW(m, tmpdart, tmpupper);
             };
         protected:
-            WaitingDart *tmpdart;
-            int tmpupper;
+            WaitingDart *tmpdart{};
+            int tmpupper{};
 
             bool addToPW(NonStrictMarkingBase *marking, WaitingDart *parent, int upper);
 
             bool canDelayForever(NonStrictMarkingBase *marking);
 
         protected:
-            int validChildren;
-            TimeDartLivenessPWBase *pwList;
+            int validChildren{};
+            TimeDartLivenessPWBase *pwList{};
 
             virtual inline void deleteBase(NonStrictMarkingBase *base) {
                 //
@@ -73,7 +73,7 @@ namespace VerifyTAPN {
         public:
 
             TimeDartLivenessPData(TAPN::TimedArcPetriNet &tapn, NonStrictMarkingBase &initialMarking, AST::Query *query,
-                                  VerificationOptions options,
+                                  const VerificationOptions& options,
                                   WaitingList<std::pair<WaitingDart *, ptriepointer_t<LivenessDart *> > > *waiting_list)
                     : TimeDartLiveness(tapn, initialMarking, query, options) {
                 pwList = new TimeDartLivenessPWPData(options, waiting_list, tapn, tapn.getNumberOfPlaces(),
@@ -81,19 +81,18 @@ namespace VerifyTAPN {
             };
 
         protected:
-            WaitingDart *tmpdart;
-            int tmpupper;
+            WaitingDart *tmpdart{};
+            int tmpupper{};
 
-            virtual inline void deleteBase(NonStrictMarkingBase *base) {
+            inline void deleteBase(NonStrictMarkingBase *base) override {
                 delete base;
             };
 
-            virtual inline NonStrictMarkingBase *getBase(TimeDartBase *dart) {
-                EncodedLivenessDart *eld = (EncodedLivenessDart *) dart;
+            inline NonStrictMarkingBase *getBase(TimeDartBase *dart) override {
+                auto *eld = (EncodedLivenessDart *) dart;
                 return ((TimeDartLivenessPWPData *) pwList)->decode(eld->encoding);
             };
         };
 
-    } /* namespace DiscreteVerification */
-} /* namespace VerifyTAPN */
+    } /* namespace VerifyTAPN */
 #endif /* NONSTRICTSEARCH_HPP_ */
