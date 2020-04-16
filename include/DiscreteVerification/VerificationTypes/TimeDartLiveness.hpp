@@ -26,38 +26,45 @@ namespace VerifyTAPN {
         class TimeDartLiveness : public TimeDartVerification {
         public:
 
-            TimeDartLiveness(TAPN::TimedArcPetriNet& tapn, NonStrictMarkingBase& initialMarking, AST::Query* query, VerificationOptions options)
-            : TimeDartVerification(tapn, options, query, initialMarking) {
+            TimeDartLiveness(TAPN::TimedArcPetriNet &tapn, NonStrictMarkingBase &initialMarking, AST::Query *query,
+                             VerificationOptions options)
+                    : TimeDartVerification(tapn, options, query, initialMarking) {
             };
 
-            TimeDartLiveness(TAPN::TimedArcPetriNet& tapn, NonStrictMarkingBase& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<WaitingDart*>* waiting_list)
-            : TimeDartVerification(tapn, options, query, initialMarking) {
-                pwList = new TimeDartLivenessPWHashMap( options, waiting_list);
+            TimeDartLiveness(TAPN::TimedArcPetriNet &tapn, NonStrictMarkingBase &initialMarking, AST::Query *query,
+                             VerificationOptions options, WaitingList<WaitingDart *> *waiting_list)
+                    : TimeDartVerification(tapn, options, query, initialMarking) {
+                pwList = new TimeDartLivenessPWHashMap(options, waiting_list);
             };
+
             virtual ~TimeDartLiveness();
+
             bool run();
 
             inline unsigned int maxUsedTokens() {
                 return pwList->maxNumTokensInAnyMarking;
             };
-            virtual inline bool handleSuccessor(NonStrictMarkingBase* m){
-                return addToPW(m,tmpdart, tmpupper);
+
+            virtual inline bool handleSuccessor(NonStrictMarkingBase *m) {
+                return addToPW(m, tmpdart, tmpupper);
             };
         protected:
-            WaitingDart* tmpdart;
+            WaitingDart *tmpdart;
             int tmpupper;
-            bool addToPW(NonStrictMarkingBase* marking, WaitingDart* parent, int upper);
-            bool canDelayForever(NonStrictMarkingBase* marking);
+
+            bool addToPW(NonStrictMarkingBase *marking, WaitingDart *parent, int upper);
+
+            bool canDelayForever(NonStrictMarkingBase *marking);
 
         protected:
             int validChildren;
-            TimeDartLivenessPWBase* pwList;
+            TimeDartLivenessPWBase *pwList;
 
-            virtual inline void deleteBase(NonStrictMarkingBase* base) {
+            virtual inline void deleteBase(NonStrictMarkingBase *base) {
                 //
             };
-           
-            
+
+
         public:
             void printStats();
         };
@@ -65,21 +72,25 @@ namespace VerifyTAPN {
         class TimeDartLivenessPData : public TimeDartLiveness {
         public:
 
-            TimeDartLivenessPData(TAPN::TimedArcPetriNet& tapn, NonStrictMarkingBase& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<std::pair<WaitingDart*, ptriepointer_t<LivenessDart*> > >* waiting_list)
-            : TimeDartLiveness(tapn, initialMarking, query, options) {
-                pwList = new TimeDartLivenessPWPData(options, waiting_list, tapn, tapn.getNumberOfPlaces(), tapn.getMaxConstant());
+            TimeDartLivenessPData(TAPN::TimedArcPetriNet &tapn, NonStrictMarkingBase &initialMarking, AST::Query *query,
+                                  VerificationOptions options,
+                                  WaitingList<std::pair<WaitingDart *, ptriepointer_t<LivenessDart *> > > *waiting_list)
+                    : TimeDartLiveness(tapn, initialMarking, query, options) {
+                pwList = new TimeDartLivenessPWPData(options, waiting_list, tapn, tapn.getNumberOfPlaces(),
+                                                     tapn.getMaxConstant());
             };
 
         protected:
-            WaitingDart* tmpdart;
+            WaitingDart *tmpdart;
             int tmpupper;
-            virtual inline void deleteBase(NonStrictMarkingBase* base) {
+
+            virtual inline void deleteBase(NonStrictMarkingBase *base) {
                 delete base;
             };
-            
-            virtual inline NonStrictMarkingBase* getBase(TimeDartBase* dart){
-                EncodedLivenessDart* eld = (EncodedLivenessDart*)dart;
-                return ((TimeDartLivenessPWPData*)pwList)->decode(eld->encoding);
+
+            virtual inline NonStrictMarkingBase *getBase(TimeDartBase *dart) {
+                EncodedLivenessDart *eld = (EncodedLivenessDart *) dart;
+                return ((TimeDartLivenessPWPData *) pwList)->decode(eld->encoding);
             };
         };
 

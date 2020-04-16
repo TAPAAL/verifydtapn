@@ -10,7 +10,8 @@ namespace VerifyTAPN {
 
         class Visitable {
         public:
-            virtual void accept(Visitor& visitor, Result& context) = 0;
+            virtual void accept(Visitor &visitor, Result &context) = 0;
+
             int32_t eval = 0;
         };
 
@@ -19,19 +20,20 @@ namespace VerifyTAPN {
 
             virtual ~Expression() {
             };
-            virtual Expression* clone() const = 0;
+
+            virtual Expression *clone() const = 0;
         };
 
         class NotExpression : public Expression {
         public:
 
-            explicit NotExpression(Expression* expr) : expr(expr) {
+            explicit NotExpression(Expression *expr) : expr(expr) {
             };
 
-            NotExpression(const NotExpression& other) : expr(other.expr->clone()) {
+            NotExpression(const NotExpression &other) : expr(other.expr->clone()) {
             };
 
-            NotExpression& operator=(const NotExpression& other) {
+            NotExpression &operator=(const NotExpression &other) {
                 if (&other != this) {
                     delete expr;
                     expr = other.expr->clone();
@@ -44,14 +46,16 @@ namespace VerifyTAPN {
                 if (expr) delete expr;
             };
 
-            virtual NotExpression* clone() const;
-            virtual void accept(Visitor& visitor, Result& context);
+            virtual NotExpression *clone() const;
 
-            Expression& getChild() const {
+            virtual void accept(Visitor &visitor, Result &context);
+
+            Expression &getChild() const {
                 return *expr;
             }
+
         private:
-            Expression* expr;
+            Expression *expr;
         };
 
         class DeadlockExpression : public Expression {
@@ -63,8 +67,9 @@ namespace VerifyTAPN {
             virtual ~DeadlockExpression() {
             };
 
-            virtual DeadlockExpression* clone() const;
-            virtual void accept(Visitor& visitor, Result& context);
+            virtual DeadlockExpression *clone() const;
+
+            virtual void accept(Visitor &visitor, Result &context);
         };
 
         class BoolExpression : public Expression {
@@ -76,8 +81,9 @@ namespace VerifyTAPN {
             virtual ~BoolExpression() {
             };
 
-            virtual BoolExpression* clone() const;
-            virtual void accept(Visitor& visitor, Result& context);
+            virtual BoolExpression *clone() const;
+
+            virtual void accept(Visitor &visitor, Result &context);
 
             bool getValue() const {
                 return value;
@@ -89,13 +95,16 @@ namespace VerifyTAPN {
         class AtomicProposition : public Expression {
         public:
 
-            AtomicProposition(ArithmeticExpression* left, std::string* op, ArithmeticExpression* right) : left(left), op(op->begin(), op->end()), right(right) {
+            AtomicProposition(ArithmeticExpression *left, std::string *op, ArithmeticExpression *right) : left(left),
+                                                                                                          op(op->begin(),
+                                                                                                             op->end()),
+                                                                                                          right(right) {
             };
 
-            AtomicProposition(const AtomicProposition& other) : left(other.left), op(other.op), right(other.right) {
+            AtomicProposition(const AtomicProposition &other) : left(other.left), op(other.op), right(other.right) {
             };
 
-            AtomicProposition& operator=(const AtomicProposition& other) {
+            AtomicProposition &operator=(const AtomicProposition &other) {
                 if (&other != this) {
                     left = other.left;
                     op = other.op;
@@ -107,11 +116,11 @@ namespace VerifyTAPN {
             virtual ~AtomicProposition() {
             };
 
-            ArithmeticExpression& getLeft() const {
+            ArithmeticExpression &getLeft() const {
                 return *left;
             };
 
-            ArithmeticExpression& getRight() const {
+            ArithmeticExpression &getRight() const {
                 return *right;
             };
 
@@ -119,25 +128,26 @@ namespace VerifyTAPN {
                 return op;
             };
 
-            virtual AtomicProposition* clone() const;
-            virtual void accept(Visitor& visitor, Result& context);
+            virtual AtomicProposition *clone() const;
+
+            virtual void accept(Visitor &visitor, Result &context);
 
         private:
-            ArithmeticExpression* left;
+            ArithmeticExpression *left;
             std::string op;
-            ArithmeticExpression* right;
+            ArithmeticExpression *right;
         };
 
         class AndExpression : public Expression {
         public:
 
-            AndExpression(Expression* left, Expression* right) : left(left), right(right) {
+            AndExpression(Expression *left, Expression *right) : left(left), right(right) {
             };
 
-            AndExpression(const AndExpression& other) : left(other.left->clone()), right(other.right->clone()) {
+            AndExpression(const AndExpression &other) : left(other.left->clone()), right(other.right->clone()) {
             };
 
-            AndExpression& operator=(const AndExpression& other) {
+            AndExpression &operator=(const AndExpression &other) {
                 if (&other != this) {
                     delete left;
                     delete right;
@@ -153,31 +163,33 @@ namespace VerifyTAPN {
                 if (right) delete right;
             }
 
-            virtual AndExpression* clone() const;
-            void accept(Visitor& visitor, Result& context);
+            virtual AndExpression *clone() const;
 
-            Expression& getLeft() const {
+            void accept(Visitor &visitor, Result &context);
+
+            Expression &getLeft() const {
                 return *left;
             }
 
-            Expression& getRight() const {
+            Expression &getRight() const {
                 return *right;
             }
+
         private:
-            Expression* left;
-            Expression* right;
+            Expression *left;
+            Expression *right;
         };
 
         class OrExpression : public Expression {
         public:
 
-            OrExpression(Expression* left, Expression* right) : left(left), right(right) {
+            OrExpression(Expression *left, Expression *right) : left(left), right(right) {
             };
 
-            OrExpression(const OrExpression& other) : left(other.left->clone()), right(other.right->clone()) {
+            OrExpression(const OrExpression &other) : left(other.left->clone()), right(other.right->clone()) {
             };
 
-            OrExpression& operator=(const OrExpression& other) {
+            OrExpression &operator=(const OrExpression &other) {
                 if (&other != this) {
                     delete left;
                     delete right;
@@ -194,20 +206,21 @@ namespace VerifyTAPN {
             };
 
 
+            virtual OrExpression *clone() const;
 
-            virtual OrExpression* clone() const;
-            virtual void accept(Visitor& visitor, Result& context);
+            virtual void accept(Visitor &visitor, Result &context);
 
-            Expression& getLeft() const {
+            Expression &getLeft() const {
                 return *left;
             }
 
-            Expression& getRight() const {
+            Expression &getRight() const {
                 return *right;
             }
+
         private:
-            Expression* left;
-            Expression* right;
+            Expression *left;
+            Expression *right;
         };
 
         class ArithmeticExpression : public Visitable {
@@ -215,19 +228,20 @@ namespace VerifyTAPN {
 
             virtual ~ArithmeticExpression() {
             };
-            virtual ArithmeticExpression* clone() const = 0;
+
+            virtual ArithmeticExpression *clone() const = 0;
         };
 
         class OperationExpression : public ArithmeticExpression {
         protected:
 
-            OperationExpression(ArithmeticExpression* left, ArithmeticExpression* right) : left(left), right(right) {
+            OperationExpression(ArithmeticExpression *left, ArithmeticExpression *right) : left(left), right(right) {
             };
 
-            OperationExpression(const OperationExpression& other) : left(other.left), right(other.right) {
+            OperationExpression(const OperationExpression &other) : left(other.left), right(other.right) {
             };
 
-            OperationExpression& operator=(const OperationExpression& other) {
+            OperationExpression &operator=(const OperationExpression &other) {
                 if (&other != this) {
                     delete left;
                     left = other.left;
@@ -242,31 +256,31 @@ namespace VerifyTAPN {
 
         public:
 
-            ArithmeticExpression& getLeft() {
+            ArithmeticExpression &getLeft() {
                 return *left;
             };
 
-            ArithmeticExpression& getRight() {
+            ArithmeticExpression &getRight() {
                 return *right;
             };
 
         protected:
-            ArithmeticExpression* left;
-            ArithmeticExpression* right;
+            ArithmeticExpression *left;
+            ArithmeticExpression *right;
         };
 
         class PlusExpression : public OperationExpression {
         public:
 
-            PlusExpression(ArithmeticExpression* left, ArithmeticExpression* right)
-            : OperationExpression(left, right) {
+            PlusExpression(ArithmeticExpression *left, ArithmeticExpression *right)
+                    : OperationExpression(left, right) {
             };
 
-            PlusExpression(const PlusExpression& other)
-            : OperationExpression(other) {
+            PlusExpression(const PlusExpression &other)
+                    : OperationExpression(other) {
             };
 
-            PlusExpression& operator=(const PlusExpression& other) {
+            PlusExpression &operator=(const PlusExpression &other) {
                 if (&other != this) {
                     left = other.left;
                     right = other.right;
@@ -277,23 +291,24 @@ namespace VerifyTAPN {
             virtual ~PlusExpression() {
             };
 
-            virtual PlusExpression* clone() const;
-            virtual void accept(Visitor& visitor, Result& context);
+            virtual PlusExpression *clone() const;
+
+            virtual void accept(Visitor &visitor, Result &context);
 
         };
 
         class SubtractExpression : public OperationExpression {
         public:
 
-            SubtractExpression(ArithmeticExpression* left, ArithmeticExpression* right)
-            : OperationExpression(left, right) {
+            SubtractExpression(ArithmeticExpression *left, ArithmeticExpression *right)
+                    : OperationExpression(left, right) {
             };
 
-            SubtractExpression(const SubtractExpression& other)
-            : OperationExpression(other) {
+            SubtractExpression(const SubtractExpression &other)
+                    : OperationExpression(other) {
             };
 
-            SubtractExpression& operator=(const SubtractExpression& other) {
+            SubtractExpression &operator=(const SubtractExpression &other) {
                 if (&other != this) {
                     left = other.left;
                     right = other.right;
@@ -304,51 +319,55 @@ namespace VerifyTAPN {
             virtual ~SubtractExpression() {
             };
 
-            virtual SubtractExpression* clone() const;
-            virtual void accept(Visitor& visitor, Result& context);
+            virtual SubtractExpression *clone() const;
+
+            virtual void accept(Visitor &visitor, Result &context);
         };
 
         class MinusExpression : public ArithmeticExpression {
         public:
 
-            MinusExpression(ArithmeticExpression* value) : value(value) {
+            MinusExpression(ArithmeticExpression *value) : value(value) {
             };
 
-            MinusExpression(const MinusExpression& other)
-            : value(other.value) {
+            MinusExpression(const MinusExpression &other)
+                    : value(other.value) {
             };
 
-            MinusExpression& operator=(const MinusExpression& other) {
+            MinusExpression &operator=(const MinusExpression &other) {
                 if (&other != this) {
                     value = other.value;
                 }
                 return *this;
             }
 
-            ArithmeticExpression& getValue() const {
+            ArithmeticExpression &getValue() const {
                 return *value;
             };
 
             virtual ~MinusExpression() {
             };
-            virtual MinusExpression* clone() const;
-            virtual void accept(Visitor& visitor, Result& context);
+
+            virtual MinusExpression *clone() const;
+
+            virtual void accept(Visitor &visitor, Result &context);
+
         private:
-            ArithmeticExpression* value;
+            ArithmeticExpression *value;
         };
 
         class MultiplyExpression : public OperationExpression {
         public:
 
-            MultiplyExpression(ArithmeticExpression* left, ArithmeticExpression* right)
-            : OperationExpression(left, right) {
+            MultiplyExpression(ArithmeticExpression *left, ArithmeticExpression *right)
+                    : OperationExpression(left, right) {
             };
 
-            MultiplyExpression(const MultiplyExpression& other)
-            : OperationExpression(other) {
+            MultiplyExpression(const MultiplyExpression &other)
+                    : OperationExpression(other) {
             };
 
-            MultiplyExpression& operator=(const MultiplyExpression& other) {
+            MultiplyExpression &operator=(const MultiplyExpression &other) {
                 if (&other != this) {
                     left = other.left;
                     right = other.right;
@@ -358,8 +377,10 @@ namespace VerifyTAPN {
 
             virtual ~MultiplyExpression() {
             };
-            virtual MultiplyExpression* clone() const;
-            virtual void accept(Visitor& visitor, Result& context);
+
+            virtual MultiplyExpression *clone() const;
+
+            virtual void accept(Visitor &visitor, Result &context);
         };
 
         class NumberExpression : public ArithmeticExpression {
@@ -368,10 +389,10 @@ namespace VerifyTAPN {
             NumberExpression(int i) : value(i) {
             }
 
-            NumberExpression(const NumberExpression& other) : value(other.value) {
+            NumberExpression(const NumberExpression &other) : value(other.value) {
             };
 
-            NumberExpression& operator=(const NumberExpression& other) {
+            NumberExpression &operator=(const NumberExpression &other) {
                 value = other.value;
                 return *this;
             };
@@ -382,8 +403,11 @@ namespace VerifyTAPN {
 
             virtual ~NumberExpression() {
             };
-            virtual NumberExpression* clone() const;
-            virtual void accept(Visitor& visitor, Result& context);
+
+            virtual NumberExpression *clone() const;
+
+            virtual void accept(Visitor &visitor, Result &context);
+
         private:
             int value;
         };
@@ -394,10 +418,10 @@ namespace VerifyTAPN {
             IdentifierExpression(int placeIndex) : place(placeIndex) {
             }
 
-            IdentifierExpression(const IdentifierExpression& other) : place(other.place) {
+            IdentifierExpression(const IdentifierExpression &other) : place(other.place) {
             };
 
-            IdentifierExpression& operator=(const IdentifierExpression& other) {
+            IdentifierExpression &operator=(const IdentifierExpression &other) {
                 place = other.place;
                 return *this;
             };
@@ -408,8 +432,11 @@ namespace VerifyTAPN {
 
             virtual ~IdentifierExpression() {
             };
-            virtual IdentifierExpression* clone() const;
-            virtual void accept(Visitor& visitor, Result& context);
+
+            virtual IdentifierExpression *clone() const;
+
+            virtual void accept(Visitor &visitor, Result &context);
+
         private:
             int place;
         };
@@ -421,13 +448,13 @@ namespace VerifyTAPN {
         class Query : public Visitable {
         public:
 
-            Query(Quantifier quantifier, Expression* expr) : quantifier(quantifier), expr(expr) {
+            Query(Quantifier quantifier, Expression *expr) : quantifier(quantifier), expr(expr) {
             };
 
-            Query(const Query& other) : quantifier(other.quantifier), expr(other.expr->clone()) {
+            Query(const Query &other) : quantifier(other.quantifier), expr(other.expr->clone()) {
             };
 
-            Query& operator=(const Query& other) {
+            Query &operator=(const Query &other) {
                 if (&other != this) {
                     delete expr;
                     expr = other.expr->clone();
@@ -439,31 +466,33 @@ namespace VerifyTAPN {
                 if (expr) delete expr;
             }
 
-            virtual Query* clone() const;
-            virtual void accept(Visitor& visitor, Result& context);
+            virtual Query *clone() const;
+
+            virtual void accept(Visitor &visitor, Result &context);
 
             Quantifier getQuantifier() const {
                 return quantifier;
             }
 
-            const Expression& getConstChild() const {
+            const Expression &getConstChild() const {
                 return *expr;
             }
 
-            Expression* getChild() {
+            Expression *getChild() {
                 return expr;
             }
 
-            void setChild(Expression* expr) {
+            void setChild(Expression *expr) {
                 this->expr = expr;
             }
 
             void setQuantifier(Quantifier q) {
                 quantifier = q;
             }
+
         private:
             Quantifier quantifier;
-            Expression* expr;
+            Expression *expr;
         };
     }
 }

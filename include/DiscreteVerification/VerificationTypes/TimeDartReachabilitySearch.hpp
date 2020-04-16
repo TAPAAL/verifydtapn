@@ -21,59 +21,73 @@
 #include "../Util/IntervalOps.hpp"
 
 namespace VerifyTAPN {
-namespace DiscreteVerification {
+    namespace DiscreteVerification {
 
-using namespace rapidxml;
+        using namespace rapidxml;
 
-class TimeDartReachabilitySearch : public TimeDartVerification{
-public:
-        TimeDartReachabilitySearch(TAPN::TimedArcPetriNet& tapn, NonStrictMarkingBase& initialMarking, AST::Query* query, VerificationOptions options) 
-        :TimeDartVerification(tapn, options, query, initialMarking), trace(10000){};
-        TimeDartReachabilitySearch(TAPN::TimedArcPetriNet& tapn, NonStrictMarkingBase& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<TimeDartBase*>* waiting_list)
-        :TimeDartVerification(tapn, options, query, initialMarking), trace(10000){
-            pwList = new TimeDartPWHashMap(waiting_list, options.getTrace());
+        class TimeDartReachabilitySearch : public TimeDartVerification {
+        public:
+            TimeDartReachabilitySearch(TAPN::TimedArcPetriNet &tapn, NonStrictMarkingBase &initialMarking,
+                                       AST::Query *query, VerificationOptions options)
+                    : TimeDartVerification(tapn, options, query, initialMarking), trace(10000) {};
+
+            TimeDartReachabilitySearch(TAPN::TimedArcPetriNet &tapn, NonStrictMarkingBase &initialMarking,
+                                       AST::Query *query, VerificationOptions options,
+                                       WaitingList<TimeDartBase *> *waiting_list)
+                    : TimeDartVerification(tapn, options, query, initialMarking), trace(10000) {
+                pwList = new TimeDartPWHashMap(waiting_list, options.getTrace());
+            };
+
+            virtual ~TimeDartReachabilitySearch();
+
+            bool run();
+
+            inline unsigned int maxUsedTokens() { return pwList->maxNumTokensInAnyMarking; };
+
+            virtual inline bool handleSuccessor(NonStrictMarkingBase *m) {
+                return handleSuccessor(m, tmpdart, tmpupper);
+            };
+        protected:
+            WaitingDart *tmpdart;
+            int tmpupper;
+
+            bool handleSuccessor(NonStrictMarkingBase *marking, WaitingDart *parent, int upper);
+
+        protected:
+            int validChildren;
+            google::sparse_hash_map<NonStrictMarkingBase *, TraceList> trace;
+            TimeDartPWBase *pwList;
+            vector<const TAPN::TimedTransition *> allwaysEnabled;
+
+            virtual inline void deleteBase(NonStrictMarkingBase *base) {
+                // Dummy
+            }
+
+        public:
+            void printStats();
         };
-        virtual ~TimeDartReachabilitySearch();
-	bool run();
 
-	inline unsigned int maxUsedTokens(){ return pwList->maxNumTokensInAnyMarking; };
-        virtual inline bool handleSuccessor(NonStrictMarkingBase* m){
-            return handleSuccessor(m,tmpdart, tmpupper);
+        class TimeDartReachabilitySearchPData : public TimeDartReachabilitySearch {
+        public:
+            TimeDartReachabilitySearchPData(TAPN::TimedArcPetriNet &tapn, NonStrictMarkingBase &initialMarking,
+                                            AST::Query *query, VerificationOptions options,
+                                            WaitingList<TimeDartEncodingPointer> *waiting_list)
+                    : TimeDartReachabilitySearch(tapn, initialMarking, query, options) {
+                pwList = new TimeDartPWPData(waiting_list, tapn, options.getKBound(), tapn.getNumberOfPlaces(),
+                                             tapn.getMaxConstant(), options.getTrace());
+            };
+        protected:
+            virtual inline void deleteBase(NonStrictMarkingBase *base) {
+                delete base;
+            };
+
+            virtual inline NonStrictMarkingBase *getBase(TimeDartBase *dart) {
+                EncodedReachabilityTraceableDart *erd = (EncodedReachabilityTraceableDart *) dart;
+
+                return ((TimeDartPWPData *) pwList)->decode(erd->encoding);
+            };
         };
-protected:
-    WaitingDart* tmpdart;
-    int tmpupper;
-	bool handleSuccessor(NonStrictMarkingBase* marking, WaitingDart* parent, int upper);
 
-protected:
-	int validChildren;
-	google::sparse_hash_map<NonStrictMarkingBase*, TraceList > trace;
-        TimeDartPWBase* pwList;
-	vector<const TAPN::TimedTransition*> allwaysEnabled;
-        virtual inline void deleteBase(NonStrictMarkingBase* base){
-           // Dummy
-        }
-public:
-	void printStats();
-};
-
-class TimeDartReachabilitySearchPData : public TimeDartReachabilitySearch {
-public:
-    TimeDartReachabilitySearchPData(TAPN::TimedArcPetriNet& tapn, NonStrictMarkingBase& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<TimeDartEncodingPointer >* waiting_list)
-    :TimeDartReachabilitySearch(tapn, initialMarking, query, options){
-        pwList = new TimeDartPWPData(waiting_list, tapn, options.getKBound(), tapn.getNumberOfPlaces(), tapn.getMaxConstant(), options.getTrace());
-    };
-protected:
-       virtual inline void deleteBase(NonStrictMarkingBase* base){
-            delete base;
-        };
-        virtual inline NonStrictMarkingBase* getBase(TimeDartBase* dart){
-                EncodedReachabilityTraceableDart* erd = (EncodedReachabilityTraceableDart*)dart;
-
-                return ((TimeDartPWPData*)pwList)->decode(erd->encoding);
-       };
-};
-
-} /* namespace DiscreteVerification */
+    } /* namespace DiscreteVerification */
 } /* namespace VerifyTAPN */
 #endif /* NONSTRICTSEARCH_HPP_ */

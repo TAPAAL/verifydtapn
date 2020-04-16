@@ -33,23 +33,40 @@
 
 namespace VerifyTAPN {
 
-namespace DiscreteVerification {
+    namespace DiscreteVerification {
 
-class DiscreteVerification {
-public:
-	DiscreteVerification();
-	virtual ~DiscreteVerification();
-	static int run(TAPN::TimedArcPetriNet& tapn, std::vector<int> initialPlacement, AST::Query* query, VerificationOptions& options);
-private:
-	static void printHumanTrace(bool result, NonStrictMarking* m, std::stack<NonStrictMarking*>& stack, AST::Quantifier query);
-	static void printXMLTrace(bool result, NonStrictMarking* m, std::stack<NonStrictMarking*>& stack, AST::Quantifier query);
-	static rapidxml::xml_node<>* createTransitionNode(NonStrictMarking* old, NonStrictMarking* current, rapidxml::xml_document<>& doc);
-	static rapidxml::xml_node<>* createTokenNode(rapidxml::xml_document<>& doc, const TAPN::TimedPlace& place, const Token& token);
-	static void createTransitionSubNodes(NonStrictMarking* old, NonStrictMarking* current, rapidxml::xml_document<>& doc, rapidxml::xml_node<>* transitionNode, const TAPN::TimedPlace& place, const TAPN::TimeInterval& interval, const int weight);
-	static void generateTraceStack(NonStrictMarking* m, std::stack<NonStrictMarking*>* stack, std::stack<NonStrictMarking*>* liveness = NULL);
-};
+        class DiscreteVerification {
+        public:
+            DiscreteVerification();
 
-}
+            virtual ~DiscreteVerification();
+
+            static int run(TAPN::TimedArcPetriNet &tapn, std::vector<int> initialPlacement, AST::Query *query,
+                           VerificationOptions &options);
+
+        private:
+            static void printHumanTrace(bool result, NonStrictMarking *m, std::stack<NonStrictMarking *> &stack,
+                                        AST::Quantifier query);
+
+            static void printXMLTrace(bool result, NonStrictMarking *m, std::stack<NonStrictMarking *> &stack,
+                                      AST::Quantifier query);
+
+            static rapidxml::xml_node<> *
+            createTransitionNode(NonStrictMarking *old, NonStrictMarking *current, rapidxml::xml_document<> &doc);
+
+            static rapidxml::xml_node<> *
+            createTokenNode(rapidxml::xml_document<> &doc, const TAPN::TimedPlace &place, const Token &token);
+
+            static void
+            createTransitionSubNodes(NonStrictMarking *old, NonStrictMarking *current, rapidxml::xml_document<> &doc,
+                                     rapidxml::xml_node<> *transitionNode, const TAPN::TimedPlace &place,
+                                     const TAPN::TimeInterval &interval, const int weight);
+
+            static void generateTraceStack(NonStrictMarking *m, std::stack<NonStrictMarking *> *stack,
+                                           std::stack<NonStrictMarking *> *liveness = NULL);
+        };
+
+    }
 
 }
 

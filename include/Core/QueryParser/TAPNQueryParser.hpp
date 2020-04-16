@@ -5,40 +5,44 @@
 
 #include <string>
 
-namespace VerifyTAPN
-{
+namespace VerifyTAPN {
 
     class location;
-	namespace AST{
-		class Query;
-	}
+    namespace AST {
+        class Query;
+    }
 
-	class TAPNQueryParser {
-	public:
-		TAPNQueryParser(const VerifyTAPN::TAPN::TimedArcPetriNet& tapn) : ast(NULL), net(tapn) { };
-		virtual ~TAPNQueryParser() { };
+    class TAPNQueryParser {
+    public:
+        TAPNQueryParser(const VerifyTAPN::TAPN::TimedArcPetriNet &tapn) : ast(NULL), net(tapn) {};
 
-	private:
-		void scan_begin();
-		void scan_end();
+        virtual ~TAPNQueryParser() {};
 
-	public:
-		int parse(const std::string& file);
-		void setAST(VerifyTAPN::AST::Query* ast);
-		AST::Query* getAST();
+    private:
+        void scan_begin();
 
-		const VerifyTAPN::TAPN::TimedArcPetriNet& getTAPN() { return net; };
+        void scan_end();
 
-	public: // error handling
-		void error(const location& l, const std::string& m);
-		void error(const std::string& m);
+    public:
+        int parse(const std::string &file);
 
-                // must be public for the generated lexer and parser to work!
-		std::string file;
-        private:
-		VerifyTAPN::AST::Query* ast;
-		const VerifyTAPN::TAPN::TimedArcPetriNet& net;
-	};
+        void setAST(VerifyTAPN::AST::Query *ast);
+
+        AST::Query *getAST();
+
+        const VerifyTAPN::TAPN::TimedArcPetriNet &getTAPN() { return net; };
+
+    public: // error handling
+        static void error(const location &l, const std::string &m);
+
+        static void error(const std::string &m);
+
+        // must be public for the generated lexer and parser to work!
+        std::string file;
+    private:
+        VerifyTAPN::AST::Query *ast;
+        const VerifyTAPN::TAPN::TimedArcPetriNet &net;
+    };
 }
 
 #endif /* DRIVER_HPP_ */

@@ -30,20 +30,26 @@ namespace VerifyTAPN {
 
         class LivenessSearch : public AbstractNaiveVerification<PWListBase, NonStrictMarking, Generator> {
         public:
-            LivenessSearch(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options);
-            LivenessSearch(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking*>* waiting_list);
+            LivenessSearch(TAPN::TimedArcPetriNet &tapn, NonStrictMarking &initialMarking, AST::Query *query,
+                           VerificationOptions options);
+
+            LivenessSearch(TAPN::TimedArcPetriNet &tapn, NonStrictMarking &initialMarking, AST::Query *query,
+                           VerificationOptions options, WaitingList<NonStrictMarking *> *waiting_list);
+
             virtual ~LivenessSearch();
+
             bool run();
 
-            virtual void deleteMarking(NonStrictMarking* m) {
+            virtual void deleteMarking(NonStrictMarking *m) {
                 //dummy
             };
 
         protected:
-            bool handleSuccessor(NonStrictMarking* marking, NonStrictMarking* parent);
+            bool handleSuccessor(NonStrictMarking *marking, NonStrictMarking *parent);
 
         public:
             void getTrace();
+
         protected:
             int validChildren;
         };
@@ -51,12 +57,15 @@ namespace VerifyTAPN {
         class LivenessSearchPTrie : public LivenessSearch {
         public:
 
-            LivenessSearchPTrie(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<ptriepointer_t<MetaData*> >* waiting_list)
-            : LivenessSearch(tapn, initialMarking, query, options) {
-                pwList = new PWListHybrid(tapn, waiting_list, options.getKBound(), tapn.getNumberOfPlaces(), tapn.getMaxConstant(), true, options.getTrace() == VerificationOptions::SOME_TRACE);
+            LivenessSearchPTrie(TAPN::TimedArcPetriNet &tapn, NonStrictMarking &initialMarking, AST::Query *query,
+                                VerificationOptions options, WaitingList<ptriepointer_t<MetaData *> > *waiting_list)
+                    : LivenessSearch(tapn, initialMarking, query, options) {
+                pwList = new PWListHybrid(tapn, waiting_list, options.getKBound(), tapn.getNumberOfPlaces(),
+                                          tapn.getMaxConstant(), true,
+                                          options.getTrace() == VerificationOptions::SOME_TRACE);
             };
 
-            virtual void deleteMarking(NonStrictMarking* m) {
+            virtual void deleteMarking(NonStrictMarking *m) {
                 delete m;
             };
 

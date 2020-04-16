@@ -5,15 +5,15 @@
 namespace VerifyTAPN {
     namespace DiscreteVerification {
 
-        WorkflowPWList::WorkflowPWList(WaitingList<NonStrictMarking*>* w_l) : PWList(w_l, false) {
+        WorkflowPWList::WorkflowPWList(WaitingList<NonStrictMarking *> *w_l) : PWList(w_l, false) {
         };
 
-        bool WorkflowPWList::add(NonStrictMarking* marking) {
+        bool WorkflowPWList::add(NonStrictMarking *marking) {
             discoveredMarkings++;
-            NonStrictMarkingList& m = markings_storage[marking->getHashKey()];
+            NonStrictMarkingList &m = markings_storage[marking->getHashKey()];
             for (NonStrictMarkingList::const_iterator iter = m.begin();
-                    iter != m.end();
-                    iter++) {
+                 iter != m.end();
+                 iter++) {
                 if ((*iter)->equals(*marking)) {
                     return false;
                 }
@@ -24,10 +24,11 @@ namespace VerifyTAPN {
             return true;
         }
 
-        NonStrictMarking* WorkflowPWList::getCoveredMarking(NonStrictMarking* marking, bool useLinearSweep) {
+        NonStrictMarking *WorkflowPWList::getCoveredMarking(NonStrictMarking *marking, bool useLinearSweep) {
             if (useLinearSweep) {
                 for (HashMap::const_iterator iter = markings_storage.begin(); iter != markings_storage.end(); ++iter) {
-                    for (NonStrictMarkingList::const_iterator m_iter = iter->second.begin(); m_iter != iter->second.end(); m_iter++) {
+                    for (NonStrictMarkingList::const_iterator m_iter = iter->second.begin();
+                         m_iter != iter->second.end(); m_iter++) {
                         if ((*m_iter)->size() >= marking->size()) {
                             continue;
                         }
@@ -36,8 +37,10 @@ namespace VerifyTAPN {
                         PlaceList::const_iterator marking_place_iter = marking->getPlaceList().begin();
 
                         bool tokensCovered = true;
-                        for (PlaceList::const_iterator m_place_iter = (*m_iter)->getPlaceList().begin(); m_place_iter != (*m_iter)->getPlaceList().end(); ++m_place_iter) {
-                            while (marking_place_iter != marking->getPlaceList().end() && marking_place_iter->place != m_place_iter->place) {
+                        for (PlaceList::const_iterator m_place_iter = (*m_iter)->getPlaceList().begin();
+                             m_place_iter != (*m_iter)->getPlaceList().end(); ++m_place_iter) {
+                            while (marking_place_iter != marking->getPlaceList().end() &&
+                                   marking_place_iter->place != m_place_iter->place) {
                                 ++marking_place_iter;
                             }
 
@@ -47,12 +50,15 @@ namespace VerifyTAPN {
                             }
 
                             TokenList::const_iterator marking_token_iter = marking_place_iter->tokens.begin();
-                            for (TokenList::const_iterator m_token_iter = m_place_iter->tokens.begin(); m_token_iter != m_place_iter->tokens.end(); ++m_token_iter) {
-                                while (marking_token_iter != marking_place_iter->tokens.end() && marking_token_iter->getAge() != m_token_iter->getAge()) {
+                            for (TokenList::const_iterator m_token_iter = m_place_iter->tokens.begin();
+                                 m_token_iter != m_place_iter->tokens.end(); ++m_token_iter) {
+                                while (marking_token_iter != marking_place_iter->tokens.end() &&
+                                       marking_token_iter->getAge() != m_token_iter->getAge()) {
                                     ++marking_token_iter;
                                 }
 
-                                if (marking_token_iter == marking_place_iter->tokens.end() || marking_token_iter->getCount() < m_token_iter->getCount()) {
+                                if (marking_token_iter == marking_place_iter->tokens.end() ||
+                                    marking_token_iter->getCount() < m_token_iter->getCount()) {
                                     tokensCovered = false;
                                     break;
                                 }
@@ -67,20 +73,24 @@ namespace VerifyTAPN {
                     }
                 }
             } else {
-                vector<NonStrictMarking*> coveredMarkings;
+                vector<NonStrictMarking *> coveredMarkings;
                 coveredMarkings.push_back(new NonStrictMarking(*marking));
-                for (PlaceList::const_iterator p_iter = marking->getPlaceList().begin(); p_iter != marking->getPlaceList().end(); ++p_iter) {
-                    for (TokenList::const_iterator t_iter = p_iter->tokens.begin(); t_iter != p_iter->tokens.end(); ++t_iter) {
+                for (PlaceList::const_iterator p_iter = marking->getPlaceList().begin();
+                     p_iter != marking->getPlaceList().end(); ++p_iter) {
+                    for (TokenList::const_iterator t_iter = p_iter->tokens.begin();
+                         t_iter != p_iter->tokens.end(); ++t_iter) {
                         for (int i = 1; i <= t_iter->getCount(); ++i) {
-                            vector<NonStrictMarking*> toAdd;
-                            for (vector<NonStrictMarking*>::iterator iter = coveredMarkings.begin(); iter != coveredMarkings.end(); ++iter) {
-                                NonStrictMarking* new_marking = new NonStrictMarking(**iter);
+                            vector<NonStrictMarking *> toAdd;
+                            for (vector<NonStrictMarking *>::iterator iter = coveredMarkings.begin();
+                                 iter != coveredMarkings.end(); ++iter) {
+                                NonStrictMarking *new_marking = new NonStrictMarking(**iter);
                                 for (int ii = i; ii > 0; --ii) {
                                     new_marking->removeToken(p_iter->place->getIndex(), t_iter->getAge());
                                 }
                                 toAdd.push_back(new_marking);
                             }
-                            for (vector<NonStrictMarking*>::iterator iter = toAdd.begin(); iter != toAdd.end(); ++iter) {
+                            for (vector<NonStrictMarking *>::iterator iter = toAdd.begin();
+                                 iter != toAdd.end(); ++iter) {
                                 coveredMarkings.push_back(*iter);
                             }
                         }
@@ -88,33 +98,32 @@ namespace VerifyTAPN {
                 }
 
                 bool isFirst = true;
-                for (vector<NonStrictMarking*>::iterator iter = coveredMarkings.begin(); 
-                        iter != coveredMarkings.end(); ++iter) {
+                for (vector<NonStrictMarking *>::iterator iter = coveredMarkings.begin();
+                     iter != coveredMarkings.end(); ++iter) {
                     if (isFirst) {
                         isFirst = false;
                         continue;
                     }
-                    NonStrictMarking* covered = lookup(*iter);
+                    NonStrictMarking *covered = lookup(*iter);
                     if (covered != NULL) {
                         // cleanup
-                        for (;iter != coveredMarkings.end(); ++iter)
-                        {
+                        for (; iter != coveredMarkings.end(); ++iter) {
                             delete *iter;
                         }
                         return covered;
                     }
                     delete *iter;
                 }
-                
+
             }
             return NULL;
         }
 
-        NonStrictMarking* WorkflowPWList::getUnpassed() {
+        NonStrictMarking *WorkflowPWList::getUnpassed() {
             for (HashMap::iterator hmiter = markings_storage.begin(); hmiter != markings_storage.end(); hmiter++) {
                 for (NonStrictMarkingList::const_iterator iter = hmiter->second.begin();
-                        iter != hmiter->second.end();
-                        iter++) {
+                     iter != hmiter->second.end();
+                     iter++) {
                     if (!(*iter)->meta->passed) {
                         return *iter;
                     }
@@ -123,32 +132,31 @@ namespace VerifyTAPN {
             return NULL;
         }
 
-        NonStrictMarking* WorkflowPWList::addToPassed(
-                                        NonStrictMarking* marking, bool strong) 
-        {  
+        NonStrictMarking *WorkflowPWList::addToPassed(
+                NonStrictMarking *marking, bool strong) {
             discoveredMarkings++;
-            NonStrictMarking* existing = lookup(marking);
+            NonStrictMarking *existing = lookup(marking);
             if (existing != NULL) {
-                last = existing;                
+                last = existing;
                 return existing;
             } else {
                 last = marking;
-                NonStrictMarkingList& m = markings_storage[marking->getHashKey()];
+                NonStrictMarkingList &m = markings_storage[marking->getHashKey()];
                 stored++;
                 m.push_back(marking);
 
-                if(strong) marking->meta = new MetaData();
+                if (strong) marking->meta = new MetaData();
                 else marking->meta = new WorkflowSoundnessMetaData();
 
                 return NULL;
             }
         }
 
-        NonStrictMarking* WorkflowPWList::lookup(NonStrictMarking* marking) {
-            NonStrictMarkingList& m = markings_storage[marking->getHashKey()];
+        NonStrictMarking *WorkflowPWList::lookup(NonStrictMarking *marking) {
+            NonStrictMarkingList &m = markings_storage[marking->getHashKey()];
             for (NonStrictMarkingList::const_iterator iter = m.begin();
-                    iter != m.end();
-                    iter++) {
+                 iter != m.end();
+                 iter++) {
                 if ((*iter)->equals(*marking)) {
                     return *iter;
                 }
@@ -158,100 +166,85 @@ namespace VerifyTAPN {
 
 
         WorkflowPWListHybrid::WorkflowPWListHybrid(
-                            TAPN::TimedArcPetriNet& tapn,  
-                            WaitingList<ptriepointer_t<MetaData*> >* w_l, 
-                            int knumber, 
-                            int nplaces, 
-                            int mage) 
-            : PWListHybrid(tapn, w_l, knumber, nplaces, mage, false, true),
-                visitor(encoder)
-        {
-            
+                TAPN::TimedArcPetriNet &tapn,
+                WaitingList<ptriepointer_t<MetaData *> > *w_l,
+                int knumber,
+                int nplaces,
+                int mage)
+                : PWListHybrid(tapn, w_l, knumber, nplaces, mage, false, true),
+                  visitor(encoder) {
+
         }
-        
-        WorkflowPWListHybrid::~WorkflowPWListHybrid()
-        {
-            ptriepointer_t<MetaData*> begin = passed.begin();
-            while(begin != passed.end())
-            {
+
+        WorkflowPWListHybrid::~WorkflowPWListHybrid() {
+            ptriepointer_t<MetaData *> begin = passed.begin();
+            while (begin != passed.end()) {
                 delete begin.get_meta();
-                ++ begin;
+                ++begin;
             }
         }
-        
-    	NonStrictMarking* WorkflowPWListHybrid::getCoveredMarking
-                                (NonStrictMarking* marking, bool useLinearSweep)
-        {
+
+        NonStrictMarking *WorkflowPWListHybrid::getCoveredMarking
+                (NonStrictMarking *marking, bool useLinearSweep) {
             visitor.set_target(marking, last_pointer);
             passed.visit(visitor);
-            if(visitor.found())
-            {
-                NonStrictMarking* m = visitor.decode();
+            if (visitor.found()) {
+                NonStrictMarking *m = visitor.decode();
                 return m;
-            }
-            else
-            {
+            } else {
                 return NULL;
             }
         }
-        
-        NonStrictMarking* WorkflowPWListHybrid::getUnpassed()
-        {
-            ptriepointer_t<MetaData*> it = passed.last();
-            for(; it != passed.rend(); --it)
-            {
-                if(!it.get_meta()->passed)
-                {
-                    NonStrictMarking* m = encoder.decode(it);
+
+        NonStrictMarking *WorkflowPWListHybrid::getUnpassed() {
+            ptriepointer_t<MetaData *> it = passed.last();
+            for (; it != passed.rend(); --it) {
+                if (!it.get_meta()->passed) {
+                    NonStrictMarking *m = encoder.decode(it);
                     m->meta = it.get_meta();
                     return m;
                 }
             }
             return NULL;
         }
-        
-    	bool WorkflowPWListHybrid::add(NonStrictMarking* marking)
-        {
+
+        bool WorkflowPWListHybrid::add(NonStrictMarking *marking) {
             discoveredMarkings++;
-            std::pair<bool, ptriepointer_t<MetaData*> > res = 
-                                        passed.insert(encoder.encode(marking));
-            
+            std::pair<bool, ptriepointer_t<MetaData *> > res =
+                    passed.insert(encoder.encode(marking));
+
             if (!res.first) {
                 return false;
-            }
-            else
-            {
-                MetaDataWithTraceAndEncoding* meta = 
-                                        new MetaDataWithTraceAndEncoding();
+            } else {
+                MetaDataWithTraceAndEncoding *meta =
+                        new MetaDataWithTraceAndEncoding();
                 meta->generatedBy = marking->getGeneratedBy();
                 meta->ep = res.second;
                 meta->parent = parent;
                 meta->totalDelay = marking->calculateTotalDelay();
-                
+
                 res.second.set_meta(meta);
-                
+
                 stored++;
-                
+
                 // using min first waiting-list, weight is allready in pointer
                 waiting_list->add(NULL, res.second);
-                return true;           
+                return true;
             }
         }
-        
-        NonStrictMarking* WorkflowPWListHybrid::addToPassed
-                                    (NonStrictMarking* marking, bool strong)
-        {
+
+        NonStrictMarking *WorkflowPWListHybrid::addToPassed
+                (NonStrictMarking *marking, bool strong) {
             discoveredMarkings++;
-            std::pair<bool, ptriepointer_t<MetaData*> > res = 
-                                        passed.insert(encoder.encode(marking));
+            std::pair<bool, ptriepointer_t<MetaData *> > res =
+                    passed.insert(encoder.encode(marking));
 
 
-            
             if (!res.first) {
-                NonStrictMarking* old = encoder.decode(res.second);
-                
-                MetaDataWithTraceAndEncoding* meta = 
-                        (MetaDataWithTraceAndEncoding*)res.second.get_meta();
+                NonStrictMarking *old = encoder.decode(res.second);
+
+                MetaDataWithTraceAndEncoding *meta =
+                        (MetaDataWithTraceAndEncoding *) res.second.get_meta();
                 old->setGeneratedBy(meta->generatedBy);
                 old->meta = meta;
                 last_pointer = res.second;
@@ -259,30 +252,27 @@ namespace VerifyTAPN {
             } else {
                 stored++;
 
-                if(strong) marking->meta = new MetaDataWithTraceAndEncoding();
+                if (strong) marking->meta = new MetaDataWithTraceAndEncoding();
                 else marking->meta = new WorkflowSoundnessMetaDataWithEncoding();
-                
-                MetaDataWithTraceAndEncoding* meta = 
-                                (MetaDataWithTraceAndEncoding*) marking->meta;
+
+                MetaDataWithTraceAndEncoding *meta =
+                        (MetaDataWithTraceAndEncoding *) marking->meta;
                 meta->ep = res.second;
                 meta->parent = this->parent;
                 meta->generatedBy = marking->getGeneratedBy();
                 meta->totalDelay = marking->meta->totalDelay;
-                
+
                 res.second.set_meta(meta);
                 last_pointer = res.second;
                 return NULL;
             }
         }
-        
-        void WorkflowPWListHybrid::addLastToWaiting()
-        {
+
+        void WorkflowPWListHybrid::addLastToWaiting() {
             // using min first waiting-list, weight is allready in pointer
             waiting_list->add(NULL, last_pointer);
         }
-        
-        
-        
+
 
     }
 }

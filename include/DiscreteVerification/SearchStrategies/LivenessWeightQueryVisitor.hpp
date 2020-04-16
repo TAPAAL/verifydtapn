@@ -15,36 +15,50 @@
 #include <limits.h>
 
 namespace VerifyTAPN {
-namespace DiscreteVerification {
+    namespace DiscreteVerification {
 
-using namespace AST;
+        using namespace AST;
 
-class LivenessWeightQueryVisitor : public Visitor{
-	public:
-	LivenessWeightQueryVisitor(NonStrictMarkingBase& marking) : marking(marking){};
-		virtual ~LivenessWeightQueryVisitor(){};
+        class LivenessWeightQueryVisitor : public Visitor {
+        public:
+            LivenessWeightQueryVisitor(NonStrictMarkingBase &marking) : marking(marking) {};
 
-	public: // visitor methods
-		virtual void visit(NotExpression& expr, Result& context);
-		virtual void visit(OrExpression& expr, Result& context);
-		virtual void visit(AndExpression& expr, Result& context);
-		virtual void visit(AtomicProposition& expr, Result& context);
-		virtual void visit(BoolExpression& expr, Result& context);
-		virtual void visit(Query& query, Result& context);
-                virtual void visit(DeadlockExpression& expr, Result& context);
-                virtual void visit(NumberExpression& expr, Result& context);
-                virtual void visit(IdentifierExpression& expr, Result& context);
-                virtual void visit(MultiplyExpression& expr, Result& context);
-                virtual void visit(MinusExpression& expr, Result& context);
-                virtual void visit(SubtractExpression& expr, Result& context);
-                virtual void visit(PlusExpression& expr, Result& context);
-	private:
-		int compare(int numberOfTokensInPlace, const std::string& op, int n) const;
+            virtual ~LivenessWeightQueryVisitor() {};
 
-	private:
-		const NonStrictMarkingBase& marking;
-};
+        public: // visitor methods
+            virtual void visit(NotExpression &expr, Result &context);
 
-} /* namespace DiscreteVerification */
+            virtual void visit(OrExpression &expr, Result &context);
+
+            virtual void visit(AndExpression &expr, Result &context);
+
+            virtual void visit(AtomicProposition &expr, Result &context);
+
+            virtual void visit(BoolExpression &expr, Result &context);
+
+            virtual void visit(Query &query, Result &context);
+
+            virtual void visit(DeadlockExpression &expr, Result &context);
+
+            virtual void visit(NumberExpression &expr, Result &context);
+
+            virtual void visit(IdentifierExpression &expr, Result &context);
+
+            virtual void visit(MultiplyExpression &expr, Result &context);
+
+            virtual void visit(MinusExpression &expr, Result &context);
+
+            virtual void visit(SubtractExpression &expr, Result &context);
+
+            virtual void visit(PlusExpression &expr, Result &context);
+
+        private:
+            int compare(int numberOfTokensInPlace, const std::string &op, int n) const;
+
+        private:
+            const NonStrictMarkingBase &marking;
+        };
+
+    } /* namespace DiscreteVerification */
 } /* namespace VerifyTAPN */
 #endif /* LIVENESSQUERYVISITOR_HPP_ */

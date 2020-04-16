@@ -27,8 +27,8 @@ namespace VerifyTAPN {
             NO_MEMORY_OPTIMIZATION, PTRIE
         };
 
-        enum WorkflowMode{
-        	NOT_WORKFLOW, WORKFLOW_SOUNDNESS, WORKFLOW_STRONG_SOUNDNESS
+        enum WorkflowMode {
+            NOT_WORKFLOW, WORKFLOW_SOUNDNESS, WORKFLOW_STRONG_SOUNDNESS
         };
 
         VerificationOptions() {
@@ -42,30 +42,29 @@ namespace VerifyTAPN {
                 Trace trace,
                 bool xml_trace,
                 bool useGlobalMaxConstants,
-                bool keepDeadTokens, 
+                bool keepDeadTokens,
                 bool enableGCDLowerGuards,
                 WorkflowMode workflow,
                 long long workflowBound,
-		bool calculateCmax,
+                bool calculateCmax,
                 std::map<std::string, int> replace,
                 bool order
-                ) : inputFile(""),
-        queryFile(""),
-        searchType(searchType),
-        verificationType(verificationType),
-        memOptimization(memOptimization),
-        k_bound(k_bound),
-        trace(trace),
-        xml_trace(xml_trace),
-        useGlobalMaxConstants(useGlobalMaxConstants),
-        keepDeadTokens(keepDeadTokens), 
-        enableGCDLowerGuards(enableGCDLowerGuards),
-        workflow(workflow),
-        workflowBound(workflowBound),
-        calculateCmax(calculateCmax),
-        replace(replace),
-        partialOrder(order)
-        {
+        ) : inputFile(""),
+            queryFile(""),
+            searchType(searchType),
+            verificationType(verificationType),
+            memOptimization(memOptimization),
+            k_bound(k_bound),
+            trace(trace),
+            xml_trace(xml_trace),
+            useGlobalMaxConstants(useGlobalMaxConstants),
+            keepDeadTokens(keepDeadTokens),
+            enableGCDLowerGuards(enableGCDLowerGuards),
+            workflow(workflow),
+            workflowBound(workflowBound),
+            calculateCmax(calculateCmax),
+            replace(replace),
+            partialOrder(order) {
         };
 
     public: // inspectors
@@ -77,11 +76,11 @@ namespace VerifyTAPN {
         void setInputFile(std::string input) {
             inputFile = input;
         }
-        
+
         const std::string getQueryFile() const {
             return queryFile;
         }
-        
+
         void setQueryFile(std::string input) {
             queryFile = input;
         }
@@ -105,8 +104,8 @@ namespace VerifyTAPN {
         inline const SearchType getSearchType() const {
             return searchType;
         }
-        
-        inline void setSearchType(SearchType type){
+
+        inline void setSearchType(SearchType type) {
             searchType = type;
         }
 
@@ -118,11 +117,10 @@ namespace VerifyTAPN {
             return memOptimization;
         }
 
-        inline void setKeepDeadTokens(bool val)
-        {
+        inline void setKeepDeadTokens(bool val) {
             keepDeadTokens = val;
         }
-        
+
         inline const bool getKeepDeadTokens() const {
             return keepDeadTokens;
         };
@@ -139,23 +137,21 @@ namespace VerifyTAPN {
             return workflowBound;
         };
 
-        inline bool isWorkflow() const{
+        inline bool isWorkflow() const {
             return workflow != NOT_WORKFLOW;
         }
 
         inline const bool getCalculateCmax() const {
             return calculateCmax;
         };
-        
-        inline const std::map<std::string, int>& getReplacements() const {
+
+        inline const std::map<std::string, int> &getReplacements() const {
             return replace;
         }
-        
-        inline bool getPartialOrderReduction() const
-        {
+
+        inline bool getPartialOrderReduction() const {
             return partialOrder;
         }
-
 
 
     private:
@@ -177,7 +173,7 @@ namespace VerifyTAPN {
         bool partialOrder;
     };
 
-    std::ostream& operator<<(std::ostream& out, const VerificationOptions& options);
+    std::ostream &operator<<(std::ostream &out, const VerificationOptions &options);
 }
 
 #endif /* VERIFICATIONOPTIONS_HPP_ */

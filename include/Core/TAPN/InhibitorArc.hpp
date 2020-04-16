@@ -5,36 +5,42 @@
 #include "TimeInterval.hpp"
 
 namespace VerifyTAPN {
-	namespace TAPN {
-		class TimedTransition;
-		class TimedPlace;
+    namespace TAPN {
+        class TimedTransition;
 
-		class InhibitorArc {
-			public: // typedefs
-				typedef std::vector<InhibitorArc*> Vector;
-			public:
-				InhibitorArc(TimedPlace& place, TimedTransition& transition, const int weight) : place(place), transition(transition), weight(weight) { };
-				virtual ~InhibitorArc() { /* empty */ }
+        class TimedPlace;
 
-			public: // modifiers
-				inline TimedPlace& getInputPlace() const { return place; }
-				inline TimedTransition& getOutputTransition() const { return transition; }
+        class InhibitorArc {
+        public: // typedefs
+            typedef std::vector<InhibitorArc *> Vector;
+        public:
+            InhibitorArc(TimedPlace &place, TimedTransition &transition, const int weight) : place(place),
+                                                                                             transition(transition),
+                                                                                             weight(weight) {};
 
-			public: // Inspectors
-				void print(std::ostream& out) const;
-				inline const int getWeight() const { return weight; }
-			private:
-				TimedPlace& place;
-				TimedTransition& transition;
-				const int weight;
-		};
+            virtual ~InhibitorArc() { /* empty */ }
 
-		inline std::ostream& operator<<(std::ostream& out, const InhibitorArc& arc)
-		{
-			arc.print(out);
-			return out;
-		}
-	}
+        public: // modifiers
+            inline TimedPlace &getInputPlace() const { return place; }
+
+            inline TimedTransition &getOutputTransition() const { return transition; }
+
+        public: // Inspectors
+            void print(std::ostream &out) const;
+
+            inline const int getWeight() const { return weight; }
+
+        private:
+            TimedPlace &place;
+            TimedTransition &transition;
+            const int weight;
+        };
+
+        inline std::ostream &operator<<(std::ostream &out, const InhibitorArc &arc) {
+            arc.print(out);
+            return out;
+        }
+    }
 
 }
 

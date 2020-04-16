@@ -14,32 +14,32 @@
 /* Adding declarations to make it compatible with gcc 4.7 and greater */
 namespace rapidxml {
     namespace internal {
-        template <class OutIt, class Ch>
-        inline OutIt print_children(OutIt out, const xml_node<Ch>* node, int flags, int indent);
+        template<class OutIt, class Ch>
+        inline OutIt print_children(OutIt out, const xml_node <Ch> *node, int flags, int indent);
 
-        template <class OutIt, class Ch>
-        inline OutIt print_attributes(OutIt out, const xml_node<Ch>* node, int flags);
+        template<class OutIt, class Ch>
+        inline OutIt print_attributes(OutIt out, const xml_node <Ch> *node, int flags);
 
-        template <class OutIt, class Ch>
-        inline OutIt print_data_node(OutIt out, const xml_node<Ch>* node, int flags, int indent);
+        template<class OutIt, class Ch>
+        inline OutIt print_data_node(OutIt out, const xml_node <Ch> *node, int flags, int indent);
 
-        template <class OutIt, class Ch>
-        inline OutIt print_cdata_node(OutIt out, const xml_node<Ch>* node, int flags, int indent);
+        template<class OutIt, class Ch>
+        inline OutIt print_cdata_node(OutIt out, const xml_node <Ch> *node, int flags, int indent);
 
-        template <class OutIt, class Ch>
-        inline OutIt print_element_node(OutIt out, const xml_node<Ch>* node, int flags, int indent);
+        template<class OutIt, class Ch>
+        inline OutIt print_element_node(OutIt out, const xml_node <Ch> *node, int flags, int indent);
 
-        template <class OutIt, class Ch>
-        inline OutIt print_declaration_node(OutIt out, const xml_node<Ch>* node, int flags, int indent);
+        template<class OutIt, class Ch>
+        inline OutIt print_declaration_node(OutIt out, const xml_node <Ch> *node, int flags, int indent);
 
-        template <class OutIt, class Ch>
-        inline OutIt print_comment_node(OutIt out, const xml_node<Ch>* node, int flags, int indent);
+        template<class OutIt, class Ch>
+        inline OutIt print_comment_node(OutIt out, const xml_node <Ch> *node, int flags, int indent);
 
-        template <class OutIt, class Ch>
-        inline OutIt print_doctype_node(OutIt out, const xml_node<Ch>* node, int flags, int indent);
+        template<class OutIt, class Ch>
+        inline OutIt print_doctype_node(OutIt out, const xml_node <Ch> *node, int flags, int indent);
 
-        template <class OutIt, class Ch>
-        inline OutIt print_pi_node(OutIt out, const xml_node<Ch>* node, int flags, int indent);
+        template<class OutIt, class Ch>
+        inline OutIt print_pi_node(OutIt out, const xml_node <Ch> *node, int flags, int indent);
     }
 }
 
@@ -51,41 +51,61 @@ namespace VerifyTAPN {
         class Verification {
         public:
 
-            Verification(TAPN::TimedArcPetriNet& tapn, T& initialMarking, AST::Query* query, VerificationOptions options);
+            Verification(TAPN::TimedArcPetriNet &tapn, T &initialMarking, AST::Query *query,
+                         VerificationOptions options);
+
             virtual ~Verification() {
             };
+
             virtual bool run() = 0;
+
             virtual void printStats() = 0;
+
             virtual void printTransitionStatistics() const = 0;
+
             virtual void printPlaceStatistics();
+
             virtual unsigned int maxUsedTokens() = 0;
-            virtual bool handleSuccessor(T* marking) = 0;
+
+            virtual bool handleSuccessor(T *marking) = 0;
 
             virtual void getTrace() {
                 std::cout << "Error generating trace" << std::endl;
             }
 
-            void removeLastIfDelay(rapidxml::xml_node<>&);
-            void printHumanTrace(T* m, std::stack<T*>& stack, AST::Quantifier query);
-            void printXMLTrace(T* m, std::stack<T*>& stack, AST::Query* query, TAPN::TimedArcPetriNet& tapn);
-            rapidxml::xml_node<>* createTransitionNode(T* old, T* current, rapidxml::xml_document<>& doc);
-            void createTransitionSubNodes(T* old, T* current, rapidxml::xml_document<>& doc, rapidxml::xml_node<>* transitionNode, const TAPN::TimedPlace& place, const TAPN::TimeInterval& interval, const int weight);
-            rapidxml::xml_node<>* createTokenNode(rapidxml::xml_document<>& doc, const TAPN::TimedPlace& place, const Token& token);
-            void generateTraceStack(T* m, std::stack<T*>* result, std::stack<T*>* liveness = NULL);
-            stack< T* > trace;
-            protected:
-            TAPN::TimedArcPetriNet& tapn;
-            T& initialMarking;
-            AST::Query* query;
+            void removeLastIfDelay(rapidxml::xml_node<> &);
+
+            void printHumanTrace(T *m, std::stack<T *> &stack, AST::Quantifier query);
+
+            void printXMLTrace(T *m, std::stack<T *> &stack, AST::Query *query, TAPN::TimedArcPetriNet &tapn);
+
+            rapidxml::xml_node<> *createTransitionNode(T *old, T *current, rapidxml::xml_document<> &doc);
+
+            void createTransitionSubNodes(T *old, T *current, rapidxml::xml_document<> &doc,
+                                          rapidxml::xml_node<> *transitionNode, const TAPN::TimedPlace &place,
+                                          const TAPN::TimeInterval &interval, const int weight);
+
+            rapidxml::xml_node<> *
+            createTokenNode(rapidxml::xml_document<> &doc, const TAPN::TimedPlace &place, const Token &token);
+
+            void generateTraceStack(T *m, std::stack<T *> *result, std::stack<T *> *liveness = NULL);
+
+            stack<T *> trace;
+        protected:
+            TAPN::TimedArcPetriNet &tapn;
+            T &initialMarking;
+            AST::Query *query;
             VerificationOptions options;
             std::vector<int> placeStats;
 
-         };
+        };
 
         template<typename T>
-        Verification<T>::Verification(TAPN::TimedArcPetriNet& tapn, T& initialMarking, AST::Query* query, VerificationOptions options)
-        : tapn(tapn), initialMarking(initialMarking), query(query), options(options), placeStats(tapn.getNumberOfPlaces()){
-            
+        Verification<T>::Verification(TAPN::TimedArcPetriNet &tapn, T &initialMarking, AST::Query *query,
+                                      VerificationOptions options)
+                : tapn(tapn), initialMarking(initialMarking), query(query), options(options),
+                  placeStats(tapn.getNumberOfPlaces()) {
+
         }
 
         template<typename T>
@@ -103,9 +123,9 @@ namespace VerifyTAPN {
             }
             fprintf(stdout, "\n\n");
         }
-        
+
         template<typename T>
-        void Verification<T>::printHumanTrace(T* m, std::stack<T*>& stack, AST::Quantifier query) {
+        void Verification<T>::printHumanTrace(T *m, std::stack<T *> &stack, AST::Quantifier query) {
             std::cout << "Trace: " << std::endl;
             bool isFirst = true;
             bool foundLoop = false;
@@ -118,7 +138,7 @@ namespace VerifyTAPN {
                         std::cout << "\tTransistion: " << stack.top()->getGeneratedBy()->getName() << std::endl;
                     } else {
                         int i = 1;
-                        T* old = stack.top();
+                        T *old = stack.top();
                         stack.pop();
                         while (!stack.empty() && stack.top()->getGeneratedBy() == NULL) {
                             old = stack.top();
@@ -137,8 +157,8 @@ namespace VerifyTAPN {
                 }
 
                 if ((query == AST::EG || query == AST::AF)
-                        && (stack.size() > 1 && stack.top()->equals(*m))
-                        && (m->getGeneratedBy() || stack.top()->getParent())) {
+                    && (stack.size() > 1 && stack.top()->equals(*m))
+                    && (m->getGeneratedBy() || stack.top()->getParent())) {
                     std::cout << "\t* ";
                     foundLoop = true;
                 } else {
@@ -147,7 +167,8 @@ namespace VerifyTAPN {
 
                 //Print marking
                 std::cout << "Marking: ";
-                for (PlaceList::const_iterator iter = stack.top()->getPlaceList().begin(); iter != stack.top()->getPlaceList().end(); iter++) {
+                for (PlaceList::const_iterator iter = stack.top()->getPlaceList().begin();
+                     iter != stack.top()->getPlaceList().end(); iter++) {
                     for (TokenList::const_iterator titer = iter->tokens.begin(); titer != iter->tokens.end(); titer++) {
                         for (int i = 0; i < titer->getCount(); i++) {
                             std::cout << "(" << iter->place->getName() << "," << titer->getAge() << ") ";
@@ -167,7 +188,8 @@ namespace VerifyTAPN {
                     if (m->getNumberOfChildren() > 0) {
                         std::cout << "\tDeadlock" << std::endl;
                     } else {
-                        for (PlaceList::const_iterator iter = m->getPlaceList().begin(); iter != m->getPlaceList().end(); iter++) {
+                        for (PlaceList::const_iterator iter = m->getPlaceList().begin();
+                             iter != m->getPlaceList().end(); iter++) {
                             if (iter->place->getInvariant().getBound() != std::numeric_limits<int>::max()) {
                                 //Invariant, deadlock
                                 std::cout << "\tDeadlock" << std::endl;
@@ -182,31 +204,31 @@ namespace VerifyTAPN {
         }
 
         template<typename T>
-        void Verification<T>::removeLastIfDelay(rapidxml::xml_node<>& root)
-        {
+        void Verification<T>::removeLastIfDelay(rapidxml::xml_node<> &root) {
             using namespace rapidxml;
-            if(root.first_node()){ // if there is a node in the trace
-                xml_node<>* node = root.last_node();
-                if(node){
-                    char* name = node->name();
-                    if(strcmp(name, "delay") == 0){
+            if (root.first_node()) { // if there is a node in the trace
+                xml_node<> *node = root.last_node();
+                if (node) {
+                    char *name = node->name();
+                    if (strcmp(name, "delay") == 0) {
                         root.remove_last_node();
                     }
                 }
             }
         }
-        
+
         template<typename T>
-        void Verification<T>::printXMLTrace(T* m, std::stack<T*>& stack, AST::Query* query, TAPN::TimedArcPetriNet& tapn) {
+        void
+        Verification<T>::printXMLTrace(T *m, std::stack<T *> &stack, AST::Query *query, TAPN::TimedArcPetriNet &tapn) {
             using namespace rapidxml;
             std::cerr << "Trace: " << std::endl;
             bool isFirst = true;
             bool foundLoop = false;
             bool delayedForever = false;
-            T* old = NULL;
+            T *old = NULL;
 
             xml_document<> doc;
-            xml_node<>* root = doc.allocate_node(node_element, "trace");
+            xml_node<> *root = doc.allocate_node(node_element, "trace");
             doc.append_node(root);
 
             while (!stack.empty()) {
@@ -223,28 +245,29 @@ namespace VerifyTAPN {
                         while (!stack.empty() && stack.top()->getGeneratedBy() == NULL) {
                             // check if this marking is the start of a loop
                             if (!foundLoop && (query->getQuantifier() == AST::EG || query->getQuantifier() == AST::AF)
-                                    && (stack.size() > 2 && old->equals(*m))) {
+                                && (stack.size() > 2 && old->equals(*m))) {
 
                                 foundLoop = true;
                                 delayloop = true;
-                                xml_node<>* node = doc.allocate_node(node_element, "delay", doc.allocate_string(toString(i * tapn.getGCD()).c_str()));
+                                xml_node<> *node = doc.allocate_node(node_element, "delay", doc.allocate_string(
+                                        toString(i * tapn.getGCD()).c_str()));
                                 root->append_node(node);
                                 root->append_node(doc.allocate_node(node_element, "loop"));
-                                
+
                             }
-                            if(delayloop)
+                            if (delayloop)
                                 break;
                             old = stack.top();
                             stack.pop();
                             i++;
-                            
+
                         }
-                        if(delayloop)
+                        if (delayloop)
                             continue;
                         if ((!foundLoop) && stack.empty() && old->getNumberOfChildren() > 0) {
                             // remove delay before delay forever
                             removeLastIfDelay(*root);
-                            xml_node<>* node = doc.allocate_node(node_element, "delay", doc.allocate_string("forever"));
+                            xml_node<> *node = doc.allocate_node(node_element, "delay", doc.allocate_string("forever"));
                             root->append_node(node);
                             delayedForever = true;
                             break;
@@ -253,53 +276,54 @@ namespace VerifyTAPN {
                         // then in case of deadlock we want to find the earliest point
                         // with a transition enabled, and add one (such that we have a 
                         // deadlock with no end-delay).
-                        if((!foundLoop) && stack.empty()){
+                        if ((!foundLoop) && stack.empty()) {
                             // make sure query contains deadlock
                             DeadlockVisitor deadlockVisitor = DeadlockVisitor();
                             AST::BoolResult queryContainsDeadlock;
                             deadlockVisitor.visit(*query, queryContainsDeadlock);
 
-                            if(queryContainsDeadlock.value){
+                            if (queryContainsDeadlock.value) {
                                 // find the marking from which a delay gave a deadlock
-                                NonStrictMarkingBase* base = old;
-                                while(base->getGeneratedBy() == NULL && base->getParent() != NULL){
+                                NonStrictMarkingBase *base = old;
+                                while (base->getGeneratedBy() == NULL && base->getParent() != NULL) {
                                     base = base->getParent();
                                 }
 
                                 // decrement the last marking until earliest delay with a transition enabled.
-                                while(i > 0 && base->canDeadlock(tapn, i, true)){
+                                while (i > 0 && base->canDeadlock(tapn, i, true)) {
                                     i--;
                                 }
                                 // add one to make a deadlock again if we have not reached zero delay and zero delay is a deadlock
-                                if(!base->canDeadlock(tapn, i, true)){
+                                if (!base->canDeadlock(tapn, i, true)) {
                                     i++;
                                 }
                             }
                         }
-                        if(i > 0){
-                            xml_node<>* node = doc.allocate_node(node_element, "delay", doc.allocate_string(toString(i * tapn.getGCD()).c_str()));
+                        if (i > 0) {
+                            xml_node<> *node = doc.allocate_node(node_element, "delay", doc.allocate_string(
+                                    toString(i * tapn.getGCD()).c_str()));
                             root->append_node(node);
                         }
                         stack.push(old);
                     }
                 }
-                
+
                 if ((query->getQuantifier() == AST::EG || query->getQuantifier() == AST::AF)
-                        && (stack.size() > 1 && stack.top()->equals(*m))) {
-                    T* temp = m;
+                    && (stack.size() > 1 && stack.top()->equals(*m))) {
+                    T *temp = m;
                     foundLoop = false;
-                    T* top = stack.top();
+                    T *top = stack.top();
 
                     do {
-                        if(temp == top)
+                        if (temp == top)
                             break;
-                        if(temp->getGeneratedBy()){
+                        if (temp->getGeneratedBy()) {
                             foundLoop = true;
                             break;
-                        } 
-                        temp = (T*)temp->getParent();
-                    } while(temp && temp->getParent());
-                    if(foundLoop){
+                        }
+                        temp = (T *) temp->getParent();
+                    } while (temp && temp->getParent());
+                    if (foundLoop) {
                         root->append_node(doc.allocate_node(node_element, "loop"));
                     }
 
@@ -311,16 +335,16 @@ namespace VerifyTAPN {
             //Trace ended, goto * or deadlock
             if (query->getQuantifier() == AST::EG || query->getQuantifier() == AST::AF) {
                 if (!foundLoop && !delayedForever) {
-                    xml_node<>* node;
-                    if(m->canDeadlock(tapn, 0, false)){
-                            // check if deadlock
-                            node = doc.allocate_node(node_element, "deadlock");
+                    xml_node<> *node;
+                    if (m->canDeadlock(tapn, 0, false)) {
+                        // check if deadlock
+                        node = doc.allocate_node(node_element, "deadlock");
                     } else {
-                            // if not it is delay forever
+                        // if not it is delay forever
 
-                            // remove delay before delay forever
-                            removeLastIfDelay(*root);
-                            node = doc.allocate_node(node_element, "delay", doc.allocate_string("forever"));
+                        // remove delay before delay forever
+                        removeLastIfDelay(*root);
+                        node = doc.allocate_node(node_element, "delay", doc.allocate_string("forever"));
 
                     }
                     root->append_node(node);
@@ -329,26 +353,34 @@ namespace VerifyTAPN {
             std::cerr << doc;
             assert(false);
         }
-        
+
         template<typename T>
-        rapidxml::xml_node<>* Verification<T>::createTransitionNode(T* old, T* current, rapidxml::xml_document<>& doc) {
+        rapidxml::xml_node<> *Verification<T>::createTransitionNode(T *old, T *current, rapidxml::xml_document<> &doc) {
             using namespace rapidxml;
-            xml_node<>* transitionNode = doc.allocate_node(node_element, "transition");
-            xml_attribute<>* id = doc.allocate_attribute("id", current->getGeneratedBy()->getId().c_str());
+            xml_node<> *transitionNode = doc.allocate_node(node_element, "transition");
+            xml_attribute<> *id = doc.allocate_attribute("id", current->getGeneratedBy()->getId().c_str());
             transitionNode->append_attribute(id);
 
-            for (TAPN::TimedInputArc::Vector::const_iterator arc_iter = current->getGeneratedBy()->getPreset().begin(); arc_iter != current->getGeneratedBy()->getPreset().end(); arc_iter++) {
-                createTransitionSubNodes(old, current, doc, transitionNode, (*arc_iter)->getInputPlace(), (*arc_iter)->getInterval(), (*arc_iter)->getWeight());
+            for (TAPN::TimedInputArc::Vector::const_iterator arc_iter = current->getGeneratedBy()->getPreset().begin();
+                 arc_iter != current->getGeneratedBy()->getPreset().end(); arc_iter++) {
+                createTransitionSubNodes(old, current, doc, transitionNode, (*arc_iter)->getInputPlace(),
+                                         (*arc_iter)->getInterval(), (*arc_iter)->getWeight());
             }
 
-            for (TAPN::TransportArc::Vector::const_iterator arc_iter = current->getGeneratedBy()->getTransportArcs().begin(); arc_iter != current->getGeneratedBy()->getTransportArcs().end(); arc_iter++) {
-                createTransitionSubNodes(old, current, doc, transitionNode, (*arc_iter)->getSource(), (*arc_iter)->getInterval(), (*arc_iter)->getWeight());
+            for (TAPN::TransportArc::Vector::const_iterator arc_iter = current->getGeneratedBy()->getTransportArcs().begin();
+                 arc_iter != current->getGeneratedBy()->getTransportArcs().end(); arc_iter++) {
+                createTransitionSubNodes(old, current, doc, transitionNode, (*arc_iter)->getSource(),
+                                         (*arc_iter)->getInterval(), (*arc_iter)->getWeight());
             }
 
             return transitionNode;
         }
+
         template<typename T>
-        void Verification<T>::createTransitionSubNodes(T* old, T* current, rapidxml::xml_document<>& doc, rapidxml::xml_node<>* transitionNode, const TAPN::TimedPlace& place, const TAPN::TimeInterval& interval, const int weight) {
+        void Verification<T>::createTransitionSubNodes(T *old, T *current, rapidxml::xml_document<> &doc,
+                                                       rapidxml::xml_node<> *transitionNode,
+                                                       const TAPN::TimedPlace &place,
+                                                       const TAPN::TimeInterval &interval, const int weight) {
             TokenList current_tokens = current->getTokenList(place.getIndex());
             TokenList old_tokens = old->getTokenList(place.getIndex());
             int tokensFound = 0;
@@ -381,7 +413,8 @@ namespace VerifyTAPN {
                 }
             }
 
-            for (TokenList::const_iterator iter = old_tokens.begin(); iter != old_tokens.end() && tokensFound < weight; iter++) {
+            for (TokenList::const_iterator iter = old_tokens.begin();
+                 iter != old_tokens.end() && tokensFound < weight; iter++) {
                 if (iter->getAge() >= interval.getLowerBound()) {
                     for (int i = 0; i < iter->getCount() && tokensFound < weight; i++) {
                         transitionNode->append_node(createTokenNode(doc, place, *iter));
@@ -392,18 +425,24 @@ namespace VerifyTAPN {
         }
 
         template<typename T>
-        rapidxml::xml_node<>* Verification<T>::createTokenNode(rapidxml::xml_document<>& doc, const TAPN::TimedPlace& place, const Token& token) {
+        rapidxml::xml_node<> *
+        Verification<T>::createTokenNode(rapidxml::xml_document<> &doc, const TAPN::TimedPlace &place,
+                                         const Token &token) {
             using namespace rapidxml;
-            xml_node<>* tokenNode = doc.allocate_node(node_element, "token");
-            xml_attribute<>* placeAttribute = doc.allocate_attribute("place", doc.allocate_string(place.getName().c_str()));
+            xml_node<> *tokenNode = doc.allocate_node(node_element, "token");
+            xml_attribute<> *placeAttribute = doc.allocate_attribute("place",
+                                                                     doc.allocate_string(place.getName().c_str()));
             tokenNode->append_attribute(placeAttribute);
-            xml_attribute<>* ageAttribute = doc.allocate_attribute("age", doc.allocate_string(toString(token.getAge()*tapn.getGCD()).c_str()));
+            xml_attribute<> *ageAttribute = doc.allocate_attribute("age", doc.allocate_string(
+                    toString(token.getAge() * tapn.getGCD()).c_str()));
             tokenNode->append_attribute(ageAttribute);
             if (place.getMaxConstant() < token.getAge()) {
-                xml_attribute<>* gtAttribute = doc.allocate_attribute("greaterThanOrEqual", doc.allocate_string("true"));
+                xml_attribute<> *gtAttribute = doc.allocate_attribute("greaterThanOrEqual",
+                                                                      doc.allocate_string("true"));
                 tokenNode->append_attribute(gtAttribute);
             } else {
-                xml_attribute<>* gtAttribute = doc.allocate_attribute("greaterThanOrEqual", doc.allocate_string("false"));
+                xml_attribute<> *gtAttribute = doc.allocate_attribute("greaterThanOrEqual",
+                                                                      doc.allocate_string("false"));
                 tokenNode->append_attribute(gtAttribute);
             }
 
@@ -411,17 +450,17 @@ namespace VerifyTAPN {
         }
 
         template<typename T>
-        void Verification<T>::generateTraceStack(T* m, std::stack<T*>* result, std::stack<T*>* liveness) {
+        void Verification<T>::generateTraceStack(T *m, std::stack<T *> *result, std::stack<T *> *liveness) {
             if (liveness == NULL) {
-                T* next = m;
+                T *next = m;
                 do {
-                    result->push((T*)next);
-                } while ((next = ((T*)next->getParent())) != NULL);
+                    result->push((T *) next);
+                } while ((next = ((T *) next->getParent())) != NULL);
             } else {
                 do {
                     result->push(liveness->top());
                     liveness->pop();
-                    if(!liveness->empty()) {
+                    if (!liveness->empty()) {
                         result->top()->setParent(liveness->top());
                     }
                 } while (!(liveness->empty()));

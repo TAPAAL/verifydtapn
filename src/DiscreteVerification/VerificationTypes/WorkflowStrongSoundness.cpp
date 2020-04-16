@@ -10,64 +10,69 @@
 namespace VerifyTAPN {
     namespace DiscreteVerification {
 
-        WorkflowStrongSoundnessReachability::WorkflowStrongSoundnessReachability(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking*>* waiting_list)
-        : Workflow(tapn, initialMarking, query, options), maxValue(-1), outPlace(NULL){
-                pwList = new WorkflowPWList(waiting_list);
-                findInOut();
-        };
-        
-        WorkflowStrongSoundnessReachability::WorkflowStrongSoundnessReachability(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options)
-        : Workflow(tapn, initialMarking, query, options), maxValue(-1), outPlace(NULL){
+        WorkflowStrongSoundnessReachability::WorkflowStrongSoundnessReachability(TAPN::TimedArcPetriNet &tapn,
+                                                                                 NonStrictMarking &initialMarking,
+                                                                                 AST::Query *query,
+                                                                                 VerificationOptions options,
+                                                                                 WaitingList<NonStrictMarking *> *waiting_list)
+                : Workflow(tapn, initialMarking, query, options), maxValue(-1), outPlace(NULL) {
+            pwList = new WorkflowPWList(waiting_list);
             findInOut();
         };
-        
-        void WorkflowStrongSoundnessReachability::findInOut()
-        {
-            for (TimedPlace::Vector::const_iterator iter = tapn.getPlaces().begin(); iter != tapn.getPlaces().end(); ++iter) {
+
+        WorkflowStrongSoundnessReachability::WorkflowStrongSoundnessReachability(TAPN::TimedArcPetriNet &tapn,
+                                                                                 NonStrictMarking &initialMarking,
+                                                                                 AST::Query *query,
+                                                                                 VerificationOptions options)
+                : Workflow(tapn, initialMarking, query, options), maxValue(-1), outPlace(NULL) {
+            findInOut();
+        };
+
+        void WorkflowStrongSoundnessReachability::findInOut() {
+            for (TimedPlace::Vector::const_iterator iter = tapn.getPlaces().begin();
+                 iter != tapn.getPlaces().end(); ++iter) {
                 if ((*iter)->getTransportArcs().empty() && (*iter)->getInputArcs().empty()) {
                     outPlace = *iter;
                     break;
                 }
             }
         }
-        
+
         WorkflowStrongSoundnessPTrie::WorkflowStrongSoundnessPTrie(
-                                TAPN::TimedArcPetriNet& tapn,
-                                NonStrictMarking& initialMarking,
-                                AST::Query* query,
-                                VerificationOptions options,
-                                WaitingList<ptriepointer_t<MetaData*> >* waiting_list) :
-                                WorkflowStrongSoundnessReachability(
-                                    tapn, 
-                                    initialMarking, 
-                                    query, 
-                                    options)
-        {
-            pwList = new WorkflowPWListHybrid(  tapn,
-                                                waiting_list, 
-                                                options.getKBound(), 
-                                                tapn.getNumberOfPlaces(), 
-                                                tapn.getMaxConstant());
+                TAPN::TimedArcPetriNet &tapn,
+                NonStrictMarking &initialMarking,
+                AST::Query *query,
+                VerificationOptions options,
+                WaitingList<ptriepointer_t<MetaData *> > *waiting_list) :
+                WorkflowStrongSoundnessReachability(
+                        tapn,
+                        initialMarking,
+                        query,
+                        options) {
+            pwList = new WorkflowPWListHybrid(tapn,
+                                              waiting_list,
+                                              options.getKBound(),
+                                              tapn.getNumberOfPlaces(),
+                                              tapn.getMaxConstant());
         }
-       
+
         bool WorkflowStrongSoundnessReachability::run() {
-            
-            if (outPlace == NULL)
-            {
+
+            if (outPlace == NULL) {
                 lastMarking = &initialMarking;
                 return true;
             }
-                
+
             if (handleSuccessor(&initialMarking, NULL)) {
                 return true;
             }
 
             //Main loop
             while (pwList->hasWaitingStates()) {
-                NonStrictMarking* next_marking = 
-                        static_cast<NonStrictMarking*>(pwList->getNextUnexplored());
+                NonStrictMarking *next_marking =
+                        static_cast<NonStrictMarking *>(pwList->getNextUnexplored());
                 tmpParent = next_marking;
-                
+
                 // push onto trace
                 trace.push(next_marking);
                 next_marking->meta->inTrace = true;
@@ -84,27 +89,27 @@ namespace VerifyTAPN {
 
                 // Generate delays markings
                 if (!noDelay && isDelayPossible(*next_marking)) {
-                    NonStrictMarking* marking = new NonStrictMarking(*next_marking);
+                    NonStrictMarking *marking = new NonStrictMarking(*next_marking);
                     marking->incrementAge();
                     marking->setGeneratedBy(NULL);
-                   
+
                     if (handleSuccessor(marking, next_marking)) {
                         clearTrace();
                         lastMarking = marking;
                         return true;
                     }
-                    
+
                 }
-                if(validChildren != 0){
+                if (validChildren != 0) {
                     next_marking->setNumberOfChildren(validChildren);
                 } else {
                     // remove childless markings from stack
-                    while(!trace.empty() && trace.top()->getNumberOfChildren() <= 1){
-                            trace.top()->meta->inTrace = false;
-                            deleteMarking(trace.top());
-                            trace.pop();
+                    while (!trace.empty() && trace.top()->getNumberOfChildren() <= 1) {
+                        trace.top()->meta->inTrace = false;
+                        deleteMarking(trace.top());
+                        trace.pop();
                     }
-                    if(trace.empty()){
+                    if (trace.empty()) {
                         // this should only happen when the waitinglist is empty
                         return false;
                     }
@@ -117,10 +122,10 @@ namespace VerifyTAPN {
         }
 
         void WorkflowStrongSoundnessReachability::getTrace() {
-            std::stack < NonStrictMarking*> printStack;
-            NonStrictMarking* next = lastMarking;
+            std::stack<NonStrictMarking *> printStack;
+            NonStrictMarking *next = lastMarking;
             do {
-                NonStrictMarking* parent = (NonStrictMarking*)next->getParent();
+                NonStrictMarking *parent = (NonStrictMarking *) next->getParent();
                 printStack.push(next);
                 next = parent;
 
@@ -135,37 +140,33 @@ namespace VerifyTAPN {
 
         void WorkflowStrongSoundnessPTrie::getTrace() {
 
-            PWListHybrid* pwhlist = dynamic_cast<PWListHybrid*>(this->pwList);
-            
-            std::stack < NonStrictMarking*> printStack;
-            
-            NonStrictMarking* next = lastMarking;
-            if(next != NULL)
-            {
+            PWListHybrid *pwhlist = dynamic_cast<PWListHybrid *>(this->pwList);
+
+            std::stack<NonStrictMarking *> printStack;
+
+            NonStrictMarking *next = lastMarking;
+            if (next != NULL) {
 
                 printStack.push(next);
-                MetaDataWithTraceAndEncoding* meta = 
-                        static_cast<MetaDataWithTraceAndEncoding*>(next->meta);
+                MetaDataWithTraceAndEncoding *meta =
+                        static_cast<MetaDataWithTraceAndEncoding *>(next->meta);
 
-                if(meta == NULL)
-                {
+                if (meta == NULL) {
                     // We assume the parent was not deleted on return
-                    NonStrictMarking* parent = (NonStrictMarking*)lastMarking->getParent();                
-                    if(parent != NULL) meta = 
-                        static_cast<MetaDataWithTraceAndEncoding*>(parent->meta);
+                    NonStrictMarking *parent = (NonStrictMarking *) lastMarking->getParent();
+                    if (parent != NULL)
+                        meta =
+                                static_cast<MetaDataWithTraceAndEncoding *>(parent->meta);
                     delete parent;
-                }
-                else
-                {
+                } else {
                     meta = meta->parent;
                 }
-                                
-                while(meta != NULL)
-                {
+
+                while (meta != NULL) {
                     next = pwhlist->decode(meta->ep);
                     next->setGeneratedBy(meta->generatedBy);
                     printStack.top()->setParent(next);
-                    printStack.push(next);                    
+                    printStack.push(next);
                     meta = meta->parent;
                 }
             }
@@ -173,7 +174,7 @@ namespace VerifyTAPN {
             std::stack < NonStrictMarking*> cleanup = printStack;
 #endif
             printXMLTrace(lastMarking, printStack, query, tapn);
-            
+
 #ifdef CLEANUP
             while(!cleanup.empty())
             {
@@ -189,12 +190,12 @@ namespace VerifyTAPN {
             }
 #endif
         }
-        
-        
-        bool WorkflowStrongSoundnessReachability::handleSuccessor(NonStrictMarking* marking, NonStrictMarking* parent) {
+
+
+        bool WorkflowStrongSoundnessReachability::handleSuccessor(NonStrictMarking *marking, NonStrictMarking *parent) {
             marking->cut(placeStats);
             marking->setParent(parent);
-            
+
             int totalDelay = marking->calculateTotalDelay();
 
             unsigned int size = marking->size();
@@ -208,11 +209,11 @@ namespace VerifyTAPN {
 
             /* Handle max */
             // Map to existing marking if any
-            NonStrictMarking* old = (NonStrictMarking*)pwList->addToPassed(marking, true);
-            
-            if(old != NULL) {
-                if(old->meta->totalDelay < totalDelay) {
-                    if(old->meta->inTrace){
+            NonStrictMarking *old = (NonStrictMarking *) pwList->addToPassed(marking, true);
+
+            if (old != NULL) {
+                if (old->meta->totalDelay < totalDelay) {
+                    if (old->meta->inTrace) {
                         // delay loop
                         lastMarking = marking;
                         // make sure we can print trace
@@ -237,55 +238,51 @@ namespace VerifyTAPN {
             } else {
                 marking->meta->totalDelay = totalDelay;
             }
-            
+
             // if we reached bound
-            if(marking->meta->totalDelay > options.getWorkflowBound()) return true;
-            
-            
-            if(marking->numberOfTokensInPlace(outPlace->getIndex()) == 0){
+            if (marking->meta->totalDelay > options.getWorkflowBound()) return true;
+
+
+            if (marking->numberOfTokensInPlace(outPlace->getIndex()) == 0) {
                 // if nonterminal, add to waiting
                 pwList->addLastToWaiting();
                 ++validChildren;
             } else {
                 // if terminal, update max_value and last marking of trace
-                if(maxValue < marking->meta->totalDelay) {
+                if (maxValue < marking->meta->totalDelay) {
                     maxValue = marking->meta->totalDelay;
-                    if(lastMarking != NULL) deleteMarking(lastMarking);
+                    if (lastMarking != NULL) deleteMarking(lastMarking);
                     lastMarking = marking;
                     return false;
                 }
             }
-            
+
             deleteMarking(marking);
-            
+
             return false;
         }
-        
-        void WorkflowStrongSoundnessReachability::swapData(NonStrictMarking* marking, NonStrictMarking* old)
-        {
+
+        void WorkflowStrongSoundnessReachability::swapData(NonStrictMarking *marking, NonStrictMarking *old) {
             old->setGeneratedBy(marking->getGeneratedBy());
             old->setParent(marking->getParent());
         }
 
-        void WorkflowStrongSoundnessPTrie::swapData(NonStrictMarking* marking, NonStrictMarking* parent)
-        {
-            PWListHybrid* pwhlist = dynamic_cast<PWListHybrid*>(this->pwList);
-            MetaDataWithTraceAndEncoding* meta = 
-                static_cast<MetaDataWithTraceAndEncoding*>(parent->meta);
+        void WorkflowStrongSoundnessPTrie::swapData(NonStrictMarking *marking, NonStrictMarking *parent) {
+            PWListHybrid *pwhlist = dynamic_cast<PWListHybrid *>(this->pwList);
+            MetaDataWithTraceAndEncoding *meta =
+                    static_cast<MetaDataWithTraceAndEncoding *>(parent->meta);
 
             meta->generatedBy = marking->getGeneratedBy();
             meta->parent = pwhlist->parent;
         }
-        
-        void WorkflowStrongSoundnessPTrie::clearTrace()
-        {
-            if(!trace.empty()) trace.pop(); // pop parent, used in getTrace
-            while(!trace.empty())
-            {
+
+        void WorkflowStrongSoundnessPTrie::clearTrace() {
+            if (!trace.empty()) trace.pop(); // pop parent, used in getTrace
+            while (!trace.empty()) {
                 delete trace.top();
                 trace.pop();
             }
         }
-        
+
     } /* namespace DiscreteVerification */
 } /* namespace VerifyTAPN */

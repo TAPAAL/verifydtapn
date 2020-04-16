@@ -51,30 +51,34 @@ namespace VerifyTAPN {
         }
     }
 
-    std::ostream& operator<<(std::ostream& out, const VerificationOptions& options) {
+    std::ostream &operator<<(std::ostream &out, const VerificationOptions &options) {
         out << "Search type: " << SearchTypeEnumToString(options.getSearchType()) << std::endl;
         out << "Verification method: " << VerificationTypeEnumToString(options.getVerificationType()) << std::endl;
         out << "Memory optimization: " << MemoryOptimizationEnumToString(options.getMemoryOptimization()) << std::endl;
-        out << "Partial Order Reduction: " << (options.getPartialOrderReduction() ? "Enabled" : "Disabled") << std::endl;
+        out << "Partial Order Reduction: " << (options.getPartialOrderReduction() ? "Enabled" : "Disabled")
+            << std::endl;
         out << "k-bound is: " << options.getKBound() << std::endl;
         out << "Generating " << enumToString(options.getTrace()) << " trace";
-        if (options.getTrace() != VerificationOptions::NO_TRACE) out << " in " << (options.getXmlTrace() ? "xml format" : "human readable format");
+        if (options.getTrace() != VerificationOptions::NO_TRACE) out << " in " << (options.getXmlTrace() ? "xml format"
+                                                                                                         : "human readable format");
         out << std::endl;
-        out << "Using " << (options.getGlobalMaxConstantsEnabled() ? "global maximum constant" : "local maximum constants") << " for extrapolation" << std::endl;
-        if(options.isWorkflow()){
+        out << "Using "
+            << (options.getGlobalMaxConstantsEnabled() ? "global maximum constant" : "local maximum constants")
+            << " for extrapolation" << std::endl;
+        if (options.isWorkflow()) {
             out << "Workflow analysis type : ";
-            if(options.getWorkflowMode() == VerificationOptions::WORKFLOW_SOUNDNESS){
+            if (options.getWorkflowMode() == VerificationOptions::WORKFLOW_SOUNDNESS) {
                 out << "Soundness" << std::endl;
             } else {
                 out << "Strong soundness" << std::endl;
                 out << "Bound is : " << options.getWorkflowBound() << std::endl;
             }
-        } 
-	if(options.getCalculateCmax()) {
-	    out << "Calculating C-max" << std::endl;
-	}
+        }
+        if (options.getCalculateCmax()) {
+            out << "Calculating C-max" << std::endl;
+        }
         out << "Model file is: " << options.getInputFile() << std::endl;
-        if(options.getQueryFile() != "")
+        if (options.getQueryFile() != "")
             out << "Query file is: " << options.getQueryFile() << std::endl;
         return out;
     }

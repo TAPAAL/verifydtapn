@@ -26,138 +26,142 @@
 #include "AbstractNaiveVerification.hpp"
 
 namespace VerifyTAPN {
-namespace DiscreteVerification {
+    namespace DiscreteVerification {
 
-template<typename S>
-class ReachabilitySearch : public AbstractNaiveVerification<PWListBase,NonStrictMarking,S> {
-public:
-        ReachabilitySearch(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options)               
-	: AbstractNaiveVerification<PWListBase,NonStrictMarking,S>(tapn, initialMarking, query, options, NULL){}
-        
-	ReachabilitySearch(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<NonStrictMarking*>* waiting_list)
-        : AbstractNaiveVerification<PWListBase,NonStrictMarking,S>(tapn, initialMarking, query, options, new PWList(waiting_list, false)) {}
-	virtual ~ReachabilitySearch() = default;
-	
-        bool run(){
-            if(handleSuccessor(&this->initialMarking, NULL)){
+        template<typename S>
+        class ReachabilitySearch : public AbstractNaiveVerification<PWListBase, NonStrictMarking, S> {
+        public:
+            ReachabilitySearch(TAPN::TimedArcPetriNet &tapn, NonStrictMarking &initialMarking, AST::Query *query,
+                               VerificationOptions options)
+                    : AbstractNaiveVerification<PWListBase, NonStrictMarking, S>(tapn, initialMarking, query, options,
+                                                                                 NULL) {}
+
+            ReachabilitySearch(TAPN::TimedArcPetriNet &tapn, NonStrictMarking &initialMarking, AST::Query *query,
+                               VerificationOptions options, WaitingList<NonStrictMarking *> *waiting_list)
+                    : AbstractNaiveVerification<PWListBase, NonStrictMarking, S>(tapn, initialMarking, query, options,
+                                                                                 new PWList(waiting_list, false)) {}
+
+            virtual ~ReachabilitySearch() = default;
+
+            bool run() {
+                if (handleSuccessor(&this->initialMarking, NULL)) {
                     return true;
-            }
+                }
 
-            //Main loop
-            while(this->pwList->hasWaitingStates()){
-                    NonStrictMarking& next_marking = *this->pwList->getNextUnexplored();
+                //Main loop
+                while (this->pwList->hasWaitingStates()) {
+                    NonStrictMarking &next_marking = *this->pwList->getNextUnexplored();
                     this->tmpParent = &next_marking;
                     this->trace.push(&next_marking);
                     validChildren = 0;
 
                     bool noDelay = false;
                     auto res = this->generateAndInsertSuccessors(next_marking);
-                    if(res == ADDTOPW_RETURNED_TRUE){
+                    if (res == ADDTOPW_RETURNED_TRUE) {
                         return true;
-                    }  else if (res == ADDTOPW_RETURNED_FALSE_URGENTENABLED) {
+                    } else if (res == ADDTOPW_RETURNED_FALSE_URGENTENABLED) {
                         noDelay = true;
                     }
 
                     // Generate next markings
-                    if(!noDelay && this->isDelayPossible(next_marking)){
-                            NonStrictMarking* marking = new NonStrictMarking(next_marking);
-                            marking->incrementAge();
-                            marking->setGeneratedBy(NULL);
-                            if(handleSuccessor(marking, &next_marking)){
-                                return true;
-                            }
+                    if (!noDelay && this->isDelayPossible(next_marking)) {
+                        NonStrictMarking *marking = new NonStrictMarking(next_marking);
+                        marking->incrementAge();
+                        marking->setGeneratedBy(NULL);
+                        if (handleSuccessor(marking, &next_marking)) {
+                            return true;
+                        }
                     }
                     deleteMarking(&next_marking);
 
+                }
+
+                return false;
             }
 
-            return false;
-        }
+            virtual void deleteMarking(NonStrictMarking *m) {
+                //dummy;
+            };
 
-        virtual void deleteMarking(NonStrictMarking* m) {
-            //dummy;
-        };
-        
-protected:
-	bool handleSuccessor(NonStrictMarking* marking, NonStrictMarking* parent)
-        {
-            marking->cut(this->placeStats);
-            marking->setParent(parent);
+        protected:
+            bool handleSuccessor(NonStrictMarking *marking, NonStrictMarking *parent) {
+                marking->cut(this->placeStats);
+                marking->setParent(parent);
 
-            unsigned int size = marking->size();
+                unsigned int size = marking->size();
 
-            this->pwList->setMaxNumTokensIfGreater(size);
+                this->pwList->setMaxNumTokensIfGreater(size);
 
-            if(size > this->options.getKBound()) {
+                if (size > this->options.getKBound()) {
                     delete marking;
                     return false;
-            }
+                }
 
-            if(this->pwList->add(marking)){
+                if (this->pwList->add(marking)) {
                     QueryVisitor<NonStrictMarking> checker(*marking, this->tapn);
-                    BoolResult context;        
+                    BoolResult context;
                     this->query->accept(checker, context);
-                    if(context.value) {
-                            this->lastMarking = marking;
-                            return true;
+                    if (context.value) {
+                        this->lastMarking = marking;
+                        return true;
                     } else {
-                            deleteMarking(marking);
-                            return false;
+                        deleteMarking(marking);
+                        return false;
                     }
-            } else {
+                } else {
                     delete marking;
+                }
+                return false;
             }
-            return false;
-        }
 
-protected:
-	int validChildren;
-public:
-	virtual void getTrace()
-        {
-            stack < NonStrictMarking*> printStack;
-            this->generateTraceStack(this->lastMarking, &printStack);
-            if(this->options.getXmlTrace()){
+        protected:
+            int validChildren;
+        public:
+            virtual void getTrace() {
+                stack<NonStrictMarking *> printStack;
+                this->generateTraceStack(this->lastMarking, &printStack);
+                if (this->options.getXmlTrace()) {
                     this->printXMLTrace(this->lastMarking, printStack, this->query, this->tapn);
-            } else {
+                } else {
                     this->printHumanTrace(this->lastMarking, printStack, this->query->getQuantifier());
+                }
             }
-        }
-};
-
-template<typename S>
-class ReachabilitySearchPTrie : public ReachabilitySearch<S> {
-public:
-    ReachabilitySearchPTrie(TAPN::TimedArcPetriNet& tapn, NonStrictMarking& initialMarking, AST::Query* query, VerificationOptions options, WaitingList<ptriepointer_t<MetaData*> >* waiting_list) 
-    : ReachabilitySearch<S>(tapn,initialMarking, query, options)
-    {
-        this->pwList = new PWListHybrid(tapn, waiting_list, options.getKBound(), tapn.getNumberOfPlaces(), tapn.getMaxConstant(), false, options.getTrace() != VerificationOptions::NO_TRACE);
-    };
-    
-    virtual void deleteMarking(NonStrictMarking* m) {
-        delete m;
-    };
-    
-    virtual void getTrace()
-    {
-	stack < NonStrictMarking*> printStack;
-        PWListHybrid* pwhlist = dynamic_cast<PWListHybrid*>(this->pwList);
-        MetaDataWithTraceAndEncoding* next = pwhlist->parent;
-        NonStrictMarking* last = this->lastMarking;
-        printStack.push(this->lastMarking);
-        while(next != NULL){
-            NonStrictMarking* m = pwhlist->decode(next->ep);
-            m->setGeneratedBy(next->generatedBy);
-            last->setParent(m);
-            last = m;
-            printStack.push(m);
-            next = next->parent;
         };
-        this->printXMLTrace(this->lastMarking, printStack, this->query, this->tapn);
-    }
 
-};
+        template<typename S>
+        class ReachabilitySearchPTrie : public ReachabilitySearch<S> {
+        public:
+            ReachabilitySearchPTrie(TAPN::TimedArcPetriNet &tapn, NonStrictMarking &initialMarking, AST::Query *query,
+                                    VerificationOptions options, WaitingList <ptriepointer_t<MetaData *>> *waiting_list)
+                    : ReachabilitySearch<S>(tapn, initialMarking, query, options) {
+                this->pwList = new PWListHybrid(tapn, waiting_list, options.getKBound(), tapn.getNumberOfPlaces(),
+                                                tapn.getMaxConstant(), false,
+                                                options.getTrace() != VerificationOptions::NO_TRACE);
+            };
 
-} /* namespace DiscreteVerification */
+            virtual void deleteMarking(NonStrictMarking *m) {
+                delete m;
+            };
+
+            virtual void getTrace() {
+                stack<NonStrictMarking *> printStack;
+                PWListHybrid *pwhlist = dynamic_cast<PWListHybrid *>(this->pwList);
+                MetaDataWithTraceAndEncoding *next = pwhlist->parent;
+                NonStrictMarking *last = this->lastMarking;
+                printStack.push(this->lastMarking);
+                while (next != NULL) {
+                    NonStrictMarking *m = pwhlist->decode(next->ep);
+                    m->setGeneratedBy(next->generatedBy);
+                    last->setParent(m);
+                    last = m;
+                    printStack.push(m);
+                    next = next->parent;
+                };
+                this->printXMLTrace(this->lastMarking, printStack, this->query, this->tapn);
+            }
+
+        };
+
+    } /* namespace DiscreteVerification */
 } /* namespace VerifyTAPN */
 #endif /* NONSTRICTSEARCH_HPP_ */

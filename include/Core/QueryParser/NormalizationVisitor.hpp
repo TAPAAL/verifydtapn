@@ -13,42 +13,59 @@
 #include "AST.hpp"
 
 namespace VerifyTAPN {
-	namespace AST {
-                class  Tuple : public Result {
-                    public:
-			bool negate;
-			Expression* returnExpr;
-			Tuple(bool negate, Expression* expr) : negate(negate), returnExpr(expr) {};
-		};
-                
-		class NormalizationVisitor : public Visitor
-		{
-		public:
-			NormalizationVisitor() : normalizedQuery() { };
-			virtual ~NormalizationVisitor() {};
+    namespace AST {
+        class Tuple : public Result {
+        public:
+            bool negate;
+            Expression *returnExpr;
 
-			virtual void visit(NotExpression& expr, Result& context);
-			virtual void visit(OrExpression& expr, Result& context);
-			virtual void visit(AndExpression& expr, Result& context);
-			virtual void visit(AtomicProposition& expr, Result& context);
-			virtual void visit(BoolExpression& expr, Result& context);
-			virtual void visit(Query& query, Result& context);
-			virtual void visit(DeadlockExpression& expr, Result& context);
-                        virtual void visit(NumberExpression& expr, Result& context);
-                        virtual void visit(IdentifierExpression& expr, Result& context);
-                        virtual void visit(MultiplyExpression& expr, Result& context);
-                        virtual void visit(MinusExpression& expr, Result& context);
-                        virtual void visit(SubtractExpression& expr, Result& context);
-                        virtual void visit(PlusExpression& expr, Result& context);
+            Tuple(bool negate, Expression *expr) : negate(negate), returnExpr(expr) {};
+        };
 
-			AST::Query* normalize(AST::Query& query) { Tuple any(false, NULL); query.accept(*this, any); 
-                        return normalizedQuery; };
-		private:
-			std::string negateOperator(const std::string& op) const;
-		private:
-			AST::Query* normalizedQuery;
-		};
-	};
+        class NormalizationVisitor : public Visitor {
+        public:
+            NormalizationVisitor() : normalizedQuery() {};
+
+            virtual ~NormalizationVisitor() {};
+
+            virtual void visit(NotExpression &expr, Result &context);
+
+            virtual void visit(OrExpression &expr, Result &context);
+
+            virtual void visit(AndExpression &expr, Result &context);
+
+            virtual void visit(AtomicProposition &expr, Result &context);
+
+            virtual void visit(BoolExpression &expr, Result &context);
+
+            virtual void visit(Query &query, Result &context);
+
+            virtual void visit(DeadlockExpression &expr, Result &context);
+
+            virtual void visit(NumberExpression &expr, Result &context);
+
+            virtual void visit(IdentifierExpression &expr, Result &context);
+
+            virtual void visit(MultiplyExpression &expr, Result &context);
+
+            virtual void visit(MinusExpression &expr, Result &context);
+
+            virtual void visit(SubtractExpression &expr, Result &context);
+
+            virtual void visit(PlusExpression &expr, Result &context);
+
+            AST::Query *normalize(AST::Query &query) {
+                Tuple any(false, NULL);
+                query.accept(*this, any);
+                return normalizedQuery;
+            };
+        private:
+            std::string negateOperator(const std::string &op) const;
+
+        private:
+            AST::Query *normalizedQuery;
+        };
+    };
 }
 
 

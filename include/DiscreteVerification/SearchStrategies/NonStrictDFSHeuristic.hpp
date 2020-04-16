@@ -27,14 +27,15 @@
 
 namespace VerifyTAPN {
 
-namespace DiscreteVerification {
+    namespace DiscreteVerification {
 
-template <class T>
-class NonStrictDFSHeuristic : public SearchStrategy<T> {
-public:
-	virtual WaitingList<T>* createWaitingList(AST::Query* query) const { return new HeuristicStackWaitingList<T>(query); };
-};
+        template<class T>
+        class NonStrictDFSHeuristic : public SearchStrategy<T> {
+        public:
+            virtual WaitingList <T> *
+            createWaitingList(AST::Query *query) const { return new HeuristicStackWaitingList<T>(query); };
+        };
 
-}
+    }
 }
 #endif /* NONSTRICTDFS_HPP_ */

@@ -13,5 +13,6 @@
          VerifyTAPN::Parser::location_type* yylloc,      \
          VerifyTAPN::TAPNQueryParser& driver)
 
-    YY_DECL;
+YY_DECL;
+
 #endif //VERIFYDTAPN_LEXER_DEF_H

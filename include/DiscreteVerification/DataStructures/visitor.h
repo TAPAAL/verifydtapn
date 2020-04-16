@@ -6,25 +6,25 @@
  */
 
 #ifndef VISITOR_H
-#define	VISITOR_H
+#define    VISITOR_H
 
 #include <stdint.h>
 
-namespace ptrie
-{
+namespace ptrie {
     template<typename T>
     class ptriepointer_t;
-    
+
     template<typename T>
-    class visitor_t
-    {
+    class visitor_t {
     public:
         virtual bool back(int index) = 0;
+
         virtual bool set(int index, bool value) = 0;
+
         virtual bool set_remainder(int index, ptriepointer_t<T> pointer) = 0;
     };
 }
 
 
-#endif	/* VISITOR_H */
+#endif    /* VISITOR_H */
 

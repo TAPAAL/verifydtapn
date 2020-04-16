@@ -17,21 +17,21 @@ namespace VerifyTAPN {
 
             //Main loop
             while (pwList->hasWaitingStates()) {
-                WaitingDart* waitingDart = pwList->getNextUnexplored();
+                WaitingDart *waitingDart = pwList->getNextUnexplored();
                 exploredMarkings++;
-                
+
                 // Add trace meta data ("add to trace")
                 if (waitingDart->parent != NULL) {
-                    if (((LivenessDart*)waitingDart->parent->dart)->traceData == NULL) {
-                        TraceMetaDataList* list = new TraceMetaDataList();
-                        ((LivenessDart*)waitingDart->parent->dart)->traceData = list;
+                    if (((LivenessDart *) waitingDart->parent->dart)->traceData == NULL) {
+                        TraceMetaDataList *list = new TraceMetaDataList();
+                        ((LivenessDart *) waitingDart->parent->dart)->traceData = list;
                     }
-                    ((LivenessDart*)waitingDart->parent->dart)->traceData->push_back(waitingDart);
+                    ((LivenessDart *) waitingDart->parent->dart)->traceData->push_back(waitingDart);
                 }
 
                 // Detect ability to delay forever
                 if (canDelayForever(waitingDart->dart->getBase())) {
-                    NonStrictMarkingBase* lm = new NonStrictMarkingBase(*waitingDart->dart->getBase());
+                    NonStrictMarkingBase *lm = new NonStrictMarkingBase(*waitingDart->dart->getBase());
                     lm->setGeneratedBy(waitingDart->dart->getBase()->getGeneratedBy());
                     // lastMarking = new TraceList(lm, waitingDart.upper);
                     lastMarking = waitingDart;
@@ -47,7 +47,7 @@ namespace VerifyTAPN {
                 // Skip if already passed
                 if (passed <= waitingDart->w) {
                     if (waitingDart->parent != NULL) {
-                        ((LivenessDart*)waitingDart->parent->dart)->traceData->pop_back();
+                        ((LivenessDart *) waitingDart->parent->dart)->traceData->pop_back();
                     }
                     pwList->popWaiting();
                     continue;
@@ -57,7 +57,7 @@ namespace VerifyTAPN {
                 this->tmpdart = waitingDart;
                 // Iterate over transitions
                 for (auto t : tapn.getTransitions()) {
-                    auto& transition = *t;
+                    auto &transition = *t;
 
                     // Calculate enabled set
                     pair<int, int> calculatedStart = calculateStart(transition, waitingDart->dart->getBase());
@@ -86,10 +86,10 @@ namespace VerifyTAPN {
 
                             this->tmpupper = _end;
 
-                            if(generateAndInsertSuccessors(Mpp, transition)){
+                            if (generateAndInsertSuccessors(Mpp, transition)) {
                                 return true;
                             }
-                            
+
                             pwList->flushBuffer();
                         }
                     }
@@ -108,9 +108,9 @@ namespace VerifyTAPN {
         }
 
 
-
-        bool TimeDartLiveness::canDelayForever(NonStrictMarkingBase* marking) {
-            for (PlaceList::const_iterator p_iter = marking->getPlaceList().begin(); p_iter != marking->getPlaceList().end(); p_iter++) {
+        bool TimeDartLiveness::canDelayForever(NonStrictMarkingBase *marking) {
+            for (PlaceList::const_iterator p_iter = marking->getPlaceList().begin();
+                 p_iter != marking->getPlaceList().end(); p_iter++) {
                 if (p_iter->place->getInvariant().getBound() < INT_MAX) {
                     return false;
                 }
@@ -118,9 +118,9 @@ namespace VerifyTAPN {
             return true;
         }
 
-        bool TimeDartLiveness::addToPW(NonStrictMarkingBase* marking, WaitingDart* parent, int upper) {
+        bool TimeDartLiveness::addToPW(NonStrictMarkingBase *marking, WaitingDart *parent, int upper) {
             int start = 0; // overwritten later if used
-            if(options.getTrace() == VerificationOptions::SOME_TRACE){
+            if (options.getTrace() == VerificationOptions::SOME_TRACE) {
                 start = marking->getYoungest();
             }
             marking->cut(placeStats);
@@ -141,7 +141,7 @@ namespace VerifyTAPN {
 
             query->accept(checker, context);
             if (context.value) {
-                std::pair < LivenessDart*, bool> result = pwList->add(marking, youngest, parent, upper, start);
+                std::pair<LivenessDart *, bool> result = pwList->add(marking, youngest, parent, upper, start);
 
 
                 if (parent != NULL && parent->dart->getBase()->equals(*result.first->getBase()) && youngest <= upper) {
@@ -150,8 +150,10 @@ namespace VerifyTAPN {
 
                 //Find the dart created in the PWList
                 if (result.first->traceData != NULL) {
-                    for (TraceMetaDataList::const_iterator iter = result.first->traceData->begin(); iter != result.first->traceData->end(); iter++) {
-                        if ((*iter)->parent->dart->getBase()->equals(*result.first->getBase()) && youngest <= (*iter)->upper) {
+                    for (TraceMetaDataList::const_iterator iter = result.first->traceData->begin();
+                         iter != result.first->traceData->end(); iter++) {
+                        if ((*iter)->parent->dart->getBase()->equals(*result.first->getBase()) &&
+                            youngest <= (*iter)->upper) {
                             loop = true;
                             break;
                         }
@@ -159,10 +161,11 @@ namespace VerifyTAPN {
                 }
 
                 if (loop) {
-                    NonStrictMarkingBase* lm = new NonStrictMarkingBase(*result.first->getBase());
+                    NonStrictMarkingBase *lm = new NonStrictMarkingBase(*result.first->getBase());
                     lm->setParent(parent->dart->getBase());
                     if (options.getTrace()) {
-                        lastMarking = new TraceDart(result.first, parent, result.first->getWaiting(), start, upper, transition);
+                        lastMarking = new TraceDart(result.first, parent, result.first->getWaiting(), start, upper,
+                                                    transition);
                     } else {
                         lastMarking = new WaitingDart(result.first, parent, result.first->getWaiting(), upper);
                     }

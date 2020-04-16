@@ -6,7 +6,7 @@
  */
 
 #ifndef ABSTRACTREACHABILITY_HPP
-#define	ABSTRACTREACHABILITY_HPP
+#define    ABSTRACTREACHABILITY_HPP
 
 #include <memory>
 
@@ -33,16 +33,18 @@ namespace VerifyTAPN {
             ADDTOPW_RETURNED_TRUE,
             ADDTOPW_RETURNED_FALSE_URGENTENABLED,
             ADDTOPW_RETURNED_FALSE
-        };        
+        };
+
         template<typename T, typename U, typename S>
         class AbstractNaiveVerification : public Verification<U> {
         public:
-            AbstractNaiveVerification(TAPN::TimedArcPetriNet& tapn, U& initialMarking, AST::Query* query, VerificationOptions options, T* pwList);
-            ~AbstractNaiveVerification()
-            {
+            AbstractNaiveVerification(TAPN::TimedArcPetriNet &tapn, U &initialMarking, AST::Query *query,
+                                      VerificationOptions options, T *pwList);
+
+            ~AbstractNaiveVerification() {
 
             }
-            
+
             void printTransitionStatistics() const {
                 successorGenerator.printTransitionStatistics(std::cout);
             }
@@ -50,14 +52,15 @@ namespace VerifyTAPN {
             void printStats();
 
         protected:
-            bool isDelayPossible(U& marking);
-            virtual bool handleSuccessor(U* marking, U* parent) = 0;
+            bool isDelayPossible(U &marking);
 
-            inline bool handleSuccessor(U* m) {
+            virtual bool handleSuccessor(U *marking, U *parent) = 0;
+
+            inline bool handleSuccessor(U *m) {
                 return handleSuccessor(m, tmpParent);
             };
-            
-            U* getLastMarking() {
+
+            U *getLastMarking() {
                 return lastMarking;
             }
 
@@ -66,33 +69,38 @@ namespace VerifyTAPN {
             };
 
         protected:
-            SRes generateAndInsertSuccessors(NonStrictMarkingBase& from);
+            SRes generateAndInsertSuccessors(NonStrictMarkingBase &from);
+
             S successorGenerator;
-            U* lastMarking;
-            U* tmpParent;
-            T* pwList;
+            U *lastMarking;
+            U *tmpParent;
+            T *pwList;
         };
 
-        template<typename T,typename U, typename S>
-        AbstractNaiveVerification<T,U,S>::AbstractNaiveVerification(TAPN::TimedArcPetriNet& tapn, U& initialMarking, AST::Query* query, VerificationOptions options, T* pwList)
-        : Verification<U>(tapn, initialMarking, query, options), successorGenerator(tapn, query), lastMarking(NULL), pwList(pwList) {
+        template<typename T, typename U, typename S>
+        AbstractNaiveVerification<T, U, S>::AbstractNaiveVerification(TAPN::TimedArcPetriNet &tapn, U &initialMarking,
+                                                                      AST::Query *query, VerificationOptions options,
+                                                                      T *pwList)
+                : Verification<U>(tapn, initialMarking, query, options), successorGenerator(tapn, query),
+                  lastMarking(NULL), pwList(pwList) {
 
         };
 
-        template<typename T,typename U, typename S>
-        void AbstractNaiveVerification<T,U,S>::printStats() {
+        template<typename T, typename U, typename S>
+        void AbstractNaiveVerification<T, U, S>::printStats() {
             std::cout << "  discovered markings:\t" << pwList->discoveredMarkings << std::endl;
             std::cout << "  explored markings:\t" << pwList->size() - pwList->explored() << std::endl;
             std::cout << "  stored markings:\t" << pwList->size() << std::endl;
         };
 
-        template<typename T,typename U, typename S>
-        bool AbstractNaiveVerification<T,U,S>::isDelayPossible(U& marking) {
-            const PlaceList& places = marking.getPlaceList();
+        template<typename T, typename U, typename S>
+        bool AbstractNaiveVerification<T, U, S>::isDelayPossible(U &marking) {
+            const PlaceList &places = marking.getPlaceList();
             if (places.size() == 0) return true; //Delay always possible in empty markings
 
             PlaceList::const_iterator markedPlace_iter = places.begin();
-            for (TAPN::TimedPlace::Vector::const_iterator place_iter = this->tapn.getPlaces().begin(); place_iter != this->tapn.getPlaces().end(); place_iter++) {
+            for (TAPN::TimedPlace::Vector::const_iterator place_iter = this->tapn.getPlaces().begin();
+                 place_iter != this->tapn.getPlaces().end(); place_iter++) {
                 int inv = (*place_iter)->getInvariant().getBound();
                 if (**place_iter == *(markedPlace_iter->place)) {
                     if (markedPlace_iter->maxTokenAge() > inv - 1) {
@@ -107,26 +115,25 @@ namespace VerifyTAPN {
             assert(false); // This happens if there are markings on places not in the TAPN
             return false;
         };
-        
-        template<typename T,typename U, typename S>
-        SRes AbstractNaiveVerification<T,U,S>::generateAndInsertSuccessors(NonStrictMarkingBase& from) {
-            
+
+        template<typename T, typename U, typename S>
+        SRes AbstractNaiveVerification<T, U, S>::generateAndInsertSuccessors(NonStrictMarkingBase &from) {
+
 
             successorGenerator.from_marking(&from);
-            while(auto next = std::unique_ptr<NonStrictMarkingBase>(successorGenerator.next(false)))
-            {                
-                U* ptr = new U(*next);
+            while (auto next = std::unique_ptr<NonStrictMarkingBase>(successorGenerator.next(false))) {
+                U *ptr = new U(*next);
                 ptr->setGeneratedBy(successorGenerator.last_fired());
-                if(handleSuccessor(ptr))
-                {
+                if (handleSuccessor(ptr)) {
                     return ADDTOPW_RETURNED_TRUE;
                 }
             }
-            
-            return successorGenerator.urgent() ? SRes::ADDTOPW_RETURNED_FALSE_URGENTENABLED : SRes::ADDTOPW_RETURNED_FALSE;
+
+            return successorGenerator.urgent() ? SRes::ADDTOPW_RETURNED_FALSE_URGENTENABLED
+                                               : SRes::ADDTOPW_RETURNED_FALSE;
         }
-        
+
     }
 }
-#endif	/* ABSTRACTREACHABILITY_HPP */
+#endif    /* ABSTRACTREACHABILITY_HPP */
 
