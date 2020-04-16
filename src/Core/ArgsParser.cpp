@@ -55,7 +55,7 @@ namespace VerifyTAPN {
         s << " [ --" << getLongName() << " ]";
         out << std::setw(WIDTH) << std::left << s.str();
         PrintIndentedDescription(out, getDescription());
-    };
+    }
 
     void SwitchWithArg::print(std::ostream &out) const {
         std::stringstream s;
@@ -64,7 +64,7 @@ namespace VerifyTAPN {
         s << " arg (=" << default_value << ")";
         out << std::setw(WIDTH) << std::left << s.str();
         PrintIndentedDescription(out, getDescription());
-    };
+    }
 
     void SwitchWithStringArg::print(std::ostream &out) const {
         std::stringstream s;
@@ -73,7 +73,7 @@ namespace VerifyTAPN {
         s << " a1,a2,.. (=" << default_value << ")";
         out << std::setw(WIDTH) << std::left << s.str();
         PrintIndentedDescription(out, getDescription());
-    };
+    }
 
     bool Switch::handles(const std::string &flag) const {
         std::stringstream stream;
@@ -83,13 +83,13 @@ namespace VerifyTAPN {
         if (flag.find(long_name) != std::string::npos)
             return true;
         return false;
-    };
+    }
 
     option Switch::parse(const std::string &flag) {
         assert(handles(flag));
         handled_option = true;
         return option(getLongName(), "1");
-    };
+    }
 
     option SwitchWithArg::parse(const std::string &flag) {
         assert(handles(flag));
@@ -106,7 +106,7 @@ namespace VerifyTAPN {
         }
         boost::trim(copy);
         return option(getLongName(), copy);
-    };
+    }
 
     option SwitchWithStringArg::parse(const std::string &flag) {
         assert(handles(flag));
@@ -123,7 +123,7 @@ namespace VerifyTAPN {
         }
         boost::trim(copy);
         return option(getLongName(), copy);
-    };
+    }
 
     void ArgsParser::initialize() {
         // NOTE: The Help() function only splits and indents descriptions based on newlines.
@@ -184,7 +184,7 @@ namespace VerifyTAPN {
                 new Switch("i", ORDER,
                            "Disable partial order reduction"));
 
-    };
+    }
 
     void ArgsParser::printHelp() const {
         std::cout
@@ -198,7 +198,7 @@ namespace VerifyTAPN {
         for (auto &p : parsers) {
             std::cout << *p;
         }
-    };
+    }
 
     void ArgsParser::printVersion() const {
         std::cout << "VerifyDTAPN " << version << std::endl;

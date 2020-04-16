@@ -115,8 +115,6 @@ namespace VerifyTAPN::DiscreteVerification {
 
         ~PWListHybrid() override;
 
-        friend std::ostream &operator<<(std::ostream &out, PWListHybrid &x);
-
     public: // inspectors
         NonStrictMarking *decode(ptriepointer_t<MetaData *> &ep) {
 

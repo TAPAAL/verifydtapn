@@ -26,7 +26,7 @@ namespace VerifyTAPN::DiscreteVerification {
             : Workflow(tapn, initialMarking, query, std::move(options)), passedStack(), minExec(INT_MAX),
               linearSweepTreshold(3), coveredMarking(nullptr), modelType(calculateModelType()) {
 
-    };
+    }
 
     WorkflowSoundnessPTrie::WorkflowSoundnessPTrie(TAPN::TimedArcPetriNet &tapn, NonStrictMarking &initialMarking,
                                                    AST::Query *query, const VerificationOptions &options,

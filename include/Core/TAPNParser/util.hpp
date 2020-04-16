@@ -12,6 +12,6 @@ namespace VerifyTAPN {
         std::stringstream s;
         s << t;
         return s.str();
-    };
+    }
 }
 #endif /* VERIFYTAPN_UTIL_HPP_ */

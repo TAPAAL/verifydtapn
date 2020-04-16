@@ -81,14 +81,14 @@ namespace VerifyTAPN::DiscreteVerification {
             : Verification<U>(tapn, initialMarking, query, options), successorGenerator(tapn, query),
               lastMarking(NULL), pwList(pwList) {
 
-    };
+    }
 
     template<typename T, typename U, typename S>
     void AbstractNaiveVerification<T, U, S>::printStats() {
         std::cout << "  discovered markings:\t" << pwList->discoveredMarkings << std::endl;
         std::cout << "  explored markings:\t" << pwList->size() - pwList->explored() << std::endl;
         std::cout << "  stored markings:\t" << pwList->size() << std::endl;
-    };
+    }
 
     template<typename T, typename U, typename S>
     bool AbstractNaiveVerification<T, U, S>::isDelayPossible(U &marking) {
@@ -111,7 +111,7 @@ namespace VerifyTAPN::DiscreteVerification {
         }
         assert(false); // This happens if there are markings on places not in the TAPN
         return false;
-    };
+    }
 
     template<typename T, typename U, typename S>
     SRes AbstractNaiveVerification<T, U, S>::generateAndInsertSuccessors(NonStrictMarkingBase &from) {

@@ -156,7 +156,7 @@ namespace VerifyTAPN::DiscreteVerification {
                 last = m;
                 printStack.push(m);
                 next = next->parent;
-            };
+            }
             this->printXMLTrace(this->lastMarking, printStack, this->query, this->tapn);
         }
 

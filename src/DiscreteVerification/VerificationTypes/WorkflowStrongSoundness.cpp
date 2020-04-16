@@ -19,7 +19,7 @@ namespace VerifyTAPN::DiscreteVerification {
             : Workflow(tapn, initialMarking, query, std::move(options)), maxValue(-1), outPlace(nullptr) {
         pwList = new WorkflowPWList(waiting_list);
         findInOut();
-    };
+    }
 
     WorkflowStrongSoundnessReachability::WorkflowStrongSoundnessReachability(TAPN::TimedArcPetriNet &tapn,
                                                                              NonStrictMarking &initialMarking,
@@ -27,7 +27,7 @@ namespace VerifyTAPN::DiscreteVerification {
                                                                              VerificationOptions options)
             : Workflow(tapn, initialMarking, query, std::move(options)), maxValue(-1), outPlace(nullptr) {
         findInOut();
-    };
+    }
 
     void WorkflowStrongSoundnessReachability::findInOut() {
         for (TimedPlace::Vector::const_iterator iter = tapn.getPlaces().begin();

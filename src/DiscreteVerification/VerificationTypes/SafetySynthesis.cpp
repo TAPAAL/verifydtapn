@@ -262,7 +262,7 @@ namespace VerifyTAPN::DiscreteVerification {
         std::cout << "  discovered markings:\t" << discovered << std::endl;
         std::cout << "  explored markings:\t" << explored << std::endl;
         std::cout << "  stored markings:\t" << store->size() << std::endl;
-    };
+    }
 
     SafetySynthesis::~SafetySynthesis() {
         delete store;

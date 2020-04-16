@@ -90,7 +90,6 @@ namespace VerifyTAPN::TAPN {
 
 
     private: // modifiers
-        void makeTAPNConservative();
 
         void updateMaxConstant(const TimeInterval &interval);
 

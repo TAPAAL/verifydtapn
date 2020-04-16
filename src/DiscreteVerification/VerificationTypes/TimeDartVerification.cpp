@@ -28,7 +28,7 @@ namespace VerifyTAPN::DiscreteVerification {
             }
             else*/
         successorGenerator = std::make_unique<Generator>(tapn, query);
-    };
+    }
 
     pair<int, int>
     TimeDartVerification::calculateStart(const TAPN::TimedTransition &transition, NonStrictMarkingBase *marking) {

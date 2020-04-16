@@ -65,7 +65,7 @@ namespace VerifyTAPN {
         private:
             AST::Query *normalizedQuery;
         };
-    };
+    }
 }
 
 

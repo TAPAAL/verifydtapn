@@ -38,19 +38,19 @@ namespace VerifyTAPN::DiscreteVerification {
         query.getChild()->accept(*this, context);
     }
 
-    void PlaceVisitor::visit(NumberExpression &expr, Result &context) {};
+    void PlaceVisitor::visit(NumberExpression &expr, Result &context) {}
 
     void PlaceVisitor::visit(IdentifierExpression &expr, Result &context) {
         auto &v = static_cast< AST::IntVectorResult & >(context);
         v.value.push_back(expr.getPlace());
-    };
+    }
 
     void PlaceVisitor::visit(MinusExpression &expr, Result &context) {
         expr.getValue().accept(*this, context);
-    };
+    }
 
     void PlaceVisitor::visit(OperationExpression &expr, Result &context) {
         expr.getLeft().accept(*this, context);
         expr.getRight().accept(*this, context);
-    };
+    }
 } /* namespace VerifyTAPN */
