@@ -12,7 +12,6 @@ if (CMAKE_BUILD_TYPE MATCHES Release)
 endif ()
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-
 set(VERIFYPN_VERSION 3.3)
 add_compile_definitions(VERIFYDTAPN_VERSION=\"${VERIFYDTAPN_VERSION}\")
 
@@ -63,6 +62,12 @@ if (VERIFYDTAPN_GetDependencies)
             )
     include_directories(${EXTERNAL_INSTALL_LOCATION}/include)
 endif (VERIFYDTAPN_GetDependencies)
+
+set(Boost_USE_STATIC_LIBS ON)
+set(Boost_USE_RELEASE_LIBS ON)
+set(Boost_USE_MULTITHREADED OFF)
+find_package(Boost 1.66 REQUIRED)
+include_directories(${Boost_INCLUDE_DIR})
 
 include_directories(include)
 add_subdirectory(${CMAKE_SOURCE_DIR}/src/)
