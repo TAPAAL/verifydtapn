@@ -1,21 +1,26 @@
-To compile:
 
+## Linux
+To compile:
+```
+sudo apt install flex bison libboost-all-dev libsparsehash-dev
+
+```
 mkdir build
 cd build
 cmake ..
 make
+```
 
---------------------------------------------------------------------------------
-Compiling on Max OS X
---------------------------------------------------------------------------------
+## Max OS X
+
 Install xcode through App Store.
 
 Install cmake, boost and google-sparsehash,
 for example using homebrew as follows:
 
-brew install cmake
-brew install boost
-brew install google-sparsehash 
+```
+brew install cmake boost google-sparsehash 
+```
 
 If your flex and bison point to a wrong binary, run the cmake
 with the folowing switches where the desired path is set:
