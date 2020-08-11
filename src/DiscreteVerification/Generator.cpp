@@ -113,11 +113,11 @@ namespace VerifyTAPN::DiscreteVerification {
         }
 
         done = true;
-        _trans = nullptr;
-        if (!seen_urgent && do_delay && _trans != nullptr) {
+        if (!seen_urgent && do_delay && _trans == nullptr) {
             ++num_children;
             return from_delay();
         }
+        _trans = nullptr;
         return nullptr;
     }
 
