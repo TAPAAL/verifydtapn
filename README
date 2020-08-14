@@ -27,3 +27,62 @@ with the folowing switches where the desired path is set:
 
 cmake -DBISON_EXECUTABLE=/usr/local/opt/bison/bin/bison -DFLEX_EXECUTABLE=/usr/local/opt/flex/bin/flex ..
 
+
+## Windows (Cross Compile)
+
+Install MinGW64
+```
+sudo apt install mingw-w64-x86-64-dev mingw-w64-tools g++-mingw-w64-x86-64
+```
+
+
+Download boost source: 
+```
+BOOST=boost_1_72_0
+VER=${BOOST#boost_}
+VER=${VER//_/.}
+wget -nv "https://dl.bintray.com/boostorg/release/$VER/source/$BOOST.tar.bz2"
+tar xf $BOOST.tar.bz2
+```
+
+Compile Boost Build System and Build Boost
+
+```
+cd $BOOST
+./bootstrap.sh --prefix="$PREFIX" --without-icu
+cat > win$ADDRM-config.jam << EOF
+using gcc : m : $CXX
+        :
+;
+EOF
+
+./b2 toolset=gcc-m target-os=windows cflags="-mtune=$MTUNE" cxxstd=17 cxxflags="-mtune=$MTUNE" address-model="$ADDRM" binary-format="pe" abi="ms" threading="multi" threadapi="win32" variant=release --user-config="win$ADDRM-config.jam" --prefix="$PREFIX" --without-mpi --without-python --without-coroutine --without-graph --without-graph_parallel --without-wave --without-context -sNO_BZIP2=1 -j$CORES install
+```
+
+Download and build google sparsehash
+
+```
+
+wget https://github.com/sparsehash/sparsehash/archive/sparsehash-2.0.4.zip
+unzip sparsehash-2.0.4.zip
+
+cd sparsehash-sparsehash-2.0.4
+
+mkdir build
+./configure --prefix=$(pwd)/build CXXFLAGS=-std=c++11
+make
+make install
+
+```
+
+Build verifydtapn
+
+```
+
+mkdir build-win && cd build-win
+cmake ../ -DCMAKE_TOOLCHAIN_FILE=../toolchain-x86_64-w64-mingw32.cmake -DBOOST_ROOT=/tmp/test/build
+CPATH=/path/to/sparsehash/build/include make
+
+
+
+
