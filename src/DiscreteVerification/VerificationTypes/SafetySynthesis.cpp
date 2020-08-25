@@ -96,11 +96,11 @@ namespace VerifyTAPN::DiscreteVerification {
                 next_meta.state = PROCESSED;
                 NonStrictMarkingBase *marking = store->expand(next);
                 // generate successors for environment
-                successors(next, marking, next_meta, *waiting, false);
+                successors(next, marking, next_meta, *waiting, false, query);
 
                 if (next_meta.state != LOOSING) {
                     // generate successors for controller
-                    successors(next, marking, next_meta, *waiting, true);
+                    successors(next, marking, next_meta, *waiting, true, query);
                 }
 
                 if (next_meta.state == MAYBE_WINNING && next_meta.env_children == 0) {
@@ -154,7 +154,8 @@ namespace VerifyTAPN::DiscreteVerification {
                                      NonStrictMarkingBase *marking,
                                      SafetyMeta &meta,
                                      waiting_t &waiting,
-                                     bool is_controller) {
+                                     bool is_controller,
+                                     const Query* query) {
         generator.from_marking(marking,
                                is_controller ?
                                Generator::CONTROLLABLE : Generator::ENVIRONMENT,
@@ -178,18 +179,37 @@ namespace VerifyTAPN::DiscreteVerification {
 
 //        std::cout << "\tchild  " << " : " << *next << std::endl;
 
-            if (!satisfies_query(next)) {
-//            std::cout << "\t\tdoes not satisfy phi" << std::endl;
-                delete next;
+            if (query->getQuantifier() == Quantifier::CG) {
+                if (!satisfies_query(next)) {
+    //            std::cout << "\t\tdoes not satisfy phi" << std::endl;
+                    delete next;
 
-                if (is_controller) {
-                    continue;
-                } else {
-                    meta.state = LOOSING;
-//                std::cout << "LOOSING : " << parent << std::endl;
-                    terminated = true;
-                    break;
+                    if (is_controller) {
+                        continue;
+                    } else {
+                        meta.state = LOOSING;
+    //                std::cout << "LOOSING : " << parent << std::endl;
+                        terminated = true;
+                        break;
+                    }
                 }
+            } else if (query->getQuantifier() == Quantifier::CF) {
+                if (satisfies_query(next)) {
+                    delete next;
+                    if (!is_controller) {
+                        continue;
+                    } else {
+                        meta.state = MAYBE_WINNING;
+                        terminated = true;
+                        break;
+                    }
+                } 
+            }
+            else
+            {
+                std::cerr << "Using EG, EF, AG or AF without control is no longer supported" << std::endl;
+                assert(false);
+                exit(-1);
             }
 
             store_t::result_t res = store->insert_and_dealloc(next);
@@ -211,12 +231,20 @@ namespace VerifyTAPN::DiscreteVerification {
 //            std::cout << "LOOSING : " << parent << std::endl;
                 terminated = true;
                 break;
-            } else if (is_controller && (childmeta.state == WINNING || p == parent)) {
+            } else if (is_controller && (childmeta.state == WINNING || 
+                    (p == parent && query->getQuantifier() == Quantifier::CG))) {
                 meta.state = MAYBE_WINNING;
                 terminated = true;
                 break;
             } else if (!is_controller && p == parent) {
-                continue;
+                if(query->getQuantifier() == Quantifier::CF)
+                {
+                    meta.state = LOOSING;
+                    terminated = true;
+                    break;
+                }
+                else 
+                    continue;
             }
 
             if (childmeta.state != WINNING && childmeta.state != LOOSING) {
@@ -228,7 +256,7 @@ namespace VerifyTAPN::DiscreteVerification {
         if (terminated) return; // Add nothing to waiting, we already have result
 
         if (is_controller) {
-            if (number_of_children == 0) {
+            if (number_of_children == 0 && query->getQuantifier() == Quantifier::CG) {
                 meta.state = MAYBE_WINNING;
                 return;
             } else if (all_loosing) {
