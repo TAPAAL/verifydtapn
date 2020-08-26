@@ -58,7 +58,10 @@ namespace VerifyTAPN::DiscreteVerification {
     bool SafetySynthesis::run() {
         backstack_t back;
         largest = initial_marking.size();
-        if (!satisfies_query(&initial_marking)) return false;
+        
+        // if initial satisfies and AF (return true), ok OR initial violates and AG (return false)
+        if (satisfies_query(&initial_marking) == (query->getQuantifier() == Quantifier::CF))
+            return query->getQuantifier() == Quantifier::CF;
 
         store_t::result_t m_0_res = store->insert_and_dealloc(&initial_marking);
 
@@ -114,7 +117,16 @@ namespace VerifyTAPN::DiscreteVerification {
                 store->free(marking);
             }
         }
-        return meta.state != LOOSING;
+        
+        if(query->getQuantifier() == Quantifier::CG)
+            return meta.state != LOOSING;
+        else if(query->getQuantifier() == Quantifier::CF)
+            return meta.state == WINNING;
+        else
+        {
+            assert(false);
+            return false;
+        }
     }
 
     void SafetySynthesis::dependers_to_waiting(SafetyMeta &next_meta, backstack_t &back) {
@@ -161,8 +173,8 @@ namespace VerifyTAPN::DiscreteVerification {
                                Generator::CONTROLLABLE : Generator::ENVIRONMENT,
                                meta.urgent);
 
-//    std::cout << (is_controller ? "controller" : "env ");
-//    std::cout << " : " << *marking << std::endl;
+        // std::cout << (is_controller ? "controller" : "env ");
+        // std::cout << " : " << *marking << std::endl;
 
         NonStrictMarkingBase *next = nullptr;
 
@@ -177,7 +189,7 @@ namespace VerifyTAPN::DiscreteVerification {
             ++discovered;
             ++number_of_children;
 
-//        std::cout << "\tchild  " << " : " << *next << std::endl;
+            //std::cout << "\tchild  " << " : " << *next << std::endl;
 
             if (query->getQuantifier() == Quantifier::CG) {
                 if (!satisfies_query(next)) {
