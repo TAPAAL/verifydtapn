@@ -192,7 +192,7 @@ namespace VerifyTAPN::DiscreteVerification {
 
         NonStrictMarkingBase *next = nullptr;
 
-        std::stack<store_t::Pointer *> successors;
+        std::vector<store_t::Pointer *> successors;
         size_t number_of_children = 0;
         bool terminated = false;
         bool all_loosing = true;
@@ -254,7 +254,7 @@ namespace VerifyTAPN::DiscreteVerification {
                 //std::cerr << "\t\tNEW!" << std::endl;
                 SafetyMeta childmeta = {UNKNOWN, false, false, 0, 0, depends_t()};
                 store->set_meta(p, childmeta);
-                successors.push(p);
+                successors.push_back(p);
                 all_loosing = false;
 //            std::cout << "\t\t" << p << std::endl;
                 continue;
@@ -287,7 +287,7 @@ namespace VerifyTAPN::DiscreteVerification {
             }
 
             if (childmeta.state != WINNING && childmeta.state != LOOSING) {
-                successors.push(p);
+                successors.push_back(p);
             }
             all_loosing = all_loosing && (childmeta.state == LOOSING);
         }
@@ -330,11 +330,13 @@ namespace VerifyTAPN::DiscreteVerification {
             }
         }
 
-        std::set<store_t::Pointer *> unique;
-        while (!successors.empty()) {
-            store_t::Pointer *child = successors.top();
-            successors.pop();
-            if (!unique.insert(child).second) continue;  // only insert unique elements
+        std::sort(successors.begin(), successors.end());
+        size_t unique = 0;
+        store_t::Pointer *child = nullptr;
+        for(auto p : successors) {
+            if(p == child) continue;
+            else child = p;
+            ++unique;
 
             SafetyMeta &childmeta = store->get_meta(child);
             childmeta.dependers.push_front(
@@ -347,8 +349,8 @@ namespace VerifyTAPN::DiscreteVerification {
             }
         }
 
-        if (is_controller) meta.ctrl_children = unique.size();
-        else meta.env_children = unique.size();
+        if (is_controller) meta.ctrl_children = unique;
+        else meta.env_children = unique;
     }
 
     void SafetySynthesis::print_stats() {
