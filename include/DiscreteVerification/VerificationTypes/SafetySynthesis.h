@@ -41,7 +41,7 @@ namespace VerifyTAPN::DiscreteVerification {
         };           // ctrl surely wins
 
         struct SafetyMeta {
-            MarkingState state;
+            uint8_t state;
             bool urgent;
             bool waiting;                       // We only need stuff on waiting once
             size_t ctrl_children;                // Usefull.
