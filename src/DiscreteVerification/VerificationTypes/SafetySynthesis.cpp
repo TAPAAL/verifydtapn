@@ -97,6 +97,7 @@ namespace VerifyTAPN::DiscreteVerification {
             } else {
                 assert(next_meta.state == UNKNOWN);
                 next_meta.state = PROCESSED;
+                //std::cerr << "PRE META " << meta.state << std::endl;
                 NonStrictMarkingBase *marking = store->expand(next);
                 // generate successors for environment
                 successors(next, marking, next_meta, *waiting, false, query);
@@ -105,6 +106,9 @@ namespace VerifyTAPN::DiscreteVerification {
                     // generate successors for controller
                     successors(next, marking, next_meta, *waiting, true, query);
                 }
+                
+                //std::cerr << "CHILDREN (" << next_meta.env_children << ", " << next_meta.ctrl_children << ")" << std::endl;
+                //std::cerr << "NEW META " << next_meta.state << std::endl;
 
                 if (next_meta.state == MAYBE_WINNING && next_meta.env_children == 0) {
                     next_meta.state = WINNING;
@@ -112,10 +116,12 @@ namespace VerifyTAPN::DiscreteVerification {
 
                 if (next_meta.state == LOOSING || next_meta.state == WINNING) {
                     assert(store->get_meta(next).state != PROCESSED);
+                    //std::cerr << "PUSH " << &next_meta << std::endl;
                     back.push(next);
                 }
                 store->free(marking);
             }
+            //std::cerr << "META " << meta.state << std::endl;
         }
         
         if(query->getQuantifier() == Quantifier::CG)
@@ -130,23 +136,31 @@ namespace VerifyTAPN::DiscreteVerification {
     }
 
     void SafetySynthesis::dependers_to_waiting(SafetyMeta &next_meta, backstack_t &back) {
+        //std::cerr << "DEP TO WAITING " << &next_meta << " STATE " << next_meta.state << std::endl;
         for (auto ancestor : next_meta.dependers) {
             SafetyMeta &a_meta = store->get_meta(ancestor.second);
+            //std::cerr << "\tDEP" << &a_meta << " STATE " << a_meta.state << std::endl;
             if (a_meta.state == LOOSING || a_meta.state == WINNING) continue;
 
             bool ctrl_child = ancestor.first;
             if (ctrl_child) {
                 a_meta.ctrl_children -= 1;
-                if (next_meta.state == WINNING) {
+                if (next_meta.state == WINNING && a_meta.state == MAYBE_LOSING)
+                    a_meta.state = WINNING;                
+                else if (next_meta.state == WINNING) {
                     a_meta.state = MAYBE_WINNING;
                 }
-
-                if (a_meta.ctrl_children == 0 && a_meta.state != MAYBE_WINNING)
+                
+                if (a_meta.state != WINNING && a_meta.ctrl_children == 0 && a_meta.state != MAYBE_WINNING)
                     a_meta.state = LOOSING;
+                
 
             } else {
+                assert(a_meta.state != MAYBE_LOSING);
                 a_meta.env_children -= 1;
                 if (next_meta.state == LOOSING) a_meta.state = LOOSING;
+                if (next_meta.state == WINNING && a_meta.env_children == 0 && a_meta.ctrl_children == 0)
+                    a_meta.state = WINNING;
             }
 
             if (a_meta.env_children == 0 && a_meta.state == MAYBE_WINNING) {
@@ -173,8 +187,8 @@ namespace VerifyTAPN::DiscreteVerification {
                                Generator::CONTROLLABLE : Generator::ENVIRONMENT,
                                meta.urgent);
 
-        // std::cout << (is_controller ? "controller" : "env ");
-        // std::cout << " : " << *marking << std::endl;
+//        std::cout << (is_controller ? "controller" : "env ");
+//        std::cout << " : " << *marking << std::endl;
 
         NonStrictMarkingBase *next = nullptr;
 
@@ -182,6 +196,7 @@ namespace VerifyTAPN::DiscreteVerification {
         size_t number_of_children = 0;
         bool terminated = false;
         bool all_loosing = true;
+        bool some_winning = false;
         while ((next = generator.next(is_controller)) != nullptr) {
 
             meta.urgent |= generator.urgent();
@@ -189,7 +204,7 @@ namespace VerifyTAPN::DiscreteVerification {
             ++discovered;
             ++number_of_children;
 
-            //std::cout << "\tchild  " << " : " << *next << std::endl;
+//            std::cout << "\tchild  " << " : " << *next << std::endl;
 
             if (query->getQuantifier() == Quantifier::CG) {
                 if (!satisfies_query(next)) {
@@ -200,18 +215,25 @@ namespace VerifyTAPN::DiscreteVerification {
                         continue;
                     } else {
                         meta.state = LOOSING;
-    //                std::cout << "LOOSING : " << parent << std::endl;
+                        //std::cout << "LOOSING : " << parent << std::endl;
                         terminated = true;
                         break;
                     }
                 }
             } else if (query->getQuantifier() == Quantifier::CF) {
                 if (satisfies_query(next)) {
+                    //std::cerr << "\t\tSAT!" << std::endl;
                     delete next;
                     if (!is_controller) {
+                        //std::cerr << "NOT CTRL" << std::endl;
+                        some_winning = true;
                         continue;
                     } else {
-                        meta.state = MAYBE_WINNING;
+                        //std::cerr << "CTRL" << std::endl;
+                        if(meta.state == MAYBE_LOSING)
+                            meta.state = WINNING;
+                        else
+                            meta.state = MAYBE_WINNING;
                         terminated = true;
                         break;
                     }
@@ -229,6 +251,7 @@ namespace VerifyTAPN::DiscreteVerification {
             store_t::Pointer *p = res.second;
 
             if (res.first) {
+                //std::cerr << "\t\tNEW!" << std::endl;
                 SafetyMeta childmeta = {UNKNOWN, false, false, 0, 0, depends_t()};
                 store->set_meta(p, childmeta);
                 successors.push(p);
@@ -240,18 +263,22 @@ namespace VerifyTAPN::DiscreteVerification {
             SafetyMeta &childmeta = store->get_meta(p);
             if (!is_controller && childmeta.state == LOOSING) {
                 meta.state = LOOSING;
-//            std::cout << "LOOSING : " << parent << std::endl;
+                //std::cout << "LOOSING2 : " << parent << std::endl;
                 terminated = true;
                 break;
             } else if (is_controller && (childmeta.state == WINNING || 
                     (p == parent && query->getQuantifier() == Quantifier::CG))) {
-                meta.state = MAYBE_WINNING;
+                if(meta.state == MAYBE_LOSING)
+                    meta.state = WINNING;
+                else
+                    meta.state = MAYBE_WINNING;
                 terminated = true;
                 break;
             } else if (!is_controller && p == parent) {
                 if(query->getQuantifier() == Quantifier::CF)
                 {
                     meta.state = LOOSING;
+                    //std::cout << "LOOSING3 : " << parent << std::endl;
                     terminated = true;
                     break;
                 }
@@ -265,16 +292,41 @@ namespace VerifyTAPN::DiscreteVerification {
             all_loosing = all_loosing && (childmeta.state == LOOSING);
         }
 
-        if (terminated) return; // Add nothing to waiting, we already have result
+        if (terminated)
+        {
+//            std::cerr << "TERMINATED" << std::endl;
+            return; // Add nothing to waiting, we already have result
+        }
 
         if (is_controller) {
-            if (number_of_children == 0 && query->getQuantifier() == Quantifier::CG) {
-                meta.state = MAYBE_WINNING;
-                return;
-            } else if (all_loosing) {
-                meta.state = LOOSING;
-//            std::cout << "LOOSING : " << parent << std::endl;
-                return;
+            if(query->getQuantifier() == Quantifier::CG)
+            {
+                if (number_of_children == 0) {
+                    meta.state = MAYBE_WINNING;
+                    return;
+                } else if (all_loosing) {
+                    meta.state = LOOSING;
+//                    std::cout << "LOOSING4 : " << parent << std::endl;
+                    return;
+                }
+            }
+            else if(query->getQuantifier() == Quantifier::CF)
+            {
+                if(number_of_children == 0 && meta.state == MAYBE_LOSING)
+                {
+                    meta.state = WINNING;
+                    return;
+                }
+            }
+        } else {
+            if(query->getQuantifier() == Quantifier::CF)
+            {
+                // no unknown or losing successors, but some winning (and thus all winning)
+                if(successors.size() == 0 && some_winning)
+                {
+                    meta.state = MAYBE_LOSING;
+                    return;
+                }
             }
         }
 
@@ -289,6 +341,7 @@ namespace VerifyTAPN::DiscreteVerification {
                     depender_t(is_controller, parent));
             if (childmeta.state == UNKNOWN &&
                 !childmeta.waiting) {
+//                std::cerr << "ADDING TO WAITING" << std::endl;
                 childmeta.waiting = true;
                 waiting.push(child);
             }

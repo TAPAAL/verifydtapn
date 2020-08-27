@@ -32,11 +32,12 @@ namespace VerifyTAPN::DiscreteVerification {
         typedef std::forward_list<depender_t> depends_t;
 
         enum MarkingState {
-            UNKNOWN,            // no successors generated yet
-            PROCESSED,          // Generated successors
-            MAYBE_WINNING,      // If no env strategy, then winning
-            LOOSING,            // env wins
-            WINNING
+            UNKNOWN = 0,            // no successors generated yet
+            PROCESSED = 1,          // Generated successors
+            MAYBE_WINNING = 2,      // If no env strategy, then winning
+            MAYBE_LOSING = 3,       // If no ctrl strategy, then losing 
+            LOOSING = 4,            // env wins
+            WINNING = 5
         };           // ctrl surely wins
 
         struct SafetyMeta {
