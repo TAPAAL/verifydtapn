@@ -289,6 +289,7 @@ namespace VerifyTAPN::DiscreteVerification {
             if (childmeta.state != WINNING && childmeta.state != LOOSING) {
                 successors.push_back(p);
             }
+            some_winning = some_winning || (childmeta.state == WINNING);
             all_loosing = all_loosing && (childmeta.state == LOOSING);
         }
 
