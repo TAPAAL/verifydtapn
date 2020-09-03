@@ -2,7 +2,7 @@
 ## Linux
 To compile:
 ```
-sudo apt install flex bison libboost-all-dev libsparsehash-dev
+sudo apt install flex bison libboost-all-dev libsparsehash-dev cmake build-essential
 
 ```
 mkdir build
