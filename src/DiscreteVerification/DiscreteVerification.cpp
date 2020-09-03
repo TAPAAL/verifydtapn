@@ -151,10 +151,7 @@ namespace VerifyTAPN::DiscreteVerification {
                 cout << "Minimal delay search strategy is not supported for game synthesis" << std::endl;
                 exit(1);
             }
-            if (query->getQuantifier() == CF) {
-                cout << "control: AF queries not yet supported" << std::endl;
-                exit(1);
-            }
+            
             // Only needed if verifying normal CTL/LTL with game-algorithm.
             // Notice that violating k-bound produces different results than in normal ctl semantics
             if (query->getQuantifier() == AST::EG || query->getQuantifier() == AST::AF) {
