@@ -1,7 +1,11 @@
 
 ## Linux
-To compile:
+To obtain the branch and compile:
 ```
+sudo apt-add-repository ppa:bzr/ppa -y
+sudo apt-get install bzr -y
+bzr branch lp:verifydtapn
+
 sudo apt install flex bison libboost-all-dev libsparsehash-dev cmake build-essential
 
 ```
