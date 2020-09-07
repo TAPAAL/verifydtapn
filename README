@@ -2,8 +2,9 @@
 ## Linux
 To obtain the branch and compile:
 ```
-sudo apt-add-repository ppa:bzr/ppa -y
-sudo apt-get install bzr -y
+sudo apt update
+sudo apt install brz #Install breezy (bazaar fork)
+
 bzr branch lp:verifydtapn
 
 sudo apt install flex bison libboost-all-dev libsparsehash-dev cmake build-essential
@@ -42,18 +43,30 @@ sudo apt install mingw-w64-x86-64-dev mingw-w64-tools g++-mingw-w64-x86-64
 
 Download boost source: 
 ```
+TARGET=x86_64-w64-mingw32
+ADDRM=64
+MTUNE=generic
+
+CORES=1
+
+export CC=x86_64-w64-mingw32-gcc
+export CXX=x86_64-w64-mingw32-g++
+
 BOOST=boost_1_72_0
 VER=${BOOST#boost_}
 VER=${VER//_/.}
 wget -nv "https://dl.bintray.com/boostorg/release/$VER/source/$BOOST.tar.bz2"
 tar xf $BOOST.tar.bz2
+
+export PREFIX=$(mktemp -d -p .) #Or set it to path where libs are saved
+
 ```
 
 Compile Boost Build System and Build Boost
 
 ```
 cd $BOOST
-./bootstrap.sh --prefix="$PREFIX" --without-icu
+CC= CXX= ./bootstrap.sh --prefix="$PREFIX" --without-icu
 cat > win$ADDRM-config.jam << EOF
 using gcc : m : $CXX
         :
@@ -61,22 +74,26 @@ using gcc : m : $CXX
 EOF
 
 ./b2 toolset=gcc-m target-os=windows cflags="-mtune=$MTUNE" cxxstd=17 cxxflags="-mtune=$MTUNE" address-model="$ADDRM" binary-format="pe" abi="ms" threading="multi" threadapi="win32" variant=release --user-config="win$ADDRM-config.jam" --prefix="$PREFIX" --without-mpi --without-python --without-coroutine --without-graph --without-graph_parallel --without-wave --without-context -sNO_BZIP2=1 -j$CORES install
+cd ..
 ```
 
 Download and build google sparsehash
 
 ```
 
+sudo apt install unzip
 wget https://github.com/sparsehash/sparsehash/archive/sparsehash-2.0.4.zip
 unzip sparsehash-2.0.4.zip
 
+
+
 cd sparsehash-sparsehash-2.0.4
 
-mkdir build
-./configure --prefix=$(pwd)/build CXXFLAGS=-std=c++11
+./configure --prefix=$PREFIX CXXFLAGS=-std=c++11 --host win
 make
 make install
 
+cd ..
 ```
 
 Build verifydtapn
@@ -84,8 +101,8 @@ Build verifydtapn
 ```
 
 mkdir build-win && cd build-win
-cmake ../ -DCMAKE_TOOLCHAIN_FILE=../toolchain-x86_64-w64-mingw32.cmake -DBOOST_ROOT=/tmp/test/build
-CPATH=/path/to/sparsehash/build/include make
+cmake ../ -DCMAKE_TOOLCHAIN_FILE=../toolchain-x86_64-w64-mingw32.cmake -DBOOST_ROOT=$PREFIX
+CPATH=$PREFIX/include make
 
 
 
