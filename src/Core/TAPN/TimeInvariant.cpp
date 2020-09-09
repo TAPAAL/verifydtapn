@@ -1,37 +1,33 @@
-#include "TimeInvariant.hpp"
-#include "boost/algorithm/string.hpp"
-#include "boost/lexical_cast.hpp"
+#include "Core/TAPN/TimeInvariant.hpp"
 
-namespace VerifyTAPN {
-	namespace TAPN {
-		const TimeInvariant TimeInvariant::LS_INF;
+#include <boost/algorithm/string.hpp>
+#include <boost/lexical_cast.hpp>
 
-		TimeInvariant TimeInvariant::createFor(const std::string& invariant, std::map<std::string, int> replace)
-		{
-			bool strict = !boost::algorithm::icontains(invariant, "<=");
-			int bound = std::numeric_limits<int>().max();
+namespace VerifyTAPN::TAPN {
+    const TimeInvariant TimeInvariant::LS_INF;
 
-			int pos = strict ? 1 : 2;
-			std::string number = invariant.substr(pos);
-			boost::algorithm::trim(number);
+    TimeInvariant TimeInvariant::createFor(const std::string &invariant, std::map<std::string, int> replace) {
+        bool strict = !boost::algorithm::icontains(invariant, "<=");
+        int bound = std::numeric_limits<int>::max();
 
-			if(!boost::algorithm::icontains(invariant, "inf"))
-			{
-                            if(replace.count(number))
-                                bound = replace.at(number);
-                            else
-                                bound = boost::lexical_cast<int>(number);
-			}
-                        if(bound == std::numeric_limits<int>().max()) return LS_INF;
-			else return TimeInvariant(strict, bound);
-		}
+        int pos = strict ? 1 : 2;
+        std::string number = invariant.substr(pos);
+        boost::algorithm::trim(number);
 
-		void TimeInvariant::print(std::ostream& out) const
-		{
-			std::string comparison = strictComparison ? "<" : "<=";
-			std::string strBound = bound == std::numeric_limits<int>().max() ? "inf" : boost::lexical_cast<std::string>(bound);
+        if (!boost::algorithm::icontains(invariant, "inf")) {
+            if (replace.count(number))
+                bound = replace.at(number);
+            else
+                bound = boost::lexical_cast<int>(number);
+        }
+        if (bound == std::numeric_limits<int>::max()) return LS_INF;
+        else return TimeInvariant(strict, bound);
+    }
 
-			out << comparison << " " << strBound;
-		}
-	}
+    void TimeInvariant::print(std::ostream &out) const {
+        std::string comparison = strictComparison ? "<" : "<=";
+        std::string strBound = bound == std::numeric_limits<int>::max() ? "inf" : std::to_string(bound);
+
+        out << comparison << " " << strBound;
+    }
 }

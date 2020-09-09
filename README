@@ -1,77 +1,109 @@
---------------------------------------------------------------------------------
-1. Setup project in Eclipse
---------------------------------------------------------------------------------
-This will detail how to setup a project in Eclipse CDT 
-(http://www.eclipse.org/cdt/) or Eclipse IDE for C/C++ developers.
 
-Preliminaries:
-a. Install gcc/g++ (we use version 4.4.5)
-b. Install boost libraries (we used 1.40 but any version that is backward 
-   compatible with 1.40 should work)
-	- On ubuntu you can install it through the software center
-        - On mac try homebrew: brew install boost (possibly run
-          sudo chown -R `whoami` /usr/local to fix the writing rights)
-	- Otherwise, there is a guide here: 
-	  http://www.boost.org/doc/libs/1_40_0/more/getting_started/unix-variants.html
-c. Install google-sparsehash library.
-	- On Ubuntu you can install this from the software center, otherwise you have
-	  to get it from http://code.google.com/p/google-sparsehash/
+## Linux
+To obtain the branch and compile:
+```
+sudo apt update
+sudo apt install brz #Install breezy (bazaar fork)
 
-1. Create a branch of the code, e.g. "bzr branch lp:verifytapn" (replace with 
-   the branch you want to checkout)
-2. Open Eclipse and create a new "empty C++ project", choose "linux GCC" as 
-   toolchain, uncheck "use default location" and point eclipse to the folder in 
-   which you checked out the branch.
-3. Press finish
-4. Right-click on your new project and choose properties
-5. go to "C/C++ Build" -> "Settings"
-2. Setup configuration "Debug":
-	1. Choose "[All configurations]" in the "Configuration" dropdown list
-	2. under "GCC C++ compiler" -> "Directories"
-		- If boost is not installed in the default folders (/usr/include
-		  or /usr/local/include) you must add a path to the the 
-		  folder containing the boost include files (.h files)
-		- The same applies to the google-sparsehash header files.
-	3. under "GCC C++ linker" -> "Libraries":
-		- You may need to add a path to the google-sparsehash code's "lib" folder to the 
-		  "Library search path", depending on whether
-		  it compiles to a library or its a header-only library.
-5. MAC ONLY: In "binary parsers" select Mach-O 64 parser to enable debugging and 
-   running the project from eclipse.
-6. The project should now be compilable in both debug and release versions.
+bzr branch lp:verifydtapn
 
---------------------------------------------------------------------------------
-2. Generating Query parser
---------------------------------------------------------------------------------
-If you need to change the Query parser, you'll need to modify the flex.ll and
-grammar.yy files. Make sure you have flex and bison installed.
+sudo apt install flex bison libboost-all-dev libsparsehash-dev cmake build-essential
 
-To recompile the query parser follow these steps:
-1. go to src/Core/QueryParser/
-2. run flex -o Generated/lexer.cpp flex.ll
-3. run bison -o Generated/parser.cpp grammar.yy
+```
+mkdir build
+cd build
+cmake ..
+make
+```
 
-or using:
-makefile -f makefile.XXX generate
+## Max OS X
 
---------------------------------------------------------------------------------
-3. Compiling on Max OS X
---------------------------------------------------------------------------------
 Install xcode through App Store.
 
-Install boost, for example using homebrew as follows:
-sudo chown -R `whoami` /usr/local
-brew install boost
+Install cmake, boost and google-sparsehash,
+for example using homebrew as follows:
 
-Install google-sparsehash, e.g. as follows:
-brew install google-sparsehash 
+```
+brew install cmake boost google-sparsehash 
+```
 
-Then run (for 32 bit version):
-make -f makefile.osx32 clean
-make -f makefile.osx32 
+If your flex and bison point to a wrong binary, run the cmake
+with the folowing switches where the desired path is set:
 
-or run (for 64 bit version):
-make -f makefile.osx64 clean
-make -f makefile.osx64 
+cmake -DBISON_EXECUTABLE=/usr/local/opt/bison/bin/bison -DFLEX_EXECUTABLE=/usr/local/opt/flex/bin/flex ..
+
+
+## Windows (Cross Compile)
+
+Install MinGW64
+```
+sudo apt install mingw-w64-x86-64-dev mingw-w64-tools g++-mingw-w64-x86-64
+```
+
+
+Download boost source: 
+```
+TARGET=x86_64-w64-mingw32
+ADDRM=64
+MTUNE=generic
+
+CORES=1
+
+export CC=x86_64-w64-mingw32-gcc
+export CXX=x86_64-w64-mingw32-g++
+
+BOOST=boost_1_72_0
+VER=${BOOST#boost_}
+VER=${VER//_/.}
+wget -nv "https://dl.bintray.com/boostorg/release/$VER/source/$BOOST.tar.bz2"
+tar xf $BOOST.tar.bz2
+
+export PREFIX=$(mktemp -d -p .) #Or set it to path where libs are saved
+
+```
+
+Compile Boost Build System and Build Boost
+
+```
+cd $BOOST
+CC= CXX= ./bootstrap.sh --prefix="$PREFIX" --without-icu
+cat > win$ADDRM-config.jam << EOF
+using gcc : m : $CXX
+        :
+;
+EOF
+
+./b2 toolset=gcc-m target-os=windows cflags="-mtune=$MTUNE" cxxstd=17 cxxflags="-mtune=$MTUNE" address-model="$ADDRM" binary-format="pe" abi="ms" threading="multi" threadapi="win32" variant=release --user-config="win$ADDRM-config.jam" --prefix="$PREFIX" --without-mpi --without-python --without-coroutine --without-graph --without-graph_parallel --without-wave --without-context -sNO_BZIP2=1 -j$CORES install
+cd ..
+```
+
+Download and build google sparsehash
+
+```
+
+sudo apt install unzip
+wget https://github.com/sparsehash/sparsehash/archive/sparsehash-2.0.4.zip
+unzip sparsehash-2.0.4.zip
+
+
+
+cd sparsehash-sparsehash-2.0.4
+
+./configure --prefix=$PREFIX CXXFLAGS=-std=c++11 --host win
+make
+make install
+
+cd ..
+```
+
+Build verifydtapn
+
+```
+
+mkdir build-win && cd build-win
+cmake ../ -DCMAKE_TOOLCHAIN_FILE=../toolchain-x86_64-w64-mingw32.cmake -DBOOST_ROOT=$PREFIX
+CPATH=$PREFIX/include make
+
+
 
 

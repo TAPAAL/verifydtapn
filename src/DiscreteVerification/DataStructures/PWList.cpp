@@ -5,127 +5,124 @@
  *      Author: MathiasGS
  */
 
-#include "PWList.hpp"
-#include "ptrie.h"
-#include "MarkingEncoder.h"
+#include "DiscreteVerification/DataStructures/PWList.hpp"
+#include "DiscreteVerification/DataStructures/ptrie.h"
+
 using namespace ptrie;
-namespace VerifyTAPN {
-namespace DiscreteVerification {
+namespace VerifyTAPN::DiscreteVerification {
 
-bool PWList::add(NonStrictMarking* marking){
+    bool PWList::add(NonStrictMarking *marking) {
 
-	discoveredMarkings++;
-	NonStrictMarkingList& m = markings_storage[marking->getHashKey()];
-	for(NonStrictMarkingList::const_iterator iter = m.begin();
-			iter != m.end();
-			iter++){
-		if((*iter)->equals(*marking)){
-                    if(isLiveness){
-                        marking->meta = (*iter)->meta;
-                        if(!marking->meta->passed){
-                                (*iter)->setGeneratedBy(marking->getGeneratedBy());
-                                waiting_list->add(*iter, *iter);
-                                return true;
-                        }
+        discoveredMarkings++;
+        NonStrictMarkingList &m = markings_storage[marking->getHashKey()];
+        for (auto iter : m) {
+            if (iter->equals(*marking)) {
+                if (isLiveness) {
+                    marking->meta = iter->meta;
+                    if (!marking->meta->passed) {
+                        iter->setGeneratedBy(marking->getGeneratedBy());
+                        waiting_list->add(iter, iter);
+                        return true;
                     }
-                    return false;
-		}
-	}
+                }
+                return false;
+            }
+        }
         stored++;
-	m.push_back(marking);
+        m.push_back(marking);
         marking->meta = new MetaData();
-        
+
         marking->meta->totalDelay = marking->calculateTotalDelay();
-                
-	waiting_list->add(marking, marking);
-	return true;
-}
 
-NonStrictMarking* PWList::getNextUnexplored(){
-    NonStrictMarking* m = waiting_list->pop();
-    return m;
-}
+        waiting_list->add(marking, marking);
+        return true;
+    }
 
-PWList::~PWList() {
-    // We don't care, it is deallocated on program execution done
-}
+    NonStrictMarking *PWList::getNextUnexplored() {
+        NonStrictMarking *m = waiting_list->pop();
+        return m;
+    }
 
-std::ostream& operator<<(std::ostream& out, PWList& x){
-	out << "Passed and waiting:" << std::endl;
-	for(PWList::HashMap::iterator iter = x.markings_storage.begin(); iter != x.markings_storage.end(); iter++){
-		for(PWList::NonStrictMarkingList::iterator m_iter = iter->second.begin(); m_iter != iter->second.end(); m_iter++){
-			out << "- "<< *m_iter << std::endl;
-		}
-	}
-	out << "Waiting:" << std::endl << x.waiting_list;
-	return out;
-}
+    PWList::~PWList() {
+        // We don't care, it is deallocated on program execution done
+    }
 
-        bool PWListHybrid::add(NonStrictMarking* marking) {
-            discoveredMarkings++;
-            // reset the encoding array
-
-            std::pair<bool, ptriepointer_t<MetaData*> > res = passed.insert(encoder.encode(marking));
-
-            if(res.first){
-                res.second.set_meta(NULL);
-                if(isLiveness){
-                    MetaData* meta;
-                    if(makeTrace){
-                        meta = new MetaDataWithTrace();   
-                        ((MetaDataWithTrace*)meta)->generatedBy = marking->getGeneratedBy();
-                    } else {
-                        meta = new MetaData();
-                    }
-                    res.second.set_meta(meta);
-                    marking->meta = meta;
-                } else if(makeTrace){
-                    MetaDataWithTraceAndEncoding* meta = new MetaDataWithTraceAndEncoding();
-                    meta->generatedBy = marking->getGeneratedBy();
-                    res.second.set_meta(meta);
-                    meta->ep = res.second;
-                    meta->parent = parent;
-                    
-                    meta->totalDelay = marking->calculateTotalDelay();
-                }
-                waiting_list->add(marking, res.second);
-            } else{
-                if(isLiveness){
-                        marking->meta = res.second.get_meta();
-                        if(this->makeTrace){
-                            ((MetaDataWithTrace*)marking->meta)->generatedBy = marking->getGeneratedBy();
-                        }
-                }
-                if(isLiveness && !marking->meta->passed){
-                    waiting_list->add(marking, res.second);
-                    return true;
-                }
+    std::ostream &operator<<(std::ostream &out, PWList &x) {
+        out << "Passed and waiting:" << std::endl;
+        for (auto &iter : x.markings_storage) {
+            for (auto m_iter = iter.second.begin();
+                 m_iter != iter.second.end(); m_iter++) {
+                out << "- " << *m_iter << std::endl;
             }
-            return res.first;
         }
+        out << "Waiting:" << std::endl << x.waiting_list;
+        return out;
+    }
 
-        NonStrictMarking* PWListHybrid::getNextUnexplored() {
-            ptriepointer_t<MetaData*> p = waiting_list->pop();
-            NonStrictMarking* m = encoder.decode(p);
-            
-            delete m->meta;
-            m->meta = p.get_meta();
+    bool PWListHybrid::add(NonStrictMarking *marking) {
+        discoveredMarkings++;
+        // reset the encoding array
 
-            
-            if(makeTrace){
-                if(isLiveness){
-                        m->setGeneratedBy(((MetaDataWithTrace*)(m->meta))->generatedBy);
+        std::pair<bool, ptriepointer_t<MetaData *> > res = passed.insert(encoder.encode(marking));
+
+        if (res.first) {
+            res.second.set_meta(NULL);
+            if (isLiveness) {
+                MetaData *meta;
+                if (makeTrace) {
+                    meta = new MetaDataWithTrace();
+                    ((MetaDataWithTrace *) meta)->generatedBy = marking->getGeneratedBy();
                 } else {
-                    parent = (MetaDataWithTraceAndEncoding*)(m->meta);
+                    meta = new MetaData();
+                }
+                res.second.set_meta(meta);
+                marking->meta = meta;
+            } else if (makeTrace) {
+                auto *meta = new MetaDataWithTraceAndEncoding();
+                meta->generatedBy = marking->getGeneratedBy();
+                res.second.set_meta(meta);
+                meta->ep = res.second;
+                meta->parent = parent;
+
+                meta->totalDelay = marking->calculateTotalDelay();
+            }
+            waiting_list->add(marking, res.second);
+        } else {
+            if (isLiveness) {
+                marking->meta = res.second.get_meta();
+                if (this->makeTrace) {
+                    ((MetaDataWithTrace *) marking->meta)->generatedBy = marking->getGeneratedBy();
                 }
             }
-            return m;
+            if (isLiveness && !marking->meta->passed) {
+                waiting_list->add(marking, res.second);
+                return true;
+            }
         }
+        return res.first;
+    }
 
-        PWListHybrid::~PWListHybrid() {
-            // We don't care, it is deallocated on program execution done
+    NonStrictMarking *PWListHybrid::getNextUnexplored() {
+        ptriepointer_t<MetaData *> p = waiting_list->pop();
+        NonStrictMarking *m = encoder.decode(p);
+
+        delete m->meta;
+        m->meta = p.get_meta();
+
+
+        if (makeTrace) {
+            if (isLiveness) {
+                m->setGeneratedBy(((MetaDataWithTrace *) (m->meta))->generatedBy);
+            } else {
+                parent = (MetaDataWithTraceAndEncoding *) (m->meta);
+            }
         }
+        return m;
+    }
+
+    PWListHybrid::~PWListHybrid() {
+        // We don't care, it is deallocated on program execution done
+    }
 
 
-} /* namespace DiscreteVerification */
 } /* namespace VerifyTAPN */
