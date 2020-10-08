@@ -333,10 +333,12 @@ namespace VerifyTAPN::DiscreteVerification {
 
         std::sort(successors.begin(), successors.end());
         size_t unique = 0;
+        bool first = true;
         store_t::Pointer *child = nullptr;
         for(auto p : successors) {
-            if(p == child) continue;
+            if(p == child && !first) continue;
             else child = p;
+            first = false;
             ++unique;
 
             SafetyMeta &childmeta = store->get_meta(child);
