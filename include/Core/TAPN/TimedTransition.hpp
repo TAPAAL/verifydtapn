@@ -134,12 +134,6 @@ namespace VerifyTAPN {
             transition.print(out);
             return out;
         }
-
-        // TAPAAL does not allow multiple places with the same name,
-        // thus it is enough to use the name to determine equality.
-        inline bool operator==(TimedTransition const &a, TimedTransition const &b) {
-            return a.getName() == b.getName();
-        }
     }
 }
 

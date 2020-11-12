@@ -22,26 +22,26 @@ namespace TAPN {
             transitions[i]->setIndex(i);
         }
 
-        for (auto arc : inputArcs) {
+        for (auto* arc : inputArcs) {
             arc->getOutputTransition().addToPreset(*arc);
             arc->getInputPlace().addInputArc(*arc);
             updateMaxConstant(arc->getInterval());
         }
 
-        for (auto arc : transportArcs) {
+        for (auto* arc : transportArcs) {
             arc->getTransition().addTransportArcGoingThrough(*arc);
             arc->getSource().addTransportArc(*arc);
             arc->getDestination().addProdTransportArc(*arc);
             updateMaxConstant(arc->getInterval());
         }
 
-        for (auto arc : inhibitorArcs) {
+        for (auto* arc : inhibitorArcs) {
             arc->getOutputTransition().addIncomingInhibitorArc(*arc);
             arc->getInputPlace().addInhibitorArc(*arc);
             arc->getInputPlace().setHasInhibitorArcs(true);
         }
 
-        for (auto arc : outputArcs) {
+        for (auto* arc : outputArcs) {
             arc->getInputTransition().addToPostset(*arc);
             arc->getOutputPlace().addOutputArc(*arc);
         }
@@ -50,7 +50,7 @@ namespace TAPN {
         findMaxConstants();
 
         if (useGlobalMaxConstant) {
-            for (auto place : places) {
+            for (auto* place : places) {
                 place->setMaxConstant(getMaxConstant() == 0 ? -1 : getMaxConstant());
             }
         }
@@ -75,15 +75,15 @@ namespace TAPN {
     void TimedArcPetriNet::GCDLowerGuards() {
         std::set<int> constants;
 
-        for (auto place : places) {
+        for (auto* place : places) {
             constants.insert(place->getInvariant().getBound());
         }
 
-        for (auto inputArc : inputArcs) {
+        for (auto* inputArc : inputArcs) {
             constants.insert(inputArc->getInterval().getLowerBound());
             constants.insert(inputArc->getInterval().getUpperBound());
         }
-        for (auto transportArc : transportArcs) {
+        for (auto* transportArc : transportArcs) {
             constants.insert(transportArc->getInterval().getLowerBound());
             constants.insert(transportArc->getInterval().getUpperBound());
         }
@@ -106,29 +106,29 @@ namespace TAPN {
 
         gcd = divider;
 
-        for (auto place : places) {
+        for (auto* place : places) {
             place->divideInvariantBy(gcd);
         }
 
-        for (auto inputArc : inputArcs) {
+        for (auto* inputArc : inputArcs) {
             inputArc->divideIntervalBy(gcd);
         }
-        for (auto transportArc : transportArcs) {
+        for (auto* transportArc : transportArcs) {
             transportArc->divideIntervalBy(gcd);
         }
     }
 
     void TimedArcPetriNet::markUntimedPlaces() {
-        for (auto place : places) {
+        for (auto* place : places) {
             bool isUntimedPlace = place->getInvariant() == TimeInvariant::LS_INF;
 
-            for (auto transportArc : transportArcs) {
-                isUntimedPlace = isUntimedPlace && transportArc->getSource() != *place;
+            for (auto* transportArc : transportArcs) {
+                isUntimedPlace = isUntimedPlace && &transportArc->getSource() != place;
             }
 
             if (isUntimedPlace) {
-                for (auto inputArc : inputArcs) {
-                    if (inputArc->getInputPlace() == *place) {
+                for (auto* inputArc : inputArcs) {
+                    if (&inputArc->getInputPlace() == place) {
                         isUntimedPlace = isUntimedPlace && inputArc->getInterval().isZeroInfinity();
                     }
                 }
@@ -139,7 +139,7 @@ namespace TAPN {
     }
 
     void TimedArcPetriNet::findMaxConstants() {
-        for (auto place : places) {
+        for (auto* place : places) {
             int maxConstant = -1;
             if (place->getInvariant() != TimeInvariant::LS_INF) {
                 maxConstant = place->getInvariant().getBound();
@@ -147,8 +147,8 @@ namespace TAPN {
                 place->setType(Inv);
             } else {
                 place->setType(Dead);
-                for (auto inputArc : inputArcs) {
-                    if (inputArc->getInputPlace() == *place) {
+                for (auto* inputArc : inputArcs) {
+                    if (&inputArc->getInputPlace() == place) {
                         TimedInputArc *ia = inputArc;
                         const TAPN::TimeInterval &interval = ia->getInterval();
 
@@ -167,8 +167,8 @@ namespace TAPN {
                         }
                     }
                 }
-                for (auto transportArc : transportArcs) {
-                    if (transportArc->getSource() == *place) {
+                for (auto* transportArc : transportArcs) {
+                    if (&transportArc->getSource() == place) {
                         int maxArc = -1;
                         TransportArc *ta = transportArc;
                         const TAPN::TimeInterval &interval = ta->getInterval();
@@ -194,7 +194,7 @@ namespace TAPN {
                 }
                 place->setMaxConstant(maxConstant);
 
-                for (auto inhibitorArc : inhibitorArcs) {
+                for (auto* inhibitorArc : inhibitorArcs) {
                     if (inhibitorArc->getInputPlace().getIndex() == place->getIndex() && place->getType() == Dead) {
                         place->setType(Std);
                     }
@@ -202,7 +202,7 @@ namespace TAPN {
             }
         }
 
-        for (auto place : places) {
+        for (auto* place : places) {
             std::vector<TimedPlace *> causalitySet;
             calculateCausality(*place, &causalitySet);
             for (auto cau_iter : causalitySet) {
@@ -212,10 +212,9 @@ namespace TAPN {
             }
         }
 
-        for (auto &transition : transitions) {
-            for (auto place_iter = transition->getPostset().begin();
-                 place_iter != transition->getPostset().end(); place_iter++) {
-                if ((*place_iter)->getOutputPlace().getMaxConstant() > -1) {
+        for (auto* transition : transitions) {
+            for (auto* place_iter : transition->getPostset()) {
+                if (place_iter->getOutputPlace().getMaxConstant() > -1) {
                     transition->setUntimedPostset(false);
                     break;
                 }
@@ -224,12 +223,12 @@ namespace TAPN {
     }
 
     void TimedArcPetriNet::calculateCausality(TimedPlace &p, std::vector<TimedPlace *> *result) const {
-        for (auto iter : *result) {
-            if (*iter == p) return;
+        for (auto* iter : *result) {
+            if (iter == &p) return;
         }
         result->push_back(&p);
-        for (auto iter : this->getTransportArcs()) {
-            if (iter->getSource() == p) {
+        for (auto* iter : this->getTransportArcs()) {
+            if (&iter->getSource() == &p) {
                 if (iter->getInterval().getUpperBound() == std::numeric_limits<int>::max()) {
                     calculateCausality(iter->getDestination(), result);
                 }
@@ -243,7 +242,7 @@ namespace TAPN {
         DiscreteVerification::PlaceVisitor visitor;
         query->accept(visitor, placeNumbers);
 
-        for (auto place : places) {
+        for (auto* place : places) {
             if (options.getKeepDeadTokens() && place->getType() == Dead) {
                 place->setType(Std);
                 continue;
@@ -258,7 +257,7 @@ namespace TAPN {
     }
 
     void TimedArcPetriNet::setAllControllable(bool value) {
-        for (auto &transition : transitions) {
+        for (auto* transition : transitions) {
             transition->setControllable(value);
         }
     }
@@ -295,26 +294,26 @@ namespace TAPN {
 
     void TimedArcPetriNet::print(std::ostream &out) const {
         out << "TAPN:" << std::endl << "  Places: ";
-        for (auto place : places) {
+        for (auto* place : places) {
             out << *place;
             out << std::endl;
         }
 
         out << std::endl << "  Transitions: ";
-        for (auto transition : transitions) {
+        for (auto* transition : transitions) {
             out << *transition;
             out << std::endl;
         }
 
         out << std::endl << "  Input Arcs: ";
-        for (auto inputArc : inputArcs) {
+        for (auto* inputArc : inputArcs) {
             out << *inputArc;
             out << ", ";
         }
 
         if (!transportArcs.empty()) {
             out << std::endl << "  Transport Arcs: ";
-            for (auto transportArc : transportArcs) {
+            for (auto* transportArc : transportArcs) {
                 out << *transportArc;
                 out << ", ";
             }
@@ -322,7 +321,7 @@ namespace TAPN {
 
         if (!inhibitorArcs.empty()) {
             out << std::endl << "  Inhibitor Arcs: ";
-            for (auto inhibitorArc : inhibitorArcs) {
+            for (auto* inhibitorArc : inhibitorArcs) {
                 out << *inhibitorArc;
                 out << ", ";
             }
@@ -330,7 +329,7 @@ namespace TAPN {
 
 
         out << std::endl << "  Output Arcs: ";
-        for (auto outputArc : outputArcs) {
+        for (auto* outputArc : outputArcs) {
             out << *outputArc;
             out << ", ";
         }
@@ -340,7 +339,7 @@ namespace TAPN {
 
     bool TimedArcPetriNet::isNonStrict() const {
 
-        for (auto inputArc : inputArcs) {
+        for (auto* inputArc : inputArcs) {
             TimedInputArc &ia = *inputArc;
             if (ia.getInterval().isLowerBoundStrict() || (ia.getInterval().isUpperBoundStrict() &&
                                                           ia.getInterval().getUpperBound() !=
@@ -350,7 +349,7 @@ namespace TAPN {
         }
 
 
-        for (auto transportArc : transportArcs) {
+        for (auto* transportArc : transportArcs) {
             TransportArc &ta = *transportArc;
             if (ta.getInterval().isLowerBoundStrict() || (ta.getInterval().isUpperBoundStrict() &&
                                                           ta.getInterval().getUpperBound() !=
@@ -359,7 +358,7 @@ namespace TAPN {
             }
         }
 
-        for (auto place : places) {
+        for (auto* place : places) {
             const TimedPlace &p = *place;
             if (p.getInvariant().isBoundStrict() && p.getInvariant().getBound() != std::numeric_limits<int>::max()) {
                 return false;
