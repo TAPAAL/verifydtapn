@@ -9,8 +9,8 @@
 #define GENERATOR_H
 
 #include "Core/TAPN/TAPN.hpp"
-#include "DataStructures/NonStrictMarkingBase.hpp"
-#include "DataStructures/NonStrictMarking.hpp"
+#include "DiscreteVerification/DataStructures/NonStrictMarkingBase.hpp"
+#include "DiscreteVerification/DataStructures/NonStrictMarking.hpp"
 
 #include <vector>
 #include <algorithm>

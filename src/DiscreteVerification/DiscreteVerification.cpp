@@ -8,7 +8,7 @@
 #include "DiscreteVerification/DiscreteVerification.hpp"
 #include "DiscreteVerification/DeadlockVisitor.hpp"
 #include "DiscreteVerification/VerificationTypes/SafetySynthesis.h"
-#include "DiscreteVerification/ReducingGenerator.hpp"
+#include "DiscreteVerification/Generators/ReducingGenerator.hpp"
 
 namespace VerifyTAPN { namespace DiscreteVerification {
 

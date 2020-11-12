@@ -1,6 +1,6 @@
 
-#include "DiscreteVerification/InterestingVisitor.h"
-#include "DiscreteVerification/ReducingGenerator.hpp"
+#include "DiscreteVerification/Generators/InterestingVisitor.h"
+#include "DiscreteVerification/Generators/ReducingGenerator.hpp"
 
 namespace VerifyTAPN {
 namespace DiscreteVerification {

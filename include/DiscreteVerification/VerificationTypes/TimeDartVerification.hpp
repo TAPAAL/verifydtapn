@@ -3,11 +3,11 @@
 
 #include "Core/TAPN/TAPN.hpp"
 #include "DiscreteVerification/DataStructures/NonStrictMarkingBase.hpp"
-#include "../Util/IntervalOps.hpp"
+#include "DiscreteVerification/Util/IntervalOps.hpp"
 #include "Verification.hpp"
 #include "DiscreteVerification/DataStructures/TimeDart.hpp"
-#include "../Generator.h"
-#include "../ReducingGenerator.hpp"
+#include "DiscreteVerification/Generators/Generator.h"
+#include "DiscreteVerification/Generators/ReducingGenerator.hpp"
 #include <stack>
 
 namespace VerifyTAPN { namespace DiscreteVerification {

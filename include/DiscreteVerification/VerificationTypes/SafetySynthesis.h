@@ -12,7 +12,7 @@
 #include "Core/TAPN/TAPN.hpp"
 #include "DiscreteVerification/QueryVisitor.hpp"
 #include "DiscreteVerification/DataStructures/NonStrictMarkingBase.hpp"
-#include "../Generator.h"
+#include "DiscreteVerification/Generators/Generator.h"
 #include "DiscreteVerification/DataStructures/Waiting.h"
 
 #include <forward_list>

@@ -18,7 +18,7 @@
 #include "Core/TAPN/TransportArc.hpp"
 #include "Core/TAPN/InhibitorArc.hpp"
 #include "Core/TAPN/OutputArc.hpp"
-#include "../Generator.h"
+#include "DiscreteVerification/Generators/Generator.h"
 #include "DiscreteVerification/QueryVisitor.hpp"
 #include "DiscreteVerification/DataStructures/NonStrictMarking.hpp"
 #include "Verification.hpp"

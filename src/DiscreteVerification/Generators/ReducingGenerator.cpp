@@ -11,7 +11,7 @@
  * Created on December 14, 2017, 8:44 PM
  */
 
-#include "DiscreteVerification/ReducingGenerator.hpp"
+#include "DiscreteVerification/Generators/ReducingGenerator.hpp"
 #include "DiscreteVerification/QueryVisitor.hpp"
 
 

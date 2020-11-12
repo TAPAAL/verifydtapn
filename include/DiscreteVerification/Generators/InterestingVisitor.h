@@ -17,8 +17,8 @@
 #include "Core/TAPN/TAPN.hpp"
 #include "Core/QueryParser/Visitor.hpp"
 
-#include "DataStructures/NonStrictMarkingBase.hpp"
-#include "DataStructures/NonStrictMarking.hpp"
+#include "DiscreteVerification/DataStructures/NonStrictMarkingBase.hpp"
+#include "DiscreteVerification/DataStructures/NonStrictMarking.hpp"
 
 #include <vector>
 #include <algorithm>

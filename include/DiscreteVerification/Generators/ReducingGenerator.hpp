@@ -9,7 +9,7 @@
 #define REDUCINGGENERATOR_HPP
 
 #include "Generator.h"
-#include "DataStructures/light_deque.h"
+#include "DiscreteVerification/DataStructures/light_deque.h"
 #include "InterestingVisitor.h"
 
 namespace VerifyTAPN { namespace DiscreteVerification {

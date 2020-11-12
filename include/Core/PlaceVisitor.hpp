@@ -13,7 +13,7 @@
 #include <exception>
 #include <vector>
 
-namespace VerifyTAPN { namespace DiscreteVerification {
+namespace VerifyTAPN { 
 
     using namespace AST;
 
@@ -59,5 +59,5 @@ namespace VerifyTAPN { namespace DiscreteVerification {
         };
     };
 
-} } /* namespace VerifyTAPN */
+} /* namespace VerifyTAPN */
 #endif /* PLACEVISITOR_HPP_ */

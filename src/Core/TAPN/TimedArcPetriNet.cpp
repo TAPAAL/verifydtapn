@@ -239,7 +239,7 @@ namespace TAPN {
     void TimedArcPetriNet::updatePlaceTypes(AST::Query *query, const VerificationOptions &options) {
 
         AST::IntVectorResult placeNumbers;
-        DiscreteVerification::PlaceVisitor visitor;
+        PlaceVisitor visitor;
         query->accept(visitor, placeNumbers);
 
         for (auto* place : places) {
