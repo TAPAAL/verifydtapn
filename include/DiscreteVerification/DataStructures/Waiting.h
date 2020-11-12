@@ -8,15 +8,17 @@
 #ifndef WAITING_H
 #define    WAITING_H
 
+#include "NonStrictMarkingBase.hpp"
+#include "DiscreteVerification/SearchStrategies/WeightQueryVisitor.hpp"
+#include "Core/QueryParser/AST.hpp"
+
+
 #include <queue>
 #include <stack>
 #include <vector>
 #include <ctime>
-#include "NonStrictMarkingBase.hpp"
-#include "../SearchStrategies/WeightQueryVisitor.hpp"
-#include "Core/QueryParser/AST.hpp"
 
-namespace VerifyTAPN::DiscreteVerification {
+namespace VerifyTAPN { namespace DiscreteVerification {
     class WeightQueryVisitor;
 
     template<typename T>
@@ -154,7 +156,7 @@ namespace VerifyTAPN::DiscreteVerification {
             return queue.empty();
         }
     };
-}
+} }
 
 #endif    /* WAITING_H */
 

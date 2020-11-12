@@ -3,7 +3,7 @@
 #include <boost/lexical_cast.hpp>
 #include <vector>
 
-namespace VerifyTAPN::TAPN {
+namespace VerifyTAPN { namespace TAPN {
     using namespace boost::algorithm;
 
     TimeInterval TimeInterval::createFor(const std::string &interval, const std::map<std::string, int> &replace) {
@@ -55,4 +55,4 @@ namespace VerifyTAPN::TAPN {
             upperBound = upperBound / divider;
         }
     }
-}
+} }

@@ -14,7 +14,7 @@
 
 #include <exception>
 
-namespace VerifyTAPN::DiscreteVerification {
+namespace VerifyTAPN { namespace DiscreteVerification {
 
     using namespace AST;
 
@@ -215,5 +215,5 @@ namespace VerifyTAPN::DiscreteVerification {
         return false;
     }
 
-} /* namespace VerifyTAPN */
+} } /* namespace VerifyTAPN */
 #endif /* QUERYVISITOR_HPP_ */

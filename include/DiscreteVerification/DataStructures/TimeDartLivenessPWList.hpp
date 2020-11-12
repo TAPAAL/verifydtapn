@@ -9,16 +9,17 @@
 #define TimeDartLivenessPWList_HPP_
 
 #include "WaitingList.hpp"
-#include <iostream>
-#include <utility>
-#include <utility>
-#include "google/sparse_hash_map"
 #include "NonStrictMarkingBase.hpp"
 #include "WaitingList.hpp"
 #include "TimeDart.hpp"
 #include "MarkingEncoder.h"
 
-namespace VerifyTAPN::DiscreteVerification {
+#include <iostream>
+#include <utility>
+#include <utility>
+#include "google/sparse_hash_map"
+
+namespace VerifyTAPN { namespace DiscreteVerification {
     class TimeDartLivenessPWBase;
 
     class TimeDartLivenessPWHashMap;
@@ -138,5 +139,5 @@ namespace VerifyTAPN::DiscreteVerification {
         MarkingEncoder<LivenessDart *> encoder;
     };
 
-} /* namespace VerifyTAPN */
+} } /* namespace VerifyTAPN */
 #endif /* PWLIST_HPP_ */

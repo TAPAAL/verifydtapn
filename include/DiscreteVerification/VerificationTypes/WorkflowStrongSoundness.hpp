@@ -13,7 +13,7 @@
 #include <stack>
 #include <algorithm>
 
-namespace VerifyTAPN::DiscreteVerification {
+namespace VerifyTAPN { namespace DiscreteVerification {
 
     class WorkflowStrongSoundnessReachability : public Workflow {
     public:
@@ -35,8 +35,8 @@ namespace VerifyTAPN::DiscreteVerification {
 
         virtual void getTrace();
 
-        void printExecutionTime(ostream &stream) override {
-            stream << "Maximum execution time: " << (maxValue * tapn.getGCD()) << endl;
+        void printExecutionTime(std::ostream &stream) override {
+            stream << "Maximum execution time: " << (maxValue * tapn.getGCD()) << std::endl;
         }
 
 
@@ -76,5 +76,5 @@ namespace VerifyTAPN::DiscreteVerification {
         void clearTrace() override;
     };
 
-} /* namespace VerifyTAPN */
+} } /* namespace VerifyTAPN */
 #endif /* NONSTRICTSEARCH_HPP_ */

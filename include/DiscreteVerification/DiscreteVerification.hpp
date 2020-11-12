@@ -31,7 +31,7 @@
 #include <iostream>
 
 
-namespace VerifyTAPN::DiscreteVerification {
+namespace VerifyTAPN { namespace DiscreteVerification {
 
     class DiscreteVerification {
     public:
@@ -43,7 +43,6 @@ namespace VerifyTAPN::DiscreteVerification {
                        VerificationOptions &options);
 
     };
-
-}
+} }
 
 #endif /* DISCRETEVERIFICATION_HPP_ */

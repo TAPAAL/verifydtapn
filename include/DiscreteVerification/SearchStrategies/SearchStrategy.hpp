@@ -10,7 +10,7 @@
 
 #include "DiscreteVerification/DataStructures/WaitingList.hpp"
 
-namespace VerifyTAPN::DiscreteVerification {
+namespace VerifyTAPN { namespace DiscreteVerification {
 
     template<class T>
     class SearchStrategy {
@@ -19,7 +19,5 @@ namespace VerifyTAPN::DiscreteVerification {
 
         virtual WaitingList<T> *createWaitingList(AST::Query *query) const = 0;
     };
-
-}
-
+} }
 #endif /* SEARCHSTRATEGY_HPP_ */

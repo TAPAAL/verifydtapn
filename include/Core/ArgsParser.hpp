@@ -1,13 +1,14 @@
 #ifndef ARGSPARSER_HPP_
 #define ARGSPARSER_HPP_
 
+#include "VerificationOptions.hpp"
+#include "boost/lexical_cast.hpp"
+
 #include <utility>
 #include <vector>
 #include <map>
 #include <string>
 #include <iosfwd>
-#include "VerificationOptions.hpp"
-#include "boost/lexical_cast.hpp"
 
 namespace VerifyTAPN {
     const int WIDTH = 40; // TODO: determine this based on registered switches

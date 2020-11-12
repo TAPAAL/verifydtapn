@@ -208,18 +208,18 @@ namespace VerifyTAPN {
         if (argc == 1 || std::string(argv[1]) == "-h"
             || std::string(argv[1]) == "--help") {
             printHelp();
-            exit(0);
+           std::exit(0);
         }
 
         if (std::string(argv[1]) == "-v" || std::string(argv[1]) == "--version") {
             printVersion();
-            exit(0);
+           std::exit(0);
         }
 
         if (argc < 3) {
             std::cout << "too few parameters." << std::endl;
             std::cout << "Use '-h' for help on correct usage." << std::endl;
-            exit(1);
+           std::exit(1);
         }
 
         std::vector<std::string> flags;
@@ -252,7 +252,7 @@ namespace VerifyTAPN {
                 std::cout << "Unknown option flag '" << flag << "'" << std::endl;
                 std::cout << "Use '-h' to see a list of valid options."
                           << std::endl;
-                exit(1);
+               std::exit(1);
             }
         }
 
@@ -275,17 +275,17 @@ namespace VerifyTAPN {
             options.getWorkflowMode() != VerificationOptions::WORKFLOW_STRONG_SOUNDNESS) {
             if (boost::iends_with(query_file, ".xml")) {
                 std::cout << "Missing query file." << std::endl;
-                exit(1);
+               std::exit(1);
             }
 
             if (!boost::iends_with(model_file, ".xml")) {
                 std::cout << "Invalid model file specified." << std::endl;
-                exit(1);
+               std::exit(1);
             }
 
             if (!boost::iends_with(query_file, ".q")) {
                 std::cout << "Invalid query file specified." << std::endl;
-                exit(1);
+               std::exit(1);
             }
         } else {
             if (!boost::iends_with(model_file, ".xml")) {
@@ -295,7 +295,7 @@ namespace VerifyTAPN {
                 } else {
                     // we have no xml-files at all :(
                     std::cout << "Invalid model file specified." << std::endl;
-                    exit(1);
+                   std::exit(1);
                 }
             } else {
                 std::cout << "Ignoring query-file for Workflow-analysis" << std::endl;
@@ -321,7 +321,7 @@ namespace VerifyTAPN {
                 return VerificationOptions::DEFAULT;
             default:
                 std::cout << "Unknown search strategy specified." << std::endl;
-                exit(1);
+               std::exit(1);
         }
     }
 
@@ -333,7 +333,7 @@ namespace VerifyTAPN {
                 return VerificationOptions::TIMEDART;
             default:
                 std::cout << "Unknown verification method specified." << std::endl;
-                exit(1);
+               std::exit(1);
         }
     }
 
@@ -345,7 +345,7 @@ namespace VerifyTAPN {
                 return VerificationOptions::PTRIE;
             default:
                 std::cout << "Unknown memory optimization specified." << std::endl;
-                exit(1);
+               std::exit(1);
         }
     }
 
@@ -360,7 +360,7 @@ namespace VerifyTAPN {
                 return VerificationOptions::WORKFLOW_STRONG_SOUNDNESS;
             default:
                 std::cout << "Unknown workflow option specified." << std::endl;
-                exit(1);
+               std::exit(1);
         }
     }
 
@@ -374,7 +374,7 @@ namespace VerifyTAPN {
                 return VerificationOptions::FASTEST_TRACE;
             default:
                 std::cout << "Unknown trace option specified." << std::endl;
-                exit(1);
+               std::exit(1);
         }
     }
 
@@ -385,7 +385,7 @@ namespace VerifyTAPN {
         } catch (boost::bad_lexical_cast &e) {
             std::cout << "Invalid value '" << option.second << "' for option '--"
                       << option.first << "'" << std::endl;
-            exit(1);
+           std::exit(1);
         }
         return result;
     }
@@ -397,7 +397,7 @@ namespace VerifyTAPN {
         } catch (boost::bad_lexical_cast &e) {
             std::cout << "Invalid value '" << option.second << "' for option '--"
                       << option.first << "'" << std::endl;
-            exit(1);
+           std::exit(1);
         }
         return result;
     }
@@ -425,7 +425,7 @@ namespace VerifyTAPN {
                 } catch (boost::bad_lexical_cast &e) {
                     std::cout << "Invalid value '" << option.second << "' for option '--"
                               << option.first << "'" << std::endl;
-                    exit(1);
+                   std::exit(1);
                 }
                 if (split >= param.size()) break;
                 ++split;

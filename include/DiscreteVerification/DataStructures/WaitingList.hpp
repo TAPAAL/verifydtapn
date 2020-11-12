@@ -25,7 +25,7 @@
 #include <vector>
 #include <cassert>
 
-namespace VerifyTAPN::DiscreteVerification {
+namespace VerifyTAPN { namespace DiscreteVerification {
 
     template<class T>
     class WaitingList {
@@ -472,5 +472,5 @@ namespace VerifyTAPN::DiscreteVerification {
     template<class T>
     RandomStackWaitingList<T>::~RandomStackWaitingList() = default;
 
-} /* namespace VerifyTAPN */
+} } /* namespace VerifyTAPN */
 #endif /* WAITINGLIST_HPP_ */

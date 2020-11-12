@@ -7,7 +7,7 @@
 #include <map>
 #include <cassert>
 
-namespace VerifyTAPN::TAPN {
+namespace VerifyTAPN { namespace TAPN {
 
     class TimeInterval {
     public: // Construction
@@ -87,6 +87,6 @@ namespace VerifyTAPN::TAPN {
         interval.print(out);
         return out;
     }
-}
+} }
 
 #endif /* VERIFYTAPN_TAPN_TIMEINTERVAL_HPP_ */

@@ -12,7 +12,7 @@
 #include "TransportArc.hpp"
 #include "InhibitorArc.hpp"
 
-namespace VerifyTAPN::TAPN {
+namespace VerifyTAPN { namespace TAPN {
     enum PlaceType {
         Inv, Dead, Std
     };
@@ -126,5 +126,5 @@ namespace VerifyTAPN::TAPN {
     inline bool operator!=(TimedPlace const &a, TimedPlace const &b) {
         return !(a.getName() == b.getName());
     }
-}
+} }
 #endif /* VERIFYYAPN_TAPN_TIMEDPLACE_HPP_ */

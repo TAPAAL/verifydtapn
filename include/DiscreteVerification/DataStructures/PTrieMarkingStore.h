@@ -14,7 +14,7 @@
 #include "MarkingEncoder.h"
 #include "ptrie.h"
 
-namespace VerifyTAPN::DiscreteVerification {
+namespace VerifyTAPN { namespace DiscreteVerification {
     template<typename T = MetaData *>
     class PTrieMarkingStore : public MarkingStore<T> {
     public:
@@ -91,7 +91,7 @@ namespace VerifyTAPN::DiscreteVerification {
         }
 
     };
-}
+} }
 
 #endif    /* PTRIEMARKINGSTORE_H */
 

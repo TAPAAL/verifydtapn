@@ -25,13 +25,12 @@
 
 #include <stack>
 
-namespace VerifyTAPN::DiscreteVerification {
+namespace VerifyTAPN { namespace DiscreteVerification {
 
     template<class T>
     class NonStrictDFS : public SearchStrategy<T> {
     public:
         virtual WaitingList <T> *createWaitingList(AST::Query *query) const { return new StackWaitingList<T>; };
     };
-
-}
+} }
 #endif /* NONSTRICTDFS_HPP_ */

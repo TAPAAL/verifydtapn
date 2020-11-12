@@ -7,7 +7,6 @@
 #include "DiscreteVerification/DiscreteVerification.hpp"
 #include "DiscreteVerification/DeadlockVisitor.hpp"
 
-using namespace std;
 using namespace VerifyTAPN;
 using namespace VerifyTAPN::TAPN;
 
@@ -46,18 +45,18 @@ int main(int argc, char *argv[]) {
     if (options.getWorkflowMode() == VerificationOptions::WORKFLOW_SOUNDNESS ||
         options.getWorkflowMode() == VerificationOptions::WORKFLOW_STRONG_SOUNDNESS) {
         if (options.getGCDLowerGuardsEnabled()) {
-            cout << "Workflow-analysis does not support GCD-lowering" << endl;
-            exit(1);
+            std::cout << "Workflow-analysis does not support GCD-lowering" << std::endl;
+           std::exit(1);
         }
 
         if (options.getSearchType() != VerificationOptions::DEFAULT) {
-            cout << "Workflow-analysis only supports the default search-strategy" << endl;
-            exit(1);
+            std::cout << "Workflow-analysis only supports the default search-strategy" << std::endl;
+           std::exit(1);
         }
 
         if (options.getQueryFile() != "") {
-            cout << "Workflow-analysis does not accept a query file" << endl;
-            exit(1);
+            std::cout << "Workflow-analysis does not accept a query file" << std::endl;
+           std::exit(1);
         }
 
         if (options.getWorkflowMode() == VerificationOptions::WORKFLOW_SOUNDNESS) {

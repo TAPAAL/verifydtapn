@@ -20,13 +20,14 @@
 #include "Core/TAPN/OutputArc.hpp"
 #include "DiscreteVerification/QueryVisitor.hpp"
 #include "DiscreteVerification/DataStructures/NonStrictMarking.hpp"
-#include <stack>
-#include <utility>
 #include "Verification.hpp"
 #include "DiscreteVerification/DataStructures/WaitingList.hpp"
 #include "AbstractNaiveVerification.hpp"
 
-namespace VerifyTAPN::DiscreteVerification {
+#include <stack>
+#include <utility>
+
+namespace VerifyTAPN { namespace DiscreteVerification {
 
     class LivenessSearch : public AbstractNaiveVerification<PWListBase, NonStrictMarking, Generator> {
     public:
@@ -70,5 +71,5 @@ namespace VerifyTAPN::DiscreteVerification {
         };
 
     };
-} /* namespace VerifyTAPN */
+} } /* namespace VerifyTAPN */
 #endif /* NONSTRICTSEARCH_HPP_ */

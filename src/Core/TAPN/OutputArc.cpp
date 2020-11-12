@@ -2,7 +2,7 @@
 #include "Core/TAPN/TimedPlace.hpp"
 #include "Core/TAPN/TimedTransition.hpp"
 
-namespace VerifyTAPN::TAPN {
+namespace VerifyTAPN { namespace TAPN {
     void OutputArc::print(std::ostream &out) const {
         out << "From " << transition.getName() << " to " << place.getName() << " weight: " << weight;
     }
@@ -14,4 +14,4 @@ namespace VerifyTAPN::TAPN {
     TimedTransition &OutputArc::getInputTransition() const {
         return transition;
     }
-}
+} }

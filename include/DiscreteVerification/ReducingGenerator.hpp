@@ -12,7 +12,7 @@
 #include "DataStructures/light_deque.h"
 #include "InterestingVisitor.h"
 
-namespace VerifyTAPN::DiscreteVerification {
+namespace VerifyTAPN { namespace DiscreteVerification {
 
     class ReducingGenerator : public Generator {
     protected:
@@ -44,7 +44,7 @@ namespace VerifyTAPN::DiscreteVerification {
         NonStrictMarkingBase *next(bool do_delay = true) override;
     };
 
-}
+} }
 
 #endif /* REDUCINGGENERATOR_HPP */
 

@@ -14,16 +14,16 @@
 #ifndef INTERESTINGVISITOR_H
 #define INTERESTINGVISITOR_H
 
-#include <vector>
-#include <algorithm>
-
 #include "Core/TAPN/TAPN.hpp"
 #include "Core/QueryParser/Visitor.hpp"
 
 #include "DataStructures/NonStrictMarkingBase.hpp"
 #include "DataStructures/NonStrictMarking.hpp"
 
-namespace VerifyTAPN::DiscreteVerification {
+#include <vector>
+#include <algorithm>
+
+namespace VerifyTAPN { namespace DiscreteVerification {
     class ReducingGenerator;
     struct IncDecr : public Result {
         IncDecr(bool i, bool d)
@@ -82,8 +82,6 @@ namespace VerifyTAPN::DiscreteVerification {
         std::vector<bool> _incr;
         std::vector<bool> _decr;
     };    
-}
-
-
+} }
 #endif /* INTERESTINGVISITOR_H */
 

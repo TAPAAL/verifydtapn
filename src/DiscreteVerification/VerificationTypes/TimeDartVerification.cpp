@@ -1,9 +1,9 @@
 #include "DiscreteVerification/VerificationTypes/TimeDartVerification.hpp"
 #include "DiscreteVerification/DeadlockVisitor.hpp"
 
-namespace VerifyTAPN::DiscreteVerification {
+namespace VerifyTAPN { namespace DiscreteVerification {
 
-    using namespace std;
+   
 
     TimeDartVerification::TimeDartVerification(TAPN::TimedArcPetriNet &tapn, const VerificationOptions &options,
                                                AST::Query *query, NonStrictMarkingBase &initialMarking) :
@@ -17,27 +17,27 @@ namespace VerifyTAPN::DiscreteVerification {
                 allwaysEnabled.push_back(t);
             }
             if (t->isUrgent()) { // no implementation for urgency in timedart engine yet
-                cout << "The TimeDart engine cannot handle urgent transitions" << endl;
-                exit(1);
+                std::cout << "The TimeDart engine cannot handle urgent transitions" << std::endl;
+                std::exit(1);
             }
         }
         /*    if(options.getPartialOrderReduction())
             {
                 std::cout << "TimeDarts and partial order reduction no supported" << std::endl;
-                exit(1);
+               std::exit(1);
             }
             else*/
         successorGenerator = std::make_unique<Generator>(tapn, query);
     }
 
-    pair<int, int>
+    std::pair<int, int>
     TimeDartVerification::calculateStart(const TAPN::TimedTransition &transition, NonStrictMarkingBase *marking) {
-        vector<Util::interval> start;
-        Util::interval initial(0, INT_MAX);
+        std::vector<Util::interval> start;
+        Util::interval initial(0, std::numeric_limits<int32_t>::max());
         start.push_back(initial);
 
         if (transition.getNumberOfInputArcs() + transition.getNumberOfTransportArcs() == 0) { //always enabled
-            pair<int, int> p(0, maxPossibleDelay(marking));
+            std::pair<int, int> p(0, maxPossibleDelay(marking));
             return p;
         }
 
@@ -46,7 +46,7 @@ namespace VerifyTAPN::DiscreteVerification {
              arc != transition.getInhibitorArcs().end();
              arc++) {
             if (marking->numberOfTokensInPlace((*arc)->getInputPlace().getIndex()) >= (*arc)->getWeight()) {
-                pair<int, int> p(-1, -1);
+                std::pair<int, int> p(-1, -1);
                 return p;
             }
         }
@@ -55,10 +55,10 @@ namespace VerifyTAPN::DiscreteVerification {
         // Standard arcs
         for (TAPN::TimedInputArc::Vector::const_iterator arc = transition.getPreset().begin();
              arc != transition.getPreset().end(); arc++) {
-            vector<Util::interval> intervals;
+            std::vector<Util::interval> intervals;
             int range;
-            if ((*arc)->getInterval().getUpperBound() == INT_MAX) {
-                range = INT_MAX;
+            if ((*arc)->getInterval().getUpperBound() == std::numeric_limits<int32_t>::max()) {
+                range = std::numeric_limits<int32_t>::max();
             } else {
                 range = (*arc)->getInterval().getUpperBound() - (*arc)->getInterval().getLowerBound();
             }
@@ -66,7 +66,7 @@ namespace VerifyTAPN::DiscreteVerification {
 
             TokenList tokens = marking->getTokenList((*arc)->getInputPlace().getIndex());
             if (tokens.size() == 0) {
-                pair<int, int> p(-1, -1);
+                std::pair<int, int> p(-1, -1);
                 return p;
             }
 
@@ -85,7 +85,7 @@ namespace VerifyTAPN::DiscreteVerification {
                     int heigh = (*arc)->getInterval().getUpperBound() - tokens.at(j).getAge();
 
                     Util::interval element(low < 0 ? 0 : low,
-                                           (*arc)->getInterval().getUpperBound() == INT_MAX ? INT_MAX : heigh);
+                                           (*arc)->getInterval().getUpperBound() == std::numeric_limits<int32_t>::max() ? std::numeric_limits<int32_t>::max() : heigh);
                     Util::setAdd(intervals, element);
                 }
                 numberOfTokensAvailable -= tokens.at(i).getCount();
@@ -101,10 +101,10 @@ namespace VerifyTAPN::DiscreteVerification {
             Util::interval invGuard(0, (*arc)->getDestination().getInvariant().getBound());
 
             Util::interval arcInterval = Util::intersect(arcGuard, invGuard);
-            vector<Util::interval> intervals;
+            std::vector<Util::interval> intervals;
             int range;
-            if (arcInterval.upper() == INT_MAX) {
-                range = INT_MAX;
+            if (arcInterval.upper() == std::numeric_limits<int32_t>::max()) {
+                range = std::numeric_limits<int32_t>::max();
             } else {
                 range = arcInterval.upper() - arcInterval.lower();
             }
@@ -113,7 +113,7 @@ namespace VerifyTAPN::DiscreteVerification {
             TokenList tokens = marking->getTokenList((*arc)->getSource().getIndex());
 
             if (tokens.size() == 0) {
-                pair<int, int> p(-1, -1);
+                std::pair<int, int> p(-1, -1);
                 return p;
             }
 
@@ -140,7 +140,7 @@ namespace VerifyTAPN::DiscreteVerification {
 
         int invariantPart = maxPossibleDelay(marking);
 
-        vector<Util::interval> invEnd;
+        std::vector<Util::interval> invEnd;
         Util::interval initialInv(0, invariantPart);
         invEnd.push_back(initialInv);
         start = Util::setIntersection(start, invEnd);
@@ -150,10 +150,10 @@ namespace VerifyTAPN::DiscreteVerification {
 #endif
 
         if (start.empty()) {
-            pair<int, int> p(-1, -1);
+            std::pair<int, int> p(-1, -1);
             return p;
         } else {
-            pair<int, int> p(start.front().lower(), start.back().upper());
+            std::pair<int, int> p(start.front().lower(), start.back().upper());
             return p;
         }
     }
@@ -167,19 +167,19 @@ namespace VerifyTAPN::DiscreteVerification {
             if (i < transition.getPreset().size() &&
                 iter->place->getIndex() == transition.getPreset().at(i)->getInputPlace().getIndex()) {
                 if (transition.getPreset().at(i)->getWeight() < iter->numberOfTokens()) {
-                    MC = max(MC, iter->place->getMaxConstant() - iter->tokens.front().getAge());
+                    MC = std::max(MC, iter->place->getMaxConstant() - iter->tokens.front().getAge());
                 }
                 i++;
                 continue;
             }
-            MC = max(MC, iter->place->getMaxConstant() - iter->tokens.front().getAge());
+            MC = std::max(MC, iter->place->getMaxConstant() - iter->tokens.front().getAge());
         }
 
         return MC + 1;
     }
 
     int TimeDartVerification::maxPossibleDelay(NonStrictMarkingBase *marking) {
-        int invariantPart = INT_MAX;
+        int invariantPart = std::numeric_limits<int32_t>::max();
 
         for (PlaceList::const_iterator iter = marking->getPlaceList().begin();
              iter != marking->getPlaceList().end(); iter++) {
@@ -207,7 +207,7 @@ namespace VerifyTAPN::DiscreteVerification {
 
     void TimeDartVerification::getTrace() {
 
-        stack<NonStrictMarkingBase *> traceStack;
+        std::stack<NonStrictMarkingBase *> traceStack;
 
         auto *trace = (TraceDart *) lastMarking;
         int upper = trace->start;
@@ -239,7 +239,7 @@ namespace VerifyTAPN::DiscreteVerification {
             while (diff) {  // while there is some delay in trace
                 auto *mc = new NonStrictMarkingBase(*base);
                 mc->incrementAge(trace->start + diff);
-                mc->setGeneratedBy(nullptr);       // NULL indicates that it is a delay transition
+                mc->setGeneratedBy(nullptr);       // nullptr indicates that it is a delay transition
 
                 if (last != nullptr) {
                     last->setParent(mc);        // set the parent of the last marking
@@ -276,7 +276,7 @@ namespace VerifyTAPN::DiscreteVerification {
             m->setGeneratedBy(trace->generatedBy);
             m->incrementAge(lower);
             m->setParent(nullptr);
-            if (upper == INT_MAX) {
+            if (upper == std::numeric_limits<int32_t>::max()) {
                 upper = tapn.getMaxConstant();
             }
             // create markings between transitions, one for each delay (exluding last one)
@@ -286,7 +286,7 @@ namespace VerifyTAPN::DiscreteVerification {
                     auto *mc = new NonStrictMarkingBase(*base);
                     mc->setParent(nullptr);
                     mc->incrementAge(lower + diff);
-                    mc->setGeneratedBy(nullptr);       // NULL indicates that it is a delay transition
+                    mc->setGeneratedBy(nullptr);       // nullptr indicates that it is a delay transition
                     if (last != nullptr) {
                         last->setParent(mc);          // set the parent of the last marking
                         mc->setNumberOfChildren(1);
@@ -322,5 +322,4 @@ namespace VerifyTAPN::DiscreteVerification {
 
         printXMLTrace(l, traceStack, query, tapn);
     }
-
-}
+} }

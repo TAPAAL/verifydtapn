@@ -8,8 +8,6 @@
 #ifndef ABSTRACTREACHABILITY_HPP
 #define    ABSTRACTREACHABILITY_HPP
 
-#include <memory>
-
 #include "DiscreteVerification/DataStructures/PWList.hpp"
 #include "Core/TAPN/TAPN.hpp"
 #include "Core/QueryParser/AST.hpp"
@@ -26,8 +24,10 @@
 #include "Verification.hpp"
 #include "DiscreteVerification/DataStructures/WaitingList.hpp"
 
-namespace VerifyTAPN::DiscreteVerification {
-    using namespace std;
+#include <memory>
+
+namespace VerifyTAPN { namespace DiscreteVerification {
+   
     enum SRes {
         ADDTOPW_RETURNED_TRUE,
         ADDTOPW_RETURNED_FALSE_URGENTENABLED,
@@ -79,7 +79,7 @@ namespace VerifyTAPN::DiscreteVerification {
                                                                   AST::Query *query, const VerificationOptions &options,
                                                                   T *pwList)
             : Verification<U>(tapn, initialMarking, query, options), successorGenerator(tapn, query),
-              lastMarking(NULL), pwList(pwList) {
+              lastMarking(nullptr), pwList(pwList) {
 
     }
 
@@ -130,6 +130,6 @@ namespace VerifyTAPN::DiscreteVerification {
                                            : SRes::ADDTOPW_RETURNED_FALSE;
     }
 
-}
+} }
 #endif    /* ABSTRACTREACHABILITY_HPP */
 

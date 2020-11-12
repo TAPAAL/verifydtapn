@@ -8,8 +8,6 @@
 #ifndef SAFETYSYNTHESIS_H
 #define    SAFETYSYNTHESIS_H
 
-#include <forward_list>
-
 #include "DiscreteVerification/DataStructures/MarkingStore.h"
 #include "Core/TAPN/TAPN.hpp"
 #include "DiscreteVerification/QueryVisitor.hpp"
@@ -17,8 +15,9 @@
 #include "../Generator.h"
 #include "DiscreteVerification/DataStructures/Waiting.h"
 
+#include <forward_list>
 
-namespace VerifyTAPN::DiscreteVerification {
+namespace VerifyTAPN { namespace DiscreteVerification {
 
 
     class SafetySynthesis {
@@ -84,7 +83,7 @@ namespace VerifyTAPN::DiscreteVerification {
 
         void dependers_to_waiting(SafetyMeta &next_meta, backstack_t &waiting);
     };
-}
+} }
 
 #endif    /* SAFETYSYNTHESIS_H */
 

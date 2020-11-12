@@ -15,7 +15,7 @@
 #include "DiscreteVerification/QueryVisitor.hpp"
 
 
-namespace VerifyTAPN::DiscreteVerification {
+namespace VerifyTAPN { namespace DiscreteVerification {
 
     bool ReducingGenerator::preSetOf(size_t i) {
         auto place = tapn.getPlaces()[i];
@@ -503,6 +503,4 @@ namespace VerifyTAPN::DiscreteVerification {
         expr.getLeft().accept(*this, context);
         expr.getRight().accept(*this, context);
     }
-
-
-}
+} }

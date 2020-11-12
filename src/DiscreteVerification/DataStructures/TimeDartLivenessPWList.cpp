@@ -7,7 +7,7 @@
 
 #include "DiscreteVerification/DataStructures/TimeDartLivenessPWList.hpp"
 
-namespace VerifyTAPN::DiscreteVerification {
+namespace VerifyTAPN { namespace DiscreteVerification {
 
     std::pair<LivenessDart *, bool>
     TimeDartLivenessPWHashMap::add(NonStrictMarkingBase *marking, int youngest, WaitingDart *parent, int upper,
@@ -17,7 +17,7 @@ namespace VerifyTAPN::DiscreteVerification {
         for (auto iter : m) {
             if (iter->getBase()->equals(*marking)) {
                 std::pair<LivenessDart *, bool> result(iter, false);
-                iter->setWaiting(min(iter->getWaiting(), youngest));
+                iter->setWaiting(std::min(iter->getWaiting(), youngest));
 
                 if (iter->getWaiting() < iter->getPassed()) {
                     if (options.getTrace()) {
@@ -34,7 +34,7 @@ namespace VerifyTAPN::DiscreteVerification {
             }
         }
         stored++;
-        auto *dart = new LivenessDart(marking, youngest, INT_MAX);
+        auto *dart = new LivenessDart(marking, youngest, std::numeric_limits<int32_t>::max());
         m.push_back(dart);
         if (options.getTrace()) {
 
@@ -72,7 +72,7 @@ namespace VerifyTAPN::DiscreteVerification {
             LivenessDart *td = res.second.get_meta();
             td->setBase(marking);
             std::pair<LivenessDart *, bool> result(td, false);
-            td->setWaiting(min(td->getWaiting(), youngest));
+            td->setWaiting(std::min(td->getWaiting(), youngest));
 
             if (td->getWaiting() < td->getPassed()) {
 
@@ -98,9 +98,9 @@ namespace VerifyTAPN::DiscreteVerification {
             stored++;
             LivenessDart *dart;
             if (options.getTrace()) {
-                dart = new EncodedLivenessDart(marking, youngest, INT_MAX);
+                dart = new EncodedLivenessDart(marking, youngest, std::numeric_limits<int32_t>::max());
             } else {
-                dart = new LivenessDart(marking, youngest, INT_MAX);
+                dart = new LivenessDart(marking, youngest, std::numeric_limits<int32_t>::max());
             }
             res.second.set_meta(dart);
 
@@ -150,4 +150,4 @@ namespace VerifyTAPN::DiscreteVerification {
         return out;
     }
 
-} /* namespace VerifyTAPN */
+} } /* namespace VerifyTAPN */

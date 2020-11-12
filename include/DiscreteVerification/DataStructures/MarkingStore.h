@@ -15,7 +15,7 @@
 /**
  * Base class for storing markings
  */
-namespace VerifyTAPN::DiscreteVerification {
+namespace VerifyTAPN { namespace DiscreteVerification {
     template<typename T = MetaData *>
     class MarkingStore {
     protected:
@@ -89,8 +89,6 @@ namespace VerifyTAPN::DiscreteVerification {
         virtual
         void set_meta(Pointer *p, T &meta) = 0;
     };
-}
-
-
+} }
 #endif    /* MARKINGSTORE_H */
 

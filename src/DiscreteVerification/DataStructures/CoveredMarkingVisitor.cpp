@@ -9,7 +9,7 @@
 
 
 using namespace ptrie;
-namespace VerifyTAPN::DiscreteVerification {
+namespace VerifyTAPN { namespace DiscreteVerification {
 
     CoveredMarkingVisitor::CoveredMarkingVisitor(
             MarkingEncoder<MetaData *, NonStrictMarking> &enc)
@@ -157,5 +157,4 @@ namespace VerifyTAPN::DiscreteVerification {
         m->meta = match.get_meta();
         return m;
     }
-
-}
+} }

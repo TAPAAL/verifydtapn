@@ -25,7 +25,7 @@
 #include <stack>
 #include "SearchStrategy.hpp"
 
-namespace VerifyTAPN::DiscreteVerification {
+namespace VerifyTAPN { namespace DiscreteVerification {
 
     template<class T>
     class NonStrictHeuristic : public SearchStrategy<T> {
@@ -34,6 +34,5 @@ namespace VerifyTAPN::DiscreteVerification {
             return new HeuristicWaitingList<T>(query);
         };
     };
-
-}
+} }
 #endif /* NONSTRICTDFS_HPP_ */

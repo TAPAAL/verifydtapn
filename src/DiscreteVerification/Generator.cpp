@@ -7,7 +7,7 @@
 #include "DiscreteVerification/Generator.h"
 
 
-namespace VerifyTAPN::DiscreteVerification {
+namespace VerifyTAPN { namespace DiscreteVerification {
 
     Generator::Generator(TAPN::TimedArcPetriNet &tapn, AST::Query *query)
             : tapn(tapn), allways_enabled(),
@@ -417,4 +417,4 @@ namespace VerifyTAPN::DiscreteVerification {
         out << std::endl;
         out << std::endl;
     }
-}
+} }

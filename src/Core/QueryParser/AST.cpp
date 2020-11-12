@@ -1,7 +1,7 @@
 #include "Core/QueryParser/AST.hpp"
 #include <cassert>
 
-namespace VerifyTAPN::AST {
+namespace VerifyTAPN { namespace AST {
     NotExpression *NotExpression::clone() const {
         return new NotExpression(*this);
     }
@@ -117,5 +117,5 @@ namespace VerifyTAPN::AST {
             assert(false);
             throw std::exception();
         }
-    }
+    } }
 }

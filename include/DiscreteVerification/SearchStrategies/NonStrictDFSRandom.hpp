@@ -25,7 +25,7 @@
 
 #include <stack>
 
-namespace VerifyTAPN::DiscreteVerification {
+namespace VerifyTAPN { namespace DiscreteVerification {
 
     template<class T>
     class NonStrictDFSRandom : public SearchStrategy<T> {
@@ -33,6 +33,5 @@ namespace VerifyTAPN::DiscreteVerification {
         virtual WaitingList <T> *
         createWaitingList(AST::Query *query) const { return new RandomStackWaitingList<T>; };
     };
-
-}
+} }
 #endif /* NONSTRICTDFS_HPP_ */

@@ -7,7 +7,7 @@
 
 #include "DiscreteVerification/DataStructures/TimeDartPWList.hpp"
 
-namespace VerifyTAPN::DiscreteVerification {
+namespace VerifyTAPN { namespace DiscreteVerification {
     TimeDartPWHashMap::~TimeDartPWHashMap() {
         // We don't care, it is deallocated on program execution done
     }
@@ -20,7 +20,7 @@ namespace VerifyTAPN::DiscreteVerification {
             if (iter->getBase()->equals(*marking)) {
                 bool inWaiting = iter->getWaiting() < iter->getPassed();
 
-                iter->setWaiting(min(iter->getWaiting(), youngest));
+                iter->setWaiting(std::min(iter->getWaiting(), youngest));
 
                 if (iter->getWaiting() < iter->getPassed() && !inWaiting) {
                     waiting_list->add(iter->getBase(), iter);
@@ -39,12 +39,12 @@ namespace VerifyTAPN::DiscreteVerification {
         }
         TimeDartBase *dart;
         if (this->trace) {
-            dart = new ReachabilityTraceableDart(marking, youngest, INT_MAX);
+            dart = new ReachabilityTraceableDart(marking, youngest, std::numeric_limits<int32_t>::max());
             ((ReachabilityTraceableDart *) dart)->trace = new TraceDart(dart, parent, youngest, start, upper,
                                                                         marking->getGeneratedBy());
             this->last = ((ReachabilityTraceableDart *) (dart))->trace;
         } else {
-            dart = new TimeDartBase(marking, youngest, INT_MAX);
+            dart = new TimeDartBase(marking, youngest, std::numeric_limits<int32_t>::max());
         }
         stored++;
         m.push_back(dart);
@@ -66,7 +66,7 @@ namespace VerifyTAPN::DiscreteVerification {
         if (!res.first) {
             TimeDartBase *t = res.second.get_meta();
             bool inWaiting = t->getWaiting() < t->getPassed();
-            t->setWaiting(min(t->getWaiting(), youngest));
+            t->setWaiting(std::min(t->getWaiting(), youngest));
 
             if (t->getWaiting() < t->getPassed() && !inWaiting) {
                 if (this->trace) {
@@ -83,12 +83,12 @@ namespace VerifyTAPN::DiscreteVerification {
 
         TimeDartBase *dart;
         if (this->trace) {
-            dart = new EncodedReachabilityTraceableDart(marking, youngest, INT_MAX);
+            dart = new EncodedReachabilityTraceableDart(marking, youngest, std::numeric_limits<int32_t>::max());
             ((EncodedReachabilityTraceableDart *) dart)->trace = new TraceDart(dart, parent, youngest, start, upper,
                                                                                marking->getGeneratedBy());
             this->last = ((ReachabilityTraceableDart *) (dart))->trace;
         } else {
-            dart = new TimeDartBase(marking, youngest, INT_MAX);
+            dart = new TimeDartBase(marking, youngest, std::numeric_limits<int32_t>::max());
         }
         stored++;
         res.second.set_meta(dart);
@@ -121,4 +121,4 @@ namespace VerifyTAPN::DiscreteVerification {
         return out;
     }
 
-} /* namespace VerifyTAPN */
+} } /* namespace VerifyTAPN */

@@ -13,10 +13,10 @@
 
 #include <iostream>
 
-using namespace std;
 using namespace ptrie;
 
-namespace VerifyTAPN::DiscreteVerification {
+namespace VerifyTAPN {
+namespace DiscreteVerification {
 
     class NonStrictMarking;
 
@@ -36,11 +36,11 @@ namespace VerifyTAPN::DiscreteVerification {
 
     struct WorkflowSoundnessMetaData : public MetaData {
     public:
-        WorkflowSoundnessMetaData() : MetaData(), parents() { totalDelay = INT_MAX; };
+        WorkflowSoundnessMetaData() : MetaData(), parents() { totalDelay = std::numeric_limits<int32_t>::max(); };
 
         ~WorkflowSoundnessMetaData() override { parents.clear(); }
 
-        vector<MetaData *> parents;
+        std::vector<MetaData *> parents;
     };
 
 
@@ -52,14 +52,15 @@ namespace VerifyTAPN::DiscreteVerification {
     struct WorkflowSoundnessMetaDataWithEncoding : public MetaDataWithTraceAndEncoding {
     public:
         WorkflowSoundnessMetaDataWithEncoding()
-                : MetaDataWithTraceAndEncoding(), parents() { totalDelay = INT_MAX; };
+                : MetaDataWithTraceAndEncoding(), parents() { totalDelay = std::numeric_limits<int32_t>::max(); };
 
         ~WorkflowSoundnessMetaDataWithEncoding() override {
             parents.clear();
         }
 
-        vector<MetaData *> parents;
+        std::vector<MetaData *> parents;
     };
+}
 }
 #endif    /* METADATA_H */
 

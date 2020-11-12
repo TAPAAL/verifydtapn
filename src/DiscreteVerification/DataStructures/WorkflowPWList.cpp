@@ -2,7 +2,7 @@
 
 #include "DiscreteVerification/DataStructures/WorkflowPWList.hpp"
 
-namespace VerifyTAPN::DiscreteVerification {
+namespace VerifyTAPN { namespace DiscreteVerification {
 
     WorkflowPWList::WorkflowPWList(WaitingList<NonStrictMarking *> *w_l) : PWList(w_l, false) {
     }
@@ -69,13 +69,13 @@ namespace VerifyTAPN::DiscreteVerification {
                 }
             }
         } else {
-            vector<NonStrictMarking *> coveredMarkings;
+            std::vector<NonStrictMarking *> coveredMarkings;
             coveredMarkings.push_back(new NonStrictMarking(*marking));
             for (const auto &p_iter : marking->getPlaceList()) {
                 for (auto t_iter = p_iter.tokens.begin();
                      t_iter != p_iter.tokens.end(); ++t_iter) {
                     for (int i = 1; i <= t_iter->getCount(); ++i) {
-                        vector<NonStrictMarking *> toAdd;
+                        std::vector<NonStrictMarking *> toAdd;
                         for (auto &coveredMarking : coveredMarkings) {
                             auto *new_marking = new NonStrictMarking(*coveredMarking);
                             for (int ii = i; ii > 0; --ii) {
@@ -263,6 +263,4 @@ namespace VerifyTAPN::DiscreteVerification {
         // using min first waiting-list, weight is allready in pointer
         waiting_list->add(nullptr, last_pointer);
     }
-
-
-}
+} }

@@ -5,7 +5,7 @@
 #include <limits>
 #include <map>
 
-namespace VerifyTAPN::TAPN {
+namespace VerifyTAPN { namespace TAPN {
 
     class TimeInvariant {
     public:
@@ -48,6 +48,7 @@ namespace VerifyTAPN::TAPN {
         invariant.print(out);
         return out;
     }
+}
 }
 
 #endif /* VERIFYTAPN_TAPN_TIMEINVARIANT_HPP_ */

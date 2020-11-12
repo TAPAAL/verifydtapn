@@ -18,7 +18,7 @@
 #include <iostream>
 
 using namespace ptrie;
-namespace VerifyTAPN::DiscreteVerification {
+namespace VerifyTAPN { namespace DiscreteVerification {
 
     class PWListBase {
     public:
@@ -157,5 +157,5 @@ namespace VerifyTAPN::DiscreteVerification {
 
     std::ostream &operator<<(std::ostream &out, PWList &x);
 
-} /* namespace VerifyTAPN */
+} } /* namespace VerifyTAPN */
 #endif /* PWLIST_HPP_ */

@@ -7,12 +7,10 @@
 
 #include "DiscreteVerification/Util/IntervalOps.hpp"
 
-namespace VerifyTAPN::DiscreteVerification::Util {
+namespace VerifyTAPN { namespace DiscreteVerification { namespace Util {
 
-    using namespace std;
-
-    vector<interval> setIntersection(const vector<interval> &first, const vector<interval> &second) {
-        vector<interval> result;
+    std::vector<interval> setIntersection(const std::vector<interval> &first, const std::vector<interval> &second) {
+        std::vector<interval> result;
 
         if (first.empty() || second.empty()) {
             return result;
@@ -57,7 +55,7 @@ namespace VerifyTAPN::DiscreteVerification::Util {
         return !i.empty();
     }
 
-    void setAdd(vector<interval> &first, const interval &element) {
+    void setAdd(std::vector<interval> &first, const interval &element) {
 
         for (unsigned int i = 0; i < first.size(); i++) {
 
@@ -87,4 +85,4 @@ namespace VerifyTAPN::DiscreteVerification::Util {
         first.push_back(element);
     }
 
-} /* namespace VerifyTAPN */
+} } } /* namespace VerifyTAPN */

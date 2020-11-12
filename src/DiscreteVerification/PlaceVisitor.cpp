@@ -7,7 +7,7 @@
 
 #include "DiscreteVerification/PlaceVisitor.hpp"
 
-namespace VerifyTAPN::DiscreteVerification {
+namespace VerifyTAPN { namespace DiscreteVerification {
 
     void PlaceVisitor::visit(NotExpression &expr, Result &context) {
         expr.getChild().accept(*this, context);
@@ -53,4 +53,4 @@ namespace VerifyTAPN::DiscreteVerification {
         expr.getLeft().accept(*this, context);
         expr.getRight().accept(*this, context);
     }
-} /* namespace VerifyTAPN */
+} } /* namespace VerifyTAPN */

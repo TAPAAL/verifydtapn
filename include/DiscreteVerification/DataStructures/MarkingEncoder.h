@@ -18,7 +18,7 @@
 
 
 using namespace ptrie;
-namespace VerifyTAPN::DiscreteVerification {
+namespace VerifyTAPN { namespace DiscreteVerification {
 
     class CoveredMarkingVisitor;
 
@@ -215,8 +215,6 @@ namespace VerifyTAPN::DiscreteVerification {
         else
             return encoding_t(scratchpad.raw(), ((tc - 1) * offsetBitSize) + bitcount);
     }
-}
-
-
+} }
 #endif    /* MARKINGENCODER_H */
 

@@ -9,7 +9,7 @@
 #include "DiscreteVerification/DataStructures/ptrie.h"
 
 using namespace ptrie;
-namespace VerifyTAPN::DiscreteVerification {
+namespace VerifyTAPN { namespace DiscreteVerification {
 
     bool PWList::add(NonStrictMarking *marking) {
 
@@ -66,7 +66,7 @@ namespace VerifyTAPN::DiscreteVerification {
         std::pair<bool, ptriepointer_t<MetaData *> > res = passed.insert(encoder.encode(marking));
 
         if (res.first) {
-            res.second.set_meta(NULL);
+            res.second.set_meta(nullptr);
             if (isLiveness) {
                 MetaData *meta;
                 if (makeTrace) {
@@ -125,4 +125,4 @@ namespace VerifyTAPN::DiscreteVerification {
     }
 
 
-} /* namespace VerifyTAPN */
+} } /* namespace VerifyTAPN */

@@ -7,7 +7,7 @@
 
 #include "DiscreteVerification/DeadlockVisitor.hpp"
 
-namespace VerifyTAPN::DiscreteVerification {
+namespace VerifyTAPN { namespace DiscreteVerification {
 
     using namespace AST;
 
@@ -72,4 +72,4 @@ namespace VerifyTAPN::DiscreteVerification {
     void DeadlockVisitor::visit(PlusExpression &expr, Result &context) {
         static_cast<BoolResult &>(context).value = false;
     }
-}
+} }

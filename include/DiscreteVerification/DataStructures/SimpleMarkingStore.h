@@ -8,18 +8,18 @@
 #ifndef SIMPLEMARKINGSTORE_H
 #define    SIMPLEMARKINGSTORE_H
 
-#include <vector>
-#include <algorithm>
-#include "google/sparse_hash_map"
 #include "MetaData.h"
 #include "NonStrictMarkingBase.hpp"
 #include "MarkingStore.h"
 
+#include <vector>
+#include <algorithm>
+#include "google/sparse_hash_map"
 
 /**
  * Base class for storing markings
  */
-namespace VerifyTAPN::DiscreteVerification {
+namespace VerifyTAPN { namespace DiscreteVerification {
     template<typename T = MetaData *>
     class SimpleMarkingStore : public MarkingStore<T> {
     public:
@@ -144,8 +144,6 @@ namespace VerifyTAPN::DiscreteVerification {
             static_cast<Pointer *>(p)->set_meta_data(meta);
         }
     };
-}
-
-
+} }
 #endif    /* SIMPLEMARKINGSTORE_H */
 

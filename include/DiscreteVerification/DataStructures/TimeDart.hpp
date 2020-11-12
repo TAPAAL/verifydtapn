@@ -11,7 +11,7 @@
 #include "NonStrictMarking.hpp"
 #include "ptrie.h"
 
-namespace VerifyTAPN::DiscreteVerification {
+namespace VerifyTAPN { namespace DiscreteVerification {
 
     struct WaitingDart;
     struct TraceDart;
@@ -25,7 +25,7 @@ namespace VerifyTAPN::DiscreteVerification {
     typedef ptriepointer_t<LivenessDart *> LivenessDartEncodingPointer; // mem-optimization for liveness
 
 
-    typedef vector<WaitingDart *> TraceMetaDataList;
+    typedef std::vector<WaitingDart *> TraceMetaDataList;
 
     class TimeDartBase {
     public:
@@ -140,6 +140,5 @@ namespace VerifyTAPN::DiscreteVerification {
         }
 
     };
-}
-
+} }
 #endif /* TIMEDART_HPP_ */

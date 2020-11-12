@@ -7,7 +7,7 @@
 
 #include "DiscreteVerification/SearchStrategies/WeightQueryVisitor.hpp"
 
-namespace VerifyTAPN::DiscreteVerification {
+namespace VerifyTAPN { namespace DiscreteVerification {
 
     void WeightQueryVisitor::visit(NotExpression &expr, Result &context) {
         assert(false);
@@ -19,7 +19,7 @@ namespace VerifyTAPN::DiscreteVerification {
         expr.getRight().accept(*this, right);
 
         static_cast<IntResult &>(context).value
-                = min(left.value, right.value);
+                = std::min(left.value, right.value);
     }
 
     void WeightQueryVisitor::visit(AndExpression &expr, Result &context) {
@@ -111,4 +111,4 @@ namespace VerifyTAPN::DiscreteVerification {
         }
     }
 
-} /* namespace VerifyTAPN */
+} } /* namespace VerifyTAPN */

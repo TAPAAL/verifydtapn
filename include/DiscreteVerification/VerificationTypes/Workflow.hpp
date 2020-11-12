@@ -20,12 +20,13 @@
 #include "Core/TAPN/OutputArc.hpp"
 #include "DiscreteVerification/QueryVisitor.hpp"
 #include "DiscreteVerification/DataStructures/NonStrictMarking.hpp"
-#include <stack>
 #include "DiscreteVerification/DataStructures/WaitingList.hpp"
 #include "AbstractNaiveVerification.hpp"
 #include "Core/TAPN/TAPN.hpp"
 
-namespace VerifyTAPN::DiscreteVerification {
+#include <stack>
+
+namespace VerifyTAPN { namespace DiscreteVerification {
 
     using namespace TAPN;
 
@@ -34,7 +35,7 @@ namespace VerifyTAPN::DiscreteVerification {
         Workflow(TAPN::TimedArcPetriNet &tapn, NonStrictMarking &initialMarking, AST::Query *query,
                  const VerificationOptions &options)
                 : AbstractNaiveVerification<WorkflowPWListBasic, NonStrictMarking, Generator>(tapn, initialMarking,
-                                                                                              query, options, NULL),
+                                                                                              query, options, nullptr),
                   in(nullptr), out(nullptr) {
 
             for (TimedPlace::Vector::const_iterator iter = tapn.getPlaces().begin();
@@ -45,7 +46,7 @@ namespace VerifyTAPN::DiscreteVerification {
             }
         }
 
-        virtual void printExecutionTime(ostream &stream) = 0;
+        virtual void printExecutionTime(std::ostream &stream) = 0;
 
     protected:
         virtual void deleteMarking(NonStrictMarking *marking) {
@@ -55,5 +56,5 @@ namespace VerifyTAPN::DiscreteVerification {
         TimedPlace *out;
     };
 
-} /* namespace VerifyTAPN */
+} } /* namespace VerifyTAPN */
 #endif /* NONSTRICTSEARCH_HPP_ */

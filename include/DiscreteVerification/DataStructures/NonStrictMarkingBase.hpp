@@ -16,15 +16,13 @@
 #include <vector>
 #include <iostream>
 
-using namespace std;
-
-namespace VerifyTAPN::DiscreteVerification {
+namespace VerifyTAPN { namespace DiscreteVerification {
 
     class Place;
 
     class Token;
 
-    typedef vector<Token> TokenList;
+    typedef std::vector<Token> TokenList;
 
     class Token {
     private:
@@ -139,7 +137,7 @@ namespace VerifyTAPN::DiscreteVerification {
         }
     };
 
-    typedef vector<Place> PlaceList;
+    typedef std::vector<Place> PlaceList;
 
     class NonStrictMarkingBase {
     public:
@@ -269,6 +267,6 @@ namespace VerifyTAPN::DiscreteVerification {
 
     std::ostream &operator<<(std::ostream &out, NonStrictMarkingBase &x);
 
-} /* namespace VerifyTAPN */
+} } /* namespace VerifyTAPN */
 
 #endif /* NonStrictMarkingBase_HPP_ */

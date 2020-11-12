@@ -12,7 +12,7 @@
 #include "Core/QueryParser/AST.hpp"
 #include <exception>
 
-namespace VerifyTAPN::DiscreteVerification {
+namespace VerifyTAPN { namespace DiscreteVerification {
 
     using namespace AST;
 
@@ -51,5 +51,5 @@ namespace VerifyTAPN::DiscreteVerification {
         void visit(PlusExpression &expr, Result &context) override;
 
     };
-} /* namespace VerifyTAPN */
+} } /* namespace VerifyTAPN */
 #endif /* DEADLOCKVISITOR_HPP_ */

@@ -12,7 +12,7 @@
 #include <set>
 
 
-namespace VerifyTAPN::DiscreteVerification {
+namespace VerifyTAPN { namespace DiscreteVerification {
 
     SafetySynthesis::SafetySynthesis(TAPN::TimedArcPetriNet &tapn,
                                      NonStrictMarking &initialMarking,
@@ -243,7 +243,7 @@ namespace VerifyTAPN::DiscreteVerification {
             {
                 std::cerr << "Using EG, EF, AG or AF without control is no longer supported" << std::endl;
                 assert(false);
-                exit(-1);
+               std::exit(-1);
             }
 
             store_t::result_t res = store->insert_and_dealloc(next);
@@ -365,5 +365,5 @@ namespace VerifyTAPN::DiscreteVerification {
     SafetySynthesis::~SafetySynthesis() {
         delete store;
     }
-}
+} }
 

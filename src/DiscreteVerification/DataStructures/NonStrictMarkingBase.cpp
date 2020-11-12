@@ -8,9 +8,7 @@
 #include "DiscreteVerification/DataStructures/NonStrictMarkingBase.hpp"
 #include <limits>
 
-using namespace std;
-
-namespace VerifyTAPN::DiscreteVerification {
+namespace VerifyTAPN { namespace DiscreteVerification {
 
     TokenList NonStrictMarkingBase::emptyTokenList = TokenList();
 
@@ -309,7 +307,7 @@ namespace VerifyTAPN::DiscreteVerification {
                 else if (status[id] != -1) { // if enable able so far
                     int lb = (*arc_iter)->getInterval().getLowerBound();
                     int destination_invariant = (*arc_iter)->getDestination().getInvariant().getBound();
-                    int ub = min((*arc_iter)->getInterval().getUpperBound(), destination_invariant);
+                    int ub = std::min((*arc_iter)->getInterval().getUpperBound(), destination_invariant);
                     // decrement if token can satisfy the bounds
                     for (auto tokenit = place.tokens.begin();
                          tokenit != place.tokens.end(); ++tokenit) {
@@ -390,7 +388,7 @@ namespace VerifyTAPN::DiscreteVerification {
                 // it should not be possible for a pre-cut marking to acheive an age above the invariant
                 int candidate = invariant - place_iter->maxTokenAge();
                 // maximum possible delay for tokens seen so far
-                maxDelay = min(maxDelay, candidate);
+                maxDelay = std::min(maxDelay, candidate);
             }
             //set age of too old tokens to max age
             int count = 0;
@@ -424,7 +422,7 @@ namespace VerifyTAPN::DiscreteVerification {
 
             // update place statistics
             total += count;
-            placeCount[place_iter->place->getIndex()] = max(total, placeCount[place_iter->place->getIndex()]);
+            placeCount[place_iter->place->getIndex()] = std::max(total, placeCount[place_iter->place->getIndex()]);
         }
         this->cleanUp();
         return maxDelay;
@@ -434,7 +432,7 @@ namespace VerifyTAPN::DiscreteVerification {
     }
 
     int NonStrictMarkingBase::getYoungest() {
-        int youngest = INT_MAX;
+        int youngest = std::numeric_limits<int32_t>::max();
         for (const auto &place_iter : getPlaceList()) {
             if (youngest > place_iter.tokens.front().getAge() &&
                 place_iter.tokens.front().getAge() <= place_iter.place->getMaxConstant()) {
@@ -442,7 +440,7 @@ namespace VerifyTAPN::DiscreteVerification {
             }
         }
 
-        if (youngest == INT_MAX) {
+        if (youngest == std::numeric_limits<int32_t>::max()) {
             youngest = 0;
         }
         return youngest;
@@ -476,4 +474,4 @@ namespace VerifyTAPN::DiscreteVerification {
         return youngest;
     }
 
-} /* namespace VerifyTAPN */
+} } /* namespace VerifyTAPN */

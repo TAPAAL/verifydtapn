@@ -15,9 +15,7 @@
 #include <vector>
 #include <iostream>
 
-using namespace std;
-
-namespace VerifyTAPN::DiscreteVerification {
+namespace VerifyTAPN { namespace DiscreteVerification {
 
     class NonStrictMarking : public NonStrictMarkingBase {
     public:
@@ -48,6 +46,6 @@ namespace VerifyTAPN::DiscreteVerification {
     public:
         MetaData *meta;
     };
-} /* namespace VerifyTAPN */
+} } /* namespace VerifyTAPN */
 
 #endif /* NONSTRICTMARKING_HPP_ */

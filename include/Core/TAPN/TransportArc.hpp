@@ -4,7 +4,7 @@
 #include "TimeInterval.hpp"
 #include <vector>
 
-namespace VerifyTAPN::TAPN {
+namespace VerifyTAPN { namespace TAPN {
     class TimedTransition;
 
     class TimedPlace;
@@ -50,6 +50,6 @@ namespace VerifyTAPN::TAPN {
         arc.print(out);
         return out;
     }
-}
+} }
 
 #endif /* TRANSPORTARC_HPP_ */

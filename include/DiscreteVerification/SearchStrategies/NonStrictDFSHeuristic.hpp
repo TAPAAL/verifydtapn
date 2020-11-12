@@ -21,11 +21,11 @@
 #include "Core/TAPN/OutputArc.hpp"
 
 #include "DiscreteVerification/QueryVisitor.hpp"
-
-#include <stack>
 #include "SearchStrategy.hpp"
 
-namespace VerifyTAPN::DiscreteVerification {
+#include <stack>
+
+namespace VerifyTAPN { namespace DiscreteVerification {
 
     template<class T>
     class NonStrictDFSHeuristic : public SearchStrategy<T> {
@@ -33,6 +33,5 @@ namespace VerifyTAPN::DiscreteVerification {
         virtual WaitingList <T> *
         createWaitingList(AST::Query *query) const { return new HeuristicStackWaitingList<T>(query); };
     };
-
-}
+} }
 #endif /* NONSTRICTDFS_HPP_ */

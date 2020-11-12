@@ -4,7 +4,7 @@
 #include <vector>
 #include <iostream>
 
-namespace VerifyTAPN::TAPN {
+namespace VerifyTAPN { namespace TAPN {
     class TimedPlace;
 
     class TimedTransition;
@@ -38,6 +38,6 @@ namespace VerifyTAPN::TAPN {
         arc.print(out);
         return out;
     }
-}
+} }
 
 #endif /* VERIFYTAPN_TAPN_OUTPUTARC_HPP_ */

@@ -9,8 +9,9 @@
 #define NORMALIZATIONVISITOR_HPP_
 
 #include "Visitor.hpp"
-#include <string>
 #include "AST.hpp"
+
+#include <string>
 
 namespace VerifyTAPN {
     namespace AST {

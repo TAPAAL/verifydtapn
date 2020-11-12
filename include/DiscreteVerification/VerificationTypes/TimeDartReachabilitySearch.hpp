@@ -15,13 +15,14 @@
 #include "Core/VerificationOptions.hpp"
 #include "DiscreteVerification/QueryVisitor.hpp"
 #include "DiscreteVerification/DataStructures/NonStrictMarkingBase.hpp"
-#include <stack>
-#include <utility>
 #include "TimeDartVerification.hpp"
 #include "DiscreteVerification/DataStructures/TimeDart.hpp"
-#include "../Util/IntervalOps.hpp"
+#include "DiscreteVerification/Util/IntervalOps.hpp"
 
-namespace VerifyTAPN::DiscreteVerification {
+#include <stack>
+#include <utility>
+
+namespace VerifyTAPN { namespace DiscreteVerification {
 
     using namespace rapidxml;
 
@@ -57,7 +58,7 @@ namespace VerifyTAPN::DiscreteVerification {
         int validChildren{};
         google::sparse_hash_map<NonStrictMarkingBase *, TraceList> trace{};
         TimeDartPWBase *pwList{};
-        vector<const TAPN::TimedTransition *> allwaysEnabled{};
+        std::vector<const TAPN::TimedTransition *> allwaysEnabled{};
 
         virtual inline void deleteBase(NonStrictMarkingBase *base) {
             // Dummy
@@ -88,5 +89,5 @@ namespace VerifyTAPN::DiscreteVerification {
         };
     };
 
-} /* namespace VerifyTAPN */
+} } /* namespace VerifyTAPN */
 #endif /* NONSTRICTSEARCH_HPP_ */

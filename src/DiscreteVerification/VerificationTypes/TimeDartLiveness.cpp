@@ -7,10 +7,10 @@
 
 #include "DiscreteVerification/VerificationTypes/TimeDartLiveness.hpp"
 
-namespace VerifyTAPN::DiscreteVerification {
+namespace VerifyTAPN { namespace DiscreteVerification {
 
     bool TimeDartLiveness::run() {
-        if (addToPW(&initialMarking, NULL, INT_MAX)) {
+        if (addToPW(&initialMarking, nullptr, std::numeric_limits<int32_t>::max())) {
             return true;
         }
 
@@ -59,7 +59,7 @@ namespace VerifyTAPN::DiscreteVerification {
                 auto &transition = *t;
 
                 // Calculate enabled set
-                pair<int, int> calculatedStart = calculateStart(transition, waitingDart->dart->getBase());
+                auto calculatedStart = calculateStart(transition, waitingDart->dart->getBase());
                 if (calculatedStart.first == -1) { // Transition cannot be enabled in marking
                     continue;
                 }
@@ -70,11 +70,11 @@ namespace VerifyTAPN::DiscreteVerification {
                 }
 
                 // Calculate start and end
-                int start = max(waitingDart->w, calculatedStart.first);
-                int end = min(passed - 1, calculatedStart.second);
+                int start = std::max(waitingDart->w, calculatedStart.first);
+                int end = std::min(passed - 1, calculatedStart.second);
                 if (start <= end) {
-                    int stop = max(start, calculateStop(transition, waitingDart->dart->getBase()));
-                    int finalStop = min(stop, end);
+                    int stop = std::max(start, calculateStop(transition, waitingDart->dart->getBase()));
+                    int finalStop = std::min(stop, end);
                     for (int n = start; n <= finalStop; n++) {
                         NonStrictMarkingBase Mpp(*waitingDart->dart->getBase());
                         Mpp.incrementAge(n);
@@ -110,7 +110,7 @@ namespace VerifyTAPN::DiscreteVerification {
     bool TimeDartLiveness::canDelayForever(NonStrictMarkingBase *marking) {
         for (PlaceList::const_iterator p_iter = marking->getPlaceList().begin();
              p_iter != marking->getPlaceList().end(); p_iter++) {
-            if (p_iter->place->getInvariant().getBound() < INT_MAX) {
+            if (p_iter->place->getInvariant().getBound() < std::numeric_limits<int32_t>::max()) {
                 return false;
             }
         }
@@ -143,12 +143,12 @@ namespace VerifyTAPN::DiscreteVerification {
             std::pair<LivenessDart *, bool> result = pwList->add(marking, youngest, parent, upper, start);
 
 
-            if (parent != NULL && parent->dart->getBase()->equals(*result.first->getBase()) && youngest <= upper) {
+            if (parent != nullptr && parent->dart->getBase()->equals(*result.first->getBase()) && youngest <= upper) {
                 loop = true;
             }
 
             //Find the dart created in the PWList
-            if (result.first->traceData != NULL) {
+            if (result.first->traceData != nullptr) {
                 for (TraceMetaDataList::const_iterator iter = result.first->traceData->begin();
                      iter != result.first->traceData->end(); iter++) {
                     if ((*iter)->parent->dart->getBase()->equals(*result.first->getBase()) &&
@@ -189,4 +189,4 @@ namespace VerifyTAPN::DiscreteVerification {
 
     TimeDartLiveness::~TimeDartLiveness() = default;
 
-} /* namespace VerifyTAPN */
+} } /* namespace VerifyTAPN */

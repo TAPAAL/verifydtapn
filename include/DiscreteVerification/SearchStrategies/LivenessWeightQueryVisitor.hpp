@@ -11,10 +11,11 @@
 #include "Core/QueryParser/Visitor.hpp"
 #include "DiscreteVerification/DataStructures/NonStrictMarking.hpp"
 #include "Core/QueryParser/AST.hpp"
+
 #include <exception>
 #include <climits>
 
-namespace VerifyTAPN::DiscreteVerification {
+namespace VerifyTAPN { namespace DiscreteVerification {
 
     using namespace AST;
 
@@ -58,5 +59,5 @@ namespace VerifyTAPN::DiscreteVerification {
         const NonStrictMarkingBase &marking;
     };
 
-} /* namespace VerifyTAPN */
+} } /* namespace VerifyTAPN */
 #endif /* LIVENESSQUERYVISITOR_HPP_ */
