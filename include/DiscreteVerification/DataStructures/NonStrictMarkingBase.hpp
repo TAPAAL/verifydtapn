@@ -103,11 +103,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
         }
 
         inline int maxTokenAge() const {
-            int max = -1;
-            for (const auto &token : tokens) {
-                if (token.getAge() > max) max = token.getAge();
-            }
-            return max;
+            return tokens.back().getAge();
         }
 
         // Ages all tokens by 1
@@ -133,7 +129,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
             // assume the list is sorted, first token must be lowest,
             // and thus we only need to check this token to the max constant.
             // also assume no place-object is "empty"
-            return (tokens[0].getAge() + delay) >= (place->getMaxConstant() + 1);
+            return (tokens.front().getAge() + delay) >= (place->getMaxConstant() + 1);
         }
     };
 
