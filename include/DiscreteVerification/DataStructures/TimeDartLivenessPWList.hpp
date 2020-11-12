@@ -33,7 +33,7 @@ namespace VerifyTAPN::DiscreteVerification {
         TimeDartLivenessPWBase() : discoveredMarkings(0), maxNumTokensInAnyMarking(-1), stored(0) {
         };
 
-        virtual ~TimeDartLivenessPWBase() = default;;
+        virtual ~TimeDartLivenessPWBase() = default;
 
 
     public: // inspectors
@@ -73,7 +73,7 @@ namespace VerifyTAPN::DiscreteVerification {
                   waiting_list(w_l) {
         };
 
-        ~TimeDartLivenessPWHashMap() override = default;;
+        ~TimeDartLivenessPWHashMap() override = default;
 
         friend std::ostream &operator<<(std::ostream &out, TimeDartLivenessPWHashMap &x);
 
@@ -110,7 +110,7 @@ namespace VerifyTAPN::DiscreteVerification {
                 encoder(tapn, options.getKBound()) {
         };
 
-        ~TimeDartLivenessPWPData() override = default;;
+        ~TimeDartLivenessPWPData() override = default;
 
         friend std::ostream &operator<<(std::ostream &out, TimeDartLivenessPWHashMap &x);
 

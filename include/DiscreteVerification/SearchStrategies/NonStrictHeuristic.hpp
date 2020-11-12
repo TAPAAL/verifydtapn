@@ -8,7 +8,7 @@
 #ifndef NONSTRICTHEURISTIC_HPP_
 #define NONSTRICTHEURISTIC_HPP_
 
-#include "../DataStructures/PWList.hpp"
+#include "DiscreteVerification/DataStructures/PWList.hpp"
 #include "Core/TAPN/TAPN.hpp"
 #include "Core/QueryParser/AST.hpp"
 #include "Core/VerificationOptions.hpp"
@@ -20,7 +20,7 @@
 #include "Core/TAPN/InhibitorArc.hpp"
 #include "Core/TAPN/OutputArc.hpp"
 
-#include "../QueryVisitor.hpp"
+#include "DiscreteVerification/QueryVisitor.hpp"
 
 #include <stack>
 #include "SearchStrategy.hpp"

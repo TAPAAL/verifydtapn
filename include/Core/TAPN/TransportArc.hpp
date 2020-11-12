@@ -21,7 +21,7 @@ namespace VerifyTAPN::TAPN {
                 const int weight
         ) : interval(interval), source(source), transition(transition), destination(destination), weight(weight) {};
 
-        virtual ~TransportArc() = default;;
+        virtual ~TransportArc() = default;
     public:
         inline TimedPlace &getSource() const { return source; }
 

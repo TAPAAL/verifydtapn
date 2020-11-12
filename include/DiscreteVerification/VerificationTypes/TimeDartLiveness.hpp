@@ -8,17 +8,17 @@
 #ifndef TIMEDARTLIVENESS_HPP_
 #define TIMEDARTLIVENESS_HPP_
 
-#include "../DataStructures/TimeDart.hpp"
-#include "../DataStructures/TimeDartLivenessPWList.hpp"
+#include "DiscreteVerification/DataStructures/TimeDart.hpp"
+#include "DiscreteVerification/DataStructures/TimeDartLivenessPWList.hpp"
 #include "Core/TAPN/TAPN.hpp"
 #include "Core/QueryParser/AST.hpp"
 #include "Core/VerificationOptions.hpp"
-#include "../QueryVisitor.hpp"
-#include "../DataStructures/NonStrictMarkingBase.hpp"
+#include "DiscreteVerification/QueryVisitor.hpp"
+#include "DiscreteVerification/DataStructures/NonStrictMarkingBase.hpp"
 #include <stack>
 #include <utility>
 #include "TimeDartVerification.hpp"
-#include "../DataStructures/TimeDart.hpp"
+#include "DiscreteVerification/DataStructures/TimeDart.hpp"
 #include "../Util/IntervalOps.hpp"
 
 namespace VerifyTAPN::DiscreteVerification {

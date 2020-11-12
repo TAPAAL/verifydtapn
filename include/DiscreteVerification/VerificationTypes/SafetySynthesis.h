@@ -12,7 +12,7 @@
 
 #include "DiscreteVerification/DataStructures/MarkingStore.h"
 #include "Core/TAPN/TAPN.hpp"
-#include "../QueryVisitor.hpp"
+#include "DiscreteVerification/QueryVisitor.hpp"
 #include "DiscreteVerification/DataStructures/NonStrictMarkingBase.hpp"
 #include "../Generator.h"
 #include "DiscreteVerification/DataStructures/Waiting.h"

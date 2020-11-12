@@ -9,7 +9,7 @@
 #define SEARCHFACTORY_H_
 
 #include "SearchStrategies.hpp"
-#include "../DataStructures/WaitingList.hpp"
+#include "DiscreteVerification/DataStructures/WaitingList.hpp"
 
 namespace VerifyTAPN::DiscreteVerification {
 

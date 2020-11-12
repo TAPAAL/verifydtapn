@@ -26,7 +26,7 @@ namespace VerifyTAPN {
         public:
             NormalizationVisitor() : normalizedQuery() {};
 
-            ~NormalizationVisitor() override = default;;
+            ~NormalizationVisitor() override = default;
 
             void visit(NotExpression &expr, Result &context) override;
 

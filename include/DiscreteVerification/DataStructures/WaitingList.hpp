@@ -30,9 +30,9 @@ namespace VerifyTAPN::DiscreteVerification {
     template<class T>
     class WaitingList {
     public:
-        WaitingList() = default;;
+        WaitingList() = default;
 
-        virtual ~WaitingList() = default;;
+        virtual ~WaitingList() = default;
 
         virtual void add(NonStrictMarkingBase *weight, T payload) = 0;
 
@@ -89,7 +89,7 @@ namespace VerifyTAPN::DiscreteVerification {
 
         explicit HeuristicStackWaitingList(AST::Query *q) : buffer(), query(normalizeQuery(q)) {};
 
-        ~HeuristicStackWaitingList() = default;;
+        ~HeuristicStackWaitingList() = default;
 
         virtual void add(NonStrictMarkingBase *weight, T payload);
 

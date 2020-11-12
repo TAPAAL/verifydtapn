@@ -28,7 +28,7 @@ namespace VerifyTAPN::DiscreteVerification {
          */
         class Pointer {
         public:
-            virtual ~Pointer() = default;;
+            virtual ~Pointer() = default;
         };
 
         typedef std::pair<bool, Pointer *> result_t;
@@ -38,7 +38,7 @@ namespace VerifyTAPN::DiscreteVerification {
          */
         MarkingStore() : stored(0), m_tokens(0) {};
 
-        virtual ~MarkingStore() = default;;
+        virtual ~MarkingStore() = default;
 
         /**
          *

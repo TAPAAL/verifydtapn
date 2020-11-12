@@ -8,7 +8,7 @@
 #ifndef REACHABILITYSEARCH_HPP_
 #define REACHABILITYSEARCH_HPP_
 
-#include "../DataStructures/PWList.hpp"
+#include "DiscreteVerification/DataStructures/PWList.hpp"
 #include "Core/TAPN/TAPN.hpp"
 #include "Core/QueryParser/AST.hpp"
 #include "Core/VerificationOptions.hpp"
@@ -18,11 +18,11 @@
 #include "Core/TAPN/TransportArc.hpp"
 #include "Core/TAPN/InhibitorArc.hpp"
 #include "Core/TAPN/OutputArc.hpp"
-#include "../QueryVisitor.hpp"
-#include "../DataStructures/NonStrictMarking.hpp"
+#include "DiscreteVerification/QueryVisitor.hpp"
+#include "DiscreteVerification/DataStructures/NonStrictMarking.hpp"
 #include <stack>
 #include "Verification.hpp"
-#include "../DataStructures/WaitingList.hpp"
+#include "DiscreteVerification/DataStructures/WaitingList.hpp"
 #include "AbstractNaiveVerification.hpp"
 
 namespace VerifyTAPN::DiscreteVerification {

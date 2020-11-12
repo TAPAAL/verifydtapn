@@ -21,7 +21,7 @@
 #include "Core/TAPN/InhibitorArc.hpp"
 #include "Core/TAPN/OutputArc.hpp"
 #include "../Generator.h"
-#include "../QueryVisitor.hpp"
+#include "DiscreteVerification/QueryVisitor.hpp"
 #include "DiscreteVerification/DataStructures/NonStrictMarking.hpp"
 #include "Verification.hpp"
 #include "DiscreteVerification/DataStructures/WaitingList.hpp"

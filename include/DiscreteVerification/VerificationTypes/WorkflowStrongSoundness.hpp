@@ -8,7 +8,7 @@
 #ifndef WORKFLOWSTRONGSOUNDNESS_HPP_
 #define WORKFLOWSTRONGSOUNDNESS_HPP_
 
-#include "../DataStructures/WorkflowPWList.hpp"
+#include "DiscreteVerification/DataStructures/WorkflowPWList.hpp"
 #include "Workflow.hpp"
 #include <stack>
 #include <algorithm>

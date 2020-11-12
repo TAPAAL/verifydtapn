@@ -10,7 +10,7 @@
 
 #include <vector>
 #include <algorithm>
-#include "../Core/TAPN/TAPN.hpp"
+#include "Core/TAPN/TAPN.hpp"
 #include "DataStructures/NonStrictMarkingBase.hpp"
 #include "DataStructures/NonStrictMarking.hpp"
 

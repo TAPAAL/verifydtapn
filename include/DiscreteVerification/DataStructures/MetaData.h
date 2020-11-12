@@ -24,7 +24,7 @@ namespace VerifyTAPN::DiscreteVerification {
     public:
         MetaData() : passed(false), inTrace(false), totalDelay(0) {};
 
-        virtual ~MetaData() = default;;
+        virtual ~MetaData() = default;
         bool passed;
         bool inTrace;
         int totalDelay;

@@ -2,7 +2,8 @@
 #include "DiscreteVerification/InterestingVisitor.h"
 #include "DiscreteVerification/ReducingGenerator.hpp"
 
-namespace VerifyTAPN::DiscreteVerification {
+namespace VerifyTAPN {
+namespace DiscreteVerification {
     void InterestingVisitor::clear() {
         std::fill(_decr.begin(), _decr.end(), 0);
         std::fill(_incr.begin(), _incr.end(), 0);
@@ -135,4 +136,5 @@ namespace VerifyTAPN::DiscreteVerification {
         expr.getLeft().accept(*this, context);
         expr.getRight().accept(*this, context);
     }
+}
 }

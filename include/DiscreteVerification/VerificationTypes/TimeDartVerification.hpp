@@ -2,10 +2,10 @@
 #define TIMEDARTVERIFICATION_HPP_
 
 #include "Core/TAPN/TAPN.hpp"
-#include "../DataStructures/NonStrictMarkingBase.hpp"
+#include "DiscreteVerification/DataStructures/NonStrictMarkingBase.hpp"
 #include "../Util/IntervalOps.hpp"
 #include "Verification.hpp"
-#include "../DataStructures/TimeDart.hpp"
+#include "DiscreteVerification/DataStructures/TimeDart.hpp"
 #include "../Generator.h"
 #include "../ReducingGenerator.hpp"
 #include <stack>

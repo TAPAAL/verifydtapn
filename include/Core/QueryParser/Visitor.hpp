@@ -48,7 +48,7 @@ namespace VerifyTAPN::AST {
 
     class Visitor {
     public:
-        virtual ~Visitor() = default;;
+        virtual ~Visitor() = default;
 
         virtual void visit(NotExpression &expr, Result &context) = 0;
 

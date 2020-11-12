@@ -1,7 +1,7 @@
 #ifndef VERIFICATION_HPP_
 #define VERIFICATION_HPP_
 
-#include "../DataStructures/NonStrictMarking.hpp"
+#include "DiscreteVerification/DataStructures/NonStrictMarking.hpp"
 #include "../DeadlockVisitor.hpp"
 
 #include "Core/TAPNParser/util.hpp"
@@ -53,7 +53,7 @@ namespace VerifyTAPN::DiscreteVerification {
         Verification(TAPN::TimedArcPetriNet &tapn, T &initialMarking, AST::Query *query,
                      VerificationOptions options);
 
-        virtual ~Verification() = default;;
+        virtual ~Verification() = default;
 
         virtual bool run() = 0;
 

@@ -39,7 +39,7 @@ namespace VerifyTAPN::DiscreteVerification {
             Pointer(NonStrictMarkingBase *marking, T &meta)
                     : meta(meta), marking(marking) {};
 
-            virtual ~Pointer() = default;;
+            virtual ~Pointer() = default;
 
             void set_meta_data(T &data) {
                 meta = data;

@@ -34,7 +34,7 @@ namespace VerifyTAPN::DiscreteVerification {
                                               last(nullptr) {
         };
 
-        virtual ~TimeDartPWBase() = default;;
+        virtual ~TimeDartPWBase() = default;
 
     public:
 

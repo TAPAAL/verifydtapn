@@ -8,9 +8,9 @@
 #ifndef QUERYVISITOR_HPP_
 #define QUERYVISITOR_HPP_
 
-#include "../Core/QueryParser/Visitor.hpp"
+#include "Core/QueryParser/Visitor.hpp"
 #include "DataStructures/NonStrictMarking.hpp"
-#include "../Core/QueryParser/AST.hpp"
+#include "Core/QueryParser/AST.hpp"
 
 #include <exception>
 
@@ -33,7 +33,7 @@ namespace VerifyTAPN::DiscreteVerification {
             deadlocked = false;
         }
 
-        ~QueryVisitor() override = default;;
+        ~QueryVisitor() override = default;
 
     public: // visitor methods
 

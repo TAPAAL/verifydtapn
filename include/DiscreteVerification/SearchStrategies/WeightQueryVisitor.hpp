@@ -9,7 +9,7 @@
 #define WEIGHTQUERYVISITOR_HPP_
 
 #include "Core/QueryParser/Visitor.hpp"
-#include "../DataStructures/NonStrictMarking.hpp"
+#include "DiscreteVerification/DataStructures/NonStrictMarking.hpp"
 #include "Core/QueryParser/AST.hpp"
 #include <exception>
 #include <climits>
@@ -22,7 +22,7 @@ namespace VerifyTAPN::DiscreteVerification {
     public:
         explicit WeightQueryVisitor(NonStrictMarkingBase &marking) : marking(marking) {};
 
-        ~WeightQueryVisitor() override = default;;
+        ~WeightQueryVisitor() override = default;
 
     public: // visitor methods
         void visit(NotExpression &expr, Result &context) override;

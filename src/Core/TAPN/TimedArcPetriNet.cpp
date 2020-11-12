@@ -4,7 +4,8 @@
 #include <limits>
 #include <numeric>
 
-namespace VerifyTAPN::TAPN {
+namespace VerifyTAPN {
+namespace TAPN {
     void TimedArcPetriNet::initialize(bool useGlobalMaxConstant, bool lowerGuardsByGCD) {
 
         // start by doing GCD if enabled
@@ -367,6 +368,7 @@ namespace VerifyTAPN::TAPN {
 
         return true;
     }
+}
 }
 
 

@@ -14,7 +14,7 @@
 #include <ctime>
 #include "NonStrictMarkingBase.hpp"
 #include "../SearchStrategies/WeightQueryVisitor.hpp"
-#include "../../Core/QueryParser/AST.hpp"
+#include "Core/QueryParser/AST.hpp"
 
 namespace VerifyTAPN::DiscreteVerification {
     class WeightQueryVisitor;

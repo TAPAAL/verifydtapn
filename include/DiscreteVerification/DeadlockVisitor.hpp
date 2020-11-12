@@ -8,8 +8,8 @@
 #ifndef DEADLOCKVISITOR_HPP_
 #define DEADLOCKVISITOR_HPP_
 
-#include "../Core/QueryParser/Visitor.hpp"
-#include "../Core/QueryParser/AST.hpp"
+#include "Core/QueryParser/Visitor.hpp"
+#include "Core/QueryParser/AST.hpp"
 #include <exception>
 
 namespace VerifyTAPN::DiscreteVerification {
@@ -19,9 +19,9 @@ namespace VerifyTAPN::DiscreteVerification {
     class DeadlockVisitor : public Visitor {
     public:
 
-        DeadlockVisitor() = default;;
+        DeadlockVisitor() = default;
 
-        ~DeadlockVisitor() override = default;;
+        ~DeadlockVisitor() override = default;
 
     public: // visitor methods
         void visit(NotExpression &expr, Result &context) override;

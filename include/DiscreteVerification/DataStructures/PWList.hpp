@@ -45,7 +45,7 @@ namespace VerifyTAPN::DiscreteVerification {
 
         virtual void deleteWaitingList() {};
 
-        virtual ~PWListBase() = default;;
+        virtual ~PWListBase() = default;
 
         inline void setMaxNumTokensIfGreater(int i) {
             if (i > maxNumTokensInAnyMarking)

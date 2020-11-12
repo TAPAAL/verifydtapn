@@ -8,14 +8,14 @@
 #ifndef SEARCHSTRATEGY_HPP_
 #define SEARCHSTRATEGY_HPP_
 
-#include "../DataStructures/WaitingList.hpp"
+#include "DiscreteVerification/DataStructures/WaitingList.hpp"
 
 namespace VerifyTAPN::DiscreteVerification {
 
     template<class T>
     class SearchStrategy {
     public:
-        virtual ~SearchStrategy() = default;;
+        virtual ~SearchStrategy() = default;
 
         virtual WaitingList<T> *createWaitingList(AST::Query *query) const = 0;
     };
