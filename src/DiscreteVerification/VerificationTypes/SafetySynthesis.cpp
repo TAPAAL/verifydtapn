@@ -137,7 +137,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
 
     void SafetySynthesis::dependers_to_waiting(SafetyMeta &next_meta, backstack_t &back) {
         //std::cerr << "DEP TO WAITING " << &next_meta << " STATE " << next_meta.state << std::endl;
-        for (auto ancestor : next_meta.dependers) {
+        for (const auto& ancestor : next_meta.dependers) {
             SafetyMeta &a_meta = store->get_meta(ancestor.second);
             //std::cerr << "\tDEP" << &a_meta << " STATE " << a_meta.state << std::endl;
             if (a_meta.state == LOOSING || a_meta.state == WINNING) continue;

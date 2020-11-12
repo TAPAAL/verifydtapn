@@ -38,10 +38,9 @@ namespace VerifyTAPN { namespace DiscreteVerification {
                                                                                               query, options, nullptr),
                   in(nullptr), out(nullptr) {
 
-            for (TimedPlace::Vector::const_iterator iter = tapn.getPlaces().begin();
-                 iter != tapn.getPlaces().end(); iter++) {
-                if ((*iter)->getType() == Dead) {
-                    (*iter)->setType(Std);
+            for (auto* p : tapn.getPlaces()) {
+                if (p->getType() == Dead) {
+                    p->setType(Std);
                 }
             }
         }

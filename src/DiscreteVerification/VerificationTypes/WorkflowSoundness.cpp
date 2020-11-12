@@ -94,10 +94,8 @@ namespace VerifyTAPN { namespace DiscreteVerification {
             if (next->passed) continue;
             next->passed = true;
             ++passed;
-            for (std::vector<MetaData *>::iterator iter = next->parents.begin();
-                 iter != next->parents.end(); iter++) {
-                passedStack.push(*iter);
-            }
+            for (MetaData* m : next->parents)
+                passedStack.push(m);
         }
         return passed;
     }
@@ -112,10 +110,8 @@ namespace VerifyTAPN { namespace DiscreteVerification {
             if (next->passed) continue;
             next->passed = true;
             ++passed;
-            for (std::vector<MetaData *>::iterator iter = next->parents.begin();
-                 iter != next->parents.end(); iter++) {
-                passedStack.push(*iter);
-            }
+            for (MetaData* m : next->parents)
+                passedStack.push(m);
         }
         return passed;
     }
@@ -304,16 +300,13 @@ namespace VerifyTAPN { namespace DiscreteVerification {
     WorkflowSoundness::ModelType WorkflowSoundness::calculateModelType() {
         bool isin, isout;
         bool hasInvariant = false;
-        for (TimedPlace::Vector::const_iterator iter = tapn.getPlaces().begin();
-             iter != tapn.getPlaces().end(); iter++) {
+        for (auto* p : tapn.getPlaces()) {
             isin = isout = true;
-            TimedPlace *p = (*iter);
             if (p->getInputArcs().empty() && p->getOutputArcs().empty() && p->getTransportArcs().empty()) {
                 bool continueOuter = true;
                 // Test if really orphan place or if out place
-                for (TransportArc::Vector::const_iterator trans_i = tapn.getTransportArcs().begin();
-                     trans_i != tapn.getTransportArcs().end(); ++trans_i) {
-                    if (&((*trans_i)->getDestination()) == p) {
+                for (auto* trans : tapn.getTransportArcs()) {
+                    if (&(trans->getDestination()) == p) {
                         continueOuter = false;
                         break;
                     }
@@ -334,9 +327,8 @@ namespace VerifyTAPN { namespace DiscreteVerification {
             }
 
             if (isout) {
-                for (TransportArc::Vector::const_iterator iter = p->getTransportArcs().begin();
-                     iter != p->getTransportArcs().end(); iter++) {
-                    if (&(*iter)->getSource() == p) {
+                for (auto* iter : p->getTransportArcs()) {
+                    if (&iter->getSource() == p) {
                         isout = false;
                         break;
                     }
@@ -344,9 +336,8 @@ namespace VerifyTAPN { namespace DiscreteVerification {
             }
 
             if (isin) {
-                for (TransportArc::Vector::const_iterator iter = tapn.getTransportArcs().begin(); iter !=
-                                                                                                  tapn.getTransportArcs().end(); ++iter) { // TODO maybe transportArcs should contain both incoming and outgoing? Might break something though.
-                    if (&(*iter)->getDestination() == p) {
+                for (auto* iter : tapn.getTransportArcs()) { // TODO maybe transportArcs should contain both incoming and outgoing? Might break something though.
+                    if (&iter->getDestination() == p) {
                         isin = false;
                         break;
                     }
@@ -382,17 +373,16 @@ namespace VerifyTAPN { namespace DiscreteVerification {
         bool hasUrgent = false;
         bool hasInhibitor = false;
         // All transitions must have preset
-        for (TimedTransition::Vector::const_iterator iter = tapn.getTransitions().begin();
-             iter != tapn.getTransitions().end(); iter++) {
-            if ((*iter)->getPresetSize() == 0 && (*iter)->getNumberOfTransportArcs() == 0) {
+        for (auto* iter : tapn.getTransitions()) {
+            if (iter->getPresetSize() == 0 && iter->getNumberOfTransportArcs() == 0) {
                 return NOTTAWFN;
             }
 
-            if (!hasUrgent && (*iter)->isUrgent()) {
+            if (!hasUrgent && iter->isUrgent()) {
                 hasUrgent = true;
             }
 
-            if (!hasInhibitor && !(*iter)->getInhibitorArcs().empty()) {
+            if (!hasInhibitor && !iter->getInhibitorArcs().empty()) {
                 hasInhibitor = true;
             }
         }

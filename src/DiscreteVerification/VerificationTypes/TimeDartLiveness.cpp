@@ -108,9 +108,8 @@ namespace VerifyTAPN { namespace DiscreteVerification {
 
 
     bool TimeDartLiveness::canDelayForever(NonStrictMarkingBase *marking) {
-        for (PlaceList::const_iterator p_iter = marking->getPlaceList().begin();
-             p_iter != marking->getPlaceList().end(); p_iter++) {
-            if (p_iter->place->getInvariant().getBound() < std::numeric_limits<int32_t>::max()) {
+        for (auto& p_iter : marking->getPlaceList()) {
+            if (p_iter.place->getInvariant().getBound() < std::numeric_limits<int32_t>::max()) {
                 return false;
             }
         }
@@ -149,10 +148,9 @@ namespace VerifyTAPN { namespace DiscreteVerification {
 
             //Find the dart created in the PWList
             if (result.first->traceData != nullptr) {
-                for (TraceMetaDataList::const_iterator iter = result.first->traceData->begin();
-                     iter != result.first->traceData->end(); iter++) {
-                    if ((*iter)->parent->dart->getBase()->equals(*result.first->getBase()) &&
-                        youngest <= (*iter)->upper) {
+                for (auto* meta : *result.first->traceData) {
+                    if (meta->parent->dart->getBase()->equals(*result.first->getBase()) &&
+                        youngest <= meta->upper) {
                         loop = true;
                         break;
                     }

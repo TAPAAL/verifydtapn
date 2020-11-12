@@ -12,7 +12,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
         loop = false;
         deadlock = false;
         //Find the transitions which don't have input arcs
-        for (auto t : tapn.getTransitions()) {
+        for (auto* t : tapn.getTransitions()) {
             if (t->getPreset().size() + t->getTransportArcs().size() == 0) {
                 allwaysEnabled.push_back(t);
             }
@@ -42,10 +42,8 @@ namespace VerifyTAPN { namespace DiscreteVerification {
         }
 
         // Inhibitor arcs
-        for (TAPN::InhibitorArc::Vector::const_iterator arc = transition.getInhibitorArcs().begin();
-             arc != transition.getInhibitorArcs().end();
-             arc++) {
-            if (marking->numberOfTokensInPlace((*arc)->getInputPlace().getIndex()) >= (*arc)->getWeight()) {
+        for (auto* arc : transition.getInhibitorArcs()) {
+            if (marking->numberOfTokensInPlace(arc->getInputPlace().getIndex()) >= arc->getWeight()) {
                 std::pair<int, int> p(-1, -1);
                 return p;
             }
@@ -53,18 +51,17 @@ namespace VerifyTAPN { namespace DiscreteVerification {
 
 
         // Standard arcs
-        for (TAPN::TimedInputArc::Vector::const_iterator arc = transition.getPreset().begin();
-             arc != transition.getPreset().end(); arc++) {
+        for (auto* arc : transition.getPreset()) {
             std::vector<Util::interval> intervals;
             int range;
-            if ((*arc)->getInterval().getUpperBound() == std::numeric_limits<int32_t>::max()) {
+            if (arc->getInterval().getUpperBound() == std::numeric_limits<int32_t>::max()) {
                 range = std::numeric_limits<int32_t>::max();
             } else {
-                range = (*arc)->getInterval().getUpperBound() - (*arc)->getInterval().getLowerBound();
+                range = arc->getInterval().getUpperBound() - arc->getInterval().getLowerBound();
             }
-            int weight = (*arc)->getWeight();
+            int weight = arc->getWeight();
 
-            TokenList tokens = marking->getTokenList((*arc)->getInputPlace().getIndex());
+            TokenList tokens = marking->getTokenList(arc->getInputPlace().getIndex());
             if (tokens.size() == 0) {
                 std::pair<int, int> p(-1, -1);
                 return p;
@@ -81,11 +78,11 @@ namespace VerifyTAPN { namespace DiscreteVerification {
                 }
                 if (numberOfTokensAvailable >= weight &&
                     tokens.at(j).getAge() - tokens.at(i).getAge() <= range) { //This span is interesting
-                    int low = (*arc)->getInterval().getLowerBound() - tokens.at(i).getAge();
-                    int heigh = (*arc)->getInterval().getUpperBound() - tokens.at(j).getAge();
+                    int low = arc->getInterval().getLowerBound() - tokens.at(i).getAge();
+                    int heigh = arc->getInterval().getUpperBound() - tokens.at(j).getAge();
 
                     Util::interval element(low < 0 ? 0 : low,
-                                           (*arc)->getInterval().getUpperBound() == std::numeric_limits<int32_t>::max() ? std::numeric_limits<int32_t>::max() : heigh);
+                                           arc->getInterval().getUpperBound() == std::numeric_limits<int32_t>::max() ? std::numeric_limits<int32_t>::max() : heigh);
                     Util::setAdd(intervals, element);
                 }
                 numberOfTokensAvailable -= tokens.at(i).getCount();
@@ -95,10 +92,9 @@ namespace VerifyTAPN { namespace DiscreteVerification {
         }
 
         // Transport arcs
-        for (TAPN::TransportArc::Vector::const_iterator arc = transition.getTransportArcs().begin();
-             arc != transition.getTransportArcs().end(); arc++) {
-            Util::interval arcGuard((*arc)->getInterval().getLowerBound(), (*arc)->getInterval().getUpperBound());
-            Util::interval invGuard(0, (*arc)->getDestination().getInvariant().getBound());
+        for (auto* arc : transition.getTransportArcs()) {
+            Util::interval arcGuard(arc->getInterval().getLowerBound(), arc->getInterval().getUpperBound());
+            Util::interval invGuard(0, arc->getDestination().getInvariant().getBound());
 
             Util::interval arcInterval = Util::intersect(arcGuard, invGuard);
             std::vector<Util::interval> intervals;
@@ -108,9 +104,9 @@ namespace VerifyTAPN { namespace DiscreteVerification {
             } else {
                 range = arcInterval.upper() - arcInterval.lower();
             }
-            int weight = (*arc)->getWeight();
+            int weight = arc->getWeight();
 
-            TokenList tokens = marking->getTokenList((*arc)->getSource().getIndex());
+            TokenList tokens = marking->getTokenList(arc->getSource().getIndex());
 
             if (tokens.size() == 0) {
                 std::pair<int, int> p(-1, -1);
@@ -162,17 +158,16 @@ namespace VerifyTAPN { namespace DiscreteVerification {
     TimeDartVerification::calculateStop(const TAPN::TimedTransition &transition, NonStrictMarkingBase *marking) {
         int MC = -1;
         unsigned int i = 0;
-        for (PlaceList::const_iterator iter = marking->getPlaceList().begin();
-             iter != marking->getPlaceList().end(); iter++) {
+        for (auto& iter : marking->getPlaceList()) {
             if (i < transition.getPreset().size() &&
-                iter->place->getIndex() == transition.getPreset().at(i)->getInputPlace().getIndex()) {
-                if (transition.getPreset().at(i)->getWeight() < iter->numberOfTokens()) {
-                    MC = std::max(MC, iter->place->getMaxConstant() - iter->tokens.front().getAge());
+                iter.place->getIndex() == transition.getPreset().at(i)->getInputPlace().getIndex()) {
+                if (transition.getPreset().at(i)->getWeight() < iter.numberOfTokens()) {
+                    MC = std::max(MC, iter.place->getMaxConstant() - iter.tokens.front().getAge());
                 }
                 i++;
                 continue;
             }
-            MC = std::max(MC, iter->place->getMaxConstant() - iter->tokens.front().getAge());
+            MC = std::max(MC, iter.place->getMaxConstant() - iter.tokens.front().getAge());
         }
 
         return MC + 1;
@@ -181,11 +176,10 @@ namespace VerifyTAPN { namespace DiscreteVerification {
     int TimeDartVerification::maxPossibleDelay(NonStrictMarkingBase *marking) {
         int invariantPart = std::numeric_limits<int32_t>::max();
 
-        for (PlaceList::const_iterator iter = marking->getPlaceList().begin();
-             iter != marking->getPlaceList().end(); iter++) {
-            if (iter->place->getInvariant().getBound() != std::numeric_limits<int>::max() &&
-                iter->place->getInvariant().getBound() - iter->tokens.back().getAge() < invariantPart) {
-                invariantPart = iter->place->getInvariant().getBound() - iter->tokens.back().getAge();
+        for (auto& iter : marking->getPlaceList()) {
+            if (iter.place->getInvariant().getBound() != std::numeric_limits<int>::max() &&
+                iter.place->getInvariant().getBound() - iter.tokens.back().getAge() < invariantPart) {
+                invariantPart = iter.place->getInvariant().getBound() - iter.tokens.back().getAge();
             }
         }
 

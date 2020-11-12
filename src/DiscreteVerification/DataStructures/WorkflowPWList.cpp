@@ -10,7 +10,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
     bool WorkflowPWList::add(NonStrictMarking *marking) {
         discoveredMarkings++;
         NonStrictMarkingList &m = markings_storage[marking->getHashKey()];
-        for (auto iter : m) {
+        for (auto* iter : m) {
             if (iter->equals(*marking)) {
                 return false;
             }
@@ -23,8 +23,8 @@ namespace VerifyTAPN { namespace DiscreteVerification {
 
     NonStrictMarking *WorkflowPWList::getCoveredMarking(NonStrictMarking *marking, bool useLinearSweep) {
         if (useLinearSweep) {
-            for (HashMap::const_iterator iter = markings_storage.begin(); iter != markings_storage.end(); ++iter) {
-                for (auto m_iter : iter->second) {
+            for (auto& el : markings_storage) {
+                for (auto* m_iter : el.second) {
                     if (m_iter->size() >= marking->size()) {
                         continue;
                     }
@@ -33,10 +33,9 @@ namespace VerifyTAPN { namespace DiscreteVerification {
                     auto marking_place_iter = marking->getPlaceList().begin();
 
                     bool tokensCovered = true;
-                    for (auto m_place_iter = m_iter->getPlaceList().begin();
-                         m_place_iter != m_iter->getPlaceList().end(); ++m_place_iter) {
+                    for (auto& m_place_iter : m_iter->getPlaceList()) {
                         while (marking_place_iter != marking->getPlaceList().end() &&
-                               marking_place_iter->place != m_place_iter->place) {
+                               marking_place_iter->place != m_place_iter.place) {
                             ++marking_place_iter;
                         }
 
@@ -46,15 +45,14 @@ namespace VerifyTAPN { namespace DiscreteVerification {
                         }
 
                         auto marking_token_iter = marking_place_iter->tokens.begin();
-                        for (auto m_token_iter = m_place_iter->tokens.begin();
-                             m_token_iter != m_place_iter->tokens.end(); ++m_token_iter) {
+                        for (auto& m_token_iter : m_place_iter.tokens) {
                             while (marking_token_iter != marking_place_iter->tokens.end() &&
-                                   marking_token_iter->getAge() != m_token_iter->getAge()) {
+                                   marking_token_iter->getAge() != m_token_iter.getAge()) {
                                 ++marking_token_iter;
                             }
 
                             if (marking_token_iter == marking_place_iter->tokens.end() ||
-                                marking_token_iter->getCount() < m_token_iter->getCount()) {
+                                marking_token_iter->getCount() < m_token_iter.getCount()) {
                                 tokensCovered = false;
                                 break;
                             }
@@ -72,14 +70,13 @@ namespace VerifyTAPN { namespace DiscreteVerification {
             std::vector<NonStrictMarking *> coveredMarkings;
             coveredMarkings.push_back(new NonStrictMarking(*marking));
             for (const auto &p_iter : marking->getPlaceList()) {
-                for (auto t_iter = p_iter.tokens.begin();
-                     t_iter != p_iter.tokens.end(); ++t_iter) {
-                    for (int i = 1; i <= t_iter->getCount(); ++i) {
+                for (auto& t_iter : p_iter.tokens) {
+                    for (int i = 1; i <= t_iter.getCount(); ++i) {
                         std::vector<NonStrictMarking *> toAdd;
                         for (auto &coveredMarking : coveredMarkings) {
                             auto *new_marking = new NonStrictMarking(*coveredMarking);
                             for (int ii = i; ii > 0; --ii) {
-                                new_marking->removeToken(p_iter.place->getIndex(), t_iter->getAge());
+                                new_marking->removeToken(p_iter.place->getIndex(), t_iter.getAge());
                             }
                             toAdd.push_back(new_marking);
                         }

@@ -237,7 +237,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
         }
 
         pit = placelist.begin();
-        for (auto &output : current->getPostset()) {
+        for (auto* output : current->getPostset()) {
             while (pit != placelist.end() &&
                    pit->place->getIndex() < output->getOutputPlace().getIndex())
                 ++pit;
@@ -305,7 +305,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
         PlaceList &placelist = parent->getPlaceList();
         auto pit = placelist.begin();
 
-        for (auto &inhib : trans->getInhibitorArcs()) {
+        for (auto* inhib : trans->getInhibitorArcs()) {
             while (pit != placelist.end() &&
                    inhib->getInputPlace().getIndex() > pit->place->getIndex())
                 ++pit;
@@ -356,7 +356,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
         }
 
         pit = placelist.begin();
-        for (auto &transport : trans->getTransportArcs()) {
+        for (auto* transport : trans->getTransportArcs()) {
             int source = transport->getSource().getIndex();
             while (pit != placelist.end() &&
                    pit->place->getIndex() < source)

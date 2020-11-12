@@ -39,11 +39,11 @@ namespace VerifyTAPN {
         tokens lines(description.begin(), description.end(),
                      boost::char_separator<char>("\n", "", boost::keep_empty_tokens));
         bool first = true;
-        for (tokens::const_iterator it = lines.begin(); it != lines.end(); it++) {
+        for (auto& t : lines) {
             if (!first) {
                 out << std::setw(WIDTH) << " ";
             }
-            out << *it << std::endl;
+            out << t << std::endl;
             first = false;
         }
     }

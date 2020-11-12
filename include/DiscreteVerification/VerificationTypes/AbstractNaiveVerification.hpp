@@ -92,25 +92,13 @@ namespace VerifyTAPN { namespace DiscreteVerification {
 
     template<typename T, typename U, typename S>
     bool AbstractNaiveVerification<T, U, S>::isDelayPossible(U &marking) {
-        const PlaceList &places = marking.getPlaceList();
-        if (places.empty()) return true; //Delay always possible in empty markings
-
-        auto markedPlace_iter = places.begin();
-        for (TAPN::TimedPlace::Vector::const_iterator place_iter = this->tapn.getPlaces().begin();
-             place_iter != this->tapn.getPlaces().end(); place_iter++) {
-            int inv = (*place_iter)->getInvariant().getBound();
-            if (**place_iter == *(markedPlace_iter->place)) {
-                if (markedPlace_iter->maxTokenAge() > inv - 1) {
-                    return false;
-                }
-
-                markedPlace_iter++;
-
-                if (markedPlace_iter == places.end()) return true;
+        for (auto& place_list : marking.getPlaceList()) {
+            auto inv = place_list.place->getInvariant().getBound();
+            if (place_list.maxTokenAge() >= inv) {
+                return false;
             }
         }
-        assert(false); // This happens if there are markings on places not in the TAPN
-        return false;
+        return true;
     }
 
     template<typename T, typename U, typename S>

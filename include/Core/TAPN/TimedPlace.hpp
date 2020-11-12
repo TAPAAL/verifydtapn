@@ -120,7 +120,9 @@ namespace VerifyTAPN { namespace TAPN {
     // TAPAAL does not allow multiple places with the same name,
     // thus it is enough to use the name to determine equality.
     inline bool operator==(TimedPlace const &a, TimedPlace const &b) {
-        return a.getName() == b.getName();
+        if(&a != &b)
+            return a.getName() == b.getName();
+        return true;
     }
 
     inline bool operator!=(TimedPlace const &a, TimedPlace const &b) {

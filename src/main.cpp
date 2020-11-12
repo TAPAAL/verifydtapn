@@ -31,9 +31,8 @@ int main(int argc, char *argv[]) {
     if (options.getCalculateCmax()) {
         std::cout << options << std::endl;
         std::cout << "C-MAX" << std::endl;
-        for (TimedPlace::Vector::const_iterator iter = tapn->getPlaces().begin();
-             iter != tapn->getPlaces().end(); ++iter) {
-            std::cout << '<' << (*iter)->getName() << '#' << (*iter)->getMaxConstant() << "> ";
+        for (auto* iter : tapn->getPlaces()) {
+            std::cout << '<' << iter->getName() << '#' << iter->getMaxConstant() << "> ";
         }
         std::cout << std::endl;
         return 0;

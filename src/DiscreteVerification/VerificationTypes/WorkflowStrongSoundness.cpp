@@ -30,10 +30,9 @@ namespace VerifyTAPN { namespace DiscreteVerification {
     }
 
     void WorkflowStrongSoundnessReachability::findInOut() {
-        for (TimedPlace::Vector::const_iterator iter = tapn.getPlaces().begin();
-             iter != tapn.getPlaces().end(); ++iter) {
-            if ((*iter)->getTransportArcs().empty() && (*iter)->getInputArcs().empty()) {
-                outPlace = *iter;
+        for (auto* iter : tapn.getPlaces()) {
+            if (iter->getTransportArcs().empty() && iter->getInputArcs().empty()) {
+                outPlace = iter;
                 break;
             }
         }

@@ -29,7 +29,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
             if (options.getTrace() != VerificationOptions::NO_TRACE) {
                 this->tmpdart = ((ReachabilityTraceableDart *) &dart)->trace;
             }
-            for (auto t : tapn.getTransitions()) {
+            for (auto* t : tapn.getTransitions()) {
                 auto &transition = *t;
                 auto calculatedStart = calculateStart(transition, dart.getBase());
                 if (calculatedStart.first == -1) {    // Transition cannot be enabled in marking

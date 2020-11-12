@@ -16,7 +16,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
     TimeDartPWHashMap::add(NonStrictMarkingBase *marking, int youngest, WaitingDart *parent, int upper, int start) {
         discoveredMarkings++;
         TimeDartList &m = markings_storage[marking->getHashKey()];
-        for (auto iter : m) {
+        for (auto* iter : m) {
             if (iter->getBase()->equals(*marking)) {
                 bool inWaiting = iter->getWaiting() < iter->getPassed();
 
@@ -112,9 +112,8 @@ namespace VerifyTAPN { namespace DiscreteVerification {
     std::ostream &operator<<(std::ostream &out, TimeDartPWHashMap &x) {
         out << "Passed and waiting:" << std::endl;
         for (auto &iter : x.markings_storage) {
-            for (auto m_iter = iter.second.begin();
-                 m_iter != iter.second.end(); m_iter++) {
-                out << "- " << *m_iter << std::endl;
+            for (auto& m_iter : iter.second) {
+                out << "- " << m_iter << std::endl;
             }
         }
         out << "Waiting:" << std::endl << x.waiting_list;

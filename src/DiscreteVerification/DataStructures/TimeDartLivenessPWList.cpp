@@ -141,9 +141,8 @@ namespace VerifyTAPN { namespace DiscreteVerification {
     std::ostream &operator<<(std::ostream &out, TimeDartLivenessPWHashMap &x) {
         out << "Passed and waiting:" << std::endl;
         for (auto &iter : x.markings_storage) {
-            for (auto m_iter = iter.second.begin();
-                 m_iter != iter.second.end(); m_iter++) {
-                out << "- " << *m_iter << std::endl;
+            for (auto& m_iter : iter.second) {
+                out << "- " << m_iter << std::endl;
             }
         }
         out << "Waiting:" << std::endl << x.waiting_list;

@@ -20,14 +20,14 @@ namespace VerifyTAPN { namespace DiscreteVerification {
     bool ReducingGenerator::preSetOf(size_t i) {
         auto place = tapn.getPlaces()[i];
         bool zt = false;
-        for (auto arc : place->getOutputArcs()) {
+        for (auto* arc : place->getOutputArcs()) {
             auto t = arc->getInputTransition().getIndex();
             assert(t < tapn.getTransitions().size());
             if (!_stubborn[t]) _unprocessed.push_back(t);
             zt |= _enabled[t] && tapn.getTransitions()[t]->isUrgent();
             _stubborn[t] = true;
         }
-        for (auto arc : place->getProdTransportArcs()) {
+        for (auto* arc : place->getProdTransportArcs()) {
             auto t = arc->getTransition().getIndex();
             assert(t < tapn.getTransitions().size());
             if (!_stubborn[t]) _unprocessed.push_back(t);
@@ -47,7 +47,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
                     zt = true;
             }
         }
-        for (auto arc : place->getInputArcs()) {
+        for (auto* arc : place->getInputArcs()) {
             auto t = arc->getOutputTransition().getIndex();
             assert(t < tapn.getTransitions().size());
             if (!interval.intersects(arc->getInterval())) continue;
@@ -56,7 +56,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
             _stubborn[t] = true;
         }
 
-        for (auto arc : place->getTransportArcs()) {
+        for (auto* arc : place->getTransportArcs()) {
             if (&arc->getSource() == &arc->getDestination()) continue;
             auto t = arc->getTransition().getIndex();
             assert(t < tapn.getTransitions().size());
@@ -71,7 +71,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
     bool ReducingGenerator::inhibPostSetOf(size_t i) {
         bool zt = false;
         auto place = tapn.getPlaces()[i];
-        for (auto arc : place->getInhibitorArcs()) {
+        for (auto* arc : place->getInhibitorArcs()) {
             auto t = arc->getOutputTransition().getIndex();
             assert(t < tapn.getTransitions().size());
             if (!_stubborn[t]) _unprocessed.push_back(t);
@@ -144,12 +144,12 @@ namespace VerifyTAPN { namespace DiscreteVerification {
         if (trans) {
             // reason for urgency is an urgent edge
             _stubborn[trans->getIndex()] = true;
-            for (auto a : trans->getInhibitorArcs())
+            for (auto* a : trans->getInhibitorArcs())
                 preSetOf(a->getInputPlace().getIndex());
         } else {
             // reason for urgency is an invariant
             assert(inv_place);
-            for (auto a : inv_place->getInputArcs()) {
+            for (auto* a : inv_place->getInputArcs()) {
                 auto &interval = a->getInterval();
                 if (interval.contains(max_age)) {
                     auto t = a->getOutputTransition().getIndex();
@@ -161,7 +161,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
                     }
                 }
             }
-            for (auto a : inv_place->getTransportArcs()) {
+            for (auto* a : inv_place->getTransportArcs()) {
                 if (&a->getDestination() == &a->getSource()) continue;
                 auto &interval = a->getInterval();
                 if (interval.contains(max_age)) {
@@ -198,7 +198,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
             size_t min = 0;
             size_t max = _enabled.size();
             if (inv_place) {
-                for (auto a : inv_place->getInputArcs()) {
+                for (auto* a : inv_place->getInputArcs()) {
                     if (_enabled[a->getOutputTransition().getIndex()]) {
                         min = a->getOutputTransition().getIndex();
                         max = min + 1;
@@ -206,7 +206,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
                     }
                 }
                 if (max != min + 1) {
-                    for (auto a : inv_place->getTransportArcs()) {
+                    for (auto* a : inv_place->getTransportArcs()) {
                         if (_enabled[a->getTransition().getIndex()]) {
                             min = a->getTransition().getIndex();
                             max = min + 1;
@@ -218,13 +218,13 @@ namespace VerifyTAPN { namespace DiscreteVerification {
             for (size_t i = min; i < max; ++i) {
                 if (_enabled[i]) {
                     auto trans = tapn.getTransitions()[i];
-                    for (auto a : trans->getPreset())
+                    for (auto* a : trans->getPreset())
                         added_zt |= postSetOf(a->getInputPlace().getIndex(), !added_zt);
-                    for (auto a : trans->getTransportArcs())
+                    for (auto* a : trans->getTransportArcs())
                         added_zt |= postSetOf(a->getSource().getIndex(), !added_zt);
-                    for (auto a : trans->getInhibitorArcs()) {
+                    for (auto* a : trans->getInhibitorArcs()) {
                         auto &place = a->getInputPlace();
-                        for (auto arc : place.getInhibitorArcs()) {
+                        for (auto* arc : place.getInhibitorArcs()) {
                             added_zt |= preSetOf(arc->getInputPlace().getIndex());
                         }
                     }
@@ -244,11 +244,11 @@ namespace VerifyTAPN { namespace DiscreteVerification {
             assert(tr < tapn.getTransitions().size());
             assert(trans);
             if (_enabled[tr]) {
-                for (auto a : trans->getPreset())
+                for (auto* a : trans->getPreset())
                     added_zt |= postSetOf(a->getInputPlace().getIndex(), !added_zt, a->getInterval());
-                for (auto a : trans->getPostset())
+                for (auto* a : trans->getPostset())
                     added_zt |= inhibPostSetOf(a->getOutputPlace().getIndex());
-                for (auto a : trans->getTransportArcs()) {
+                for (auto* a : trans->getTransportArcs()) {
                     added_zt |= postSetOf(a->getSource().getIndex(), !added_zt, a->getInterval());
                     added_zt |= inhibPostSetOf(a->getDestination().getIndex());
                 }
@@ -257,10 +257,10 @@ namespace VerifyTAPN { namespace DiscreteVerification {
                 if (auto inhib = inhibited(trans)) {
                     auto &p = inhib->getInputPlace();
                     auto &tl = parent->getTokenList(p.getIndex());
-                    for (auto &arc : p.getInputArcs()) {
+                    for (auto* arc : p.getInputArcs()) {
                         uint32_t trans = arc->getOutputTransition().getIndex();
                         if (!_stubborn[trans]) {
-                            for (auto &t : tl)
+                            for (const auto& t : tl)
                                 if (arc->getInterval().contains(t.getAge())) {
                                     _stubborn[trans] = true;
                                     _unprocessed.push_back(trans);
@@ -268,10 +268,10 @@ namespace VerifyTAPN { namespace DiscreteVerification {
                                 }
                         }
                     }
-                    for (auto &arc : p.getTransportArcs()) {
+                    for (auto* arc : p.getTransportArcs()) {
                         uint32_t trans = arc->getTransition().getIndex();
                         if (!_stubborn[trans]) {
-                            for (auto &t : tl)
+                            for (const auto& t : tl)
                                 if (arc->getInterval().contains(t.getAge())) {
                                     _stubborn[trans] = true;
                                     _unprocessed.push_back(trans);
@@ -285,7 +285,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
                     bool found = false;
                     // add preset if zero is in guard
                     TAPN::TimeInterval interval;
-                    for (auto a : trans->getPreset()) {
+                    for (auto* a : trans->getPreset()) {
                         if (&a->getInputPlace() == place) {
                             interval = a->getInterval();
                             if (interval.contains(0))
@@ -296,7 +296,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
                     }
 
                     if (!found) {
-                        for (auto a : trans->getTransportArcs()) {
+                        for (auto* a : trans->getTransportArcs()) {
                             if (&a->getSource() == place) {
                                 interval = a->getInterval();
                                 if (a->getInterval().contains(0))
@@ -307,7 +307,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
                     }
 
                     // take care of transport-arcs
-                    for (auto a : place->getProdTransportArcs()) {
+                    for (auto* a : place->getProdTransportArcs()) {
                         auto t = &a->getTransition();
                         uint32_t id = t->getIndex();
                         if (_stubborn[id]) continue;

@@ -165,11 +165,10 @@ namespace VerifyTAPN { namespace DiscreteVerification {
 
             //Print marking
             std::cout << "Marking: ";
-            for (PlaceList::const_iterator iter = stack.top()->getPlaceList().begin();
-                 iter != stack.top()->getPlaceList().end(); iter++) {
-                for (TokenList::const_iterator titer = iter->tokens.begin(); titer != iter->tokens.end(); titer++) {
-                    for (int i = 0; i < titer->getCount(); i++) {
-                        std::cout << "(" << iter->place->getName() << "," << titer->getAge() << ") ";
+            for (auto& token_list : stack.top()->getPlaceList()) {
+                for (auto& token : token_list.tokens) {
+                    for (int i = 0; i < token.getCount(); i++) {
+                        std::cout << "(" << token_list.place->getName() << "," << token.getAge() << ") ";
                     }
                 }
             }
@@ -359,16 +358,14 @@ namespace VerifyTAPN { namespace DiscreteVerification {
         xml_attribute<> *id = doc.allocate_attribute("id", current->getGeneratedBy()->getId().c_str());
         transitionNode->append_attribute(id);
 
-        for (TAPN::TimedInputArc::Vector::const_iterator arc_iter = current->getGeneratedBy()->getPreset().begin();
-             arc_iter != current->getGeneratedBy()->getPreset().end(); arc_iter++) {
-            createTransitionSubNodes(old, current, doc, transitionNode, (*arc_iter)->getInputPlace(),
-                                     (*arc_iter)->getInterval(), (*arc_iter)->getWeight());
+        for (auto* arc : current->getGeneratedBy()->getPreset()) {
+            createTransitionSubNodes(old, current, doc, transitionNode, arc->getInputPlace(),
+                                     arc->getInterval(), arc->getWeight());
         }
 
-        for (TAPN::TransportArc::Vector::const_iterator arc_iter = current->getGeneratedBy()->getTransportArcs().begin();
-             arc_iter != current->getGeneratedBy()->getTransportArcs().end(); arc_iter++) {
-            createTransitionSubNodes(old, current, doc, transitionNode, (*arc_iter)->getSource(),
-                                     (*arc_iter)->getInterval(), (*arc_iter)->getWeight());
+        for (auto* arc : current->getGeneratedBy()->getTransportArcs()) {
+            createTransitionSubNodes(old, current, doc, transitionNode, arc->getSource(),
+                                     arc->getInterval(), arc->getWeight());
         }
 
         return transitionNode;
@@ -411,11 +408,11 @@ namespace VerifyTAPN { namespace DiscreteVerification {
             }
         }
 
-        for (TokenList::const_iterator iter = old_tokens.begin();
-             iter != old_tokens.end() && tokensFound < weight; iter++) {
-            if (iter->getAge() >= interval.getLowerBound()) {
-                for (int i = 0; i < iter->getCount() && tokensFound < weight; i++) {
-                    transitionNode->append_node(createTokenNode(doc, place, *iter));
+        for (auto& token : old_tokens) {
+            if(tokensFound >= weight) break;
+            if (token.getAge() >= interval.getLowerBound()) {
+                for (int i = 0; i < token.getCount() && tokensFound < weight; i++) {
+                    transitionNode->append_node(createTokenNode(doc, place, token));
                     tokensFound++;
                 }
             }
