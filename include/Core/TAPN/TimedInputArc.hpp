@@ -39,7 +39,7 @@ namespace VerifyTAPN::TAPN {
         TimeInterval interval;
         TimedPlace &place;
         TimedTransition &transition;
-        const int weight;
+        const uint32_t weight;
     };
 
     inline std::ostream &operator<<(std::ostream &out, const TimedInputArc &arc) {

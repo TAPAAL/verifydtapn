@@ -10,9 +10,9 @@
 
 #include "../DataStructures/TimeDart.hpp"
 #include "../DataStructures/TimeDartPWList.hpp"
-#include "../../Core/TAPN/TAPN.hpp"
-#include "../../Core/QueryParser/AST.hpp"
-#include "../../Core/VerificationOptions.hpp"
+#include "Core/TAPN/TAPN.hpp"
+#include "Core/QueryParser/AST.hpp"
+#include "Core/VerificationOptions.hpp"
 #include "../QueryVisitor.hpp"
 #include "../DataStructures/NonStrictMarkingBase.hpp"
 #include <stack>

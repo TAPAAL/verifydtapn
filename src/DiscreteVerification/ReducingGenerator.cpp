@@ -400,58 +400,44 @@ namespace VerifyTAPN::DiscreteVerification {
         }
     }
 
-    static IncDecr ic(true, false);
-    static IncDecr dc(false, true);
-
     void InterestingVisitor::visit(AtomicProposition &expr, Result &context) {
         auto incdec = [this, &expr](bool id1, bool id2) {
+            IncDecr ic(true, false);
+            IncDecr dc(false, true);
             if (id1) expr.getLeft().accept(*this, ic);
             else expr.getLeft().accept(*this, dc);
             if (id2) expr.getRight().accept(*this, ic);
             else expr.getRight().accept(*this, dc);
         };
-        if (expr.getOperator() == "<") {
-            if (!expr.eval && !negated)
-                incdec(false, true);
-            else if (expr.eval && negated)
-                incdec(true, false);
-        } else if (expr.getOperator() == ">=") {
-            if (!expr.eval && !negated)
-                incdec(true, false);
-            else if (expr.eval && negated)
-                incdec(false, true);
-        } else if (expr.getOperator() == "<=") {
-            if (!expr.eval && !negated)
-                incdec(false, true);
-            else if (expr.eval && negated)
-                incdec(true, false);
-        } else if (expr.getOperator() == ">") {
-            if (!expr.eval && !negated)
-                incdec(true, false);
-            else if (expr.eval && negated)
-                incdec(false, true);
-        } else if (expr.getOperator() == "=") {
-            if (!expr.eval && !negated) {
-                if (expr.getLeft().eval < expr.getRight().eval)
-                    incdec(true, false);
-                else
+        bool neg = negated;
+        switch(expr.getOperator())
+        {
+            case AtomicProposition::LT:
+                if (!expr.eval && !neg)
                     incdec(false, true);
-            } else if (expr.eval && negated) {
-                incdec(true, true);
-                incdec(false, false);
-            }
-        } else if (expr.getOperator() == "!=") {
-            if (!expr.eval && !negated) {
-                incdec(true, true);
-                incdec(false, false);
-            } else if (expr.eval && negated) {
-                if (expr.getLeft().eval < expr.getRight().eval)
+                else if (expr.eval && neg)
                     incdec(true, false);
-                else
+                break;
+            case AtomicProposition::LE:
+                if (!expr.eval && !neg)
                     incdec(false, true);
-            }
-        } else {
-            assert(false);
+                else if (expr.eval && neg)
+                    incdec(true, false);
+                break;
+            case AtomicProposition::NE:
+                neg = !neg; // fall through to EQ case
+            case AtomicProposition::EQ:
+                if (!expr.eval && !neg) {
+                    if (expr.getLeft().eval < expr.getRight().eval)
+                        incdec(true, false);
+                    else
+                        incdec(false, true);
+                } else if (expr.eval && neg) {
+                    incdec(true, true);
+                    incdec(false, false);
+                }
+                break;
+            default: assert(false);
         }
     }
 

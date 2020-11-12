@@ -8,11 +8,12 @@
 #ifndef NonStrictMarkingBase_HPP_
 #define NonStrictMarkingBase_HPP_
 
+#include "Core/TAPN/TAPN.hpp"
+
+#include "boost/functional/hash.hpp"
+
 #include <cassert>
 #include <vector>
-#include "boost/functional/hash.hpp"
-#include <iostream>
-#include "../../Core/TAPN/TAPN.hpp"
 #include <iostream>
 
 using namespace std;
@@ -163,7 +164,7 @@ namespace VerifyTAPN::DiscreteVerification {
             return canDeadlock(tapn, maxDelay, false);
         };
 
-        int numberOfTokensInPlace(int placeId) const;
+        uint32_t numberOfTokensInPlace(int placeId) const;
 
         const TokenList &getTokenList(int placeId) const;
 
@@ -173,7 +174,7 @@ namespace VerifyTAPN::DiscreteVerification {
             return places;
         }
 
-        unsigned int size();
+        uint32_t size();
 
         inline NonStrictMarkingBase *getParent() const { return parent; }
 

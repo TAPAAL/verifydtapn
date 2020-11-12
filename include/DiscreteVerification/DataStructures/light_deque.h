@@ -41,10 +41,17 @@ public:
     }
 
     T front() {
+        assert(!empty());
         return _data[_front];
+    }
+    
+    T back() {
+        assert(!empty());
+        return _data[back-1];
     }
 
     void pop_front() {
+       assert(!empty());
         ++_front;
         if (_front >= _back) {
             _front = _back = 0;

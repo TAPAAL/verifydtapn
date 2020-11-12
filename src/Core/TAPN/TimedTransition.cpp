@@ -3,7 +3,8 @@
 
 #include <cstdlib>
 
-namespace VerifyTAPN::TAPN {
+namespace VerifyTAPN {
+namespace TAPN {
 
     void TimedTransition::print(std::ostream &out) const {
         out << getName();
@@ -76,7 +77,4 @@ namespace VerifyTAPN::TAPN {
         postset.push_back(&arc);
     }
 }
-
-
-
-
+}

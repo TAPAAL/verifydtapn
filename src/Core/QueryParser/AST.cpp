@@ -1,4 +1,5 @@
 #include "Core/QueryParser/AST.hpp"
+#include <cassert>
 
 namespace VerifyTAPN::AST {
     NotExpression *NotExpression::clone() const {
@@ -103,5 +104,18 @@ namespace VerifyTAPN::AST {
 
     void Query::accept(Visitor &visitor, Result &context) {
         visitor.visit(*this, context);
+    }
+
+    AtomicProposition::AtomicProposition(ArithmeticExpression *left, std::string *sop, ArithmeticExpression *right) : left(left), right(right) {
+        if(*sop == "=" || *sop == "==") op = EQ;
+        else if(*sop == "!=") op = NE;
+        else if(*sop == "<") op = LT;
+        else if(*sop == "<=") op = LE;
+        else if(*sop == ">=") { op = LE; std::swap(left, right); }
+        else if(*sop == ">") { op = LT; std::swap(left, right); }
+        else {
+            assert(false);
+            throw std::exception();
+        }
     }
 }

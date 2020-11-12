@@ -9,6 +9,7 @@ add_library(DiscreteVerification DeadlockVisitor.cpp
         DiscreteVerification.cpp
         Generator.cpp
         PlaceVisitor.cpp
-        ReducingGenerator.cpp)
+        ReducingGenerator.cpp
+        InterestingVisitor.cpp)
 
 target_link_libraries(DiscreteVerification DataStructures Util SearchStrategies VerificationTypes)

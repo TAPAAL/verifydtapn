@@ -10,12 +10,12 @@
 
 #include <forward_list>
 
-#include "../DataStructures/MarkingStore.h"
-#include "../../Core/TAPN/TAPN.hpp"
+#include "DiscreteVerification/DataStructures/MarkingStore.h"
+#include "Core/TAPN/TAPN.hpp"
 #include "../QueryVisitor.hpp"
-#include "../DataStructures/NonStrictMarkingBase.hpp"
+#include "DiscreteVerification/DataStructures/NonStrictMarkingBase.hpp"
 #include "../Generator.h"
-#include "../DataStructures/Waiting.h"
+#include "DiscreteVerification/DataStructures/Waiting.h"
 
 
 namespace VerifyTAPN::DiscreteVerification {

@@ -8,9 +8,9 @@
 #ifndef WEIGHTQUERYVISITOR_HPP_
 #define WEIGHTQUERYVISITOR_HPP_
 
-#include "../../Core/QueryParser/Visitor.hpp"
+#include "Core/QueryParser/Visitor.hpp"
 #include "../DataStructures/NonStrictMarking.hpp"
-#include "../../Core/QueryParser/AST.hpp"
+#include "Core/QueryParser/AST.hpp"
 #include <exception>
 #include <climits>
 
@@ -52,7 +52,7 @@ namespace VerifyTAPN::DiscreteVerification {
         void visit(PlusExpression &expr, Result &context) override;
 
     private:
-        int compare(int numberOfTokensInPlace, const std::string &op, int n) const;
+        static int compare(int numberOfTokensInPlace, AtomicProposition::op_e op, int n);
 
     private:
         const NonStrictMarkingBase &marking;

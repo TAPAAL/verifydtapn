@@ -315,7 +315,7 @@ namespace VerifyTAPN {
             if (replace.count(attribute->value()))
                 weight = replace.at(attribute->value());
             else
-                weight = atoi(attribute->value());
+                weight = std::atoi(attribute->value());
         }
         return weight;
     }

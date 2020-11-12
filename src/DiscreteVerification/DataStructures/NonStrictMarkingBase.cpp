@@ -58,8 +58,8 @@ namespace VerifyTAPN::DiscreteVerification {
         return count;
     }
 
-    int NonStrictMarkingBase::numberOfTokensInPlace(int placeId) const {
-        int count = 0;
+    uint32_t NonStrictMarkingBase::numberOfTokensInPlace(int placeId) const {
+        uint32_t count = 0;
         for (const auto &place : places) {
             if (place.place->getIndex() == placeId) {
                 for (auto it = place.tokens.begin(); it != place.tokens.end(); it++) {

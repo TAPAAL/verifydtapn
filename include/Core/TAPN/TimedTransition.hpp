@@ -93,6 +93,30 @@ namespace VerifyTAPN {
                 controllable = value;
             }
 
+            uint32_t getProduced(TimedPlace* place) const
+            {
+                // this could be precomputed
+                for(auto& pre : getPostset())
+                    if(&pre->getOutputPlace() == place)
+                        return pre->getWeight();
+                for(auto& pre : getTransportArcs())
+                    if(&pre->getDestination() == place)
+                        return pre->getWeight();
+                return 0;
+            }
+            
+            uint32_t getConsumed(TimedPlace* place) const
+            {
+                // this could be precomputed
+                for(auto& pre : getPreset())
+                    if(&pre->getInputPlace() == place)
+                        return pre->getWeight();
+                for(auto& pre : getTransportArcs())
+                    if(&pre->getSource() == place)
+                        return pre->getWeight();
+                return 0;
+            }
+            
         private: // data
             std::string name;
             std::string id;
