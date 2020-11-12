@@ -47,12 +47,20 @@ namespace VerifyTAPN { namespace DiscreteVerification {
         virtual void from_marking(NonStrictMarkingBase *parent, Mode mode = ALL, bool urgent = false);
 
         virtual NonStrictMarkingBase *next(bool do_delay = true);
-
+        
+        void printTransitionStatistics(std::ostream &out) const;
+        
+        const TAPN::TimedTransition *last_fired() const { return _last_fired; }
+        
+        size_t children();
+        
+        bool urgent() { return seen_urgent; };
+        
         bool only_transition(const TAPN::TimedTransition *trans);
 
-        NonStrictMarkingBase *from_delay();
+    protected:
 
-        size_t children();
+        NonStrictMarkingBase *from_delay();
 
         bool is_enabled(const TAPN::TimedTransition *trans, std::vector<size_t> *permutations = nullptr);
 
@@ -61,13 +69,6 @@ namespace VerifyTAPN { namespace DiscreteVerification {
 
         const TAPN::InhibitorArc *inhibited(const TAPN::TimedTransition *trans) const;
 
-        bool urgent() { return seen_urgent; };
-
-        void printTransitionStatistics(std::ostream &out) const;
-
-        const TAPN::TimedTransition *last_fired() const { return _last_fired; }
-
-    protected:
         NonStrictMarkingBase *next_no_input();
 
         NonStrictMarkingBase *next_from_current();
