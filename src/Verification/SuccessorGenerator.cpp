@@ -28,7 +28,7 @@ namespace VerifyTAPN {
 			const TAPN::TimedInputArc::WeakPtrVector& preset = (*iter)->GetPreset();
 			for(TAPN::TimedInputArc::WeakPtrVector::const_iterator presetIter = preset.begin(); presetIter != preset.end(); ++presetIter)
 			{
-				boost::shared_ptr<TAPN::TimedInputArc> ia = (*presetIter).lock();
+				std::shared_ptr<TAPN::TimedInputArc> ia = (*presetIter).lock();
 				const TAPN::TimeInterval& ti = ia->Interval();
 				unsigned int nTokensFromCurrInputPlace = 0;
 				int currInputPlaceIndex = tapn.GetPlaceIndex(ia->InputPlace());
@@ -134,7 +134,7 @@ namespace VerifyTAPN {
 		// move all tokens that are currently in the net
 		for(unsigned int i = 0; i < presetSize; ++i)
 		{
-			boost::shared_ptr<TAPN::TimedInputArc> ia = preset[i].lock();
+			std::shared_ptr<TAPN::TimedInputArc> ia = preset[i].lock();
 			int inputPlace = tapn.GetPlaceIndex(ia->InputPlace());
 			const TAPN::TimeInterval& ti = ia->Interval();
 			const std::list<int>& outputPlaces = pairing.GetOutputPlacesFor(inputPlace);
@@ -200,7 +200,7 @@ namespace VerifyTAPN {
 			for(unsigned int i = 0; i < presetSize; ++i)
 			{
 				int tokenIndex = tokenIndices->at_element(currTransitionIndex+i, currPermutationindices[i]);
-				boost::shared_ptr<TAPN::TimedInputArc> ia = preset[i].lock();
+				std::shared_ptr<TAPN::TimedInputArc> ia = preset[i].lock();
 				const TAPN::TimeInterval& ti = ia->Interval();
 				int indexAfterFiring = tokenIndex;
 				for(std::vector<int>::iterator iter = tokensToRemove.begin(); iter != tokensToRemove.end(); ++iter){

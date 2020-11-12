@@ -4,28 +4,24 @@
 #include "TimedArcPetriNet.hpp"
 
 namespace VerifyTAPN {
-	namespace TAPN {
-		void TimedTransition::Print(std::ostream& out) const
-		{
-			out << GetName();
-		}
+    namespace TAPN {
 
-		void TimedTransition::AddToPreset(const boost::shared_ptr<TimedInputArc>& arc)
-		{
-			if(arc)
-			{
-				preset.push_back(arc);
-			}
-		}
+        void TimedTransition::Print(std::ostream& out) const {
+            out << GetName();
+        }
 
-		void TimedTransition::AddToPostset(const boost::shared_ptr<OutputArc>& arc)
-		{
-			if(arc)
-			{
-				postset.push_back(arc);
-			}
-		}
-	}
+        void TimedTransition::AddToPreset(const std::shared_ptr<TimedInputArc>& arc) {
+            if (arc) {
+                preset.push_back(arc);
+            }
+        }
+
+        void TimedTransition::AddToPostset(const std::shared_ptr<OutputArc>& arc) {
+            if (arc) {
+                postset.push_back(arc);
+            }
+        }
+    }
 }
 
 

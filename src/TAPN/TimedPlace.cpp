@@ -17,7 +17,7 @@ namespace VerifyTAPN{
 			out << "(" << name << " (index: " << index << "), " << timeInvariant << ", Max Constant: " << maxConstant << ", Infinity Place: " << (isInfinityPlace ? "true" : "false") << ")";
 		}
 
-		void TimedPlace::AddToPostset(const boost::shared_ptr<TimedInputArc>& arc)
+		void TimedPlace::AddToPostset(const std::shared_ptr<TimedInputArc>& arc)
 		{
 			if(arc)
 			{
@@ -25,7 +25,7 @@ namespace VerifyTAPN{
 			}
 		}
 
-		void TimedPlace::AddToPreset(const boost::shared_ptr<OutputArc>& arc)
+		void TimedPlace::AddToPreset(const std::shared_ptr<OutputArc>& arc)
 		{
 			if(arc)
 			{

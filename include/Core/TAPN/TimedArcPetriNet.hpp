@@ -11,7 +11,6 @@
 #include "OutputArc.hpp"
 #include "google/sparse_hash_map"
 #include <boost/functional/hash.hpp>
-#include <boost/math/common_factor.hpp>
 #include "../QueryParser/AST.hpp"
 #include "../../DiscreteVerification/PlaceVisitor.hpp"
 #include "../VerificationOptions.hpp"

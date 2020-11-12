@@ -24,7 +24,7 @@ namespace VerifyTAPN {
 
 			for(TimedInputArc::Vector::const_iterator iter = inputArcs.begin(); iter != inputArcs.end(); ++iter)
 			{
-				const boost::shared_ptr<TimedInputArc>& arc = *iter;
+				const std::shared_ptr<TimedInputArc>& arc = *iter;
 				arc->InputPlace().AddToPostset(arc);
 				arc->OutputTransition().AddToPreset(arc);
 				UpdateMaxConstant(arc->Interval());
@@ -32,7 +32,7 @@ namespace VerifyTAPN {
 
 			for(OutputArc::Vector::const_iterator iter = outputArcs.begin(); iter != outputArcs.end(); ++iter)
 			{
-				const boost::shared_ptr<OutputArc>& arc = *iter;
+				const std::shared_ptr<OutputArc>& arc = *iter;
 				arc->OutputPlace().AddToPreset(arc);
 				arc->InputTransition().AddToPostset(arc);
 			}
@@ -51,7 +51,7 @@ namespace VerifyTAPN {
 				bool isInfinityPlace = true;
 				for(TimedInputArc::WeakPtrVector::const_iterator arcIter = (*iter)->GetPostset().begin(); arcIter != (*iter)->GetPostset().end(); ++arcIter)
 				{
-					boost::shared_ptr<TimedInputArc> arc = arcIter->lock();
+					std::shared_ptr<TimedInputArc> arc = arcIter->lock();
 
 					if(!arc->Interval().IsZeroInfinity())
 						isInfinityPlace = false;
@@ -68,7 +68,7 @@ namespace VerifyTAPN {
 				int maxConstant = 0;
 				for(TimedInputArc::WeakPtrVector::const_iterator arcIter = (*iter)->GetPostset().begin(); arcIter != (*iter)->GetPostset().end(); ++arcIter)
 				{
-					boost::shared_ptr<TimedInputArc> ia = arcIter->lock();
+					std::shared_ptr<TimedInputArc> ia = arcIter->lock();
 					const TAPN::TimeInterval& interval = ia->Interval();
 
 					const int lowerBound = interval.GetLowerBound();

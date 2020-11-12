@@ -5,7 +5,6 @@
 #include <vector>
 #include "TimedInputArc.hpp"
 #include "OutputArc.hpp"
-#include "boost/shared_ptr.hpp"
 
 namespace VerifyTAPN {
 
@@ -17,15 +16,15 @@ class SymMarking;
 		class TimedTransition
 		{
 		public: // typedefs
-			typedef std::vector< boost::shared_ptr<TimedTransition> > Vector;
+			typedef std::vector< std::shared_ptr<TimedTransition> > Vector;
 		public:
 			TimedTransition(const std::string& name, const std::string& id) : name(name), id(id), preset(), postset(), index(-1) { };
 			TimedTransition() : name("*EMPTY*"), id("-1"), preset(), postset(), index(-1) { };
 			virtual ~TimedTransition() { /* empty */ }
 
 		public: // modifiers
-			void AddToPreset(const boost::shared_ptr<TimedInputArc>& arc);
-			void AddToPostset(const boost::shared_ptr<OutputArc>& arc);
+			void AddToPreset(const std::shared_ptr<TimedInputArc>& arc);
+			void AddToPostset(const std::shared_ptr<OutputArc>& arc);
 
 			inline void SetIndex(int i) { index = i; };
 		public: // inspectors

@@ -2,6 +2,7 @@
 #include "Core/TAPN/TimeInterval.hpp"
 
 #include <limits>
+#include <numeric>
 
 namespace VerifyTAPN::TAPN {
     void TimedArcPetriNet::initialize(bool useGlobalMaxConstant, bool lowerGuardsByGCD) {
@@ -95,7 +96,7 @@ namespace VerifyTAPN::TAPN {
 
         int divider = *constants.begin();
         for (int constant : constants) {
-            divider = boost::math::gcd(divider, constant);
+            divider = std::gcd(divider, constant);
         }
 
 

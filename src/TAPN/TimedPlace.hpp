@@ -2,13 +2,14 @@
 #ifndef VERIFYYAPN_TAPN_TIMEDPLACE_HPP_
 #define VERIFYYAPN_TAPN_TIMEDPLACE_HPP_
 
-#include <string>
-#include <vector>
-#include <iostream>
+
 #include "TimeInvariant.hpp"
 #include "TimedInputArc.hpp"
 #include "OutputArc.hpp"
-#include "boost/shared_ptr.hpp"
+
+#include <string>
+#include <vector>
+#include <iostream>
 
 namespace VerifyTAPN{
 	namespace TAPN{
@@ -24,7 +25,7 @@ namespace VerifyTAPN{
 			}
 
 		public: // typedefs
-			typedef std::vector< boost::shared_ptr<TimedPlace> > Vector;
+			typedef std::vector< std::shared_ptr<TimedPlace> > Vector;
 
 		public: // construction / destruction
 			TimedPlace(const std::string& name, const std::string& id, const TimeInvariant timeInvariant)
@@ -33,8 +34,8 @@ namespace VerifyTAPN{
 			virtual ~TimedPlace() { /* empty */ };
 
 		public: // modifiers
-			void AddToPreset(const boost::shared_ptr<OutputArc>& arc);
-			void AddToPostset(const boost::shared_ptr<TimedInputArc>& arc);
+			void AddToPreset(const std::shared_ptr<OutputArc>& arc);
+			void AddToPostset(const std::shared_ptr<TimedInputArc>& arc);
 			inline void MarkInfinityPlace(bool isInfPlace) { isInfinityPlace = isInfPlace; }
 			inline void SetIndex(int i) { index = i; };
 			inline void SetMaxConstant(int max) { maxConstant = max; }
