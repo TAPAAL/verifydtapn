@@ -66,7 +66,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
         store_t::result_t m_0_res = store->insert_and_dealloc(&initial_marking);
 
         SafetyMeta &meta = store->get_meta(m_0_res.second);
-        meta = {UNKNOWN, false, false, 0, 0, depends_t()};
+        meta = {UNKNOWN, false, 0, 0, depends_t()};
         meta.waiting = true;
 
         waiting->push(m_0_res.second);
@@ -182,10 +182,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
                                      waiting_t &waiting,
                                      bool is_controller,
                                      const Query* query) {
-        generator.from_marking(marking,
-                               is_controller ?
-                               Generator::CONTROLLABLE : Generator::ENVIRONMENT,
-                               meta.urgent);
+        generator.prepare(marking);
 
 //        std::cout << (is_controller ? "controller" : "env ");
 //        std::cout << " : " << *marking << std::endl;
@@ -199,7 +196,6 @@ namespace VerifyTAPN { namespace DiscreteVerification {
         bool some_winning = false;
         while ((next = generator.next(is_controller)) != nullptr) {
 
-            meta.urgent |= generator.urgent();
             largest = std::max(next->size(), largest);
             ++discovered;
             ++number_of_children;
@@ -252,7 +248,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
 
             if (res.first) {
                 //std::cerr << "\t\tNEW!" << std::endl;
-                SafetyMeta childmeta = {UNKNOWN, false, false, 0, 0, depends_t()};
+                SafetyMeta childmeta = {UNKNOWN, false, 0, 0, depends_t()};
                 store->set_meta(p, childmeta);
                 successors.push_back(p);
                 all_loosing = false;

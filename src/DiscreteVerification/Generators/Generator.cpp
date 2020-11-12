@@ -134,8 +134,8 @@ namespace VerifyTAPN { namespace DiscreteVerification {
         return m;
     }
 
-    bool Generator::modes_match(const TAPN::TimedTransition *trans) {
-        switch (mode) {
+    bool Generator::modes_match(const TAPN::TimedTransition *trans, Mode m) {
+        switch (m) {
             case Mode::CONTROLLABLE:
                 if (!trans->isControllable()) return false;
                 break;
@@ -154,7 +154,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
         auto trans = allways_enabled[num_children];
         if (inhibited(trans) || (_trans != nullptr && _trans != trans)) return nullptr;
         seen_urgent |= trans->isUrgent();
-        if (!modes_match(trans)) return nullptr;
+        if (!modes_match(trans, mode)) return nullptr;
 
         auto &postset = trans->getPostset();
         // could be optimized
@@ -389,7 +389,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
     bool Generator::is_enabled(const TAPN::TimedTransition *trans, std::vector<size_t> *permutations) {
 
         // Check inhibitors
-        if (!modes_match(trans)) return false;
+        if (!modes_match(trans, mode)) return false;
 
 
         if (inhibited(trans)) return false;

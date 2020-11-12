@@ -67,14 +67,14 @@ namespace VerifyTAPN { namespace DiscreteVerification {
 
         const TAPN::TimedTransition *last_fired() const { return _last_fired; }
 
-    private:
+    protected:
         NonStrictMarkingBase *next_no_input();
 
         NonStrictMarkingBase *next_from_current();
 
         bool next_transition(bool isfirst);
 
-        bool modes_match(const TAPN::TimedTransition *trans);
+        static bool modes_match(const TAPN::TimedTransition *trans, Mode m);
     };
 } }
 #endif    /* GENERATOR_H */
