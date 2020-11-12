@@ -1,0 +1,8 @@
+build/
+nbproject/
+src/Core/QueryParser/Lexer.cpp
+src/Core/QueryParser/Parser.cpp
+src/Core/QueryParser/Parser.hpp
+src/Core/QueryParser/location.hh
+src/Core/QueryParser/position.hh
+src/Core/QueryParser/stack.hh
