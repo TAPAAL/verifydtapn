@@ -168,6 +168,7 @@ namespace VerifyTAPN {
             if (trans) {
                 // reason for urgency is an urgent edge
                 _stubborn[trans->getIndex()] = true;
+                _unprocessed.push_back(trans->getIndex());
                 for (auto* a : trans->getInhibitorArcs())
                     preset_of(a->getInputPlace().getIndex());
             } else {

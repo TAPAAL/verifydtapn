@@ -62,7 +62,7 @@ namespace DiscreteVerification {
             case AtomicProposition::NE:
             {
                 bool neg = _negated == (expr.getOperator() == AtomicProposition::EQ);
-                if (!expr.eval && neg) {
+                if (!expr.eval && !neg) {
                     if (expr.getLeft().eval < expr.getRight().eval)
                         incdec(true, false);
                     else
