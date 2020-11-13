@@ -46,12 +46,12 @@ namespace VerifyTAPN {
         }
 
         std::pair<const TimedTransition*, bool>
-        NextEnabledGenerator::next_transition(std::function<bool(const TimedTransition*)> filter, std::vector<size_t>* permutations) {
+        NextEnabledGenerator::next_transition(std::vector<size_t>* permutations, std::function<bool(const TimedTransition*)> filter) {
             if (!_did_noinput) {
                 while (_transition >= _allways_enabled.size()) {
                     auto trans = _allways_enabled[_transition];
                     ++_transition; // increment for next time!
-                    if (!filter(trans) || inhibited(trans)) continue;
+                    if (!filter(trans) || is_inhibited(trans)) continue;
                     return std::make_pair(trans, false);
                 }
                 _did_noinput = true;
@@ -92,7 +92,7 @@ namespace VerifyTAPN {
             assert(false);
         }
 
-        const InhibitorArc* NextEnabledGenerator::inhibited(const TimedTransition *trans) const {
+        const InhibitorArc* NextEnabledGenerator::is_inhibited(const TimedTransition *trans) const {
             auto &placelist = _parent->getPlaceList();
             auto pit = placelist.begin();
 
@@ -114,7 +114,7 @@ namespace VerifyTAPN {
 
         bool NextEnabledGenerator::is_enabled(const TimedTransition *trans, std::vector<size_t> *permutations) const {
 
-            if (inhibited(trans)) return false;
+            if (is_inhibited(trans)) return false;
 
             auto missing_tokens = compute_missing(trans, permutations);
             if (missing_tokens) return false;

@@ -29,7 +29,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
         int maxPossibleDelay(NonStrictMarkingBase *marking);
 
         void printTransitionStatistics() const {
-            successorGenerator->printTransitionStatistics(std::cout);
+            successorGenerator.printTransitionStatistics(std::cout);
         }
 
         void getTrace();
@@ -49,7 +49,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
         bool loop;
         bool deadlock;
         WaitingDart *lastMarking{};
-        std::shared_ptr<Generator> successorGenerator;
+        Generator successorGenerator;
 
         bool generateAndInsertSuccessors(NonStrictMarkingBase &marking, const TAPN::TimedTransition &transition);
     };

@@ -15,41 +15,38 @@ namespace VerifyTAPN {
     namespace DiscreteVerification {
 
         void GameGenerator::prepare(NonStrictMarkingBase *parent) {
-            _seen_urgent = false;
             _current_mode = ENVIRONMENT;
-            _last_trans = 0;
-            _done = false;
-            Generator::from_marking(parent);
+            _had_urgent = false;
+            Generator::prepare(parent);
+        }
+
+        void GameGenerator::reset()
+        {
+            Generator::reset();
         }
 
         NonStrictMarkingBase* GameGenerator::next(bool controllable) {
-            auto m = controllable ? CONTROLLABLE : ENVIRONMENT;
-            if (m != _current_mode) {
-                _last_trans = 0;
-            }
+            const auto cm = _current_mode;
+            auto n = _next(!_had_urgent && controllable, [cm](auto a){
+               return modes_match(a, cm);
+            });
+            if(n && last_fired())
+                _had_urgent |= last_fired()->isUrgent();
+            return n;
+        }
 
-            // TODO, reuse tricks from generator 
-            _current_mode = m;
-            if (current) {
-                auto res = Generator::next_from_current();
-                if (res) return res;
+        bool GameGenerator::modes_match(const TAPN::TimedTransition *trans, mode_e m) {
+            switch (m) {
+                case mode_e::CONTROLLABLE:
+                    if (!trans->isControllable()) return false;
+                    break;
+                case mode_e::ENVIRONMENT:
+                    if (trans->isControllable()) return false;
+                    break;
+                case mode_e::ALL:
+                    break;
             }
-            for (; _last_trans < tapn.getTransitions().size(); ++_last_trans) {
-                auto* trans = tapn.getTransitions()[_last_trans];
-                if (!modes_match(trans, _current_mode)) continue;
-                if (!Generator::only_transition(trans)) continue;
-                _seen_urgent |= trans->isUrgent();
-                ++_last_trans;
-                return next(controllable);
-            }
-
-            if (controllable && !_done) {
-                _done = true;
-                if (!seen_urgent) {
-                    return from_delay();
-                }
-            }
-            return nullptr;
+            return true;
         }
     }
 }

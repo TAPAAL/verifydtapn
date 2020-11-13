@@ -77,7 +77,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
     private:
         bool satisfies_query(NonStrictMarkingBase *m);
 
-        void successors(MarkingStore<SafetyMeta>::Pointer *, NonStrictMarkingBase *, SafetyMeta &,
+        void successors(MarkingStore<SafetyMeta>::Pointer *, SafetyMeta &,
                         waiting_t &waiting, bool controller, const Query* query);
 
         void dependers_to_waiting(SafetyMeta &next_meta, backstack_t &waiting);

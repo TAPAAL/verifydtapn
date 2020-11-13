@@ -21,12 +21,10 @@ namespace VerifyTAPN {
             NextEnabledGenerator(const TimedArcPetriNet& tapn);
             
             void prepare(const NonStrictMarkingBase *parent);
-            std::pair<const TimedTransition*, bool> next_transition(std::function<bool(const TimedTransition*)> filter = [](const TimedTransition*) { return true;  }, 
-                                                                    std::vector<size_t>* permutations = nullptr);
+            std::pair<const TimedTransition*, bool> next_transition(std::vector<size_t>* permutations = nullptr, std::function<bool(const TimedTransition*)> filter = [](const TimedTransition*) { return true;  });
             size_t max_tokens() const { return _max_tokens; }
-        protected:
-            const InhibitorArc *inhibited(const TimedTransition *trans) const;
-            bool is_enabled(const TimedTransition *trans, std::vector<size_t> *permutations) const;
+            bool is_enabled(const TimedTransition *trans, std::vector<size_t> *permutations = nullptr) const;
+            const InhibitorArc *is_inhibited(const TimedTransition *trans) const;
             const TimedPlace* compute_missing(const TimedTransition *trans, std::vector<size_t> *permutations) const;
         private:
             typedef std::vector<const TAPN::TimedTransition *> transitions_t;

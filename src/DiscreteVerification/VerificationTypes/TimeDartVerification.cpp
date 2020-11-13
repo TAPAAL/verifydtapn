@@ -8,7 +8,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
     TimeDartVerification::TimeDartVerification(TAPN::TimedArcPetriNet &tapn, const VerificationOptions &options,
                                                AST::Query *query, NonStrictMarkingBase &initialMarking) :
             Verification<NonStrictMarkingBase>(tapn, initialMarking, query, options), exploredMarkings(0),
-            allwaysEnabled() {
+            allwaysEnabled(), successorGenerator(tapn, query) {
         loop = false;
         deadlock = false;
         //Find the transitions which don't have input arcs
@@ -21,13 +21,11 @@ namespace VerifyTAPN { namespace DiscreteVerification {
                 std::exit(1);
             }
         }
-        /*    if(options.getPartialOrderReduction())
-            {
-                std::cout << "TimeDarts and partial order reduction no supported" << std::endl;
-               std::exit(1);
-            }
-            else*/
-        successorGenerator = std::make_unique<Generator>(tapn, query);
+        if(options.getPartialOrderReduction())
+        {
+           std::cout << "TimeDarts and partial order reduction no supported" << std::endl;
+           std::exit(1);
+        }
     }
 
     std::pair<int, int>
@@ -188,11 +186,11 @@ namespace VerifyTAPN { namespace DiscreteVerification {
 
     bool TimeDartVerification::generateAndInsertSuccessors(NonStrictMarkingBase &marking,
                                                            const TAPN::TimedTransition &transition) {
-        successorGenerator->from_marking(&marking);
-        if (!successorGenerator->only_transition(&transition))
+        successorGenerator.prepare(&marking);
+        if (!successorGenerator.only_transition(&transition))
             return false;
-        while (auto next = successorGenerator->next(false)) {
-            next->setGeneratedBy(successorGenerator->last_fired());
+        while (auto next = successorGenerator.next(false)) {
+            next->setGeneratedBy(successorGenerator.last_fired());
             if (handleSuccessor(next))
                 return true;
         }

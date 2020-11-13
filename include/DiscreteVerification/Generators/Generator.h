@@ -12,39 +12,32 @@
 #include "DiscreteVerification/DataStructures/NonStrictMarkingBase.hpp"
 #include "DiscreteVerification/DataStructures/NonStrictMarking.hpp"
 
+#include "NextEnabledGenerator.h"
+
 #include <vector>
 #include <algorithm>
 
 namespace VerifyTAPN { namespace DiscreteVerification {
     class Generator {
         typedef std::vector<const TAPN::TimedTransition *> transitions_t;
-    public:
-        enum Mode {
-            CONTROLLABLE, ENVIRONMENT, ALL
-        };
     protected:
-        const TAPN::TimedArcPetriNet &tapn;
-        NonStrictMarkingBase *parent{};
-        Mode mode;
-        transitions_t allways_enabled;
-        std::vector<transitions_t> place_transition;
-        size_t num_children{};
-        size_t place{};
-        size_t transition{};
-        const TAPN::TimedTransition *current{};
-        std::vector<size_t> permutation;
-        std::vector<size_t> base_permutation;
-        bool done{};
-        bool seen_urgent{};
-        bool did_noinput{};
+        const TAPN::TimedArcPetriNet &_tapn;
+        NextEnabledGenerator _transition_iterator; 
+        NonStrictMarkingBase *_parent{};
+        size_t _num_children{};
+        const TAPN::TimedTransition *_current{};
+        std::vector<size_t> _permutation;
+        std::vector<size_t> _base_permutation;
+        bool _done{};
+        bool _seen_urgent{};
         const TAPN::TimedTransition *_trans = nullptr;
-        AST::Query *query;
-        std::vector<uint32_t> transitionStatistics;
+        AST::Query *_query;
+        std::vector<uint32_t> _transitionStatistics;
         const TAPN::TimedTransition *_last_fired = nullptr;
     public:
         Generator(TAPN::TimedArcPetriNet &tapn, AST::Query *query);
 
-        virtual void from_marking(NonStrictMarkingBase *parent, Mode mode = ALL, bool urgent = false);
+        virtual void prepare(NonStrictMarkingBase *parent);
 
         virtual NonStrictMarkingBase *next(bool do_delay = true);
         
@@ -54,28 +47,19 @@ namespace VerifyTAPN { namespace DiscreteVerification {
         
         size_t children();
         
-        bool urgent() { return seen_urgent; };
+        bool urgent() { return _seen_urgent; };
         
         bool only_transition(const TAPN::TimedTransition *trans);
+        
+        void reset();
 
     protected:
-
+        virtual NonStrictMarkingBase *_next(bool do_delay, std::function<bool(const TimedTransition*)> filter);
         NonStrictMarkingBase *from_delay();
+        NonStrictMarkingBase* fire_no_input(const TimedTransition* );
+        NonStrictMarkingBase* fire(const TimedTransition* t);
 
-        bool is_enabled(const TAPN::TimedTransition *trans, std::vector<size_t> *permutations = nullptr);
-
-        const TAPN::TimedPlace *
-        compute_missing(const TAPN::TimedTransition *trans, std::vector<size_t> *permutations);
-
-        const TAPN::InhibitorArc *inhibited(const TAPN::TimedTransition *trans) const;
-
-        NonStrictMarkingBase *next_no_input();
-
-        NonStrictMarkingBase *next_from_current();
-
-        bool next_transition(bool isfirst);
-
-        static bool modes_match(const TAPN::TimedTransition *trans, Mode m);
+        NonStrictMarkingBase *next_transition_permutation();
     };
 } }
 #endif    /* GENERATOR_H */

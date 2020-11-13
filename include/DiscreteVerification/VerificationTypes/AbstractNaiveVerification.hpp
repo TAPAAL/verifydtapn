@@ -105,7 +105,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
     SRes AbstractNaiveVerification<T, U, S>::generateAndInsertSuccessors(NonStrictMarkingBase &from) {
 
 
-        successorGenerator.from_marking(&from);
+        successorGenerator.prepare(&from);
         while (auto next = std::unique_ptr<NonStrictMarkingBase>(successorGenerator.next(false))) {
             U *ptr = new U(*next);
             ptr->setGeneratedBy(successorGenerator.last_fired());
