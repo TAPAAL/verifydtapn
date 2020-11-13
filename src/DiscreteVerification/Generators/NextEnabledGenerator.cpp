@@ -57,9 +57,10 @@ namespace VerifyTAPN {
                 _did_noinput = true;
                 _transition = 0;
             }
-            if (_parent->getPlaceList().empty()) return std::make_pair(nullptr, false);
+
             do {
 
+                if(_place >= _parent->getPlaceList().size()) return std::make_pair(nullptr, false);
                 size_t placeindex = _parent->getPlaceList()[_place].place->getIndex();
                 if (_place_transition.size() <= placeindex ||
                         _transition >= _place_transition[placeindex].size()) {
@@ -78,7 +79,6 @@ namespace VerifyTAPN {
 
                 // no out transitions
                 if (_place_transition[placeindex].empty()) {
-                    assert(false);
                     ++_place;
                     _transition = 0;
                     continue;
