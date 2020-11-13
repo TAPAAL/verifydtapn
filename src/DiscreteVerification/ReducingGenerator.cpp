@@ -144,6 +144,8 @@ namespace VerifyTAPN { namespace DiscreteVerification {
         if (trans) {
             // reason for urgency is an urgent edge
             _stubborn[trans->getIndex()] = true;
+            auto t = trans->getIndex();
+            _unprocessed.push_back(t);
             for (auto* a : trans->getInhibitorArcs())
                 preSetOf(a->getInputPlace().getIndex());
         } else {

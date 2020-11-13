@@ -21,14 +21,14 @@ namespace VerifyTAPN { namespace DiscreteVerification {
                 allways_enabled.push_back(transition);
             } else {
                 size_t tokens = 0;
-                int index = std::numeric_limits<int>::max();
+                size_t index = std::numeric_limits<size_t>::max();
                 for (auto arc : transition->getPreset()) {
-                    index = std::min(arc->getInputPlace().getIndex(), index);
+                    index = std::min((size_t)arc->getInputPlace().getIndex(), index);
                     tokens += arc->getWeight();
                 }
 
                 for (auto arc : transition->getTransportArcs()) {
-                    index = std::min(arc->getSource().getIndex(), index);
+                    index = std::min((size_t)arc->getSource().getIndex(), index);
                     tokens += arc->getWeight();
                 }
                 while (index >= place_transition.size()) place_transition.emplace_back();
