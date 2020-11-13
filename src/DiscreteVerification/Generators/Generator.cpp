@@ -10,7 +10,7 @@
 namespace VerifyTAPN {
     namespace DiscreteVerification {
 
-        Generator::Generator(TAPN::TimedArcPetriNet &tapn, AST::Query *query)
+        Generator::Generator(const TAPN::TimedArcPetriNet &tapn, AST::Query *query)
         : _tapn(tapn), _transition_iterator(tapn), _permutation(_transition_iterator.max_tokens()),
             _base_permutation(), _query(query),
             _transitionStatistics(tapn.getTransitions().size()) {

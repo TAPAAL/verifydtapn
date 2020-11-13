@@ -9,6 +9,8 @@
 #define LIGHT_DEQUE_H
 
 #include <memory>
+#include <vector>
+#include <cassert>
 
 template<typename T>
 class light_deque {
@@ -34,16 +36,16 @@ public:
 
     }
 
-    bool empty() {
+    bool empty() const {
         return _front == _back;
     }
 
-    T front() {
+    T front() const {
         assert(!empty());
         return _data[_front];
     }
     
-    T back() {
+    T back() const {
         assert(!empty());
         return _data[back-1];
     }

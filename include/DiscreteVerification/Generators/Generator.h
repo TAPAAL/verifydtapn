@@ -35,7 +35,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
         std::vector<uint32_t> _transitionStatistics;
         const TAPN::TimedTransition *_last_fired = nullptr;
     public:
-        Generator(TAPN::TimedArcPetriNet &tapn, AST::Query *query);
+        Generator(const TAPN::TimedArcPetriNet &tapn, AST::Query *query);
 
         virtual void prepare(NonStrictMarkingBase *parent);
 

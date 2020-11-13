@@ -38,7 +38,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
     public: // visitor methods
         friend class ReducingGenerator;
 
-        explicit InterestingVisitor(TAPN::TimedArcPetriNet &tapn)
+        explicit InterestingVisitor(const TAPN::TimedArcPetriNet &tapn)
                 : _incr(tapn.getPlaces().size()), _decr(tapn.getPlaces().size()) {
             _incr.shrink_to_fit();
             _decr.shrink_to_fit();
@@ -70,15 +70,20 @@ namespace VerifyTAPN { namespace DiscreteVerification {
 
         void visit(PlusExpression &expr, Result &context) override;
 
-        bool isNegated() { return negated; }
+        bool isNegated() { return _negated; }
 
-        void negate() { negated = !negated; }
+        void negate() { _negated = !_negated; }
 
         void clear();
 
+        bool deadlock() const { return _deadlock; }
+        
+        bool increments(size_t p) const { return _incr[p]; }
+        bool decrements(size_t p) const { return _decr[p]; }
+        
     private:
-        bool negated = false;
-        bool deadlock = false;
+        bool _negated = false;
+        bool _deadlock = false;
         std::vector<bool> _incr;
         std::vector<bool> _decr;
     };    
