@@ -1,4 +1,4 @@
 
-add_library(Generators Generator.cpp GameGenerator.cpp ReducingGenerator.cpp InterestingVisitor.cpp)
+add_library(Generators Generator.cpp GameGenerator.cpp ReducingGenerator.cpp InterestingVisitor.cpp NextEnabledGenerator.cpp)
 
 
