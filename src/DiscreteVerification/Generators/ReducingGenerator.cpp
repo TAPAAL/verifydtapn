@@ -35,9 +35,9 @@ namespace VerifyTAPN {
                 return fire(_current);
 
             // move to next transition
-            if(!_stubborn.empty())
+            auto transition = _stubborn.pop_next();
+            if(transition != nullptr)
             {
-                auto transition = _stubborn.pop_next();
 #ifndef DEBUG
                 bool en =
 #endif

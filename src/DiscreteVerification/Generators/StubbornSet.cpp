@@ -27,16 +27,17 @@ namespace VerifyTAPN {
         }
 
         const TimedTransition* StubbornSet::pop_next() {
-            auto tid = _ordering.front();
-            _ordering.pop_front();
-            return _tapn.getTransitions()[tid];
+            while(!_enabled_set.empty())
+            {
+                auto tid = _enabled_set.front();
+                _enabled_set.pop_front();
+                if(!_stubborn[tid]) continue;
+                return _tapn.getTransitions()[tid];
+            }
+            return nullptr;
         }
 
-        bool StubbornSet::empty() const {
-            return _ordering.empty();
-        }
-
-        bool StubbornSet::preSetOf(size_t i) {
+        bool StubbornSet::preset_of(size_t i) {
             auto place = _tapn.getPlaces()[i];
             bool zt = false;
             for (auto* arc : place->getOutputArcs()) {
@@ -56,7 +57,7 @@ namespace VerifyTAPN {
             return zt;
         }
 
-        bool StubbornSet::postSetOf(size_t i, bool check_age, const TAPN::TimeInterval &interval) {
+        bool StubbornSet::postset_of(size_t i, bool check_age, const TAPN::TimeInterval &interval) {
             auto place = _tapn.getPlaces()[i];
             bool zt = false;
             if (check_age) {
@@ -87,7 +88,7 @@ namespace VerifyTAPN {
             return zt;
         }
 
-        bool StubbornSet::inhibPostSetOf(size_t i) {
+        bool StubbornSet::inhib_postset_of(size_t i) {
             bool zt = false;
             auto place = _tapn.getPlaces()[i];
             for (auto* arc : place->getInhibitorArcs()) {
@@ -100,28 +101,34 @@ namespace VerifyTAPN {
             return zt;
         }
 
-        void StubbornSet::prepare(NonStrictMarkingBase *parent) {
-            _gen_enabled.prepare(parent);
-            std::fill(_enabled.begin(), _enabled.end(), false);
-            assert(_ordering.empty());
+        const TAPN::TimedTransition* StubbornSet::compute_enabled() {
+            assert(_enabled_set.empty());
             const TAPN::TimedTransition *urg_trans = nullptr;
-            _ecnt = 0;
-            _can_reduce = false;
-            for (uint32_t i = 0; i < _tapn.getTransitions().size(); ++i) {
-                auto t = _tapn.getTransitions()[i];
-                if (_gen_enabled.is_enabled(t)) {
-                    _enabled[i] = true;
-                    _ordering.push_back(i);
-                    if (urg_trans == nullptr && t->isUrgent()) {
-                        assert(i < _tapn.getTransitions().size());
-                        urg_trans = t;
-                    }
-                    ++_ecnt;
-                }
-            }
+            _gen_enabled.prepare(_parent);
+            std::fill(_enabled.begin(), _enabled.end(), false);
 
-            if (_ecnt <= 1) {
-                _ordering.clear();
+            do
+            {
+                auto [trans, consumes] = _gen_enabled.next_transition();
+                if(trans == nullptr) break;
+                _enabled[trans->getIndex()] = true;
+                _enabled_set.push_back(trans->getIndex());
+                if (urg_trans == nullptr && trans->isUrgent()) {
+                    urg_trans = trans;
+                }
+
+            } while(true);
+            return urg_trans;
+        }
+
+        void StubbornSet::prepare(NonStrictMarkingBase *p) {
+            _parent = p;
+            _can_reduce = false;
+            const TAPN::TimedTransition *urg_trans = compute_enabled();
+
+            if (_enabled_set.size() <= 1) {
+                _can_reduce = false;
+                _enabled_set.clear();
                 return;
             }
 
@@ -129,7 +136,7 @@ namespace VerifyTAPN {
             int32_t max_age = -1;
             _can_reduce = !_unprocessed.empty() || urg_trans != nullptr;
             if (!_can_reduce) {
-                for (auto &place : parent->getPlaceList()) {
+                for (auto &place : _parent->getPlaceList()) {
                     int inv = place.place->getInvariant().getBound();
                     max_age = place.maxTokenAge();
                     if (max_age == inv) {
@@ -141,7 +148,7 @@ namespace VerifyTAPN {
             }
 
             if (!_can_reduce) {
-                _ordering.clear();
+                _enabled_set.clear();
                 return;
             }
 
@@ -162,7 +169,7 @@ namespace VerifyTAPN {
                 // reason for urgency is an urgent edge
                 _stubborn[trans->getIndex()] = true;
                 for (auto* a : trans->getInhibitorArcs())
-                    preSetOf(a->getInputPlace().getIndex());
+                    preset_of(a->getInputPlace().getIndex());
             } else {
                 // reason for urgency is an invariant
                 assert(inv_place);
@@ -204,9 +211,9 @@ namespace VerifyTAPN {
             // compute the set of unprocessed
             for (size_t i = 0; i < _tapn.getPlaces().size(); ++i) {
                 if (_interesting.decrements(i))
-                    added_zt |= preSetOf(i);
+                    added_zt |= preset_of(i);
                 if (_interesting.increments(i))
-                    added_zt |= postSetOf(i, !added_zt);
+                    added_zt |= postset_of(i, !added_zt);
             }
 
             if (_interesting.deadlock() && !trans && !added_zt) {
@@ -236,13 +243,13 @@ namespace VerifyTAPN {
                     if (_enabled[i]) {
                         auto trans = _tapn.getTransitions()[i];
                         for (auto* a : trans->getPreset())
-                            added_zt |= postSetOf(a->getInputPlace().getIndex(), !added_zt);
+                            added_zt |= postset_of(a->getInputPlace().getIndex(), !added_zt);
                         for (auto* a : trans->getTransportArcs())
-                            added_zt |= postSetOf(a->getSource().getIndex(), !added_zt);
+                            added_zt |= postset_of(a->getSource().getIndex(), !added_zt);
                         for (auto* a : trans->getInhibitorArcs()) {
                             auto &place = a->getInputPlace();
                             for (auto* arc : place.getInhibitorArcs()) {
-                                added_zt |= preSetOf(arc->getInputPlace().getIndex());
+                                added_zt |= preset_of(arc->getInputPlace().getIndex());
                             }
                         }
                         break;
@@ -262,12 +269,12 @@ namespace VerifyTAPN {
                 assert(trans);
                 if (_enabled[tr]) {
                     for (auto* a : trans->getPreset())
-                        added_zt |= postSetOf(a->getInputPlace().getIndex(), !added_zt, a->getInterval());
+                        added_zt |= postset_of(a->getInputPlace().getIndex(), !added_zt, a->getInterval());
                     for (auto* a : trans->getPostset())
-                        added_zt |= inhibPostSetOf(a->getOutputPlace().getIndex());
+                        added_zt |= inhib_postset_of(a->getOutputPlace().getIndex());
                     for (auto* a : trans->getTransportArcs()) {
-                        added_zt |= postSetOf(a->getSource().getIndex(), !added_zt, a->getInterval());
-                        added_zt |= inhibPostSetOf(a->getDestination().getIndex());
+                        added_zt |= postset_of(a->getSource().getIndex(), !added_zt, a->getInterval());
+                        added_zt |= inhib_postset_of(a->getDestination().getIndex());
                     }
                 } else {
 
@@ -306,7 +313,7 @@ namespace VerifyTAPN {
                             if (&a->getInputPlace() == place) {
                                 interval = a->getInterval();
                                 if (interval.contains(0))
-                                    added_zt |= preSetOf(place->getIndex());
+                                    added_zt |= preset_of(place->getIndex());
                                 found = true;
                                 break;
                             }
@@ -317,7 +324,7 @@ namespace VerifyTAPN {
                                 if (&a->getSource() == place) {
                                     interval = a->getInterval();
                                     if (a->getInterval().contains(0))
-                                        added_zt |= preSetOf(place->getIndex());
+                                        added_zt |= preset_of(place->getIndex());
                                     break;
                                 }
                             }
@@ -338,6 +345,5 @@ namespace VerifyTAPN {
             }
             return added_zt;
         }
-
     }
 }
