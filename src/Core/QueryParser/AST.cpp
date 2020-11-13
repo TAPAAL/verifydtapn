@@ -106,7 +106,7 @@ namespace VerifyTAPN { namespace AST {
         visitor.visit(*this, context);
     }
 
-    AtomicProposition::AtomicProposition(ArithmeticExpression *left, std::string *sop, ArithmeticExpression *right) : left(left), right(right) {
+    AtomicProposition::AtomicProposition(ArithmeticExpression *l, std::string *sop, ArithmeticExpression *r) : left(l), right(r) {
         if(*sop == "=" || *sop == "==") op = EQ;
         else if(*sop == "!=") op = NE;
         else if(*sop == "<") op = LT;
