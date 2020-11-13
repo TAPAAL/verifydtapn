@@ -20,14 +20,14 @@ namespace VerifyTAPN {
                     _allways_enabled.push_back(transition);
                 } else {
                     size_t tokens = 0;
-                    int index = std::numeric_limits<int>::max();
+                    size_t index = std::numeric_limits<size_t>::max();
                     for (auto* arc : transition->getPreset()) {
-                        index = std::min(arc->getInputPlace().getIndex(), index);
+                        index = std::min((size_t)arc->getInputPlace().getIndex(), index);
                         tokens += arc->getWeight();
                     }
 
                     for (auto* arc : transition->getTransportArcs()) {
-                        index = std::min(arc->getSource().getIndex(), index);
+                        index = std::min((size_t)arc->getSource().getIndex(), index);
                         tokens += arc->getWeight();
                     }
                     while (index >= _place_transition.size()) _place_transition.emplace_back();
@@ -48,7 +48,7 @@ namespace VerifyTAPN {
         std::pair<const TimedTransition*, bool>
         NextEnabledGenerator::next_transition(std::vector<size_t>* permutations, std::function<bool(const TimedTransition*)> filter) {
             if (!_did_noinput) {
-                while (_transition >= _allways_enabled.size()) {
+                while (_transition < _allways_enabled.size()) {
                     auto trans = _allways_enabled[_transition];
                     ++_transition; // increment for next time!
                     if (!filter(trans) || is_inhibited(trans)) continue;
