@@ -52,9 +52,9 @@ namespace VerifyTAPN {
                 return fire(_current);
 
             // move to next transition
-            auto [transition, no_input] = _transition_iterator.next_transition(&_base_permutation);
+            auto [transition, consumes] = _transition_iterator.next_transition(&_base_permutation);
             if (transition != nullptr) {
-                if (no_input)
+                if (!consumes)
                     return fire_no_input(transition);
                 else {
                     _permutation = _base_permutation; // start from zero
