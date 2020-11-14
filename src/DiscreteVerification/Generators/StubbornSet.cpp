@@ -101,7 +101,7 @@ namespace VerifyTAPN {
             return zt;
         }
 
-        const TAPN::TimedTransition* StubbornSet::compute_enabled() {
+        const TAPN::TimedTransition* StubbornSet::compute_enabled(std::function<void(const TimedTransition*)>&& monitor) {
             assert(_enabled_set.empty());
             const TAPN::TimedTransition *urg_trans = nullptr;
             _gen_enabled.prepare(_parent);
@@ -122,19 +122,22 @@ namespace VerifyTAPN {
             return urg_trans;
         }
 
-        void StubbornSet::prepare(NonStrictMarkingBase *p) {
-            _parent = p;
-            _can_reduce = false;
-            _urgent_enabled = false;
-            const TAPN::TimedTransition *urg_trans = compute_enabled();
-
+        bool StubbornSet::is_singular() {
             if (_enabled_set.size() <= 1) {
                 _can_reduce = false;
                 _enabled_set.clear();
-                return;
+                return true;
             }
+            return false;
+        }
 
-            const TAPN::TimedPlace *inv_place = nullptr;
+        void StubbornSet::reset(NonStrictMarkingBase* p) {
+            _parent = p;
+            _can_reduce = false;
+            _urgent_enabled = false;
+        }
+
+        std::pair<const TimedPlace*,uint32_t> StubbornSet::invariant_place(const TimedTransition* urg_trans) {
             int32_t max_age = -1;
             _can_reduce = !_unprocessed.empty() || urg_trans != nullptr;
             if (!_can_reduce) {
@@ -143,18 +146,39 @@ namespace VerifyTAPN {
                     max_age = place.maxTokenAge();
                     if (max_age == inv) {
                         _can_reduce = true;
-                        inv_place = place.place;
-                        break;
+                        return {place.place, max_age};
                     }
                 }
             }
+            return {nullptr, max_age};
+        }
 
-            if (!_can_reduce) {
-                _enabled_set.clear();
+        void StubbornSet::clear_stubborn() {
+            std::fill(_stubborn.begin(), _stubborn.end(), false);
+        }
+
+        void StubbornSet::prepare(NonStrictMarkingBase *p) {
+            return _prepare(p, [](auto a) {}, []{return true; });
+        }
+
+        void StubbornSet::_prepare(NonStrictMarkingBase *p, std::function<void(const TimedTransition*)>&& enabled_monitor, std::function<bool(void)>&& extra_conditions) {
+            reset(p);
+            auto* urg_trans = compute_enabled(std::move(enabled_monitor));
+
+            if(is_singular())
+                return;
+
+            auto [inv_place, max_age] = invariant_place(urg_trans);
+
+            if (!_can_reduce) return;
+
+            if (!extra_conditions())
+            {
+                _can_reduce = false;
                 return;
             }
 
-            std::fill(_stubborn.begin(), _stubborn.end(), false);
+            clear_stubborn();
 
             bool added_zero_time = ample_set(inv_place, urg_trans);
             added_zero_time |= compute_closure(added_zero_time);
@@ -162,7 +186,6 @@ namespace VerifyTAPN {
                 zero_time_set(max_age, inv_place, urg_trans);
                 compute_closure(true);
             }
-
         }
 
         void StubbornSet::zero_time_set(int32_t max_age, const TAPN::TimedPlace *inv_place,

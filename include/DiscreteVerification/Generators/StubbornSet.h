@@ -23,18 +23,26 @@ namespace VerifyTAPN {
             const TimedTransition* pop_next();
             bool urgent() const { return _urgent_enabled; }
             bool irreducable() const { return !_can_reduce; }
-        private:
+        protected:
             const TimedArcPetriNet& _tapn;
             AST::Query* _query;
+            light_deque<uint32_t> _enabled_set;
+        private:
             NextEnabledGenerator _gen_enabled;
             InterestingVisitor _interesting;
             std::vector<bool> _enabled, _stubborn;
-            light_deque<uint32_t> _unprocessed, _enabled_set;
+            light_deque<uint32_t> _unprocessed;
             NonStrictMarkingBase* _parent;
             bool _urgent_enabled = false;
             bool _can_reduce = false;
             
-            const TimedTransition* compute_enabled();
+        protected:
+            void _prepare(NonStrictMarkingBase *parent, std::function<void(const TimedTransition*)>&& enabled_monitor, std::function<bool(void)>&& extra_conditions);
+            bool is_singular();
+            void reset(NonStrictMarkingBase*);
+            void clear_stubborn();
+            const TimedTransition* compute_enabled(std::function<void(const TimedTransition*)>&& monitor = [](auto){});
+            std::pair<const TimedPlace*,uint32_t> invariant_place(const TimedTransition* t = nullptr);
             
             bool preset_of(size_t i);
 
