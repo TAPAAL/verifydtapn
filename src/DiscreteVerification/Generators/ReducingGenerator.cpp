@@ -38,11 +38,13 @@ namespace VerifyTAPN {
             auto transition = _stubborn.pop_next();
             if(transition != nullptr)
             {
-#ifndef DEBUG
+#ifndef NDEBUG
                 bool en =
 #endif
                 Generator::only_transition(transition);
+#ifndef NDEBUG
                 assert(en);
+#endif
                 return fire(transition);
             }
             // done, only delay waiting
