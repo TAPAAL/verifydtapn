@@ -115,6 +115,7 @@ namespace VerifyTAPN {
                 _enabled_set.push_back(trans->getIndex());
                 if (urg_trans == nullptr && trans->isUrgent()) {
                     urg_trans = trans;
+                    _urgent_enabled = true;
                 }
 
             } while(true);
@@ -124,6 +125,7 @@ namespace VerifyTAPN {
         void StubbornSet::prepare(NonStrictMarkingBase *p) {
             _parent = p;
             _can_reduce = false;
+            _urgent_enabled = false;
             const TAPN::TimedTransition *urg_trans = compute_enabled();
 
             if (_enabled_set.size() <= 1) {

@@ -41,7 +41,8 @@ namespace VerifyTAPN {
 
         NonStrictMarkingBase *Generator::next(bool do_delay)
         {
-            return _next(do_delay, [](auto a) { return true; });
+            auto n = _next(do_delay, [](auto a) { return true; });
+            return n;
         }
 
         NonStrictMarkingBase *Generator::_next(bool do_delay, std::function<bool(const TimedTransition*)> filter) {

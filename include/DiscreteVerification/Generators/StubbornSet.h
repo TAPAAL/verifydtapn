@@ -31,7 +31,7 @@ namespace VerifyTAPN {
             std::vector<bool> _enabled, _stubborn;
             light_deque<uint32_t> _unprocessed, _enabled_set;
             NonStrictMarkingBase* _parent;
-            bool _urgent_enabled;
+            bool _urgent_enabled = false;
             bool _can_reduce = false;
             
             const TimedTransition* compute_enabled();
