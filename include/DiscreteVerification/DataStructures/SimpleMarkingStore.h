@@ -86,7 +86,6 @@ namespace VerifyTAPN { namespace DiscreteVerification {
         virtual
         typename
         MarkingStore<T>::result_t insert_and_dealloc(NonStrictMarkingBase *m) {
-            assert(m->size() > 0);
             size_t key = m->getHashKey();
             pointer_list &location = store[key];
             typename
