@@ -14,13 +14,7 @@ namespace VerifyTAPN {
     namespace DiscreteVerification {
 
         class GameGenerator : protected Generator {
-        public:
-            enum mode_e {
-                CONTROLLABLE, ENVIRONMENT, ALL
-            };
-
         protected:
-            mode_e _current_mode;
             bool _had_urgent = false;
         public:
             GameGenerator(TAPN::TimedArcPetriNet &tapn, AST::Query *query)
@@ -29,8 +23,6 @@ namespace VerifyTAPN {
             void prepare(NonStrictMarkingBase *parent);
             NonStrictMarkingBase* next(bool controllable);
             void reset();
-        private:
-            static bool modes_match(const TAPN::TimedTransition *trans, mode_e m);
         };
 
     }
