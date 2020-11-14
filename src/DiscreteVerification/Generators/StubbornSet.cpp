@@ -213,9 +213,9 @@ namespace VerifyTAPN {
 
             // compute the set of unprocessed
             for (size_t i = 0; i < _tapn.getPlaces().size(); ++i) {
-                if (_interesting.decrements(i))
-                    added_zt |= preset_of(i);
                 if (_interesting.increments(i))
+                    added_zt |= preset_of(i);
+                if (_interesting.decrements(i))
                     added_zt |= postset_of(i, !added_zt);
             }
 

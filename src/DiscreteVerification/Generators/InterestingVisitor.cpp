@@ -5,8 +5,8 @@
 namespace VerifyTAPN {
 namespace DiscreteVerification {
     void InterestingVisitor::clear() {
-        std::fill(_decr.begin(), _decr.end(), 0);
-        std::fill(_incr.begin(), _incr.end(), 0);
+        std::fill(_decr.begin(), _decr.end(), false);
+        std::fill(_incr.begin(), _incr.end(), false);
         _deadlock = false;
     }
 
@@ -97,8 +97,10 @@ namespace DiscreteVerification {
 
     void InterestingVisitor::visit(IdentifierExpression &expr, Result &context) {
         auto &id = static_cast<IncDecr &> (context);
-        if (id.incr) _incr[expr.getPlace()] = true;
-        if (id.decr) _decr[expr.getPlace()] = true;
+        if (id.incr)
+            _incr[expr.getPlace()] = true;
+        if (id.decr)
+            _decr[expr.getPlace()] = true;
     }
 
     void InterestingVisitor::visit(MultiplyExpression &expr, Result &context) {
