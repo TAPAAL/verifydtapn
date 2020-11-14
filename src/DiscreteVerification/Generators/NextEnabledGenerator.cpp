@@ -30,7 +30,8 @@ namespace VerifyTAPN {
                         index = std::min((size_t)arc->getSource().getIndex(), index);
                         tokens += arc->getWeight();
                     }
-                    while (index >= _place_transition.size()) _place_transition.emplace_back();
+                    if(_place_transition.size() <= index)
+                        _place_transition.resize(index + 1);
                     _place_transition[index].push_back(transition);
                     _max_tokens = std::max(tokens,
                             _max_tokens);
@@ -60,25 +61,16 @@ namespace VerifyTAPN {
 
             do {
 
-                if(_place >= _parent->getPlaceList().size()) return std::make_pair(nullptr, false);
+                if(_place >= _parent->getPlaceList().size()) 
+                    return std::make_pair(nullptr, false); // no more tokens
+
                 size_t placeindex = _parent->getPlaceList()[_place].place->getIndex();
-                if (_place_transition.size() <= placeindex ||
-                        _transition >= _place_transition[placeindex].size()) {
-                    ++_place;
-                    _transition = 0;
-                }
 
-                // no more places with tokens, we are done
-                if (_place >= _parent->getPlaceList().size())
-                    return std::make_pair(nullptr, false);
+                if(placeindex >= _place_transition.size()) 
+                    return std::make_pair(nullptr, false); // no more "initial places"
 
-                placeindex = _parent->getPlaceList()[_place].place->getIndex();
-                // no more interesting places
-                if (_place_transition.size() <= placeindex)
-                    return std::make_pair(nullptr, false);
-
-                // no out transitions
-                if (_place_transition[placeindex].empty()) {
+                if (_transition >= _place_transition[placeindex].size()) {
+                    // no more out transitions
                     ++_place;
                     _transition = 0;
                     continue;
