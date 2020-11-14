@@ -271,6 +271,7 @@ namespace VerifyTAPN {
                 assert(tr < _tapn.getTransitions().size());
                 assert(trans);
                 if (_enabled[tr]) {
+                    // add everything we might disable in future by fireing
                     for (auto* a : trans->getPreset())
                         added_zt |= postset_of(a->getInputPlace().getIndex(), !added_zt, a->getInterval());
                     for (auto* a : trans->getPostset())
@@ -280,7 +281,7 @@ namespace VerifyTAPN {
                         added_zt |= inhib_postset_of(a->getDestination().getIndex());
                     }
                 } else {
-
+                    // find reason for being disabled!
                     if (auto inhib = _gen_enabled.is_inhibited(trans)) {
                         auto &p = inhib->getInputPlace();
                         auto &tl = _parent->getTokenList(p.getIndex());
@@ -288,22 +289,26 @@ namespace VerifyTAPN {
                             uint32_t trans = arc->getOutputTransition().getIndex();
                             if (!_stubborn[trans]) {
                                 for (const auto& t : tl)
+                                {
                                     if (arc->getInterval().contains(t.getAge())) {
                                         _stubborn[trans] = true;
                                         _unprocessed.push_back(trans);
                                         break;
                                     }
+                                }
                             }
                         }
                         for (auto* arc : p.getTransportArcs()) {
                             uint32_t trans = arc->getTransition().getIndex();
                             if (!_stubborn[trans]) {
                                 for (const auto& t : tl)
+                                {
                                     if (arc->getInterval().contains(t.getAge())) {
                                         _stubborn[trans] = true;
                                         _unprocessed.push_back(trans);
                                         break;
                                     }
+                                }
                             }
                         }
                     } else {
