@@ -88,12 +88,16 @@ namespace VerifyTAPN {
             inline bool isControllable() const {
                 return controllable;
             }
+            
+            inline bool isEnvironment() const {
+                return !isControllable();
+            }
 
             inline void setControllable(bool value) {
                 controllable = value;
             }
 
-            uint32_t getProduced(TimedPlace* place) const
+            uint32_t getProduced(const TimedPlace* place) const
             {
                 // this could be precomputed
                 for(auto& pre : getPostset())
@@ -105,7 +109,7 @@ namespace VerifyTAPN {
                 return 0;
             }
             
-            uint32_t getConsumed(TimedPlace* place) const
+            uint32_t getConsumed(const TimedPlace* place) const
             {
                 // this could be precomputed
                 for(auto& pre : getPreset())
