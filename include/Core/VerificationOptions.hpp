@@ -155,6 +155,10 @@ namespace VerifyTAPN {
         inline bool getPartialOrderReduction() const {
             return partialOrder;
         }
+        
+        inline const std::string& getStrategyFile() const {
+            return strategy_output;
+        }
 
 
     private:

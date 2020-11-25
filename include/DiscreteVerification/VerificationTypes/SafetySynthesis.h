@@ -73,6 +73,8 @@ namespace VerifyTAPN { namespace DiscreteVerification {
         unsigned int max_tokens() { return largest; };
 
         void print_stats();
+        
+        void write_strategy(std::ostream& out);
 
     private:
         bool satisfies_query(NonStrictMarkingBase *m);

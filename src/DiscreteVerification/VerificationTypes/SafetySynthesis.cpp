@@ -10,6 +10,7 @@
 
 #include <cassert>
 #include <set>
+#include <fstream>
 
 
 namespace VerifyTAPN { namespace DiscreteVerification {
@@ -361,5 +362,12 @@ namespace VerifyTAPN { namespace DiscreteVerification {
     SafetySynthesis::~SafetySynthesis() {
         delete store;
     }
+
+    void SafetySynthesis::write_strategy(std::ostream& out)
+    {
+        
+
+    }
+
 } }
 
