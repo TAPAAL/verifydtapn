@@ -49,7 +49,8 @@ namespace VerifyTAPN {
                 long long workflowBound,
                 bool calculateCmax,
                 std::map<std::string, int> replace,
-                bool order
+                bool order,
+                std::string strategy_output
         ) : inputFile(""),
             queryFile(""),
             searchType(searchType),
@@ -65,7 +66,8 @@ namespace VerifyTAPN {
             workflowBound(workflowBound),
             calculateCmax(calculateCmax),
             replace(std::move(std::move(replace))),
-            partialOrder(order) {
+            partialOrder(order),
+            strategy_output(std::move(strategy_output)) {
         };
 
     public: // inspectors
@@ -172,6 +174,7 @@ namespace VerifyTAPN {
         bool calculateCmax{};
         std::map<std::string, int> replace;
         bool partialOrder{};
+        std::string strategy_output;
     };
 
     std::ostream &operator<<(std::ostream &out, const VerificationOptions &options);
