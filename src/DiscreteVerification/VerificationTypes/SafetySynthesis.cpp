@@ -491,7 +491,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
                     
                     first = false;*/
                 }
-                if(!first) out << "]\n";
+                if(!first) out << "]";
             }
         }
         out << "\n}\n";
