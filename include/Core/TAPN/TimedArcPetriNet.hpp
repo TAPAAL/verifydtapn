@@ -1,22 +1,24 @@
 #ifndef VERIFYTAPN_TAPN_TimedArcPetriNet_HPP_
 #define VERIFYTAPN_TAPN_TimedArcPetriNet_HPP_
 
-#include <iostream>
-#include <set>
 #include "TimedPlace.hpp"
 #include "TimedTransition.hpp"
 #include "TimedInputArc.hpp"
 #include "TransportArc.hpp"
 #include "InhibitorArc.hpp"
 #include "OutputArc.hpp"
+
+#include "Core/QueryParser/AST.hpp"
+#include "DiscreteVerification/PlaceVisitor.hpp"
+#include "Core/VerificationOptions.hpp"
+
+#include <iostream>
+#include <set>
 #include "google/sparse_hash_map"
 #include <boost/functional/hash.hpp>
-#include <boost/math/common_factor.hpp>
-#include "../QueryParser/AST.hpp"
-#include "../../DiscreteVerification/PlaceVisitor.hpp"
-#include "../VerificationOptions.hpp"
 
-namespace VerifyTAPN::TAPN {
+namespace VerifyTAPN {
+namespace TAPN {
 
     class TimedArcPetriNet {
 
@@ -119,6 +121,7 @@ namespace VerifyTAPN::TAPN {
         boost::hash<std::string> hasher;
         return hasher(transition.getName());
     }
+}
 }
 
 #endif /* VERIFYTAPN_TAPN_TimedArcPetriNet_HPP_ */

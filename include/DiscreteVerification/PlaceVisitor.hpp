@@ -8,20 +8,20 @@
 #ifndef PLACEVISITOR_HPP_
 #define PLACEVISITOR_HPP_
 
-#include "../Core/QueryParser/Visitor.hpp"
-#include "../Core/QueryParser/AST.hpp"
+#include "Core/QueryParser/Visitor.hpp"
+#include "Core/QueryParser/AST.hpp"
 #include <exception>
 #include <vector>
 
-namespace VerifyTAPN::DiscreteVerification {
+namespace VerifyTAPN { namespace DiscreteVerification {
 
     using namespace AST;
 
     class PlaceVisitor : public Visitor {
     public:
-        PlaceVisitor() = default;;
+        PlaceVisitor() = default;
 
-        ~PlaceVisitor() override = default;;
+        ~PlaceVisitor() override = default;
 
     public: // visitor methods
         void visit(NotExpression &expr, Result &context) override;
@@ -52,12 +52,12 @@ namespace VerifyTAPN::DiscreteVerification {
 
         void visit(SubtractExpression &expr, Result &context) override {
             visit((OperationExpression &) expr, context);
-        };;
+        };
 
         void visit(PlusExpression &expr, Result &context) override {
             visit((OperationExpression &) expr, context);
-        };;
+        };
     };
 
-} /* namespace VerifyTAPN */
+} } /* namespace VerifyTAPN */
 #endif /* PLACEVISITOR_HPP_ */

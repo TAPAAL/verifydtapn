@@ -8,17 +8,16 @@
 #ifndef SAFETYSYNTHESIS_H
 #define    SAFETYSYNTHESIS_H
 
+#include "DiscreteVerification/DataStructures/MarkingStore.h"
+#include "Core/TAPN/TAPN.hpp"
+#include "DiscreteVerification/QueryVisitor.hpp"
+#include "DiscreteVerification/DataStructures/NonStrictMarkingBase.hpp"
+#include "../Generator.h"
+#include "DiscreteVerification/DataStructures/Waiting.h"
+
 #include <forward_list>
 
-#include "../DataStructures/MarkingStore.h"
-#include "../../Core/TAPN/TAPN.hpp"
-#include "../QueryVisitor.hpp"
-#include "../DataStructures/NonStrictMarkingBase.hpp"
-#include "../Generator.h"
-#include "../DataStructures/Waiting.h"
-
-
-namespace VerifyTAPN::DiscreteVerification {
+namespace VerifyTAPN { namespace DiscreteVerification {
 
 
     class SafetySynthesis {
@@ -84,7 +83,7 @@ namespace VerifyTAPN::DiscreteVerification {
 
         void dependers_to_waiting(SafetyMeta &next_meta, backstack_t &waiting);
     };
-}
+} }
 
 #endif    /* SAFETYSYNTHESIS_H */
 

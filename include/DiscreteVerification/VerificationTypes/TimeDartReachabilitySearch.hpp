@@ -8,20 +8,21 @@
 #ifndef TIMEDARTREACHABILITYSEARCH_HPP_
 #define TIMEDARTREACHABILITYSEARCH_HPP_
 
-#include "../DataStructures/TimeDart.hpp"
-#include "../DataStructures/TimeDartPWList.hpp"
-#include "../../Core/TAPN/TAPN.hpp"
-#include "../../Core/QueryParser/AST.hpp"
-#include "../../Core/VerificationOptions.hpp"
-#include "../QueryVisitor.hpp"
-#include "../DataStructures/NonStrictMarkingBase.hpp"
+#include "DiscreteVerification/DataStructures/TimeDart.hpp"
+#include "DiscreteVerification/DataStructures/TimeDartPWList.hpp"
+#include "Core/TAPN/TAPN.hpp"
+#include "Core/QueryParser/AST.hpp"
+#include "Core/VerificationOptions.hpp"
+#include "DiscreteVerification/QueryVisitor.hpp"
+#include "DiscreteVerification/DataStructures/NonStrictMarkingBase.hpp"
+#include "TimeDartVerification.hpp"
+#include "DiscreteVerification/DataStructures/TimeDart.hpp"
+#include "DiscreteVerification/Util/IntervalOps.hpp"
+
 #include <stack>
 #include <utility>
-#include "TimeDartVerification.hpp"
-#include "../DataStructures/TimeDart.hpp"
-#include "../Util/IntervalOps.hpp"
 
-namespace VerifyTAPN::DiscreteVerification {
+namespace VerifyTAPN { namespace DiscreteVerification {
 
     using namespace rapidxml;
 
@@ -57,7 +58,7 @@ namespace VerifyTAPN::DiscreteVerification {
         int validChildren{};
         google::sparse_hash_map<NonStrictMarkingBase *, TraceList> trace{};
         TimeDartPWBase *pwList{};
-        vector<const TAPN::TimedTransition *> allwaysEnabled{};
+        std::vector<const TAPN::TimedTransition *> allwaysEnabled{};
 
         virtual inline void deleteBase(NonStrictMarkingBase *base) {
             // Dummy
@@ -88,5 +89,5 @@ namespace VerifyTAPN::DiscreteVerification {
         };
     };
 
-} /* namespace VerifyTAPN */
+} } /* namespace VerifyTAPN */
 #endif /* NONSTRICTSEARCH_HPP_ */

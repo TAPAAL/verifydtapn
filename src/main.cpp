@@ -7,7 +7,6 @@
 #include "DiscreteVerification/DiscreteVerification.hpp"
 #include "DiscreteVerification/DeadlockVisitor.hpp"
 
-using namespace std;
 using namespace VerifyTAPN;
 using namespace VerifyTAPN::TAPN;
 
@@ -32,9 +31,8 @@ int main(int argc, char *argv[]) {
     if (options.getCalculateCmax()) {
         std::cout << options << std::endl;
         std::cout << "C-MAX" << std::endl;
-        for (TimedPlace::Vector::const_iterator iter = tapn->getPlaces().begin();
-             iter != tapn->getPlaces().end(); ++iter) {
-            std::cout << '<' << (*iter)->getName() << '#' << (*iter)->getMaxConstant() << "> ";
+        for (auto* iter : tapn->getPlaces()) {
+            std::cout << '<' << iter->getName() << '#' << iter->getMaxConstant() << "> ";
         }
         std::cout << std::endl;
         return 0;
@@ -46,18 +44,18 @@ int main(int argc, char *argv[]) {
     if (options.getWorkflowMode() == VerificationOptions::WORKFLOW_SOUNDNESS ||
         options.getWorkflowMode() == VerificationOptions::WORKFLOW_STRONG_SOUNDNESS) {
         if (options.getGCDLowerGuardsEnabled()) {
-            cout << "Workflow-analysis does not support GCD-lowering" << endl;
-            exit(1);
+            std::cout << "Workflow-analysis does not support GCD-lowering" << std::endl;
+           std::exit(1);
         }
 
         if (options.getSearchType() != VerificationOptions::DEFAULT) {
-            cout << "Workflow-analysis only supports the default search-strategy" << endl;
-            exit(1);
+            std::cout << "Workflow-analysis only supports the default search-strategy" << std::endl;
+           std::exit(1);
         }
 
         if (options.getQueryFile() != "") {
-            cout << "Workflow-analysis does not accept a query file" << endl;
-            exit(1);
+            std::cout << "Workflow-analysis does not accept a query file" << std::endl;
+           std::exit(1);
         }
 
         if (options.getWorkflowMode() == VerificationOptions::WORKFLOW_SOUNDNESS) {

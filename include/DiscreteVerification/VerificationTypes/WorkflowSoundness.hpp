@@ -8,24 +8,25 @@
 #ifndef WORKFLOWSOUNDNESS_HPP_
 #define WORKFLOWSOUNDNESS_HPP_
 
-#include "../DataStructures/WorkflowPWList.hpp"
-#include "../../Core/TAPN/TAPN.hpp"
-#include "../../Core/QueryParser/AST.hpp"
-#include "../../Core/VerificationOptions.hpp"
-#include "../../Core/TAPN/TimedPlace.hpp"
-#include "../../Core/TAPN/TimedTransition.hpp"
-#include "../../Core/TAPN/TimedInputArc.hpp"
-#include "../../Core/TAPN/TransportArc.hpp"
-#include "../../Core/TAPN/InhibitorArc.hpp"
-#include "../../Core/TAPN/OutputArc.hpp"
-#include "../QueryVisitor.hpp"
-#include "../DataStructures/NonStrictMarking.hpp"
-#include <stack>
-#include "../DataStructures/WaitingList.hpp"
+#include "DiscreteVerification/DataStructures/WorkflowPWList.hpp"
+#include "Core/TAPN/TAPN.hpp"
+#include "Core/QueryParser/AST.hpp"
+#include "Core/VerificationOptions.hpp"
+#include "Core/TAPN/TimedPlace.hpp"
+#include "Core/TAPN/TimedTransition.hpp"
+#include "Core/TAPN/TimedInputArc.hpp"
+#include "Core/TAPN/TransportArc.hpp"
+#include "Core/TAPN/InhibitorArc.hpp"
+#include "Core/TAPN/OutputArc.hpp"
+#include "DiscreteVerification/QueryVisitor.hpp"
+#include "DiscreteVerification/DataStructures/NonStrictMarking.hpp"
+#include "DiscreteVerification/DataStructures/WaitingList.hpp"
 #include "Workflow.hpp"
 
+#include <stack>
+
 using namespace ptrie;
-namespace VerifyTAPN::DiscreteVerification {
+namespace VerifyTAPN { namespace DiscreteVerification {
 
     class WorkflowSoundness : public Workflow {
     public:
@@ -47,13 +48,13 @@ namespace VerifyTAPN::DiscreteVerification {
 
         virtual void getTrace() { this->getTrace(lastMarking); };
 
-        void printExecutionTime(ostream &stream) override {
-            stream << "Minimum execution time: " << minExec << endl;
+        void printExecutionTime(std::ostream &stream) override {
+            stream << "Minimum execution time: " << minExec << std::endl;
         }
 
-        void printMessages(ostream &stream) {
+        void printMessages(std::ostream &stream) {
             if (coveredMarking != nullptr) {
-                stream << "Covered marking: " << *coveredMarking << endl;
+                stream << "Covered marking: " << *coveredMarking << std::endl;
                 getTrace(coveredMarking);
             }
         }
@@ -74,7 +75,7 @@ namespace VerifyTAPN::DiscreteVerification {
         virtual void setMetaParent(NonStrictMarking *) {};
 
     protected:
-        stack<MetaData *> passedStack{};
+        std::stack<MetaData *> passedStack{};
         int minExec;
         unsigned int linearSweepTreshold;
         NonStrictMarking *coveredMarking;
@@ -103,5 +104,5 @@ namespace VerifyTAPN::DiscreteVerification {
         void setMetaParent(NonStrictMarking *) override;
     };
 
-} /* namespace VerifyTAPN */
+} }/* namespace VerifyTAPN */
 #endif /* NONSTRICTSEARCH_HPP_ */

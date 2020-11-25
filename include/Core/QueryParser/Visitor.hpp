@@ -3,7 +3,7 @@
 
 #include <vector>
 
-namespace VerifyTAPN::AST {
+namespace VerifyTAPN { namespace AST {
     class NotExpression;
 
     class OrExpression;
@@ -48,7 +48,7 @@ namespace VerifyTAPN::AST {
 
     class Visitor {
     public:
-        virtual ~Visitor() = default;;
+        virtual ~Visitor() = default;
 
         virtual void visit(NotExpression &expr, Result &context) = 0;
 
@@ -76,7 +76,7 @@ namespace VerifyTAPN::AST {
 
         virtual void visit(PlusExpression &expr, Result &context) = 0;
     };
-}
+} }
 
 
 #endif /* VISITOR_HPP_ */

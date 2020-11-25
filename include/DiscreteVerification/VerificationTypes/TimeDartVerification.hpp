@@ -1,20 +1,20 @@
 #ifndef TIMEDARTVERIFICATION_HPP_
 #define TIMEDARTVERIFICATION_HPP_
 
-#include "../../Core/TAPN/TAPN.hpp"
-#include "../DataStructures/NonStrictMarkingBase.hpp"
+#include "Core/TAPN/TAPN.hpp"
+#include "DiscreteVerification/DataStructures/NonStrictMarkingBase.hpp"
 #include "../Util/IntervalOps.hpp"
 #include "Verification.hpp"
-#include "../DataStructures/TimeDart.hpp"
+#include "DiscreteVerification/DataStructures/TimeDart.hpp"
 #include "../Generator.h"
 #include "../ReducingGenerator.hpp"
 #include <stack>
 
-namespace VerifyTAPN::DiscreteVerification {
+namespace VerifyTAPN { namespace DiscreteVerification {
 
     using namespace rapidxml;
 
-    typedef pair<NonStrictMarkingBase *, int> TraceList;
+    typedef std::pair<NonStrictMarkingBase *, int> TraceList;
 
     class TimeDartVerification : public Verification<NonStrictMarkingBase> {
     public:
@@ -45,7 +45,7 @@ namespace VerifyTAPN::DiscreteVerification {
 
     protected:
         int exploredMarkings;
-        vector<const TAPN::TimedTransition *> allwaysEnabled{};
+        std::vector<const TAPN::TimedTransition *> allwaysEnabled{};
         bool loop;
         bool deadlock;
         WaitingDart *lastMarking{};
@@ -53,6 +53,6 @@ namespace VerifyTAPN::DiscreteVerification {
 
         bool generateAndInsertSuccessors(NonStrictMarkingBase &marking, const TAPN::TimedTransition &transition);
     };
-}
+} }
 
 #endif

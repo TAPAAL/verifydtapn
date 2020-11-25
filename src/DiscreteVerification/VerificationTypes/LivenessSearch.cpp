@@ -7,12 +7,12 @@
 
 #include "DiscreteVerification/VerificationTypes/LivenessSearch.hpp"
 
-namespace VerifyTAPN::DiscreteVerification {
+namespace VerifyTAPN { namespace DiscreteVerification {
 
     LivenessSearch::LivenessSearch(TAPN::TimedArcPetriNet &tapn, NonStrictMarking &initialMarking,
                                    AST::Query *query, const VerificationOptions &options)
             : AbstractNaiveVerification<PWListBase, NonStrictMarking, Generator>(tapn, initialMarking, query,
-                                                                                 options, NULL) {
+                                                                                 options, nullptr) {
 
     }
 
@@ -26,7 +26,7 @@ namespace VerifyTAPN::DiscreteVerification {
     }
 
     bool LivenessSearch::run() {
-        if (handleSuccessor(&initialMarking, NULL)) {
+        if (handleSuccessor(&initialMarking, nullptr)) {
             return true;
         }
 
@@ -55,7 +55,7 @@ namespace VerifyTAPN::DiscreteVerification {
                 if (!noDelay && isDelayPossible(next_marking)) {
                     NonStrictMarking *marking = new NonStrictMarking(next_marking);
                     marking->incrementAge();
-                    marking->setGeneratedBy(NULL);
+                    marking->setGeneratedBy(nullptr);
                     if (handleSuccessor(marking, &next_marking)) {
                         return true;
                     }
@@ -132,7 +132,7 @@ namespace VerifyTAPN::DiscreteVerification {
     }
 
     void LivenessSearch::getTrace() {
-        stack<NonStrictMarking *> printStack;
+        std::stack<NonStrictMarking *> printStack;
         NonStrictMarking *m = trace.top();
         generateTraceStack(m, &printStack, &trace);
         if (options.getXmlTrace()) {
@@ -144,4 +144,4 @@ namespace VerifyTAPN::DiscreteVerification {
 
     LivenessSearch::~LivenessSearch() = default;
 
-} /* namespace VerifyTAPN */
+} } /* namespace VerifyTAPN */

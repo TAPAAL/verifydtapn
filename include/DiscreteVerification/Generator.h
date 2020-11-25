@@ -6,15 +6,16 @@
  */
 
 #ifndef GENERATOR_H
-#define    GENERATOR_H
+#define GENERATOR_H
 
-#include <vector>
-#include <algorithm>
-#include "../Core/TAPN/TAPN.hpp"
+#include "Core/TAPN/TAPN.hpp"
 #include "DataStructures/NonStrictMarkingBase.hpp"
 #include "DataStructures/NonStrictMarking.hpp"
 
-namespace VerifyTAPN::DiscreteVerification {
+#include <vector>
+#include <algorithm>
+
+namespace VerifyTAPN { namespace DiscreteVerification {
     class Generator {
         typedef std::vector<const TAPN::TimedTransition *> transitions_t;
     public:
@@ -75,9 +76,6 @@ namespace VerifyTAPN::DiscreteVerification {
 
         bool modes_match(const TAPN::TimedTransition *trans);
     };
-
-}
-
-
+} }
 #endif    /* GENERATOR_H */
 

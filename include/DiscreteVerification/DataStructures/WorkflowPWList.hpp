@@ -9,15 +9,17 @@
 #define WORKFLOWPWLIST_HPP_
 
 #include "WaitingList.hpp"
-#include <iostream>
-#include "google/sparse_hash_map"
 #include  "NonStrictMarking.hpp"
 #include "NonStrictMarking.hpp"
 #include "WaitingList.hpp"
 #include "PWList.hpp"
 #include "CoveredMarkingVisitor.h"
 
-namespace VerifyTAPN::DiscreteVerification {
+#include <iostream>
+#include "google/sparse_hash_map"
+
+
+namespace VerifyTAPN { namespace DiscreteVerification {
 
     class WorkflowPWListBasic : virtual public PWListBase {
     public:
@@ -88,5 +90,5 @@ namespace VerifyTAPN::DiscreteVerification {
         }
     };
 
-} /* namespace VerifyTAPN */
+} } /* namespace VerifyTAPN */
 #endif /* PWLIST_HPP_ */

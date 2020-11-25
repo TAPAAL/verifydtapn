@@ -1,10 +1,11 @@
 #ifndef VERIFYTAPN_TAPN_TIMEDINPUTARC_HPP_
 #define VERIFYTAPN_TAPN_TIMEDINPUTARC_HPP_
 
-#include <vector>
 #include "TimeInterval.hpp"
 
-namespace VerifyTAPN::TAPN {
+#include <vector>
+
+namespace VerifyTAPN { namespace TAPN {
     class TimedTransition;
 
     class TimedPlace;
@@ -39,13 +40,13 @@ namespace VerifyTAPN::TAPN {
         TimeInterval interval;
         TimedPlace &place;
         TimedTransition &transition;
-        const int weight;
+        const uint32_t weight;
     };
 
     inline std::ostream &operator<<(std::ostream &out, const TimedInputArc &arc) {
         arc.print(out);
         return out;
     }
-}
+} }
 
 #endif /* VERIFYTAPN_TAPN_TIMEDINPUTARC_HPP_ */

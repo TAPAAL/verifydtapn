@@ -3,7 +3,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
 
-namespace VerifyTAPN::TAPN {
+namespace VerifyTAPN { namespace TAPN {
     const TimeInvariant TimeInvariant::LS_INF;
 
     TimeInvariant TimeInvariant::createFor(const std::string &invariant, std::map<std::string, int> replace) {
@@ -30,4 +30,4 @@ namespace VerifyTAPN::TAPN {
 
         out << comparison << " " << strBound;
     }
-}
+} }

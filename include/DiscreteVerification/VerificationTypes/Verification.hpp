@@ -1,7 +1,7 @@
 #ifndef VERIFICATION_HPP_
 #define VERIFICATION_HPP_
 
-#include "../DataStructures/NonStrictMarking.hpp"
+#include "DiscreteVerification/DataStructures/NonStrictMarking.hpp"
 #include "../DeadlockVisitor.hpp"
 
 #include "Core/TAPNParser/util.hpp"
@@ -12,7 +12,7 @@
 
 #include <rapidxml.hpp>
 /* Adding declarations to make it compatible with gcc 4.7 and greater */
-namespace rapidxml::internal {
+namespace rapidxml { namespace internal {
     template<class OutIt, class Ch>
     inline OutIt print_children(OutIt out, const xml_node <Ch> *node, int flags, int indent);
 
@@ -39,13 +39,13 @@ namespace rapidxml::internal {
 
     template<class OutIt, class Ch>
     inline OutIt print_pi_node(OutIt out, const xml_node <Ch> *node, int flags, int indent);
-}
+} }
 
 #include <rapidxml_print.hpp>
 #include <utility>
 #include <utility>
 
-namespace VerifyTAPN::DiscreteVerification {
+namespace VerifyTAPN { namespace DiscreteVerification {
     template<typename T>
     class Verification {
     public:
@@ -53,7 +53,7 @@ namespace VerifyTAPN::DiscreteVerification {
         Verification(TAPN::TimedArcPetriNet &tapn, T &initialMarking, AST::Query *query,
                      VerificationOptions options);
 
-        virtual ~Verification() = default;;
+        virtual ~Verification() = default;
 
         virtual bool run() = 0;
 
@@ -88,7 +88,7 @@ namespace VerifyTAPN::DiscreteVerification {
 
         void generateTraceStack(T *m, std::stack<T *> *result, std::stack<T *> *liveness = nullptr);
 
-        stack<T *> trace{};
+        std::stack<T *> trace{};
     protected:
         TAPN::TimedArcPetriNet &tapn;
         T &initialMarking;
@@ -138,7 +138,7 @@ namespace VerifyTAPN::DiscreteVerification {
                     int i = 1;
                     T *old = stack.top();
                     stack.pop();
-                    while (!stack.empty() && stack.top()->getGeneratedBy() == NULL) {
+                    while (!stack.empty() && stack.top()->getGeneratedBy() == nullptr) {
                         old = stack.top();
                         stack.pop();
                         i++;
@@ -165,11 +165,10 @@ namespace VerifyTAPN::DiscreteVerification {
 
             //Print marking
             std::cout << "Marking: ";
-            for (PlaceList::const_iterator iter = stack.top()->getPlaceList().begin();
-                 iter != stack.top()->getPlaceList().end(); iter++) {
-                for (TokenList::const_iterator titer = iter->tokens.begin(); titer != iter->tokens.end(); titer++) {
-                    for (int i = 0; i < titer->getCount(); i++) {
-                        std::cout << "(" << iter->place->getName() << "," << titer->getAge() << ") ";
+            for (auto& token_list : stack.top()->getPlaceList()) {
+                for (auto& token : token_list.tokens) {
+                    for (int i = 0; i < token.getCount(); i++) {
+                        std::cout << "(" << token_list.place->getName() << "," << token.getAge() << ") ";
                     }
                 }
             }
@@ -223,7 +222,7 @@ namespace VerifyTAPN::DiscreteVerification {
         bool isFirst = true;
         bool foundLoop = false;
         bool delayedForever = false;
-        T *old = NULL;
+        T *old = nullptr;
 
         xml_document<> doc;
         xml_node<> *root = doc.allocate_node(node_element, "trace");
@@ -240,7 +239,7 @@ namespace VerifyTAPN::DiscreteVerification {
                     old = stack.top();
                     stack.pop();
                     bool delayloop = false;
-                    while (!stack.empty() && stack.top()->getGeneratedBy() == NULL) {
+                    while (!stack.empty() && stack.top()->getGeneratedBy() == nullptr) {
                         // check if this marking is the start of a loop
                         if (!foundLoop && (query->getQuantifier() == AST::EG || query->getQuantifier() == AST::AF)
                             && (stack.size() > 2 && old->equals(*m))) {
@@ -283,7 +282,7 @@ namespace VerifyTAPN::DiscreteVerification {
                         if (queryContainsDeadlock.value) {
                             // find the marking from which a delay gave a deadlock
                             NonStrictMarkingBase *base = old;
-                            while (base->getGeneratedBy() == NULL && base->getParent() != NULL) {
+                            while (base->getGeneratedBy() == nullptr && base->getParent() != nullptr) {
                                 base = base->getParent();
                             }
 
@@ -359,16 +358,14 @@ namespace VerifyTAPN::DiscreteVerification {
         xml_attribute<> *id = doc.allocate_attribute("id", current->getGeneratedBy()->getId().c_str());
         transitionNode->append_attribute(id);
 
-        for (TAPN::TimedInputArc::Vector::const_iterator arc_iter = current->getGeneratedBy()->getPreset().begin();
-             arc_iter != current->getGeneratedBy()->getPreset().end(); arc_iter++) {
-            createTransitionSubNodes(old, current, doc, transitionNode, (*arc_iter)->getInputPlace(),
-                                     (*arc_iter)->getInterval(), (*arc_iter)->getWeight());
+        for (auto* arc : current->getGeneratedBy()->getPreset()) {
+            createTransitionSubNodes(old, current, doc, transitionNode, arc->getInputPlace(),
+                                     arc->getInterval(), arc->getWeight());
         }
 
-        for (TAPN::TransportArc::Vector::const_iterator arc_iter = current->getGeneratedBy()->getTransportArcs().begin();
-             arc_iter != current->getGeneratedBy()->getTransportArcs().end(); arc_iter++) {
-            createTransitionSubNodes(old, current, doc, transitionNode, (*arc_iter)->getSource(),
-                                     (*arc_iter)->getInterval(), (*arc_iter)->getWeight());
+        for (auto* arc : current->getGeneratedBy()->getTransportArcs()) {
+            createTransitionSubNodes(old, current, doc, transitionNode, arc->getSource(),
+                                     arc->getInterval(), arc->getWeight());
         }
 
         return transitionNode;
@@ -411,11 +408,11 @@ namespace VerifyTAPN::DiscreteVerification {
             }
         }
 
-        for (TokenList::const_iterator iter = old_tokens.begin();
-             iter != old_tokens.end() && tokensFound < weight; iter++) {
-            if (iter->getAge() >= interval.getLowerBound()) {
-                for (int i = 0; i < iter->getCount() && tokensFound < weight; i++) {
-                    transitionNode->append_node(createTokenNode(doc, place, *iter));
+        for (auto& token : old_tokens) {
+            if(tokensFound >= weight) break;
+            if (token.getAge() >= interval.getLowerBound()) {
+                for (int i = 0; i < token.getCount() && tokensFound < weight; i++) {
+                    transitionNode->append_node(createTokenNode(doc, place, token));
                     tokensFound++;
                 }
             }
@@ -449,11 +446,11 @@ namespace VerifyTAPN::DiscreteVerification {
 
     template<typename T>
     void Verification<T>::generateTraceStack(T *m, std::stack<T *> *result, std::stack<T *> *liveness) {
-        if (liveness == NULL) {
+        if (liveness == nullptr) {
             T *next = m;
             do {
                 result->push((T *) next);
-            } while ((next = ((T *) next->getParent())) != NULL);
+            } while ((next = ((T *) next->getParent())) != nullptr);
         } else {
             do {
                 result->push(liveness->top());
@@ -464,6 +461,6 @@ namespace VerifyTAPN::DiscreteVerification {
             } while (!(liveness->empty()));
         }
     }
-}
+} }
 
 #endif

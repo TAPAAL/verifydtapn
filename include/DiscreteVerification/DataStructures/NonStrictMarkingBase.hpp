@@ -8,22 +8,21 @@
 #ifndef NonStrictMarkingBase_HPP_
 #define NonStrictMarkingBase_HPP_
 
+#include "Core/TAPN/TAPN.hpp"
+
+#include "boost/functional/hash.hpp"
+
 #include <cassert>
 #include <vector>
-#include "boost/functional/hash.hpp"
-#include <iostream>
-#include "../../Core/TAPN/TAPN.hpp"
 #include <iostream>
 
-using namespace std;
-
-namespace VerifyTAPN::DiscreteVerification {
+namespace VerifyTAPN { namespace DiscreteVerification {
 
     class Place;
 
     class Token;
 
-    typedef vector<Token> TokenList;
+    typedef std::vector<Token> TokenList;
 
     class Token {
     private:
@@ -104,11 +103,7 @@ namespace VerifyTAPN::DiscreteVerification {
         }
 
         inline int maxTokenAge() const {
-            int max = -1;
-            for (const auto &token : tokens) {
-                if (token.getAge() > max) max = token.getAge();
-            }
-            return max;
+            return tokens.back().getAge();
         }
 
         // Ages all tokens by 1
@@ -134,11 +129,11 @@ namespace VerifyTAPN::DiscreteVerification {
             // assume the list is sorted, first token must be lowest,
             // and thus we only need to check this token to the max constant.
             // also assume no place-object is "empty"
-            return (tokens[0].getAge() + delay) >= (place->getMaxConstant() + 1);
+            return (tokens.front().getAge() + delay) >= (place->getMaxConstant() + 1);
         }
     };
 
-    typedef vector<Place> PlaceList;
+    typedef std::vector<Place> PlaceList;
 
     class NonStrictMarkingBase {
     public:
@@ -163,7 +158,7 @@ namespace VerifyTAPN::DiscreteVerification {
             return canDeadlock(tapn, maxDelay, false);
         };
 
-        int numberOfTokensInPlace(int placeId) const;
+        uint32_t numberOfTokensInPlace(int placeId) const;
 
         const TokenList &getTokenList(int placeId) const;
 
@@ -173,7 +168,7 @@ namespace VerifyTAPN::DiscreteVerification {
             return places;
         }
 
-        unsigned int size();
+        uint32_t size();
 
         inline NonStrictMarkingBase *getParent() const { return parent; }
 
@@ -268,6 +263,6 @@ namespace VerifyTAPN::DiscreteVerification {
 
     std::ostream &operator<<(std::ostream &out, NonStrictMarkingBase &x);
 
-} /* namespace VerifyTAPN */
+} } /* namespace VerifyTAPN */
 
 #endif /* NonStrictMarkingBase_HPP_ */

@@ -7,7 +7,7 @@
 
 #include "DiscreteVerification/SearchStrategies/WeightQueryVisitor.hpp"
 
-namespace VerifyTAPN::DiscreteVerification {
+namespace VerifyTAPN { namespace DiscreteVerification {
 
     void WeightQueryVisitor::visit(NotExpression &expr, Result &context) {
         assert(false);
@@ -19,7 +19,7 @@ namespace VerifyTAPN::DiscreteVerification {
         expr.getRight().accept(*this, right);
 
         static_cast<IntResult &>(context).value
-                = min(left.value, right.value);
+                = std::min(left.value, right.value);
     }
 
     void WeightQueryVisitor::visit(AndExpression &expr, Result &context) {
@@ -101,15 +101,14 @@ namespace VerifyTAPN::DiscreteVerification {
         query.getChild()->accept(*this, context);
     }
 
-    int WeightQueryVisitor::compare(int numberOfTokensInPlace, const std::string &op, int n) const {
-        if (op == "<") return numberOfTokensInPlace < n ? 0 : abs(n - numberOfTokensInPlace);
-        else if (op == "<=") return numberOfTokensInPlace <= n ? 0 : abs(n - numberOfTokensInPlace);
-        else if (op == "=" || op == "==") return numberOfTokensInPlace == n ? 0 : abs(n - numberOfTokensInPlace);
-        else if (op == ">=") return numberOfTokensInPlace >= n ? 0 : abs(n - numberOfTokensInPlace);
-        else if (op == ">") return numberOfTokensInPlace > n ? 0 : abs(n - numberOfTokensInPlace);
-        else if (op == "!=") return numberOfTokensInPlace == n ? 1 : 0;
-        else
-            throw std::exception();
+    int WeightQueryVisitor::compare(int numberOfTokensInPlace, AtomicProposition::op_e op, int n) {
+        switch(op) {
+            case AtomicProposition::LT: return numberOfTokensInPlace < n ? 0 : abs(n - numberOfTokensInPlace);
+            case AtomicProposition::LE: return numberOfTokensInPlace <= n ? 0 : abs(n - numberOfTokensInPlace);
+            case AtomicProposition::EQ: return numberOfTokensInPlace == n ? 0 : abs(n - numberOfTokensInPlace);
+            case AtomicProposition::NE: return numberOfTokensInPlace == n ? 1 : 0;
+            default: throw std::exception();
+        }
     }
 
-} /* namespace VerifyTAPN */
+} } /* namespace VerifyTAPN */

@@ -9,7 +9,7 @@
 
 #include <utility>
 
-namespace VerifyTAPN::DiscreteVerification {
+namespace VerifyTAPN { namespace DiscreteVerification {
 
     WorkflowStrongSoundnessReachability::WorkflowStrongSoundnessReachability(TAPN::TimedArcPetriNet &tapn,
                                                                              NonStrictMarking &initialMarking,
@@ -30,10 +30,9 @@ namespace VerifyTAPN::DiscreteVerification {
     }
 
     void WorkflowStrongSoundnessReachability::findInOut() {
-        for (TimedPlace::Vector::const_iterator iter = tapn.getPlaces().begin();
-             iter != tapn.getPlaces().end(); ++iter) {
-            if ((*iter)->getTransportArcs().empty() && (*iter)->getInputArcs().empty()) {
-                outPlace = *iter;
+        for (auto* iter : tapn.getPlaces()) {
+            if (iter->getTransportArcs().empty() && iter->getInputArcs().empty()) {
+                outPlace = iter;
                 break;
             }
         }
@@ -64,7 +63,7 @@ namespace VerifyTAPN::DiscreteVerification {
             return true;
         }
 
-        if (handleSuccessor(&initialMarking, NULL)) {
+        if (handleSuccessor(&initialMarking, nullptr)) {
             return true;
         }
 
@@ -92,7 +91,7 @@ namespace VerifyTAPN::DiscreteVerification {
             if (!noDelay && isDelayPossible(*next_marking)) {
                 NonStrictMarking *marking = new NonStrictMarking(*next_marking);
                 marking->incrementAge();
-                marking->setGeneratedBy(NULL);
+                marking->setGeneratedBy(nullptr);
 
                 if (handleSuccessor(marking, next_marking)) {
                     clearTrace();
@@ -132,7 +131,7 @@ namespace VerifyTAPN::DiscreteVerification {
 
         } while (next != nullptr && next->getParent() != nullptr);
 
-        if (next != NULL && printStack.top() != next) {
+        if (next != nullptr && printStack.top() != next) {
             printStack.push(next);
         }
 
@@ -252,7 +251,7 @@ namespace VerifyTAPN::DiscreteVerification {
             // if terminal, update max_value and last marking of trace
             if (maxValue < marking->meta->totalDelay) {
                 maxValue = marking->meta->totalDelay;
-                if (lastMarking != NULL) deleteMarking(lastMarking);
+                if (lastMarking != nullptr) deleteMarking(lastMarking);
                 lastMarking = marking;
                 return false;
             }
@@ -285,4 +284,4 @@ namespace VerifyTAPN::DiscreteVerification {
         }
     }
 
-} /* namespace VerifyTAPN */
+} } /* namespace VerifyTAPN */

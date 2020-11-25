@@ -9,12 +9,12 @@
 #include <limits>
 #include <utility>
 
-namespace VerifyTAPN::DiscreteVerification {
+namespace VerifyTAPN { namespace DiscreteVerification {
 
     WorkflowSoundness::WorkflowSoundness(TAPN::TimedArcPetriNet &tapn, NonStrictMarking &initialMarking,
                                          AST::Query *query, VerificationOptions options,
                                          WaitingList<NonStrictMarking *> *waiting_list)
-            : Workflow(tapn, initialMarking, query, std::move(options)), passedStack(), minExec(INT_MAX),
+            : Workflow(tapn, initialMarking, query, std::move(options)), passedStack(), minExec(std::numeric_limits<int32_t>::max()),
               linearSweepTreshold(3), coveredMarking(nullptr), modelType(calculateModelType()) {
         pwList = new WorkflowPWList(waiting_list);
 
@@ -23,7 +23,7 @@ namespace VerifyTAPN::DiscreteVerification {
 
     WorkflowSoundness::WorkflowSoundness(TAPN::TimedArcPetriNet &tapn, NonStrictMarking &initialMarking,
                                          AST::Query *query, VerificationOptions options)
-            : Workflow(tapn, initialMarking, query, std::move(options)), passedStack(), minExec(INT_MAX),
+            : Workflow(tapn, initialMarking, query, std::move(options)), passedStack(), minExec(std::numeric_limits<int32_t>::max()),
               linearSweepTreshold(3), coveredMarking(nullptr), modelType(calculateModelType()) {
 
     }
@@ -43,7 +43,7 @@ namespace VerifyTAPN::DiscreteVerification {
 
 
     bool WorkflowSoundness::run() {
-        if (handleSuccessor(&initialMarking, NULL)) {
+        if (handleSuccessor(&initialMarking, nullptr)) {
             return false;
         }
 
@@ -65,7 +65,7 @@ namespace VerifyTAPN::DiscreteVerification {
             if (!noDelay && isDelayPossible(*next_marking)) {
                 NonStrictMarking *marking = new NonStrictMarking(*next_marking);
                 marking->incrementAge();
-                marking->setGeneratedBy(NULL);
+                marking->setGeneratedBy(nullptr);
                 if (handleSuccessor(marking, next_marking)) {
                     return false;
                 }
@@ -94,10 +94,8 @@ namespace VerifyTAPN::DiscreteVerification {
             if (next->passed) continue;
             next->passed = true;
             ++passed;
-            for (vector<MetaData *>::iterator iter = next->parents.begin();
-                 iter != next->parents.end(); iter++) {
-                passedStack.push(*iter);
-            }
+            for (MetaData* m : next->parents)
+                passedStack.push(m);
         }
         return passed;
     }
@@ -112,10 +110,8 @@ namespace VerifyTAPN::DiscreteVerification {
             if (next->passed) continue;
             next->passed = true;
             ++passed;
-            for (vector<MetaData *>::iterator iter = next->parents.begin();
-                 iter != next->parents.end(); iter++) {
-                passedStack.push(*iter);
-            }
+            for (MetaData* m : next->parents)
+                passedStack.push(m);
         }
         return passed;
     }
@@ -129,7 +125,7 @@ namespace VerifyTAPN::DiscreteVerification {
         // Check K-bound
         pwList->setMaxNumTokensIfGreater(size);
         if (modelType == ETAWFN && size > options.getKBound()) {
-            if (lastMarking != NULL) deleteMarking(lastMarking);
+            if (lastMarking != nullptr) deleteMarking(lastMarking);
             lastMarking = marking;
             setMetaParent(lastMarking);
             return true;    // Terminate false
@@ -150,10 +146,10 @@ namespace VerifyTAPN::DiscreteVerification {
         if (parent != nullptr) {
             addParentMeta(marking->meta, parent->meta);
             if (marking->getGeneratedBy() == nullptr) {
-                marking->meta->totalDelay = min(marking->meta->totalDelay,
+                marking->meta->totalDelay = std::min(marking->meta->totalDelay,
                                                 parent->meta->totalDelay + 1);    // Delay
             } else {
-                marking->meta->totalDelay = min(marking->meta->totalDelay,
+                marking->meta->totalDelay = std::min(marking->meta->totalDelay,
                                                 parent->meta->totalDelay);    // Transition
             }
         } else {
@@ -167,18 +163,18 @@ namespace VerifyTAPN::DiscreteVerification {
             if (size == 1) {
                 passedStack.push(marking->meta);
                 // Set min
-                marking->meta->totalDelay = min(marking->meta->totalDelay,
+                marking->meta->totalDelay = std::min(marking->meta->totalDelay,
                                                 parent->meta->totalDelay);    // Transition
                 // keep track of shortest trace
                 if (marking->meta->totalDelay < minExec) {
-                    if (lastMarking != NULL) deleteMarking(lastMarking);
+                    if (lastMarking != nullptr) deleteMarking(lastMarking);
 
                     minExec = marking->meta->totalDelay;
                     lastMarking = marking;
                     return false;
                 }
             } else {
-                if (lastMarking != NULL) deleteMarking(lastMarking);
+                if (lastMarking != nullptr) deleteMarking(lastMarking);
                 lastMarking = marking;
                 return true;    // Terminate false
             }
@@ -186,13 +182,13 @@ namespace VerifyTAPN::DiscreteVerification {
             // If new marking
             if (isNew) {
                 pwList->addLastToWaiting();
-                if (parent != NULL && marking->canDeadlock(tapn, 0)) {
-                    if (lastMarking != NULL) deleteMarking(lastMarking);
+                if (parent != nullptr && marking->canDeadlock(tapn, 0)) {
+                    if (lastMarking != nullptr) deleteMarking(lastMarking);
                     lastMarking = marking;
                     return true;
                 }
                 if (modelType == MTAWFN && checkForCoveredMarking(marking)) {
-                    if (lastMarking != NULL) deleteMarking(lastMarking);
+                    if (lastMarking != nullptr) deleteMarking(lastMarking);
                     lastMarking = marking;
                     return true;    // Terminate false
                 }
@@ -232,7 +228,7 @@ namespace VerifyTAPN::DiscreteVerification {
 
     void WorkflowSoundness::getTrace(NonStrictMarking *marking) {
 
-        stack<NonStrictMarking *> printStack;
+        std::stack<NonStrictMarking *> printStack;
         NonStrictMarking *next = marking;
         if (next != nullptr) {
             do {
@@ -250,7 +246,7 @@ namespace VerifyTAPN::DiscreteVerification {
 
         PWListHybrid *pwhlist = dynamic_cast<PWListHybrid *>(this->pwList);
 
-        stack<NonStrictMarking *> printStack;
+        std::stack<NonStrictMarking *> printStack;
 
         if (marking != nullptr) {
             printStack.push(marking);
@@ -269,7 +265,7 @@ namespace VerifyTAPN::DiscreteVerification {
                     meta = meta->parent;
                 }
             }
-            printStack.top()->setGeneratedBy(NULL);
+            printStack.top()->setGeneratedBy(nullptr);
         }
 
 #ifdef CLEANUP
@@ -304,16 +300,13 @@ namespace VerifyTAPN::DiscreteVerification {
     WorkflowSoundness::ModelType WorkflowSoundness::calculateModelType() {
         bool isin, isout;
         bool hasInvariant = false;
-        for (TimedPlace::Vector::const_iterator iter = tapn.getPlaces().begin();
-             iter != tapn.getPlaces().end(); iter++) {
+        for (auto* p : tapn.getPlaces()) {
             isin = isout = true;
-            TimedPlace *p = (*iter);
             if (p->getInputArcs().empty() && p->getOutputArcs().empty() && p->getTransportArcs().empty()) {
                 bool continueOuter = true;
                 // Test if really orphan place or if out place
-                for (TransportArc::Vector::const_iterator trans_i = tapn.getTransportArcs().begin();
-                     trans_i != tapn.getTransportArcs().end(); ++trans_i) {
-                    if (&((*trans_i)->getDestination()) == p) {
+                for (auto* trans : tapn.getTransportArcs()) {
+                    if (&(trans->getDestination()) == p) {
                         continueOuter = false;
                         break;
                     }
@@ -334,9 +327,8 @@ namespace VerifyTAPN::DiscreteVerification {
             }
 
             if (isout) {
-                for (TransportArc::Vector::const_iterator iter = p->getTransportArcs().begin();
-                     iter != p->getTransportArcs().end(); iter++) {
-                    if (&(*iter)->getSource() == p) {
+                for (auto* iter : p->getTransportArcs()) {
+                    if (&iter->getSource() == p) {
                         isout = false;
                         break;
                     }
@@ -344,9 +336,8 @@ namespace VerifyTAPN::DiscreteVerification {
             }
 
             if (isin) {
-                for (TransportArc::Vector::const_iterator iter = tapn.getTransportArcs().begin(); iter !=
-                                                                                                  tapn.getTransportArcs().end(); ++iter) { // TODO maybe transportArcs should contain both incoming and outgoing? Might break something though.
-                    if (&(*iter)->getDestination() == p) {
+                for (auto* iter : tapn.getTransportArcs()) { // TODO maybe transportArcs should contain both incoming and outgoing? Might break something though.
+                    if (&iter->getDestination() == p) {
                         isin = false;
                         break;
                     }
@@ -354,7 +345,7 @@ namespace VerifyTAPN::DiscreteVerification {
             }
 
             if (isin) {
-                if (in == NULL) {
+                if (in == nullptr) {
                     in = p;
                 } else {
                     return NOTTAWFN;
@@ -362,7 +353,7 @@ namespace VerifyTAPN::DiscreteVerification {
             }
 
             if (isout) {
-                if (out == NULL) {
+                if (out == nullptr) {
                     out = p;
                 } else {
                     return NOTTAWFN;
@@ -382,17 +373,16 @@ namespace VerifyTAPN::DiscreteVerification {
         bool hasUrgent = false;
         bool hasInhibitor = false;
         // All transitions must have preset
-        for (TimedTransition::Vector::const_iterator iter = tapn.getTransitions().begin();
-             iter != tapn.getTransitions().end(); iter++) {
-            if ((*iter)->getPresetSize() == 0 && (*iter)->getNumberOfTransportArcs() == 0) {
+        for (auto* iter : tapn.getTransitions()) {
+            if (iter->getPresetSize() == 0 && iter->getNumberOfTransportArcs() == 0) {
                 return NOTTAWFN;
             }
 
-            if (!hasUrgent && (*iter)->isUrgent()) {
+            if (!hasUrgent && iter->isUrgent()) {
                 hasUrgent = true;
             }
 
-            if (!hasInhibitor && !(*iter)->getInhibitorArcs().empty()) {
+            if (!hasInhibitor && !iter->getInhibitorArcs().empty()) {
                 hasInhibitor = true;
             }
         }
@@ -410,4 +400,4 @@ namespace VerifyTAPN::DiscreteVerification {
         delete pwList;
     }
 
-} /* namespace VerifyTAPN */
+} } /* namespace VerifyTAPN */

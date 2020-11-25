@@ -4,7 +4,7 @@
 #include "TimeInterval.hpp"
 #include <vector>
 
-namespace VerifyTAPN::TAPN {
+namespace VerifyTAPN { namespace TAPN {
     class TimedTransition;
 
     class TimedPlace;
@@ -21,7 +21,7 @@ namespace VerifyTAPN::TAPN {
                 const int weight
         ) : interval(interval), source(source), transition(transition), destination(destination), weight(weight) {};
 
-        virtual ~TransportArc() = default;;
+        virtual ~TransportArc() = default;
     public:
         inline TimedPlace &getSource() const { return source; }
 
@@ -36,7 +36,7 @@ namespace VerifyTAPN::TAPN {
     public: // Inspectors
         void print(std::ostream &out) const;
 
-        inline int getWeight() const { return weight; }
+        inline uint32_t getWeight() const { return weight; }
 
     private:
         TAPN::TimeInterval interval;
@@ -50,6 +50,6 @@ namespace VerifyTAPN::TAPN {
         arc.print(out);
         return out;
     }
-}
+} }
 
 #endif /* TRANSPORTARC_HPP_ */

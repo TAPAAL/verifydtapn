@@ -9,17 +9,18 @@
 #define TIMEDARTPWLIST_HPP_
 
 #include "WaitingList.hpp"
-#include <iostream>
-#include "google/sparse_hash_map"
 #include "NonStrictMarkingBase.hpp"
 #include "WaitingList.hpp"
 #include "TimeDart.hpp"
 #include "ptrie.h"
 #include "MarkingEncoder.h"
 
+#include <iostream>
+#include "google/sparse_hash_map"
+
 using namespace ptrie;
 
-namespace VerifyTAPN::DiscreteVerification {
+namespace VerifyTAPN { namespace DiscreteVerification {
     class TimeDartPWBase;
 
     class TimeDartPWHashMap;
@@ -34,7 +35,7 @@ namespace VerifyTAPN::DiscreteVerification {
                                               last(nullptr) {
         };
 
-        virtual ~TimeDartPWBase() = default;;
+        virtual ~TimeDartPWBase() = default;
 
     public:
 
@@ -124,6 +125,5 @@ namespace VerifyTAPN::DiscreteVerification {
         };
 
     };
-
-} /* namespace VerifyTAPN */
+} } /* namespace VerifyTAPN */
 #endif /* PWLIST_HPP_ */

@@ -9,8 +9,9 @@
 #define NORMALIZATIONVISITOR_HPP_
 
 #include "Visitor.hpp"
-#include <string>
 #include "AST.hpp"
+
+#include <string>
 
 namespace VerifyTAPN {
     namespace AST {
@@ -26,7 +27,7 @@ namespace VerifyTAPN {
         public:
             NormalizationVisitor() : normalizedQuery() {};
 
-            ~NormalizationVisitor() override = default;;
+            ~NormalizationVisitor() override = default;
 
             void visit(NotExpression &expr, Result &context) override;
 

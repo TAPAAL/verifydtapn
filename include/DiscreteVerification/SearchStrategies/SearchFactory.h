@@ -9,13 +9,13 @@
 #define SEARCHFACTORY_H_
 
 #include "SearchStrategies.hpp"
-#include "../DataStructures/WaitingList.hpp"
+#include "DiscreteVerification/DataStructures/WaitingList.hpp"
 
-namespace VerifyTAPN::DiscreteVerification {
+namespace VerifyTAPN { namespace DiscreteVerification {
 
     template<class T>
     WaitingList<T> *getWaitingList(AST::Query *query, VerificationOptions &options) {
-        WaitingList<T> *strategy = NULL;
+        WaitingList<T> *strategy = nullptr;
         if (options.getWorkflowMode() == options.WORKFLOW_SOUNDNESS) {
             WorkflowMinFirst<T> s;
             strategy = s.createWaitingList(query);
@@ -83,7 +83,5 @@ namespace VerifyTAPN::DiscreteVerification {
         }
         return strategy;
     }
-
-}
-
+} }
 #endif /* SEARCHFACTORY_H_ */

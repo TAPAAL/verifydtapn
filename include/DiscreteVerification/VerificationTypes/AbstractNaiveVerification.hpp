@@ -8,26 +8,26 @@
 #ifndef ABSTRACTREACHABILITY_HPP
 #define    ABSTRACTREACHABILITY_HPP
 
+#include "DiscreteVerification/DataStructures/PWList.hpp"
+#include "Core/TAPN/TAPN.hpp"
+#include "Core/QueryParser/AST.hpp"
+#include "Core/VerificationOptions.hpp"
+#include "Core/TAPN/TimedPlace.hpp"
+#include "Core/TAPN/TimedTransition.hpp"
+#include "Core/TAPN/TimedInputArc.hpp"
+#include "Core/TAPN/TransportArc.hpp"
+#include "Core/TAPN/InhibitorArc.hpp"
+#include "Core/TAPN/OutputArc.hpp"
+#include "../Generator.h"
+#include "DiscreteVerification/QueryVisitor.hpp"
+#include "DiscreteVerification/DataStructures/NonStrictMarking.hpp"
+#include "Verification.hpp"
+#include "DiscreteVerification/DataStructures/WaitingList.hpp"
+
 #include <memory>
 
-#include "../DataStructures/PWList.hpp"
-#include "../../Core/TAPN/TAPN.hpp"
-#include "../../Core/QueryParser/AST.hpp"
-#include "../../Core/VerificationOptions.hpp"
-#include "../../Core/TAPN/TimedPlace.hpp"
-#include "../../Core/TAPN/TimedTransition.hpp"
-#include "../../Core/TAPN/TimedInputArc.hpp"
-#include "../../Core/TAPN/TransportArc.hpp"
-#include "../../Core/TAPN/InhibitorArc.hpp"
-#include "../../Core/TAPN/OutputArc.hpp"
-#include "../Generator.h"
-#include "../QueryVisitor.hpp"
-#include "../DataStructures/NonStrictMarking.hpp"
-#include "Verification.hpp"
-#include "../DataStructures/WaitingList.hpp"
-
-namespace VerifyTAPN::DiscreteVerification {
-    using namespace std;
+namespace VerifyTAPN { namespace DiscreteVerification {
+   
     enum SRes {
         ADDTOPW_RETURNED_TRUE,
         ADDTOPW_RETURNED_FALSE_URGENTENABLED,
@@ -79,7 +79,7 @@ namespace VerifyTAPN::DiscreteVerification {
                                                                   AST::Query *query, const VerificationOptions &options,
                                                                   T *pwList)
             : Verification<U>(tapn, initialMarking, query, options), successorGenerator(tapn, query),
-              lastMarking(NULL), pwList(pwList) {
+              lastMarking(nullptr), pwList(pwList) {
 
     }
 
@@ -92,25 +92,13 @@ namespace VerifyTAPN::DiscreteVerification {
 
     template<typename T, typename U, typename S>
     bool AbstractNaiveVerification<T, U, S>::isDelayPossible(U &marking) {
-        const PlaceList &places = marking.getPlaceList();
-        if (places.empty()) return true; //Delay always possible in empty markings
-
-        auto markedPlace_iter = places.begin();
-        for (TAPN::TimedPlace::Vector::const_iterator place_iter = this->tapn.getPlaces().begin();
-             place_iter != this->tapn.getPlaces().end(); place_iter++) {
-            int inv = (*place_iter)->getInvariant().getBound();
-            if (**place_iter == *(markedPlace_iter->place)) {
-                if (markedPlace_iter->maxTokenAge() > inv - 1) {
-                    return false;
-                }
-
-                markedPlace_iter++;
-
-                if (markedPlace_iter == places.end()) return true;
+        for (auto& place_list : marking.getPlaceList()) {
+            auto inv = place_list.place->getInvariant().getBound();
+            if (place_list.maxTokenAge() >= inv) {
+                return false;
             }
         }
-        assert(false); // This happens if there are markings on places not in the TAPN
-        return false;
+        return true;
     }
 
     template<typename T, typename U, typename S>
@@ -130,6 +118,6 @@ namespace VerifyTAPN::DiscreteVerification {
                                            : SRes::ADDTOPW_RETURNED_FALSE;
     }
 
-}
+} }
 #endif    /* ABSTRACTREACHABILITY_HPP */
 

@@ -25,14 +25,14 @@
 #include <vector>
 #include <cassert>
 
-namespace VerifyTAPN::DiscreteVerification {
+namespace VerifyTAPN { namespace DiscreteVerification {
 
     template<class T>
     class WaitingList {
     public:
-        WaitingList() = default;;
+        WaitingList() = default;
 
-        virtual ~WaitingList() = default;;
+        virtual ~WaitingList() = default;
 
         virtual void add(NonStrictMarkingBase *weight, T payload) = 0;
 
@@ -89,7 +89,7 @@ namespace VerifyTAPN::DiscreteVerification {
 
         explicit HeuristicStackWaitingList(AST::Query *q) : buffer(), query(normalizeQuery(q)) {};
 
-        ~HeuristicStackWaitingList() = default;;
+        ~HeuristicStackWaitingList() = default;
 
         virtual void add(NonStrictMarkingBase *weight, T payload);
 
@@ -472,5 +472,5 @@ namespace VerifyTAPN::DiscreteVerification {
     template<class T>
     RandomStackWaitingList<T>::~RandomStackWaitingList() = default;
 
-} /* namespace VerifyTAPN */
+} } /* namespace VerifyTAPN */
 #endif /* WAITINGLIST_HPP_ */

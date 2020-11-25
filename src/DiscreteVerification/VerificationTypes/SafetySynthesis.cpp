@@ -12,7 +12,7 @@
 #include <set>
 
 
-namespace VerifyTAPN::DiscreteVerification {
+namespace VerifyTAPN { namespace DiscreteVerification {
 
     SafetySynthesis::SafetySynthesis(TAPN::TimedArcPetriNet &tapn,
                                      NonStrictMarking &initialMarking,
@@ -137,7 +137,7 @@ namespace VerifyTAPN::DiscreteVerification {
 
     void SafetySynthesis::dependers_to_waiting(SafetyMeta &next_meta, backstack_t &back) {
         //std::cerr << "DEP TO WAITING " << &next_meta << " STATE " << next_meta.state << std::endl;
-        for (auto ancestor : next_meta.dependers) {
+        for (const auto& ancestor : next_meta.dependers) {
             SafetyMeta &a_meta = store->get_meta(ancestor.second);
             //std::cerr << "\tDEP" << &a_meta << " STATE " << a_meta.state << std::endl;
             if (a_meta.state == LOOSING || a_meta.state == WINNING) continue;
@@ -243,7 +243,7 @@ namespace VerifyTAPN::DiscreteVerification {
             {
                 std::cerr << "Using EG, EF, AG or AF without control is no longer supported" << std::endl;
                 assert(false);
-                exit(-1);
+               std::exit(-1);
             }
 
             store_t::result_t res = store->insert_and_dealloc(next);
@@ -365,5 +365,5 @@ namespace VerifyTAPN::DiscreteVerification {
     SafetySynthesis::~SafetySynthesis() {
         delete store;
     }
-}
+} }
 

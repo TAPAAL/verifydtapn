@@ -10,7 +10,7 @@
 #include "DiscreteVerification/VerificationTypes/SafetySynthesis.h"
 #include "DiscreteVerification/ReducingGenerator.hpp"
 
-namespace VerifyTAPN::DiscreteVerification {
+namespace VerifyTAPN { namespace DiscreteVerification {
 
     template<typename T>
     void VerifyAndPrint(TAPN::TimedArcPetriNet &tapn, Verification<T> &verifier, VerificationOptions &options,
@@ -53,9 +53,9 @@ namespace VerifyTAPN::DiscreteVerification {
         // Select verification method
         if (options.getWorkflowMode() != VerificationOptions::NOT_WORKFLOW) {
             if (options.getVerificationType() == VerificationOptions::TIMEDART) {
-                cout << "Workflow analysis currently only supports discrete exploration (i.e. not TimeDarts)."
-                     << endl;
-                exit(1);
+                std::cout << "Workflow analysis currently only supports discrete exploration (i.e. not TimeDarts)."
+                     << std::endl;
+               std::exit(1);
             }
 
             if (options.getWorkflowMode() == VerificationOptions::WORKFLOW_SOUNDNESS) {
@@ -82,8 +82,8 @@ namespace VerifyTAPN::DiscreteVerification {
                         *verifier,
                         options,
                         query);
-                verifier->printExecutionTime(cout);
-                verifier->printMessages(cout);
+                verifier->printExecutionTime(std::cout);
+                verifier->printMessages(std::cout);
 #ifdef CLEANUP
                 delete verifier;
 #endif
@@ -104,7 +104,7 @@ namespace VerifyTAPN::DiscreteVerification {
                         *verifier,
                         options,
                         query);
-                verifier->printExecutionTime(cout);
+                verifier->printExecutionTime(std::cout);
 #ifdef CLEANUP
                 delete verifier;
 #endif
@@ -120,36 +120,36 @@ namespace VerifyTAPN::DiscreteVerification {
         DeadlockVisitor deadlockVisitor = DeadlockVisitor();
         deadlockVisitor.visit(*query, containsDeadlock);
         if (containsDeadlock.value && options.getGCDLowerGuardsEnabled()) {
-            cout
+            std::cout
                     << "Lowering constants by greatest common divisor is unsound for queries containing the deadlock proposition"
-                    << endl;
-            exit(1);
+                    << std::endl;
+           std::exit(1);
         } else if (containsDeadlock.value && options.getTrace() == VerificationOptions::FASTEST_TRACE) {
-            cout << "Fastest trace is not supported for queries containing the deadlock proposition." << endl;
-            exit(1);
+            std::cout << "Fastest trace is not supported for queries containing the deadlock proposition." << std::endl;
+           std::exit(1);
         }
 
         if ((query->getQuantifier() == EG || query->getQuantifier() == AF) && options.getGCDLowerGuardsEnabled()) {
-            cout << "Lowering constants by greatest common divisor is unsound for EG and AF queries" << endl;
-            exit(1);
+            std::cout << "Lowering constants by greatest common divisor is unsound for EG and AF queries" << std::endl;
+           std::exit(1);
         }
 
         if (query->getQuantifier() == CG || query->getQuantifier() == CF) {
             if (options.getTrace() != VerificationOptions::NO_TRACE) {
-                cout << "Traces are not supported for game synthesis" << std::endl;
-                exit(1);
+                std::cout << "Traces are not supported for game synthesis" << std::endl;
+                std::exit(1);
             }
             if (options.getVerificationType() != VerificationOptions::DISCRETE) {
-                cout << "TimeDarts are not supported for game synthesis" << std::endl;
-                exit(1);
+                std::cout << "TimeDarts are not supported for game synthesis" << std::endl;
+               std::exit(1);
             }
             if (options.getGCDLowerGuardsEnabled()) {
-                cout << "Lowering by GCD is not supported for game synthesis" << std::endl;
-                exit(1);
+                std::cout << "Lowering by GCD is not supported for game synthesis" << std::endl;
+                std::exit(1);
             }
             if (options.getSearchType() == VerificationOptions::MINDELAYFIRST) {
-                cout << "Minimal delay search strategy is not supported for game synthesis" << std::endl;
-                exit(1);
+                std::cout << "Minimal delay search strategy is not supported for game synthesis" << std::endl;
+                std::exit(1);
             }
             
             // Only needed if verifying normal CTL/LTL with game-algorithm.
@@ -243,8 +243,8 @@ namespace VerifyTAPN::DiscreteVerification {
                 if (containsDeadlock.value) {
                     std::cout
                             << "The combination of TimeDarts, Deadlock proposition and EG or AF queries is currently not supported"
-                            << endl;
-                    exit(1);
+                            << std::endl;
+                   std::exit(1);
                 }
                 if (options.getMemoryOptimization() == VerificationOptions::PTRIE) {
                     WaitingList<std::pair<WaitingDart *, ptriepointer_t<LivenessDart *> > > *strategy = getWaitingList<std::pair<WaitingDart *, ptriepointer_t<LivenessDart *> > >(
@@ -331,4 +331,4 @@ namespace VerifyTAPN::DiscreteVerification {
             }
         }
     }
-}
+} }

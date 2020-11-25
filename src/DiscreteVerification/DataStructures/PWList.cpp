@@ -9,7 +9,7 @@
 #include "DiscreteVerification/DataStructures/ptrie.h"
 
 using namespace ptrie;
-namespace VerifyTAPN::DiscreteVerification {
+namespace VerifyTAPN { namespace DiscreteVerification {
 
     bool PWList::add(NonStrictMarking *marking) {
 
@@ -50,9 +50,8 @@ namespace VerifyTAPN::DiscreteVerification {
     std::ostream &operator<<(std::ostream &out, PWList &x) {
         out << "Passed and waiting:" << std::endl;
         for (auto &iter : x.markings_storage) {
-            for (auto m_iter = iter.second.begin();
-                 m_iter != iter.second.end(); m_iter++) {
-                out << "- " << *m_iter << std::endl;
+            for (auto& m_iter : iter.second) {
+                out << "- " << m_iter << std::endl;
             }
         }
         out << "Waiting:" << std::endl << x.waiting_list;
@@ -66,7 +65,7 @@ namespace VerifyTAPN::DiscreteVerification {
         std::pair<bool, ptriepointer_t<MetaData *> > res = passed.insert(encoder.encode(marking));
 
         if (res.first) {
-            res.second.set_meta(NULL);
+            res.second.set_meta(nullptr);
             if (isLiveness) {
                 MetaData *meta;
                 if (makeTrace) {
@@ -125,4 +124,4 @@ namespace VerifyTAPN::DiscreteVerification {
     }
 
 
-} /* namespace VerifyTAPN */
+} } /* namespace VerifyTAPN */

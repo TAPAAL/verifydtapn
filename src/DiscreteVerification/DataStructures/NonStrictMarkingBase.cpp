@@ -8,9 +8,7 @@
 #include "DiscreteVerification/DataStructures/NonStrictMarkingBase.hpp"
 #include <limits>
 
-using namespace std;
-
-namespace VerifyTAPN::DiscreteVerification {
+namespace VerifyTAPN { namespace DiscreteVerification {
 
     TokenList NonStrictMarkingBase::emptyTokenList = TokenList();
 
@@ -51,19 +49,19 @@ namespace VerifyTAPN::DiscreteVerification {
     unsigned int NonStrictMarkingBase::size() {
         int count = 0;
         for (const auto &place : places) {
-            for (auto it = place.tokens.begin(); it != place.tokens.end(); it++) {
-                count += it->getCount();
+            for (auto& t : place.tokens) {
+                count += t.getCount();
             }
         }
         return count;
     }
 
-    int NonStrictMarkingBase::numberOfTokensInPlace(int placeId) const {
-        int count = 0;
+    uint32_t NonStrictMarkingBase::numberOfTokensInPlace(int placeId) const {
+        uint32_t count = 0;
         for (const auto &place : places) {
             if (place.place->getIndex() == placeId) {
-                for (auto it = place.tokens.begin(); it != place.tokens.end(); it++) {
-                    count = count + it->getCount();
+                for (auto& token : place.tokens) {
+                    count = count + token.getCount();
                 }
             }
         }
@@ -252,11 +250,10 @@ namespace VerifyTAPN::DiscreteVerification {
         int count = tapn.getTransitions().size();
         int *status = new int[count];
 
-        for (TAPN::TimedTransition::Vector::const_iterator tit = tapn.getTransitions().begin();
-             tit != tapn.getTransitions().end(); ++tit) {
-            int presetSize = (*tit)->getPresetSize();
-            int index = (*tit)->getIndex();
-            if (presetSize == 0 && (*tit)->getInhibitorArcs().empty()) {
+        for (auto& trans : tapn.getTransitions()) {
+            int presetSize = trans->getPresetSize();
+            int index = trans->getIndex();
+            if (presetSize == 0 && trans->getInhibitorArcs().empty()) {
                 delete[] status;
                 return false; // if empty preset, we can always fire a transition
             }
@@ -268,23 +265,21 @@ namespace VerifyTAPN::DiscreteVerification {
         for (const auto &place : this->places) {
             int numtokens = place.numberOfTokens();
             // for regular input arcs
-            for (auto arc_iter = place.place->getInputArcs().begin();
-                 arc_iter != place.place->getInputArcs().end(); ++arc_iter) {
+            for (auto* arc : place.place->getInputArcs()) {
                 hasOutArc = true;
-                int id = (*arc_iter)->getOutputTransition().getIndex();
-                int weight = (*arc_iter)->getWeight();
+                auto id = arc->getOutputTransition().getIndex();
+                int weight = arc->getWeight();
                 if (numtokens < weight) {
                     status[id] = -1;        // -1 for impossible to enable
                 } else if (status[id] != -1) {
-                    int lb = (*arc_iter)->getInterval().getLowerBound();
-                    int ub = (*arc_iter)->getInterval().getUpperBound();
+                    auto lb = arc->getInterval().getLowerBound();
+                    auto ub = arc->getInterval().getUpperBound();
                     // decrement if token can satisfy the bounds
-                    for (auto tokenit = place.tokens.begin();
-                         tokenit != place.tokens.end(); ++tokenit) {
-                        int age = tokenit->getAge() + maxDelay;
+                    for (auto& token : place.tokens) {
+                        int age = token.getAge() + maxDelay;
                         if (age >= lb) {
                             if (age <= ub) {
-                                weight -= tokenit->getCount(); // decrement weight
+                                weight -= token.getCount(); // decrement weight
                             } else {
                                 break; // sorted array, if > ub then no following will satisfy it
                             }
@@ -299,24 +294,22 @@ namespace VerifyTAPN::DiscreteVerification {
             }
 
             // for transport arcs
-            for (auto arc_iter = place.place->getTransportArcs().begin();
-                 arc_iter != place.place->getTransportArcs().end(); ++arc_iter) {
+            for (auto* arc : place.place->getTransportArcs()) {
                 hasOutArc = true;
-                int id = (*arc_iter)->getTransition().getIndex();
-                int weight = (*arc_iter)->getWeight();
-                if (numtokens < (*arc_iter)->getWeight())
+                auto id = arc->getTransition().getIndex();
+                int weight = arc->getWeight();
+                if (numtokens < arc->getWeight())
                     status[id] = -1; // impossible to enable
                 else if (status[id] != -1) { // if enable able so far
-                    int lb = (*arc_iter)->getInterval().getLowerBound();
-                    int destination_invariant = (*arc_iter)->getDestination().getInvariant().getBound();
-                    int ub = min((*arc_iter)->getInterval().getUpperBound(), destination_invariant);
+                    auto lb = arc->getInterval().getLowerBound();
+                    auto destination_invariant = arc->getDestination().getInvariant().getBound();
+                    auto ub = std::min(arc->getInterval().getUpperBound(), destination_invariant);
                     // decrement if token can satisfy the bounds
-                    for (auto tokenit = place.tokens.begin();
-                         tokenit != place.tokens.end(); ++tokenit) {
-                        int age = tokenit->getAge() + maxDelay;
+                    for (auto& token : place.tokens) {
+                        auto age = token.getAge() + maxDelay;
                         if (age >= lb) {
                             if (age <= ub) {
-                                weight -= tokenit->getCount();
+                                weight -= token.getCount();
                             } else {
                                 break; // sorted array, if > ub then no following will satisfy it
                             }
@@ -331,11 +324,10 @@ namespace VerifyTAPN::DiscreteVerification {
             }
 
             // for inhibitor arcs
-            for (auto arc_iter = place.place->getInhibitorArcs().begin();
-                 arc_iter != place.place->getInhibitorArcs().end(); ++arc_iter) {
-                int id = (*arc_iter)->getOutputTransition().getIndex();
+            for (auto arc : place.place->getInhibitorArcs()) {
+                auto id = arc->getOutputTransition().getIndex();
                 // no precheck if it was disabled, actual calculation is just as fast
-                if (numtokens >= (*arc_iter)->getWeight())        // we satisfy the inhibitor
+                if (numtokens >= arc->getWeight())        // we satisfy the inhibitor
                     status[id] = -1;                                        // transition cannot fire
             }
 
@@ -381,36 +373,35 @@ namespace VerifyTAPN::DiscreteVerification {
         std::cout << "Before cut: " << *this << std::endl;
 #endif
         int maxDelay = std::numeric_limits<int>::max();
-        for (PlaceList::iterator place_iter = this->places.begin();
-             place_iter != this->places.end(); place_iter++) {
+        for (auto& place_list : this->places) {
             // calculate maximum possible delay - used for deadlock query
-            int invariant = place_iter->place->getInvariant().getBound();
+            int invariant = place_list.place->getInvariant().getBound();
             // this handles case where invariant = inf
             if (invariant != std::numeric_limits<int>::max()) {
                 // it should not be possible for a pre-cut marking to acheive an age above the invariant
-                int candidate = invariant - place_iter->maxTokenAge();
+                int candidate = invariant - place_list.maxTokenAge();
                 // maximum possible delay for tokens seen so far
-                maxDelay = min(maxDelay, candidate);
+                maxDelay = std::min(maxDelay, candidate);
             }
             //set age of too old tokens to max age
             int count = 0;
             int total = 0;
-            for (auto token_iter = place_iter->tokens.begin();
-                 token_iter != place_iter->tokens.end(); token_iter++) {
+            for (auto token_iter = place_list.tokens.begin();
+                 token_iter != place_list.tokens.end(); token_iter++) {
                 if (token_iter->getAge() >
-                    place_iter->place->getMaxConstant()) { // this will also removed dead tokens
+                    place_list.place->getMaxConstant()) { // this will also removed dead tokens
                     auto beginDelete = token_iter;
-                    if (place_iter->place->getType() == TAPN::Std) {
-                        for (; token_iter != place_iter->tokens.end(); token_iter++) {
+                    if (place_list.place->getType() == TAPN::Std) {
+                        for (; token_iter != place_list.tokens.end(); token_iter++) {
                             count += token_iter->getCount();
                         }
-                    } else if (place_iter->place->getType() == TAPN::Dead) {
+                    } else if (place_list.place->getType() == TAPN::Dead) {
                         // if we remove some dead tokens update place statistics
-                        if (!place_iter->tokens.empty()) {
-                            placeCount[place_iter->place->getIndex()] = std::numeric_limits<int>::max();
+                        if (!place_list.tokens.empty()) {
+                            placeCount[place_list.place->getIndex()] = std::numeric_limits<int>::max();
                         }
                     }
-                    this->removeRangeOfTokens(*place_iter, beginDelete, place_iter->tokens.end());
+                    this->removeRangeOfTokens(place_list, beginDelete, place_list.tokens.end());
                     break;
                 } else {
                     total += token_iter->getCount();
@@ -418,13 +409,13 @@ namespace VerifyTAPN::DiscreteVerification {
             }
 
             if (count) {
-                Token t(place_iter->place->getMaxConstant() + 1, count);
-                this->addTokenInPlace(*place_iter, t);
+                Token t(place_list.place->getMaxConstant() + 1, count);
+                this->addTokenInPlace(place_list, t);
             }
 
             // update place statistics
             total += count;
-            placeCount[place_iter->place->getIndex()] = max(total, placeCount[place_iter->place->getIndex()]);
+            placeCount[place_list.place->getIndex()] = std::max(total, placeCount[place_list.place->getIndex()]);
         }
         this->cleanUp();
         return maxDelay;
@@ -434,7 +425,7 @@ namespace VerifyTAPN::DiscreteVerification {
     }
 
     int NonStrictMarkingBase::getYoungest() {
-        int youngest = INT_MAX;
+        int youngest = std::numeric_limits<int32_t>::max();
         for (const auto &place_iter : getPlaceList()) {
             if (youngest > place_iter.tokens.front().getAge() &&
                 place_iter.tokens.front().getAge() <= place_iter.place->getMaxConstant()) {
@@ -442,7 +433,7 @@ namespace VerifyTAPN::DiscreteVerification {
             }
         }
 
-        if (youngest == INT_MAX) {
+        if (youngest == std::numeric_limits<int32_t>::max()) {
             youngest = 0;
         }
         return youngest;
@@ -455,10 +446,9 @@ namespace VerifyTAPN::DiscreteVerification {
         int youngest = getYoungest();
 
         for (auto &place : places) {
-            for (auto token_iter = place.tokens.begin();
-                 token_iter != place.tokens.end(); token_iter++) {
-                if (token_iter->getAge() != place.place->getMaxConstant() + 1) {
-                    token_iter->setAge(token_iter->getAge() - youngest);
+            for (auto& token : place.tokens) {
+                if (token.getAge() != place.place->getMaxConstant() + 1) {
+                    token.setAge(token.getAge() - youngest);
                 }
 #ifdef DEBUG
                 else if (token_iter->getAge() > place_iter->place->getMaxConstant() + 1) {
@@ -476,4 +466,4 @@ namespace VerifyTAPN::DiscreteVerification {
         return youngest;
     }
 
-} /* namespace VerifyTAPN */
+} } /* namespace VerifyTAPN */

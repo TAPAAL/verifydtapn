@@ -1,13 +1,14 @@
 #ifndef ARGSPARSER_HPP_
 #define ARGSPARSER_HPP_
 
+#include "VerificationOptions.hpp"
+#include "boost/lexical_cast.hpp"
+
 #include <utility>
 #include <vector>
 #include <map>
 #include <string>
 #include <iosfwd>
-#include "VerificationOptions.hpp"
-#include "boost/lexical_cast.hpp"
 
 namespace VerifyTAPN {
     const int WIDTH = 40; // TODO: determine this based on registered switches
@@ -37,7 +38,7 @@ namespace VerifyTAPN {
                                                                                    handled_option(
                                                                                            false) {};
 
-        virtual ~Switch() = default;;
+        virtual ~Switch() = default;
     public:
         inline const std::string &getShortName() const { return name; };
 
@@ -70,7 +71,7 @@ namespace VerifyTAPN {
                             std::string default_value) : Switch(name, long_name, description),
                                                          default_value(std::move(default_value)) {};
 
-        ~SwitchWithStringArg() override = default;;
+        ~SwitchWithStringArg() override = default;
 
         option parse(const std::string &flag) override;
 
@@ -87,7 +88,7 @@ namespace VerifyTAPN {
                       unsigned int default_value) : Switch(name, long_name, description),
                                                     default_value(default_value) {};
 
-        ~SwitchWithArg() override = default;;
+        ~SwitchWithArg() override = default;
 
         option parse(const std::string &flag) override;
 

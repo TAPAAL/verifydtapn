@@ -8,24 +8,24 @@
 #ifndef NONSTRICTHEURISTIC_HPP_
 #define NONSTRICTHEURISTIC_HPP_
 
-#include "../DataStructures/PWList.hpp"
-#include "../../Core/TAPN/TAPN.hpp"
-#include "../../Core/QueryParser/AST.hpp"
-#include "../../Core/VerificationOptions.hpp"
+#include "DiscreteVerification/DataStructures/PWList.hpp"
+#include "Core/TAPN/TAPN.hpp"
+#include "Core/QueryParser/AST.hpp"
+#include "Core/VerificationOptions.hpp"
 
-#include "../../Core/TAPN/TimedPlace.hpp"
-#include "../../Core/TAPN/TimedTransition.hpp"
-#include "../../Core/TAPN/TimedInputArc.hpp"
-#include "../../Core/TAPN/TransportArc.hpp"
-#include "../../Core/TAPN/InhibitorArc.hpp"
-#include "../../Core/TAPN/OutputArc.hpp"
+#include "Core/TAPN/TimedPlace.hpp"
+#include "Core/TAPN/TimedTransition.hpp"
+#include "Core/TAPN/TimedInputArc.hpp"
+#include "Core/TAPN/TransportArc.hpp"
+#include "Core/TAPN/InhibitorArc.hpp"
+#include "Core/TAPN/OutputArc.hpp"
 
-#include "../QueryVisitor.hpp"
+#include "DiscreteVerification/QueryVisitor.hpp"
 
 #include <stack>
 #include "SearchStrategy.hpp"
 
-namespace VerifyTAPN::DiscreteVerification {
+namespace VerifyTAPN { namespace DiscreteVerification {
 
     template<class T>
     class NonStrictHeuristic : public SearchStrategy<T> {
@@ -34,6 +34,5 @@ namespace VerifyTAPN::DiscreteVerification {
             return new HeuristicWaitingList<T>(query);
         };
     };
-
-}
+} }
 #endif /* NONSTRICTDFS_HPP_ */

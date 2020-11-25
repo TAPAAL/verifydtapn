@@ -1,11 +1,12 @@
 #ifndef AST_HPP_
 #define AST_HPP_
 
-#include <string>
-#include <iostream>
 #include "Visitor.hpp"
 
-namespace VerifyTAPN::AST {
+#include <string>
+#include <iostream>
+
+namespace VerifyTAPN { namespace AST {
 
     class Visitable {
     public:
@@ -17,7 +18,8 @@ namespace VerifyTAPN::AST {
     class Expression : public Visitable {
     public:
 
-        virtual ~Expression() = default;;
+        virtual ~Expression() = default;
+       
 
         virtual Expression *clone() const = 0;
     };
@@ -59,9 +61,11 @@ namespace VerifyTAPN::AST {
     class DeadlockExpression : public Expression {
     public:
 
-        explicit DeadlockExpression() = default;;
+        explicit DeadlockExpression() = default;
+       
 
-        ~DeadlockExpression() override = default;;
+        ~DeadlockExpression() override = default;
+       
 
         DeadlockExpression *clone() const override;
 
@@ -74,7 +78,8 @@ namespace VerifyTAPN::AST {
         explicit BoolExpression(bool value) : value(value) {
         };
 
-        ~BoolExpression() override = default;;
+        ~BoolExpression() override = default;
+       
 
         BoolExpression *clone() const override;
 
@@ -90,15 +95,14 @@ namespace VerifyTAPN::AST {
     class AtomicProposition : public Expression {
     public:
 
-        AtomicProposition(ArithmeticExpression *left, std::string *op, ArithmeticExpression *right) : left(left),
-                                                                                                      op(op->begin(),
-                                                                                                         op->end()),
-                                                                                                      right(right) {
+        enum op_e {
+            LT, LE, EQ, NE
         };
 
-        AtomicProposition(const AtomicProposition &other) : left(other.left), op(other.op), right(other.right) {
-        };
-
+        AtomicProposition(ArithmeticExpression *left, std::string *op, ArithmeticExpression *right);
+        AtomicProposition(ArithmeticExpression *left, op_e op, ArithmeticExpression *right)
+        : left(left), right(right), op(op) {};
+        
         AtomicProposition &operator=(const AtomicProposition &other) {
             if (&other != this) {
                 left = other.left;
@@ -108,7 +112,8 @@ namespace VerifyTAPN::AST {
             return *this;
         }
 
-        ~AtomicProposition() override = default;;
+        ~AtomicProposition() override = default;
+       
 
         ArithmeticExpression &getLeft() const {
             return *left;
@@ -118,7 +123,7 @@ namespace VerifyTAPN::AST {
             return *right;
         };
 
-        std::string getOperator() const {
+        op_e getOperator() const {
             return op;
         };
 
@@ -128,8 +133,8 @@ namespace VerifyTAPN::AST {
 
     private:
         ArithmeticExpression *left;
-        std::string op;
         ArithmeticExpression *right;
+        op_e op;
     };
 
     class AndExpression : public Expression {
@@ -220,7 +225,8 @@ namespace VerifyTAPN::AST {
     class ArithmeticExpression : public Visitable {
     public:
 
-        virtual ~ArithmeticExpression() = default;;
+        virtual ~ArithmeticExpression() = default;
+       
 
         virtual ArithmeticExpression *clone() const = 0;
     };
@@ -244,7 +250,8 @@ namespace VerifyTAPN::AST {
             return *this;
         }
 
-        ~OperationExpression() override = default;;
+        ~OperationExpression() override = default;
+       
 
     public:
 
@@ -265,7 +272,7 @@ namespace VerifyTAPN::AST {
     public:
 
         PlusExpression(ArithmeticExpression *left, ArithmeticExpression *right)
-                : OperationExpression(left, right) {
+        : OperationExpression(left, right) {
         };
 
         PlusExpression(const PlusExpression &other) = default;
@@ -278,7 +285,8 @@ namespace VerifyTAPN::AST {
             return *this;
         }
 
-        ~PlusExpression() override = default;;
+        ~PlusExpression() override = default;
+       
 
         PlusExpression *clone() const override;
 
@@ -290,10 +298,11 @@ namespace VerifyTAPN::AST {
     public:
 
         SubtractExpression(ArithmeticExpression *left, ArithmeticExpression *right)
-                : OperationExpression(left, right) {
+        : OperationExpression(left, right) {
         };
 
-        SubtractExpression(const SubtractExpression &other) = default;;
+        SubtractExpression(const SubtractExpression &other) = default;
+       
 
         SubtractExpression &operator=(const SubtractExpression &other) {
             if (&other != this) {
@@ -303,7 +312,8 @@ namespace VerifyTAPN::AST {
             return *this;
         }
 
-        ~SubtractExpression() override = default;;
+        ~SubtractExpression() override = default;
+       
 
         SubtractExpression *clone() const override;
 
@@ -317,7 +327,7 @@ namespace VerifyTAPN::AST {
         };
 
         MinusExpression(const MinusExpression &other)
-                : value(other.value) {
+        : value(other.value) {
         };
 
         MinusExpression &operator=(const MinusExpression &other) {
@@ -331,7 +341,8 @@ namespace VerifyTAPN::AST {
             return *value;
         };
 
-        ~MinusExpression() override = default;;
+        ~MinusExpression() override = default;
+       
 
         MinusExpression *clone() const override;
 
@@ -345,7 +356,7 @@ namespace VerifyTAPN::AST {
     public:
 
         MultiplyExpression(ArithmeticExpression *left, ArithmeticExpression *right)
-                : OperationExpression(left, right) {
+        : OperationExpression(left, right) {
         };
 
         MultiplyExpression(const MultiplyExpression &other)
@@ -359,7 +370,8 @@ namespace VerifyTAPN::AST {
             return *this;
         }
 
-        ~MultiplyExpression() override = default;;
+        ~MultiplyExpression() override = default;
+       
 
         MultiplyExpression *clone() const override;
 
@@ -384,7 +396,8 @@ namespace VerifyTAPN::AST {
             return value;
         };
 
-        ~NumberExpression() override = default;;
+        ~NumberExpression() override = default;
+       
 
         NumberExpression *clone() const override;
 
@@ -412,7 +425,8 @@ namespace VerifyTAPN::AST {
             return place;
         };
 
-        ~IdentifierExpression() override = default;;
+        ~IdentifierExpression() override = default;
+       
 
         IdentifierExpression *clone() const override;
 
@@ -475,6 +489,6 @@ namespace VerifyTAPN::AST {
         Quantifier quantifier;
         Expression *expr;
     };
-}
+} }
 
 #endif /* AST_HPP_ */

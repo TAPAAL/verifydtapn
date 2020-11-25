@@ -1,6 +1,6 @@
 #include "Core/TAPN/TimedPlace.hpp"
 
-namespace VerifyTAPN::TAPN {
+namespace VerifyTAPN { namespace TAPN {
 
     const std::string TimedPlace::BOTTOM_NAME = "*BOTTOM*";
 
@@ -25,4 +25,4 @@ namespace VerifyTAPN::TAPN {
                     timeInvariant.getBound() / divider);
         }
     }
-}
+} }

@@ -12,7 +12,7 @@
 #include "TransportArc.hpp"
 #include "InhibitorArc.hpp"
 
-namespace VerifyTAPN::TAPN {
+namespace VerifyTAPN { namespace TAPN {
     enum PlaceType {
         Inv, Dead, Std
     };
@@ -117,14 +117,5 @@ namespace VerifyTAPN::TAPN {
         return out;
     }
 
-    // TAPAAL does not allow multiple places with the same name,
-    // thus it is enough to use the name to determine equality.
-    inline bool operator==(TimedPlace const &a, TimedPlace const &b) {
-        return a.getName() == b.getName();
-    }
-
-    inline bool operator!=(TimedPlace const &a, TimedPlace const &b) {
-        return !(a.getName() == b.getName());
-    }
-}
+} }
 #endif /* VERIFYYAPN_TAPN_TIMEDPLACE_HPP_ */

@@ -3,7 +3,8 @@
 
 #include <cstdlib>
 
-namespace VerifyTAPN::TAPN {
+namespace VerifyTAPN {
+namespace TAPN {
 
     void TimedTransition::print(std::ostream &out) const {
         out << getName();
@@ -18,7 +19,7 @@ namespace VerifyTAPN::TAPN {
             //inputarcs to not break semantics
             if (!arc.getInterval().isZeroInfinity()) {
                 std::cout << "Urgent transitions must have untimed input arcs" << std::endl;
-                exit(1);
+               std::exit(1);
             }
         }
 
@@ -36,13 +37,13 @@ namespace VerifyTAPN::TAPN {
             //inputarcs to not break semantics
             if (!arc.getInterval().isZeroInfinity()) {
                 std::cout << "Urgent transitions must have untimed transportarcs" << std::endl;
-                exit(1);
+               std::exit(1);
             } else if (arc.getDestination().getInvariant() != TimeInvariant::LS_INF) {
                 // urgency breaks if we have invariant at destination
                 std::cout
                         << "Transportarcs going through an urgent transition cannot have invariants at destination-places."
                         << std::endl;
-                exit(1);
+               std::exit(1);
             }
         }
 
@@ -76,7 +77,4 @@ namespace VerifyTAPN::TAPN {
         postset.push_back(&arc);
     }
 }
-
-
-
-
+}

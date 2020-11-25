@@ -8,24 +8,25 @@
 #ifndef REACHABILITYSEARCH_HPP_
 #define REACHABILITYSEARCH_HPP_
 
-#include "../DataStructures/PWList.hpp"
-#include "../../Core/TAPN/TAPN.hpp"
-#include "../../Core/QueryParser/AST.hpp"
-#include "../../Core/VerificationOptions.hpp"
-#include "../../Core/TAPN/TimedPlace.hpp"
-#include "../../Core/TAPN/TimedTransition.hpp"
-#include "../../Core/TAPN/TimedInputArc.hpp"
-#include "../../Core/TAPN/TransportArc.hpp"
-#include "../../Core/TAPN/InhibitorArc.hpp"
-#include "../../Core/TAPN/OutputArc.hpp"
-#include "../QueryVisitor.hpp"
-#include "../DataStructures/NonStrictMarking.hpp"
-#include <stack>
+#include "DiscreteVerification/DataStructures/PWList.hpp"
+#include "Core/TAPN/TAPN.hpp"
+#include "Core/QueryParser/AST.hpp"
+#include "Core/VerificationOptions.hpp"
+#include "Core/TAPN/TimedPlace.hpp"
+#include "Core/TAPN/TimedTransition.hpp"
+#include "Core/TAPN/TimedInputArc.hpp"
+#include "Core/TAPN/TransportArc.hpp"
+#include "Core/TAPN/InhibitorArc.hpp"
+#include "Core/TAPN/OutputArc.hpp"
+#include "DiscreteVerification/QueryVisitor.hpp"
+#include "DiscreteVerification/DataStructures/NonStrictMarking.hpp"
 #include "Verification.hpp"
-#include "../DataStructures/WaitingList.hpp"
+#include "DiscreteVerification/DataStructures/WaitingList.hpp"
 #include "AbstractNaiveVerification.hpp"
 
-namespace VerifyTAPN::DiscreteVerification {
+#include <stack>
+
+namespace VerifyTAPN { namespace DiscreteVerification {
 
     template<typename S>
     class ReachabilitySearch : public AbstractNaiveVerification<PWListBase, NonStrictMarking, S> {
@@ -33,7 +34,7 @@ namespace VerifyTAPN::DiscreteVerification {
         ReachabilitySearch(TAPN::TimedArcPetriNet &tapn, NonStrictMarking &initialMarking, AST::Query *query,
                            const VerificationOptions &options)
                 : AbstractNaiveVerification<PWListBase, NonStrictMarking, S>(tapn, initialMarking, query, options,
-                                                                             NULL) {}
+                                                                             nullptr) {}
 
         ReachabilitySearch(TAPN::TimedArcPetriNet &tapn, NonStrictMarking &initialMarking, AST::Query *query,
                            const VerificationOptions &options, WaitingList<NonStrictMarking *> *waiting_list)
@@ -43,7 +44,7 @@ namespace VerifyTAPN::DiscreteVerification {
         virtual ~ReachabilitySearch() = default;
 
         bool run() {
-            if (handleSuccessor(&this->initialMarking, NULL)) {
+            if (handleSuccessor(&this->initialMarking, nullptr)) {
                 return true;
             }
 
@@ -117,7 +118,7 @@ namespace VerifyTAPN::DiscreteVerification {
         int validChildren{};
     public:
         virtual void getTrace() {
-            stack<NonStrictMarking *> printStack;
+            std::stack<NonStrictMarking *> printStack;
             this->generateTraceStack(this->lastMarking, &printStack);
             if (this->options.getXmlTrace()) {
                 this->printXMLTrace(this->lastMarking, printStack, this->query, this->tapn);
@@ -144,7 +145,7 @@ namespace VerifyTAPN::DiscreteVerification {
         };
 
         virtual void getTrace() {
-            stack<NonStrictMarking *> printStack;
+            std::stack<NonStrictMarking *> printStack;
             auto *pwhlist = dynamic_cast<PWListHybrid *>(this->pwList);
             MetaDataWithTraceAndEncoding *next = pwhlist->parent;
             NonStrictMarking *last = this->lastMarking;
@@ -162,5 +163,5 @@ namespace VerifyTAPN::DiscreteVerification {
 
     };
 
-} /* namespace VerifyTAPN */
+} } /* namespace VerifyTAPN */
 #endif /* NONSTRICTSEARCH_HPP_ */

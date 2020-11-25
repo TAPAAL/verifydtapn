@@ -4,7 +4,6 @@
 #include <string>
 #include <algorithm>
 
-#include <boost/bind.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
 
@@ -59,7 +58,7 @@ namespace VerifyTAPN {
         TimedPlace::Vector places;
 
         xml_node<> *placeNode = root.first_node("place");
-        while (placeNode != NULL) {
+        while (placeNode != nullptr) {
             TimedPlace *place = parsePlace(*placeNode);
             places.push_back(place);
             placeNode = placeNode->next_sibling("place");
@@ -82,7 +81,7 @@ namespace VerifyTAPN {
         TimedTransition::Vector transitions;
 
         xml_node<> *transitionNode = root.first_node("transition");
-        while (transitionNode != NULL) {
+        while (transitionNode != nullptr) {
             TimedTransition *transition = parseTransition(*transitionNode);
             transitions.push_back(transition);
             transitionNode = transitionNode->next_sibling("transition");
@@ -96,7 +95,7 @@ namespace VerifyTAPN {
         std::string name(transitionNode.first_attribute("name")->value());
         xml_attribute<char> *urgenatt = transitionNode.first_attribute("urgent");
         bool urgent = false;
-        if (urgenatt != NULL) {
+        if (urgenatt != nullptr) {
             std::string urgentStr = urgenatt->value();
             if (urgentStr == "true") {
                 urgent = true;
@@ -105,7 +104,7 @@ namespace VerifyTAPN {
 
         bool controllable = true;
         xml_attribute<char> *player = transitionNode.first_attribute("player");
-        if (player != NULL) {
+        if (player != nullptr) {
             std::string playerid = player->value();
             controllable = playerid == "0";
         }
@@ -128,7 +127,7 @@ namespace VerifyTAPN {
                                       const TimedTransition::Vector &transitions) const {
         TransportArc::Vector transportArcs;
         xml_node<> *arcNode = root.first_node("transportArc");
-        while (arcNode != NULL) {
+        while (arcNode != nullptr) {
             transportArcs.push_back(parseTransportArc(*arcNode, places, transitions));
             arcNode = arcNode->next_sibling("transportArc");
         }
@@ -140,7 +139,7 @@ namespace VerifyTAPN {
                                       const TimedTransition::Vector &transitions) const {
         InhibitorArc::Vector inhibitorArcs;
         xml_node<> *arcNode = root.first_node("inhibitorArc");
-        while (arcNode != NULL) {
+        while (arcNode != nullptr) {
             inhibitorArcs.push_back(parseInhibitorArc(*arcNode, places, transitions));
             arcNode = arcNode->next_sibling("inhibitorArc");
         }
@@ -151,7 +150,7 @@ namespace VerifyTAPN {
                                                         const TimedTransition::Vector &transitions) const {
         TimedInputArc::Vector inputArcs;
         xml_node<> *arcNode = root.first_node("inputArc");
-        while (arcNode != NULL) {
+        while (arcNode != nullptr) {
             inputArcs.push_back(parseInputArc(*arcNode, places, transitions));
             arcNode = arcNode->next_sibling("inputArc");
         }
@@ -163,7 +162,7 @@ namespace VerifyTAPN {
                                                      const TimedTransition::Vector &transitions) const {
         OutputArc::Vector outputArcs;
         xml_node<> *arcNode = root.first_node("outputArc");
-        while (arcNode != NULL) {
+        while (arcNode != nullptr) {
             outputArcs.push_back(parseOutputArc(*arcNode, places, transitions));
             arcNode = arcNode->next_sibling("outputArc");
         }
@@ -284,7 +283,7 @@ namespace VerifyTAPN {
         std::vector<int> markedPlaces;
         xml_node<> *placeNode = root.first_node("place");
         int totalInitTokens = 0;
-        while (placeNode != NULL) {
+        while (placeNode != nullptr) {
             std::string initialMarkingValue = placeNode->first_attribute("initialMarking")->value();
             std::string placeName(placeNode->first_attribute("name")->value());
 
@@ -311,11 +310,11 @@ namespace VerifyTAPN {
 
     int TAPNXmlParser::getWeight(xml_attribute<char> *attribute) const {
         int weight = 1;
-        if (attribute != NULL) {
+        if (attribute != nullptr) {
             if (replace.count(attribute->value()))
                 weight = replace.at(attribute->value());
             else
-                weight = atoi(attribute->value());
+                weight = std::atoi(attribute->value());
         }
         return weight;
     }

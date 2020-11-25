@@ -18,7 +18,7 @@
 
 
 using namespace ptrie;
-namespace VerifyTAPN::DiscreteVerification {
+namespace VerifyTAPN { namespace DiscreteVerification {
 
     class CoveredMarkingVisitor
             : public visitor_t<MetaData *> {
@@ -53,8 +53,6 @@ namespace VerifyTAPN::DiscreteVerification {
 
         bool found() { return _found; }
     };
-
-}
-
+} }
 #endif    /* BINARYMARKINGVISITOR_H */
 

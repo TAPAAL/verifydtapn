@@ -8,13 +8,14 @@
 #ifndef LIVEWEIGHTQUERYVISITOR_HPP_
 #define LIVEWEIGHTQUERYVISITOR_HPP_
 
-#include "../../Core/QueryParser/Visitor.hpp"
-#include "../DataStructures/NonStrictMarking.hpp"
-#include "../../Core/QueryParser/AST.hpp"
+#include "Core/QueryParser/Visitor.hpp"
+#include "DiscreteVerification/DataStructures/NonStrictMarking.hpp"
+#include "Core/QueryParser/AST.hpp"
+
 #include <exception>
 #include <climits>
 
-namespace VerifyTAPN::DiscreteVerification {
+namespace VerifyTAPN { namespace DiscreteVerification {
 
     using namespace AST;
 
@@ -22,7 +23,7 @@ namespace VerifyTAPN::DiscreteVerification {
     public:
         explicit LivenessWeightQueryVisitor(NonStrictMarkingBase &marking) : marking(marking) {};
 
-        ~LivenessWeightQueryVisitor() override = default;;
+        ~LivenessWeightQueryVisitor() override = default;
 
     public: // visitor methods
         void visit(NotExpression &expr, Result &context) override;
@@ -52,11 +53,11 @@ namespace VerifyTAPN::DiscreteVerification {
         void visit(PlusExpression &expr, Result &context) override;
 
     private:
-        int compare(int numberOfTokensInPlace, const std::string &op, int n) const;
+        static int compare(int numberOfTokensInPlace, AtomicProposition::op_e op, int n);
 
     private:
         const NonStrictMarkingBase &marking;
     };
 
-} /* namespace VerifyTAPN */
+} } /* namespace VerifyTAPN */
 #endif /* LIVENESSQUERYVISITOR_HPP_ */

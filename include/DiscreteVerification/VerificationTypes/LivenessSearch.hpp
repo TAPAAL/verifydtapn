@@ -8,25 +8,26 @@
 #ifndef LIVENESSSEARCH_HPP_
 #define LIVENESSSEARCH_HPP_
 
-#include "../DataStructures/PWList.hpp"
-#include "../../Core/TAPN/TAPN.hpp"
-#include "../../Core/QueryParser/AST.hpp"
-#include "../../Core/VerificationOptions.hpp"
-#include "../../Core/TAPN/TimedPlace.hpp"
-#include "../../Core/TAPN/TimedTransition.hpp"
-#include "../../Core/TAPN/TimedInputArc.hpp"
-#include "../../Core/TAPN/TransportArc.hpp"
-#include "../../Core/TAPN/InhibitorArc.hpp"
-#include "../../Core/TAPN/OutputArc.hpp"
-#include "../QueryVisitor.hpp"
-#include "../DataStructures/NonStrictMarking.hpp"
-#include <stack>
-#include <utility>
+#include "DiscreteVerification/DataStructures/PWList.hpp"
+#include "Core/TAPN/TAPN.hpp"
+#include "Core/QueryParser/AST.hpp"
+#include "Core/VerificationOptions.hpp"
+#include "Core/TAPN/TimedPlace.hpp"
+#include "Core/TAPN/TimedTransition.hpp"
+#include "Core/TAPN/TimedInputArc.hpp"
+#include "Core/TAPN/TransportArc.hpp"
+#include "Core/TAPN/InhibitorArc.hpp"
+#include "Core/TAPN/OutputArc.hpp"
+#include "DiscreteVerification/QueryVisitor.hpp"
+#include "DiscreteVerification/DataStructures/NonStrictMarking.hpp"
 #include "Verification.hpp"
-#include "../DataStructures/WaitingList.hpp"
+#include "DiscreteVerification/DataStructures/WaitingList.hpp"
 #include "AbstractNaiveVerification.hpp"
 
-namespace VerifyTAPN::DiscreteVerification {
+#include <stack>
+#include <utility>
+
+namespace VerifyTAPN { namespace DiscreteVerification {
 
     class LivenessSearch : public AbstractNaiveVerification<PWListBase, NonStrictMarking, Generator> {
     public:
@@ -70,5 +71,5 @@ namespace VerifyTAPN::DiscreteVerification {
         };
 
     };
-} /* namespace VerifyTAPN */
+} } /* namespace VerifyTAPN */
 #endif /* NONSTRICTSEARCH_HPP_ */
