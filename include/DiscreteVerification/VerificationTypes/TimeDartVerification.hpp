@@ -3,11 +3,11 @@
 
 #include "Core/TAPN/TAPN.hpp"
 #include "DiscreteVerification/DataStructures/NonStrictMarkingBase.hpp"
-#include "../Util/IntervalOps.hpp"
+#include "DiscreteVerification/Util/IntervalOps.hpp"
 #include "Verification.hpp"
 #include "DiscreteVerification/DataStructures/TimeDart.hpp"
-#include "../Generator.h"
-#include "../ReducingGenerator.hpp"
+#include "DiscreteVerification/Generators/Generator.h"
+#include "DiscreteVerification/Generators/ReducingGenerator.hpp"
 #include <stack>
 
 namespace VerifyTAPN { namespace DiscreteVerification {
@@ -29,7 +29,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
         int maxPossibleDelay(NonStrictMarkingBase *marking);
 
         void printTransitionStatistics() const {
-            successorGenerator->printTransitionStatistics(std::cout);
+            successorGenerator.printTransitionStatistics(std::cout);
         }
 
         void getTrace();
@@ -49,7 +49,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
         bool loop;
         bool deadlock;
         WaitingDart *lastMarking{};
-        std::shared_ptr<Generator> successorGenerator;
+        Generator successorGenerator;
 
         bool generateAndInsertSuccessors(NonStrictMarkingBase &marking, const TAPN::TimedTransition &transition);
     };

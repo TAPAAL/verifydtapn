@@ -9,7 +9,7 @@
 #include "OutputArc.hpp"
 
 #include "Core/QueryParser/AST.hpp"
-#include "DiscreteVerification/PlaceVisitor.hpp"
+#include "Core/PlaceVisitor.hpp"
 #include "Core/VerificationOptions.hpp"
 
 #include <iostream>

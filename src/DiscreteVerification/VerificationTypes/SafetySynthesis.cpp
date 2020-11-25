@@ -66,7 +66,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
         store_t::result_t m_0_res = store->insert_and_dealloc(&initial_marking);
 
         SafetyMeta &meta = store->get_meta(m_0_res.second);
-        meta = {UNKNOWN, false, false, 0, 0, depends_t()};
+        meta = {UNKNOWN, false, 0, 0, depends_t()};
         meta.waiting = true;
 
         waiting->push(m_0_res.second);
@@ -100,11 +100,12 @@ namespace VerifyTAPN { namespace DiscreteVerification {
                 //std::cerr << "PRE META " << meta.state << std::endl;
                 NonStrictMarkingBase *marking = store->expand(next);
                 // generate successors for environment
-                successors(next, marking, next_meta, *waiting, false, query);
+                generator.prepare(marking);
+                successors(next, next_meta, *waiting, false, query);
 
                 if (next_meta.state != LOOSING) {
                     // generate successors for controller
-                    successors(next, marking, next_meta, *waiting, true, query);
+                    successors(next, next_meta, *waiting, true, query);
                 }
                 
                 //std::cerr << "CHILDREN (" << next_meta.env_children << ", " << next_meta.ctrl_children << ")" << std::endl;
@@ -177,15 +178,10 @@ namespace VerifyTAPN { namespace DiscreteVerification {
     }
 
     void SafetySynthesis::successors(store_t::Pointer *parent,
-                                     NonStrictMarkingBase *marking,
                                      SafetyMeta &meta,
                                      waiting_t &waiting,
                                      bool is_controller,
                                      const Query* query) {
-        generator.from_marking(marking,
-                               is_controller ?
-                               Generator::CONTROLLABLE : Generator::ENVIRONMENT,
-                               meta.urgent);
 
 //        std::cout << (is_controller ? "controller" : "env ");
 //        std::cout << " : " << *marking << std::endl;
@@ -197,9 +193,9 @@ namespace VerifyTAPN { namespace DiscreteVerification {
         bool terminated = false;
         bool all_loosing = true;
         bool some_winning = false;
+        generator.reset();
         while ((next = generator.next(is_controller)) != nullptr) {
 
-            meta.urgent |= generator.urgent();
             largest = std::max(next->size(), largest);
             ++discovered;
             ++number_of_children;
@@ -252,7 +248,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
 
             if (res.first) {
                 //std::cerr << "\t\tNEW!" << std::endl;
-                SafetyMeta childmeta = {UNKNOWN, false, false, 0, 0, depends_t()};
+                SafetyMeta childmeta = {UNKNOWN, false, 0, 0, depends_t()};
                 store->set_meta(p, childmeta);
                 successors.push_back(p);
                 all_loosing = false;

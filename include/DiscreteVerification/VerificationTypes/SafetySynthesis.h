@@ -12,7 +12,7 @@
 #include "Core/TAPN/TAPN.hpp"
 #include "DiscreteVerification/QueryVisitor.hpp"
 #include "DiscreteVerification/DataStructures/NonStrictMarkingBase.hpp"
-#include "../Generator.h"
+#include "DiscreteVerification/Generators/GameGenerator.h"
 #include "DiscreteVerification/DataStructures/Waiting.h"
 
 #include <forward_list>
@@ -41,7 +41,6 @@ namespace VerifyTAPN { namespace DiscreteVerification {
 
         struct SafetyMeta {
             uint8_t state;
-            bool urgent;
             bool waiting;                       // We only need stuff on waiting once
             size_t ctrl_children;                // Usefull.
             size_t env_children;
@@ -56,7 +55,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
         AST::Query *query;
         VerificationOptions options;
         std::vector<int> placeStats;
-        Generator generator;
+        GameGenerator generator;
         size_t discovered;
         size_t explored;
         unsigned int largest;
@@ -78,7 +77,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
     private:
         bool satisfies_query(NonStrictMarkingBase *m);
 
-        void successors(MarkingStore<SafetyMeta>::Pointer *, NonStrictMarkingBase *, SafetyMeta &,
+        void successors(MarkingStore<SafetyMeta>::Pointer *, SafetyMeta &,
                         waiting_t &waiting, bool controller, const Query* query);
 
         void dependers_to_waiting(SafetyMeta &next_meta, backstack_t &waiting);

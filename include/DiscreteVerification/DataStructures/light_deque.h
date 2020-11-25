@@ -9,6 +9,8 @@
 #define LIGHT_DEQUE_H
 
 #include <memory>
+#include <vector>
+#include <cassert>
 
 template<typename T>
 class light_deque {
@@ -24,8 +26,8 @@ public:
         _size = initial_size;
     }
 
-    void push_back(T &element) {
-        _data[_back] = element;
+    void push_back(T element) {
+        _data[_back] = std::move(element);
         ++_back;
         if (_back == _size) {
             _size *= 2;
@@ -34,16 +36,20 @@ public:
 
     }
 
-    bool empty() {
+    bool empty() const {
         return _front == _back;
     }
+    
+    size_t size() const {
+        return _back - _front;
+    }
 
-    T front() {
+    T front() const {
         assert(!empty());
         return _data[_front];
     }
     
-    T back() {
+    T back() const {
         assert(!empty());
         return _data[back-1];
     }
