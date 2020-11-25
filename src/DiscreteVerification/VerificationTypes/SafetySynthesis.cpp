@@ -67,7 +67,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
         store_t::result_t m_0_res = store->insert_and_dealloc(&initial_marking);
 
         SafetyMeta &meta = store->get_meta(m_0_res.second);
-        meta = {UNKNOWN, false, 0, 0, depends_t()};
+        meta = {UNKNOWN, false, false, 0, 0, depends_t()};
         meta.waiting = true;
 
         waiting->push(m_0_res.second);
@@ -249,7 +249,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
 
             if (res.first) {
                 //std::cerr << "\t\tNEW!" << std::endl;
-                SafetyMeta childmeta = {UNKNOWN, false, 0, 0, depends_t()};
+                SafetyMeta childmeta = {UNKNOWN, false, false, 0, 0, depends_t()};
                 store->set_meta(p, childmeta);
                 successors.push_back(p);
                 all_loosing = false;
@@ -358,15 +358,150 @@ namespace VerifyTAPN { namespace DiscreteVerification {
         std::cout << "  explored markings:\t" << explored << std::endl;
         std::cout << "  stored markings:\t" << store->size() << std::endl;
     }
+    
+    void SafetySynthesis::write_strategy(std::ostream& out)
+    {
+        //const auto k = store->max_tokens();
+        /*out << "{\"version\":1.1,\"type\":\"state->constraint->actions\","
+                "\"representation\":\"map\",\"actions\":[\n\"wait\"";
+       
+        for(const TAPN::TimedTransition* t : tapn.getTransitions())
+        {
+            if(t)
+                out << ",\"" << t->getName() << "\"";
+            else
+                out << ",\"null\"";
+        }
+        out << "],\"statevars\":[";
+        bool first = true;
+        for(const TAPN::TimedPlace* p : tapn.getPlaces())
+        {
+            if(!first) out << ",";
+            first = false;
+            out << "\"token-count(" << p->getName() << ")\"";
+        }
+
+        out << "],\"pointvars\":[";
+        first = true;
+        for(size_t i = 0; i < k; ++i)
+        {
+            if(!first) out << ",";
+            first = false;
+            out << "\"token-age(" << i << ")\"";
+        }
+        out << "],\"constraints\":[\n";*/
+        std::stack<store_t::Pointer*> missing;
+        const auto add_new = [this,&missing](NonStrictMarkingBase* marking, bool controllable)
+        {
+            store_t::result_t res = store->insert_and_dealloc(marking);
+            auto& meta = store->get_meta(res.second);
+            if(!meta.printed) {
+                meta.printed = true;
+                if(!controllable ||
+                   meta.state == WINNING || (query->getQuantifier() == Quantifier::CG && meta.state != UNKNOWN && meta.state != LOOSING))
+                    missing.push(res.second);
+            }
+        };
+        {
+            auto copy = new NonStrictMarking(initial_marking);
+            add_new(copy, true);
+        }
+        if(&out == &std::cout) out << "\n##BEGIN STRATEGY##\n";
+        out << "{\n";
+        bool first_marking = true;
+        while(!missing.empty())
+        {
+            store_t::Pointer* ptr = missing.top();
+            missing.pop();
+            auto& meta = store->get_meta(ptr);
+            if(meta.state == WINNING ||
+               (query->getQuantifier() == Quantifier::CG && meta.state != UNKNOWN && meta.state != LOOSING))
+            {
+                auto marking = store->expand(ptr);
+                generator.prepare(marking);
+                generator.reset();
+                NonStrictMarkingBase* next;
+                while ((next = generator.next(false)) != nullptr) {
+                    add_new(next, false);
+                }
+
+                bool first = true;
+                generator.reset();
+                while ((next = generator.next(true)) != nullptr) {
+                    if(first) {
+                        if(!first_marking) out << ",\n";
+                        first_marking = false;
+                        out << "\"" << *next << "\":[\n";
+                        add_new(next, true);
+                    }
+                    if(!first)
+                        out << ",\n";
+                    first = false;
+                    out << '\t';
+                    if(generator.last_fired() == nullptr)
+                        out << "\"+1\"";
+                    else
+                        out << "\"" << generator.last_fired()->getName() << "\"";                    
+                    /*if(first) {
+                        out << "{\"state\":[";
+                        size_t last_seen = 0;
+                        for(auto& p : next->getPlaceList())
+                        {
+                            while(last_seen < p.place->getIndex())
+                            {
+                                if(last_seen != 0) out << ",";
+                                out << "0";
+                                ++last_seen;
+                            }
+                            if(last_seen != 0) out << ",";
+                            out << p.numberOfTokens();
+                            ++last_seen;
+                        }
+                        for(;last_seen < tapn.getNumberOfPlaces();++last_seen)
+                        {
+                            if(last_seen != 0) out << ",";
+                            out << "0";
+                        }
+                        out << "],\"point\":[";
+                        bool fp = true;
+                        size_t sum = 0;
+                        for(auto& p : next->getPlaceList()) {
+                            for(auto& t : p.tokens)
+                            {
+                                for(size_t n = 0; n < t.getCount(); ++n)
+                                {
+                                    if(!fp) out << ",";
+                                    out << t.getAge();
+                                    fp = false;
+                                    ++sum;
+                                }
+                            }
+                        }
+                        for(;sum < k;++sum) {
+                            if(!fp) out << ",";
+                            out << "0";
+                        }
+                        out << "],\"actions\":[";
+                    }
+                    if(!first) out << ",";
+                    if(generator.last_fired() == nullptr)
+                        out << "0";
+                    else
+                        out << generator.last_fired()->getIndex()+1;
+                    
+                    first = false;*/
+                }
+                if(!first) out << "]\n";
+            }
+        }
+        out << "\n}\n";
+        if(&out == &std::cout)
+            out << "##END STRATEGY##\n";
+        //out << "]}\n";
+    }
 
     SafetySynthesis::~SafetySynthesis() {
         delete store;
-    }
-
-    void SafetySynthesis::write_strategy(std::ostream& out)
-    {
-        
-
     }
 
 } }

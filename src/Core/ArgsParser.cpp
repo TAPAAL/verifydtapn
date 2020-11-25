@@ -186,7 +186,7 @@ namespace VerifyTAPN {
 
         parsers.push_back(
                 new SwitchWithStringArg("z", STRATEGY_OUT,
-                           "File to write synthesized strategy to, use '-' (a dash) for stdout", ""));
+                           "File to write synthesized strategy to, use '_' (an underscore) for stdout", ""));
     }
 
     void ArgsParser::printHelp() const {
