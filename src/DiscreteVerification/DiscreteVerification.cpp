@@ -168,7 +168,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
             );
             bool result = synthesis.run();
             synthesis.print_stats();
-            if(result && !options.getStrategyFile().empty()) {
+            if(!options.getStrategyFile().empty()) {
                 if(options.getStrategyFile() == "_")
                     synthesis.write_strategy(std::cout);
                 else
