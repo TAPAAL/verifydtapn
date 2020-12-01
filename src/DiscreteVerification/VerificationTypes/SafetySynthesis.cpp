@@ -7,6 +7,7 @@
 #include "DiscreteVerification/VerificationTypes/SafetySynthesis.h"
 #include "DiscreteVerification/DataStructures/SimpleMarkingStore.h"
 #include "DiscreteVerification/DataStructures/PTrieMarkingStore.h"
+#include "DiscreteVerification/Generators/ReducingGameGenerator.h"
 
 #include <cassert>
 #include <set>
@@ -21,7 +22,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
             : tapn(tapn), initial_marking(initialMarking),
               query(query), options(options),
               placeStats(tapn.getNumberOfPlaces()),
-              generator(tapn, query), discovered(0), explored(0),
+              generator(nullptr), discovered(0), explored(0),
               largest(0) {
         if (options.getMemoryOptimization() == VerificationOptions::PTRIE)
             store = new PTrieMarkingStore<SafetyMeta>(tapn, options.getKBound());
@@ -32,9 +33,6 @@ namespace VerifyTAPN { namespace DiscreteVerification {
             case VerificationOptions::DEPTHFIRST:
                 waiting = new dfs_queue<store_t::Pointer *>();
                 break;
-/*        case VerificationOptions::COVERMOST:
-            waiting = new covermost_queue<store_t::Pointer*>(query);            
-            break;*/
             case VerificationOptions::RANDOM:
                 waiting = new random_queue<store_t::Pointer *>();
                 break;
@@ -43,7 +41,10 @@ namespace VerifyTAPN { namespace DiscreteVerification {
                 waiting = new bfs_queue<store_t::Pointer *>();
                 break;
         }
-
+        if(options.getPartialOrderReduction())
+            generator = std::make_unique<GameGenerator>(tapn, query);
+        else
+            generator = std::make_unique<ReducingGameGenerator>(tapn, query);
     }
 
     bool SafetySynthesis::satisfies_query(NonStrictMarkingBase *m) {
@@ -100,7 +101,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
                 //std::cerr << "PRE META " << meta.state << std::endl;
                 NonStrictMarkingBase *marking = store->expand(next);
                 // generate successors for environment
-                generator.prepare(marking);
+                generator->prepare(marking);
                 successors(next, next_meta, *waiting, false, query);
 
                 if (next_meta.state != LOOSING) {
@@ -193,8 +194,8 @@ namespace VerifyTAPN { namespace DiscreteVerification {
         bool terminated = false;
         bool all_loosing = true;
         bool some_winning = false;
-        generator.reset();
-        while ((next = generator.next(is_controller)) != nullptr) {
+        generator->reset();
+        while ((next = generator->next(is_controller)) != nullptr) {
 
             largest = std::max(next->size(), largest);
             ++discovered;

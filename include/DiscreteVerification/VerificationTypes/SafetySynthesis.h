@@ -55,7 +55,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
         AST::Query *query;
         VerificationOptions options;
         std::vector<int> placeStats;
-        GameGenerator generator;
+        std::unique_ptr<GameGenerator> generator;
         size_t discovered;
         size_t explored;
         unsigned int largest;

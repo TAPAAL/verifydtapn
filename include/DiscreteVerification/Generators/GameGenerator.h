@@ -20,9 +20,9 @@ namespace VerifyTAPN {
             GameGenerator(TAPN::TimedArcPetriNet &tapn, AST::Query *query)
             : Generator(tapn, query) {
             };
-            void prepare(NonStrictMarkingBase *parent);
-            NonStrictMarkingBase* next(bool controllable);
-            void reset();
+            virtual void prepare(NonStrictMarkingBase *parent);
+            virtual NonStrictMarkingBase* next(bool controllable);
+            virtual void reset();
         };
 
     }

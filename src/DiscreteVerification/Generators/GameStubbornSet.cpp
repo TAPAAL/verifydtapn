@@ -288,10 +288,11 @@ namespace VerifyTAPN {
                     }
                 if (done) pb.first = 0;
             }
-            RangeVisitor visitor(*_parent, _tapn);
+            /*RangeVisitor visitor(*_parent, _tapn);
             IntResult context; // -1 false, 0 = unknown, 1 = true
-            query->accept(visitor, context);
-            return context.value;
+            query->accept(visitor, context);*/
+            //return context.value;
+            return 0;
         }
     }
 }

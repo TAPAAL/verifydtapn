@@ -15,7 +15,7 @@
 namespace VerifyTAPN {
     namespace DiscreteVerification {
 
-        class ReducingGameGenerator : protected GameGenerator {
+        class ReducingGameGenerator : public GameGenerator {
         protected:
             GameStubbornSet _stubborn;
         public:
@@ -24,9 +24,9 @@ namespace VerifyTAPN {
             : GameGenerator(tapn, query), _stubborn(tapn, query) {
             };
             
-            void prepare(NonStrictMarkingBase *parent);
-            NonStrictMarkingBase* next(bool controllable);
-            void reset();
+            virtual void prepare(NonStrictMarkingBase *parent) override;
+            virtual NonStrictMarkingBase* next(bool controllable) override;
+            virtual void reset() override;
         };
     }
 }
