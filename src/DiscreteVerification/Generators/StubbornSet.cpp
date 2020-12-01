@@ -304,6 +304,8 @@ namespace VerifyTAPN {
                         auto &tl = _parent->getTokenList(p.getIndex());
                         for (auto* arc : p.getInputArcs()) {
                             uint32_t trans = arc->getOutputTransition().getIndex();
+                            auto cons = arc->getOutputTransition().getConsumed(&p);
+                            if(cons < arc->getWeight()) continue; // produces more than it consumes
                             if (!_stubborn[trans]) {
                                 for (const auto& t : tl)
                                 {
@@ -316,6 +318,8 @@ namespace VerifyTAPN {
                         }
                         for (auto* arc : p.getTransportArcs()) {
                             uint32_t trans = arc->getTransition().getIndex();
+                            auto cons = arc->getTransition().getConsumed(&p);
+                            if(cons < arc->getWeight()) continue; // produces more than it consumes
                             if (!_stubborn[trans]) {
                                 for (const auto& t : tl)
                                 {
