@@ -85,6 +85,10 @@ namespace VerifyTAPN {
             }
         }
 
+        bool StubbornSet::urgent_priority(const TimedTransition* urg_trans, const TimedTransition* trans) const {
+            return urg_trans == nullptr;
+        }
+
         const TAPN::TimedTransition* StubbornSet::compute_enabled(std::function<void(const TimedTransition*)>&& monitor) {
             assert(_enabled_set.empty());
             const TAPN::TimedTransition *urg_trans = nullptr;
@@ -96,8 +100,9 @@ namespace VerifyTAPN {
                 auto [trans, consumes] = _gen_enabled.next_transition();
                 if(trans == nullptr) break;
                 _enabled[trans->getIndex()] = true;
+                monitor(trans);
                 _enabled_set.push_back(trans->getIndex());
-                if (urg_trans == nullptr && trans->isUrgent()) {
+                if (this->urgent_priority(urg_trans, trans) && trans->isUrgent()) {
                     urg_trans = trans;
                     _urgent_enabled = true;
                 }
@@ -186,9 +191,13 @@ namespace VerifyTAPN {
             }
         }
 
+        bool StubbornSet::zt_priority(const TimedTransition* trans, const TimedPlace* inv_place) const {
+            return trans != nullptr;
+        }
+        
         void StubbornSet::zero_time_set(int32_t max_age, const TAPN::TimedPlace *inv_place,
                 const TAPN::TimedTransition *trans) {
-            if (trans) {
+            if (trans && this->zt_priority(trans, inv_place)) {
                 // reason for urgency is an urgent edge
                 set_stubborn(trans);
                 for (auto* a : trans->getInhibitorArcs())

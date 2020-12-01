@@ -25,7 +25,8 @@ namespace VerifyTAPN {
         protected:
             void compute_safe();
             int reach();
-            
+            virtual bool urgent_priority(const TimedTransition* urg_trans, const TimedTransition* trans) const;
+            virtual bool zt_priority(const TimedTransition*, const TimedPlace* place) const;
         private:
             light_deque<uint32_t> _ctrl_trans;
             light_deque<uint32_t> _env_trans;

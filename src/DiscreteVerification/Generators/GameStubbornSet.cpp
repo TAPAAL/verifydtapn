@@ -21,7 +21,7 @@ namespace VerifyTAPN {
         };
 
         void GameStubbornSet::compute_safe() {
-
+            
             const auto check_production_safety = [this](const TimedPlace& place, const TimedTransition * t, int lower, int upper) {
                 TimeInterval iv(false, lower, upper, false);
                 for (const TimedInputArc* i : place.getInputArcs()) {
@@ -46,6 +46,8 @@ namespace VerifyTAPN {
                     }
                 }
             };
+
+            std::fill(&_safe[0], &_safe[_tapn.getTransitions().size()], true);
 
             for (auto trans : _tapn.getTransitions()) {
                 if (trans->isEnvironment()) continue;
@@ -102,11 +104,13 @@ namespace VerifyTAPN {
             });
             
             assert(!has_ctrl || !has_env);
+            if(!_can_reduce) return;
+            
             if (has_ctrl)
             {
                 _ctrl_trans = _enabled_set;
                 for(auto ti : _ctrl_trans) {
-                    if(!_safe[ti])
+                    if(!_safe[ti] && is_stubborn(ti))
                     {
                         _can_reduce = false;
                         _ctrl_trans.clear();
@@ -117,14 +121,29 @@ namespace VerifyTAPN {
                 _env_trans = _enabled_set;
         }
 
+        bool GameStubbornSet::urgent_priority(const TimedTransition* urg_trans, const TimedTransition* trans) const
+        {
+            if(urg_trans == nullptr) return true;
+            return _safe[trans->getIndex()] && !_safe[urg_trans->getIndex()];
+        }
+
+        bool GameStubbornSet::zt_priority(const TimedTransition* trans, const TimedPlace* inv_place) const {
+            if(trans && _safe[trans->getIndex()] && inv_place != nullptr)
+                return true;
+            else
+                return false;
+        }
+
         const TimedTransition* GameStubbornSet::pop_next(bool controllable) {
             auto& queue = controllable ? _ctrl_trans : _env_trans;
-            if (queue.empty()) return nullptr;
-            else {
+            while(!queue.empty())
+            {                
                 auto el = queue.front();
                 queue.pop_front();
+                if(!is_stubborn(el)) continue;
                 return _tapn.getTransitions()[el];
             }
+            return nullptr;
         }
 
         int GameStubbornSet::reach() {

@@ -38,6 +38,8 @@ namespace VerifyTAPN {
             bool _added_zt;
             
         protected:
+            virtual bool urgent_priority(const TimedTransition* urg_trans, const TimedTransition* trans) const;
+            virtual bool zt_priority(const TimedTransition* trans, const TimedPlace* inv_place) const;
             void _prepare(NonStrictMarkingBase *parent, std::function<void(const TimedTransition*)>&& enabled_monitor, std::function<bool(void)>&& extra_conditions);
             bool is_singular();
             void reset(NonStrictMarkingBase*);
@@ -60,6 +62,7 @@ namespace VerifyTAPN {
             void set_stubborn(const TAPN::TimedTransition& trans) { set_stubborn(trans.getIndex()); }
             void set_stubborn(const TAPN::TimedTransition *trans) { set_stubborn(trans->getIndex()); }
             void set_stubborn(size_t t);
+            bool is_stubborn(size_t t) const { return _stubborn[t]; }
         };
     }
 }
