@@ -103,8 +103,9 @@ namespace VerifyTAPN {
                 return true;
             });
             
-            assert(!has_ctrl || !has_env);
+
             if(!_can_reduce) return;
+            assert(!has_ctrl || !has_env);
             
             if (has_ctrl)
             {
