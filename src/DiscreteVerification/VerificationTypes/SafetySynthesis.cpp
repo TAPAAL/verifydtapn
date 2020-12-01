@@ -42,9 +42,9 @@ namespace VerifyTAPN { namespace DiscreteVerification {
                 break;
         }
         if(options.getPartialOrderReduction())
-            generator = std::make_unique<GameGenerator>(tapn, query);
-        else
             generator = std::make_unique<ReducingGameGenerator>(tapn, query);
+        else
+            generator = std::make_unique<GameGenerator>(tapn, query);
     }
 
     bool SafetySynthesis::satisfies_query(NonStrictMarkingBase *m) {

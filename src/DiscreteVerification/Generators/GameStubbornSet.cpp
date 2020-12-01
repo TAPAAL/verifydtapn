@@ -12,34 +12,36 @@ namespace VerifyTAPN {
 
         GameStubbornSet::GameStubbornSet(const TimedArcPetriNet& tapn, AST::Query* query)
         : StubbornSet(tapn, query) {
-            compute_safe();
             _safe = std::make_unique<uint8_t[]>(tapn.getTransitions().size());
             _fireing_bounds = std::make_unique<uint32_t[]>(tapn.getTransitions().size());
             _place_bounds = std::make_unique<std::pair<uint32_t,uint32_t>[]>(tapn.getPlaces().size());
             _places_seen = std::make_unique<uint8_t[]>(tapn.getPlaces().size());
+            compute_safe();
+
         };
 
         void GameStubbornSet::compute_safe() {
 
-            auto check_production_safety = [this](const TimedPlace& place, const TimedTransition * t) {
+            const auto check_production_safety = [this](const TimedPlace& place, const TimedTransition * t, int lower, int upper) {
+                TimeInterval iv(false, lower, upper, false);
                 for (const TimedInputArc* i : place.getInputArcs()) {
-                    if (i->getOutputTransition().isEnvironment()) {
-                        // _stub_enable[t] |= UNSAFE;
+                    if (i->getOutputTransition().isEnvironment() && iv.intersects(i->getInterval())) {
+                        _safe[t->getIndex()] = false;
                         return;
                     }
                 }
                 for (const TransportArc* a : place.getTransportArcs()) {
-                    if (a->getTransition().isEnvironment()) {
-                        // _stub_enable[t] |= UNSAFE;
+                    if (a->getTransition().isEnvironment() && iv.intersects(a->getInterval())) {
+                        _safe[t->getIndex()] = false;
                         return;
                     }
                 }
             };
 
-            auto check_consumption_safety = [this](const TimedPlace& place, const TimedTransition * trans) {
+            const auto check_consumption_safety = [this](const TimedPlace& place, const TimedTransition * trans) {
                 for (const InhibitorArc* i : place.getInhibitorArcs()) {
                     if (i->getOutputTransition().isEnvironment()) {
-                        //_stub_enable[t] |= UNSAFE;
+                        _safe[trans->getIndex()] = false;
                         return;
                     }
                 }
@@ -48,21 +50,17 @@ namespace VerifyTAPN {
             for (auto trans : _tapn.getTransitions()) {
                 if (trans->isEnvironment()) continue;
                 for (const OutputArc* a : trans->getPostset()) {
-                    auto cons = trans->getConsumed(&a->getOutputPlace());
-                    if (cons >= a->getWeight()) continue;
-                    check_production_safety(a->getOutputPlace(), trans);
+                    check_production_safety(a->getOutputPlace(), trans, 0, 0);
                 }
-                //if (_stub_enable[t] & UNSAFE) continue;
+                if (!_safe[trans->getIndex()]) continue;
                 for (const TransportArc* a : trans->getTransportArcs()) {
-                    auto cons = trans->getConsumed(&a->getDestination());
                     auto prod = trans->getProduced(&a->getSource());
-                    if (cons < a->getWeight())
-                        check_production_safety(a->getSource(), trans);
+                    check_production_safety(a->getSource(), trans, a->getInterval().getLowerBound(), a->getInterval().getUpperBound());
 
                     if (prod < a->getWeight())
                         check_consumption_safety(a->getDestination(), trans);
                 }
-                //if (_stub_enable[t] & UNSAFE) continue;
+                if (!_safe[trans->getIndex()]) continue;
                 for (const TimedInputArc* a : trans->getPreset()) {
                     uint32_t prod = trans->getProduced(&a->getInputPlace());
                     if (prod < a->getWeight())
@@ -70,11 +68,13 @@ namespace VerifyTAPN {
                 }
             }
 
+            std::cerr << "UNSAFE : " << std::endl;
             for (const TimedTransition* t : _tapn.getTransitions()) {
                 if (t->isEnvironment()) continue;
                     //if (_stub_enable[t->getIndex()] & UNSAFE) std::cerr << t->getName() << " UNSAFE" << std::endl;
-                else std::cerr << t->getName() << " " << std::endl;
+                else if(!_safe[t->getIndex()]) std::cerr << "\t" << t->getName() << std::endl;
             }
+            std::cerr << "END UNSAFE" << std::endl;
         }
 
         void GameStubbornSet::prepare(NonStrictMarkingBase *parent) {
@@ -89,21 +89,30 @@ namespace VerifyTAPN {
             },
             [this, &has_env, &has_ctrl] {
                 if (has_env && has_ctrl) return false; // not both!
-                return true;
 
                 if (has_env) {
                     if(reach() > 0) return false; // environment can change outcome
+                    // extra condition on inhibitors and other things here!
                 }
                 // add all opponents actions
                 for(auto* t : _tapn.getTransitions())
                     if(t->isControllable() != has_ctrl)
                         set_stubborn(t);
-                // check if its unsafe!
+                return true;
             });
-            // we need to check for safety!
+            
             assert(!has_ctrl || !has_env);
             if (has_ctrl)
+            {
                 _ctrl_trans = _enabled_set;
+                for(auto ti : _ctrl_trans) {
+                    if(!_safe[ti])
+                    {
+                        _can_reduce = false;
+                        _ctrl_trans.clear();
+                    }
+                }
+            }
             else
                 _env_trans = _enabled_set;
         }
@@ -119,6 +128,7 @@ namespace VerifyTAPN {
         }
 
         int GameStubbornSet::reach() {
+            return 1;
             constexpr auto inf = std::numeric_limits<uint32_t>::max();
             std::vector<uint32_t> waiting;
             auto handle_transition = [this, &waiting](const TimedTransition * trans) {

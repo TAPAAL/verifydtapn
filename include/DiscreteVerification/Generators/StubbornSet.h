@@ -28,13 +28,13 @@ namespace VerifyTAPN {
             AST::Query* _query;
             light_deque<uint32_t> _enabled_set;
             NonStrictMarkingBase* _parent;
+            bool _can_reduce = false;
         private:
             NextEnabledGenerator _gen_enabled;
             InterestingVisitor _interesting;
             std::vector<bool> _enabled, _stubborn;
             light_deque<uint32_t> _unprocessed;
             bool _urgent_enabled = false;
-            bool _can_reduce = false;
             bool _added_zt;
             
         protected:

@@ -120,6 +120,8 @@ namespace VerifyTAPN {
             _parent = p;
             _can_reduce = false;
             _urgent_enabled = false;
+            _unprocessed.clear();
+            _enabled_set.clear();
         }
 
         std::pair<const TimedPlace*,uint32_t> StubbornSet::invariant_place(const TimedTransition* urg_trans) {
@@ -145,7 +147,6 @@ namespace VerifyTAPN {
                 if (_enabled[t]) {
                     if (_tapn.getTransitions()[t]->isUrgent())
                         _added_zt = true;
-                    _enabled_set.push_back(t);
                 }
             }
         }
