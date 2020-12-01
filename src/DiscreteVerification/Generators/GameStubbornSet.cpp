@@ -129,7 +129,7 @@ namespace VerifyTAPN {
         }
 
         bool GameStubbornSet::zt_priority(const TimedTransition* trans, const TimedPlace* inv_place) const {
-            if(trans && _safe[trans->getIndex()] && inv_place != nullptr)
+            if(trans && (_safe[trans->getIndex()] || inv_place == nullptr))
                 return true;
             else
                 return false;
