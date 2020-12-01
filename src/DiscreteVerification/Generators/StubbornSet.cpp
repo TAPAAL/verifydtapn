@@ -334,13 +334,17 @@ namespace VerifyTAPN {
                         // first we need to find the non-enabler
                         auto place = _gen_enabled.compute_missing(trans, nullptr);
                         bool found = false;
+                        bool some = false;
                         // add preset if zero is in guard
                         TAPN::TimeInterval interval;
                         for (auto* a : trans->getPreset()) {
                             if (&a->getInputPlace() == place) {
                                 interval = a->getInterval();
                                 if (interval.contains(0))
+                                {
                                     preset_of(place->getIndex());
+                                    some = true;
+                                }
                                 found = true;
                                 break;
                             }
@@ -351,11 +355,16 @@ namespace VerifyTAPN {
                                 if (&a->getSource() == place) {
                                     interval = a->getInterval();
                                     if (a->getInterval().contains(0))
+                                    {
+                                        some = true;
                                         preset_of(place->getIndex());
+                                    }
                                     break;
                                 }
                             }
                         }
+
+                        if(some) continue;
 
                         // take care of transport-arcs
                         for (auto* a : place->getProdTransportArcs()) {
