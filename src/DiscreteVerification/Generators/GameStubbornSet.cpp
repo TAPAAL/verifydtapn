@@ -82,8 +82,7 @@ namespace VerifyTAPN {
             bool has_ctrl = false;
             _env_trans.clear();
             _ctrl_trans.clear();
-
-            return _prepare(parent, [&has_env, &has_ctrl](auto a) {
+            _prepare(parent, [&has_env, &has_ctrl](auto a) {
                 if (a->isControllable()) has_ctrl = true;
                 else has_env = true;
             },
@@ -91,7 +90,8 @@ namespace VerifyTAPN {
                 if (has_env && has_ctrl) return false; // not both!
 
                 if (has_env) {
-                    if(reach() > 0) return false; // environment can change outcome
+                    return false;
+                    //if(reach() > 0) return false; // environment can change outcome
                     // extra condition on inhibitors and other things here!
                 }
                 // add all opponents actions
