@@ -106,9 +106,44 @@ namespace VerifyTAPN {
         }
 
         void RangeVisitor::visit(DeadlockExpression &expr, Result &context) {
-            // we could do something very complex here; but it is not really needed.
             auto& val = static_cast<IntResult&>(context);
-            val.value = 0; // unknown
+            bool some_enabled = true;
+            for(auto* trans : _tapn.getTransitions())
+            {
+                bool can_enable = true;
+                bool always_enabled = true;
+                for(auto* arc : trans->getInhibitorArcs())
+                {
+                    if(arc->getWeight() <= _bounds[arc->getInputPlace().getIndex()].first)
+                        can_enable = false;
+                    if(arc->getWeight() <= _bounds[arc->getInputPlace().getIndex()].second)
+                        always_enabled = false;
+                }
+                for(auto* arc : trans->getPreset())
+                {
+                    if(arc->getWeight() > _bounds[arc->getInputPlace().getIndex()].second)
+                        can_enable = false;
+                    if(arc->getWeight() > _bounds[arc->getInputPlace().getIndex()].first)
+                        always_enabled = false;
+                }
+                for(auto* arc : trans->getTransportArcs())
+                {
+                    if(arc->getWeight() > _bounds[arc->getSource().getIndex()].second)
+                        can_enable = false;
+                    if(arc->getWeight() > _bounds[arc->getSource().getIndex()].first)
+                        always_enabled = false;
+                }
+                some_enabled &= can_enable;
+                if(always_enabled)
+                {
+                    val.value = -1;
+                    return;
+                }
+            }
+            if(!some_enabled)
+                val.value = 1;
+            else
+                val.value = 0; // unknown
         }
 
         void RangeVisitor::visit(NumberExpression &expr, Result &context) {

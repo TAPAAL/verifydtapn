@@ -71,14 +71,6 @@ namespace VerifyTAPN {
                         check_consumption_safety(a->getInputPlace(), trans);
                 }
             }
-
-            std::cerr << "UNSAFE : " << std::endl;
-            for (const TimedTransition* t : _tapn.getTransitions()) {
-                if (t->isEnvironment()) continue;
-                    //if (_stub_enable[t->getIndex()] & UNSAFE) std::cerr << t->getName() << " UNSAFE" << std::endl;
-                else if(!_safe[t->getIndex()]) std::cerr << "\t" << t->getName() << std::endl;
-            }
-            std::cerr << "END UNSAFE" << std::endl;
         }
 
         bool GameStubbornSet::stubborn_filter(size_t t) const {
