@@ -335,48 +335,66 @@ namespace VerifyTAPN {
                             }
                         }
                     } else {
+                        const auto best = [this](std::pair<const TimedPlace*, TimeInterval> el, const TimedPlace* p2, TimeInterval interval) -> std::pair<const TimedPlace*, TimeInterval>
+                        {
+                            if(el.first == nullptr) return {p2, interval};
+                            if(p2 == nullptr) return el;
+                            auto c1 = el.first->getInputArcs().size() +
+                                      el.first->getProdTransportArcs().size();
+                            auto c2 = p2->getInputArcs().size() +
+                                      p2->getProdTransportArcs().size();
+                            if(el.second.contains(0) && !interval.contains(0))
+                                return {p2, interval};
+                            else if(!el.second.contains(0) && interval.contains(0))
+                                return el;
+                            if(c1 == c2)
+                            {
+                                if(el.first < p2)
+                                    return el;
+                                else
+                                    return {p2, interval};
+                            }
+                            if(c1 < c2)
+                                return el;
+                            else
+                                return {p2, interval};
+                        };
                         // first we need to find the non-enabler
-                        auto place = _gen_enabled.compute_missing(trans, nullptr);
-                        bool found = false;
-                        bool some = false;
-                        // add preset if zero is in guard
-                        TAPN::TimeInterval interval;
+                        std::pair<const TimedPlace*, TimeInterval> cand{nullptr,TimeInterval(false,0,0,false)};
                         for (auto* a : trans->getPreset()) {
-                            if (&a->getInputPlace() == place) {
-                                interval = a->getInterval();
-                                if (interval.contains(0))
-                                {
-                                    preset_of(place->getIndex());
-                                    some = true;
-                                }
-                                found = true;
-                                break;
+                            auto& tl = _parent->getTokenList(a->getInputPlace().getIndex());
+                            size_t cnt = 0;
+                            for(auto& token : tl)
+                            {
+                                if(a->getInterval().contains(token.getAge()))
+                                    cnt += token.getCount();
                             }
+                            if(cnt >= a->getWeight()) continue;
+                            cand = best(cand, &a->getInputPlace(), a->getInterval());
                         }
 
-                        if (!found) {
-                            for (auto* a : trans->getTransportArcs()) {
-                                if (&a->getSource() == place) {
-                                    interval = a->getInterval();
-                                    if (a->getInterval().contains(0))
-                                    {
-                                        some = true;
-                                        preset_of(place->getIndex());
-                                    }
-                                    break;
-                                }
+                        for (auto* a : trans->getTransportArcs()) {
+                            auto& tl = _parent->getTokenList(a->getSource().getIndex());
+                            size_t cnt = 0;
+                            for(auto& token : tl)
+                            {
+                                if(a->getInterval().contains(token.getAge()))
+                                    cnt += token.getCount();
                             }
+                            if(cnt >= a->getWeight()) continue;
+                            cand = best(cand, &a->getSource(), a->getInterval());
                         }
-
-                        if(some) continue;
-
-                        // take care of transport-arcs
-                        for (auto* a : place->getProdTransportArcs()) {
-                            auto t = &a->getTransition();
-                            uint32_t id = t->getIndex();
-                            if (_stubborn[id]) continue;
-                            if (a->getInterval().intersects(interval)) {
-                                set_stubborn(t);
+                        assert(cand);
+                        if(cand.second.contains(0))
+                            preset_of(cand.first->getIndex());
+                        else
+                        {
+                            std::cerr << "SECOND" << std::endl;
+                            for (auto* a : cand.first->getProdTransportArcs()) {
+                                auto t = &a->getTransition();
+                                if (a->getInterval().intersects(cand.second)) {
+                                    set_stubborn(t);
+                                }
                             }
                         }
                     }
