@@ -6,6 +6,7 @@
  */
 
 #include "DiscreteVerification/Generators/GameStubbornSet.h"
+#include "DiscreteVerification/Generators/RangeVisitor.h"
 
 namespace VerifyTAPN {
     namespace DiscreteVerification {
@@ -92,9 +93,8 @@ namespace VerifyTAPN {
                 if (has_env && has_ctrl) return false; // not both!
 
                 if (has_env) {
-                    return false;
-                    //if(reach() > 0) return false; // environment can change outcome
-                    // extra condition on inhibitors and other things here!
+                    if(reach())
+                        return false;                    
                 }
                 // add all opponents actions
                 for(auto* t : _tapn.getTransitions())
@@ -119,7 +119,49 @@ namespace VerifyTAPN {
                 }
             }
             else
+            {
+                // we have a few extra conditions here!
+                assert(_enabled_set.size() > 0);
+                uint32_t candidate = *_enabled_set.begin();
+                for(auto t : _enabled_set)
+                {
+                    if(is_stubborn(t))
+                    {
+                        candidate = t;
+                        break;
+                    }
+                }
+                const TimedTransition* tt = _tapn.getTransitions()[candidate];
+
+                // add incrementers of inhib origins
+                for(const InhibitorArc* inhib : tt->getInhibitorArcs())
+                {
+                    for(const OutputArc* incr : inhib->getInputPlace().getOutputArcs())
+                    {
+                        if(incr->getWeight() > incr->getInputTransition().getConsumed(&incr->getOutputPlace()))
+                            set_stubborn(incr->getInputTransition());
+                    }
+                    for(const TransportArc* incr : inhib->getInputPlace().getProdTransportArcs())
+                    {
+                        if(incr->getWeight() > incr->getTransition().getConsumed(&incr->getSource()))
+                            set_stubborn(incr->getTransition());
+                    }
+                }
+
+                // add pre-post-sets that intersect with current marking
+                // still missing intersection with guard
+                for (auto* a : tt->getPreset())
+                    if(a->getWeight() <= _parent->numberOfTokensInPlace(a->getInputPlace().getIndex()))
+                        postset_of(a->getInputPlace().getIndex(), a->getInterval());
+                for (auto* a : tt->getTransportArcs())
+                    if(a->getWeight() <= _parent->numberOfTokensInPlace(a->getSource().getIndex()))
+                        postset_of(a->getSource().getIndex(), a->getInterval());
+
+                // need to recompute closure
+                compute_closure();
+
                 _env_trans = _enabled_set;
+            }
         }
 
         bool GameStubbornSet::urgent_priority(const TimedTransition* urg_trans, const TimedTransition* trans) const
@@ -147,13 +189,12 @@ namespace VerifyTAPN {
             return nullptr;
         }
 
-        int GameStubbornSet::reach() {
-            return 1;
+        bool GameStubbornSet::reach() {
             constexpr auto inf = std::numeric_limits<uint32_t>::max();
             std::vector<uint32_t> waiting;
-            auto handle_transition = [this, &waiting](const TimedTransition * trans) {
+            const auto handle_transition = [this, &waiting](const TimedTransition * trans) {
                 const auto t = trans->getIndex();
-                if (trans->isEnvironment()) return;
+                if (trans->isControllable()) return;
                 /*if((_stub_enable[t] & FUTURE_ENABLED) == 0)
                     return;*/
                 auto mx = inf;
@@ -192,7 +233,7 @@ namespace VerifyTAPN {
                 }
             };
 
-            auto handle_place = [this, &handle_transition](size_t p) {
+            const auto handle_place = [this, &handle_transition](size_t p) {
                 if (_place_bounds[p].second == 0)
                     return;
                 _places_seen[p] &= ~WAITING;
@@ -204,7 +245,7 @@ namespace VerifyTAPN {
                     auto bounds = _fireing_bounds[a->getInputTransition().getIndex()];
                     if (bounds == inf) return;
                     if (bounds == 0) continue;
-                    if (a->getInputTransition().isEnvironment()) continue;
+                    if (a->getInputTransition().isControllable()) continue;
                     auto cons = a->getInputTransition().getConsumed(place);
                     if (cons >= a->getWeight()) continue;
                     sum += (a->getWeight() - cons) * _fireing_bounds[a->getInputTransition().getIndex()];
@@ -215,7 +256,7 @@ namespace VerifyTAPN {
                     auto bounds = _fireing_bounds[a->getTransition().getIndex()];
                     if (bounds == inf) return;
                     if (bounds == 0) continue;
-                    if (a->getTransition().isEnvironment()) continue;
+                    if (a->getTransition().isControllable()) continue;
                     auto cons = a->getTransition().getConsumed(place);
                     if (cons >= a->getWeight()) continue;
                     sum += (a->getWeight() - cons) * _fireing_bounds[a->getTransition().getIndex()];
@@ -261,7 +302,7 @@ namespace VerifyTAPN {
             }
             // initialize counters
             for (auto& t : _tapn.getTransitions()) {
-                if(t->isEnvironment()) continue;
+                if(t->isControllable()) continue;
                 //if(_stub_enable[t] & FUTURE_ENABLED)
                 {
                     _fireing_bounds[t->getIndex()] = inf;
@@ -281,7 +322,7 @@ namespace VerifyTAPN {
                 bool done = false;
                 auto& pb = _place_bounds[p->getIndex()];
                 for (auto a : p->getOutputArcs()) {
-                    if (a->getInputTransition().isEnvironment()) continue;
+                    if (a->getInputTransition().isControllable()) continue;
 
                     auto bound = _fireing_bounds[a->getInputTransition().getIndex()];
                     auto cons = a->getInputTransition().getConsumed(p);
@@ -318,11 +359,15 @@ namespace VerifyTAPN {
                     }
                 if (done) pb.first = 0;
             }
-            /*RangeVisitor visitor(*_parent, _tapn);
+            RangeVisitor visitor(_tapn, *_parent, _place_bounds.get());
             IntResult context; // -1 false, 0 = unknown, 1 = true
-            query->accept(visitor, context);*/
-            //return context.value;
-            return 0;
+            _query->accept(visitor, context);
+            if(context.value == 0) return true;
+            else {
+                assert(_query->eval || context.value == -1);
+                assert(!_query->eval || context.value == 1);
+                return false;
+            }
         }
     }
 }

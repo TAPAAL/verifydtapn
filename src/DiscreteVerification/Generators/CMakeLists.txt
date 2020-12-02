@@ -7,6 +7,7 @@ add_library(Generators
                 NextEnabledGenerator.cpp 
                 StubbornSet.cpp
                 GameStubbornSet.cpp
-                ReducingGameGenerator.cpp)
+                ReducingGameGenerator.cpp
+                RangeVisitor.cpp)
 
 

@@ -24,7 +24,7 @@ namespace VerifyTAPN {
             const TimedTransition* pop_next(bool controllable);
         protected:
             void compute_safe();
-            int reach();
+            bool reach();
             virtual bool urgent_priority(const TimedTransition* urg_trans, const TimedTransition* trans) const;
             virtual bool zt_priority(const TimedTransition*, const TimedPlace* place) const;
         private:
