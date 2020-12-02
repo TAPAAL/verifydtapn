@@ -14,7 +14,7 @@
 namespace VerifyTAPN {
     namespace DiscreteVerification {
 
-        class GameStubbornSet : protected StubbornSet {
+        class GameStubbornSet : private StubbornSet {
         public:
             bool urgent() const { return StubbornSet::urgent(); }
             bool irreducable() const { return StubbornSet::irreducable(); }
@@ -27,6 +27,7 @@ namespace VerifyTAPN {
             bool reach();
             virtual bool urgent_priority(const TimedTransition* urg_trans, const TimedTransition* trans) const;
             virtual bool zt_priority(const TimedTransition*, const TimedPlace* place) const;
+            virtual bool stubborn_filter(size_t) const;
             void compute_future_enabled(bool controllable);
         private:
             light_deque<uint32_t> _ctrl_trans;
@@ -36,6 +37,7 @@ namespace VerifyTAPN {
             std::unique_ptr<uint8_t[]> _places_seen;
             std::unique_ptr<uint8_t[]> _safe;
             std::unique_ptr<bool[]> _future_enabled;
+            bool _has_env, _has_ctrl;
 
             // for places seen
             static constexpr uint8_t INCR = 16;

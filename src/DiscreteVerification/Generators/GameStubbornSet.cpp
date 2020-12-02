@@ -81,25 +81,33 @@ namespace VerifyTAPN {
             std::cerr << "END UNSAFE" << std::endl;
         }
 
+        bool GameStubbornSet::stubborn_filter(size_t t) const {
+            if(_future_enabled[t])
+                return true;
+            else
+                return false;
+        }
+
         void GameStubbornSet::prepare(NonStrictMarkingBase *parent) {            
-            bool has_env = false;
-            bool has_ctrl = false;
+            _has_env = false;
+            _has_ctrl = false;
             _env_trans.clear();
             _ctrl_trans.clear();
-            _prepare(parent, [&has_env, &has_ctrl](auto a) {
-                if (a->isControllable()) has_ctrl = true;
-                else has_env = true;
+            _prepare(parent, [this](auto a) {
+                if (a->isControllable()) _has_ctrl = true;
+                else _has_env = true;
             },
-            [this, &has_env, &has_ctrl] {
-                if (has_env && has_ctrl) return false; // not both!
+            [this] {
+                if (_has_env && _has_ctrl) return false; // not both!
 
-                if (has_env) {
+                if (_has_env) {
                     if(reach())
                         return false;                    
                 }
+                else compute_future_enabled(true);
                 // add all opponents actions
                 for(auto* t : _tapn.getTransitions())
-                    if(t->isControllable() != has_ctrl)
+                    if(t->isControllable() != _has_ctrl)
                         set_stubborn(t);
                 return true;
             });
@@ -108,7 +116,7 @@ namespace VerifyTAPN {
             if(!_can_reduce) return;
             assert(!has_ctrl || !has_env);
             
-            if (has_ctrl)
+            if (_has_ctrl)
             {
                 _ctrl_trans = _enabled_set;
                 for(auto ti : _ctrl_trans) {

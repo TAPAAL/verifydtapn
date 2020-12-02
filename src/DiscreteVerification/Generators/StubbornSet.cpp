@@ -145,8 +145,12 @@ namespace VerifyTAPN {
             return {nullptr, max_age};
         }
 
+        bool StubbornSet::stubborn_filter(size_t trans) const {
+            return true;
+        }
+
         void StubbornSet::set_stubborn(size_t t) {
-            if (!_stubborn[t]) {
+            if (!_stubborn[t] && this->stubborn_filter(t)) {
                 _stubborn[t] = true;
                 _unprocessed.push_back(t);
                 if (_enabled[t]) {
