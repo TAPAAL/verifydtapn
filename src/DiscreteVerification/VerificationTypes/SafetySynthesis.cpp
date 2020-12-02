@@ -42,7 +42,15 @@ namespace VerifyTAPN { namespace DiscreteVerification {
                 break;
         }
         if(options.getPartialOrderReduction())
+        {
+            if(query->getQuantifier() == CG)
+            {
+                std::cerr << "Partial order reduction currently only supported for control: AF, not control: AG" << std::endl;
+                assert(false);
+                std::exit(-1);
+            }
             generator = std::make_unique<ReducingGameGenerator>(tapn, query);
+        }
         else
             generator = std::make_unique<GameGenerator>(tapn, query);
     }
