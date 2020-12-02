@@ -15,6 +15,7 @@ namespace VerifyTAPN {
         : StubbornSet(tapn, query) {
             _safe = std::make_unique<uint8_t[]>(tapn.getTransitions().size());
             _fireing_bounds = std::make_unique<uint32_t[]>(tapn.getTransitions().size());
+            _future_enabled = std::make_unique<bool[]>(tapn.getPlaces().size());
             _place_bounds = std::make_unique<std::pair<uint32_t,uint32_t>[]>(tapn.getPlaces().size());
             _places_seen = std::make_unique<uint8_t[]>(tapn.getPlaces().size());
             compute_safe();
@@ -80,7 +81,7 @@ namespace VerifyTAPN {
             std::cerr << "END UNSAFE" << std::endl;
         }
 
-        void GameStubbornSet::prepare(NonStrictMarkingBase *parent) {
+        void GameStubbornSet::prepare(NonStrictMarkingBase *parent) {            
             bool has_env = false;
             bool has_ctrl = false;
             _env_trans.clear();
@@ -192,11 +193,11 @@ namespace VerifyTAPN {
         bool GameStubbornSet::reach() {
             constexpr auto inf = std::numeric_limits<uint32_t>::max();
             std::vector<uint32_t> waiting;
+            compute_future_enabled(false);
             const auto handle_transition = [this, &waiting](const TimedTransition * trans) {
                 const auto t = trans->getIndex();
                 if (trans->isControllable()) return;
-                /*if((_stub_enable[t] & FUTURE_ENABLED) == 0)
-                    return;*/
+                if (!_future_enabled[trans->getIndex()]) return;
                 auto mx = inf;
                 for (const TransportArc* ta : trans->getTransportArcs()) {
                     if (&ta->getSource() == &ta->getDestination()) continue;
@@ -303,13 +304,13 @@ namespace VerifyTAPN {
             // initialize counters
             for (auto& t : _tapn.getTransitions()) {
                 if(t->isControllable()) continue;
-                //if(_stub_enable[t] & FUTURE_ENABLED)
+                if(_future_enabled[t->getIndex()])
                 {
                     _fireing_bounds[t->getIndex()] = inf;
                     handle_transition(t);
                 }
-                /*else
-                    _fireing_bounds[t] = 0;*/
+                else
+                    _fireing_bounds[t->getIndex()] = 0;
             }
 
             while (!waiting.empty()) {
@@ -369,6 +370,112 @@ namespace VerifyTAPN {
                 return false;
             }
         }
+
+        void GameStubbornSet::compute_future_enabled(bool controllable)
+        {
+            std::fill(&_future_enabled[0], &_future_enabled[_tapn.getPlaces().size()], false);
+            std::stack<uint32_t> waiting;
+
+            auto color_transition = [this,&waiting](const TimedTransition* trans)
+            {
+                if(_future_enabled[trans->getIndex()]) return;
+                _future_enabled[trans->getIndex()] = true;
+                {
+                    // check for decrementors
+                    for(TimedInputArc* arc : trans->getPreset())
+                    {
+                        if(trans->getProduced(&arc->getInputPlace()) < arc->getWeight())
+                        {
+                            auto pid = arc->getInputPlace().getIndex();
+                            if((_places_seen[pid] & DECR) == 0)
+                                waiting.push(pid);
+                            _places_seen[pid] |= DECR;
+                        }
+                    }
+                    for(TransportArc* arc : trans->getTransportArcs())
+                    {
+                        if(trans->getProduced(&arc->getSource()) < arc->getWeight())
+                        {
+                            auto pid = arc->getSource().getIndex();
+                            if((_places_seen[pid] & DECR) == 0)
+                                waiting.push(pid);
+                            _places_seen[pid] |= DECR;
+                        }
+                    }
+                }
+                {
+                    // color incrementors
+                    for(OutputArc* arc : trans->getPostset())
+                    {
+                        auto id = arc->getOutputPlace().getIndex();
+                        if((_places_seen[id] & INCR) ==  0)
+                            waiting.push(id);
+                        _places_seen[id] |= INCR;
+                    }
+
+                    for(TransportArc* arc : trans->getTransportArcs())
+                    {
+                        auto id = arc->getDestination().getIndex();
+                        if((_places_seen[id] & INCR) ==  0)
+                            waiting.push(id);
+                        _places_seen[id] |= INCR;
+                    }
+                }
+            };
+
+            const auto check_enable_transition = [this,&waiting,&color_transition,controllable](const TimedTransition& trans)
+            {
+                if(trans.isControllable() == controllable) return;
+                for(auto* inhib : trans.getInhibitorArcs())
+                {
+                    auto pid = inhib->getInputPlace().getIndex();
+                    if((_places_seen[pid] & DECR)) continue;
+                    if(_parent->numberOfTokensInPlace(pid) < inhib->getWeight()) continue;
+                    return; // no proof that it will be uninhibited
+                }
+
+                for(auto* input : trans.getPreset()) {
+                    auto pid = input->getInputPlace().getIndex();
+                    if((_places_seen[pid] & INCR)) continue;
+                    if(_parent->numberOfTokensInPlace(pid) >= input->getWeight()) continue;
+                    return; // no proof that it will ever be enabled
+                }
+
+                for(auto* input : trans.getTransportArcs()) {
+                    auto pid = input->getSource().getIndex();
+                    if((_places_seen[pid] & INCR)) continue;
+                    if(_parent->numberOfTokensInPlace(pid) >= input->getWeight()) continue;
+                    return; // no proof that it will ever be enabled
+                }
+                color_transition(&trans);
+            };
+
+            // bootstrap
+            assert(player != PetriNet::ANY);
+            for(auto& t : _tapn.getTransitions())
+                if(t->isControllable() == controllable && is_enabled(t->getIndex()))
+                    color_transition(t);
+
+            // saturate
+            while(!waiting.empty())
+            {
+                auto p = waiting.top();
+                waiting.pop();
+                if((_places_seen[p] & DECR) != 0)
+                {
+                    for(auto* inhib : _tapn.getPlace(p).getInhibitorArcs())
+                        check_enable_transition(inhib->getOutputTransition());
+                }
+                if((_places_seen[p] & INCR) != 0)
+                {
+                    for(auto* input : _tapn.getPlace(p).getInputArcs())
+                        check_enable_transition(input->getOutputTransition());
+                    for(auto* input : _tapn.getPlace(p).getTransportArcs())
+                        check_enable_transition(input->getTransition());
+                }
+            }
+        }
+
     }
 }
 

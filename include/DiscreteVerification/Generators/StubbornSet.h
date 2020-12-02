@@ -63,6 +63,7 @@ namespace VerifyTAPN {
             void set_stubborn(const TAPN::TimedTransition *trans) { set_stubborn(trans->getIndex()); }
             void set_stubborn(size_t t);
             bool is_stubborn(size_t t) const { return _stubborn[t]; }
+            bool is_enabled(size_t t) const { return _enabled[t]; }
         };
     }
 }
