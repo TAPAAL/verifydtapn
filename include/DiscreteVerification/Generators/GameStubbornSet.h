@@ -23,12 +23,14 @@ namespace VerifyTAPN {
             void prepare(NonStrictMarkingBase *parent);
             const TimedTransition* pop_next(bool controllable);
         protected:
-            void compute_safe();
+            //void compute_safe();
+            bool is_safe();
+            void compute_bounds();
             bool reach();
             virtual bool urgent_priority(const TimedTransition* urg_trans, const TimedTransition* trans) const;
             virtual bool zt_priority(const TimedTransition*, const TimedPlace* place) const;
             virtual bool stubborn_filter(size_t) const;
-            void compute_future_enabled(bool controllable);
+            void compute_future_enabled();
         private:
             light_deque<uint32_t> _ctrl_trans;
             light_deque<uint32_t> _env_trans;

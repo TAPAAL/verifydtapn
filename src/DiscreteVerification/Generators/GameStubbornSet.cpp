@@ -18,11 +18,11 @@ namespace VerifyTAPN {
             _future_enabled = std::make_unique<bool[]>(tapn.getPlaces().size());
             _place_bounds = std::make_unique<std::pair<uint32_t,uint32_t>[]>(tapn.getPlaces().size());
             _places_seen = std::make_unique<uint8_t[]>(tapn.getPlaces().size());
-            compute_safe();
+            //compute_safe();
 
         };
 
-        void GameStubbornSet::compute_safe() {
+        /*void GameStubbornSet::compute_safe() {
             
             const auto check_production_safety = [this](const TimedPlace& place, const TimedTransition * t, int lower, int upper) {
                 TimeInterval iv(false, lower, upper, false);
@@ -71,7 +71,7 @@ namespace VerifyTAPN {
                         check_consumption_safety(a->getInputPlace(), trans);
                 }
             }
-        }
+        }*/
 
         bool GameStubbornSet::stubborn_filter(size_t t) const {
             if(_future_enabled[t])
@@ -92,11 +92,15 @@ namespace VerifyTAPN {
             [this] {
                 if (_has_env && _has_ctrl) return false; // not both!
 
+                compute_bounds();
                 if (_has_env) {
                     if(reach())
                         return false;                    
                 }
-                else compute_future_enabled(true);
+                else
+                {
+                    std::fill(&_safe[0], &_safe[_tapn.getTransitions().size()], true);
+                }
                 // add all opponents actions
                 for(auto* t : _tapn.getTransitions())
                     if(t->isControllable() != _has_ctrl)
@@ -111,12 +115,10 @@ namespace VerifyTAPN {
             if (_has_ctrl)
             {
                 _ctrl_trans = _enabled_set;
-                for(auto ti : _ctrl_trans) {
-                    if(!_safe[ti] && is_stubborn(ti))
-                    {
-                        _can_reduce = false;
-                        _ctrl_trans.clear();
-                    }
+                if(is_safe())
+                {
+                    _can_reduce = false;
+                    _ctrl_trans.clear();
                 }
             }
             else
@@ -191,12 +193,78 @@ namespace VerifyTAPN {
         }
 
         bool GameStubbornSet::reach() {
+            RangeVisitor visitor(_tapn, *_parent, _place_bounds.get());
+            IntResult context; // -1 false, 0 = unknown, 1 = true
+            _query->accept(visitor, context);
+            if(context.value == 0) return true;
+            else {
+#ifndef NDEBUG
+                BoolResult context;
+                _query->accept(visitor, context);
+                assert(context.value || context.value == -1);
+                assert(!context.value || context.value == 1);
+#endif
+                return false;
+            }
+        }
+
+        bool GameStubbornSet::is_safe() {
+            auto ok_trans = [this](const TimedTransition& trans) {
+                for(auto& ia : trans.getInhibitorArcs())
+                {
+                    if(ia->getWeight() < _place_bounds[ia->getInputPlace().getIndex()].first)
+                        return true;
+                }
+                for(auto& ia : trans.getPreset())
+                {
+                    if(ia->getWeight() > _place_bounds[ia->getInputPlace().getIndex()].second)
+                        return true;
+                }
+                for(auto& ia : trans.getTransportArcs())
+                {
+                    if(ia->getWeight() > _place_bounds[ia->getSource().getIndex()].second)
+                        return true;
+                }
+                return false;
+            };
+
+            for(auto e : _ctrl_trans) {
+                auto* trans = _tapn.getTransitions()[e];
+                if(!is_stubborn(e)) continue;
+                assert(is_enabled(e));
+                for(auto& arc : trans->getPostset())
+                {
+                    // check all environment transitions consuming from postset
+                    auto& p = arc->getOutputPlace();
+                    for(auto& a : p.getInputArcs())
+                    {
+                        if(a->getOutputTransition().isControllable()) continue;
+                        if(a->getWeight() > _place_bounds[a->getInputPlace().getIndex()].second) continue; // will never have enough tokens
+                        // check preset of T
+                        if(!ok_trans(a->getOutputTransition()))
+                            return false;
+                    }
+                    for(auto& a : p.getTransportArcs())
+                    {
+                        if(a->getTransition().isControllable()) continue;
+                        if(a->getWeight() > _place_bounds[a->getSource().getIndex()].second) continue; // will never have enough tokens
+                        // check preset of T
+                        if(!ok_trans(a->getTransition()))
+                            return false;
+                    }
+                }
+            }
+            return true;
+        }
+        
+        void GameStubbornSet::compute_bounds() {
+            const bool controllable = _has_ctrl;
             constexpr auto inf = std::numeric_limits<uint32_t>::max();
             std::vector<uint32_t> waiting;
-            compute_future_enabled(false);
-            const auto handle_transition = [this, &waiting](const TimedTransition * trans) {
+            compute_future_enabled();
+            const auto handle_transition = [this, &waiting, controllable](const TimedTransition * trans) {
                 const auto t = trans->getIndex();
-                if (trans->isControllable()) return;
+                if (trans->isControllable() == controllable) return;
                 if (!_future_enabled[trans->getIndex()]) return;
                 auto mx = inf;
                 for (const TransportArc* ta : trans->getTransportArcs()) {
@@ -234,7 +302,7 @@ namespace VerifyTAPN {
                 }
             };
 
-            const auto handle_place = [this, &handle_transition](size_t p) {
+            const auto handle_place = [this, &handle_transition, controllable](size_t p) {
                 if (_place_bounds[p].second == 0)
                     return;
                 _places_seen[p] &= ~WAITING;
@@ -246,7 +314,7 @@ namespace VerifyTAPN {
                     auto bounds = _fireing_bounds[a->getInputTransition().getIndex()];
                     if (bounds == inf) return;
                     if (bounds == 0) continue;
-                    if (a->getInputTransition().isControllable()) continue;
+                    if (a->getInputTransition().isControllable() == controllable) continue;
                     auto cons = a->getInputTransition().getConsumed(place);
                     if (cons >= a->getWeight()) continue;
                     sum += (a->getWeight() - cons) * _fireing_bounds[a->getInputTransition().getIndex()];
@@ -257,7 +325,7 @@ namespace VerifyTAPN {
                     auto bounds = _fireing_bounds[a->getTransition().getIndex()];
                     if (bounds == inf) return;
                     if (bounds == 0) continue;
-                    if (a->getTransition().isControllable()) continue;
+                    if (a->getTransition().isControllable() == controllable) continue;
                     auto cons = a->getTransition().getConsumed(place);
                     if (cons >= a->getWeight()) continue;
                     sum += (a->getWeight() - cons) * _fireing_bounds[a->getTransition().getIndex()];
@@ -279,7 +347,7 @@ namespace VerifyTAPN {
                 auto ub = inf;
                 bool all_neg = true;
                 for (const OutputArc* arc : _tapn.getPlaces()[p]->getOutputArcs()) {
-                    if (arc->getInputTransition().isControllable()) continue;
+                    if (arc->getInputTransition().isControllable() == controllable) continue;
                     auto cons = arc->getInputTransition().getConsumed(_tapn.getPlaces()[p]);
                     if (cons < arc->getWeight()) {
                         all_neg = false;
@@ -288,7 +356,7 @@ namespace VerifyTAPN {
                 }
                 if (!all_neg) {
                     for (const TransportArc* arc : _tapn.getPlaces()[p]->getProdTransportArcs()) {
-                        if (arc->getTransition().isControllable()) continue;
+                        if (arc->getTransition().isControllable() == controllable) continue;
                         auto cons = arc->getTransition().getConsumed(_tapn.getPlaces()[p]);
                         if (cons < arc->getWeight()) {
                             all_neg = false;
@@ -303,7 +371,7 @@ namespace VerifyTAPN {
             }
             // initialize counters
             for (auto& t : _tapn.getTransitions()) {
-                if(t->isControllable()) continue;
+                if(t->isControllable() == controllable) continue;
                 if(_future_enabled[t->getIndex()])
                 {
                     _fireing_bounds[t->getIndex()] = inf;
@@ -323,7 +391,7 @@ namespace VerifyTAPN {
                 bool done = false;
                 auto& pb = _place_bounds[p->getIndex()];
                 for (auto a : p->getOutputArcs()) {
-                    if (a->getInputTransition().isControllable()) continue;
+                    if (a->getInputTransition().isControllable() == controllable) continue;
 
                     auto bound = _fireing_bounds[a->getInputTransition().getIndex()];
                     auto cons = a->getInputTransition().getConsumed(p);
@@ -341,7 +409,7 @@ namespace VerifyTAPN {
                     pb.first -= (take * bound);
                 }
                 if (!done) for (auto* a : p->getProdTransportArcs()) {
-                        if (a->getTransition().isControllable()) continue;
+                        if (a->getTransition().isControllable() == controllable) continue;
 
                         auto bound = _fireing_bounds[a->getTransition().getIndex()];
                         auto cons = a->getTransition().getConsumed(p);
@@ -360,23 +428,11 @@ namespace VerifyTAPN {
                     }
                 if (done) pb.first = 0;
             }
-            RangeVisitor visitor(_tapn, *_parent, _place_bounds.get());
-            IntResult context; // -1 false, 0 = unknown, 1 = true
-            _query->accept(visitor, context);
-            if(context.value == 0) return true;
-            else {
-#ifndef NDEBUG
-                BoolResult context;
-                _query->accept(visitor, context);
-                assert(context.value || context.value == -1);
-                assert(!context.value || context.value == 1);
-#endif
-                return false;
-            }
         }
 
-        void GameStubbornSet::compute_future_enabled(bool controllable)
+        void GameStubbornSet::compute_future_enabled()
         {
+            const bool controllable = _has_ctrl;
             std::fill(&_future_enabled[0], &_future_enabled[_tapn.getPlaces().size()], false);
             std::stack<uint32_t> waiting;
 
