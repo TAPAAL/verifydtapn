@@ -389,7 +389,6 @@ namespace VerifyTAPN {
                             preset_of(cand.first->getIndex());
                         else
                         {
-                            std::cerr << "SECOND" << std::endl;
                             for (auto* a : cand.first->getProdTransportArcs()) {
                                 auto t = &a->getTransition();
                                 if (a->getInterval().intersects(cand.second)) {

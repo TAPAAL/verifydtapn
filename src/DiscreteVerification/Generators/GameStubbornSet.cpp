@@ -13,65 +13,11 @@ namespace VerifyTAPN {
 
         GameStubbornSet::GameStubbornSet(const TimedArcPetriNet& tapn, AST::Query* query)
         : StubbornSet(tapn, query) {
-            _safe = std::make_unique<uint8_t[]>(tapn.getTransitions().size());
             _fireing_bounds = std::make_unique<uint32_t[]>(tapn.getTransitions().size());
             _future_enabled = std::make_unique<bool[]>(tapn.getPlaces().size());
             _place_bounds = std::make_unique<std::pair<uint32_t,uint32_t>[]>(tapn.getPlaces().size());
             _places_seen = std::make_unique<uint8_t[]>(tapn.getPlaces().size());
-            //compute_safe();
-
         };
-
-        /*void GameStubbornSet::compute_safe() {
-            
-            const auto check_production_safety = [this](const TimedPlace& place, const TimedTransition * t, int lower, int upper) {
-                TimeInterval iv(false, lower, upper, false);
-                for (const TimedInputArc* i : place.getInputArcs()) {
-                    if (i->getOutputTransition().isEnvironment() && iv.intersects(i->getInterval())) {
-                        _safe[t->getIndex()] = false;
-                        return;
-                    }
-                }
-                for (const TransportArc* a : place.getTransportArcs()) {
-                    if (a->getTransition().isEnvironment() && iv.intersects(a->getInterval())) {
-                        _safe[t->getIndex()] = false;
-                        return;
-                    }
-                }
-            };
-
-            const auto check_consumption_safety = [this](const TimedPlace& place, const TimedTransition * trans) {
-                for (const InhibitorArc* i : place.getInhibitorArcs()) {
-                    if (i->getOutputTransition().isEnvironment()) {
-                        _safe[trans->getIndex()] = false;
-                        return;
-                    }
-                }
-            };
-
-            std::fill(&_safe[0], &_safe[_tapn.getTransitions().size()], true);
-
-            for (auto trans : _tapn.getTransitions()) {
-                if (trans->isEnvironment()) continue;
-                for (const OutputArc* a : trans->getPostset()) {
-                    check_production_safety(a->getOutputPlace(), trans, 0, 0);
-                }
-                if (!_safe[trans->getIndex()]) continue;
-                for (const TransportArc* a : trans->getTransportArcs()) {
-                    auto prod = trans->getProduced(&a->getSource());
-                    check_production_safety(a->getSource(), trans, a->getInterval().getLowerBound(), a->getInterval().getUpperBound());
-
-                    if (prod < a->getWeight())
-                        check_consumption_safety(a->getDestination(), trans);
-                }
-                if (!_safe[trans->getIndex()]) continue;
-                for (const TimedInputArc* a : trans->getPreset()) {
-                    uint32_t prod = trans->getProduced(&a->getInputPlace());
-                    if (prod < a->getWeight())
-                        check_consumption_safety(a->getInputPlace(), trans);
-                }
-            }
-        }*/
 
         bool GameStubbornSet::stubborn_filter(size_t t) const {
             if(_future_enabled[t])
@@ -97,10 +43,6 @@ namespace VerifyTAPN {
                     if(reach())
                         return false;                    
                 }
-                else
-                {
-                    std::fill(&_safe[0], &_safe[_tapn.getTransitions().size()], true);
-                }
                 // add all opponents actions
                 for(auto* t : _tapn.getTransitions())
                     if(t->isControllable() != _has_ctrl)
@@ -115,7 +57,7 @@ namespace VerifyTAPN {
             if (_has_ctrl)
             {
                 _ctrl_trans = _enabled_set;
-                if(is_safe())
+                if(!is_safe())
                 {
                     _can_reduce = false;
                     _ctrl_trans.clear();
@@ -170,11 +112,11 @@ namespace VerifyTAPN {
         bool GameStubbornSet::urgent_priority(const TimedTransition* urg_trans, const TimedTransition* trans) const
         {
             if(urg_trans == nullptr) return true;
-            return _safe[trans->getIndex()] && !_safe[urg_trans->getIndex()];
+            return false;
         }
 
         bool GameStubbornSet::zt_priority(const TimedTransition* trans, const TimedPlace* inv_place) const {
-            if(trans && (_safe[trans->getIndex()] || inv_place == nullptr))
+            if(trans && (inv_place == nullptr))
                 return true;
             else
                 return false;
@@ -242,7 +184,9 @@ namespace VerifyTAPN {
                         if(a->getWeight() > _place_bounds[a->getInputPlace().getIndex()].second) continue; // will never have enough tokens
                         // check preset of T
                         if(!ok_trans(a->getOutputTransition()))
+                        {
                             return false;
+                        }
                     }
                     for(auto& a : p.getTransportArcs())
                     {
@@ -250,7 +194,9 @@ namespace VerifyTAPN {
                         if(a->getWeight() > _place_bounds[a->getSource().getIndex()].second) continue; // will never have enough tokens
                         // check preset of T
                         if(!ok_trans(a->getTransition()))
+                        {
                             return false;
+                        }
                     }
                 }
             }

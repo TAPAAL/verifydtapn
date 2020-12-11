@@ -23,7 +23,6 @@ namespace VerifyTAPN {
             void prepare(NonStrictMarkingBase *parent);
             const TimedTransition* pop_next(bool controllable);
         protected:
-            //void compute_safe();
             bool is_safe();
             void compute_bounds();
             bool reach();
@@ -37,7 +36,6 @@ namespace VerifyTAPN {
             std::unique_ptr<uint32_t[]> _fireing_bounds;
             std::unique_ptr<std::pair<uint32_t,uint32_t>[]> _place_bounds;
             std::unique_ptr<uint8_t[]> _places_seen;
-            std::unique_ptr<uint8_t[]> _safe;
             std::unique_ptr<bool[]> _future_enabled;
             bool _has_env, _has_ctrl;
 
