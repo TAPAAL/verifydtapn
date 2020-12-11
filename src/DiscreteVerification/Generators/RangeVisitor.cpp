@@ -41,8 +41,8 @@ namespace VerifyTAPN {
 
         void RangeVisitor::visit(AtomicProposition &expr, Result &context) {
             auto& val = static_cast<IntResult&>(context);
-            expr.getLeft().accept(*this, context);
             PairResult ctxt;
+            expr.getLeft().accept(*this, ctxt);
             auto lv = ctxt.value;
             expr.getLeft().accept(*this, ctxt);
             auto rv = ctxt.value;

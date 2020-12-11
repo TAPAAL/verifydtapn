@@ -384,7 +384,7 @@ namespace VerifyTAPN {
                             if(cnt >= a->getWeight()) continue;
                             cand = best(cand, &a->getSource(), a->getInterval());
                         }
-                        assert(cand);
+                        assert(cand.first);
                         if(cand.second.contains(0))
                             preset_of(cand.first->getIndex());
                         else

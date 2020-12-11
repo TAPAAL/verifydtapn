@@ -106,7 +106,7 @@ namespace VerifyTAPN {
             
 
             if(!_can_reduce) return;
-            assert(!has_ctrl || !has_env);
+            assert(!_has_ctrl || !_has_env);
             
             if (_has_ctrl)
             {
@@ -365,8 +365,12 @@ namespace VerifyTAPN {
             _query->accept(visitor, context);
             if(context.value == 0) return true;
             else {
-                assert(_query->eval || context.value == -1);
-                assert(!_query->eval || context.value == 1);
+#ifndef NDEBUG
+                BoolResult context;
+                _query->accept(visitor, context);
+                assert(context.value || context.value == -1);
+                assert(!context.value || context.value == 1);
+#endif
                 return false;
             }
         }
@@ -451,7 +455,6 @@ namespace VerifyTAPN {
             };
 
             // bootstrap
-            assert(player != PetriNet::ANY);
             for(auto& t : _tapn.getTransitions())
                 if(t->isControllable() == controllable && is_enabled(t->getIndex()))
                     color_transition(t);
