@@ -20,10 +20,7 @@ namespace VerifyTAPN {
         };
 
         bool GameStubbornSet::stubborn_filter(size_t t) const {
-            if(_future_enabled[t])
-                return true;
-            else
-                return false;
+            return true;
         }
 
         void GameStubbornSet::prepare(NonStrictMarkingBase *parent) {            
