@@ -30,6 +30,17 @@ namespace VerifyTAPN {
             virtual bool zt_priority(const TimedTransition*, const TimedPlace* place) const;
             virtual bool stubborn_filter(size_t) const;
             void compute_future_enabled();
+            virtual bool ok_zt(const TimedTransition* trans) override {
+                return true;
+                /*if(trans->isEnvironment()) return true;
+                else if(trans->isControllable() && !_has_env) return true;
+                return false;*/
+            }
+            virtual bool is_enabled(size_t t) const override { 
+                if (!StubbornSet::is_enabled(t)) return false; 
+                return true;
+            }
+            
         private:
             light_deque<uint32_t> _ctrl_trans;
             light_deque<uint32_t> _env_trans;

@@ -41,6 +41,7 @@ namespace VerifyTAPN {
             virtual bool urgent_priority(const TimedTransition* urg_trans, const TimedTransition* trans) const;
             virtual bool zt_priority(const TimedTransition* trans, const TimedPlace* inv_place) const;
             virtual bool stubborn_filter(size_t) const;
+            virtual bool ok_zt(const TimedTransition* trans) { return true; }
             void _prepare(NonStrictMarkingBase *parent, std::function<void(const TimedTransition*)>&& enabled_monitor, std::function<bool(void)>&& extra_conditions);
             bool is_singular();
             void reset(NonStrictMarkingBase*);
@@ -54,7 +55,7 @@ namespace VerifyTAPN {
 
             void inhib_postset_of(size_t i);
 
-            void zero_time_set(int32_t max_age, const TAPN::TimedPlace *, const TAPN::TimedTransition *);
+            bool zero_time_set(int32_t max_age, const TAPN::TimedPlace *, const TAPN::TimedTransition *);
 
             void ample_set(const TAPN::TimedPlace *inv_place, const TAPN::TimedTransition *trans);
 
@@ -62,9 +63,9 @@ namespace VerifyTAPN {
             
             void set_stubborn(const TAPN::TimedTransition& trans) { set_stubborn(trans.getIndex()); }
             void set_stubborn(const TAPN::TimedTransition *trans) { set_stubborn(trans->getIndex()); }
-            void set_stubborn(size_t t);
+            void set_stubborn(size_t t, bool add_to_working = true);            
             bool is_stubborn(size_t t) const { return _stubborn[t]; }
-            bool is_enabled(size_t t) const { return _enabled[t]; }
+            virtual bool is_enabled(size_t t) const { return _enabled[t]; }
         };
     }
 }

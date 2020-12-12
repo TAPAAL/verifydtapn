@@ -33,7 +33,6 @@ namespace VerifyTAPN {
                 else _has_env = true;
             },
             [this] {
-                if (_has_env && _has_ctrl) return false; // not both!
 
                 compute_bounds();
                 if (_has_env) {
@@ -42,16 +41,19 @@ namespace VerifyTAPN {
                 }
                 // add all opponents actions
                 for(auto* t : _tapn.getTransitions())
-                    if(t->isControllable() != _has_ctrl)
-                        set_stubborn(t);
+                {
+                    if(t->isControllable() == _has_env)
+                    {
+                        set_stubborn(t->getIndex(), !is_enabled(t->getIndex()));
+                    }
+                }
                 return true;
             });
             
 
             if(!_can_reduce) return;
-            assert(!_has_ctrl || !_has_env);
             
-            if (_has_ctrl)
+            if (!_has_env)
             {
                 _ctrl_trans = _enabled_set;
                 if(!is_safe())
@@ -62,15 +64,30 @@ namespace VerifyTAPN {
             }
             else
             {
+                if(_has_env && _has_ctrl)
+                {
+                    // std::cerr << cnt << std::endl;
+                }
                 // we have a few extra conditions here!
                 assert(_enabled_set.size() > 0);
                 uint32_t candidate = *_enabled_set.begin();
                 for(auto t : _enabled_set)
                 {
-                    if(is_stubborn(t))
+                    auto* trans = _tapn.getTransitions()[t];
+                    if(trans->isControllable())
                     {
-                        candidate = t;
-                        break;
+                        _ctrl_trans.push_back(t);
+                        assert(is_stubborn(t) || is_enabled(t));
+                        // probably need to add something here, any player 2 enabled
+                        // that can disable a player 1 in one step.
+                    }
+                    else
+                    {
+                        _env_trans.push_back(t);
+                        if(is_stubborn(t))
+                        {
+                            candidate = t;
+                        }
                     }
                 }
                 const TimedTransition* tt = _tapn.getTransitions()[candidate];
@@ -101,8 +118,6 @@ namespace VerifyTAPN {
 
                 // need to recompute closure
                 compute_closure();
-
-                _env_trans = _enabled_set;
             }
         }
 
@@ -125,7 +140,9 @@ namespace VerifyTAPN {
             {                
                 auto el = queue.front();
                 queue.pop_front();
-                if(!is_stubborn(el)) continue;
+                if(!is_stubborn(el)) {
+                    continue;
+                }
                 return _tapn.getTransitions()[el];
             }
             return nullptr;
@@ -201,7 +218,7 @@ namespace VerifyTAPN {
         }
         
         void GameStubbornSet::compute_bounds() {
-            const bool controllable = _has_ctrl;
+            const bool controllable = !_has_env;
             constexpr auto inf = std::numeric_limits<uint32_t>::max();
             std::vector<uint32_t> waiting;
             compute_future_enabled();
@@ -375,7 +392,7 @@ namespace VerifyTAPN {
 
         void GameStubbornSet::compute_future_enabled()
         {
-            const bool controllable = _has_ctrl;
+            const bool controllable = !_has_env;
             std::fill(&_future_enabled[0], &_future_enabled[_tapn.getPlaces().size()], false);
             std::stack<uint32_t> waiting;
 

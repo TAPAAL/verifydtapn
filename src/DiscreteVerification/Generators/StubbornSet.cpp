@@ -149,13 +149,14 @@ namespace VerifyTAPN {
             return true;
         }
 
-        void StubbornSet::set_stubborn(size_t t) {
+        void StubbornSet::set_stubborn(size_t t, bool add_to_working) {
             if (!_stubborn[t] && this->stubborn_filter(t)) {
                 _stubborn[t] = true;
-                _unprocessed.push_back(t);
-                if (_enabled[t]) {
-                    if (_tapn.getTransitions()[t]->isUrgent())
-                        _added_zt = true;
+                //if(add_to_working)
+                {
+                    _unprocessed.push_back(t);
+                    if (is_enabled(t) && _tapn.getTransitions()[t]->isUrgent() && this->ok_zt(_tapn.getTransitions()[t]))
+                            _added_zt = true;
                 }
             }
         }
@@ -190,7 +191,11 @@ namespace VerifyTAPN {
             ample_set(inv_place, urg_trans);
             compute_closure();
             if (!_added_zt) {
-                zero_time_set(max_age, inv_place, urg_trans);
+                if(!zero_time_set(max_age, inv_place, urg_trans))
+                {
+                    _can_reduce = false;
+                    _unprocessed.clear();
+                }
                 compute_closure();
             }
         }
@@ -199,8 +204,19 @@ namespace VerifyTAPN {
             return trans != nullptr;
         }
         
-        void StubbornSet::zero_time_set(int32_t max_age, const TAPN::TimedPlace *inv_place,
+        bool StubbornSet::zero_time_set(int32_t max_age, const TAPN::TimedPlace *inv_place,
                 const TAPN::TimedTransition *trans) {
+            trans = nullptr;
+            for(auto e : _enabled_set) {
+                auto* tr = _tapn.getTransitions()[e];
+                if(is_enabled(e) && tr->isUrgent() && this->ok_zt(tr))
+                {
+                    trans = tr;
+                    break;
+                }
+
+            }
+            if(trans == nullptr && inv_place == nullptr) return false;
             if (trans && this->zt_priority(trans, inv_place)) {
                 // reason for urgency is an urgent edge
                 set_stubborn(trans);
@@ -223,6 +239,7 @@ namespace VerifyTAPN {
                     }
                 }
             }
+            return true;
         }
 
         void StubbornSet::ample_set(const TAPN::TimedPlace *inv_place, const TAPN::TimedTransition *trans) {
@@ -248,7 +265,7 @@ namespace VerifyTAPN {
                 size_t max = _enabled.size();
                 if (inv_place) {
                     for (auto* a : inv_place->getInputArcs()) {
-                        if (_enabled[a->getOutputTransition().getIndex()]) {
+                        if (this->is_enabled(a->getOutputTransition().getIndex())) {
                             min = a->getOutputTransition().getIndex();
                             max = min + 1;
                             break;
@@ -256,7 +273,7 @@ namespace VerifyTAPN {
                     }
                     if (max != min + 1) {
                         for (auto* a : inv_place->getTransportArcs()) {
-                            if (_enabled[a->getTransition().getIndex()]) {
+                            if (this->is_enabled(a->getTransition().getIndex())) {
                                 min = a->getTransition().getIndex();
                                 max = min + 1;
                                 break;
@@ -265,7 +282,7 @@ namespace VerifyTAPN {
                     }
                 }
                 for (size_t i = min; i < max; ++i) {
-                    if (_enabled[i]) {
+                    if (this->is_enabled(i)) {
                         auto trans = _tapn.getTransitions()[i];
                         for (auto* a : trans->getPreset())
                             postset_of(a->getInputPlace().getIndex());
@@ -291,7 +308,7 @@ namespace VerifyTAPN {
                 auto trans = _tapn.getTransitions()[tr];
                 assert(tr < _tapn.getTransitions().size());
                 assert(trans);
-                if (_enabled[tr]) {
+                if (this->is_enabled(tr)) {
                     // add everything we might disable in future by fireing
                     for (auto* a : trans->getPreset())
                         postset_of(a->getInputPlace().getIndex(), a->getInterval());
