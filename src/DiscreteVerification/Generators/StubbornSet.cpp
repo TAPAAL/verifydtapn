@@ -178,6 +178,7 @@ namespace VerifyTAPN {
             auto [inv_place, max_age] = invariant_place(urg_trans);
 
             if (!_can_reduce) return;
+            clear_stubborn();
 
             if (!extra_conditions())
             {
@@ -185,7 +186,6 @@ namespace VerifyTAPN {
                 return;
             }
 
-            clear_stubborn();
 
             ample_set(inv_place, urg_trans);
             compute_closure();
