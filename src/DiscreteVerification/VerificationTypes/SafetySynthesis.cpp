@@ -121,10 +121,10 @@ namespace VerifyTAPN { namespace DiscreteVerification {
                     auto s = store->get_meta(d.second).state;
                     if(s == WINNING || s == LOOSING)
                         continue; // fully determined parent
-                    /*if(s == MAYBE_LOSING && !d.second)
+                    if(s == MAYBE_LOSING && !d.first)
                         continue; // already has env strategy
-                    if(s == MAYBE_WINNING && d.second)
-                        continue; // already has ctrl strategy*/
+                    if(s == MAYBE_WINNING && d.first)
+                        continue; // already has ctrl strategy
                     has_some_undet = true;
                 }
                 if(!has_some_undet && &next_meta != &meta) {
