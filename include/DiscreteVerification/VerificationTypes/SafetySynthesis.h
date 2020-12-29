@@ -50,7 +50,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
 
 
         store_t *store;
-        waiting_t *waiting;
+        waiting_t *ctrl_w, *env_w;
         TAPN::TimedArcPetriNet &tapn;
         NonStrictMarking &initial_marking;
         AST::Query *query;
@@ -84,6 +84,12 @@ namespace VerifyTAPN { namespace DiscreteVerification {
                         waiting_t &waiting, bool controller, const Query* query);
 
         void dependers_to_waiting(SafetyMeta &next_meta, backstack_t &waiting);
+        
+        bool done() const {
+            return ctrl_w->empty() && env_w->empty();
+        }
+        
+        store_t::Pointer* pop_waiting();
     };
 } }
 

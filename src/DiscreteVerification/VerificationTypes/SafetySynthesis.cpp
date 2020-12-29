@@ -32,14 +32,17 @@ namespace VerifyTAPN { namespace DiscreteVerification {
 
         switch (options.getSearchType()) {
             case VerificationOptions::DEPTHFIRST:
-                waiting = new dfs_queue<store_t::Pointer *>();
+                ctrl_w = new dfs_queue<store_t::Pointer *>();
+                env_w = new dfs_queue<store_t::Pointer *>();
                 break;
             case VerificationOptions::RANDOM:
-                waiting = new random_queue<store_t::Pointer *>();
+                ctrl_w = new random_queue<store_t::Pointer *>();
+                env_w = new random_queue<store_t::Pointer *>();
                 break;
             case VerificationOptions::BREADTHFIRST:
             default:
-                waiting = new bfs_queue<store_t::Pointer *>();
+                ctrl_w = new bfs_queue<store_t::Pointer *>();
+                env_w = new bfs_queue<store_t::Pointer *>();
                 break;
         }
         if(options.getPartialOrderReduction())
@@ -65,6 +68,12 @@ namespace VerifyTAPN { namespace DiscreteVerification {
         return context.value;
     }
 
+    SafetySynthesis::store_t::Pointer* SafetySynthesis::pop_waiting() {
+        if(env_w->empty())
+            return ctrl_w->pop();
+        return env_w->pop();
+    }
+
     bool SafetySynthesis::run() {
         backstack_t back;
         largest = initial_marking.size();
@@ -79,7 +88,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
         meta = {UNKNOWN, false, false, 0, 0, depends_t()};
         meta.waiting = true;
 
-        waiting->push(m_0_res.second);
+        ctrl_w->push(m_0_res.second);
 
         while (meta.state != LOOSING && meta.state != WINNING) {
             ++explored;
@@ -91,13 +100,13 @@ namespace VerifyTAPN { namespace DiscreteVerification {
                 dependers_to_waiting(store->get_meta(next), back);
             }
 
-            if (waiting->empty()) break;
+            if (done()) break;
 
-            next = waiting->pop();
+            next = pop_waiting();
 
             SafetyMeta &next_meta = store->get_meta(next);
-//        std::cout   << "pop " << next << " State: " << &next_meta << " - > "
-//                    << next_meta.state << std::endl;
+            //std::cout   << "pop " << next << " State: " << &next_meta << " - > "
+            //        << (int32_t)next_meta.state << std::endl;
 
             next_meta.waiting = false;
             if (next_meta.state == LOOSING ||
@@ -105,17 +114,35 @@ namespace VerifyTAPN { namespace DiscreteVerification {
                 // these are allready handled in back stack
                 continue;
             } else {
+                // let's revalidate if we are needed
+                bool has_some_undet = false;
+                for(auto& d : next_meta.dependers)
+                {
+                    auto s = store->get_meta(d.second).state;
+                    if(s == WINNING || s == LOOSING)
+                        continue; // fully determined parent
+                    if(s == MAYBE_LOSING && !d.second)
+                        continue; // already has env strategy
+                    if(s == MAYBE_WINNING && d.second)
+                        continue; // already has ctrl strategy
+                    has_some_undet = true;
+                }
+                if(!has_some_undet && &next_meta != &meta) {
+                    next_meta.dependers.clear(); // no reason to unfold
+                    continue;
+                }
+
                 assert(next_meta.state == UNKNOWN);
                 next_meta.state = PROCESSED;
                 //std::cerr << "PRE META " << meta.state << std::endl;
                 NonStrictMarkingBase *marking = store->expand(next);
                 // generate successors for environment
                 generator->prepare(marking);
-                successors(next, next_meta, *waiting, false, query);
+                successors(next, next_meta, *env_w, false, query);
 
                 if (next_meta.state != LOOSING) {
                     // generate successors for controller
-                    successors(next, next_meta, *waiting, true, query);
+                    successors(next, next_meta, *ctrl_w, true, query);
                 }
                 
                 //std::cerr << "CHILDREN (" << next_meta.env_children << ", " << next_meta.ctrl_children << ")" << std::endl;
@@ -427,16 +454,16 @@ namespace VerifyTAPN { namespace DiscreteVerification {
                (query->getQuantifier() == Quantifier::CG && meta.state != UNKNOWN && meta.state != LOOSING))
             {
                 auto marking = store->expand(ptr);
-                generator.prepare(marking);
-                generator.reset();
+                generator->prepare(marking);
+                generator->reset();
                 NonStrictMarkingBase* next;
-                while ((next = generator.next(false)) != nullptr) {
+                while ((next = generator->next(false)) != nullptr) {
                     add_new(next, false);
                 }
 
                 bool first = true;
-                generator.reset();
-                while ((next = generator.next(true)) != nullptr) {
+                generator->reset();
+                while ((next = generator->next(true)) != nullptr) {
                     if(first) {
                         if(!first_marking) out << ",\n";
                         first_marking = false;
@@ -447,10 +474,10 @@ namespace VerifyTAPN { namespace DiscreteVerification {
                         out << ",\n";
                     first = false;
                     out << '\t';
-                    if(generator.last_fired() == nullptr)
+                    if(generator->last_fired() == nullptr)
                         out << "\"+1\"";
                     else
-                        out << "\"" << generator.last_fired()->getName() << "\"";                    
+                        out << "\"" << generator->last_fired()->getName() << "\"";
                     /*if(first) {
                         out << "{\"state\":[";
                         size_t last_seen = 0;
@@ -511,6 +538,8 @@ namespace VerifyTAPN { namespace DiscreteVerification {
 
     SafetySynthesis::~SafetySynthesis() {
         delete store;
+        delete ctrl_w;
+        delete env_w;
     }
 
 } }
