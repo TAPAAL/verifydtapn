@@ -23,6 +23,7 @@ namespace VerifyTAPN {
             virtual void prepare(NonStrictMarkingBase *parent);
             virtual NonStrictMarkingBase* next(bool controllable);
             virtual void reset();
+            const TimedTransition* last_fired() const { return Generator::last_fired(); }
         };
 
     }

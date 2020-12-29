@@ -42,6 +42,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
         struct SafetyMeta {
             uint8_t state;
             bool waiting;                       // We only need stuff on waiting once
+            bool printed = false;
             size_t ctrl_children;                // Usefull.
             size_t env_children;
             depends_t dependers;                // A punch of parents
@@ -73,6 +74,8 @@ namespace VerifyTAPN { namespace DiscreteVerification {
         unsigned int max_tokens() { return largest; };
 
         void print_stats();
+        
+        void write_strategy(std::ostream& out);
 
     private:
         bool satisfies_query(NonStrictMarkingBase *m);
