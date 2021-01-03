@@ -77,7 +77,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
     bool SafetySynthesis::run() {
         backstack_t back;
         largest = initial_marking.size();
-        
+
         // if initial satisfies and AF (return true), ok OR initial violates and AG (return false)
         if (satisfies_query(&initial_marking) == (query->getQuantifier() == Quantifier::CF))
             return query->getQuantifier() == Quantifier::CF;
