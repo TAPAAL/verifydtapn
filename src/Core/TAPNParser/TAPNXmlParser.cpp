@@ -192,14 +192,20 @@ namespace VerifyTAPN {
                                                 const TimedTransition::Vector &transitions) const {
         auto* source = arcNode.first_attribute("source")->value();
         auto* target = arcNode.first_attribute("target")->value();
-        std::string interval = arcNode.first_attribute("inscription")->value();
+        TimeInterval tint;
+        if(auto ins = arcNode.first_attribute("inscription"))
+        {
+            std::string interval;
+            interval = ins->value();
+            tint = TimeInterval::createFor(interval, replace);
+        }
 
         int weight = getWeight(arcNode.first_attribute("weight"));
 
         auto* place = find_place(places, source);
         auto* transition = find_transition(transitions, target);
 
-        return new TimedInputArc(*place, *transition, weight, TimeInterval::createFor(interval, replace));
+        return new TimedInputArc(*place, *transition, weight, tint);
     }
 
     TransportArc *
@@ -208,7 +214,13 @@ namespace VerifyTAPN {
         auto* sourceName = arcNode.first_attribute("source")->value();
         auto* transitionName = arcNode.first_attribute("transition")->value();
         auto* targetName = arcNode.first_attribute("target")->value();
-        std::string interval = arcNode.first_attribute("inscription")->value();
+        std::string interval;
+        TimeInterval tint;
+        if(auto ins = arcNode.first_attribute("inscription"))
+        {
+            interval = ins->value();
+            tint = TimeInterval::createFor(interval, replace);
+        }
 
         int weight = getWeight(arcNode.first_attribute("weight"));
 
@@ -216,7 +228,6 @@ namespace VerifyTAPN {
         auto* transition = find_transition(transitions, transitionName);
         auto* target = find_place(places, targetName);
 
-        TimeInterval tint = TimeInterval::createFor(interval, replace);
         if (!tint.setUpperBound(target->getInvariant().getBound(),
                                 target->getInvariant().isBoundStrict())) {
             std::cout << "Invariant on " << target->getName() <<
