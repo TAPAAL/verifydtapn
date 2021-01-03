@@ -272,7 +272,10 @@ namespace VerifyTAPN {
         xml_node<> *placeNode = root.first_node("place");
         int totalInitTokens = 0;
         while (placeNode != nullptr) {
-            std::string initialMarkingValue = placeNode->first_attribute("initialMarking")->value();
+            std::string initialMarkingValue = "0";
+            if(auto init = placeNode->first_attribute("initialMarking"))
+                initialMarkingValue = init->value();
+            
             std::string placeName(placeNode->first_attribute("name")->value());
 
             boost::algorithm::trim(initialMarkingValue);
