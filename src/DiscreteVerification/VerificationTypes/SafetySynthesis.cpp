@@ -12,6 +12,7 @@
 #include <cassert>
 #include <set>
 #include <fstream>
+#include <bits/stl_vector.h>
 
 
 namespace VerifyTAPN { namespace DiscreteVerification {
@@ -32,17 +33,14 @@ namespace VerifyTAPN { namespace DiscreteVerification {
 
         switch (options.getSearchType()) {
             case VerificationOptions::DEPTHFIRST:
-                ctrl_w = new dfs_queue<store_t::Pointer *>();
-                env_w = new dfs_queue<store_t::Pointer *>();
+                waiting = new dfs_queue<store_t::Pointer *>();
                 break;
             case VerificationOptions::RANDOM:
-                ctrl_w = new random_queue<store_t::Pointer *>();
-                env_w = new random_queue<store_t::Pointer *>();
+                waiting = new random_queue<store_t::Pointer *>();
                 break;
             case VerificationOptions::BREADTHFIRST:
             default:
-                ctrl_w = new bfs_queue<store_t::Pointer *>();
-                env_w = new bfs_queue<store_t::Pointer *>();
+                waiting = new bfs_queue<store_t::Pointer *>();
                 break;
         }
         if(options.getPartialOrderReduction())
@@ -69,9 +67,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
     }
 
     SafetySynthesis::store_t::Pointer* SafetySynthesis::pop_waiting() {
-        if(env_w->empty())
-            return ctrl_w->pop();
-        return env_w->pop();
+        return waiting->pop();
     }
 
     bool SafetySynthesis::run() {
@@ -88,7 +84,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
         meta = {UNKNOWN, false, false, 0, 0, depends_t()};
         meta.waiting = true;
 
-        ctrl_w->push(m_0_res.second);
+        waiting->push(m_0_res.second);
 
         while (meta.state != LOOSING && meta.state != WINNING) {
             ++explored;
@@ -138,11 +134,16 @@ namespace VerifyTAPN { namespace DiscreteVerification {
                 NonStrictMarkingBase *marking = store->expand(next);
                 // generate successors for environment
                 generator->prepare(marking);
-                successors(next, next_meta, *env_w, false, query);
+                auto env_successors = successors(next, next_meta, false, query);
 
                 if (next_meta.state != LOOSING) {
                     // generate successors for controller
-                    successors(next, next_meta, *ctrl_w, true, query);
+                    auto ctrl_successors = successors(next, next_meta, true, query);
+                    if(next_meta.state != WINNING && next_meta.state != LOOSING) // only need to extend dependency-graph when node is not fully determined
+                    {
+                        add_successors(next, next_meta, ctrl_successors, true);
+                        add_successors(next, next_meta, env_successors, false);
+                    }
                 }
                 
                 //std::cerr << "CHILDREN (" << next_meta.env_children << ", " << next_meta.ctrl_children << ")" << std::endl;
@@ -214,9 +215,9 @@ namespace VerifyTAPN { namespace DiscreteVerification {
         next_meta.dependers.clear();
     }
 
-    void SafetySynthesis::successors(store_t::Pointer *parent,
+    std::vector<SafetySynthesis::store_t::Pointer*>
+    SafetySynthesis::successors(store_t::Pointer *parent,
                                      SafetyMeta &meta,
-                                     waiting_t &waiting,
                                      bool is_controller,
                                      const Query* query) {
 
@@ -329,7 +330,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
         if (terminated)
         {
 //            std::cerr << "TERMINATED" << std::endl;
-            return; // Add nothing to waiting, we already have result
+            return {}; // Add nothing to waiting, we already have result
         }
 
         if (is_controller) {
@@ -337,11 +338,11 @@ namespace VerifyTAPN { namespace DiscreteVerification {
             {
                 if (number_of_children == 0) {
                     meta.state = MAYBE_WINNING;
-                    return;
+                    return {};
                 } else if (all_loosing) {
                     meta.state = LOOSING;
 //                    std::cout << "LOOSING4 : " << parent << std::endl;
-                    return;
+                    return {};
                 }
             }
             else if(query->getQuantifier() == Quantifier::CF)
@@ -349,7 +350,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
                 if(number_of_children == 0 && meta.state == MAYBE_LOSING)
                 {
                     meta.state = WINNING;
-                    return;
+                    return {};
                 }
             }
         } else {
@@ -359,34 +360,42 @@ namespace VerifyTAPN { namespace DiscreteVerification {
                 if(successors.size() == 0 && some_winning)
                 {
                     meta.state = MAYBE_LOSING;
-                    return;
+                    return {};
                 }
             }
         }
-
+        if(successors.empty())
+            return successors;
         std::sort(successors.begin(), successors.end());
-        size_t unique = 0;
-        bool first = true;
-        store_t::Pointer *child = nullptr;
-        for(auto p : successors) {
-            if(p == child && !first) continue;
-            else child = p;
-            first = false;
-            ++unique;
+        size_t j = 0;
+        for(size_t i = 1; i < successors.size(); ++i)
+        {
+            if(successors[j] == successors[i]) continue;
+            else {
+               ++j;
+               successors[j] = successors[i];
+            }
+        }
+        successors.resize(j+1);
+        return successors;
+    }
 
+    void SafetySynthesis::add_successors(store_t::Pointer *parent,
+                                     SafetyMeta &meta, const std::vector<store_t::Pointer*>& successors, bool is_controller)
+    {
+        for(auto* child : successors) {
             SafetyMeta &childmeta = store->get_meta(child);
             childmeta.dependers.push_front(
                     depender_t(is_controller, parent));
             if (childmeta.state == UNKNOWN &&
                 !childmeta.waiting) {
-//                std::cerr << "ADDING TO WAITING" << std::endl;
                 childmeta.waiting = true;
-                waiting.push(child);
+                waiting->push(child);
             }
         }
 
-        if (is_controller) meta.ctrl_children = unique;
-        else meta.env_children = unique;
+        if (is_controller) meta.ctrl_children = successors.size();
+        else meta.env_children = successors.size();
     }
 
     void SafetySynthesis::print_stats() {
@@ -538,8 +547,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
 
     SafetySynthesis::~SafetySynthesis() {
         delete store;
-        delete ctrl_w;
-        delete env_w;
+        delete waiting;
     }
 
 } }
