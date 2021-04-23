@@ -17,7 +17,7 @@ namespace VerifyTAPN {
             _future_enabled = std::make_unique<bool[]>(tapn.getPlaces().size());
             _place_bounds = std::make_unique<std::pair<uint32_t,uint32_t>[]>(tapn.getPlaces().size());
             _places_seen = std::make_unique<uint8_t[]>(tapn.getPlaces().size());
-        };
+        }
 
         bool GameStubbornSet::stubborn_filter(size_t t) const {
             return true;
