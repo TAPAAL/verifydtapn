@@ -224,7 +224,7 @@ namespace VerifyTAPN {
             compute_future_enabled();
             const auto handle_transition = [this, &waiting, controllable](const TimedTransition * trans) {
                 const auto t = trans->getIndex();
-                if (trans->isControllable() == controllable) return;
+                if (trans->isControllable() != controllable) return;
                 if (!_future_enabled[trans->getIndex()]) return;
                 auto mx = inf;
                 for (const TransportArc* ta : trans->getTransportArcs()) {
@@ -274,7 +274,7 @@ namespace VerifyTAPN {
                     auto bounds = _fireing_bounds[a->getInputTransition().getIndex()];
                     if (bounds == inf) return;
                     if (bounds == 0) continue;
-                    if (a->getInputTransition().isControllable() == controllable) continue;
+                    if (a->getInputTransition().isControllable() != controllable) continue;
                     auto cons = a->getInputTransition().getConsumed(place);
                     if (cons >= a->getWeight()) continue;
                     sum += (a->getWeight() - cons) * _fireing_bounds[a->getInputTransition().getIndex()];
@@ -285,7 +285,7 @@ namespace VerifyTAPN {
                     auto bounds = _fireing_bounds[a->getTransition().getIndex()];
                     if (bounds == inf) return;
                     if (bounds == 0) continue;
-                    if (a->getTransition().isControllable() == controllable) continue;
+                    if (a->getTransition().isControllable() != controllable) continue;
                     auto cons = a->getTransition().getConsumed(place);
                     if (cons >= a->getWeight()) continue;
                     sum += (a->getWeight() - cons) * _fireing_bounds[a->getTransition().getIndex()];
@@ -307,7 +307,7 @@ namespace VerifyTAPN {
                 auto ub = inf;
                 bool all_neg = true;
                 for (const OutputArc* arc : _tapn.getPlaces()[p]->getOutputArcs()) {
-                    if (arc->getInputTransition().isControllable() == controllable) continue;
+                    if (arc->getInputTransition().isControllable() != controllable) continue;
                     auto cons = arc->getInputTransition().getConsumed(_tapn.getPlaces()[p]);
                     if (cons < arc->getWeight()) {
                         all_neg = false;
@@ -316,7 +316,7 @@ namespace VerifyTAPN {
                 }
                 if (!all_neg) {
                     for (const TransportArc* arc : _tapn.getPlaces()[p]->getProdTransportArcs()) {
-                        if (arc->getTransition().isControllable() == controllable) continue;
+                        if (arc->getTransition().isControllable() != controllable) continue;
                         auto cons = arc->getTransition().getConsumed(_tapn.getPlaces()[p]);
                         if (cons < arc->getWeight()) {
                             all_neg = false;
@@ -331,7 +331,7 @@ namespace VerifyTAPN {
             }
             // initialize counters
             for (auto& t : _tapn.getTransitions()) {
-                if(t->isControllable() == controllable) continue;
+                if(t->isControllable() != controllable) continue;
                 if(_future_enabled[t->getIndex()])
                 {
                     _fireing_bounds[t->getIndex()] = inf;
@@ -351,7 +351,7 @@ namespace VerifyTAPN {
                 bool done = false;
                 auto& pb = _place_bounds[p->getIndex()];
                 for (auto a : p->getOutputArcs()) {
-                    if (a->getInputTransition().isControllable() == controllable) continue;
+                    if (a->getInputTransition().isControllable() != controllable) continue;
 
                     auto bound = _fireing_bounds[a->getInputTransition().getIndex()];
                     auto cons = a->getInputTransition().getConsumed(p);
@@ -369,7 +369,7 @@ namespace VerifyTAPN {
                     pb.first -= (take * bound);
                 }
                 if (!done) for (auto* a : p->getProdTransportArcs()) {
-                        if (a->getTransition().isControllable() == controllable) continue;
+                        if (a->getTransition().isControllable() != controllable) continue;
 
                         auto bound = _fireing_bounds[a->getTransition().getIndex()];
                         auto cons = a->getTransition().getConsumed(p);
@@ -445,7 +445,7 @@ namespace VerifyTAPN {
 
             const auto check_enable_transition = [this,&waiting,&color_transition,controllable](const TimedTransition& trans)
             {
-                if(trans.isControllable() == controllable) return;
+                if(trans.isControllable() != controllable) return;
                 for(auto* inhib : trans.getInhibitorArcs())
                 {
                     auto pid = inhib->getInputPlace().getIndex();
@@ -472,7 +472,7 @@ namespace VerifyTAPN {
 
             // bootstrap
             for(auto& t : _tapn.getTransitions())
-                if(t->isControllable() == controllable && is_enabled(t->getIndex()))
+                if(t->isControllable() != controllable && is_enabled(t->getIndex()))
                     color_transition(t);
 
             // saturate
