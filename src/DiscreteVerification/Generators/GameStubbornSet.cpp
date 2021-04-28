@@ -14,7 +14,7 @@ namespace VerifyTAPN {
         GameStubbornSet::GameStubbornSet(const TimedArcPetriNet& tapn, AST::Query* query)
         : StubbornSet(tapn, query) {
             _fireing_bounds = std::make_unique<uint32_t[]>(tapn.getTransitions().size());
-            _future_enabled = std::make_unique<bool[]>(tapn.getPlaces().size());
+            _future_enabled = std::make_unique<bool[]>(tapn.getTransitions().size());
             _place_bounds = std::make_unique<std::pair<uint32_t,uint32_t>[]>(tapn.getPlaces().size());
             _places_seen = std::make_unique<uint8_t[]>(tapn.getPlaces().size());
         }
@@ -393,7 +393,7 @@ namespace VerifyTAPN {
         void GameStubbornSet::compute_future_enabled()
         {
             const bool controllable = !_has_env;
-            std::fill(&_future_enabled[0], &_future_enabled[_tapn.getPlaces().size()], false);
+            std::fill(&_future_enabled[0], &_future_enabled[_tapn.getTransitions().size()], false);
             std::stack<uint32_t> waiting;
 
             auto color_transition = [this,&waiting](const TimedTransition* trans)
