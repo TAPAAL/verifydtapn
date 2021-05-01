@@ -51,7 +51,7 @@ public:
     
     T back() const {
         assert(!empty());
-        return _data[back-1];
+        return _data[_back-1];
     }
 
     void pop_front() {
