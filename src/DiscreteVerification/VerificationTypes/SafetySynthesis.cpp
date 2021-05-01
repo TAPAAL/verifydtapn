@@ -12,7 +12,6 @@
 #include <cassert>
 #include <set>
 #include <fstream>
-#include <bits/stl_vector.h>
 
 
 namespace VerifyTAPN { namespace DiscreteVerification {
