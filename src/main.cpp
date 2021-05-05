@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include "Core/TAPNParser/TAPNXmlParser.hpp"
 #include "Core/VerificationOptions.hpp"
 #include "Core/ArgsParser.hpp"
@@ -6,6 +7,7 @@
 #include "Core/TAPN/TimedPlace.hpp"
 #include "DiscreteVerification/DiscreteVerification.hpp"
 #include "DiscreteVerification/DeadlockVisitor.hpp"
+#include <unfoldtacpn.h>
 
 using namespace VerifyTAPN;
 using namespace VerifyTAPN::TAPN;
@@ -15,10 +17,28 @@ int main(int argc, char *argv[]) {
 
     ArgsParser parser;
     VerificationOptions options = parser.parse(argc, argv);
-
     TAPNXmlParser modelParser(options.getReplacements());
     TAPN::TimedArcPetriNet *tapn;
+    
+    std::ifstream inputModelFile(options.getInputFile(), std::ifstream::in);
+    std::ifstream inputQueryFile(options.getQueryFile(), std::ifstream::in);
+    std::fstream outputQueryFile(options.getOutputQueryFile(), std::ios::out);
+    std::fstream outputModelfile(options.getOutputModelFile(), std::ifstream::out);
+    unfoldtacpn_options_t unfoldOptions = {
+        NULL,
+        NULL,
+        false,
+        {1},
+        1,
+        "",
+        "",
+        false,
+        false
+    };
 
+    std::cout << options.getOutputModelFile() << " " << options.getOutputQueryFile() << std::endl;
+    unfoldNet(inputModelFile,inputQueryFile,outputModelfile,outputQueryFile, unfoldOptions);
+    /*
     try {
         tapn = modelParser.parse(options.getInputFile());
     } catch (const std::string &e) {
@@ -113,9 +133,9 @@ int main(int argc, char *argv[]) {
     // cleanup
     delete tapn;
     delete query;
-
+    */
     // return result
-    return result;
+    return 0;
 }
 
 

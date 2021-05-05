@@ -49,7 +49,9 @@ namespace VerifyTAPN {
                 long long workflowBound,
                 bool calculateCmax,
                 std::map<std::string, int> replace,
-                bool order
+                bool order,
+                std::string outputFile,
+                std::string outputQuery
         ) : inputFile(""),
             queryFile(""),
             searchType(searchType),
@@ -65,7 +67,9 @@ namespace VerifyTAPN {
             workflowBound(workflowBound),
             calculateCmax(calculateCmax),
             replace(std::move(std::move(replace))),
-            partialOrder(order) {
+            partialOrder(order),
+            outputFile(outputFile),
+            outputQuery(outputQuery) {
         };
 
     public: // inspectors
@@ -84,6 +88,22 @@ namespace VerifyTAPN {
 
         void setQueryFile(std::string input) {
             queryFile = std::move(input);
+        }
+
+        std::string getOutputModelFile() const {
+            return outputFile;
+        }
+
+        void setOutputModelFile(std::string input) {
+            outputFile = std::move(input);
+        }
+
+        std::string getOutputQueryFile() const {
+            return outputQuery;
+        }
+
+        void setOutputQueryFile(std::string input) {
+            outputQuery = std::move(input);
         }
 
         inline unsigned int getKBound() const {
@@ -172,6 +192,8 @@ namespace VerifyTAPN {
         bool calculateCmax{};
         std::map<std::string, int> replace;
         bool partialOrder{};
+        std::string outputFile;
+        std::string outputQuery;
     };
 
     std::ostream &operator<<(std::ostream &out, const VerificationOptions &options);

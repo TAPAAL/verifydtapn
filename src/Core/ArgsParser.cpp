@@ -22,6 +22,8 @@ namespace VerifyTAPN {
     static const std::string CALCULATE_CMAX = "calculate-cmax";
     static const std::string REPLACE = "replace";
     static const std::string ORDER = "partial-order";
+    static const std::string OUTPUTFILE = "write-file";
+    static const std::string OUTPUTQUERY = "write-query";
 
     std::ostream &operator<<(std::ostream &out, const Switch &flag) {
         flag.print(out);
@@ -182,6 +184,12 @@ namespace VerifyTAPN {
         parsers.push_back(
                 new Switch("i", ORDER,
                            "Disable partial order reduction"));
+        parsers.push_back(
+                new SwitchWithStringArg("f", OUTPUTFILE,
+                                        "Write the model to a pnml file (Used for Colored Models)", ""));
+        parsers.push_back(
+                new SwitchWithStringArg("q", OUTPUTQUERY,
+                                        "Write the query to a file (Used for Colored Models)", ""));
 
     }
 
@@ -279,7 +287,7 @@ namespace VerifyTAPN {
             }
 
             if (!boost::iends_with(model_file, ".xml")) {
-                std::cout << "Invalid model file specified." << std::endl;
+                std::cout << "Invalid model file specified." << model_file << std::endl;
                std::exit(1);
             }
 
@@ -294,7 +302,7 @@ namespace VerifyTAPN {
                     model_file = query_file;
                 } else {
                     // we have no xml-files at all :(
-                    std::cout << "Invalid model file specified." << std::endl;
+                    std::cout << "Invalid model file specified.here" << std::endl;
                    std::exit(1);
                 }
             } else {
@@ -494,9 +502,12 @@ namespace VerifyTAPN {
         bool order = boost::lexical_cast<bool>(
                 map.find(ORDER)->second);
 
+        std::string outputFile = map.find(OUTPUTFILE)->second;
+        std::string outputQuery = map.find(OUTPUTQUERY)->second;
+
         return VerificationOptions(search, verification, memoptimization, kbound, trace,
                                    xml_trace, max_constant, keep_dead, enableGCDLowerGuards, workflow,
-                                   workflowBound, calculateCmax, replace, !order);
+                                   workflowBound, calculateCmax, replace, !order, outputFile, outputQuery);
 
     }
 }

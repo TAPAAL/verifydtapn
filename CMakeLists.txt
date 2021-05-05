@@ -62,7 +62,16 @@ if (VERIFYDTAPN_GetDependencies)
             CONFIGURE_COMMAND mkdir -p ${CMAKE_BINARY_DIR}/external/include
             INSTALL_COMMAND cd ../rapidxml-ext && ${CMAKE_COMMAND} -E copy rapidxml.hpp rapidxml_iterators.hpp rapidxml_print.hpp rapidxml_utils.hpp ${EXTERNAL_INSTALL_LOCATION}/include
             )
+
+    ExternalProject_add(unfoldtacpn-ext 
+        GIT_REPOSITORY https://github.com/TAPAAL/unfoldTACPN 
+        GIT_TAG main 
+        CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION} -DBUILD_TESTING=OFF -DCMAKE_BUILD_TYPE=Release
+    )
+    add_library(unfoldtacpn STATIC IMPORTED)
+    set_target_properties(unfoldtacpn PROPERTIES IMPORTED_LOCATION ${EXTERNAL_INSTALL_LOCATION}/lib/libunfoldtacpn.a)
     include_directories(${EXTERNAL_INSTALL_LOCATION}/include)
+
 endif (VERIFYDTAPN_GetDependencies)
 
 set(Boost_USE_STATIC_LIBS ON)
