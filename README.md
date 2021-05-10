@@ -1,17 +1,13 @@
+# verifydtapn
 
 ## Linux
-To obtain the branch and compile:
-```
+To compile verifydtapn:
+
+``` bash 
 sudo apt update
-sudo apt install brz #Install breezy (bazaar fork)
-
-bzr branch lp:verifydtapn
-
 sudo apt install flex bison libboost-all-dev libsparsehash-dev cmake build-essential
 
-```
-mkdir build
-cd build
+mkdir build && cd build
 cmake ..
 make
 ```
@@ -23,34 +19,41 @@ Install xcode through App Store.
 Install cmake, boost and google-sparsehash,
 for example using homebrew as follows:
 
-```
+``` bash
 brew install cmake boost google-sparsehash 
 ```
 
 If your flex and bison point to a wrong binary, run the cmake
 with the folowing switches where the desired path is set:
 
+``` bash
 cmake -DBISON_EXECUTABLE=/usr/local/opt/bison/bin/bison -DFLEX_EXECUTABLE=/usr/local/opt/flex/bin/flex ..
-
+```
 
 ## Windows (Cross Compile)
 
 Install MinGW64
-```
+``` bash
 sudo apt install mingw-w64-x86-64-dev mingw-w64-tools g++-mingw-w64-x86-64
 ```
 
 
-Download boost source: 
-```
+Setup Build Env
+``` bash
 TARGET=x86_64-w64-mingw32
 ADDRM=64
 MTUNE=generic
 
-CORES=1
+CORES=$(nproc || 1)
 
 export CC=x86_64-w64-mingw32-gcc
 export CXX=x86_64-w64-mingw32-g++
+
+export PREFIX=$(mktemp -d -p .) #Or set it to path where libs are saved
+```
+
+Download and compile Boost 
+``` bash
 
 BOOST=boost_1_72_0
 VER=${BOOST#boost_}
@@ -58,13 +61,6 @@ VER=${VER//_/.}
 wget -nv "https://dl.bintray.com/boostorg/release/$VER/source/$BOOST.tar.bz2"
 tar xf $BOOST.tar.bz2
 
-export PREFIX=$(mktemp -d -p .) #Or set it to path where libs are saved
-
-```
-
-Compile Boost Build System and Build Boost
-
-```
 cd $BOOST
 CC= CXX= ./bootstrap.sh --prefix="$PREFIX" --without-icu
 cat > win$ADDRM-config.jam << EOF
@@ -79,13 +75,11 @@ cd ..
 
 Download and build google sparsehash
 
-```
+``` bash
 
 sudo apt install unzip
 wget https://github.com/sparsehash/sparsehash/archive/sparsehash-2.0.4.zip
 unzip sparsehash-2.0.4.zip
-
-
 
 cd sparsehash-sparsehash-2.0.4
 
@@ -98,12 +92,11 @@ cd ..
 
 Build verifydtapn
 
-```
+``` bash
 
 mkdir build-win && cd build-win
 cmake ../ -DCMAKE_TOOLCHAIN_FILE=../toolchain-x86_64-w64-mingw32.cmake -DBOOST_ROOT=$PREFIX
 CPATH=$PREFIX/include make
 
-
-
+```
 
