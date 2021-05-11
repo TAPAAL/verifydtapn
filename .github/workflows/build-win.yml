@@ -47,7 +47,8 @@ jobs:
         BOOST=boost_1_72_0
         VER=${BOOST#boost_}
         VER=${VER//_/.}
-        wget -nv "https://dl.bintray.com/boostorg/release/$VER/source/$BOOST.tar.bz2"
+        
+        wget -nv "https://boostorg.jfrog.io/artifactory/main/release/$VER/source/$BOOST.tar.bz2"
         tar xf $BOOST.tar.bz2
 
         cd $BOOST
