@@ -50,6 +50,8 @@ export CC=x86_64-w64-mingw32-gcc
 export CXX=x86_64-w64-mingw32-g++
 
 export PREFIX=$(mktemp -d -p .) #Or set it to path where libs are saved
+export PREFIX=$(realpath $PREFIX)
+
 ```
 
 Download and compile Boost 
@@ -58,7 +60,7 @@ Download and compile Boost
 BOOST=boost_1_72_0
 VER=${BOOST#boost_}
 VER=${VER//_/.}
-wget -nv "https://dl.bintray.com/boostorg/release/$VER/source/$BOOST.tar.bz2"
+wget -nv "https://boostorg.jfrog.io/artifactory/main/release/$VER/source/$BOOST.tar.bz2"
 tar xf $BOOST.tar.bz2
 
 cd $BOOST
