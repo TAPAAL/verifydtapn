@@ -42,15 +42,8 @@ jobs:
         cmakeGenerator: UnixMakefiles
         buildDirectory: '${{runner.workspace}}/build'     
     
-    #- name: Cmake
-    #  run: | 
-    #    mkdir build
-    #    cd build 
-    #    cmake -DFLEX_EXECUTABLE=/usr/local/opt/flex/bin/flex -DBISON_EXECUTABLE=/usr/local/opt/bison/bin/bison ..
-    #    make
-    
     - name: Upload artifacts 
       uses: actions/upload-artifact@v2
       with:
-        name: verifydtapn-linux64
-        path: '${{runner.workspace}}/build/bin/verifydtapn-linux64'
+        name: verifydtapn-osx64
+        path: '${{runner.workspace}}/build/bin/verifydtapn-osx64'
