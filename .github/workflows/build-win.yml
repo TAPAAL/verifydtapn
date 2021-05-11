@@ -43,6 +43,7 @@ jobs:
         export CXX=x86_64-w64-mingw32-g++
 
         export PREFIX=$(mktemp -d -p .) #Or set it to path where libs are saved
+        export PREFIX=$(realpath $PREFIX)
         
         BOOST=boost_1_72_0
         VER=${BOOST#boost_}
