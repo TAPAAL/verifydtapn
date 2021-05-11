@@ -31,22 +31,24 @@ jobs:
         brew install cmake boost google-sparsehash 
         brew install flex bison
     
-    #- name: Build 
-    #  uses: lukka/run-cmake@v2.5
-    #  with:
-    #    cmakeListsOrSettingsJson: CMakeListsTxtBasic
-    #    #cmakeListsTxtPath: "${{ github.workspace }}/CMakeLists.txt"
-    #    #cmakeAppendedArgs: '-DFLEX_EXECUTABLE=/usr/local/opt/flex/bin/flex -DBISON_EXECUTABLE=/usr/local/opt/bison/bin/bison'
-    #    cmakeBuildType: Release
-    #    cmakeGenerator: UnixMakefiles
-    #    buildDirectory: '${{runner.workspace}}/build'     
+    - name: Build 
+      uses: lukka/run-cmake@v2.5
+      with:
+        cmakeListsOrSettingsJson: CMakeListsTxtBasic
+        #cmakeListsTxtPath: "${{ github.workspace }}/CMakeLists.txt"
+        cmakeAppendedArgs: >-
+          -DFLEX_EXECUTABLE=/usr/local/opt/flex/bin/flex 
+          -DBISON_EXECUTABLE=/usr/local/opt/bison/bin/bison
+        cmakeBuildType: Release
+        cmakeGenerator: UnixMakefiles
+        buildDirectory: '${{runner.workspace}}/build'     
     
-    - name: Cmake
-      run: | 
-        mkdir build
-        cd build 
-        cmake -DFLEX_EXECUTABLE=/usr/local/opt/flex/bin/flex -DBISON_EXECUTABLE=/usr/local/opt/bison/bin/bison ..
-        make
+    #- name: Cmake
+    #  run: | 
+    #    mkdir build
+    #    cd build 
+    #    cmake -DFLEX_EXECUTABLE=/usr/local/opt/flex/bin/flex -DBISON_EXECUTABLE=/usr/local/opt/bison/bin/bison ..
+    #    make
     
     - name: Upload artifacts 
       uses: actions/upload-artifact@v2
