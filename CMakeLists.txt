@@ -64,12 +64,10 @@ if (VERIFYDTAPN_GetDependencies)
             )
 
     ExternalProject_add(unfoldtacpn-ext 
-        GIT_REPOSITORY https://github.com/TAPAAL/unfoldTACPN 
+        GIT_REPOSITORY https://github.com/petergjoel/unfoldTACPN.git
         GIT_TAG main 
         CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION} -DBUILD_TESTING=OFF -DCMAKE_BUILD_TYPE=Release
     )
-    add_library(unfoldtacpn STATIC IMPORTED)
-    set_target_properties(unfoldtacpn PROPERTIES IMPORTED_LOCATION ${EXTERNAL_INSTALL_LOCATION}/lib/libunfoldtacpn.a)
     include_directories(${EXTERNAL_INSTALL_LOCATION}/include)
 
 endif (VERIFYDTAPN_GetDependencies)
