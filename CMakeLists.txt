@@ -64,7 +64,7 @@ if (VERIFYDTAPN_GetDependencies)
             )
 
     ExternalProject_add(unfoldtacpn-ext 
-        GIT_REPOSITORY https://github.com/petergjoel/unfoldTACPN.git
+        GIT_REPOSITORY https://github.com/TAPAAL/unfoldTACPN.git
         GIT_TAG main 
         CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION} -DBUILD_TESTING=OFF -DCMAKE_BUILD_TYPE=Release
     )

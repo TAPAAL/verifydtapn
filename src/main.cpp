@@ -27,20 +27,24 @@ int main(int argc, char *argv[]) {
     unfoldtacpn_options_t unfoldOptions = {
         NULL,
         NULL,
-        false,
-        {1},
+        true,
+        {},
         1,
         "",
         "",
         false,
-        false
+        true
     };
 
     std::cout << options.getOutputModelFile() << " " << options.getOutputQueryFile() << std::endl;
     unfoldNet(inputModelFile,inputQueryFile,outputModelfile,outputQueryFile, unfoldOptions);
-    /*
+    inputModelFile.close();
+    inputQueryFile.close();
+    outputModelfile.close();
+    outputQueryFile.close();
+    
     try {
-        tapn = modelParser.parse(options.getInputFile());
+        tapn = modelParser.parse(options.getOutputModelFile());
     } catch (const std::string &e) {
         std::cout << "There was an error parsing the model file: " << e << std::endl;
         return 1;
@@ -58,7 +62,7 @@ int main(int argc, char *argv[]) {
         return 0;
     }
 
-    std::vector<int> initialPlacement(modelParser.parseMarking(options.getInputFile(), *tapn));
+    std::vector<int> initialPlacement(modelParser.parseMarking(options.getOutputModelFile(), *tapn));
 
     AST::Query *query = nullptr;
     if (options.getWorkflowMode() == VerificationOptions::WORKFLOW_SOUNDNESS ||
@@ -89,7 +93,7 @@ int main(int argc, char *argv[]) {
     } else {
         try {
             TAPNQueryParser queryParser(*tapn);
-            queryParser.parse(options.getQueryFile());
+            queryParser.parse(options.getOutputQueryFile());
             query = queryParser.getAST();
         } catch (...) {
             std::cout << "There was an error parsing the query file." << std::endl;
@@ -133,9 +137,7 @@ int main(int argc, char *argv[]) {
     // cleanup
     delete tapn;
     delete query;
-    */
-    // return result
-    return 0;
+    return result;
 }
 
 
