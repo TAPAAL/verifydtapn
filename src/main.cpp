@@ -37,7 +37,7 @@ int main(int argc, char *argv[]) {
         outputQueryFile.close();
         modelFile = options.getOutputModelFile();
         queryFile = options.getOutputQueryFile();
-    } else if(options.getOutputModelFile().empty && options.getOutputQueryFile().empty()){
+    } else if(options.getOutputModelFile().empty() && options.getOutputQueryFile().empty()){
         modelFile = options.getInputFile();
         queryFile = options.getQueryFile();
     } else{
