@@ -23,14 +23,15 @@ int main(int argc, char *argv[]) {
     std::string queryFile;
     
     if(!options.getOutputModelFile().empty() && !options.getOutputQueryFile().empty()){
+        
         std::ifstream inputModelFile(options.getInputFile(), std::ifstream::in);
         std::ifstream inputQueryFile(options.getQueryFile(), std::ifstream::in);
         std::fstream outputQueryFile(options.getOutputQueryFile(), std::ios::out);
+        std::fstream outputXMLQueryFile(options.getOutputXMLQueryFile(), std::ios::out);
         std::fstream outputModelfile(options.getOutputModelFile(), std::ifstream::out);
-        unfoldtacpn_options_t unfoldOptions = {NULL,NULL,true,{},1,"","",false,true};
+        unfoldtacpn_options_t unfoldOptions = {NULL,NULL,true,{},1,"","","",false,true};
 
-        std::cout << options.getOutputModelFile() << " " << options.getOutputQueryFile() << std::endl;
-        unfoldNet(inputModelFile,inputQueryFile,outputModelfile,outputQueryFile, unfoldOptions);
+        unfoldNet(inputModelFile,inputQueryFile,outputModelfile,outputQueryFile, outputXMLQueryFile, unfoldOptions);
         inputModelFile.close();
         inputQueryFile.close();
         outputModelfile.close();
@@ -44,17 +45,15 @@ int main(int argc, char *argv[]) {
         std::cout <<  "Output model file and output query file must both be specified or both be unspecified" << std::endl;
         return 1;
     }
-    
-    
+
     try {
         tapn = modelParser.parse(modelFile);
     } catch (const std::string &e) {
         std::cout << "There was an error parsing the model file: " << e << std::endl;
         return 1;
     }
-
+    
     tapn->initialize(options.getGlobalMaxConstantsEnabled(), options.getGCDLowerGuardsEnabled());
-
     if (options.getCalculateCmax()) {
         std::cout << options << std::endl;
         std::cout << "C-MAX" << std::endl;
@@ -64,9 +63,7 @@ int main(int argc, char *argv[]) {
         std::cout << std::endl;
         return 0;
     }
-
     std::vector<int> initialPlacement(modelParser.parseMarking(modelFile, *tapn));
-
     AST::Query *query = nullptr;
     if (options.getWorkflowMode() == VerificationOptions::WORKFLOW_SOUNDNESS ||
         options.getWorkflowMode() == VerificationOptions::WORKFLOW_STRONG_SOUNDNESS) {
@@ -84,7 +81,6 @@ int main(int argc, char *argv[]) {
             std::cout << "Workflow-analysis does not accept a query file" << std::endl;
            std::exit(1);
         }
-
         if (options.getWorkflowMode() == VerificationOptions::WORKFLOW_SOUNDNESS) {
             options.setSearchType(VerificationOptions::MINDELAYFIRST);
             query = new AST::Query(AST::EF, new AST::BoolExpression(true));
@@ -98,6 +94,7 @@ int main(int argc, char *argv[]) {
             TAPNQueryParser queryParser(*tapn);
             queryParser.parse(queryFile);
             query = queryParser.getAST();
+            
         } catch (...) {
             std::cout << "There was an error parsing the query file." << std::endl;
             return 1;

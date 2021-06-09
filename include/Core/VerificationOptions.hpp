@@ -51,7 +51,8 @@ namespace VerifyTAPN {
                 std::map<std::string, int> replace,
                 bool order,
                 std::string outputFile,
-                std::string outputQuery
+                std::string outputQuery,
+                std::string outputXMLQuery
         ) : inputFile(""),
             queryFile(""),
             searchType(searchType),
@@ -69,7 +70,8 @@ namespace VerifyTAPN {
             replace(std::move(std::move(replace))),
             partialOrder(order),
             outputFile(outputFile),
-            outputQuery(outputQuery) {
+            outputQuery(outputQuery),
+            outputXMLQuery(outputXMLQuery) {
         };
 
     public: // inspectors
@@ -104,6 +106,14 @@ namespace VerifyTAPN {
 
         void setOutputQueryFile(std::string input) {
             outputQuery = std::move(input);
+        }
+
+        std::string getOutputXMLQueryFile() const {
+            return outputXMLQuery;
+        }
+
+        void setOutputXMLQueryFile(std::string input) {
+            outputXMLQuery = std::move(input);
         }
 
         inline unsigned int getKBound() const {
@@ -194,6 +204,7 @@ namespace VerifyTAPN {
         bool partialOrder{};
         std::string outputFile;
         std::string outputQuery;
+        std::string outputXMLQuery;
     };
 
     std::ostream &operator<<(std::ostream &out, const VerificationOptions &options);

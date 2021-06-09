@@ -24,6 +24,7 @@ namespace VerifyTAPN {
     static const std::string ORDER = "partial-order";
     static const std::string OUTPUTFILE = "write-file";
     static const std::string OUTPUTQUERY = "write-query";
+    static const std::string OUTPUTXMLQUERY = "write-query-xml";
 
     std::ostream &operator<<(std::ostream &out, const Switch &flag) {
         flag.print(out);
@@ -190,6 +191,9 @@ namespace VerifyTAPN {
         parsers.push_back(
                 new SwitchWithStringArg("q", OUTPUTQUERY,
                                         "Write the query to a file (Used for Colored Models)", ""));
+        parsers.push_back(
+                new SwitchWithStringArg("q-xml", OUTPUTXMLQUERY,
+                                        "Write the queries to a file in xml format (Used for Colored Models)", ""));
 
     }
 
@@ -504,10 +508,11 @@ namespace VerifyTAPN {
 
         std::string outputFile = map.find(OUTPUTFILE)->second;
         std::string outputQuery = map.find(OUTPUTQUERY)->second;
+        std::string outputXMLQuery = map.find(OUTPUTXMLQUERY)->second;
 
         return VerificationOptions(search, verification, memoptimization, kbound, trace,
                                    xml_trace, max_constant, keep_dead, enableGCDLowerGuards, workflow,
-                                   workflowBound, calculateCmax, replace, !order, outputFile, outputQuery);
+                                   workflowBound, calculateCmax, replace, !order, outputFile, outputQuery, outputXMLQuery);
 
     }
 }
