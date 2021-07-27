@@ -7,6 +7,7 @@
 #include <utility>
 #include <vector>
 #include <map>
+#include <set>
 
 namespace VerifyTAPN {
 
@@ -52,7 +53,8 @@ namespace VerifyTAPN {
                 bool order,
                 std::string outputFile,
                 std::string outputQuery,
-                std::string outputXMLQuery
+                std::string outputXMLQuery,
+                std::set<size_t> querynumbers
         ) : inputFile(""),
             queryFile(""),
             searchType(searchType),
@@ -71,7 +73,8 @@ namespace VerifyTAPN {
             partialOrder(order),
             outputFile(outputFile),
             outputQuery(outputQuery),
-            outputXMLQuery(outputXMLQuery) {
+            outputXMLQuery(outputXMLQuery),
+            querynumbers(querynumbers) {
         };
 
     public: // inspectors
@@ -102,6 +105,10 @@ namespace VerifyTAPN {
 
         std::string getOutputQueryFile() const {
             return outputQuery;
+        }
+
+        std::set<size_t> getQueryNumbers() const {
+            return querynumbers;
         }
 
         void setOutputQueryFile(std::string input) {
@@ -205,6 +212,7 @@ namespace VerifyTAPN {
         std::string outputFile;
         std::string outputQuery;
         std::string outputXMLQuery;
+        std::set<size_t> querynumbers;
     };
 
     std::ostream &operator<<(std::ostream &out, const VerificationOptions &options);

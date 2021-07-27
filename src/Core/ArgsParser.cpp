@@ -25,6 +25,7 @@ namespace VerifyTAPN {
     static const std::string OUTPUTFILE = "write-file";
     static const std::string OUTPUTQUERY = "write-query";
     static const std::string OUTPUTXMLQUERY = "write-query-xml";
+    static const std::string XML_QUERY_NUMBERS = "query-numbers";
 
     std::ostream &operator<<(std::ostream &out, const Switch &flag) {
         flag.print(out);
@@ -72,7 +73,12 @@ namespace VerifyTAPN {
         std::stringstream s;
         s << "-" << getShortName();
         s << " [ --" << getLongName() << " ] ";
-        s << " a1,a2,.. (=" << default_value << ")";
+        if(default_value.empty()){
+            s << " a1,a2,.. ";
+        } else {
+            s << " a1,a2,.. (=" << default_value << ")";
+        }
+        
         out << std::setw(WIDTH) << std::left << s.str();
         PrintIndentedDescription(out, getDescription());
     }
@@ -195,6 +201,10 @@ namespace VerifyTAPN {
                 new SwitchWithStringArg("q-xml", OUTPUTXMLQUERY,
                                         "Write the queries to a file in xml format (Used for Colored Models)", ""));
 
+        parsers.push_back(
+            new SwitchWithStringArg("q-num", XML_QUERY_NUMBERS, "Parse XML query file and unfold queries of the provided indexs.\nOnly the lowest index query will be verified. (Required for XML queries)", "")
+        );
+
     }
 
     void ArgsParser::printHelp() const {
@@ -285,19 +295,22 @@ namespace VerifyTAPN {
     ArgsParser::verifyInputFiles(VerificationOptions options, std::string model_file, std::string query_file) const {
         if (options.getWorkflowMode() != VerificationOptions::WORKFLOW_SOUNDNESS &&
             options.getWorkflowMode() != VerificationOptions::WORKFLOW_STRONG_SOUNDNESS) {
-            if (boost::iends_with(query_file, ".xml")) {
-                std::cout << "Missing query file." << std::endl;
-               std::exit(1);
-            }
 
             if (!boost::iends_with(model_file, ".xml")) {
                 std::cout << "Invalid model file specified." << model_file << std::endl;
-               std::exit(1);
+                std::exit(1);
             }
 
-            if (!boost::iends_with(query_file, ".q")) {
-                std::cout << "Invalid query file specified." << std::endl;
-               std::exit(1);
+            if(!options.getOutputModelFile().empty() && !options.getOutputQueryFile().empty()){
+                if (!boost::iends_with(query_file, ".q") && !boost::iends_with(query_file, ".xml")) {
+                    std::cout << "Invalid query file specified." << std::endl;
+                    std::exit(1);
+                }
+            } else {
+                if (!boost::iends_with(query_file, ".q")) {
+                    std::cout << "Invalid query file specified." << std::endl;
+                    std::exit(1);
+                }
             }
         } else {
             if (!boost::iends_with(model_file, ".xml")) {
@@ -307,7 +320,7 @@ namespace VerifyTAPN {
                 } else {
                     // we have no xml-files at all :(
                     std::cout << "Invalid model file specified.here" << std::endl;
-                   std::exit(1);
+                    std::exit(1);
                 }
             } else {
                 std::cout << "Ignoring query-file for Workflow-analysis" << std::endl;
@@ -414,6 +427,21 @@ namespace VerifyTAPN {
         return result;
     }
 
+    std::set<size_t> ArgsParser::extractValues(const option &option) const {
+        std::set<size_t> result;
+        std::istringstream iss(option.second);
+
+        for (std::string token; std::getline(iss, token, ','); )
+        {
+            if(token.empty()){
+                continue;
+            }
+            result.insert(tryParseInt(std::make_pair(option.first, std::move(token))));
+        }
+
+        return result;
+    }
+
     std::map<std::string, int> ArgsParser::parseReplace(const option &option) const {
         std::map<std::string, int> replace;
         const std::string param = option.second;
@@ -510,9 +538,11 @@ namespace VerifyTAPN {
         std::string outputQuery = map.find(OUTPUTQUERY)->second;
         std::string outputXMLQuery = map.find(OUTPUTXMLQUERY)->second;
 
+        std::set<size_t> querynumbers = extractValues(*map.find(XML_QUERY_NUMBERS));
+
         return VerificationOptions(search, verification, memoptimization, kbound, trace,
                                    xml_trace, max_constant, keep_dead, enableGCDLowerGuards, workflow,
-                                   workflowBound, calculateCmax, replace, !order, outputFile, outputQuery, outputXMLQuery);
+                                   workflowBound, calculateCmax, replace, !order, outputFile, outputQuery, outputXMLQuery, querynumbers);
 
     }
 }

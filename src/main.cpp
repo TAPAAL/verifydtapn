@@ -29,7 +29,7 @@ int main(int argc, char *argv[]) {
         std::fstream outputQueryFile(options.getOutputQueryFile(), std::ios::out);
         std::fstream outputXMLQueryFile(options.getOutputXMLQueryFile(), std::ios::out);
         std::fstream outputModelfile(options.getOutputModelFile(), std::ifstream::out);
-        unfoldtacpn_options_t unfoldOptions = {NULL,NULL,true,{},1,"","","",false,true};
+        unfoldtacpn_options_t unfoldOptions = {NULL,NULL,true, options.getQueryNumbers(),1,"","","",false,true};
 
         unfoldNet(inputModelFile,inputQueryFile,outputModelfile,outputQueryFile, outputXMLQueryFile, unfoldOptions);
         inputModelFile.close();
