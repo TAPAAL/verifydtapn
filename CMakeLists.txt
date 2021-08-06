@@ -52,6 +52,10 @@ else ()
     set(ARCH_TYPE "win64")
 endif ()
 
+
+find_package(FLEX 2.6.0 REQUIRED)
+find_package(BISON 3.5.0 REQUIRED)
+
 if (VERIFYDTAPN_GetDependencies)
     # setup for external imports
     include(ExternalProject)
