@@ -9,4 +9,5 @@ target_link_libraries(verifydtapn-${ARCH_TYPE} Core DiscreteVerification
     ${EXTERNAL_INSTALL_LOCATION}/lib/unfoldtacpn/libPetriParse.a
     ${EXTERNAL_INSTALL_LOCATION}/lib/unfoldtacpn/libPQL.a
     ${EXTERNAL_INSTALL_LOCATION}/lib/unfoldtacpn/libColored.a 
+    ${EXTERNAL_INSTALL_LOCATION}/lib/unfoldtacpn/libGLPK.a
     )
