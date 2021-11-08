@@ -1,14 +1,11 @@
-# This is a basic workflow to help you get started with Actions
-
 name: Build Windows (Cross Compile)
 
-# Controls when the action will run. Triggers the workflow on push or pull request
-# events but only for the master branch
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
   pull_request:
-    branches: [ master ]
+    branches: [ main ]
+  workflow_dispatch:  
 
 #env:
 #    BOOST_ROOT : "/usr/local/share/boost/1.69.0" 
@@ -28,8 +25,9 @@ jobs:
     
     - name: Install depends
       run: |
-        sudo apt install flex bison libboost-all-dev libsparsehash-dev cmake build-essential
-        sudo apt install mingw-w64-x86-64-dev mingw-w64-tools g++-mingw-w64-x86-64 wine wine-binfmt
+        sudo apt-get update
+        sudo apt-get install flex bison libboost-all-dev libsparsehash-dev cmake build-essential
+        sudo apt-get install mingw-w64-x86-64-dev mingw-w64-tools g++-mingw-w64-x86-64
     
     - name: Setup Dependency
       run: | 
