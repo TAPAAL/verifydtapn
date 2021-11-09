@@ -54,7 +54,8 @@ namespace VerifyTAPN {
                 std::string outputFile,
                 std::string outputQuery,
                 std::string outputXMLQuery,
-                std::set<size_t> querynumbers
+                std::set<size_t> querynumbers,
+                std::string strategy_output
         ) : inputFile(""),
             queryFile(""),
             searchType(searchType),
@@ -74,7 +75,8 @@ namespace VerifyTAPN {
             outputFile(outputFile),
             outputQuery(outputQuery),
             outputXMLQuery(outputXMLQuery),
-            querynumbers(querynumbers) {
+            querynumbers(querynumbers),
+            strategy_output(std::move(strategy_output)) {
         };
 
     public: // inspectors
@@ -191,28 +193,33 @@ namespace VerifyTAPN {
             return partialOrder;
         }
 
+        inline const std::string& getStrategyFile() const {
+            return strategy_output;
+        }
+
 
     private:
         std::string inputFile;
         std::string queryFile;
-        SearchType searchType;
-        VerificationType verificationType;
-        MemoryOptimization memOptimization;
-        unsigned int k_bound{};
-        Trace trace;
-        bool xml_trace{};
-        bool useGlobalMaxConstants{};
-        bool keepDeadTokens{};
-        bool enableGCDLowerGuards{};
-        WorkflowMode workflow;
-        long long workflowBound{};
-        bool calculateCmax{};
+        SearchType searchType = DEFAULT;
+        VerificationType verificationType = DISCRETE;
+        MemoryOptimization memOptimization = NO_MEMORY_OPTIMIZATION;
+        unsigned int k_bound = 0;
+        Trace trace  = NO_TRACE;
+        bool xml_trace = false;
+        bool useGlobalMaxConstants = false;
+        bool keepDeadTokens = false;
+        bool enableGCDLowerGuards = false;
+        WorkflowMode workflow = NOT_WORKFLOW;
+        long long workflowBound = 0;
+        bool calculateCmax = false;
         std::map<std::string, int> replace;
         bool partialOrder{};
         std::string outputFile;
         std::string outputQuery;
         std::string outputXMLQuery;
         std::set<size_t> querynumbers;
+        std::string strategy_output = "";
     };
 
     std::ostream &operator<<(std::ostream &out, const VerificationOptions &options);

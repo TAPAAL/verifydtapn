@@ -26,6 +26,7 @@ namespace VerifyTAPN {
     static const std::string OUTPUTQUERY = "write-query";
     static const std::string OUTPUTXMLQUERY = "write-query-xml";
     static const std::string XML_QUERY_NUMBERS = "query-numbers";
+    static const std::string STRATEGY_OUT = "strategy-output";
 
     std::ostream &operator<<(std::ostream &out, const Switch &flag) {
         flag.print(out);
@@ -205,6 +206,9 @@ namespace VerifyTAPN {
             new SwitchWithStringArg("q-num", XML_QUERY_NUMBERS, "Parse XML query file and unfold queries of the provided indexs.\nOnly the lowest index query will be verified. (Required for XML queries)", "")
         );
 
+        parsers.push_back(
+                new SwitchWithStringArg("z", STRATEGY_OUT,
+                           "File to write synthesized strategy to, use '_' (an underscore) for stdout", ""));
     }
 
     void ArgsParser::printHelp() const {
@@ -540,9 +544,10 @@ namespace VerifyTAPN {
 
         std::set<size_t> querynumbers = extractValues(*map.find(XML_QUERY_NUMBERS));
 
+        std::string output = map.find(STRATEGY_OUT)->second;
+
         return VerificationOptions(search, verification, memoptimization, kbound, trace,
                                    xml_trace, max_constant, keep_dead, enableGCDLowerGuards, workflow,
-                                   workflowBound, calculateCmax, replace, !order, outputFile, outputQuery, outputXMLQuery, querynumbers);
-
+                                   workflowBound, calculateCmax, replace, !order, outputFile, outputQuery, outputXMLQuery, querynumbers, output);
     }
 }
