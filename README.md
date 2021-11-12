@@ -101,4 +101,3 @@ cmake ../ -DCMAKE_TOOLCHAIN_FILE=../toolchain-x86_64-w64-mingw32.cmake -DBOOST_R
 CPATH=$PREFIX/include make
 
 ```
-

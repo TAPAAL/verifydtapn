@@ -7,6 +7,7 @@
 #include <utility>
 #include <vector>
 #include <map>
+#include <set>
 
 namespace VerifyTAPN {
 
@@ -50,6 +51,10 @@ namespace VerifyTAPN {
                 bool calculateCmax,
                 std::map<std::string, int> replace,
                 bool order,
+                std::string outputFile,
+                std::string outputQuery,
+                std::string outputXMLQuery,
+                std::set<size_t> querynumbers,
                 std::string strategy_output
         ) : inputFile(""),
             queryFile(""),
@@ -67,6 +72,10 @@ namespace VerifyTAPN {
             calculateCmax(calculateCmax),
             replace(std::move(std::move(replace))),
             partialOrder(order),
+            outputFile(outputFile),
+            outputQuery(outputQuery),
+            outputXMLQuery(outputXMLQuery),
+            querynumbers(querynumbers),
             strategy_output(std::move(strategy_output)) {
         };
 
@@ -86,6 +95,34 @@ namespace VerifyTAPN {
 
         void setQueryFile(std::string input) {
             queryFile = std::move(input);
+        }
+
+        std::string getOutputModelFile() const {
+            return outputFile;
+        }
+
+        void setOutputModelFile(std::string input) {
+            outputFile = std::move(input);
+        }
+
+        std::string getOutputQueryFile() const {
+            return outputQuery;
+        }
+
+        std::set<size_t> getQueryNumbers() const {
+            return querynumbers;
+        }
+
+        void setOutputQueryFile(std::string input) {
+            outputQuery = std::move(input);
+        }
+
+        std::string getOutputXMLQueryFile() const {
+            return outputXMLQuery;
+        }
+
+        void setOutputXMLQueryFile(std::string input) {
+            outputXMLQuery = std::move(input);
         }
 
         inline unsigned int getKBound() const {
@@ -155,7 +192,7 @@ namespace VerifyTAPN {
         inline bool getPartialOrderReduction() const {
             return partialOrder;
         }
-        
+
         inline const std::string& getStrategyFile() const {
             return strategy_output;
         }
@@ -177,7 +214,11 @@ namespace VerifyTAPN {
         long long workflowBound = 0;
         bool calculateCmax = false;
         std::map<std::string, int> replace;
-        bool partialOrder = false;
+        bool partialOrder{};
+        std::string outputFile;
+        std::string outputQuery;
+        std::string outputXMLQuery;
+        std::set<size_t> querynumbers;
         std::string strategy_output = "";
     };
 
