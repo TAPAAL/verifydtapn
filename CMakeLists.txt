@@ -22,6 +22,7 @@ option(VERIFYDTAPN_Static "Link libraries statically" ON)
 option(VERIFYDTAPN_GetDependencies "Fetch external dependencies from web." ON)
 set(EXTERNAL_INSTALL_LOCATION ${CMAKE_BINARY_DIR}/external CACHE PATH "Install location for external dependencies")
 set(VERIFYDTAPN_TARGETDIR "${CMAKE_BINARY_DIR}/${VERIFYDTAPN_NAME}" CACHE PATH "Traget directory for build files")
+set(VERIFYDTAPN_OSX_DEPLOYMENT_TARGET 10.8 CACHE STRING "Specify the minimum version of the target platform for MacOS on which the target binaries are to be deployed ") 
 
 # Configure Project
 
@@ -40,7 +41,7 @@ if (UNIX AND NOT APPLE)
     set(ARCH_TYPE "linux64")
 elseif (APPLE)
     set(ARCH_TYPE "osx64")
-    set(CMAKE_OSX_DEPLOYMENT_TARGET ${VERIFYPN_OSX_DEPLOYMENT_TARGET})
+    set(CMAKE_OSX_DEPLOYMENT_TARGET ${VERIFYDTAPN_OSX_DEPLOYMENT_TARGET})
 else ()
     set(ARCH_TYPE "win64")
 endif ()
@@ -85,8 +86,8 @@ if (VERIFYDTAPN_GetDependencies)
         GIT_TAG v0.0.1
 	    CMAKE_ARGS -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}  -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION} -DBUILD_TESTING=OFF -DCMAKE_BUILD_TYPE=Release -DFLEX_EXECUTABLE=${FLEX_EXECUTABLE} -DBISON_EXECUTABLE=${BISON_EXECUTABLE}
     )
+    link_directories(${EXTERNAL_INSTALL_LOCATION}/lib)
     include_directories(${EXTERNAL_INSTALL_LOCATION}/include)
-
 endif ()
 
 # Set Macros
@@ -98,7 +99,7 @@ include_directories(include)
 add_subdirectory(${CMAKE_SOURCE_DIR}/src/)
 
 # Testing
-#if (VERIFYTAPN_TEST)
+#if (VERIFYDTAPN_TEST)
 #    enable_testing()
 #    add_subdirectory(${CMAKE_SOURCE_DIR}/test)
 #endif()
