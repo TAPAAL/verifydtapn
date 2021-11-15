@@ -5,29 +5,25 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+    types: [synchronize, opened, reopened, ready_for_review]
   workflow_dispatch:  
 
-#env:
-#    BOOST_ROOT : "/usr/local/share/boost/1.69.0" 
-#    Boost_INCLUDE_DIR : "/usr/local/share/boost/1.69.0/libs/headers"
+concurrency: 
+  group: build-win-${{ github.head_ref }}
+  cancel-in-progress: true
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
   build:
-    # The type of runner that the job will run on
+    if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
     
     - name: Install depends
       run: |
         sudo apt-get update
-        sudo apt-get install flex bison libboost-all-dev libsparsehash-dev cmake build-essential
-        sudo apt-get install mingw-w64-x86-64-dev mingw-w64-tools g++-mingw-w64-x86-64 wine wine-binfmt
+        sudo apt-get install flex bison libboost-all-dev libsparsehash-dev mingw-w64-x86-64-dev mingw-w64-tools g++-mingw-w64-x86-64 wine wine-binfmt
     
     - name: Setup Dependency
       run: | 
@@ -40,8 +36,8 @@ jobs:
         export CC=x86_64-w64-mingw32-gcc
         export CXX=x86_64-w64-mingw32-g++
 
-        export PREFIX=$(mktemp -d -p .) #Or set it to path where libs are saved
-        export PREFIX=$(realpath $PREFIX)
+        mkdir -p EXT
+        export PREFIX="$(pwd)/EXT"
         
         BOOST=boost_1_72_0
         VER=${BOOST#boost_}
@@ -72,24 +68,16 @@ jobs:
         make install
 
         cd ..
-        
-        mkdir build-win && cd build-win
+
+    - name: Build
+      run: | 
+        export PREFIX="$(pwd)/EXT"
+        mkdir build && cd build
         cmake ../ -DCMAKE_TOOLCHAIN_FILE=../toolchain-x86_64-w64-mingw32.cmake -DBOOST_ROOT=$PREFIX
         CPATH=$PREFIX/include make
-    
-    #- name: Build 
-    #  uses: lukka/run-cmake@v3
-    #  with:
-    #    cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
-    #    cmakeAppendedArgs: >-
-    #      -DFLEX_EXECUTABLE=/usr/local/opt/flex/bin/flex 
-    #      -DBISON_EXECUTABLE=/usr/local/opt/bison/bin/bison
-    #    cmakeBuildType: Release
-    #    cmakeGenerator: UnixMakefiles
-    #    buildDirectory: '${{runner.workspace}}/build'     
     
     - name: Upload artifacts 
       uses: actions/upload-artifact@v2
       with:
         name: verifydtapn-win64
-        path: '${{runner.workspace}}/verifydtapn/build-win/bin/verifydtapn-win64.exe'
+        path: '${{runner.workspace}}/verifydtapn/build/bin/verifydtapn-win64.exe'
