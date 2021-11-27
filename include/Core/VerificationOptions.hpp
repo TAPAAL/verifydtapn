@@ -49,7 +49,6 @@ namespace VerifyTAPN {
                 WorkflowMode workflow,
                 long long workflowBound,
                 bool calculateCmax,
-                std::map<std::string, int> replace,
                 bool order,
                 std::string outputFile,
                 std::string outputQuery,
@@ -70,7 +69,6 @@ namespace VerifyTAPN {
             workflow(workflow),
             workflowBound(workflowBound),
             calculateCmax(calculateCmax),
-            replace(std::move(std::move(replace))),
             partialOrder(order),
             outputFile(outputFile),
             outputQuery(outputQuery),
@@ -185,10 +183,6 @@ namespace VerifyTAPN {
             return calculateCmax;
         };
 
-        inline const std::map<std::string, int> &getReplacements() const {
-            return replace;
-        }
-
         inline bool getPartialOrderReduction() const {
             return partialOrder;
         }
@@ -213,7 +207,6 @@ namespace VerifyTAPN {
         WorkflowMode workflow = NOT_WORKFLOW;
         long long workflowBound = 0;
         bool calculateCmax = false;
-        std::map<std::string, int> replace;
         bool partialOrder{};
         std::string outputFile;
         std::string outputQuery;

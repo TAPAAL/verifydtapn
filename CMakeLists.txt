@@ -69,9 +69,9 @@ if (VERIFYDTAPN_GetDependencies)
             INSTALL_COMMAND cd ../rapidxml-ext && ${CMAKE_COMMAND} -E copy rapidxml.hpp rapidxml_iterators.hpp rapidxml_print.hpp rapidxml_utils.hpp ${EXTERNAL_INSTALL_LOCATION}/include
             )
 
-    ExternalProject_add(unfoldtacpn-ext 
-        GIT_REPOSITORY https://github.com/TAPAAL/unfoldTACPN.git
-        GIT_TAG v0.0.1
+    ExternalProject_add(unfoldtacpn-ext
+        GIT_REPOSITORY /home/pgj/Devel/unfoldTACPN
+        GIT_TAG pre_game_cleanup
 	CMAKE_ARGS -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}  -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION} -DBUILD_TESTING=OFF -DCMAKE_BUILD_TYPE=Release -DFLEX_EXECUTABLE=${FLEX_EXECUTABLE} -DBISON_EXECUTABLE=${BISON_EXECUTABLE}
     )
     include_directories(${EXTERNAL_INSTALL_LOCATION}/include)

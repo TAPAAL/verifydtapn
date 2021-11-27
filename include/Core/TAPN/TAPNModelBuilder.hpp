@@ -2,82 +2,60 @@
 #define VERIFYTAPN_TAPNXMLPARSER_HPP_
 
 #include "Core/TAPN/TAPN.hpp"
-#include <rapidxml.hpp>
-#include <utility>
+#include <TAPNBuilderInterface.h>
+
 
 namespace VerifyTAPN {
     using namespace VerifyTAPN::TAPN;
 
 
-    class TAPNXmlParser {
-    private:
-        struct ArcCollections {
-            TimedInputArc::Vector inputArcs;
-            OutputArc::Vector outputArcs;
-            TransportArc::Vector transportArcs;
-            InhibitorArc::Vector inhibitorArcs;
-
-        public:
-            ArcCollections(TimedInputArc::Vector inputArcs, OutputArc::Vector outputArcs,
-                           TransportArc::Vector transportArcs, InhibitorArc::Vector inhibitorArcs)
-                    : inputArcs(std::move(inputArcs)), outputArcs(std::move(outputArcs)),
-                      transportArcs(std::move(transportArcs)),
-                      inhibitorArcs(std::move(inhibitorArcs)) {};
-        };
-
-    public: // construction
-        explicit TAPNXmlParser(const std::map<std::string, int> &replace) : replace(replace) {};
-
-        virtual ~TAPNXmlParser() { /* empty */ };
-
+    class TAPNModelBuilder : public unfoldtacpn::TAPNBuilderInterface {
     public:
-        TimedArcPetriNet *parse(const std::string &filename) const;
 
-        std::vector<int> parseMarking(const std::string &filename, const TimedArcPetriNet &tapn) const;
+        explicit TAPNModelBuilder() = default;
+
+        virtual ~TAPNModelBuilder() = default;
+
+        virtual void addPlace(const std::string& name,
+                int tokens,
+                bool strict,
+                int bound,
+                double x = 0,
+                double y = 0);
+
+        virtual void addTransition(const std::string &name, bool urgent,
+                                            double, double);
+
+        virtual void addInputArc(const std::string &place,
+                const std::string &transition,
+                bool inhibitor,
+                int weight,
+                bool lstrict, bool ustrict, int lower, int upper);
+
+        virtual void addOutputArc(const std::string& transition,
+                const std::string& place,
+                int weight);
+
+        virtual void addTransportArc(const std::string& source,
+                const std::string& transition,
+                const std::string& target, int weight,
+                bool lstrict, bool ustrict, int lower, int upper);
+
+        const std::vector<int>& initialMarking() const {
+            return _initialMarking;
+        }
 
     private:
-        TimedArcPetriNet *parseTAPN(const rapidxml::xml_node<> &root) const;
+        TimedPlace* find_place(const std::string& pid);
+        TimedTransition* find_transition(const std::string& tid);
 
-        TimedPlace::Vector parsePlaces(const rapidxml::xml_node<> &root) const;
-
-        TimedPlace *parsePlace(const rapidxml::xml_node<> &placeNode) const;
-
-        TimedTransition::Vector parseTransitions(const rapidxml::xml_node<> &root) const;
-
-        TimedTransition *parseTransition(const rapidxml::xml_node<> &transitionNode) const;
-
-        ArcCollections parseArcs(const rapidxml::xml_node<> &root, const TimedPlace::Vector &places,
-                                 const TimedTransition::Vector &transitions) const;
-
-        TransportArc::Vector parseTransportArcs(const rapidxml::xml_node<> &root, const TimedPlace::Vector &places,
-                                                const TimedTransition::Vector &transitions) const;
-
-        InhibitorArc::Vector parseInhibitorArcs(const rapidxml::xml_node<> &root, const TimedPlace::Vector &places,
-                                                const TimedTransition::Vector &transitions) const;
-
-        TimedInputArc::Vector parseInputArcs(const rapidxml::xml_node<> &root, const TimedPlace::Vector &places,
-                                             const TimedTransition::Vector &transitions) const;
-
-        OutputArc::Vector parseOutputArcs(const rapidxml::xml_node<> &root, const TimedPlace::Vector &places,
-                                          const TimedTransition::Vector &transitions) const;
-
-        TimedInputArc *parseInputArc(const rapidxml::xml_node<> &arcNode, const TimedPlace::Vector &places,
-                                     const TimedTransition::Vector &transitions) const;
-
-        InhibitorArc *parseInhibitorArc(const rapidxml::xml_node<> &arcNode, const TimedPlace::Vector &places,
-                                        const TimedTransition::Vector &transitions) const;
-
-        TransportArc *parseTransportArc(const rapidxml::xml_node<> &arcNode, const TimedPlace::Vector &places,
-                                        const TimedTransition::Vector &transitions) const;
-
-        OutputArc *parseOutputArc(const rapidxml::xml_node<> &arcNode, const TimedPlace::Vector &places,
-                                  const TimedTransition::Vector &transitions) const;
-
-        std::vector<int> parseInitialMarking(const rapidxml::xml_node<> &root, const TimedArcPetriNet &tapn) const;
-
-        int getWeight(rapidxml::xml_attribute<char> *attribute) const;
-
-        const std::map<std::string, int> &replace;
+        std::vector<TimedPlace*> _places;
+        std::vector<TimedTransition*> _transitions;
+        TimedInputArc::Vector _inputArcs;
+        OutputArc::Vector _outputArcs;
+        TransportArc::Vector _transportArcs;
+        InhibitorArc::Vector _inhibitorArcs;
+        std::vector<int> _initialMarking;
     };
 }
 

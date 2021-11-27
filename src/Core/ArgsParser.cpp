@@ -79,7 +79,7 @@ namespace VerifyTAPN {
         } else {
             s << " a1,a2,.. (=" << default_value << ")";
         }
-        
+
         out << std::setw(WIDTH) << std::left << s.str();
         PrintIndentedDescription(out, getDescription());
     }
@@ -446,48 +446,6 @@ namespace VerifyTAPN {
         return result;
     }
 
-    std::map<std::string, int> ArgsParser::parseReplace(const option &option) const {
-        std::map<std::string, int> replace;
-        const std::string param = option.second;
-
-        size_t split = 0;
-        do {
-            size_t equal = param.find('=', split);
-            if (equal != std::string::npos) {
-                std::string name = param.substr(split, equal - split);
-                std::string val;
-                split = param.find(':', equal);
-                ++equal;
-                if (split == std::string::npos)
-                    val = param.substr(equal, param.size() - equal);
-                else
-                    val = param.substr(equal, split - equal);
-
-                try {
-                    int res = boost::lexical_cast<unsigned long long>(val);
-                    replace[name] = res;
-                } catch (boost::bad_lexical_cast &e) {
-                    std::cout << "Invalid value '" << option.second << "' for option '--"
-                              << option.first << "'" << std::endl;
-                   std::exit(1);
-                }
-                if (split >= param.size()) break;
-                ++split;
-            } else {
-                break;
-            }
-
-        } while (split != std::string::npos);
-        return replace;
-    }
-
-    std::vector<std::string> ArgsParser::parseIncPlaces(
-            const std::string &string) const {
-        std::vector<std::string> vec;
-        boost::split(vec, string, boost::is_any_of(","));
-        return vec;
-    }
-
     VerificationOptions ArgsParser::createVerificationOptions(const option_map &map) const {
         assert(map.find(KBOUND_OPTION) != map.end());
         unsigned int kbound = tryParseInt(*map.find(KBOUND_OPTION));
@@ -529,8 +487,6 @@ namespace VerifyTAPN {
         bool calculateCmax = boost::lexical_cast<bool>(
                 map.find(CALCULATE_CMAX)->second);
 
-        std::map<std::string, int> replace = parseReplace(*map.find(REPLACE));
-
         assert(map.find(GCD) != map.end());
         bool enableGCDLowerGuards = boost::lexical_cast<bool>(
                 map.find(GCD)->second);
@@ -548,6 +504,6 @@ namespace VerifyTAPN {
 
         return VerificationOptions(search, verification, memoptimization, kbound, trace,
                                    xml_trace, max_constant, keep_dead, enableGCDLowerGuards, workflow,
-                                   workflowBound, calculateCmax, replace, !order, outputFile, outputQuery, outputXMLQuery, querynumbers, output);
+                                   workflowBound, calculateCmax, !order, outputFile, outputQuery, outputXMLQuery, querynumbers, output);
     }
 }

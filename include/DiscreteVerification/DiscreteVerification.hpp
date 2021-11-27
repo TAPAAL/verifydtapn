@@ -22,7 +22,6 @@
 #include "Core/TAPN/TAPN.hpp"
 #include "Core/QueryParser/AST.hpp"
 #include "Core/VerificationOptions.hpp"
-#include "Core/TAPNParser/util.hpp"
 
 #include <rapidxml.hpp>
 #include <rapidxml_print.hpp>

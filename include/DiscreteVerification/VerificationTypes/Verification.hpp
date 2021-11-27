@@ -4,7 +4,6 @@
 #include "DiscreteVerification/DataStructures/NonStrictMarking.hpp"
 #include "../DeadlockVisitor.hpp"
 
-#include "Core/TAPNParser/util.hpp"
 #include "Core/TAPN/TimedPlace.hpp"
 
 #include <stack>
@@ -246,8 +245,9 @@ namespace VerifyTAPN { namespace DiscreteVerification {
 
                             foundLoop = true;
                             delayloop = true;
+                            auto str = std::to_string(i * tapn.getGCD());
                             xml_node<> *node = doc.allocate_node(node_element, "delay", doc.allocate_string(
-                                    toString(i * tapn.getGCD()).c_str()));
+                                    str.c_str()));
                             root->append_node(node);
                             root->append_node(doc.allocate_node(node_element, "loop"));
 
@@ -297,8 +297,9 @@ namespace VerifyTAPN { namespace DiscreteVerification {
                         }
                     }
                     if (i > 0) {
+                        auto str = std::to_string(i * tapn.getGCD());
                         xml_node<> *node = doc.allocate_node(node_element, "delay", doc.allocate_string(
-                                toString(i * tapn.getGCD()).c_str()));
+                                str.c_str()));
                         root->append_node(node);
                     }
                     stack.push(old);
@@ -428,8 +429,9 @@ namespace VerifyTAPN { namespace DiscreteVerification {
         xml_attribute<> *placeAttribute = doc.allocate_attribute("place",
                                                                  doc.allocate_string(place.getName().c_str()));
         tokenNode->append_attribute(placeAttribute);
+        auto str = std::to_string(token.getAge() * tapn.getGCD());
         xml_attribute<> *ageAttribute = doc.allocate_attribute("age", doc.allocate_string(
-                toString(token.getAge() * tapn.getGCD()).c_str()));
+                str.c_str()));
         tokenNode->append_attribute(ageAttribute);
         if (place.getMaxConstant() < token.getAge()) {
             xml_attribute<> *gtAttribute = doc.allocate_attribute("greaterThanOrEqual",
