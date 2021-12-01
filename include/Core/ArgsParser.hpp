@@ -104,7 +104,7 @@ namespace VerifyTAPN {
     class ArgsParser {
         typedef std::vector<Switch *> parser_vec;
     public:
-        ArgsParser() : parsers(), version(3, 4, 1) { initialize(); };
+        ArgsParser() : parsers(), version(3, 5, 0) { initialize(); };
 
         virtual ~ArgsParser() { for (auto p : parsers) delete p; };
 
