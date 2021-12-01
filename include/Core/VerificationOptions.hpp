@@ -52,7 +52,6 @@ namespace VerifyTAPN {
                 bool order,
                 std::string outputFile,
                 std::string outputQuery,
-                std::string outputXMLQuery,
                 std::set<size_t> querynumbers,
                 std::string strategy_output
         ) : inputFile(""),
@@ -72,7 +71,6 @@ namespace VerifyTAPN {
             partialOrder(order),
             outputFile(outputFile),
             outputQuery(outputQuery),
-            outputXMLQuery(outputXMLQuery),
             querynumbers(querynumbers),
             strategy_output(std::move(strategy_output)) {
         };
@@ -113,14 +111,6 @@ namespace VerifyTAPN {
 
         void setOutputQueryFile(std::string input) {
             outputQuery = std::move(input);
-        }
-
-        const std::string& getOutputXMLQueryFile() const {
-            return outputXMLQuery;
-        }
-
-        void setOutputXMLQueryFile(std::string input) {
-            outputXMLQuery = std::move(input);
         }
 
         inline unsigned int getKBound() const {
@@ -210,7 +200,6 @@ namespace VerifyTAPN {
         bool partialOrder{};
         std::string outputFile;
         std::string outputQuery;
-        std::string outputXMLQuery;
         std::set<size_t> querynumbers;
         std::string strategy_output = "";
     };

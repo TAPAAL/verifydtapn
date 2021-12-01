@@ -20,11 +20,9 @@ namespace VerifyTAPN {
     static const std::string WORKFLOW = "workflow";
     static const std::string STRONG_WORKFLOW_BOUND = "strong-workflow-bound";
     static const std::string CALCULATE_CMAX = "calculate-cmax";
-    static const std::string REPLACE = "replace";
     static const std::string ORDER = "partial-order";
     static const std::string OUTPUTFILE = "write-file";
     static const std::string OUTPUTQUERY = "write-query";
-    static const std::string OUTPUTXMLQUERY = "write-query-xml";
     static const std::string XML_QUERY_NUMBERS = "query-numbers";
     static const std::string STRATEGY_OUT = "strategy-output";
 
@@ -187,20 +185,14 @@ namespace VerifyTAPN {
                 new Switch("n", CALCULATE_CMAX,
                            "Calculate the place bounds"));
         parsers.push_back(
-                new SwitchWithStringArg("r", REPLACE,
-                                        "Replace placeholder in model with value, format PLACEHOLDER=VALUE;..", ""));
-        parsers.push_back(
                 new Switch("i", ORDER,
                            "Disable partial order reduction"));
         parsers.push_back(
                 new SwitchWithStringArg("f", OUTPUTFILE,
-                                        "Write the model to a pnml file (Used for Colored Models)", ""));
+                                        "Write the model to a pnml file", ""));
         parsers.push_back(
                 new SwitchWithStringArg("q", OUTPUTQUERY,
-                                        "Write the query to a file (Used for Colored Models)", ""));
-        parsers.push_back(
-                new SwitchWithStringArg("q-xml", OUTPUTXMLQUERY,
-                                        "Write the queries to a file in xml format (Used for Colored Models)", ""));
+                                        "Write the queries to a file in xml format", ""));
 
         parsers.push_back(
             new SwitchWithStringArg("q-num", XML_QUERY_NUMBERS, "Parse XML query file and unfold queries of the provided indexs.\nOnly the lowest index query will be verified. (Required for XML queries)", "")
@@ -496,7 +488,6 @@ namespace VerifyTAPN {
 
         std::string outputFile = map.find(OUTPUTFILE)->second;
         std::string outputQuery = map.find(OUTPUTQUERY)->second;
-        std::string outputXMLQuery = map.find(OUTPUTXMLQUERY)->second;
 
         std::set<size_t> querynumbers = extractValues(*map.find(XML_QUERY_NUMBERS));
 
@@ -504,6 +495,6 @@ namespace VerifyTAPN {
 
         return VerificationOptions(search, verification, memoptimization, kbound, trace,
                                    xml_trace, max_constant, keep_dead, enableGCDLowerGuards, workflow,
-                                   workflowBound, calculateCmax, !order, outputFile, outputQuery, outputXMLQuery, querynumbers, output);
+                                   workflowBound, calculateCmax, !order, outputFile, outputQuery, querynumbers, output);
     }
 }
