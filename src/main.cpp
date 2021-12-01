@@ -19,6 +19,12 @@ int main(int argc, char *argv[]) {
     VerificationOptions options = parser.parse(argc, argv);
     unfoldtacpn::ColoredPetriNetBuilder builder;
     auto [initialPlacement, tapn] = parse_net_file(builder, options.getInputFile());
+    if(!options.getOutputModelFile().empty())
+    {
+        std::fstream of(options.getOutputModelFile(), std::ios::out);
+        tapn->toTAPNXML(of, initialPlacement);
+        of.close();
+    }
 
     tapn->initialize(options.getGlobalMaxConstantsEnabled(), options.getGCDLowerGuardsEnabled());
 

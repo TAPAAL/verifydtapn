@@ -90,6 +90,9 @@ namespace TAPN {
 
         void GCDLowerGuards();
 
+        void toTAPNXML(std::ostream& out, const std::vector<int>& initial) const;
+
+
 
     private: // modifiers
 
@@ -111,6 +114,7 @@ namespace TAPN {
         int maxConstant = 0;
         int gcd = 1;
     };
+
 
     inline std::ostream &operator<<(std::ostream &out, const VerifyTAPN::TAPN::TimedArcPetriNet &tapn) {
         tapn.print(out);

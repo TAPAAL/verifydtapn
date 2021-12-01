@@ -338,6 +338,67 @@ namespace TAPN {
         out << std::endl;
     }
 
+    void TimedArcPetriNet::toTAPNXML(std::ostream& out, const std::vector<int>& initial) const
+    {
+        out << R"(<pnml><net id="ComposedModel" type="P/T net">\n)";
+        out << "TAPN:" << std::endl << "  Places: ";
+        for (auto* place : places) {
+            auto& inv = place->getInvariant();
+            out << "<place id=\"" << place->getName() << "\" name=\"" << place->getName()
+                << "\" invariant=\"";
+            if(inv.isBoundStrict())
+            {
+                if(inv.getBound() == std::numeric_limits<int>::max())
+                    out << "&lt; inf";
+                else
+                    out << "&lt;" << inv.getBound();
+            }
+            else
+            {
+                out << "&lt;=" << inv.getBound();
+            }
+            out << "\" initialMarking=\"" << initial[place->getIndex()] << "\">";
+            out << "</place>\n";
+        }
+
+        for (auto* transition : transitions) {
+            out << "<transition player=\"" << (transition->isControllable() ? 0 : 1)
+                << "\" id=\"" << transition->getName() << "\" name=\"" << transition->getName()
+                << "\" urgent=\"" << std::boolalpha << transition->isUrgent() << "\">";
+
+            out << "</transition>\n";
+        }
+
+        for(auto* ia : inputArcs)
+        {
+            out << "<inputArc inscription=\"" << ia->getInterval() << "\" weight=\"" << ia->getWeight()
+                << "\" source=\"" << ia->getInputPlace().getName() << "\" target=\"" << ia->getOutputTransition().getName() << "\" />\n";
+        }
+
+        for(auto* oa : outputArcs)
+        {
+            out << "<outputArc weight=\"" << oa->getWeight()
+                << "\" target=\"" << oa->getOutputPlace().getName()
+                << "\" source=\"" << oa->getInputTransition().getName() << "\" />\n";
+        }
+
+        for(auto* ia : inhibitorArcs)
+        {
+            out << "<inhibitorArc weight=\"" << ia->getWeight()
+                << "\" source=\"" << ia->getInputPlace().getName()
+                << "\" target=\"" << ia->getOutputTransition().getName() << "\" />\n";
+        }
+
+        for (auto* ta : transportArcs) {
+            out << "<transportArc inscription=\"" << ta->getInterval() << "\" "
+                << "source=\"" << ta->getSource().getName() << "\" "
+                << "transition=\"" << ta->getTransition().getName() << "\" "
+                << "target=\"" << ta->getDestination().getName() << " weight=\"" << ta->getWeight() << "\"/>\n";
+        }
+
+        out << "</net></pnml>\n";
+    }
+
     bool TimedArcPetriNet::isNonStrict() const {
 
         for (auto* inputArc : inputArcs) {
