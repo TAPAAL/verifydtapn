@@ -35,7 +35,7 @@ namespace VerifyTAPN {
         if(inhibitor)
         {
             if(lstrict != false ||
-               ustrict != false ||
+               ustrict != true ||
                lower != 0 ||
                upper != std::numeric_limits<typeof(upper)>::max())
             {
