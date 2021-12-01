@@ -15,7 +15,8 @@ using namespace VerifyTAPN::TAPN;
 
 namespace VerifyTAPN {
 
-    std::unique_ptr<AST::Query> parse_queries(const VerificationOptions& options, const unfoldtacpn::ColoredPetriNetBuilder& builder) {
+    std::unique_ptr<AST::Query> parse_queries(const VerificationOptions& options,
+        const unfoldtacpn::ColoredPetriNetBuilder& builder, const TimedArcPetriNet& net) {
         try {
             auto& queryFile = options.getQueryFile();
             std::ifstream qfile(queryFile);
@@ -47,7 +48,7 @@ namespace VerifyTAPN {
                     std::fstream of(options.getOutputQueryFile(), std::ios::out);
                     unfoldtacpn::PQL::to_xml(of, ast_queries);
                 }
-                return std::unique_ptr<Query>(AST::toAST(ast_queries[0].first));
+                return std::unique_ptr<Query>(AST::toAST(ast_queries[0].first, net));
             }
 
         } catch (...) {
@@ -73,7 +74,7 @@ namespace VerifyTAPN {
         return build_net(builder);
     }
 
-    std::unique_ptr<AST::Query> make_query(const unfoldtacpn::ColoredPetriNetBuilder& builder, VerificationOptions& options) {
+    std::unique_ptr<AST::Query> make_query(const unfoldtacpn::ColoredPetriNetBuilder& builder, VerificationOptions& options, const TimedArcPetriNet& net) {
         std::unique_ptr<Query> query;
         if (options.getWorkflowMode() == VerificationOptions::WORKFLOW_SOUNDNESS ||
             options.getWorkflowMode() == VerificationOptions::WORKFLOW_STRONG_SOUNDNESS) {
@@ -100,7 +101,7 @@ namespace VerifyTAPN {
             }
 
         } else {
-            query = parse_queries(options, builder);
+            query = parse_queries(options, builder, net);
 
             if (options.getTrace() != VerificationOptions::NO_TRACE &&
                 (query->getQuantifier() == AST::CF || query->getQuantifier() == AST::CG)) {

@@ -9,6 +9,10 @@
 #include <iostream>
 
 namespace VerifyTAPN {
+    namespace TAPN {
+        class TimedArcPetriNet;
+    }
+
     namespace AST {
 
         class Visitable {
@@ -493,7 +497,7 @@ namespace VerifyTAPN {
             Expression *expr;
         };
 
-        Query* toAST(const unfoldtacpn::PQL::Condition_ptr& ptr);
+        std::unique_ptr<Query> toAST(const unfoldtacpn::PQL::Condition_ptr& ptr, const TAPN::TimedArcPetriNet& tapn);
 
     }
 }

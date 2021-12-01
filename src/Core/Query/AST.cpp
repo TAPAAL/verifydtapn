@@ -1,4 +1,5 @@
 #include "Core/Query/AST.hpp"
+#include "Core/Query/TranslationVisitor.h"
 #include <cassert>
 
 namespace VerifyTAPN {
@@ -125,8 +126,9 @@ namespace VerifyTAPN {
             }
         }
 
-        Query* toAST(const unfoldtacpn::PQL::Condition_ptr& ptr) {
-            return nullptr;
+        std::unique_ptr<Query> toAST(const unfoldtacpn::PQL::Condition_ptr& ptr, const TAPN::TimedArcPetriNet& tapn) {
+            TranslationVisitor v(tapn);
+            return v.translate(*ptr);
         }
     }
 }

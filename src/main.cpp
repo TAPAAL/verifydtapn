@@ -33,7 +33,7 @@ int main(int argc, char *argv[]) {
     }
 
 
-    std::unique_ptr<AST::Query> query = make_query(builder, options);
+    std::unique_ptr<AST::Query> query = make_query(builder, options, *tapn);
 
     if (tapn->containsOrphanTransitions()) {
         std::cout << "The model contains orphan transitions. This is not supported by the engine." << std::endl;
