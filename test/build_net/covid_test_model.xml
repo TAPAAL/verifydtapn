@@ -1,0 +1,210 @@
+<pnml>
+<net id="ComposedModel" type="P/T net">
+<place id="Shared_corridorEntry2" name="Shared_corridorEntry2" invariant="&lt;= 1" initialMarking="0" >
+<graphics><position x="690" y="555" /></graphics></place>
+<place id="Shared_corridorEntry1" name="Shared_corridorEntry1" invariant="&lt;= 1" initialMarking="0" >
+<graphics><position x="690" y="270" /></graphics></place>
+<place id="Shared_time" name="Shared_time" invariant="&lt;= 900" initialMarking="1" >
+<graphics><position x="255" y="645" /></graphics></place>
+<place id="Shared_corridorExit1" name="Shared_corridorExit1" invariant="&lt;= 1" initialMarking="0" >
+<graphics><position x="1680" y="270" /></graphics></place>
+<place id="Shared_corridorExit2" name="Shared_corridorExit2" invariant="&lt;= 1" initialMarking="0" >
+<graphics><position x="1680" y="555" /></graphics></place>
+<place id="corridor_P1" name="corridor_P1" invariant="&lt;= 1" initialMarking="0" >
+<graphics><position x="1065" y="270" /></graphics></place>
+<place id="corridor_P3" name="corridor_P3" invariant="&lt;= 1" initialMarking="0" >
+<graphics><position x="1065" y="555" /></graphics></place>
+<place id="corridor_infected" name="corridor_infected" invariant="&lt; inf" initialMarking="0" >
+<graphics><position x="915" y="795" /></graphics></place>
+<place id="corridor_P11" name="corridor_P11" invariant="&lt;= 1" initialMarking="0" >
+<graphics><position x="1410" y="270" /></graphics></place>
+<place id="corridor_P12" name="corridor_P12" invariant="&lt;= 1" initialMarking="0" >
+<graphics><position x="1410" y="555" /></graphics></place>
+<place id="lobby1_P2" name="lobby1_P2" invariant="&lt;= 1" initialMarking="0" >
+<graphics><position x="690" y="180" /></graphics></place>
+<place id="lobby1_P3" name="lobby1_P3" invariant="&lt;= 1" initialMarking="0" >
+<graphics><position x="1065" y="555" /></graphics></place>
+<place id="lobby1_P4" name="lobby1_P4" invariant="&lt;= 1" initialMarking="0" >
+<graphics><position x="1155" y="180" /></graphics></place>
+<place id="lobby1_P5" name="lobby1_P5" invariant="&lt;= 1" initialMarking="0" >
+<graphics><position x="690" y="405" /></graphics></place>
+<place id="lobby1_P6" name="lobby1_P6" invariant="&lt;= 1" initialMarking="0" >
+<graphics><position x="960" y="405" /></graphics></place>
+<place id="lobby1_P7" name="lobby1_P7" invariant="&lt;= 1" initialMarking="0" >
+<graphics><position x="1155" y="390" /></graphics></place>
+<place id="lobby1_P8" name="lobby1_P8" invariant="&lt;= 1" initialMarking="0" >
+<graphics><position x="690" y="645" /></graphics></place>
+<place id="lobby1_P9" name="lobby1_P9" invariant="&lt;= 1" initialMarking="0" >
+<graphics><position x="960" y="645" /></graphics></place>
+<place id="lobby1_P10" name="lobby1_P10" invariant="&lt;= 1" initialMarking="0" >
+<graphics><position x="1155" y="645" /></graphics></place>
+<place id="lobby1_class1Exit" name="lobby1_class1Exit" invariant="&lt; inf" initialMarking="5">
+<graphics><position x="390" y="420" /></graphics></place>
+<place id="lobby1_P11" name="lobby1_P11" invariant="&lt; inf" initialMarking="0" >
+<graphics><position x="1410" y="270" /></graphics></place>
+<place id="lobby1_P12" name="lobby1_P12" invariant="&lt; inf" initialMarking="0" >
+<graphics><position x="1410" y="555" /></graphics></place>
+<place id="lobby1_P13" name="lobby1_P13" invariant="&lt;= 400" initialMarking="1" >
+<graphics><position x="1410" y="645" /></graphics></place>
+<place id="lobby1_P14" name="lobby1_P14" invariant="&lt; inf" initialMarking="0" >
+<graphics><position x="1695" y="645" /></graphics></place>
+<place id="lobby2_class2Entry" name="lobby2_class2Entry" invariant="&lt; inf" initialMarking="0" >
+<graphics><position x="735" y="345" /></graphics></place>
+<place id="lobby2_timeup" name="lobby2_timeup" invariant="&lt; inf" initialMarking="0" >
+<graphics><position x="510" y="600" /></graphics></place>
+<transition player="0" id="corridor_T0" name="corridor_T0" urgent="false">
+<graphics><position x="690" y="390" /></graphics></transition>
+<transition player="0" id="corridor_T1" name="corridor_T1" urgent="false">
+<graphics><position x="885" y="555" /></graphics></transition>
+<transition player="0" id="corridor_T2" name="corridor_T2" urgent="false">
+<graphics><position x="885" y="270" /></graphics></transition>
+<transition player="0" id="corridor_T3" name="corridor_T3" urgent="false">
+<graphics><position x="1065" y="405" /></graphics></transition>
+<transition player="0" id="corridor_T4" name="corridor_T4" urgent="false">
+<graphics><position x="1230" y="270" /></graphics></transition>
+<transition player="0" id="corridor_T5" name="corridor_T5" urgent="false">
+<graphics><position x="1245" y="555" /></graphics></transition>
+<transition player="0" id="corridor_T6" name="corridor_T6" urgent="false">
+<graphics><position x="1680" y="405" /></graphics></transition>
+<transition player="1" id="corridor_T8" name="corridor_T8" urgent="true">
+<graphics><position x="990" y="660" /></graphics></transition>
+<transition player="1" id="corridor_T11" name="corridor_T11" urgent="true">
+<graphics><position x="1245" y="405" /></graphics></transition>
+<transition player="0" id="corridor_T13" name="corridor_T13" urgent="false">
+<graphics><position x="1530" y="270" /></graphics></transition>
+<transition player="0" id="corridor_T14" name="corridor_T14" urgent="false">
+<graphics><position x="1530" y="555" /></graphics></transition>
+<transition player="0" id="corridor_T16" name="corridor_T16" urgent="false">
+<graphics><position x="1410" y="405" /></graphics></transition>
+<transition player="0" id="lobby1_T0" name="lobby1_T0" urgent="false">
+<graphics><position x="690" y="390" /></graphics></transition>
+<transition player="0" id="lobby1_T1" name="lobby1_T1" urgent="false">
+<graphics><position x="885" y="555" /></graphics></transition>
+<transition player="0" id="lobby1_T2" name="lobby1_T2" urgent="false">
+<graphics><position x="885" y="270" /></graphics></transition>
+<transition player="0" id="lobby1_T3" name="lobby1_T3" urgent="false">
+<graphics><position x="1065" y="405" /></graphics></transition>
+<transition player="0" id="lobby1_T4" name="lobby1_T4" urgent="false">
+<graphics><position x="1230" y="270" /></graphics></transition>
+<transition player="0" id="lobby1_T5" name="lobby1_T5" urgent="false">
+<graphics><position x="1245" y="555" /></graphics></transition>
+<transition player="0" id="lobby1_T6" name="lobby1_T6" urgent="false">
+<graphics><position x="1680" y="405" /></graphics></transition>
+<transition player="0" id="lobby1_T7" name="lobby1_T7" urgent="false">
+<graphics><position x="1065" y="390" /></graphics></transition>
+<transition player="0" id="lobby1_T8" name="lobby1_T8" urgent="false">
+<graphics><position x="990" y="660" /></graphics></transition>
+<transition player="0" id="lobby1_T9" name="lobby1_T9" urgent="false">
+<graphics><position x="1260" y="570" /></graphics></transition>
+<transition player="0" id="lobby1_T10" name="lobby1_T10" urgent="false">
+<graphics><position x="1260" y="435" /></graphics></transition>
+<transition player="0" id="lobby1_T11" name="lobby1_T11" urgent="false">
+<graphics><position x="1245" y="405" /></graphics></transition>
+<transition player="0" id="lobby1_T12" name="lobby1_T12" urgent="false">
+<graphics><position x="1260" y="345" /></graphics></transition>
+<transition player="0" id="lobby1_T13" name="lobby1_T13" urgent="false">
+<graphics><position x="1530" y="270" /></graphics></transition>
+<transition player="0" id="lobby1_T14" name="lobby1_T14" urgent="false">
+<graphics><position x="1530" y="555" /></graphics></transition>
+<transition player="0" id="lobby1_T15" name="lobby1_T15" urgent="false">
+<graphics><position x="960" y="510" /></graphics></transition>
+<transition player="0" id="lobby1_T16" name="lobby1_T16" urgent="false">
+<graphics><position x="1410" y="405" /></graphics></transition>
+<transition player="0" id="lobby1_T17" name="lobby1_T17" urgent="false">
+<graphics><position x="1155" y="285" /></graphics></transition>
+<transition player="0" id="lobby1_T18" name="lobby1_T18" urgent="false">
+<graphics><position x="1155" y="510" /></graphics></transition>
+<transition player="0" id="lobby1_T19" name="lobby1_T19" urgent="false">
+<graphics><position x="1560" y="270" /></graphics></transition>
+<transition player="0" id="lobby1_T20" name="lobby1_T20" urgent="false">
+<graphics><position x="1545" y="495" /></graphics></transition>
+<transition player="0" id="lobby1_T21" name="lobby1_T21" urgent="false">
+<graphics><position x="1560" y="645" /></graphics></transition>
+<transition player="0" id="lobby2_T0" name="lobby2_T0" urgent="false">
+<graphics><position x="690" y="390" /></graphics></transition>
+<transition player="0" id="lobby2_T1" name="lobby2_T1" urgent="false">
+<graphics><position x="885" y="555" /></graphics></transition>
+<transition player="0" id="lobby2_T2" name="lobby2_T2" urgent="false">
+<graphics><position x="885" y="270" /></graphics></transition>
+<inputArc inscription="[1,1]" source="Shared_corridorEntry1" target="corridor_T2" />
+<inputArc inscription="[1,1]" source="corridor_P1" target="corridor_T4" />
+<inputArc inscription="[1,1]" source="Shared_corridorExit1" target="corridor_T6" />
+<inputArc inscription="[1,1]" source="corridor_P3" target="corridor_T5" />
+<inputArc inscription="[1,1]" source="corridor_P1" target="corridor_T3" />
+<inputArc inscription="[1,1]" source="Shared_corridorEntry2" target="corridor_T1" />
+<inputArc inscription="[1,1]" source="Shared_corridorEntry1" target="corridor_T0" />
+<inputArc inscription="[0,inf)" source="corridor_P3" target="corridor_T8" weight="2"/>
+<inputArc inscription="[1,1]" source="corridor_P11" target="corridor_T13" />
+<inputArc inscription="[1,1]" source="corridor_P12" target="corridor_T14" />
+<inputArc inscription="[0,inf)" source="corridor_P11" target="corridor_T16" />
+<inputArc inscription="[0,inf)" source="corridor_P11" target="corridor_T11" weight="2"/>
+<inputArc inscription="[1,1]" source="lobby1_class1Exit" target="lobby1_T1" />
+<inputArc inscription="[1,1]" source="lobby1_class1Exit" target="lobby1_T0" />
+<inputArc inscription="[1,1]" source="lobby1_class1Exit" target="lobby1_T2" />
+<inputArc inscription="[1,1]" source="lobby1_P2" target="lobby1_T5" />
+<inputArc inscription="[1,1]" source="lobby1_P2" target="lobby1_T13" />
+<inputArc inscription="[1,1]" source="lobby1_P5" target="lobby1_T14" />
+<inputArc inscription="[1,1]" source="lobby1_P5" target="lobby1_T4" />
+<inputArc inscription="[1,1]" source="lobby1_P3" target="lobby1_T16" />
+<inputArc inscription="[1,1]" source="lobby1_P8" target="lobby1_T3" />
+<inputArc inscription="[1,1]" source="lobby1_P9" target="lobby1_T15" />
+<inputArc inscription="[1,1]" source="lobby1_P9" target="lobby1_T8" />
+<inputArc inscription="[1,1]" source="lobby1_P10" target="lobby1_T9" />
+<inputArc inscription="[1,1]" source="lobby1_P7" target="lobby1_T10" />
+<inputArc inscription="[1,1]" source="lobby1_P7" target="lobby1_T12" />
+<inputArc inscription="[1,1]" source="lobby1_P4" target="lobby1_T17" />
+<inputArc inscription="[1,1]" source="lobby1_P4" target="lobby1_T11" />
+<inputArc inscription="[1,1]" source="lobby1_P10" target="lobby1_T18" />
+<inputArc inscription="[1,1]" source="lobby1_P3" target="lobby1_T6" />
+<inputArc inscription="[1,1]" source="lobby1_P6" target="lobby1_T7" />
+<inputArc inscription="[0,inf)" source="lobby1_P11" target="lobby1_T19" />
+<inputArc inscription="[0,inf)" source="lobby1_P12" target="lobby1_T20" />
+<inputArc inscription="[400,inf)" source="lobby1_P13" target="lobby1_T21" />
+<inputArc inscription="[1,1]" source="Shared_corridorExit1" target="lobby2_T0" />
+<inputArc inscription="[1,1]" source="Shared_corridorExit2" target="lobby2_T1" />
+<inputArc inscription="[900,900]" source="Shared_time" target="lobby2_T2" />
+<outputArc inscription="1" source="corridor_T2" target="corridor_P1" />
+<outputArc inscription="1" source="corridor_T6" target="Shared_corridorExit2" />
+<outputArc inscription="1" source="corridor_T3" target="corridor_P3" />
+<outputArc inscription="1" source="corridor_T1" target="corridor_P3" />
+<outputArc inscription="1" source="corridor_T0" target="Shared_corridorEntry2" />
+<outputArc inscription="1" source="corridor_T8" target="corridor_infected" weight="2"/>
+<outputArc inscription="1" source="corridor_T11" target="corridor_infected" weight="2"/>
+<outputArc inscription="1" source="corridor_T4" target="corridor_P11" />
+<outputArc inscription="1" source="corridor_T13" target="Shared_corridorExit1" />
+<outputArc inscription="1" source="corridor_T5" target="corridor_P12" />
+<outputArc inscription="1" source="corridor_T14" target="Shared_corridorExit2" />
+<outputArc inscription="1" source="corridor_T16" target="corridor_P12" />
+<outputArc inscription="1" source="corridor_T8" target="Shared_corridorExit2" weight="2"/>
+<outputArc inscription="1" source="corridor_T11" target="Shared_corridorExit1" weight="2"/>
+<outputArc inscription="1" source="lobby1_T1" target="lobby1_P2" />
+<outputArc inscription="1" source="lobby1_T0" target="lobby1_P5" />
+<outputArc inscription="1" source="lobby1_T2" target="lobby1_P8" />
+<outputArc inscription="1" source="lobby1_T13" target="lobby1_P5" />
+<outputArc inscription="1" source="lobby1_T14" target="lobby1_P8" />
+<outputArc inscription="1" source="lobby1_T4" target="lobby1_P6" />
+<outputArc inscription="1" source="lobby1_T5" target="lobby1_P3" />
+<outputArc inscription="1" source="lobby1_T16" target="lobby1_P6" />
+<outputArc inscription="1" source="lobby1_T3" target="lobby1_P9" />
+<outputArc inscription="1" source="lobby1_T15" target="lobby1_P6" />
+<outputArc inscription="1" source="lobby1_T8" target="lobby1_P10" />
+<outputArc inscription="1" source="lobby1_T17" target="lobby1_P7" />
+<outputArc inscription="1" source="lobby1_T18" target="lobby1_P7" />
+<outputArc inscription="1" source="lobby1_T6" target="lobby1_P4" />
+<outputArc inscription="1" source="lobby1_T7" target="lobby1_P7" />
+<outputArc inscription="1" source="lobby1_T19" target="Shared_corridorEntry1" />
+<outputArc inscription="1" source="lobby1_T20" target="Shared_corridorEntry2" />
+<outputArc inscription="1" source="lobby1_T11" target="lobby1_P11" />
+<outputArc inscription="1" source="lobby1_T12" target="lobby1_P11" />
+<outputArc inscription="1" source="lobby1_T10" target="lobby1_P12" />
+<outputArc inscription="1" source="lobby1_T9" target="lobby1_P12" />
+<outputArc inscription="1" source="lobby1_T21" target="lobby1_P14" />
+<outputArc inscription="1" source="lobby2_T0" target="lobby2_class2Entry" />
+<outputArc inscription="1" source="lobby2_T1" target="lobby2_class2Entry" />
+<outputArc inscription="1" source="lobby2_T2" target="lobby2_timeup" />
+<inhibitorArc inscription="[0,inf)" source="lobby1_P13" target="lobby1_T20" />
+<inhibitorArc inscription="[0,inf)" source="lobby1_P13" target="lobby1_T19" />
+<inhibitorArc inscription="[0,inf)" source="lobby2_timeup" target="lobby2_T1" />
+<inhibitorArc inscription="[0,inf)" source="lobby2_timeup" target="lobby2_T0" />
+</net>
+</pnml>

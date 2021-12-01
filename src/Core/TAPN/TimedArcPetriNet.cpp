@@ -3,6 +3,7 @@
 
 #include <limits>
 #include <numeric>
+#include <string>
 
 namespace VerifyTAPN {
 namespace TAPN {
@@ -40,7 +41,7 @@ namespace TAPN {
             arc->getInputPlace().addInhibitorArc(arc);
             arc->getInputPlace().setHasInhibitorArcs(true);
         }
-        
+
         for (auto* arc : outputArcs) {
             arc->getInputTransition().addToPostset(arc);
             arc->getOutputPlace().addOutputArc(arc);

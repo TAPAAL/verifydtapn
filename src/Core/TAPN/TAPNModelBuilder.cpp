@@ -48,7 +48,7 @@ namespace VerifyTAPN {
         }
         else
         {
-            _inputArcs.emplace_back(new TimedInputArc(*place, *transition, weight, TimeInterval(lstrict, lower, ustrict, upper)));
+            _inputArcs.emplace_back(new TimedInputArc(*place, *transition, weight, TimeInterval(lstrict, lower, upper, ustrict)));
         }
     }
 
@@ -70,7 +70,7 @@ namespace VerifyTAPN {
         auto in_place = find_place(source);
         auto out_place = find_place(target);
         auto transition = find_transition(transition_name);
-        _transportArcs.emplace_back(new TransportArc(*in_place, *transition, *out_place, TimeInterval(lstrict, lower, ustrict, upper), weight));
+        _transportArcs.emplace_back(new TransportArc(*in_place, *transition, *out_place, TimeInterval(lstrict, lower, upper, ustrict), weight));
     }
 
     TimedPlace* TAPNModelBuilder::find_place(const std::string& pid) {

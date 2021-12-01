@@ -1,0 +1,9 @@
+<pnml>
+<net id="ComposedModel" type="P/T net">
+<place id="P" name="P" invariant="&lt; 1" initialMarking="0" >
+<graphics><position x="915" y="795" /></graphics></place>
+<transition player="0" id="T" name="T" urgent="false">
+<graphics><position x="1680" y="405" /></graphics></transition>
+<inhibitorArc inscription="[0,inf)" source="P" target="T" />
+</net>
+</pnml>
