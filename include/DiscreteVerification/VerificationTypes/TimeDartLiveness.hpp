@@ -11,7 +11,7 @@
 #include "DiscreteVerification/DataStructures/TimeDart.hpp"
 #include "DiscreteVerification/DataStructures/TimeDartLivenessPWList.hpp"
 #include "Core/TAPN/TAPN.hpp"
-#include "Core/QueryParser/AST.hpp"
+#include "Core/Query/AST.hpp"
 #include "Core/VerificationOptions.hpp"
 #include "DiscreteVerification/QueryVisitor.hpp"
 #include "DiscreteVerification/DataStructures/NonStrictMarkingBase.hpp"

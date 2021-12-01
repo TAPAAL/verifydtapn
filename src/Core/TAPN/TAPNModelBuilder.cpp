@@ -90,4 +90,9 @@ namespace VerifyTAPN {
         exit(-1);
         return nullptr;
     }
+
+    TAPN::TimedArcPetriNet* TAPNModelBuilder::make_tapn()
+    {
+        return new TAPN::TimedArcPetriNet(_places, _transitions, _inputArcs, _outputArcs, _transportArcs, _inhibitorArcs);
+    }
 }

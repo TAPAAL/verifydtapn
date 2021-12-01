@@ -20,7 +20,7 @@
 #include "SearchStrategies/SearchFactory.h"
 
 #include "Core/TAPN/TAPN.hpp"
-#include "Core/QueryParser/AST.hpp"
+#include "Core/Query/AST.hpp"
 #include "Core/VerificationOptions.hpp"
 
 #include <rapidxml.hpp>

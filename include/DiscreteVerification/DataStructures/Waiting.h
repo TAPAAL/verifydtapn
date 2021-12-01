@@ -10,7 +10,7 @@
 
 #include "NonStrictMarkingBase.hpp"
 #include "DiscreteVerification/SearchStrategies/WeightQueryVisitor.hpp"
-#include "Core/QueryParser/AST.hpp"
+#include "Core/Query/AST.hpp"
 
 
 #include <queue>

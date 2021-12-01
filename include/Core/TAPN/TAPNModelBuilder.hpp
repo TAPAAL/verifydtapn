@@ -45,6 +45,8 @@ namespace VerifyTAPN {
             return _initialMarking;
         }
 
+        TAPN::TimedArcPetriNet* make_tapn();
+
     private:
         TimedPlace* find_place(const std::string& pid);
         TimedTransition* find_transition(const std::string& tid);

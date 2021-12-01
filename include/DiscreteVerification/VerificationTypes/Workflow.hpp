@@ -10,7 +10,7 @@
 
 #include "DiscreteVerification/DataStructures/WorkflowPWList.hpp"
 #include "Core/TAPN/TAPN.hpp"
-#include "Core/QueryParser/AST.hpp"
+#include "Core/Query/AST.hpp"
 #include "Core/VerificationOptions.hpp"
 #include "Core/TAPN/TimedPlace.hpp"
 #include "Core/TAPN/TimedTransition.hpp"

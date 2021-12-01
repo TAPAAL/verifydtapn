@@ -79,7 +79,7 @@ namespace VerifyTAPN {
 
     public: // inspectors
 
-        std::string getInputFile() const {
+        const std::string& getInputFile() const {
             return inputFile;
         }
 
@@ -87,7 +87,7 @@ namespace VerifyTAPN {
             inputFile = std::move(input);
         }
 
-        std::string getQueryFile() const {
+        const std::string& getQueryFile() const {
             return queryFile;
         }
 
@@ -95,7 +95,7 @@ namespace VerifyTAPN {
             queryFile = std::move(input);
         }
 
-        std::string getOutputModelFile() const {
+        const std::string& getOutputModelFile() const {
             return outputFile;
         }
 
@@ -103,11 +103,11 @@ namespace VerifyTAPN {
             outputFile = std::move(input);
         }
 
-        std::string getOutputQueryFile() const {
+        const std::string& getOutputQueryFile() const {
             return outputQuery;
         }
 
-        std::set<size_t> getQueryNumbers() const {
+        const std::set<size_t>& getQueryNumbers() const {
             return querynumbers;
         }
 
@@ -115,7 +115,7 @@ namespace VerifyTAPN {
             outputQuery = std::move(input);
         }
 
-        std::string getOutputXMLQueryFile() const {
+        const std::string& getOutputXMLQueryFile() const {
             return outputXMLQuery;
         }
 

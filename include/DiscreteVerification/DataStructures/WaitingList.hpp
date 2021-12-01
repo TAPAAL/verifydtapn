@@ -8,8 +8,8 @@
 #ifndef WAITINGLIST_HPP_
 #define WAITINGLIST_HPP_
 
-#include "Core/QueryParser/AST.hpp"
-#include "Core/QueryParser/NormalizationVisitor.hpp"
+#include "Core/Query/AST.hpp"
+#include "Core/Query/NormalizationVisitor.hpp"
 
 #include "DiscreteVerification/DataStructures/NonStrictMarking.hpp"
 #include "DiscreteVerification/DataStructures/TimeDart.hpp"

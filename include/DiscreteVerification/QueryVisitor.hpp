@@ -8,9 +8,9 @@
 #ifndef QUERYVISITOR_HPP_
 #define QUERYVISITOR_HPP_
 
-#include "Core/QueryParser/Visitor.hpp"
+#include "Core/Query/Visitor.hpp"
 #include "DataStructures/NonStrictMarking.hpp"
-#include "Core/QueryParser/AST.hpp"
+#include "Core/Query/AST.hpp"
 
 #include <exception>
 

@@ -8,7 +8,7 @@
 #include "InhibitorArc.hpp"
 #include "OutputArc.hpp"
 
-#include "Core/QueryParser/AST.hpp"
+#include "Core/Query/AST.hpp"
 #include "Core/PlaceVisitor.hpp"
 #include "Core/VerificationOptions.hpp"
 
