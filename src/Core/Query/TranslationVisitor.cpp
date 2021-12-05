@@ -59,7 +59,7 @@ namespace VerifyTAPN {
             for (auto& sub : *element) {
                 sub->visit(*this);
                 if (old != nullptr)
-                    old = new AST::AndExpression(get_e_result(), _e_result);
+                    old = new AST::AndExpression(get_e_result(), old);
                 else
                     old = get_e_result();
 
@@ -73,7 +73,7 @@ namespace VerifyTAPN {
             for (auto& sub : *element) {
                 sub->visit(*this);
                 if (old != nullptr)
-                    old = new AST::OrExpression(get_e_result(), _e_result);
+                    old = new AST::OrExpression(get_e_result(), old);
                 else
                     old = get_e_result();
 
