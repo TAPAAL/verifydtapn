@@ -29,7 +29,7 @@ namespace VerifyTAPN {
                 size_t quid = 0;
                 if (qfile.peek() == '<') { // assumed XML
                     if (qnums.empty()) {
-                        std::cerr << "Missing query-indexes for query-file (which is identified as XML-format), assuming only first query is to be veriied" << std::endl;
+                        std::cerr << "Missing query-indexes for query-file (which is identified as XML-format), assuming only first query is to be verified" << std::endl;
                         qnums.emplace(0);
                     }
                     quid = *qnums.begin();
