@@ -18,24 +18,13 @@ namespace VerifyTAPN { namespace DiscreteVerification {
 
     NonStrictMarkingBase::NonStrictMarkingBase(const TAPN::TimedArcPetriNet &tapn, const std::vector<int> &v)
             : children(0), parent(nullptr), generatedBy(nullptr) {
-        int prevPlaceId = -1;
-        for (int iter : v) {
-            if (iter == prevPlaceId) {
-                Place &p = places.back();
-                if (p.tokens.empty()) {
-                    Token t(0, 1);
-                    p.tokens.push_back(t);
-                } else {
-                    p.tokens.begin()->add(1);
-                }
-            } else {
-
-                Place p(&tapn.getPlace(iter));
-                Token t(0, 1);
-                p.tokens.push_back(t);
-                places.push_back(p);
+        for(size_t i = 0; i < v.size(); ++i)
+        {
+            if(v[i] > 0)
+            {
+                places.emplace_back(Place(&tapn.getPlace(i)));
+                places.back().tokens.emplace_back(0, v[i]);
             }
-            prevPlaceId = iter;
         }
     }
 

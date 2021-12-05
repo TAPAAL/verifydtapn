@@ -85,7 +85,7 @@ namespace VerifyTAPN {
             check_first();
             (*element)[0]->visit(*this);
             auto lhs = get_a_result();
-            (*element)[0]->visit(*this);
+            (*element)[1]->visit(*this);
             auto rhs = get_a_result();
             _e_result = new AST::AtomicProposition(lhs, AtomicProposition::LT, rhs);
         }
@@ -94,7 +94,7 @@ namespace VerifyTAPN {
             check_first();
             (*element)[0]->visit(*this);
             auto lhs = get_a_result();
-            (*element)[0]->visit(*this);
+            (*element)[1]->visit(*this);
             auto rhs = get_a_result();
             _e_result = new AST::AtomicProposition(lhs, AtomicProposition::LE, rhs);
         }
@@ -103,7 +103,7 @@ namespace VerifyTAPN {
             check_first();
             (*element)[0]->visit(*this);
             auto lhs = get_a_result();
-            (*element)[0]->visit(*this);
+            (*element)[1]->visit(*this);
             auto rhs = get_a_result();
             _e_result = new AST::AtomicProposition(lhs, AtomicProposition::EQ, rhs);
         }
@@ -112,7 +112,7 @@ namespace VerifyTAPN {
             check_first();
             (*element)[0]->visit(*this);
             auto lhs = get_a_result();
-            (*element)[0]->visit(*this);
+            (*element)[1]->visit(*this);
             auto rhs = get_a_result();
             _e_result = new AST::AtomicProposition(lhs, AtomicProposition::NE, rhs);
         }
@@ -124,22 +124,26 @@ namespace VerifyTAPN {
 
         void TranslationVisitor::_accept(const unfoldtacpn::PQL::EFCondition *condition) {
             check_first(true);
-            _result = std::make_unique<Query>(Quantifier::EF, _e_result);
+            (*condition)[0]->visit(*this);
+            _result = std::make_unique<Query>(Quantifier::EF, get_e_result());
         }
 
         void TranslationVisitor::_accept(const unfoldtacpn::PQL::EGCondition *condition) {
             check_first(true);
-            _result = std::make_unique<Query>(Quantifier::EG, _e_result);
+            (*condition)[0]->visit(*this);
+            _result = std::make_unique<Query>(Quantifier::EG, get_e_result());
         }
 
         void TranslationVisitor::_accept(const unfoldtacpn::PQL::AGCondition *condition) {
             check_first(true);
-            _result = std::make_unique<Query>(Quantifier::AG, _e_result);
+            (*condition)[0]->visit(*this);
+            _result = std::make_unique<Query>(Quantifier::AG, get_e_result());
         }
 
         void TranslationVisitor::_accept(const unfoldtacpn::PQL::AFCondition *condition) {
             check_first(true);
-            _result = std::make_unique<Query>(Quantifier::AF, _e_result);
+            (*condition)[0]->visit(*this);
+            _result = std::make_unique<Query>(Quantifier::AF, get_e_result());
         }
 
         void TranslationVisitor::_accept(const unfoldtacpn::PQL::BooleanCondition *element) {

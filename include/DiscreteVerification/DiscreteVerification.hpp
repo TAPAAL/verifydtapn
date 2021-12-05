@@ -38,7 +38,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
 
         virtual ~DiscreteVerification();
 
-        static int run(TAPN::TimedArcPetriNet &tapn, std::vector<int> initialPlacement, AST::Query *query,
+        static int run(TAPN::TimedArcPetriNet &tapn, const std::vector<int>& initialPlacement, AST::Query *query,
                        VerificationOptions &options);
 
     };

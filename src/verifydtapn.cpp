@@ -25,12 +25,14 @@ namespace VerifyTAPN {
                 std::exit(-1);
             } else {
                 std::vector<std::pair < unfoldtacpn::PQL::Condition_ptr, std::string>> ast_queries;
-                auto& qnums = options.getQueryNumbers();
+                auto qnums = options.getQueryNumbers();
+                size_t quid = 0;
                 if (qfile.peek() == '<') { // assumed XML
                     if (qnums.empty()) {
-                        std::cerr << "ERROR: Missing query-indexes for query-file (which is identified as XML-format)" << std::endl;
-                        std::exit(-1);
+                        std::cerr << "Missing query-indexes for query-file (which is identified as XML-format), assuming only first query is to be veriied" << std::endl;
+                        qnums.emplace(0);
                     }
+                    quid = *qnums.begin();
                     ast_queries = unfoldtacpn::parse_xml_queries(builder, qfile, qnums);
                 } else {
                     // not xml
@@ -48,7 +50,7 @@ namespace VerifyTAPN {
                     std::fstream of(options.getOutputQueryFile(), std::ios::out);
                     unfoldtacpn::PQL::to_xml(of, ast_queries);
                 }
-                return std::unique_ptr<Query>(AST::toAST(ast_queries[0].first, net));
+                return std::unique_ptr<Query>(AST::toAST(ast_queries[quid].first, net));
             }
 
         } catch (...) {
@@ -102,7 +104,7 @@ namespace VerifyTAPN {
 
         } else {
             query = parse_queries(options, builder, net);
-
+            assert(query);
             if (options.getTrace() != VerificationOptions::NO_TRACE &&
                 (query->getQuantifier() == AST::CF || query->getQuantifier() == AST::CG)) {
                 std::cout << "Traces are not supported for game-synthesis" << std::endl;

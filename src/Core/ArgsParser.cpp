@@ -289,38 +289,9 @@ namespace VerifyTAPN {
 
     VerificationOptions
     ArgsParser::verifyInputFiles(VerificationOptions options, std::string model_file, std::string query_file) const {
-        if (options.getWorkflowMode() != VerificationOptions::WORKFLOW_SOUNDNESS &&
-            options.getWorkflowMode() != VerificationOptions::WORKFLOW_STRONG_SOUNDNESS) {
-
-            if (!boost::iends_with(model_file, ".xml")) {
-                std::cout << "Invalid model file specified." << model_file << std::endl;
-                std::exit(1);
-            }
-
-            if(!options.getOutputModelFile().empty() && !options.getOutputQueryFile().empty()){
-                if (!boost::iends_with(query_file, ".q") && !boost::iends_with(query_file, ".xml")) {
-                    std::cout << "Invalid query file specified." << std::endl;
-                    std::exit(1);
-                }
-            } else {
-                if (!boost::iends_with(query_file, ".q")) {
-                    std::cout << "Invalid query file specified." << std::endl;
-                    std::exit(1);
-                }
-            }
-        } else {
-            if (!boost::iends_with(model_file, ".xml")) {
-                if (boost::iends_with(query_file, ".xml")) {
-                    // last argument is probably xml, no query-file
-                    model_file = query_file;
-                } else {
-                    // we have no xml-files at all :(
-                    std::cout << "Invalid model file specified.here" << std::endl;
-                    std::exit(1);
-                }
-            } else {
-                std::cout << "Ignoring query-file for Workflow-analysis" << std::endl;
-            }
+        if (options.getWorkflowMode() == VerificationOptions::WORKFLOW_SOUNDNESS ||
+            options.getWorkflowMode() == VerificationOptions::WORKFLOW_STRONG_SOUNDNESS) {
+            model_file = query_file;
             query_file = "";
         }
         options.setInputFile(model_file);

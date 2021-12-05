@@ -12,6 +12,7 @@ namespace VerifyTAPN {
             double,
             double)
     {
+        assert(tokens <= 1);
         TimeInvariant timeInvariant = TimeInvariant(strict, bound);
         _places.emplace_back(new TimedPlace(name, name, timeInvariant));
         _initialMarking.emplace_back(tokens);
