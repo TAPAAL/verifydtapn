@@ -33,11 +33,6 @@ namespace VerifyTAPN {
         return out;
     }
 
-    std::ostream &operator<<(std::ostream &out, const Version &version) {
-        out << version.maj << "." << version.min << "." << version.build;
-        return out;
-    }
-
     void PrintIndentedDescription(std::ostream &out,
                                   const std::string &description) {
         typedef boost::tokenizer<boost::char_separator<char> > tokens;
@@ -226,7 +221,7 @@ namespace VerifyTAPN {
     }
 
     void ArgsParser::printVersion() const {
-        std::cout << "VerifyDTAPN " << version << std::endl;
+        std::cout << "VerifyDTAPN " << VERIFYDTAPN_VERSION << std::endl;
         std::cout << "Licensed under BSD." << std::endl;
     }
 
