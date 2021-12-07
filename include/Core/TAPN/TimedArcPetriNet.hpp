@@ -23,14 +23,15 @@ namespace TAPN {
     class TimedArcPetriNet {
 
     public:// construction
-        TimedArcPetriNet(TimedPlace::Vector &places,
-                         TimedTransition::Vector &transitions,
-                         TimedInputArc::Vector &inputArcs,
-                         OutputArc::Vector &outputArcs,
-                         TransportArc::Vector &transportArcs,
-                         InhibitorArc::Vector &inhibitorArcs)
+        TimedArcPetriNet(const TimedPlace::Vector &places,
+                         const TimedTransition::Vector &transitions,
+                         const TimedInputArc::Vector &inputArcs,
+                         const OutputArc::Vector &outputArcs,
+                         const TransportArc::Vector &transportArcs,
+                         const InhibitorArc::Vector &inhibitorArcs)
                 : places(places), transitions(transitions), inputArcs(inputArcs), outputArcs(outputArcs),
-                  transportArcs(transportArcs), inhibitorArcs(inhibitorArcs) {};
+                  transportArcs(transportArcs), inhibitorArcs(inhibitorArcs) {
+                };
 
         ~TimedArcPetriNet() {
             // call delete on all data

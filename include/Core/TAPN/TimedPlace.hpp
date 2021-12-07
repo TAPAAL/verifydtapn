@@ -50,15 +50,13 @@ namespace VerifyTAPN { namespace TAPN {
 
         inline void setMaxConstant(int max) { maxConstant = max; }
 
-        inline void setHasInhibitorArcs(bool inhibitorArcs) { containsInhibitorArcs = inhibitorArcs; }
-
         inline void addInputArc(TimedInputArc* inputArc) { inputArcs.push_back(inputArc); }
 
         inline void addTransportArc(TransportArc* transportArc) { transportArcs.push_back(transportArc); }
 
         inline void addProdTransportArc(TransportArc* transportArc) { prodTransportArcs.push_back(transportArc); }
 
-        inline void addInhibitorArc(InhibitorArc* inhibitorArc) { inhibitorArcs.push_back(inhibitorArc); }
+        inline void addInhibitorArc(InhibitorArc* inhibitorArc) { inhibitorArcs.push_back(inhibitorArc); containsInhibitorArcs = true; }
 
         inline void addOutputArc(OutputArc* outputArc) { outputArcs.push_back(outputArc); }
 

@@ -47,10 +47,14 @@ namespace VerifyTAPN {
                 std::exit(-1);
             }
             _inhibitorArcs.emplace_back(new InhibitorArc(*place, *transition, weight));
+            transition->addIncomingInhibitorArc(_inhibitorArcs.back());
+            place->addInhibitorArc(_inhibitorArcs.back());
         }
         else
         {
             _inputArcs.emplace_back(new TimedInputArc(*place, *transition, weight, TimeInterval(lstrict, lower, upper, ustrict)));
+            transition->addToPreset(_inputArcs.back());
+            place->addInputArc(_inputArcs.back());
         }
     }
 
@@ -61,6 +65,8 @@ namespace VerifyTAPN {
         auto place = find_place(place_name);
         auto transition = find_transition(transition_name);
         _outputArcs.emplace_back(new OutputArc(*transition, *place, weight));
+        transition->addToPostset(_outputArcs.back());
+        place->addOutputArc(_outputArcs.back());
 
     }
 
@@ -73,6 +79,9 @@ namespace VerifyTAPN {
         auto out_place = find_place(target);
         auto transition = find_transition(transition_name);
         _transportArcs.emplace_back(new TransportArc(*in_place, *transition, *out_place, TimeInterval(lstrict, lower, upper, ustrict), weight));
+        transition->addTransportArcGoingThrough(_transportArcs.back());
+        in_place->addTransportArc(_transportArcs.back());
+        out_place->addProdTransportArc(_transportArcs.back());
     }
 
     TimedPlace* TAPNModelBuilder::find_place(const std::string& pid) {
