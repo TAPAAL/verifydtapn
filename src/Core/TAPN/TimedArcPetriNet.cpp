@@ -391,7 +391,7 @@ namespace TAPN {
             out << "<transportArc inscription=\"" << ta->getInterval() << "\" "
                 << "source=\"" << ta->getSource().getName() << "\" "
                 << "transition=\"" << ta->getTransition().getName() << "\" "
-                << "target=\"" << ta->getDestination().getName() << " weight=\"" << ta->getWeight() << "\"/>\n";
+                << "target=\"" << ta->getDestination().getName() << "\" weight=\"" << ta->getWeight() << "\" />\n";
         }
 
         out << "</net></pnml>\n";
