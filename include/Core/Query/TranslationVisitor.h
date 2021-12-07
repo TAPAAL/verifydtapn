@@ -25,6 +25,7 @@ namespace VerifyTAPN {
             AST::Expression* _e_result = nullptr;
             AST::ArithmeticExpression* _a_result = nullptr;
             bool _first_element = true;
+            bool _is_synth = false;
             const TAPN::TimedArcPetriNet& _net;
 
             void check_first(bool is_quant = false);
@@ -42,6 +43,7 @@ namespace VerifyTAPN {
             void _accept(const unfoldtacpn::PQL::EqualCondition *element) override;
             void _accept(const unfoldtacpn::PQL::NotEqualCondition *element) override;
             void _accept(const unfoldtacpn::PQL::DeadlockCondition *element) override;
+            void _accept(const unfoldtacpn::PQL::ControlCondition *condition) override;
             void _accept(const unfoldtacpn::PQL::EFCondition *condition) override;
             void _accept(const unfoldtacpn::PQL::EGCondition *condition) override;
             void _accept(const unfoldtacpn::PQL::AGCondition *condition) override;

@@ -122,13 +122,38 @@ namespace VerifyTAPN {
             _e_result = new DeadlockExpression();
         }
 
+        void TranslationVisitor::_accept(const unfoldtacpn::PQL::ControlCondition *condition) {
+            if(_is_synth)
+            {
+                std::cerr << "control-tag used twice in query!" << std::endl;
+                std::exit(-1);
+            }
+            if(!_first_element)
+            {
+                std::cerr << "control-tag must be top-most element" << std::endl;
+                std::exit(-1);
+            }
+            _is_synth = true;
+            (*condition)[0]->visit(*this);
+        }
+
         void TranslationVisitor::_accept(const unfoldtacpn::PQL::EFCondition *condition) {
+            if(_is_synth)
+            {
+                std::cerr << "Synthesis only enabled for AG and AF propositions" << std::endl;
+                std::exit(-1);
+            }
             check_first(true);
             (*condition)[0]->visit(*this);
             _result = std::make_unique<Query>(Quantifier::EF, get_e_result());
         }
 
         void TranslationVisitor::_accept(const unfoldtacpn::PQL::EGCondition *condition) {
+            if(_is_synth)
+            {
+                std::cerr << "Synthesis only enabled for AG and AF propositions" << std::endl;
+                std::exit(-1);
+            }
             check_first(true);
             (*condition)[0]->visit(*this);
             _result = std::make_unique<Query>(Quantifier::EG, get_e_result());
@@ -137,13 +162,13 @@ namespace VerifyTAPN {
         void TranslationVisitor::_accept(const unfoldtacpn::PQL::AGCondition *condition) {
             check_first(true);
             (*condition)[0]->visit(*this);
-            _result = std::make_unique<Query>(Quantifier::AG, get_e_result());
+            _result = std::make_unique<Query>(_is_synth ? Quantifier::CG : Quantifier::AG, get_e_result());
         }
 
         void TranslationVisitor::_accept(const unfoldtacpn::PQL::AFCondition *condition) {
             check_first(true);
             (*condition)[0]->visit(*this);
-            _result = std::make_unique<Query>(Quantifier::AF, get_e_result());
+            _result = std::make_unique<Query>(_is_synth ? Quantifier::CF : Quantifier::AF, get_e_result());
         }
 
         void TranslationVisitor::_accept(const unfoldtacpn::PQL::BooleanCondition *element) {

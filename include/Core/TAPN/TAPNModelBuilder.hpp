@@ -21,25 +21,25 @@ namespace VerifyTAPN {
                 bool strict,
                 int bound,
                 double x = 0,
-                double y = 0);
+                double y = 0) override;
 
-        virtual void addTransition(const std::string &name, bool urgent,
-                                            double, double);
+        virtual void addTransition(const std::string &name, int player, bool urgent,
+                                            double, double) override;
 
         virtual void addInputArc(const std::string &place,
                 const std::string &transition,
                 bool inhibitor,
                 int weight,
-                bool lstrict, bool ustrict, int lower, int upper);
+                bool lstrict, bool ustrict, int lower, int upper) override;
 
         virtual void addOutputArc(const std::string& transition,
                 const std::string& place,
-                int weight);
+                int weight) override;
 
         virtual void addTransportArc(const std::string& source,
                 const std::string& transition,
                 const std::string& target, int weight,
-                bool lstrict, bool ustrict, int lower, int upper);
+                bool lstrict, bool ustrict, int lower, int upper) override;
 
         const std::vector<int>& initialMarking() const {
             return _initialMarking;
