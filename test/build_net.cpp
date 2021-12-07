@@ -39,7 +39,7 @@ std::ifstream loadFile(const char* file) {
     return std::ifstream(ss.str());
 }
 
-/*BOOST_AUTO_TEST_CASE(arc_guard)
+BOOST_AUTO_TEST_CASE(arc_guard)
 {
     unfoldtacpn::ColoredPetriNetBuilder builder;
     auto file = loadFile("arc_guard.xml");
@@ -60,7 +60,7 @@ BOOST_AUTO_TEST_CASE(covid_test_model)
     auto file = loadFile("covid_test_model.xml");
     builder.parseNet(file);
     auto [initialPlacement, tapn] = build_net(builder);
-}*/
+}
 
 BOOST_AUTO_TEST_CASE(inhib_guard)
 {
