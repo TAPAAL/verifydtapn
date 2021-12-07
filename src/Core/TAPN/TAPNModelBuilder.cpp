@@ -12,7 +12,6 @@ namespace VerifyTAPN {
             double x,
             double y)
     {
-        assert(tokens <= 1);
         TimeInvariant timeInvariant = TimeInvariant(strict, bound);
         auto id = _places.size();
         _places.emplace_back(new TimedPlace(id, name, name, timeInvariant, x, y));
