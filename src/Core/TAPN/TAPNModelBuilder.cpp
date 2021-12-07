@@ -9,20 +9,22 @@ namespace VerifyTAPN {
             int tokens,
             bool strict,
             int bound,
-            double,
-            double)
+            double x,
+            double y)
     {
         assert(tokens <= 1);
         TimeInvariant timeInvariant = TimeInvariant(strict, bound);
-        _places.emplace_back(new TimedPlace(name, name, timeInvariant));
+        auto id = _places.size();
+        _places.emplace_back(new TimedPlace(id, name, name, timeInvariant, x, y));
         _initialMarking.emplace_back(tokens);
 
     }
 
     void TAPNModelBuilder::addTransition(const std::string &name, bool urgent,
-                                        double, double)
+                                        double x, double y)
     {
-        _transitions.emplace_back(new TimedTransition(name, name, urgent, true));
+        auto id = _transitions.size();
+        _transitions.emplace_back(new TimedTransition(id, name, name, urgent, true, x, y));
     }
 
     void TAPNModelBuilder::addInputArc(const std::string &place_name,

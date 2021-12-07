@@ -15,12 +15,7 @@ namespace TAPN {
         }
 
         for (unsigned int i = 0; i < places.size(); i++) {
-            places[i]->setIndex(i);
             updateMaxConstant(places[i]->getInvariant());
-        }
-
-        for (unsigned int i = 0; i < transitions.size(); i++) {
-            transitions[i]->setIndex(i);
         }
 
         for (auto* arc : inputArcs) {
@@ -344,6 +339,7 @@ namespace TAPN {
         out << "TAPN:" << std::endl << "  Places: ";
         for (auto* place : places) {
             auto& inv = place->getInvariant();
+            auto [x, y] = place->getPosition();
             out << "<place id=\"" << place->getName() << "\" name=\"" << place->getName()
                 << "\" invariant=\"";
             if(inv.isBoundStrict())
@@ -357,15 +353,17 @@ namespace TAPN {
             {
                 out << "&lt;=" << inv.getBound();
             }
-            out << "\" initialMarking=\"" << initial[place->getIndex()] << "\">";
+            out << "\" initialMarking=\"" << initial[place->getIndex()] << "\">\n";
+            out << "\t<graphics><position x=\"" << x << "\" y=\"" << y << "\" /></graphics>\n";
             out << "</place>\n";
         }
 
         for (auto* transition : transitions) {
             out << "<transition player=\"" << (transition->isControllable() ? 0 : 1)
                 << "\" id=\"" << transition->getName() << "\" name=\"" << transition->getName()
-                << "\" urgent=\"" << std::boolalpha << transition->isUrgent() << "\">";
-
+                << "\" urgent=\"" << std::boolalpha << transition->isUrgent() << "\">\n";
+            auto [x, y] = transition->getPosition();
+            out << "\t<graphics><position x=\"" << x << "\" y=\"" << y << "\" /></graphics>\n";
             out << "</transition>\n";
         }
 

@@ -18,7 +18,6 @@ int main(int argc, char *argv[]) {
     ArgsParser parser;
     VerificationOptions options = parser.parse(argc, argv);
     unfoldtacpn::ColoredPetriNetBuilder builder;
-    std::cerr << "Parsing model from " << options.getInputFile() << std::endl;
     auto [initialPlacement, tapn] = parse_net_file(builder, options.getInputFile());
     if(!options.getOutputModelFile().empty())
     {
@@ -40,7 +39,6 @@ int main(int argc, char *argv[]) {
     }
 
 
-    std::cerr << "Parsing queries from " << options.getQueryFile() << std::endl;
     std::unique_ptr<AST::Query> query = make_query(builder, options, *tapn);
     assert(query);
 
