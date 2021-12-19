@@ -26,8 +26,8 @@ brew install cmake gcc boost google-sparsehash
 Set the correct gcc compiler
 
 ``` bash
-export CC=gcc-10
-export CXX=g++-10
+export CC=gcc-11
+export CXX=g++-11
 ```
 
 If your flex and bison point to a wrong binary, run the cmake
