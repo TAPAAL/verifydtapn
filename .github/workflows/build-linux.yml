@@ -30,7 +30,10 @@ jobs:
         cmakeAppendedArgs: ''
         cmakeBuildType: Release
         cmakeGenerator: UnixMakefiles
-        buildDirectory: '${{runner.workspace}}/build'     
+        buildDirectory: '${{runner.workspace}}/build'
+      env:
+        CC: gcc-10
+        CXX: g++-10
     
     - name: Upload artifacts 
       uses: actions/upload-artifact@v2
