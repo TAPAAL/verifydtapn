@@ -19,7 +19,7 @@ namespace VerifyTAPN {
         };
 
         enum SearchType {
-            BREADTHFIRST, DEPTHFIRST, RANDOM, COVERMOST, DEFAULT, MINDELAYFIRST
+            BREADTHFIRST, DEPTHFIRST, RANDOM, COVERMOST, DEFAULT, MINDELAYFIRST, OverApprox
         };
 
         enum VerificationType {
@@ -35,45 +35,6 @@ namespace VerifyTAPN {
         };
 
         VerificationOptions() = default;
-
-        VerificationOptions(
-                SearchType searchType,
-                VerificationType verificationType,
-                MemoryOptimization memOptimization,
-                unsigned int k_bound,
-                Trace trace,
-                bool xml_trace,
-                bool useGlobalMaxConstants,
-                bool keepDeadTokens,
-                bool enableGCDLowerGuards,
-                WorkflowMode workflow,
-                long long workflowBound,
-                bool calculateCmax,
-                bool order,
-                std::string outputFile,
-                std::string outputQuery,
-                std::set<size_t> querynumbers,
-                std::string strategy_output
-        ) : inputFile(""),
-            queryFile(""),
-            searchType(searchType),
-            verificationType(verificationType),
-            memOptimization(memOptimization),
-            k_bound(k_bound),
-            trace(trace),
-            xml_trace(xml_trace),
-            useGlobalMaxConstants(useGlobalMaxConstants),
-            keepDeadTokens(keepDeadTokens),
-            enableGCDLowerGuards(enableGCDLowerGuards),
-            workflow(workflow),
-            workflowBound(workflowBound),
-            calculateCmax(calculateCmax),
-            partialOrder(order),
-            outputFile(outputFile),
-            outputQuery(outputQuery),
-            querynumbers(querynumbers),
-            strategy_output(std::move(strategy_output)) {
-        };
 
     public: // inspectors
 
@@ -105,6 +66,11 @@ namespace VerifyTAPN {
             return outputQuery;
         }
 
+        void setQueryNumbers(std::set<size_t> numbers)
+        {
+            querynumbers = numbers;
+        }
+
         const std::set<size_t>& getQueryNumbers() const {
             return querynumbers;
         }
@@ -117,8 +83,16 @@ namespace VerifyTAPN {
             return k_bound;
         }
 
+        void setKBound(unsigned int k) {
+            k_bound = k;
+        }
+
         inline Trace getTrace() const {
             return trace;
+        };
+
+        void setTrace(Trace t) {
+            trace = t;
         };
 
         inline bool getXmlTrace() const {
@@ -127,6 +101,10 @@ namespace VerifyTAPN {
 
         inline bool getGlobalMaxConstantsEnabled() const {
             return useGlobalMaxConstants;
+        }
+
+        inline void setGlobalMaxConstantsEnabled(bool c) {
+            useGlobalMaxConstants = c;
         }
 
         inline SearchType getSearchType() const {
@@ -141,8 +119,16 @@ namespace VerifyTAPN {
             return verificationType;
         }
 
+        inline void setVerificationType(VerificationType v) {
+            verificationType = v;
+        }
+
         inline MemoryOptimization getMemoryOptimization() const {
             return memOptimization;
+        }
+
+        inline void setMemoryOptimization(MemoryOptimization m) {
+            memOptimization = m;
         }
 
         inline void setKeepDeadTokens(bool val) {
@@ -152,6 +138,10 @@ namespace VerifyTAPN {
         inline bool getKeepDeadTokens() const {
             return keepDeadTokens;
         };
+
+        inline void setGCDLowerGuardsEnabled(bool v) {
+            enableGCDLowerGuards = v;
+        }
 
         inline bool getGCDLowerGuardsEnabled() const {
             return enableGCDLowerGuards;
@@ -165,6 +155,14 @@ namespace VerifyTAPN {
             return workflowBound;
         };
 
+        inline void setWorkflowMode(WorkflowMode w) {
+            workflow = w;
+        };
+
+        inline void setWorkflowBound(long long v) {
+            workflowBound = v;
+        };
+
         inline bool isWorkflow() const {
             return workflow != NOT_WORKFLOW;
         }
@@ -173,14 +171,25 @@ namespace VerifyTAPN {
             return calculateCmax;
         };
 
+        inline void setCalculateCmax(bool v) {
+            calculateCmax = v;
+        };
+
         inline bool getPartialOrderReduction() const {
             return partialOrder;
+        }
+
+        inline void setPartialOrderReduction(bool v) {
+            partialOrder = v;
         }
 
         inline const std::string& getStrategyFile() const {
             return strategy_output;
         }
 
+        inline void setStrategyFile(const std::string& s) {
+            strategy_output = s;
+        }
 
     private:
         std::string inputFile;
@@ -190,7 +199,7 @@ namespace VerifyTAPN {
         MemoryOptimization memOptimization = NO_MEMORY_OPTIMIZATION;
         unsigned int k_bound = 0;
         Trace trace  = NO_TRACE;
-        bool xml_trace = false;
+        bool xml_trace = true;
         bool useGlobalMaxConstants = false;
         bool keepDeadTokens = false;
         bool enableGCDLowerGuards = false;

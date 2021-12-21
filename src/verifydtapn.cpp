@@ -37,7 +37,7 @@ namespace VerifyTAPN {
                 } else {
                     // not xml
                     if (qnums.size() > 0) {
-                        std::cerr << "Querys not provided in XML-format, -q-num argument is ignored" << std::endl;
+                        std::cerr << "Queries not provided in XML-format, --xml-queries argument is ignored" << std::endl;
                     }
                     ast_queries = unfoldtacpn::parse_string_queries(builder, qfile);
                 }

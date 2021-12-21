@@ -42,6 +42,13 @@ int main(int argc, char *argv[]) {
     std::unique_ptr<AST::Query> query = make_query(builder, options, *tapn);
     assert(query);
 
+
+    if(options.getSearchType() == VerificationOptions::OverApprox)
+    {
+        std::cout << "Verification-mode is OverApprox, terminating, no more to do!" << std::endl;
+        return 0;
+    }
+
     if (tapn->containsOrphanTransitions()) {
         std::cout << "The model contains orphan transitions. This is not supported by the engine." << std::endl;
         return 1;
