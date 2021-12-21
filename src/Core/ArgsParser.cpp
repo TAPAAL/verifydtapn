@@ -235,6 +235,15 @@ namespace VerifyTAPN {
 
 
         std::vector<std::string> files = po::collect_unrecognized(parsed.options, po::include_positional);
+        // remove everything that is just a space
+        files.erase(std::remove_if(files.begin(), files.end(),
+            [](auto& s ) {
+                return std::all_of(s.begin(), s.end(),
+                            [](auto c) {
+                                return std::isspace(c);
+                            });
+            }
+        ), files.end());
         if (opts.getWorkflowMode() == VerificationOptions::WORKFLOW_SOUNDNESS ||
             opts.getWorkflowMode() == VerificationOptions::WORKFLOW_STRONG_SOUNDNESS) {
             if(files.size() != 1)
