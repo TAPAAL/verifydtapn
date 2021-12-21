@@ -191,7 +191,7 @@ namespace VerifyTAPN {
             strategy_output = s;
         }
 
-    private:
+    protected:
         std::string inputFile;
         std::string queryFile;
         SearchType searchType = DEFAULT;
@@ -211,6 +211,7 @@ namespace VerifyTAPN {
         std::string outputQuery;
         std::set<size_t> querynumbers;
         std::string strategy_output = "";
+        friend class ArgsParser;
     };
 
     std::ostream &operator<<(std::ostream &out, const VerificationOptions &options);

@@ -8,6 +8,4 @@ add_subdirectory(TAPN)
 
 add_library(Core ArgsParser.cpp VerificationOptions.cpp)
 
-add_dependencies(Core argparse-ext)
-
-target_link_libraries(Core Query TAPN)
+target_link_libraries(Core Query TAPN Boost::program_options)

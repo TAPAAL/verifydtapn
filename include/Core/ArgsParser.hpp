@@ -19,9 +19,6 @@ namespace VerifyTAPN {
 
         VerificationOptions parse(int argc, char *argv[]);
 
-    private:
-        void initialize(argparse::ArgumentParser& parser, VerificationOptions& options);
-
     };
 }
 

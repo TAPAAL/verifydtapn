@@ -106,9 +106,11 @@ endif ()
 
 # Set Macros
 add_compile_definitions(VERIFYDTAPN_VERSION=\"${VERIFYDTAPN_VERSION}\")
+add_compile_definitions(VERIFYDTAPN_NAME=\"verifydtapn-${ARCH_TYPE}\")
 
 
 if(NOT BUILD_TESTING)
+    set(Boost_USE_STATIC_RUNTIME ON)
     set(Boost_USE_STATIC_LIBS ON)
     set(Boost_USE_RELEASE_LIBS ON)
     set(Boost_USE_MULTITHREADED OFF)
@@ -118,7 +120,7 @@ else()
     set(Boost_USE_MULTITHREADED OFF)
 endif()
 
-find_package(Boost 1.66 REQUIRED)
+find_package(Boost 1.66 REQUIRED COMPONENTS program_options)
 include_directories(${Boost_INCLUDE_DIR})
 
 # Source
