@@ -28,8 +28,9 @@ namespace VerifyTAPN {
     std::set<size_t> parseNumbers(const std::string& str)
     {
         size_t last = 0;
+        size_t i = 0;
         std::set<size_t> res;
-        for(size_t i = 0; i < str.size(); ++i)
+        for(; i < str.size(); ++i)
         {
             if(str[i] != ',') continue;
             std::string tmp = str.substr(last, i-last);
@@ -39,8 +40,19 @@ namespace VerifyTAPN {
                 std::cerr << "Query-indexes are 1-index, got a 0";
                 std::exit(-1);
             }
-            res.emplace(n);
+            res.emplace(n-1); // 0-indexed in parser
             last = i+1; // skip comma
+        }
+        if(last < i)
+        {
+            std::string tmp = str.substr(last, i-last);
+            auto n = parseInt(tmp);
+            if(n <= 0)
+            {
+                std::cerr << "Query-indexes are 1-index, got a 0";
+                std::exit(-1);
+            }
+            res.emplace(n-1); // 0-indexed in parser
         }
         return res;
     }
