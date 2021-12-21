@@ -237,7 +237,7 @@ namespace VerifyTAPN {
             opts.setPartialOrderReduction(false);
 
         if(vm.count("write-unfolded-net"))
-            opts.setOutputModelFile(vm["search-strategy"].as<std::string>());
+            opts.setOutputModelFile(vm["write-unfolded-net"].as<std::string>());
 
         if(vm.count("write-unfolded-queries"))
             opts.setOutputQueryFile(vm["write-unfolded-queries"].as<std::string>());
