@@ -2,7 +2,6 @@
 #define ARGSPARSER_HPP_
 
 #include "VerificationOptions.hpp"
-#include <argparse/argparse.hpp>
 
 #include <utility>
 #include <vector>

@@ -23,7 +23,7 @@ jobs:
     - name: Install depends
       run: |
         sudo apt-get update
-        sudo apt-get install flex bison libboost-all-dev libsparsehash-dev mingw-w64-x86-64-dev mingw-w64-tools g++-mingw-w64-x86-64 wine wine-binfmt
+        sudo apt-get install flex bison libsparsehash-dev mingw-w64-x86-64-dev mingw-w64-tools g++-mingw-w64-x86-64 wine wine-binfmt
     
     - name: Setup Dependency
       run: | 
@@ -39,24 +39,6 @@ jobs:
         mkdir -p EXT
         export PREFIX="$(pwd)/EXT"
         
-        BOOST=boost_1_72_0
-        VER=${BOOST#boost_}
-        VER=${VER//_/.}
-        
-        wget -nv "https://boostorg.jfrog.io/artifactory/main/release/$VER/source/$BOOST.tar.bz2"
-        tar xf $BOOST.tar.bz2
-
-        cd $BOOST
-        CC= CXX= ./bootstrap.sh --prefix="$PREFIX" --without-icu
-        cat > win$ADDRM-config.jam << EOF
-        using gcc : m : $CXX
-                :
-        ;
-        EOF
-
-        ./b2 toolset=gcc-m target-os=windows cflags="-mtune=$MTUNE" cxxstd=17 cxxflags="-mtune=$MTUNE" address-model="$ADDRM" binary-format="pe" abi="ms" threading="multi" threadapi="win32" variant=release --user-config="win$ADDRM-config.jam" --prefix="$PREFIX" --without-mpi --without-python --without-coroutine --without-graph --without-graph_parallel --without-wave --without-context -sNO_BZIP2=1 -j$CORES install
-        cd ..
-        
         sudo apt install unzip
         wget https://github.com/sparsehash/sparsehash/archive/sparsehash-2.0.4.zip
         unzip sparsehash-2.0.4.zip
@@ -69,11 +51,17 @@ jobs:
 
         cd ..
 
-    - name: Build
+    - name: Prebuild
       run: | 
         export PREFIX="$(pwd)/EXT"
         mkdir build && cd build
-        cmake ../ -DCMAKE_TOOLCHAIN_FILE=../toolchain-x86_64-w64-mingw32.cmake -DBOOST_ROOT=$PREFIX
+        cmake ../ -DCMAKE_TOOLCHAIN_FILE=../toolchain-x86_64-w64-mingw32.cmake -DCMAKE_BUILD_TYPE=Prebuild
+        CPATH=$PREFIX/include make
+
+    - name: Build
+      run: | 
+        export PREFIX="$(pwd)/EXT"
+        cmake ../ -DCMAKE_TOOLCHAIN_FILE=../toolchain-x86_64-w64-mingw32.cmake -DCMAKE_BUILD_TYPE=Release
         CPATH=$PREFIX/include make
     
     - name: Upload artifacts 

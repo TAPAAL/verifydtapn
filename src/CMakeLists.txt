@@ -3,7 +3,7 @@ add_subdirectory(Core)
 add_subdirectory(DiscreteVerification)
 add_library(verifydtapn verifydtapn.cpp)
 
-add_dependencies(verifydtapn unfoldtacpn-ext)
+add_dependencies(verifydtapn unfoldtacpn-ext boost-ext)
 target_link_libraries(verifydtapn Core DiscreteVerification
     ${EXTERNAL_INSTALL_LOCATION}/lib/unfoldtacpn/libunfoldtacpn.a
     ${EXTERNAL_INSTALL_LOCATION}/lib/unfoldtacpn/libPetriParse.a
