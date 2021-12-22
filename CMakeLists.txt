@@ -110,7 +110,6 @@ add_compile_definitions(VERIFYDTAPN_NAME=\"verifydtapn-${ARCH_TYPE}\")
 
 
 if(NOT BUILD_TESTING)
-    set(Boost_USE_STATIC_RUNTIME ON)
     set(Boost_USE_STATIC_LIBS ON)
     set(Boost_USE_RELEASE_LIBS ON)
     set(Boost_USE_MULTITHREADED OFF)
