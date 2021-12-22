@@ -31,7 +31,7 @@ jobs:
 
     - name: Build 
       run: |
-        mkdir build && cd build
+        cd build
         CC=gcc-10 CXX=g++-10 cmake ../ -DCMAKE_BUILD_TYPE=Prebuild
         make
 
