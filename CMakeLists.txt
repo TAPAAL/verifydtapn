@@ -96,7 +96,9 @@ if (VERIFYDTAPN_GetDependencies)
         set(BOOST_B2_OPTS target-os=windows binary-format=pe abi=ms threading=multi threadapi=win32)
     endif ()
 
-    set(BOOST_CONFIG_JAM "using gcc : : ${CMAKE_CXX_COMPILER}")
+    if (ARCH_TYPE MATCHES "win64") 
+	    set(BOOST_CONFIG_JAM "using gcc : : ${CMAKE_CXX_COMPILER}")
+    endif ()
     ExternalProject_Add(
         boost-ext
         URL https://boostorg.jfrog.io/artifactory/main/release/1.78.0/source/boost_1_78_0.zip
@@ -107,6 +109,17 @@ if (VERIFYDTAPN_GetDependencies)
         BUILD_IN_SOURCE 1
         INSTALL_COMMAND ""
     )
+
+    
+    #set(SPARSEHASH_HOST --host wina)
+    ExternalProject_Add( sparsehash-ext
+	    URL https://github.com/sparsehash/sparsehash/archive/sparsehash-2.0.4.zip
+	    CONFIGURE_COMMAND CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} ./configure --prefix=${CMAKE_BINARY_DIR}/external CXXFLAGS=-std=c++11 ${SPARSEHASH_HOST}
+	    BUILD_COMMAND CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} make 
+	    INSTALL_COMMAND make install
+            BUILD_IN_SOURCE 1
+    )
+
     set(CMAKE_PREFIX_PATH ${EXTERNAL_INSTALL_LOCATION};${CMAKE_PREFIX_PATH})
     link_directories(${EXTERNAL_INSTALL_LOCATION}/lib)
     include_directories(${EXTERNAL_INSTALL_LOCATION}/include)
@@ -116,7 +129,7 @@ endif ()
 if (CMAKE_BUILD_TYPE MATCHES Prebuild)
     # dummy for pre-build
     add_custom_target( prebuild )
-    add_dependencies( prebuild boost-ext rapidxml-ext unfoldtacpn-ext )
+    add_dependencies( prebuild boost-ext rapidxml-ext unfoldtacpn-ext sparsehash-ext)
 else ( )
 
     set(Boost_USE_RELEASE_LIBS ON)
