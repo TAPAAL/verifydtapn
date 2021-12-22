@@ -93,7 +93,7 @@ if (VERIFYDTAPN_GetDependencies)
         set(BOOST_B2_OPTS "")
     else ()
         set(BOOST_CONFIG_JAM "using gcc : : ${CMAKE_CXX_COMPILER}")
-        set(BOOST_B2_OPTS target-os=windows binary-format=\"pe\" abi=\"ms\" threading=\"multi\" threadapi=\"win32\")
+        set(BOOST_B2_OPTS target-os=windows binary-format=pe abi=ms threading=multi threadapi=win32)
     endif ()
 
     set(BOOST_CONFIG_JAM "using gcc : : ${CMAKE_CXX_COMPILER}")

@@ -40,4 +40,4 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: verifydtapn-osx64
-        path: '${{runner.workspace}}/build/verifydtapn/bin/verifydtapn-osx64'
+        path: '${{github.workspace}}/build/verifydtapn/bin/verifydtapn-osx64'
