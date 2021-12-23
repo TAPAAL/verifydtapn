@@ -23,34 +23,8 @@ jobs:
     - name: Install depends
       run: |
         sudo apt-get update
-        sudo apt-get install flex bison libsparsehash-dev mingw-w64-x86-64-dev mingw-w64-tools g++-mingw-w64-x86-64 wine wine-binfmt
+        sudo apt-get install flex bison mingw-w64-x86-64-dev mingw-w64-tools g++-mingw-w64-x86-64 wine wine-binfmt
     
-    - name: Setup Dependency
-      run: | 
-        TARGET=x86_64-w64-mingw32
-        ADDRM=64
-        MTUNE=generic
-
-        CORES=$(nproc || 1)
-
-        export CC=x86_64-w64-mingw32-gcc
-        export CXX=x86_64-w64-mingw32-g++
-
-        mkdir -p EXT
-        export PREFIX="$(pwd)/EXT"
-        
-        sudo apt install unzip
-        wget https://github.com/sparsehash/sparsehash/archive/sparsehash-2.0.4.zip
-        unzip sparsehash-2.0.4.zip
-
-        cd sparsehash-sparsehash-2.0.4
-
-        ./configure --prefix=$PREFIX CXXFLAGS=-std=c++11 --host win
-        make
-        make install
-
-        cd ..
-
     - name: Prebuild
       run: | 
         mkdir build && cd build

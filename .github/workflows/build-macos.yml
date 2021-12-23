@@ -22,7 +22,7 @@ jobs:
     
     - name: Install depends
       run: |
-        brew install cmake google-sparsehash flex bison
+        brew install cmake flex bison
     
     - name: Prebuild
       run: |

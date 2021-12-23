@@ -21,7 +21,7 @@ jobs:
     - name: ubuntu install depends
       run: |
         sudo apt-get update
-        sudo apt-get install -f flex bison libsparsehash-dev 
+        sudo apt-get install -f flex bison
     
     - name: Prebuild
       run: |
