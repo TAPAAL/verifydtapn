@@ -22,7 +22,7 @@ option(VERIFYDTAPN_Static "Link libraries statically" ON)
 option(VERIFYDTAPN_GetDependencies "Fetch external dependencies from web." ON)
 option(VERIFYDTAPN_TEST "Build tests" OFF)
 set(EXTERNAL_INSTALL_LOCATION ${CMAKE_BINARY_DIR}/external CACHE PATH "Install location for external dependencies")
-set(VERIFYDTAPN_TARGETDIR "${CMAKE_BINARY_DIR}/${VERIFYDTAPN_NAME}" CACHE PATH "Traget directory for build files")
+set(VERIFYDTAPN_TARGETDIR "${CMAKE_BINARY_DIR}/${VERIFYDTAPN_NAME}" CACHE PATH "Target directory for build files")
 set(VERIFYDTAPN_OSX_DEPLOYMENT_TARGET 10.8 CACHE STRING "Specify the minimum version of the target platform for MacOS on which the target binaries are to be deployed ")
 
 # Configure Project
@@ -39,7 +39,7 @@ else ()
     set(BUILD_SHARED_LIBS ON)
 endif ()
 
-## Configure Traget Platform
+## Configure Target Platform
 if (UNIX AND NOT APPLE)
     set(ARCH_TYPE "linux64")
 elseif (APPLE)
@@ -80,7 +80,7 @@ if (VERIFYDTAPN_GetDependencies)
 
     ExternalProject_add(unfoldtacpn-ext
         GIT_REPOSITORY https://github.com/TAPAAL/unfoldTACPN
-        GIT_TAG 8ab24ad534c4cc6da8645d02b0add000586213a2
+        GIT_TAG 62b8995c08aa806f9bcab5f6caabd7219098763e
 	CMAKE_ARGS -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}  -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION} -DBUILD_TESTING=OFF -DCMAKE_BUILD_TYPE=Release -DFLEX_EXECUTABLE=${FLEX_EXECUTABLE} -DBISON_EXECUTABLE=${BISON_EXECUTABLE}
 
     )
@@ -96,7 +96,7 @@ if (VERIFYDTAPN_GetDependencies)
         set(BOOST_B2_OPTS target-os=windows binary-format=pe abi=ms threading=multi threadapi=win32)
     endif ()
 
-    if (ARCH_TYPE MATCHES "win64") 
+    if (ARCH_TYPE MATCHES "win64")
 	    set(BOOST_CONFIG_JAM "using gcc : : ${CMAKE_CXX_COMPILER}")
     endif ()
     ExternalProject_Add(
@@ -110,12 +110,12 @@ if (VERIFYDTAPN_GetDependencies)
         INSTALL_COMMAND ""
     )
 
-    
+
     #set(SPARSEHASH_HOST --host wina)
     ExternalProject_Add( sparsehash-ext
 	    URL https://github.com/sparsehash/sparsehash/archive/sparsehash-2.0.4.zip
 	    CONFIGURE_COMMAND CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} ./configure --prefix=${CMAKE_BINARY_DIR}/external CXXFLAGS=-std=c++11 ${SPARSEHASH_HOST}
-	    BUILD_COMMAND CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} make 
+	    BUILD_COMMAND CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} make
 	    INSTALL_COMMAND make install
             BUILD_IN_SOURCE 1
     )
