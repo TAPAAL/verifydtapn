@@ -319,7 +319,6 @@ namespace TAPN {
     void TimedArcPetriNet::toTAPNXML(std::ostream& out, const std::vector<int>& initial) const
     {
         out << R"(<pnml><net id="ComposedModel" type="P/T net">\n)";
-        out << "TAPN:" << std::endl << "  Places: ";
         for (auto* place : places) {
             auto& inv = place->getInvariant();
             auto [x, y] = place->getPosition();
