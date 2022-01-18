@@ -360,14 +360,14 @@ namespace TAPN {
 
         for(auto* oa : outputArcs)
         {
-            out << "<outputArc weight=\"" << oa->getWeight()
+            out << "<outputArc inscription=\"" << oa->getWeight()
                 << "\" target=\"" << oa->getOutputPlace().getName()
                 << "\" source=\"" << oa->getInputTransition().getName() << "\" />\n";
         }
 
         for(auto* ia : inhibitorArcs)
         {
-            out << "<inhibitorArc weight=\"" << ia->getWeight()
+            out << "<inhibitorArc inscription=\"[0,inf)\" weight=\"" << ia->getWeight()
                 << "\" source=\"" << ia->getInputPlace().getName()
                 << "\" target=\"" << ia->getOutputTransition().getName() << "\" />\n";
         }
