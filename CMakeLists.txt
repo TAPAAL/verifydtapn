@@ -7,7 +7,7 @@ endif()
 
 # Project Definition
 set(VERIFYDTAPN_NAME "verifydtapn")
-set(VERIFYDTAPN_VERSION 3.5.0)
+set(VERIFYDTAPN_VERSION 3.6.0)
 project(${VERIFYDTAPN_NAME} VERSION ${VERIFYDTAPN_VERSION} LANGUAGES CXX C)
 
 
@@ -20,23 +20,26 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 ## Build Flags
 option(VERIFYDTAPN_Static "Link libraries statically" ON)
 option(VERIFYDTAPN_GetDependencies "Fetch external dependencies from web." ON)
+option(VERIFYDTAPN_TEST "Build tests" OFF)
 set(EXTERNAL_INSTALL_LOCATION ${CMAKE_BINARY_DIR}/external CACHE PATH "Install location for external dependencies")
-set(VERIFYDTAPN_TARGETDIR "${CMAKE_BINARY_DIR}/${VERIFYDTAPN_NAME}" CACHE PATH "Traget directory for build files")
-set(VERIFYDTAPN_OSX_DEPLOYMENT_TARGET 10.8 CACHE STRING "Specify the minimum version of the target platform for MacOS on which the target binaries are to be deployed ") 
+set(VERIFYDTAPN_TARGETDIR "${CMAKE_BINARY_DIR}/${VERIFYDTAPN_NAME}" CACHE PATH "Target directory for build files")
+set(VERIFYDTAPN_OSX_DEPLOYMENT_TARGET 10.8 CACHE STRING "Specify the minimum version of the target platform for MacOS on which the target binaries are to be deployed ")
 
 # Configure Project
 
 ## Configure Static
-if (VERIFYDTAPN_Static)
+if (VERIFYDTAPN_Static AND NOT BUILD_TESTING)
     set(BUILD_SHARED_LIBS OFF)
     if (NOT APPLE)
         set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static")
-    else () 
+    else ()
         set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static-libgcc -static-libstdc++")
     endif()
+else ()
+    set(BUILD_SHARED_LIBS ON)
 endif ()
 
-## Configure Traget Platform 
+## Configure Target Platform
 if (UNIX AND NOT APPLE)
     set(ARCH_TYPE "linux64")
 elseif (APPLE)
@@ -48,7 +51,7 @@ endif ()
 
 ## Enabled INTERPROCEDURAL_OPTIMIZATION for non-macos
 if (CMAKE_BUILD_TYPE MATCHES Release)
-    if (NOT APPLE)
+    if (NOT APPLE AND UNIX)
     	set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
     endif ()
 endif ()
@@ -63,12 +66,6 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${VERIFYDTAPN_TARGETDIR}/bin)
 find_package(FLEX 2.6.0 REQUIRED)
 find_package(BISON 3.5.0 REQUIRED)
 
-set(Boost_USE_STATIC_LIBS ON)
-set(Boost_USE_RELEASE_LIBS ON)
-set(Boost_USE_MULTITHREADED OFF)
-find_package(Boost 1.66 REQUIRED)
-include_directories(${Boost_INCLUDE_DIR})
-
 if (VERIFYDTAPN_GetDependencies)
     include(ExternalProject)
     # Install location should be ${EXTERNAL_INSTALL_LOCATION}
@@ -81,25 +78,95 @@ if (VERIFYDTAPN_GetDependencies)
         INSTALL_COMMAND cd ../rapidxml-ext && ${CMAKE_COMMAND} -E copy rapidxml.hpp rapidxml_iterators.hpp rapidxml_print.hpp rapidxml_utils.hpp ${EXTERNAL_INSTALL_LOCATION}/include
     )
 
-    ExternalProject_add(unfoldtacpn-ext 
-        GIT_REPOSITORY https://github.com/TAPAAL/unfoldTACPN.git
-        GIT_TAG v0.0.1
+    ExternalProject_add(unfoldtacpn-ext
+        GIT_REPOSITORY https://github.com/TAPAAL/unfoldTACPN
+        GIT_TAG 2a6757f41370d97a016db16bb3efb9fce0fec452
 	    CMAKE_ARGS -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}  -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION} -DBUILD_TESTING=OFF -DCMAKE_BUILD_TYPE=Release -DFLEX_EXECUTABLE=${FLEX_EXECUTABLE} -DBISON_EXECUTABLE=${BISON_EXECUTABLE}
+
     )
+
+    if (UNIX AND NOT APPLE)
+        set(BOOST_CONFIG_JAM "using gcc : : ${CMAKE_CXX_COMPILER}")
+        set(BOOST_B2_OPTS "")
+    elseif (APPLE)
+        set(BOOST_CONFIG_JAM "using gcc : : ${CMAKE_CXX_COMPILER}")
+        set(BOOST_B2_OPTS "")
+    else ()
+        set(BOOST_CONFIG_JAM "using gcc : : ${CMAKE_CXX_COMPILER}")
+        set(BOOST_B2_OPTS target-os=windows binary-format=pe abi=ms threading=multi threadapi=win32)
+    endif ()
+
+    if (ARCH_TYPE MATCHES "win64")
+	    set(BOOST_CONFIG_JAM "using gcc : : ${CMAKE_CXX_COMPILER}")
+    endif ()
+    ExternalProject_Add(
+        boost-ext
+        URL https://boostorg.jfrog.io/artifactory/main/release/1.78.0/source/boost_1_78_0.zip
+        URL_HASH SHA256=f22143b5528e081123c3c5ed437e92f648fe69748e95fa6e2bd41484e2986cc3
+        PATCH_COMMAND echo "${BOOST_CONFIG_JAM}" $<SEMICOLON>  > config.jam
+        CONFIGURE_COMMAND ./bootstrap.sh --prefix=${CMAKE_BINARY_DIR}/external cxxflags="-arch x86_64" --without-icu
+        BUILD_COMMAND ./b2 --user-config=config.jam --prefix=${CMAKE_BINARY_DIR}/external --with-program_options cxxstd=17 cflags="-fPIC" cxxflags="-fPIC" address-model=64 ${BOOST_B2_OPTS} variant=release link=static runtime-link=static install
+        BUILD_IN_SOURCE 1
+        INSTALL_COMMAND ""
+    )
+
+
+    #set(SPARSEHASH_HOST --host wina)
+    ExternalProject_Add( sparsehash-ext
+	    URL https://github.com/sparsehash/sparsehash/archive/sparsehash-2.0.4.zip
+	    CONFIGURE_COMMAND CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} ./configure --prefix=${CMAKE_BINARY_DIR}/external CXXFLAGS=-std=c++11 ${SPARSEHASH_HOST}
+	    BUILD_COMMAND CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} make
+	    INSTALL_COMMAND make install
+            BUILD_IN_SOURCE 1
+    )
+
+    set(CMAKE_PREFIX_PATH ${EXTERNAL_INSTALL_LOCATION};${CMAKE_PREFIX_PATH})
     link_directories(${EXTERNAL_INSTALL_LOCATION}/lib)
     include_directories(${EXTERNAL_INSTALL_LOCATION}/include)
 endif ()
 
-# Set Macros
-add_compile_definitions(VERIFYDTAPN_VERSION=\"${VERIFYDTAPN_VERSION}\")
+
+if (CMAKE_BUILD_TYPE MATCHES Prebuild)
+    # dummy for pre-build
+    add_custom_target( prebuild )
+    add_dependencies( prebuild boost-ext rapidxml-ext unfoldtacpn-ext sparsehash-ext)
+else ( )
+
+    set(Boost_USE_RELEASE_LIBS ON)
+    set(Boost_USE_MULTITHREADED OFF)
+    if (NOT BUILD_TESTING)
+        set(Boost_USE_STATIC_LIBS ON)
+    else ()
+        set(Boost_USE_STATIC_LIBS OFF)
+    endif()
+
+    if(NOT BUILD_TESTING)
+        set(Boost_USE_STATIC_RUNTIME ON)
+        set(Boost_USE_STATIC_LIBS ON)
+        set(Boost_USE_RELEASE_LIBS ON)
+        set(Boost_USE_MULTITHREADED OFF)
+    else()
+        set(Boost_USE_STATIC_LIBS OFF)
+        set(Boost_USE_RELEASE_LIBS ON)
+        set(Boost_USE_MULTITHREADED OFF)
+    endif()
+
+    find_package(Boost 1.66 REQUIRED program_options)
+    include_directories(${Boost_INCLUDE_DIR})
+
+    # Set Macros
+    add_compile_definitions(VERIFYDTAPN_VERSION=\"${VERIFYDTAPN_VERSION}\")
+    add_compile_definitions(VERIFYDTAPN_NAME=\"verifydtapn-${ARCH_TYPE}\")
 
 
-# Source
-include_directories(include)
-add_subdirectory(${CMAKE_SOURCE_DIR}/src/)
 
-# Testing
-#if (VERIFYDTAPN_TEST)
-#    enable_testing()
-#    add_subdirectory(${CMAKE_SOURCE_DIR}/test)
-#endif()
+    # Source
+    include_directories(include)
+    add_subdirectory(${CMAKE_SOURCE_DIR}/src/)
+
+
+    if(BUILD_TESTING AND VERIFYDTAPN_TEST)
+        enable_testing()
+        add_subdirectory(test)
+    endif()
+endif( )

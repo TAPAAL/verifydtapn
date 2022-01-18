@@ -1,11 +1,11 @@
 
 
-add_subdirectory(QueryParser)
+add_subdirectory(Query)
 add_library(PlaceVisitor PlaceVisitor.cpp)
-target_link_libraries(PlaceVisitor QueryParser)
+target_link_libraries(PlaceVisitor Query)
 
 add_subdirectory(TAPN)
-add_subdirectory(TAPNParser)
 
 add_library(Core ArgsParser.cpp VerificationOptions.cpp)
-target_link_libraries(Core QueryParser TAPN TAPNParser)
+
+target_link_libraries(Core Query TAPN Boost::program_options)

@@ -8,7 +8,7 @@
 #include "InhibitorArc.hpp"
 #include "OutputArc.hpp"
 
-#include "Core/QueryParser/AST.hpp"
+#include "Core/Query/AST.hpp"
 #include "Core/PlaceVisitor.hpp"
 #include "Core/VerificationOptions.hpp"
 
@@ -23,14 +23,15 @@ namespace TAPN {
     class TimedArcPetriNet {
 
     public:// construction
-        TimedArcPetriNet(TimedPlace::Vector &places,
-                         TimedTransition::Vector &transitions,
-                         TimedInputArc::Vector &inputArcs,
-                         OutputArc::Vector &outputArcs,
-                         TransportArc::Vector &transportArcs,
-                         InhibitorArc::Vector &inhibitorArcs)
+        TimedArcPetriNet(const TimedPlace::Vector &places,
+                         const TimedTransition::Vector &transitions,
+                         const TimedInputArc::Vector &inputArcs,
+                         const OutputArc::Vector &outputArcs,
+                         const TransportArc::Vector &transportArcs,
+                         const InhibitorArc::Vector &inhibitorArcs)
                 : places(places), transitions(transitions), inputArcs(inputArcs), outputArcs(outputArcs),
-                  transportArcs(transportArcs), inhibitorArcs(inhibitorArcs) {};
+                  transportArcs(transportArcs), inhibitorArcs(inhibitorArcs) {
+                };
 
         ~TimedArcPetriNet() {
             // call delete on all data
@@ -90,6 +91,9 @@ namespace TAPN {
 
         void GCDLowerGuards();
 
+        void toTAPNXML(std::ostream& out, const std::vector<int>& initial) const;
+
+
 
     private: // modifiers
 
@@ -111,6 +115,7 @@ namespace TAPN {
         int maxConstant = 0;
         int gcd = 1;
     };
+
 
     inline std::ostream &operator<<(std::ostream &out, const VerifyTAPN::TAPN::TimedArcPetriNet &tapn) {
         tapn.print(out);

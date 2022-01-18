@@ -22,24 +22,22 @@ jobs:
     
     - name: Install depends
       run: |
-        brew install cmake boost google-sparsehash flex bison
+        brew install cmake flex bison
     
+    - name: Prebuild
+      run: |
+        mkdir build && cd build
+        CC=gcc-10 CXX=g++-10 cmake ../ -DCMAKE_BUILD_TYPE=Prebuild -DBISON_EXECUTABLE=/usr/local/opt/bison/bin/bison -DFLEX_EXECUTABLE=/usr/local/opt/flex/bin/flex
+        make
+
     - name: Build 
-      uses: lukka/run-cmake@v3
-      with:
-        cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
-        cmakeAppendedArgs: >-
-          -DFLEX_EXECUTABLE=/usr/local/opt/flex/bin/flex 
-          -DBISON_EXECUTABLE=/usr/local/opt/bison/bin/bison
-        cmakeBuildType: Release
-        cmakeGenerator: UnixMakefiles
-        buildDirectory: '${{runner.workspace}}/build'     
-      env:
-        CC: gcc-9
-        CXX: g++-9
-    
+      run: |
+        cd build
+        CC=gcc-10 CXX=g++-10 cmake ../ -DCMAKE_BUILD_TYPE=Release -DBISON_EXECUTABLE=/usr/local/opt/bison/bin/bison -DFLEX_EXECUTABLE=/usr/local/opt/flex/bin/flex
+        make
+
     - name: Upload artifacts 
       uses: actions/upload-artifact@v2
       with:
         name: verifydtapn-osx64
-        path: '${{runner.workspace}}/build/verifydtapn/bin/verifydtapn-osx64'
+        path: '${{github.workspace}}/build/verifydtapn/bin/verifydtapn-osx64'

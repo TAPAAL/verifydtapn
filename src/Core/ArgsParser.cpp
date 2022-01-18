@@ -2,354 +2,82 @@
 
 #include <iostream>
 #include <iomanip>
+#include <boost/program_options.hpp>
 
-#include <boost/algorithm/string.hpp>
-#include <boost/tokenizer.hpp>
+namespace po = boost::program_options;
 
 namespace VerifyTAPN {
-    static const std::string KBOUND_OPTION = "k-bound";
-    static const std::string SEARCH_OPTION = "search-type";
-    static const std::string VERIFICATION_OPTION = "verification-method";
-    static const std::string MEMORY_OPTIMIZATION_OPTION = "memory-optimization";
-    static const std::string TRACE_OPTION = "trace";
-    static const std::string MAX_CONSTANT_OPTION = "global-max-constants";
-    static const std::string XML_TRACE_OPTION = "xml-trace";
-    static const std::string GCD = "gcd";
-    static const std::string LEGACY = "legacy";
-    static const std::string KEEP_DEAD = "keep-dead-tokens";
-    static const std::string WORKFLOW = "workflow";
-    static const std::string STRONG_WORKFLOW_BOUND = "strong-workflow-bound";
-    static const std::string CALCULATE_CMAX = "calculate-cmax";
-    static const std::string REPLACE = "replace";
-    static const std::string ORDER = "partial-order";
-    static const std::string OUTPUTFILE = "write-file";
-    static const std::string OUTPUTQUERY = "write-query";
-    static const std::string OUTPUTXMLQUERY = "write-query-xml";
-    static const std::string XML_QUERY_NUMBERS = "query-numbers";
-    static const std::string STRATEGY_OUT = "strategy-output";
 
-    std::ostream &operator<<(std::ostream &out, const Switch &flag) {
-        flag.print(out);
-        return out;
+    // TODO clean this up, move to boost and move this code to
+    // the options directly
+
+    ArgsParser::ArgsParser() { };
+
+    uint64_t parseInt(const std::string& str)
+    {
+        if(std::any_of(str.begin(), str.end(), [](char a) { return !std::isdigit(a); }))
+        {
+            std::cout << "Not a number: " << str << std::endl;
+        }
+        std::stringstream ss(str);
+        uint64_t a;
+        ss >> a;
+        return a;
     }
 
-    void PrintIndentedDescription(std::ostream &out,
-                                  const std::string &description) {
-        typedef boost::tokenizer<boost::char_separator<char> > tokens;
-        tokens lines(description.begin(), description.end(),
-                     boost::char_separator<char>("\n", "", boost::keep_empty_tokens));
-        bool first = true;
-        for (auto& t : lines) {
-            if (!first) {
-                out << std::setw(WIDTH) << " ";
+    std::set<size_t> parseNumbers(const std::string& str)
+    {
+        size_t last = 0;
+        size_t i = 0;
+        std::set<size_t> res;
+        for(; i < str.size(); ++i)
+        {
+            if(str[i] != ',') continue;
+            std::string tmp = str.substr(last, i-last);
+            auto n = parseInt(tmp);
+            if(n <= 0)
+            {
+                std::cerr << "Query-indexes are 1-index, got a 0";
+                std::exit(-1);
             }
-            out << t << std::endl;
-            first = false;
+            res.emplace(n-1); // 0-indexed in parser
+            last = i+1; // skip comma
         }
-    }
-
-    void Switch::print(std::ostream &out) const {
-        std::stringstream s;
-        s << "-" << getShortName();
-        s << " [ --" << getLongName() << " ]";
-        out << std::setw(WIDTH) << std::left << s.str();
-        PrintIndentedDescription(out, getDescription());
-    }
-
-    void SwitchWithArg::print(std::ostream &out) const {
-        std::stringstream s;
-        s << "-" << getShortName();
-        s << " [ --" << getLongName() << " ] ";
-        s << " arg (=" << default_value << ")";
-        out << std::setw(WIDTH) << std::left << s.str();
-        PrintIndentedDescription(out, getDescription());
-    }
-
-    void SwitchWithStringArg::print(std::ostream &out) const {
-        std::stringstream s;
-        s << "-" << getShortName();
-        s << " [ --" << getLongName() << " ] ";
-        if(default_value.empty()){
-            s << " a1,a2,.. ";
-        } else {
-            s << " a1,a2,.. (=" << default_value << ")";
-        }
-        
-        out << std::setw(WIDTH) << std::left << s.str();
-        PrintIndentedDescription(out, getDescription());
-    }
-
-    bool Switch::handles(const std::string &flag) const {
-        std::stringstream stream;
-        stream << "-" << name << " ";
-        if (flag.find(stream.str()) != std::string::npos)
-            return true;
-        if (flag.find(long_name) != std::string::npos)
-            return true;
-        return false;
-    }
-
-    option Switch::parse(const std::string &flag) {
-        assert(handles(flag));
-        handled_option = true;
-        return option(getLongName(), "1");
-    }
-
-    option SwitchWithArg::parse(const std::string &flag) {
-        assert(handles(flag));
-        handled_option = true;
-        std::string copy(flag);
-        std::stringstream stream;
-        stream << "-" << getShortName() << " ";
-        if (flag.find(stream.str()) != std::string::npos) {
-            boost::erase_all(copy, stream.str());
-        } else {
-            std::stringstream long_name_stream;
-            long_name_stream << "--" << getLongName() << " ";
-            boost::erase_all(copy, long_name_stream.str());
-        }
-        boost::trim(copy);
-        return option(getLongName(), copy);
-    }
-
-    option SwitchWithStringArg::parse(const std::string &flag) {
-        assert(handles(flag));
-        handled_option = true;
-        std::string copy(flag);
-        std::stringstream stream;
-        stream << "-" << getShortName() << " ";
-        if (flag.find(stream.str()) != std::string::npos) {
-            boost::erase_all(copy, stream.str());
-        } else {
-            std::stringstream long_name_stream;
-            long_name_stream << "--" << getLongName() << " ";
-            boost::erase_all(copy, long_name_stream.str());
-        }
-        boost::trim(copy);
-        return option(getLongName(), copy);
-    }
-
-    void ArgsParser::initialize() {
-        // NOTE: The Help() function only splits and indents descriptions based on newlines.
-        //       Each line in the description is assumed to fit within the remaining width
-        //       of the console, so keep descriptions short, or implement manual word-wrapping :).
-        parsers.push_back(
-                new SwitchWithArg("k", KBOUND_OPTION,
-                                  "Max tokens to use during exploration.", 0));
-        parsers.push_back(
-                new SwitchWithArg("o", SEARCH_OPTION,
-                                  "Specify the desired search strategy.\n - 0: Breadth-First Search\n - 1: Depth-First Search\n - 2: Random Search\n - 3: Heuristic Search\n - 4: Default",
-                                  4));
-        parsers.push_back(
-                new SwitchWithArg("m", VERIFICATION_OPTION,
-                                  "Specify the desired verification method.\n - 0: Default (discrete)\n - 1: Time Darts",
-                                  0));
-        parsers.push_back(
-                new SwitchWithArg("p", MEMORY_OPTIMIZATION_OPTION,
-                                  "Specify the desired memory optimization.\n - 0: None \n - 1: PTrie",
-                                  0));
-        parsers.push_back(
-                new SwitchWithArg("t", TRACE_OPTION,
-                                  "Specify the desired trace option.\n - 0: none\n - 1: some\n - 2: fastest",
-                                  0));
-        parsers.push_back(
-                new Switch("d", KEEP_DEAD,
-                           "Do not discard dead tokens\n(used for boundedness checking)"));
-        parsers.push_back(
-                new Switch("g", MAX_CONSTANT_OPTION,
-                           "Use global maximum constant for \nextrapolation (as opposed to local \nconstants)."));
-        parsers.push_back(
-                new Switch("s", LEGACY,
-                           "Legacy option (no effect)."));
-
-        parsers.push_back(
-                new Switch("x", XML_TRACE_OPTION,
-                           "Output trace in xml format for TAPAAL."));
-
-        parsers.push_back(
-                new Switch("c", GCD,
-                           "Enable lowering the guards by the greatest common divisor"));
-
-        parsers.push_back(
-                new SwitchWithArg("w", WORKFLOW,
-                                  "Workflow mode.\n - 0: Disabled\n - 1: Soundness (and min)\n - 2: Strong Soundness (and max)",
-                                  0));
-        parsers.push_back(
-                new SwitchWithArg("b", STRONG_WORKFLOW_BOUND,
-                                  "Maximum delay bound for strong workflow analysis",
-                                  0));
-        parsers.push_back(
-                new Switch("n", CALCULATE_CMAX,
-                           "Calculate the place bounds"));
-        parsers.push_back(
-                new SwitchWithStringArg("r", REPLACE,
-                                        "Replace placeholder in model with value, format PLACEHOLDER=VALUE;..", ""));
-        parsers.push_back(
-                new Switch("i", ORDER,
-                           "Disable partial order reduction"));
-        parsers.push_back(
-                new SwitchWithStringArg("f", OUTPUTFILE,
-                                        "Write the model to a pnml file (Used for Colored Models)", ""));
-        parsers.push_back(
-                new SwitchWithStringArg("q", OUTPUTQUERY,
-                                        "Write the query to a file (Used for Colored Models)", ""));
-        parsers.push_back(
-                new SwitchWithStringArg("q-xml", OUTPUTXMLQUERY,
-                                        "Write the queries to a file in xml format (Used for Colored Models)", ""));
-
-        parsers.push_back(
-            new SwitchWithStringArg("q-num", XML_QUERY_NUMBERS, "Parse XML query file and unfold queries of the provided indexs.\nOnly the lowest index query will be verified. (Required for XML queries)", "")
-        );
-
-        parsers.push_back(
-                new SwitchWithStringArg("z", STRATEGY_OUT,
-                           "File to write synthesized strategy to, use '_' (an underscore) for stdout", ""));
-    }
-
-    void ArgsParser::printHelp() const {
-        std::cout
-                << "Usage: verifydtapn -k <number> [optional arguments] model-file query-file"
-                << std::endl;
-        std::cout << "Allowed Options:" << std::endl;
-        std::cout << std::setw(WIDTH) << std::left << "-h [ --help ]"
-                  << "Displays this help message." << std::endl;
-        std::cout << std::setw(WIDTH) << std::left << "-v [ --version ]"
-                  << "Displays version information." << std::endl;
-        for (auto &p : parsers) {
-            std::cout << *p;
-        }
-    }
-
-    void ArgsParser::printVersion() const {
-        std::cout << "VerifyDTAPN " << VERIFYDTAPN_VERSION << std::endl;
-        std::cout << "Licensed under BSD." << std::endl;
-    }
-
-    VerificationOptions ArgsParser::parse(int argc, char *argv[]) const {
-        if (argc == 1 || std::string(argv[1]) == "-h"
-            || std::string(argv[1]) == "--help") {
-            printHelp();
-           std::exit(0);
-        }
-
-        if (std::string(argv[1]) == "-v" || std::string(argv[1]) == "--version") {
-            printVersion();
-           std::exit(0);
-        }
-
-        if (argc < 3) {
-            std::cout << "too few parameters." << std::endl;
-            std::cout << "Use '-h' for help on correct usage." << std::endl;
-           std::exit(1);
-        }
-
-        std::vector<std::string> flags;
-        unsigned int i = 1;
-        auto size = static_cast<unsigned int>(argc);
-        while (i < size) {
-            std::string arg(argv[i]);
-            if (boost::istarts_with(arg, "-")) {
-                std::string arg2(argv[i + 1]);
-                if (!boost::istarts_with(arg2, "-") && i + 1 < size) {
-                    flags.push_back(arg + " " + arg2);
-                    i++;
-                } else {
-                    flags.push_back(arg + " ");
-                }
+        if(last < i)
+        {
+            std::string tmp = str.substr(last, i-last);
+            auto n = parseInt(tmp);
+            if(n <= 0)
+            {
+                std::cerr << "Query-indexes are 1-index, got a 0";
+                std::exit(-1);
             }
-            i++;
+            res.emplace(n-1); // 0-indexed in parser
         }
-
-        option_map options;
-        for (const auto &flag : flags) {
-            bool handled = false;
-            for (auto parser : parsers) {
-                if (parser->handles(flag)) {
-                    options.insert(parser->parse(flag));
-                    handled = true;
-                }
-            }
-            if (!handled) {
-                std::cout << "Unknown option flag '" << flag << "'" << std::endl;
-                std::cout << "Use '-h' to see a list of valid options."
-                          << std::endl;
-               std::exit(1);
-            }
-        }
-
-        // Put in default values for non-specified options
-        for (auto parser : parsers) {
-            if (!parser->handledOption()) {
-                options.insert(parser->getDefaultOption());
-            }
-        }
-
-        std::string model_file(argv[argc - 2]);
-        std::string query_file(argv[argc - 1]);
-
-        return verifyInputFiles(createVerificationOptions(options), model_file, query_file);
+        return res;
     }
 
-    VerificationOptions
-    ArgsParser::verifyInputFiles(VerificationOptions options, std::string model_file, std::string query_file) const {
-        if (options.getWorkflowMode() != VerificationOptions::WORKFLOW_SOUNDNESS &&
-            options.getWorkflowMode() != VerificationOptions::WORKFLOW_STRONG_SOUNDNESS) {
 
-            if (!boost::iends_with(model_file, ".xml")) {
-                std::cout << "Invalid model file specified." << model_file << std::endl;
-                std::exit(1);
-            }
-
-            if(!options.getOutputModelFile().empty() && !options.getOutputQueryFile().empty()){
-                if (!boost::iends_with(query_file, ".q") && !boost::iends_with(query_file, ".xml")) {
-                    std::cout << "Invalid query file specified." << std::endl;
-                    std::exit(1);
-                }
-            } else {
-                if (!boost::iends_with(query_file, ".q")) {
-                    std::cout << "Invalid query file specified." << std::endl;
-                    std::exit(1);
-                }
-            }
-        } else {
-            if (!boost::iends_with(model_file, ".xml")) {
-                if (boost::iends_with(query_file, ".xml")) {
-                    // last argument is probably xml, no query-file
-                    model_file = query_file;
-                } else {
-                    // we have no xml-files at all :(
-                    std::cout << "Invalid model file specified.here" << std::endl;
-                    std::exit(1);
-                }
-            } else {
-                std::cout << "Ignoring query-file for Workflow-analysis" << std::endl;
-            }
-            query_file = "";
-        }
-        options.setInputFile(model_file);
-        options.setQueryFile(query_file);
-        return options;
+    VerificationOptions::SearchType toSearchType(const std::string& str) {
+        if(str == "BestFS")
+            return VerificationOptions::COVERMOST;
+        if(str == "BFS")
+            return VerificationOptions::BREADTHFIRST;
+        if(str == "DFS")
+            return VerificationOptions::DEPTHFIRST;
+        if(str == "RDFS")
+            return VerificationOptions::RANDOM;
+        if(str == "MindelayFS")
+            return VerificationOptions::MINDELAYFIRST;
+        if(str == "DEFAULT" || str == "default")
+            return VerificationOptions::DEFAULT;
+        if(str == "OverApprox")
+            return VerificationOptions::OverApprox;
+        std::cout << "Unknown search strategy '" << str << "' specified." << std::endl;
+        std::exit(1);
     }
 
-    VerificationOptions::SearchType intToSearchTypeEnum(int i) {
-        switch (i) {
-            case 0:
-                return VerificationOptions::BREADTHFIRST;
-            case 1:
-                return VerificationOptions::DEPTHFIRST;
-            case 2:
-                return VerificationOptions::RANDOM;
-            case 3:
-                return VerificationOptions::COVERMOST;
-            case 4:
-                return VerificationOptions::DEFAULT;
-            default:
-                std::cout << "Unknown search strategy specified." << std::endl;
-               std::exit(1);
-        }
-    }
-
-    VerificationOptions::VerificationType intToVerificationTypeEnum(int i) {
+    VerificationOptions::VerificationType toVerificationType(unsigned int i) {
         switch (i) {
             case 0:
                 return VerificationOptions::DISCRETE;
@@ -357,11 +85,11 @@ namespace VerifyTAPN {
                 return VerificationOptions::TIMEDART;
             default:
                 std::cout << "Unknown verification method specified." << std::endl;
-               std::exit(1);
+                std::exit(1);
         }
     }
 
-    VerificationOptions::MemoryOptimization intToMemoryOptimizationEnum(int i) {
+    VerificationOptions::MemoryOptimization toMemoryType(int i) {
         switch (i) {
             case 0:
                 return VerificationOptions::NO_MEMORY_OPTIMIZATION;
@@ -373,8 +101,21 @@ namespace VerifyTAPN {
         }
     }
 
+    VerificationOptions::Trace toTraceType(int i) {
+        switch (i) {
+            case 0:
+                return VerificationOptions::NO_TRACE;
+            case 1:
+                return VerificationOptions::SOME_TRACE;
+            case 2:
+                return VerificationOptions::FASTEST_TRACE;
+            default:
+                std::cout << "Unknown trace option specified." << std::endl;
+                std::exit(1);
+        }
+    }
 
-    VerificationOptions::WorkflowMode intToWorkflowTypeEnum(int i) {
+    VerificationOptions::WorkflowMode toWorkflowMode(int i) {
         switch (i) {
             case 0:
                 return VerificationOptions::NOT_WORKFLOW;
@@ -388,161 +129,165 @@ namespace VerifyTAPN {
         }
     }
 
-    VerificationOptions::Trace intToEnum(int i) {
-        switch (i) {
-            case 0:
-                return VerificationOptions::NO_TRACE;
-            case 1:
-                return VerificationOptions::SOME_TRACE;
-            case 2:
-                return VerificationOptions::FASTEST_TRACE;
-            default:
-                std::cout << "Unknown trace option specified." << std::endl;
-               std::exit(1);
-        }
+
+    void initialize(po::options_description& args, VerificationOptions& options) {
+        args.add_options()
+            ("help,h", "Displays this help messsage.")
+            ("version,v", "Displays version information.")
+            ("k-bound,k", po::value<uint32_t>(), "Max tokens to use during exploration.")
+            ("xml-queries,x", po::value<std::string>(), "Parse XML query file and verify queries of a given comma-seperated list")
+            ("search-strategy,s", po::value<std::string>(),
+                "Specify the desired search strategy\n"
+                 " BestFS\n"
+                 " DFS\n"
+                 " RDFS\n"
+                 " MindelayFS\n"
+                 " OverApprox\n"
+                 " default")
+            ("verification-method,m", po::value<uint32_t>(),
+                "Specify the desired verification method.\n"
+                    " 0: Discrete (default)\n "
+                    " 1: Time Darts")
+            ("memory-optimization,p", po::value<uint32_t>(),
+                "Specify the desired memory optimization.\n"
+                    " 0: None (default)\n"
+                    " 1: PTrie")
+            ("trace,t", po::value<uint32_t>(),
+                "Specify the desired trace option.\n"
+                  " 0: none (default)\n"
+                  " 1: some\n"
+                  " 2: fastest")
+            ("keep-dead-tokens", "Do not discard dead tokens (used for boundedness checking)")
+            ("global-max-constants", "Use global maximum constant for extrapolation (as opposed to local constants).")
+            ("gcd-lower", "Enable lowering the guards by the greatest common divisor.")
+            ("workflow,w", po::value<uint32_t>(),
+                "Workflow mode.\n"
+                  " 0: Disabled (default)\n"
+                  " 1: Soundness (and min)\n"
+                  " 2: Strong Soundness (and max)")
+            ("strong-workflow-bound", po::value<size_t>(), "Maximum delay bound for strong workflow analysis")
+            ("compute-cmax", "Calculate the place bounds.")
+            ("disable-partial-order", "Disable partial order reduction")
+            ("write-unfolded-net", po::value<std::string>(), "Outputs the model to the given file before structural reduction but after unfolding")
+            ("write-unfolded-queries", po::value<std::string>(), "Outputs the queries to the given file before query reduction but after unfolding")
+            ("strategy-output", po::value<std::string>(), "File to write synthesized strategy to, use '_' (an underscore) for stdout");
     }
 
-    unsigned int ArgsParser::tryParseInt(const option &option) const {
-        unsigned int result = 0;
-        try {
-            result = boost::lexical_cast<unsigned int>(option.second);
-        } catch (boost::bad_lexical_cast &e) {
-            std::cout << "Invalid value '" << option.second << "' for option '--"
-                      << option.first << "'" << std::endl;
-           std::exit(1);
-        }
-        return result;
-    }
 
-    unsigned long long ArgsParser::tryParseLongLong(const option &option) const {
-        unsigned long long result = 0;
-        try {
-            result = boost::lexical_cast<unsigned long long>(option.second);
-        } catch (boost::bad_lexical_cast &e) {
-            std::cout << "Invalid value '" << option.second << "' for option '--"
-                      << option.first << "'" << std::endl;
-           std::exit(1);
-        }
-        return result;
-    }
+    VerificationOptions ArgsParser::parse(int argc, char *argv[]) {
+        VerificationOptions opts;
+        po::options_description args(VERIFYDTAPN_NAME " [options] model.pnml (query.xml)");
+        initialize(args, opts);
+        po::variables_map vm;
 
-    std::set<size_t> ArgsParser::extractValues(const option &option) const {
-        std::set<size_t> result;
-        std::istringstream iss(option.second);
+        auto parsed = po::command_line_parser(argc, argv).options(args).allow_unregistered().run();
+        po::store(parsed, vm);
+        po::notify(vm);
 
-        for (std::string token; std::getline(iss, token, ','); )
+        if(vm.count("help"))
         {
-            if(token.empty()){
-                continue;
-            }
-            result.insert(tryParseInt(std::make_pair(option.first, std::move(token))));
+            std::cout << args << std::endl;
+            std::exit(0);
         }
 
-        return result;
-    }
+        if(vm.count("version"))
+        {
+            std::cout << "VerifyDTAPN " << VERIFYDTAPN_VERSION << std::endl;
+            std::cout << "Licensed under BSD." << std::endl;
+            std::exit(0);
+        }
 
-    std::map<std::string, int> ArgsParser::parseReplace(const option &option) const {
-        std::map<std::string, int> replace;
-        const std::string param = option.second;
+        if(vm.count("k-bound"))
+            opts.setKBound(vm["k-bound"].as<uint32_t>());
 
-        size_t split = 0;
-        do {
-            size_t equal = param.find('=', split);
-            if (equal != std::string::npos) {
-                std::string name = param.substr(split, equal - split);
-                std::string val;
-                split = param.find(':', equal);
-                ++equal;
-                if (split == std::string::npos)
-                    val = param.substr(equal, param.size() - equal);
-                else
-                    val = param.substr(equal, split - equal);
+        if(vm.count("xml-queries"))
+            opts.setQueryNumbers(parseNumbers(vm["xml-queries"].as<std::string>()));
 
-                try {
-                    int res = boost::lexical_cast<unsigned long long>(val);
-                    replace[name] = res;
-                } catch (boost::bad_lexical_cast &e) {
-                    std::cout << "Invalid value '" << option.second << "' for option '--"
-                              << option.first << "'" << std::endl;
-                   std::exit(1);
-                }
-                if (split >= param.size()) break;
-                ++split;
-            } else {
-                break;
+        if(vm.count("search-strategy"))
+            opts.setSearchType(toSearchType(vm["search-strategy"].as<std::string>()));
+
+        if(vm.count("verification-method"))
+            opts.setVerificationType(toVerificationType(vm["verification-method"].as<uint32_t>()));
+
+        if(vm.count("memory-optimization"))
+            opts.setMemoryOptimization(toMemoryType(vm["memory-optimization"].as<uint32_t>()));
+
+        if(vm.count("trace"))
+            opts.setTrace(toTraceType(vm["trace"].as<uint32_t>()));
+
+        if(vm.count("keep-dead-tokens"))
+            opts.setKeepDeadTokens(true);
+
+        if(vm.count("global-max-constants"))
+            opts.setGlobalMaxConstantsEnabled(true);
+
+        if(vm.count("gcd-lower"))
+            opts.setGCDLowerGuardsEnabled(true);
+
+        if(vm.count("workflow"))
+            opts.setWorkflowMode(toWorkflowMode(vm["workflow"].as<uint32_t>()));
+
+        if(vm.count("strong-workflow-bound"))
+            opts.setWorkflowBound(vm["strong-workflow-bound"].as<size_t>());
+
+        if(vm.count("calculate-cmax"))
+            opts.setCalculateCmax(true);
+
+        if(vm.count("disable-partial-order"))
+            opts.setPartialOrderReduction(false);
+
+        if(vm.count("write-unfolded-net"))
+            opts.setOutputModelFile(vm["write-unfolded-net"].as<std::string>());
+
+        if(vm.count("write-unfolded-queries"))
+            opts.setOutputQueryFile(vm["write-unfolded-queries"].as<std::string>());
+
+        if(vm.count("strategy-output"))
+            opts.setOutputModelFile(vm["strategy-output"].as<std::string>());
+
+
+        std::vector<std::string> files = po::collect_unrecognized(parsed.options, po::include_positional);
+        // remove everything that is just a space
+        files.erase(std::remove_if(files.begin(), files.end(),
+            [](auto& s ) {
+                return std::all_of(s.begin(), s.end(),
+                            [](auto c) {
+                                return std::isspace(c);
+                            });
             }
+        ), files.end());
+        if (opts.getWorkflowMode() == VerificationOptions::WORKFLOW_SOUNDNESS ||
+            opts.getWorkflowMode() == VerificationOptions::WORKFLOW_STRONG_SOUNDNESS) {
+            if(files.size() != 1)
+            {
+                std::cerr << "Expected exactly 1 trailing file (the model) for workflow verification, got [";
+                for(size_t i = 0; i < files.size(); ++i)
+                {
+                    if(i != 0) std::cerr << ", ";
+                    std::cerr << files[i];
+                }
+                std::cerr << "]" << std::endl;
+                std::exit(-1);
+            }
+            opts.setInputFile(files[0]);
+        }
+        else
+        {
+            if(files.size() != 2)
+            {
+                std::cerr << "Expected exactly 1 trailing file (a model and a query), got [";
+                for(size_t i = 0; i < files.size(); ++i)
+                {
+                    if(i != 0) std::cerr << ", ";
+                    std::cerr << files[i];
+                }
+                std::cerr << "]" << std::endl;
+                std::exit(-1);
+            }
+            opts.setInputFile(files[0]);
+            opts.setQueryFile(files[1]);
+        }
 
-        } while (split != std::string::npos);
-        return replace;
-    }
-
-    std::vector<std::string> ArgsParser::parseIncPlaces(
-            const std::string &string) const {
-        std::vector<std::string> vec;
-        boost::split(vec, string, boost::is_any_of(","));
-        return vec;
-    }
-
-    VerificationOptions ArgsParser::createVerificationOptions(const option_map &map) const {
-        assert(map.find(KBOUND_OPTION) != map.end());
-        unsigned int kbound = tryParseInt(*map.find(KBOUND_OPTION));
-
-        assert(map.find(SEARCH_OPTION) != map.end());
-        VerificationOptions::SearchType search = intToSearchTypeEnum(
-                tryParseInt(*map.find(SEARCH_OPTION)));
-
-        assert(map.find(VERIFICATION_OPTION) != map.end());
-        VerificationOptions::VerificationType verification = intToVerificationTypeEnum(
-                tryParseInt(*map.find(VERIFICATION_OPTION)));
-
-        assert(map.find(MEMORY_OPTIMIZATION_OPTION) != map.end());
-        VerificationOptions::MemoryOptimization memoptimization = intToMemoryOptimizationEnum(
-                tryParseInt(*map.find(MEMORY_OPTIMIZATION_OPTION)));
-
-        assert(map.find(TRACE_OPTION) != map.end());
-        VerificationOptions::Trace trace = intToEnum(tryParseInt(*map.find(TRACE_OPTION)));
-
-        assert(map.find(MAX_CONSTANT_OPTION) != map.end());
-        bool max_constant = boost::lexical_cast<bool>(
-                map.find(MAX_CONSTANT_OPTION)->second);
-
-        assert(map.find(KEEP_DEAD) != map.end());
-        bool keep_dead = boost::lexical_cast<bool>(map.find(KEEP_DEAD)->second);
-
-        assert(map.find(XML_TRACE_OPTION) != map.end());
-        bool xml_trace = boost::lexical_cast<bool>(
-                map.find(XML_TRACE_OPTION)->second);
-
-        assert(map.find(WORKFLOW) != map.end());
-        VerificationOptions::WorkflowMode workflow = intToWorkflowTypeEnum(
-                tryParseInt(*map.find(WORKFLOW)));
-
-        assert(map.find(STRONG_WORKFLOW_BOUND) != map.end());
-        unsigned long long workflowBound = tryParseLongLong(*map.find(STRONG_WORKFLOW_BOUND));
-
-        assert(map.find(CALCULATE_CMAX) != map.end());
-        bool calculateCmax = boost::lexical_cast<bool>(
-                map.find(CALCULATE_CMAX)->second);
-
-        std::map<std::string, int> replace = parseReplace(*map.find(REPLACE));
-
-        assert(map.find(GCD) != map.end());
-        bool enableGCDLowerGuards = boost::lexical_cast<bool>(
-                map.find(GCD)->second);
-
-        bool order = boost::lexical_cast<bool>(
-                map.find(ORDER)->second);
-
-        std::string outputFile = map.find(OUTPUTFILE)->second;
-        std::string outputQuery = map.find(OUTPUTQUERY)->second;
-        std::string outputXMLQuery = map.find(OUTPUTXMLQUERY)->second;
-
-        std::set<size_t> querynumbers = extractValues(*map.find(XML_QUERY_NUMBERS));
-
-        std::string output = map.find(STRATEGY_OUT)->second;
-
-        return VerificationOptions(search, verification, memoptimization, kbound, trace,
-                                   xml_trace, max_constant, keep_dead, enableGCDLowerGuards, workflow,
-                                   workflowBound, calculateCmax, replace, !order, outputFile, outputQuery, outputXMLQuery, querynumbers, output);
+        return opts;
     }
 }

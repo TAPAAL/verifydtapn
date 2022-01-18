@@ -8,8 +8,8 @@
 #ifndef DEADLOCKVISITOR_HPP_
 #define DEADLOCKVISITOR_HPP_
 
-#include "Core/QueryParser/Visitor.hpp"
-#include "Core/QueryParser/AST.hpp"
+#include "Core/Query/Visitor.hpp"
+#include "Core/Query/AST.hpp"
 #include <exception>
 
 namespace VerifyTAPN { namespace DiscreteVerification {

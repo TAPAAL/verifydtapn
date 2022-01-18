@@ -3,6 +3,7 @@
 
 #include <limits>
 #include <numeric>
+#include <string>
 
 namespace VerifyTAPN {
 namespace TAPN {
@@ -14,38 +15,16 @@ namespace TAPN {
         }
 
         for (unsigned int i = 0; i < places.size(); i++) {
-            places[i]->setIndex(i);
             updateMaxConstant(places[i]->getInvariant());
         }
 
-        for (unsigned int i = 0; i < transitions.size(); i++) {
-            transitions[i]->setIndex(i);
-        }
-
         for (auto* arc : inputArcs) {
-            arc->getOutputTransition().addToPreset(arc);
-            arc->getInputPlace().addInputArc(arc);
             updateMaxConstant(arc->getInterval());
         }
 
         for (auto* arc : transportArcs) {
-            arc->getTransition().addTransportArcGoingThrough(arc);
-            arc->getSource().addTransportArc(arc);
-            arc->getDestination().addProdTransportArc(arc);
             updateMaxConstant(arc->getInterval());
         }
-
-        for (auto* arc : inhibitorArcs) {
-            arc->getOutputTransition().addIncomingInhibitorArc(arc);
-            arc->getInputPlace().addInhibitorArc(arc);
-            arc->getInputPlace().setHasInhibitorArcs(true);
-        }
-        
-        for (auto* arc : outputArcs) {
-            arc->getInputTransition().addToPostset(arc);
-            arc->getOutputPlace().addOutputArc(arc);
-        }
-
 
         findMaxConstants();
 
@@ -335,6 +314,70 @@ namespace TAPN {
         }
 
         out << std::endl;
+    }
+
+    void TimedArcPetriNet::toTAPNXML(std::ostream& out, const std::vector<int>& initial) const
+    {
+        out << R"(<pnml><net id="ComposedModel" type="P/T net">\n)";
+        out << "TAPN:" << std::endl << "  Places: ";
+        for (auto* place : places) {
+            auto& inv = place->getInvariant();
+            auto [x, y] = place->getPosition();
+            out << "<place id=\"" << place->getName() << "\" name=\"" << place->getName()
+                << "\" invariant=\"";
+            if(inv.isBoundStrict())
+            {
+                if(inv.getBound() == std::numeric_limits<int>::max())
+                    out << "&lt; inf";
+                else
+                    out << "&lt;" << inv.getBound();
+            }
+            else
+            {
+                out << "&lt;=" << inv.getBound();
+            }
+            out << "\" initialMarking=\"" << initial[place->getIndex()] << "\">\n";
+            out << "\t<graphics><position x=\"" << x << "\" y=\"" << y << "\" /></graphics>\n";
+            out << "</place>\n";
+        }
+
+        for (auto* transition : transitions) {
+            out << "<transition player=\"" << (transition->isControllable() ? 0 : 1)
+                << "\" id=\"" << transition->getName() << "\" name=\"" << transition->getName()
+                << "\" urgent=\"" << std::boolalpha << transition->isUrgent() << "\">\n";
+            auto [x, y] = transition->getPosition();
+            out << "\t<graphics><position x=\"" << x << "\" y=\"" << y << "\" /></graphics>\n";
+            out << "</transition>\n";
+        }
+
+        for(auto* ia : inputArcs)
+        {
+            out << "<inputArc inscription=\"" << ia->getInterval() << "\" weight=\"" << ia->getWeight()
+                << "\" source=\"" << ia->getInputPlace().getName() << "\" target=\"" << ia->getOutputTransition().getName() << "\" />\n";
+        }
+
+        for(auto* oa : outputArcs)
+        {
+            out << "<outputArc weight=\"" << oa->getWeight()
+                << "\" target=\"" << oa->getOutputPlace().getName()
+                << "\" source=\"" << oa->getInputTransition().getName() << "\" />\n";
+        }
+
+        for(auto* ia : inhibitorArcs)
+        {
+            out << "<inhibitorArc weight=\"" << ia->getWeight()
+                << "\" source=\"" << ia->getInputPlace().getName()
+                << "\" target=\"" << ia->getOutputTransition().getName() << "\" />\n";
+        }
+
+        for (auto* ta : transportArcs) {
+            out << "<transportArc inscription=\"" << ta->getInterval() << "\" "
+                << "source=\"" << ta->getSource().getName() << "\" "
+                << "transition=\"" << ta->getTransition().getName() << "\" "
+                << "target=\"" << ta->getDestination().getName() << "\" weight=\"" << ta->getWeight() << "\" />\n";
+        }
+
+        out << "</net></pnml>\n";
     }
 
     bool TimedArcPetriNet::isNonStrict() const {

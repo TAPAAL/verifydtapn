@@ -17,9 +17,9 @@ namespace VerifyTAPN { namespace TAPN {
                 TimedPlace &source,
                 TimedTransition &transition,
                 TimedPlace &destination,
-                const TAPN::TimeInterval &interval,
+                TAPN::TimeInterval&& interval,
                 const int weight
-        ) : interval(interval), source(source), transition(transition), destination(destination), weight(weight) {};
+        ) : interval(std::move(interval)), source(source), transition(transition), destination(destination), weight(weight) {};
 
         virtual ~TransportArc() = default;
     public:

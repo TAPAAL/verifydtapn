@@ -28,7 +28,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
     }
 
     int
-    DiscreteVerification::run(TAPN::TimedArcPetriNet &tapn, std::vector<int> initialPlacement, AST::Query *query,
+    DiscreteVerification::run(TAPN::TimedArcPetriNet &tapn, const std::vector<int>& initialPlacement, AST::Query *query,
                               VerificationOptions &options) {
         if (!tapn.isNonStrict()) {
             std::cout << "The supplied net contains strict intervals." << std::endl;
@@ -133,7 +133,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
 
         if ((query->getQuantifier() == EG || query->getQuantifier() == AF) && options.getGCDLowerGuardsEnabled()) {
             std::cout << "Lowering constants by greatest common divisor is unsound for EG and AF queries" << std::endl;
-           std::exit(1);
+            std::exit(1);
         }
 
         if (query->getQuantifier() == CG || query->getQuantifier() == CF) {
@@ -153,7 +153,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
                 std::cout << "Minimal delay search strategy is not supported for game synthesis" << std::endl;
                 std::exit(1);
             }
-            
+
             // Only needed if verifying normal CTL/LTL with game-algorithm.
             // Notice that violating k-bound produces different results than in normal ctl semantics
             if (query->getQuantifier() == AST::EG || query->getQuantifier() == AST::AF) {

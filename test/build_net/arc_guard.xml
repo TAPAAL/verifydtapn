@@ -1,0 +1,16 @@
+<pnml>
+    <net id="ComposedModel" type="P/T net">
+        <place id="P2" name="P2" invariant="&lt;= 1" initialMarking="0" >
+            <graphics>
+                <position x="690" y="270" />
+            </graphics>
+        </place>
+
+        <transition player="0" id="T" name="T" urgent="true">
+            <graphics>
+                <position x="885" y="270" />
+            </graphics>
+        </transition>
+        <inputArc inscription="[0,inf)" source="P2" target="T" weight="2"/>
+    </net>
+</pnml>

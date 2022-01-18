@@ -20,9 +20,8 @@
 #include "SearchStrategies/SearchFactory.h"
 
 #include "Core/TAPN/TAPN.hpp"
-#include "Core/QueryParser/AST.hpp"
+#include "Core/Query/AST.hpp"
 #include "Core/VerificationOptions.hpp"
-#include "Core/TAPNParser/util.hpp"
 
 #include <rapidxml.hpp>
 #include <rapidxml_print.hpp>
@@ -39,7 +38,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
 
         virtual ~DiscreteVerification();
 
-        static int run(TAPN::TimedArcPetriNet &tapn, std::vector<int> initialPlacement, AST::Query *query,
+        static int run(TAPN::TimedArcPetriNet &tapn, const std::vector<int>& initialPlacement, AST::Query *query,
                        VerificationOptions &options);
 
     };

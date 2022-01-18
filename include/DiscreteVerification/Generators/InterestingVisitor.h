@@ -15,7 +15,7 @@
 #define INTERESTINGVISITOR_H
 
 #include "Core/TAPN/TAPN.hpp"
-#include "Core/QueryParser/Visitor.hpp"
+#include "Core/Query/Visitor.hpp"
 
 #include "DiscreteVerification/DataStructures/NonStrictMarkingBase.hpp"
 #include "DiscreteVerification/DataStructures/NonStrictMarking.hpp"

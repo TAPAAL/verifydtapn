@@ -20,10 +20,10 @@ namespace VerifyTAPN {
         public: // typedefs
             typedef std::vector<TimedTransition *> Vector;
         public:
-            TimedTransition(std::string name, std::string id, bool urgent, bool controllable)
-                    : name(std::move(name)), id(std::move(id)), preset(), postset(), transportArcs(), index(-1),
+            TimedTransition(int index, std::string name, std::string id, bool urgent, bool controllable, double x, double y)
+                    : index(index), name(std::move(name)), id(std::move(id)), preset(), postset(), transportArcs(),
                       untimedPostset(true),
-                      urgent(urgent), controllable(controllable) {};
+                      urgent(urgent), controllable(controllable), _position({x,y}) {};
 
             TimedTransition() : name("*EMPTY*"), id("-1"), preset(), postset(), transportArcs(), index(-1),
                                 untimedPostset(true), urgent(false) {};
@@ -39,7 +39,6 @@ namespace VerifyTAPN {
 
             void addIncomingInhibitorArc(InhibitorArc* arc);
 
-            inline void setIndex(int i) { index = i; };
         public: // inspectors
             inline const std::string &getName() const { return name; };
 
@@ -80,7 +79,7 @@ namespace VerifyTAPN {
             inline bool isControllable() const {
                 return controllable;
             }
-            
+
             inline bool isEnvironment() const {
                 return !isControllable();
             }
@@ -100,7 +99,7 @@ namespace VerifyTAPN {
                         return pre->getWeight();
                 return 0;
             }
-            
+
             uint32_t getConsumed(const TimedPlace* place) const
             {
                 // this could be precomputed
@@ -112,18 +111,23 @@ namespace VerifyTAPN {
                         return pre->getWeight();
                 return 0;
             }
-            
+
+            const auto& getPosition() const {
+                return _position;
+            }
+
         private: // data
+            const int index = 0;
             std::string name;
             std::string id;
             TimedInputArc::Vector preset;
             OutputArc::Vector postset;
             TransportArc::Vector transportArcs;
             InhibitorArc::Vector inhibitorArcs;
-            unsigned int index;
-            bool untimedPostset;
-            bool urgent;
+            bool untimedPostset = false;
+            bool urgent = false;
             bool controllable{};
+            std::pair<double,double> _position;
         };
 
         inline std::ostream &operator<<(std::ostream &out, const TimedTransition &transition) {

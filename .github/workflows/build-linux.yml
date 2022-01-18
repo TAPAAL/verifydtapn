@@ -21,19 +21,22 @@ jobs:
     - name: ubuntu install depends
       run: |
         sudo apt-get update
-        sudo apt-get install -f flex bison libboost-all-dev libsparsehash-dev 
+        sudo apt-get install -f flex bison
     
+    - name: Prebuild
+      run: |
+        mkdir build && cd build
+        CC=gcc-10 CXX=g++-10 cmake ../ -DCMAKE_BUILD_TYPE=Prebuild
+        make
+
     - name: Build 
-      uses: lukka/run-cmake@v3
-      with:
-        cmakeListsOrSettingsJson: CMakeListsTxtBasic
-        cmakeAppendedArgs: ''
-        cmakeBuildType: Release
-        cmakeGenerator: UnixMakefiles
-        buildDirectory: '${{runner.workspace}}/build'     
-    
+      run: |
+        cd build
+        CC=gcc-10 CXX=g++-10 cmake ../ -DCMAKE_BUILD_TYPE=Release
+        make
+
     - name: Upload artifacts 
       uses: actions/upload-artifact@v2
       with:
         name: verifydtapn-linux64
-        path: '${{runner.workspace}}/build/verifydtapn/bin/verifydtapn-linux64'
+        path: '${{github.workspace}}/build/verifydtapn/bin/verifydtapn-linux64'

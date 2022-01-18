@@ -8,9 +8,9 @@
 #ifndef WEIGHTQUERYVISITOR_HPP_
 #define WEIGHTQUERYVISITOR_HPP_
 
-#include "Core/QueryParser/Visitor.hpp"
+#include "Core/Query/Visitor.hpp"
 #include "DiscreteVerification/DataStructures/NonStrictMarking.hpp"
-#include "Core/QueryParser/AST.hpp"
+#include "Core/Query/AST.hpp"
 
 #include <exception>
 #include <climits>
