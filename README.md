@@ -2,10 +2,12 @@
 
 As a temporary solution, run cmake (see below) twice:
 
+``` bash 
 cmake -DCMAKE_BUILD_TYPE=Prebuild ..
 make
 cmake -DCMAKE_BUILD_TYPE=Release ..
 make
+```
 
 ## Linux
 To compile verifydtapn:
