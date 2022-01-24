@@ -1,5 +1,12 @@
 # verifydtapn
 
+As a temporary solution, run cmake (see below) twice:
+
+cmake -DCMAKE_BUILD_TYPE=Prebuild ..
+make
+cmake -DCMAKE_BUILD_TYPE=Release ..
+make
+
 ## Linux
 To compile verifydtapn:
 
@@ -35,6 +42,7 @@ with the folowing switches where the desired path is set:
 
 ``` bash
 cmake -DBISON_EXECUTABLE=/usr/local/opt/bison/bin/bison -DFLEX_EXECUTABLE=/usr/local/opt/flex/bin/flex ..
+cmake -DBISON_EXECUTABLE=/opt/homebrew/opt/bison/bin/bison -DFLEX_EXECUTABLE=/opt/homebrew/opt/flex/bin/flex   ..
 ```
 
 ## Windows (Cross Compile)
