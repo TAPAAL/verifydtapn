@@ -70,14 +70,6 @@ if (VERIFYDTAPN_GetDependencies)
     include(ExternalProject)
     # Install location should be ${EXTERNAL_INSTALL_LOCATION}
 
-    ExternalProject_add(rapidxml-ext
-        URL https://downloads.sourceforge.net/project/rapidxml/rapidxml/rapidxml%201.13/rapidxml-1.13.zip
-        URL_HASH SHA512=6c10583e6631ccdb0217d0a5381172cb4c1046226de6ef1acf398d85e81d145228e14c3016aefcd7b70a1db8631505b048d8b4f5d4b0dbf1811d2482eefdd265
-        BUILD_COMMAND ""
-        CONFIGURE_COMMAND mkdir -p ${CMAKE_BINARY_DIR}/external/include
-        INSTALL_COMMAND cd ../rapidxml-ext && ${CMAKE_COMMAND} -E copy rapidxml.hpp rapidxml_iterators.hpp rapidxml_print.hpp rapidxml_utils.hpp ${EXTERNAL_INSTALL_LOCATION}/include
-    )
-
     ExternalProject_add(unfoldtacpn-ext
         GIT_REPOSITORY https://github.com/TAPAAL/unfoldTACPN
         GIT_TAG 8346890ae62fa96151296411877c5853cd975fac
