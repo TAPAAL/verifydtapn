@@ -360,7 +360,7 @@ namespace TAPN {
 
         for(auto* oa : outputArcs)
         {
-            out << "<outputArc inscription=\"" << oa->getWeight()
+            out << "<outputArc weight=\"" << oa->getWeight()
                 << "\" target=\"" << oa->getOutputPlace().getName()
                 << "\" source=\"" << oa->getInputTransition().getName() << "\" />\n";
         }

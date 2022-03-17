@@ -2,7 +2,6 @@
 #include <fstream>
 #include "Core/TAPN/TAPNModelBuilder.hpp"
 #include "Core/VerificationOptions.hpp"
-#include "Core/Query/TAPNQueryParser.hpp"
 #include "Core/TAPN/TimedPlace.hpp"
 #include "DiscreteVerification/DeadlockVisitor.hpp"
 
