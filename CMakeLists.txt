@@ -98,6 +98,7 @@ if (VERIFYDTAPN_GetDependencies)
 
     if (ARCH_TYPE MATCHES "win64")
 	    set(BOOST_CONFIG_JAM "using gcc : : ${CMAKE_CXX_COMPILER}")
+        set(SPARSEHASH_HOST --host x86_64-w64-mingw32 )
     endif ()
     ExternalProject_Add(
         boost-ext
@@ -111,7 +112,6 @@ if (VERIFYDTAPN_GetDependencies)
     )
 
 
-    #set(SPARSEHASH_HOST --host wina)
     ExternalProject_Add( sparsehash-ext
 	    URL https://github.com/sparsehash/sparsehash/archive/sparsehash-2.0.4.zip
 	    CONFIGURE_COMMAND CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} ./configure --prefix=${CMAKE_BINARY_DIR}/external CXXFLAGS=-std=c++11 ${SPARSEHASH_HOST}
