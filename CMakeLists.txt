@@ -81,7 +81,7 @@ if (VERIFYDTAPN_GetDependencies)
 
     ExternalProject_add(unfoldtacpn-ext
         GIT_REPOSITORY https://github.com/TAPAAL/unfoldTACPN
-        GIT_TAG 8bd010166bcfba71a805766514317bfc0b183668
+        GIT_TAG 6532ea5286c3887dadf6b4c850ecf4dad5381f9d
 	    CMAKE_ARGS -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}  -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION} -DBUILD_TESTING=OFF -DCMAKE_BUILD_TYPE=Release -DFLEX_EXECUTABLE=${FLEX_EXECUTABLE} -DBISON_EXECUTABLE=${BISON_EXECUTABLE}
     )
 
@@ -98,6 +98,7 @@ if (VERIFYDTAPN_GetDependencies)
 
     if (ARCH_TYPE MATCHES "win64")
 	    set(BOOST_CONFIG_JAM "using gcc : : ${CMAKE_CXX_COMPILER}")
+        set(SPARSEHASH_HOST --host x86_64-w64-mingw32 )
     endif ()
     ExternalProject_Add(
         boost-ext
@@ -111,7 +112,6 @@ if (VERIFYDTAPN_GetDependencies)
     )
 
 
-    #set(SPARSEHASH_HOST --host wina)
     ExternalProject_Add( sparsehash-ext
 	    URL https://github.com/sparsehash/sparsehash/archive/sparsehash-2.0.4.zip
 	    CONFIGURE_COMMAND CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} ./configure --prefix=${CMAKE_BINARY_DIR}/external CXXFLAGS=-std=c++11 ${SPARSEHASH_HOST}
