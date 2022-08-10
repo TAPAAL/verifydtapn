@@ -349,7 +349,6 @@ namespace VerifyTAPN { namespace DiscreteVerification {
             }
         }
         std::cerr << doc;
-        assert(false);
     }
 
     template<typename T>
