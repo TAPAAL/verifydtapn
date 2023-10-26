@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <iostream>
+#include <cstdint>
 
 namespace VerifyTAPN { namespace TAPN {
     class TimedPlace;

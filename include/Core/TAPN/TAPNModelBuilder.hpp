@@ -4,6 +4,10 @@
 #include "Core/TAPN/TAPN.hpp"
 #include <TAPNBuilderInterface.h>
 
+#include <string>
+#include <vector>
+
+
 
 namespace VerifyTAPN {
     using namespace VerifyTAPN::TAPN;
