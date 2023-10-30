@@ -4,6 +4,7 @@
 #include "TimeInterval.hpp"
 
 #include <vector>
+#include <cstdint>
 
 namespace VerifyTAPN { namespace TAPN {
     class TimedTransition;
