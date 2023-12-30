@@ -169,6 +169,7 @@ namespace VerifyTAPN {
             ("compute-cmax", "Calculate the place bounds.")
             ("disable-partial-order", "Disable partial order reduction")
             ("write-unfolded-net", po::value<std::string>(), "Outputs the model to the given file before structural reduction but after unfolding")
+            ("bindings,b", "Print bindings to stderr in XML format (only for CPNs, default is not to print)")
             ("write-unfolded-queries", po::value<std::string>(), "Outputs the queries to the given file before query reduction but after unfolding")
             ("strategy-output", po::value<std::string>(), "File to write synthesized strategy to, use '_' (an underscore) for stdout");
     }
@@ -238,6 +239,9 @@ namespace VerifyTAPN {
 
         if(vm.count("write-unfolded-net"))
             opts.setOutputModelFile(vm["write-unfolded-net"].as<std::string>());
+
+        if(vm.count("bindings"))
+            opts.setPrintBindings(true);
 
         if(vm.count("write-unfolded-queries"))
             opts.setOutputQueryFile(vm["write-unfolded-queries"].as<std::string>());

@@ -17,7 +17,7 @@ int main(int argc, char *argv[]) {
 
     ArgsParser parser;
     VerificationOptions options = parser.parse(argc, argv);
-    unfoldtacpn::ColoredPetriNetBuilder builder;
+    unfoldtacpn::ColoredPetriNetBuilder builder(options.getPrintBindings());
     auto [initialPlacement, tapn] = parse_net_file(builder, options.getInputFile());
     if(!options.getOutputModelFile().empty())
     {
