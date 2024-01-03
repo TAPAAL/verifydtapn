@@ -18,14 +18,8 @@ int main(int argc, char *argv[]) {
     ArgsParser parser;
     VerificationOptions options = parser.parse(argc, argv);
 
-    
-    std::stringstream* output_stream = nullptr;
-    if (options.getPrintBindings()) {
-        output_stream = new std::stringstream{};
-    }
-
-    unfoldtacpn::ColoredPetriNetBuilder builder(output_stream);
-
+    std::unique_ptr<std::stringstream> output_stream (new std::stringstream());
+    unfoldtacpn::ColoredPetriNetBuilder builder(options.getPrintBindings() ? output_stream.get() : nullptr);
 
     auto [initialPlacement, tapn] = parse_net_file(builder, options.getInputFile());
     if(!options.getOutputModelFile().empty())
@@ -72,8 +66,7 @@ int main(int argc, char *argv[]) {
     int result = DiscreteVerification::DiscreteVerification::run(*tapn, initialPlacement, query.get(), options);
 
     if (options.getPrintBindings()) {
-        std::cout << output_stream->str();
-        delete output_stream;
+        std::cout << output_stream.get()->str();
     }
 
     return result;
