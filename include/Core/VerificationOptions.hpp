@@ -139,6 +139,14 @@ namespace VerifyTAPN {
             return keepDeadTokens;
         };
 
+        inline void setPrintBindings(bool val) {
+            printBindings = val;
+        }
+       
+        inline bool getPrintBindings() const {
+            return printBindings;
+        };
+
         inline void setGCDLowerGuardsEnabled(bool v) {
             enableGCDLowerGuards = v;
         }
@@ -203,6 +211,7 @@ namespace VerifyTAPN {
         bool useGlobalMaxConstants = false;
         bool keepDeadTokens = false;
         bool enableGCDLowerGuards = false;
+        bool printBindings = false;
         WorkflowMode workflow = NOT_WORKFLOW;
         long long workflowBound = 0;
         bool calculateCmax = false;
