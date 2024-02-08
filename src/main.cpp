@@ -41,7 +41,10 @@ int main(int argc, char *argv[]) {
         return 0;
     }
 
-
+    if (options.getPrintBindings()) {
+        std::cout << output_stream.get()->str();
+    }
+    
     std::unique_ptr<AST::Query> query = make_query(builder, options, *tapn);
     assert(query);
 
@@ -64,10 +67,6 @@ int main(int argc, char *argv[]) {
     tapn->updatePlaceTypes(query.get(), options);
 
     int result = DiscreteVerification::DiscreteVerification::run(*tapn, initialPlacement, query.get(), options);
-
-    if (options.getPrintBindings()) {
-        std::cout << output_stream.get()->str();
-    }
 
     return result;
 }
