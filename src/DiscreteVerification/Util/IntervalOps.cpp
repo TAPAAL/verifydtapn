@@ -7,6 +7,8 @@
 
 #include "DiscreteVerification/Util/IntervalOps.hpp"
 
+#include <cassert>
+
 namespace VerifyTAPN { namespace DiscreteVerification { namespace Util {
 
     std::vector<interval> setIntersection(const std::vector<interval> &first, const std::vector<interval> &second) {
@@ -39,7 +41,8 @@ namespace VerifyTAPN { namespace DiscreteVerification { namespace Util {
         return result;
     }
 
-    interval intersect(const interval &l, const interval r) {
+    interval intersect(const interval &l, const interval r)
+    {
         if (l.empty()) return l;
         if (r.empty()) return r;
         interval n(std::max(l.low, r.low), std::min(l.high, r.high));
@@ -83,6 +86,59 @@ namespace VerifyTAPN { namespace DiscreteVerification { namespace Util {
         }
 
         first.push_back(element);
+    }
+
+    std::vector<interval> complement(const interval &element) {
+        const int min_infty = std::numeric_limits<int>::min();
+        const int pls_infty = std::numeric_limits<int>::max();
+        std::vector<interval> res;
+        if(element.empty()) { 
+            res.push_back(interval(min_infty, pls_infty));
+            return res;
+        }
+        if(element.lower() != min_infty) {
+            res.push_back(interval(min_infty, element.lower() - 1));
+        }
+        if(element.upper() != pls_infty) {
+            res.push_back(interval(element.upper() + 1, pls_infty));
+        }
+        return res;
+    }
+
+    std::vector<interval> setMinus(const std::vector<interval> &first, const interval &element)
+    {
+        return setIntersection(first, complement(element));
+    }
+
+    int setLength(const std::vector<interval> &set) {
+        int len = 0;
+        for(const auto& i : set) {
+            int new_len = i.length();
+            if(new_len == std::numeric_limits<int>::max()) {
+                return new_len;
+            }
+            len += new_len;
+        }
+        return len;
+    }
+
+    int valueAt(std::vector<interval> &set, int x) {
+        if(x < 0) assert(false);
+        for(const auto& interv : set) {
+            if(x > interv.length()) {
+                x -= interv.length();
+            } else {
+                return x + interv.lower();
+            }
+        }
+        assert(false);
+        return 0; // Pathologic, should not happen
+    }
+
+    void setDelta(std::vector<interval> &set, const int dx) {
+        for(auto it = set.begin() ; it != set.end() ; it++) {
+            it->delta(dx);
+        }
     }
 
 } } } /* namespace VerifyTAPN */
