@@ -171,6 +171,29 @@ namespace VerifyTAPN {
             _result = std::make_unique<Query>(_is_synth ? Quantifier::CF : Quantifier::AF, get_e_result());
         }
 
+        void TranslationVisitor::_accept(const unfoldtacpn::PQL::PFCondition *condition) {
+            check_first(true);
+            unfoldtacpn::PQL::BoundExpr* boundExpr = (unfoldtacpn::PQL::BoundExpr*) condition->bound();
+            RunBound queryBound(
+                boundExpr->getType() == unfoldtacpn::PQL::TimeBoundExpr ? TimeBound : StepsBound,
+                boundExpr->getValue());
+            (*condition)[0]->visit(*this);
+            _result = std::make_unique<Query>(Quantifier::PF, get_e_result());
+            _result->setRunBound(queryBound);
+            
+        }
+
+        void TranslationVisitor::_accept(const unfoldtacpn::PQL::PGCondition *condition) {
+            check_first(true);
+            unfoldtacpn::PQL::BoundExpr* boundExpr = (unfoldtacpn::PQL::BoundExpr*) condition->bound();
+            RunBound queryBound(
+                boundExpr->getType() == unfoldtacpn::PQL::TimeBoundExpr ? TimeBound : StepsBound,
+                boundExpr->getValue());
+            (*condition)[0]->visit(*this);
+            _result = std::make_unique<Query>(Quantifier::PG, get_e_result());
+            _result->setRunBound(queryBound);
+        }
+
         void TranslationVisitor::_accept(const unfoldtacpn::PQL::BooleanCondition *element) {
             check_first();
             _e_result = new BoolExpression(element->value());
@@ -249,5 +272,6 @@ namespace VerifyTAPN {
                 _a_result = new IdentifierExpression(id);
             }
         }
+
     }
 }

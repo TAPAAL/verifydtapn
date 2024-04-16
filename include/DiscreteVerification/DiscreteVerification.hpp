@@ -17,6 +17,7 @@
 #include "VerificationTypes/TimeDartLiveness.hpp"
 #include "VerificationTypes/WorkflowSoundness.hpp"
 #include "VerificationTypes/WorkflowStrongSoundness.hpp"
+#include "VerificationTypes/ProbabilityEstimation.hpp"
 #include "SearchStrategies/SearchFactory.h"
 
 #include "Core/TAPN/TAPN.hpp"

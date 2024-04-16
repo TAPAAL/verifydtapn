@@ -8,6 +8,7 @@
 #include "DiscreteVerification/Util/IntervalOps.hpp"
 
 #include <cassert>
+#include <iostream>
 
 namespace VerifyTAPN { namespace DiscreteVerification { namespace Util {
 
@@ -135,10 +136,18 @@ namespace VerifyTAPN { namespace DiscreteVerification { namespace Util {
         return 0; // Pathologic, should not happen
     }
 
-    void setDelta(std::vector<interval> &set, const int dx) {
+    void setDeltaIntoPositive(std::vector<interval> &set, const int dx) {
         for(auto it = set.begin() ; it != set.end() ; it++) {
             it->delta(dx);
+            *it = it->positive();
         }
+    }
+
+    void printSet(std::vector<interval> &set) {
+        for(auto interv : set) {
+            std::cout << "[" << interv.lower() << ";" << interv.upper() << "] "; 
+        }
+        std::cout << std::endl;
     }
 
 } } } /* namespace VerifyTAPN */

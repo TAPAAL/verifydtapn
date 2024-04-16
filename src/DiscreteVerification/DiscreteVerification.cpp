@@ -18,6 +18,9 @@ namespace VerifyTAPN { namespace DiscreteVerification {
     void VerifyAndPrint(TAPN::TimedArcPetriNet &tapn, Verification<T> &verifier, VerificationOptions &options,
                         AST::Query *query);
 
+    void ComputeAndPrint(TAPN::TimedArcPetriNet &tapn, ProbabilityEstimation &verifier, VerificationOptions &options,
+                        AST::Query *query);
+
     DiscreteVerification::DiscreteVerification() {
         // TODO Auto-generated constructor stub
 
@@ -185,8 +188,11 @@ namespace VerifyTAPN { namespace DiscreteVerification {
             std::cout << synthesis.max_tokens() << std::endl;
 
         } else if (options.getVerificationType() == VerificationOptions::DISCRETE) {
-
-            if (options.getMemoryOptimization() == VerificationOptions::PTRIE) {
+            if (query->getQuantifier() == PF || query->getQuantifier() == PG) {
+                ProbabilityEstimation estimator(tapn, *initialMarking, query, options);
+                ComputeAndPrint(tapn, estimator, options, query);
+            }
+            else if (options.getMemoryOptimization() == VerificationOptions::PTRIE) {
                 //TODO fix initialization
                 WaitingList<ptriepointer_t<MetaData *> > *strategy = getWaitingList<ptriepointer_t<MetaData *> >(
                         query, options);
@@ -341,5 +347,31 @@ namespace VerifyTAPN { namespace DiscreteVerification {
                 std::cout << "A trace could not be generated due to the query result" << std::endl;
             }
         }
+    }
+
+    void ComputeAndPrint(TAPN::TimedArcPetriNet &tapn, ProbabilityEstimation &estimator, VerificationOptions &options,
+                        AST::Query *query) {
+
+        std::cout << "Starting probability estimation..." << std::endl;
+
+        estimator.run();
+
+        if (options.getGCDLowerGuardsEnabled()) {
+            std::cout << "Lowering all guards by greatest common divisor: " << tapn.getGCD() << std::endl;
+        }
+        std::cout << std::endl;
+
+        estimator.printStats();
+        estimator.printTransitionStatistics();
+        estimator.printPlaceStatistics();
+
+        std::cout << "Max number of tokens found in any reachable marking: ";
+        if (estimator.maxUsedTokens() > options.getKBound())
+            std::cout << ">" << options.getKBound() << std::endl;
+        else
+            std::cout << estimator.maxUsedTokens() << std::endl;
+
+        estimator.printResult();
+
     }
 } }

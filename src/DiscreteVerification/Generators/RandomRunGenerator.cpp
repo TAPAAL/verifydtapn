@@ -9,6 +9,7 @@
 
 #include <numeric>
 #include <random>
+#include <algorithm>
 
 namespace VerifyTAPN {
     namespace DiscreteVerification {
@@ -16,21 +17,73 @@ namespace VerifyTAPN {
         using Util::interval;
 
         void RandomRunGenerator::prepare(NonStrictMarkingBase *parent) {
-            _parent = parent;
             _origin = parent;
-            PlaceList& places = parent->getPlaceList();
-            std::vector<bool> transitionSeen(_transitionIntervals.size(), false);
+            _parent = _origin;
+            PlaceList& places = _origin->getPlaceList();
+            std::vector<bool> transitionSeen(_defaultTransitionIntervals.size(), false);
             int max_delay = std::numeric_limits<int>::max();
             for(auto &pit : places) {
-                if(pit.place->getInvariant().getBound() < max_delay) {
-                    max_delay = pit.place->getInvariant().getBound();
+                if(pit.place->getInvariant().getBound() != std::numeric_limits<int>::max()) {
+                    int place_max_delay = pit.place->getInvariant().getBound() - pit.maxTokenAge();
+                    if(place_max_delay < max_delay) {
+                        max_delay = place_max_delay;
+                    }
                 }
                 for(auto arc : pit.place->getInputArcs()) {
                     TimedTransition &transi = arc->getOutputTransition();
                     if(transitionSeen[transi.getIndex()]) continue;
                     std::vector<interval> firingDates = transitionFiringDates(&transi);
-                    _transitionIntervals[transi.getIndex()] = firingDates;
+                    _defaultTransitionIntervals[transi.getIndex()] = firingDates;
                     transitionSeen[transi.getIndex()] = true;
+                }
+            }
+            std::vector<interval> invInterval = { interval(0, max_delay) };
+            for(auto iter = _defaultTransitionIntervals.begin() ; iter != _defaultTransitionIntervals.end() ; iter++) {
+                if(iter->empty()) continue;
+                *iter = Util::setIntersection(*iter, invInterval);
+            }
+            reset();
+        }
+
+        void RandomRunGenerator::reset() {
+            _parent = new NonStrictMarkingBase(*_origin);
+            _transitionIntervals = _defaultTransitionIntervals;
+            _maximal = false;
+            _totalTime = 0;
+            _totalSteps = 0;
+            _modifiedPlaces.clear();
+        } 
+
+        void RandomRunGenerator::refreshTransitionsIntervals() {
+            PlaceList& places = _parent->getPlaceList();
+            std::vector<bool> transitionSeen(_transitionIntervals.size(), false);
+            int max_delay = std::numeric_limits<int>::max();
+            for(auto &pit : places) {
+                if(pit.place->getInvariant().getBound() != std::numeric_limits<int>::max()
+                    && pit.tokens.size() > 0) {
+                    int place_max_delay = pit.place->getInvariant().getBound() - pit.maxTokenAge();
+                    if(place_max_delay < max_delay) {
+                        max_delay = place_max_delay;
+                    }
+                }
+                auto placePos = std::find(_modifiedPlaces.begin(), _modifiedPlaces.end(), pit.place->getIndex());
+                if(placePos != _modifiedPlaces.end()) {
+                    _modifiedPlaces.erase(placePos);
+                    for(auto arc : pit.place->getInputArcs()) {
+                        TimedTransition &transi = arc->getOutputTransition();
+                        if(transitionSeen[transi.getIndex()]) continue;
+                        std::vector<interval> firingDates = transitionFiringDates(&transi);
+                        _transitionIntervals[transi.getIndex()] = firingDates;
+                        transitionSeen[transi.getIndex()] = true;
+                    }
+                }
+            }
+            for(auto modified : _modifiedPlaces) { // Cleanup disabled transitions
+                TimedPlace place = _tapn.getPlace(modified);
+                for(auto arc : place.getInputArcs()) {
+                    int transiIndex = arc->getOutputTransition().getIndex();
+                    if(transitionSeen[transiIndex]) continue;
+                    _transitionIntervals[transiIndex].clear();
                 }
             }
             std::vector<interval> invInterval = { interval(0, max_delay) };
@@ -38,68 +91,95 @@ namespace VerifyTAPN {
                 if(iter->empty()) continue;
                 *iter = Util::setIntersection(*iter, invInterval);
             }
-            _defaultTransitionIntervals = _transitionIntervals;
         }
 
-        NonStrictMarkingBase* RandomRunGenerator::next(bool do_delay = true) {
+        NonStrictMarkingBase* RandomRunGenerator::next() {
             auto transi_delay = getWinnerTransitionAndDelay();
             TimedTransition* transi = transi_delay.first;
             int delay = transi_delay.second;
 
-            NonStrictMarkingBase* child(_parent);
-            _parent->incrementAge(delay);
-            child = fire(transi);
-
-            // Delta to intervals, so we don't have to compute some of them next
-            for(auto iter = _transitionIntervals.begin() ; iter != _transitionIntervals.end() ; iter++) {
-                Util::setDelta(*iter, -delay);
+            if(transi == nullptr) {
+                _maximal = true;
+                return nullptr;
             }
+
+            _parent->incrementAge(delay);
+            _totalTime += delay;
+            _totalSteps++;
+            _modifiedPlaces.clear();
+            _transitionsStatistics[transi->getIndex()]++;
+            NonStrictMarkingBase* child = fire(transi);
             
+            
+            // Translate intervals, so we don't have to compute some of them next
+            for(auto iter = _transitionIntervals.begin() ; iter != _transitionIntervals.end() ; iter++) {
+                Util::setDeltaIntoPositive(*iter, -delay);
+            }
+
+            delete _parent;
+            _parent = child; 
+
+            refreshTransitionsIntervals();
+
             return child;
         }
 
         std::pair<TimedTransition*, int> RandomRunGenerator::getWinnerTransitionAndDelay() {
-            size_t winner_index = 0;
+            std::vector<size_t> winner_indexs;
             size_t transi_index = 0;
             int date_min = std::numeric_limits<int>::max();
             std::random_device rd; 
             std::mt19937 gen(rd());
             for(auto iter = _transitionIntervals.begin() ; iter != _transitionIntervals.end() ; iter++) {
-                if((*iter).empty()) {
+                if(iter->empty()) {
                     transi_index++;
                     continue;
                 }
                 int date;
                 if(_tapn.getTransitions()[transi_index]->isUrgent()) {
-                    date = (*iter)[0].lower();
+                    date = iter->front().lower();
                 } else {
                     int intervalLength = Util::setLength(*iter);
-                    std::uniform_int_distribution<> distrib(0, intervalLength);
+                    std::uniform_int_distribution<> distrib(0, intervalLength); // TODO: Custom rates here
                     date = Util::valueAt(*iter, distrib(gen));
                 }
                 if(date < date_min) {
                     date_min = date;
-                    winner_index = transi_index;
+                    winner_indexs = { transi_index };
+                }
+                if(date == date_min) {
+                    winner_indexs.push_back(transi_index);
                 }
                 transi_index++;
             }
-            TimedTransition *winner = _tapn.getTransitions()[winner_index];
+            if(date_min == std::numeric_limits<int>::max()) {
+                return std::make_pair(nullptr, date_min);
+            }
+            TimedTransition *winner;
+            if(winner_indexs.size() == 1) { 
+                winner = _tapn.getTransitions()[winner_indexs.front()];
+            } else {
+                std::uniform_int_distribution<> distrib(0, winner_indexs.size() - 1);
+                winner = _tapn.getTransitions()[winner_indexs[distrib(gen)]];
+            }
             return std::make_pair(winner, date_min);
-        }
-
-        void RandomRunGenerator::reset() {
-            _transitionIntervals = std::vector<std::vector<interval>>(_tapn.getTransitions().size());
         }
 
         std::vector<interval> RandomRunGenerator::transitionFiringDates(TimedTransition* transi) {
             PlaceList &places = _parent->getPlaceList();
-            std::vector<interval> firingInterval;
+            std::vector<interval> firingInterval = { interval(0, std::numeric_limits<int>::max()) };
+            std::vector<interval> disabled;
+            for(InhibitorArc* inhib : transi->getInhibitorArcs()) {
+                if(_parent->numberOfTokensInPlace(inhib->getInputPlace().getIndex()) >= inhib->getWeight()) {
+                    return disabled;
+                } 
+            }
             for(TimedInputArc* arc : transi->getPreset()) {
                 auto pit = places.begin();
                 while(pit != places.end() && pit->place->getIndex() != arc->getInputPlace().getIndex()) {
-                    ++pit;
+                    pit++;
                 }
-                if(pit == places.end()) return firingInterval;
+                if(pit == places.end()) return disabled;
                 firingInterval = Util::setIntersection(firingInterval, arcFiringDates(arc->getInterval(), arc->getWeight(), pit->tokens));
                 if(firingInterval.empty()) return firingInterval;
             }
@@ -108,7 +188,7 @@ namespace VerifyTAPN {
                 while(pit != places.end() && pit->place->getIndex() != arc->getSource().getIndex()) {
                     ++pit;
                 }
-                if(pit == places.end()) return firingInterval;
+                if(pit == places.end()) return disabled;
                 TimeInvariant targetInvariant = arc->getDestination().getInvariant();
                 TimeInterval arcInterval = arc->getInterval();
                 if(targetInvariant.getBound() < arcInterval.getUpperBound()) {
@@ -160,53 +240,125 @@ namespace VerifyTAPN {
                 }
             }
             return firingDates;
-
-            /* IF TOKENS NOT SORTED !
-            std::vector<interval> tokensIntervals;
-            for(auto &token : tokens) {
-                interval tokenInterv = arcInterval;
-                tokenInterv.delta(-token.getAge());
-                tokenInterv = tokenInterv.positive();
-                if(tokenInterv.empty()) continue;
-                for(int count = 0 ; count < std::min((uint32_t) token.getCount(), weight) ; count++) // Useless to include more than weight, would induce no new combination
-                    tokensIntervals.push_back(tokenInterv);
-            }
-            //if(weight == 1) return tokensIntervals;  // would be great but not ordered
-            std::vector<size_t> selected(weight);
-            std::iota(selected.begin(), selected.end(), 0);
-            while(selected[0] <= tokensIntervals.size() - weight) { 
-                // Iterates over every (WEIGHT in TOKENS) to compute possible intervals
-                // Ex weight = 2 in tokens = 4 : 1100 -> 1010 -> 1001 -> 0110 -> 0101 -> 0011
-                interval current = tokensIntervals[selected[0]];
-                for(int i = 1 ; i < selected.size() ; i++) {
-                    current = Util::intersect(current, tokensIntervals[selected[i]]);
-                }
-                if(!current.empty()) {
-                    Util::setAdd(firingDates, current);
-                }
-                selected.back()++;
-                if(selected.back() == tokensIntervals.size() && selected[0] <= tokensIntervals.size() - weight) {
-                    size_t pending = 1;
-                    size_t toMove = selected.size() - pending - 1;
-                    selected[toMove]++;
-                    while(selected[toMove] == tokensIntervals.size() - pending && toMove > 0) { // Try to find most leftish index to increment until reaching the first
-                        pending++;
-                        toMove--;
-                        selected[toMove]++;
-                    }
-                    for(int i = toMove ; i <= toMove + pending ; i++) { // Setting new values now that shifting is complete
-                        selected[i + 1] = selected[i] + 1;
-                    }
-                }
-            }
-            return firingDates;
-            */
         }
 
         Util::interval RandomRunGenerator::remainingForToken(const interval& arcInterval, const Token& token) {
             interval tokenInterv = arcInterval;
             tokenInterv.delta(-token.getAge());
             return tokenInterv.positive();
+        }
+
+        NonStrictMarkingBase* RandomRunGenerator::fire(TimedTransition* transi) {
+            if (transi == nullptr) {
+                assert(false);
+                return nullptr;
+            }
+            std::random_device rd; 
+            std::mt19937 gen(rd());
+            auto *child = new NonStrictMarkingBase(*_parent);
+            child->setGeneratedBy(nullptr);
+            child->setParent(_parent);
+            PlaceList &placelist = child->getPlaceList();
+
+            auto pit = placelist.begin();
+            for (auto &input : transi->getPreset()) {
+                int source = input->getInputPlace().getIndex();
+                while (pit->place->getIndex() != source) {
+                    ++pit;
+                    assert(pit != placelist.end());
+                }
+                TokenList& tokenlist = pit->tokens;
+                int remaining = input->getWeight();
+                std::uniform_int_distribution<> randomTokenIndex(0, tokenlist.size() - 1);
+                size_t tok_index = randomTokenIndex(gen);
+                size_t tested = 0;
+                while(remaining > 0 && tested < tokenlist.size()) {
+                    if(input->getInterval().contains(tokenlist[tok_index].getAge())) {
+                        remaining--;
+                        tokenlist[tok_index].remove(1);
+                        if(tokenlist[tok_index].getCount() == 0) {
+                            tokenlist.erase(tokenlist.begin() + tok_index);
+                            randomTokenIndex = std::uniform_int_distribution<>(0, tokenlist.size() - 1);
+                        }
+                        if(remaining > 0) tok_index = randomTokenIndex(gen);
+                    } else {
+                        tok_index = (tok_index + 1) % tokenlist.size();
+                        tested++;
+                    }
+                }
+                assert(remaining == 0);
+                _modifiedPlaces.push_back(source);
+                if(tokenlist.size() == 0) pit = placelist.erase(pit);
+            }
+
+            pit = placelist.begin();
+            for (auto &transport : transi->getTransportArcs()) {
+                int source = transport->getSource().getIndex();
+                int destInv = transport->getDestination().getInvariant().getBound();
+                while (pit->place->getIndex() != source) {
+                    ++pit;
+                    assert(pit != placelist.end());
+                }
+                TokenList& tokenlist = pit->tokens;
+                int remaining = transport->getWeight();
+                std::uniform_int_distribution<> randomTokenIndex(0, tokenlist.size() - 1);
+                size_t tok_index = randomTokenIndex(gen);
+                size_t tested = 0;
+                while(remaining > 0 && tested < tokenlist.size()) {
+                    int age = tokenlist[tok_index].getAge();
+                    if(transport->getInterval().contains(age) && age <= destInv) {
+                        remaining--;
+                        tokenlist[tok_index].remove(1);
+                        if(tokenlist[tok_index].getCount() == 0) {
+                            tokenlist.erase(tokenlist.begin() + tok_index);
+                            randomTokenIndex = std::uniform_int_distribution<>(0, tokenlist.size() - 1);
+                        }
+                        if(remaining > 0) tok_index = randomTokenIndex(gen);
+                        child->addTokenInPlace(transport->getDestination(), age);
+                    } else {
+                        tok_index = (tok_index + 1) % tokenlist.size();
+                        tested++;
+                    }
+                }
+                assert(remaining == 0);
+                if(tokenlist.size() == 0) pit = placelist.erase(pit);
+                _modifiedPlaces.push_back(source);
+                _modifiedPlaces.push_back(transport->getDestination().getIndex());
+            }
+
+            for (auto* output : transi->getPostset()) {
+                TimedPlace &place = output->getOutputPlace();
+                Token token = Token(0, output->getWeight());
+                child->addTokenInPlace(place, token);
+                _modifiedPlaces.push_back(place.getIndex());
+            }
+            return child;
+        }
+
+        bool RandomRunGenerator::reachedEnd() const {
+            return _maximal;
+        }
+
+        int RandomRunGenerator::getRunDelay() const {
+            return _totalTime;
+        }
+
+        int RandomRunGenerator::getRunSteps() const {
+            return _totalSteps;
+        }
+
+        void RandomRunGenerator::printTransitionStatistics(std::ostream &out) const {
+            out << std::endl << "TRANSITION STATISTICS";
+            for (unsigned int i = 0; i < _transitionsStatistics.size(); i++) {
+                if ((i) % 6 == 0) {
+                    out << std::endl;
+                    out << "<" << _tapn.getTransitions()[i]->getName() << ":" << _transitionsStatistics[i] << ">";
+                } else {
+                    out << " <" << _tapn.getTransitions()[i]->getName() << ":" << _transitionsStatistics[i] << ">";
+                }
+            }
+            out << std::endl;
+            out << std::endl;
         }
 
     }

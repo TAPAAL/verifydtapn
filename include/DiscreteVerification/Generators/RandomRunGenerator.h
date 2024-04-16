@@ -13,29 +13,50 @@
 namespace VerifyTAPN {
     namespace DiscreteVerification {
 
-        class RandomRunGenerator : protected Generator {
+        class RandomRunGenerator {
         protected:
         public:
-            RandomRunGenerator(TAPN::TimedArcPetriNet &tapn, AST::Query *query)
-            : Generator(tapn, query), _transitionIntervals(tapn.getTransitions().size()) {
-            };
-            virtual void prepare(NonStrictMarkingBase *parent) override;
-            virtual NonStrictMarkingBase* next(bool do_delay = true) override;
+            RandomRunGenerator(TAPN::TimedArcPetriNet &tapn)
+            : _tapn(tapn)
+            , _defaultTransitionIntervals(tapn.getTransitions().size()) 
+            , _transitionsStatistics(tapn.getTransitions().size(), 0)
+            {};
+
+            virtual void prepare(NonStrictMarkingBase *parent);
+            virtual NonStrictMarkingBase* next();
             virtual void reset();
+
+            void refreshTransitionsIntervals();
 
             std::vector<Util::interval> transitionFiringDates(TimedTransition* transi);
             std::vector<Util::interval> arcFiringDates(TimeInterval time_interval, uint32_t weight, TokenList& tokens);
             
             std::pair<TimedTransition*, int> getWinnerTransitionAndDelay();
+
+            NonStrictMarkingBase* fire(TimedTransition* transi);
+
+            bool reachedEnd() const;
+
+            int getRunDelay() const;
+            int getRunSteps() const;
+
+            void printTransitionStatistics(std::ostream &out) const;
             
         protected:
             Util::interval remainingForToken(const Util::interval& arcInterval, const Token& t);
 
-            NonStrictMarkingBase *_next(bool do_delay, std::function<bool(const TimedTransition*)> filter) override;
             bool _maximal = false;
-            std::vector<std::vector<Util::interval>> _transitionIntervals; // Type not pretty, but need disjoint intervals
+            TimedArcPetriNet& _tapn;
             std::vector<std::vector<Util::interval>> _defaultTransitionIntervals; // Type not pretty, but need disjoint intervals
+            std::vector<std::vector<Util::interval>> _transitionIntervals; // Type not pretty, but need disjoint intervals
+            std::vector<uint32_t> _transitionsStatistics;
             NonStrictMarkingBase* _origin;
+            NonStrictMarkingBase* _parent;
+            int _lastDelay = 0;
+            std::vector<int> _modifiedPlaces;
+            int _totalTime = 0;
+            int _totalSteps = 0;
+
         };
 
     }

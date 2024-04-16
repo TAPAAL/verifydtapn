@@ -199,6 +199,22 @@ namespace VerifyTAPN {
             strategy_output = s;
         }
 
+        inline float getSmcConfidence() const {
+            return smcConfidence;
+        }
+
+        inline void setSmcConfidence(float conf) {
+            smcConfidence = conf;
+        }
+
+        inline float getSmcIntervalWidth() const {
+            return smcIntervalWidth;
+        }
+
+        inline void setSmcIntervalWidth(float width) {
+            smcIntervalWidth = width;
+        }
+
     protected:
         std::string inputFile;
         std::string queryFile;
@@ -220,6 +236,8 @@ namespace VerifyTAPN {
         std::string outputQuery;
         std::set<size_t> querynumbers;
         std::string strategy_output = "";
+        float smcConfidence = 0.05;
+        float smcIntervalWidth = 0.05;
         friend class ArgsParser;
     };
 

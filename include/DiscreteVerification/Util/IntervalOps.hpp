@@ -76,7 +76,9 @@ namespace VerifyTAPN {
 
             int valueAt(std::vector<interval> &set, const int x);
 
-            void setDelta(std::vector<interval> &set, const int dx);
+            void setDeltaIntoPositive(std::vector<interval> &set, const int dx);
+
+            void printSet(std::vector<interval> &set);
 
         } /* namespace Util */
     } /* namespace DiscreteVerification */
