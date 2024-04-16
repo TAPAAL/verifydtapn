@@ -37,6 +37,8 @@ class SMCVerification : public Verification<NonStrictMarking> {
         RandomRunGenerator runGenerator;
         size_t numberOfRuns;
         unsigned int maxTokensSeen;
+        unsigned long totalTime = 0;
+        unsigned long totalSteps = 0; 
 
 };
 

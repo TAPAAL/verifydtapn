@@ -22,12 +22,16 @@ bool SMCVerification::executeRun() {
         if(runRes) break;
         newMarking = runGenerator.next();
     }
+    totalTime += runGenerator.getRunDelay();
+    totalSteps += runGenerator.getRunSteps();
     runGenerator.reset();
     return runRes;
 }
 
 void SMCVerification::printStats() {
     std::cout << "  runs executed:\t" << numberOfRuns << std::endl;
+    std::cout << "  average run length:\t" << (totalSteps / (float) numberOfRuns) << std::endl;
+    std::cout << "  average run time:\t" << (totalTime / (float) numberOfRuns) << std::endl;
 }
 
 void SMCVerification::printTransitionStatistics() const {

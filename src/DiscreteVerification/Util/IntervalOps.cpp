@@ -123,6 +123,12 @@ namespace VerifyTAPN { namespace DiscreteVerification { namespace Util {
         return len;
     }
 
+    bool isSetInfinite(const std::vector<interval> &set) {
+        if(set.size() == 0) return false;
+        return  set.back().upper() == std::numeric_limits<int>::max() ||
+                set.front().lower() == std::numeric_limits<int>::min();
+    }
+
     int valueAt(std::vector<interval> &set, int x) {
         if(x < 0) assert(false);
         for(const auto& interv : set) {

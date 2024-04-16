@@ -74,6 +74,8 @@ namespace VerifyTAPN {
 
             int setLength(const std::vector<interval> &set);
 
+            bool isSetInfinite(const std::vector<interval> &set);
+
             int valueAt(std::vector<interval> &set, const int x);
 
             void setDeltaIntoPositive(std::vector<interval> &set, const int dx);
