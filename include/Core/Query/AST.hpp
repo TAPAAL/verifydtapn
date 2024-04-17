@@ -468,8 +468,10 @@ namespace VerifyTAPN {
         // AF : Liveness
         // CF : Control liveness
         // CG : Control Safety
+        // PF : Probability Finally
+        // PG : Probability Globally
         enum Quantifier {
-            EF, AG, EG, AF, CF, CG, PF, PG, PC, PSC
+            EF, AG, EG, AF, CF, CG, PF, PG
         };
 
         class Query : public Visitable {

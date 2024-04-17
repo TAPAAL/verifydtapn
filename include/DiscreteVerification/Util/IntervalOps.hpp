@@ -82,6 +82,8 @@ namespace VerifyTAPN {
 
             void printSet(std::vector<interval> &set);
 
+            bool contains(std::vector<interval> &set, int value);
+
         } /* namespace Util */
     } /* namespace DiscreteVerification */
 } /* namespace VerifyTAPN */

@@ -215,6 +215,14 @@ namespace VerifyTAPN {
             smcIntervalWidth = width;
         }
 
+        inline float getDefaultRate() const {
+            return defaultRate;
+        }
+
+        inline void setDefaultRate(float rate) {
+            defaultRate = rate;
+        }
+
     protected:
         std::string inputFile;
         std::string queryFile;
@@ -236,8 +244,9 @@ namespace VerifyTAPN {
         std::string outputQuery;
         std::set<size_t> querynumbers;
         std::string strategy_output = "";
-        float smcConfidence = 0.05;
+        float smcConfidence = 0.95;
         float smcIntervalWidth = 0.05;
+        float defaultRate = 0.1;
         friend class ArgsParser;
     };
 
