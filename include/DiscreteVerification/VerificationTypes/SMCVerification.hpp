@@ -14,7 +14,7 @@ class SMCVerification : public Verification<NonStrictMarking> {
         SMCVerification(TAPN::TimedArcPetriNet &tapn, NonStrictMarking &initialMarking, AST::Query *query,
                         VerificationOptions options) 
             : Verification(tapn, initialMarking, query, options)
-            , runGenerator(tapn), numberOfRuns(0), maxTokensSeen(0)
+            , runGenerator(tapn, options.getDefaultRate()), numberOfRuns(0), maxTokensSeen(0)
             {}
 
         virtual bool run() override;

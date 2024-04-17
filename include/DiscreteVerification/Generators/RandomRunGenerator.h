@@ -16,10 +16,11 @@ namespace VerifyTAPN {
         class RandomRunGenerator {
         protected:
         public:
-            RandomRunGenerator(TAPN::TimedArcPetriNet &tapn)
+            RandomRunGenerator(TAPN::TimedArcPetriNet &tapn, float defaultRate = 0.1)
             : _tapn(tapn)
             , _defaultTransitionIntervals(tapn.getTransitions().size()) 
             , _transitionsStatistics(tapn.getTransitions().size(), 0)
+            , _defaultRate(defaultRate)
             {};
 
             virtual void prepare(NonStrictMarkingBase *parent);
@@ -56,7 +57,9 @@ namespace VerifyTAPN {
             std::vector<int> _modifiedPlaces;
             int _totalTime = 0;
             int _totalSteps = 0;
-
+            int _max_delay = 0;
+            float _defaultRate = 0.1;
+            
         };
 
     }

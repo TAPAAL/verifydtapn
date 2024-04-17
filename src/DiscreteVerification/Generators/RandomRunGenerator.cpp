@@ -21,12 +21,12 @@ namespace VerifyTAPN {
             _parent = _origin;
             PlaceList& places = _origin->getPlaceList();
             std::vector<bool> transitionSeen(_defaultTransitionIntervals.size(), false);
-            int max_delay = std::numeric_limits<int>::max();
+            _max_delay = std::numeric_limits<int>::max();
             for(auto &pit : places) {
                 if(pit.place->getInvariant().getBound() != std::numeric_limits<int>::max()) {
                     int place_max_delay = pit.place->getInvariant().getBound() - pit.maxTokenAge();
-                    if(place_max_delay < max_delay) {
-                        max_delay = place_max_delay;
+                    if(place_max_delay < _max_delay) {
+                        _max_delay = place_max_delay;
                     }
                 }
                 for(auto arc : pit.place->getInputArcs()) {
@@ -37,7 +37,7 @@ namespace VerifyTAPN {
                     transitionSeen[transi.getIndex()] = true;
                 }
             }
-            std::vector<interval> invInterval = { interval(0, max_delay) };
+            std::vector<interval> invInterval = { interval(0, _max_delay) };
             for(auto iter = _defaultTransitionIntervals.begin() ; iter != _defaultTransitionIntervals.end() ; iter++) {
                 if(iter->empty()) continue;
                 *iter = Util::setIntersection(*iter, invInterval);
@@ -57,13 +57,13 @@ namespace VerifyTAPN {
         void RandomRunGenerator::refreshTransitionsIntervals() {
             PlaceList& places = _parent->getPlaceList();
             std::vector<bool> transitionSeen(_transitionIntervals.size(), false);
-            int max_delay = std::numeric_limits<int>::max();
+            _max_delay = std::numeric_limits<int>::max();
             for(auto &pit : places) {
                 if(pit.place->getInvariant().getBound() != std::numeric_limits<int>::max()
                     && pit.tokens.size() > 0) {
                     int place_max_delay = pit.place->getInvariant().getBound() - pit.maxTokenAge();
-                    if(place_max_delay < max_delay) {
-                        max_delay = place_max_delay;
+                    if(place_max_delay < _max_delay) {
+                        _max_delay = place_max_delay;
                     }
                 }
                 auto placePos = std::find(_modifiedPlaces.begin(), _modifiedPlaces.end(), pit.place->getIndex());
@@ -86,7 +86,7 @@ namespace VerifyTAPN {
                     _transitionIntervals[transiIndex].clear();
                 }
             }
-            std::vector<interval> invInterval = { interval(0, max_delay) };
+            std::vector<interval> invInterval = { interval(0, _max_delay) };
             for(auto iter = _transitionIntervals.begin() ; iter != _transitionIntervals.end() ; iter++) {
                 if(iter->empty()) continue;
                 *iter = Util::setIntersection(*iter, invInterval);
@@ -98,7 +98,7 @@ namespace VerifyTAPN {
             TimedTransition* transi = transi_delay.first;
             int delay = transi_delay.second;
 
-            if(transi == nullptr) {
+            if(delay == std::numeric_limits<int>::max()) {
                 _maximal = true;
                 return nullptr;
             }
@@ -107,21 +107,21 @@ namespace VerifyTAPN {
             _totalTime += delay;
             _totalSteps++;
             _modifiedPlaces.clear();
-            _transitionsStatistics[transi->getIndex()]++;
-            NonStrictMarkingBase* child = fire(transi);
-            
-            
+
+            if(transi != nullptr) {
+                _transitionsStatistics[transi->getIndex()]++;
+                NonStrictMarkingBase* child = fire(transi);
+                delete _parent;
+                _parent = child;
+            }
+
             // Translate intervals, so we don't have to compute some of them next
             for(auto iter = _transitionIntervals.begin() ; iter != _transitionIntervals.end() ; iter++) {
                 Util::setDeltaIntoPositive(*iter, -delay);
             }
-
-            delete _parent;
-            _parent = child; 
-
             refreshTransitionsIntervals();
 
-            return child;
+            return _parent;
         }
 
         std::pair<TimedTransition*, int> RandomRunGenerator::getWinnerTransitionAndDelay() {
@@ -136,18 +136,24 @@ namespace VerifyTAPN {
                     continue;
                 }
                 int date;
-                if(_tapn.getTransitions()[transi_index]->isUrgent()) {
+                TimedTransition* transition = _tapn.getTransitions()[transi_index];
+                if(transition->isUrgent()) {
                     date = iter->front().lower();
+                } else if(transition->hasCustomProbabilityRate()) {
+                    std::geometric_distribution<> distrib(transition->getProbabilityRate()); 
+                    date = std::min(distrib(gen), _max_delay);
+                } else if(_max_delay == std::numeric_limits<int>::max()) {
+                    std::geometric_distribution<> distrib(_defaultRate); //TODO : options default rate
+                    date = distrib(gen);
                 } else {
-                    int intervalLength = Util::setLength(*iter);
-                    std::uniform_int_distribution<> distrib(0, intervalLength); // TODO: Custom rates here
-                    date = Util::valueAt(*iter, distrib(gen));
+                    std::uniform_int_distribution<> distrib(0, _max_delay); 
+                    date = distrib(gen);
                 }
                 if(date < date_min) {
                     date_min = date;
-                    winner_indexs = { transi_index };
+                    winner_indexs.clear();
                 }
-                if(date == date_min) {
+                if(date == date_min && Util::contains(*iter, date)) {
                     winner_indexs.push_back(transi_index);
                 }
                 transi_index++;
@@ -156,8 +162,8 @@ namespace VerifyTAPN {
                 return std::make_pair(nullptr, date_min);
             }
             TimedTransition *winner;
-            if(winner_indexs.size() == 1) { 
-                winner = _tapn.getTransitions()[winner_indexs.front()];
+            if(winner_indexs.size() == 0) { 
+                winner = nullptr;
             } else {
                 std::uniform_int_distribution<> distrib(0, winner_indexs.size() - 1);
                 winner = _tapn.getTransitions()[winner_indexs[distrib(gen)]];

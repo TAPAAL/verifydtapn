@@ -156,4 +156,12 @@ namespace VerifyTAPN { namespace DiscreteVerification { namespace Util {
         std::cout << std::endl;
     }
 
+    bool contains(std::vector<interval> &set, int value) {
+        for(auto interv : set) {
+            if(value < interv.lower()) return false;
+            if(value < interv.upper()) return true;
+        }
+        return false;
+    }
+
 } } } /* namespace VerifyTAPN */

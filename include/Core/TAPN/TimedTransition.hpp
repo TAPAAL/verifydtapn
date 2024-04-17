@@ -20,10 +20,10 @@ namespace VerifyTAPN {
         public: // typedefs
             typedef std::vector<TimedTransition *> Vector;
         public:
-            TimedTransition(int index, std::string name, std::string id, bool urgent, bool controllable, double x, double y)
+            TimedTransition(int index, std::string name, std::string id, bool urgent, bool controllable, double x, double y, float rate = -1)
                     : index(index), name(std::move(name)), id(std::move(id)), preset(), postset(), transportArcs(),
                       untimedPostset(true),
-                      urgent(urgent), controllable(controllable), _position({x,y}) {};
+                      urgent(urgent), controllable(controllable), _position({x,y}), probabilityRate(rate) {};
 
             TimedTransition() : name("*EMPTY*"), id("-1"), preset(), postset(), transportArcs(), index(-1),
                                 untimedPostset(true), urgent(false) {};
@@ -116,6 +116,18 @@ namespace VerifyTAPN {
                 return _position;
             }
 
+            float getProbabilityRate() const {
+                return probabilityRate;
+            }
+
+            bool hasCustomProbabilityRate() const {
+                return probabilityRate > 0;
+            }
+
+            inline void setProbabilityRate(float value) {
+                probabilityRate = value;
+            }
+
         private: // data
             const int index = 0;
             std::string name;
@@ -128,6 +140,7 @@ namespace VerifyTAPN {
             bool urgent = false;
             bool controllable{};
             std::pair<double,double> _position;
+            float probabilityRate = -1;
         };
 
         inline std::ostream &operator<<(std::ostream &out, const TimedTransition &transition) {
