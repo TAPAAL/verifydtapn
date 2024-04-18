@@ -9,18 +9,14 @@ ProbabilityFloatComparison::ProbabilityFloatComparison(
     TAPN::TimedArcPetriNet &tapn, NonStrictMarking &initialMarking, AST::Query *query, VerificationOptions options
 )
 : SMCVerification(tapn, initialMarking, query, options), validRuns(0), ratio(0)
-{
+{ 
     computeAcceptingBounds(options.getFalsePositives(), options.getFalseNegatives()); //TODO: Options
     computeIndifferenceRegion(options.getTargetProbability(), options.getIndifferenceUp(), options.getIndifferenceDown());
 }
 
 void ProbabilityFloatComparison::handleRunResult(const bool res) {
     bool valid = query->getQuantifier() == PG ? !res : res;
-    if(valid) {
-        ratio += log(p1 / p0);
-    } else {
-        ratio += log((1 - p1) / (1 - p0));
-    }
+    ratio += valid ? log(p1 / p0) : log((1 - p1) / (1 - p0));
 }
 
 bool ProbabilityFloatComparison::handleSuccessor(NonStrictMarking* marking) {

@@ -105,10 +105,10 @@ namespace VerifyTAPN {
 
             _parent->incrementAge(delay);
             _totalTime += delay;
-            _totalSteps++;
             _modifiedPlaces.clear();
 
             if(transi != nullptr) {
+                _totalSteps++;
                 _transitionsStatistics[transi->getIndex()]++;
                 NonStrictMarkingBase* child = fire(transi);
                 delete _parent;
