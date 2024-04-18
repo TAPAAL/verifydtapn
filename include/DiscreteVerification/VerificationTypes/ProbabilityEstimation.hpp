@@ -23,7 +23,7 @@ class ProbabilityEstimation : public SMCVerification {
 
         void printStats() override;
 
-        void printResult();
+        void printResult() override;
 
     protected:
 

@@ -8,14 +8,19 @@ namespace VerifyTAPN::DiscreteVerification {
 ProbabilityFloatComparison::ProbabilityFloatComparison(
     TAPN::TimedArcPetriNet &tapn, NonStrictMarking &initialMarking, AST::Query *query, VerificationOptions options
 )
-: SMCVerification(tapn, initialMarking, query, options), validRuns(0)
+: SMCVerification(tapn, initialMarking, query, options), validRuns(0), ratio(0)
 {
-    computeAcceptingBounds(0.5, 0.5); //TODO: Options
+    computeAcceptingBounds(options.getFalsePositives(), options.getFalseNegatives()); //TODO: Options
+    computeIndifferenceRegion(options.getTargetProbability(), options.getIndifferenceUp(), options.getIndifferenceDown());
 }
 
 void ProbabilityFloatComparison::handleRunResult(const bool res) {
-    if(query->getQuantifier() == PG) validRuns += res ? 0 : 1;
-    else validRuns += res ? 1 : 0;
+    bool valid = query->getQuantifier() == PG ? !res : res;
+    if(valid) {
+        ratio += log(p1 / p0);
+    } else {
+        ratio += log((1 - p1) / (1 - p0));
+    }
 }
 
 bool ProbabilityFloatComparison::handleSuccessor(NonStrictMarking* marking) {
@@ -31,15 +36,28 @@ bool ProbabilityFloatComparison::handleSuccessor(NonStrictMarking* marking) {
 }
 
 bool ProbabilityFloatComparison::mustDoAnotherRun() {
-    return false;
+    if(ratio <= boundH0) {
+        result = true;
+        return false;
+    } else if(ratio >= boundH1) {
+        result = false;
+        return false;
+    }
+    return true;
 }
 
 bool ProbabilityFloatComparison::getResult() {
-    return false;
+    return result;
 }
 
 void ProbabilityFloatComparison::computeAcceptingBounds(const float alpha, const float beta) {
+    boundH0 = log(beta / (1 - alpha));
+    boundH1 = log((1 - beta) / alpha);
+} 
 
+void ProbabilityFloatComparison::computeIndifferenceRegion(const float p, const float sigma0, const float sigma1) {
+    p0 = p + sigma0;
+    p1 = p - sigma1;
 } 
 
 void ProbabilityFloatComparison::printStats() {
@@ -54,11 +72,12 @@ void ProbabilityFloatComparison::printResult() {
         printHumanTrace(m, printStack, query->getQuantifier());
     }*/
     bool result = getResult();
-    float width = options.getSmcIntervalWidth();
-    float minBound = std::max(result - width, 0.0f);
-    float maxBound = std::min(result + width, 1.0f);
     std::cout << "Probability comparison :" << std::endl;
-    std::cout << "\tConfidence : " << (1 - options.getSmcConfidence()) << "%" << std::endl;
+    std::cout << "\tQuery : P >= " << options.getTargetProbability() << std::endl;
+    std::cout << "\tIndifference region : [" << p1 << "," << p0 << "]" << std::endl;
+    std::cout << "\tFalse positives : " << options.getFalsePositives() << std::endl;
+    std::cout << "\tFalse negatives : " << options.getFalseNegatives() << std::endl;
+    std::cout << "\tResult : " << result << std::endl;
 }
 
 }

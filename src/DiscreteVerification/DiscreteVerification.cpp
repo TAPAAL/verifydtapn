@@ -18,7 +18,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
     void VerifyAndPrint(TAPN::TimedArcPetriNet &tapn, Verification<T> &verifier, VerificationOptions &options,
                         AST::Query *query);
 
-    void ComputeAndPrint(TAPN::TimedArcPetriNet &tapn, ProbabilityEstimation &verifier, VerificationOptions &options,
+    void ComputeAndPrint(TAPN::TimedArcPetriNet &tapn, SMCVerification &verifier, VerificationOptions &options,
                         AST::Query *query);
 
     DiscreteVerification::DiscreteVerification() {
@@ -189,8 +189,13 @@ namespace VerifyTAPN { namespace DiscreteVerification {
 
         } else if (options.getVerificationType() == VerificationOptions::DISCRETE) {
             if (query->getQuantifier() == PF || query->getQuantifier() == PG) {
-                ProbabilityEstimation estimator(tapn, *initialMarking, query, options);
-                ComputeAndPrint(tapn, estimator, options, query);
+                if(options.getTargetProbability() > 0) {
+                    ProbabilityFloatComparison estimator(tapn, *initialMarking, query, options);
+                    ComputeAndPrint(tapn, estimator, options, query);
+                } else {
+                    ProbabilityEstimation estimator(tapn, *initialMarking, query, options);
+                    ComputeAndPrint(tapn, estimator, options, query);
+                }
             }
             else if (options.getMemoryOptimization() == VerificationOptions::PTRIE) {
                 //TODO fix initialization
@@ -349,10 +354,10 @@ namespace VerifyTAPN { namespace DiscreteVerification {
         }
     }
 
-    void ComputeAndPrint(TAPN::TimedArcPetriNet &tapn, ProbabilityEstimation &estimator, VerificationOptions &options,
+    void ComputeAndPrint(TAPN::TimedArcPetriNet &tapn, SMCVerification &estimator, VerificationOptions &options,
                         AST::Query *query) {
 
-        std::cout << "Starting probability estimation..." << std::endl;
+        std::cout << "Starting SMC..." << std::endl;
 
         estimator.run();
 

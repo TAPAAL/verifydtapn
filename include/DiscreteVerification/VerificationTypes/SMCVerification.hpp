@@ -32,6 +32,8 @@ class SMCVerification : public Verification<NonStrictMarking> {
         virtual void handleRunResult(const bool res) = 0;
         virtual bool mustDoAnotherRun() = 0;
 
+        virtual void printResult() = 0;
+
     protected:
 
         RandomRunGenerator runGenerator;

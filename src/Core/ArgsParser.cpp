@@ -174,7 +174,13 @@ namespace VerifyTAPN {
             ("strategy-output", po::value<std::string>(), "File to write synthesized strategy to, use '_' (an underscore) for stdout")
             ("rate", po::value<float_t>(), "Default rate for unbounded transitions to use with SMC")
             ("confidence", po::value<float_t>(), "Confidence for SMC probability estimation")
-            ("interval-width", po::value<float_t>(), "Interval width for SMC probability estimation");
+            ("interval-width", po::value<float_t>(), "Interval width for SMC probability estimation")
+            ("geq", po::value<float_t>(), "Performs a SMC test to compute if P(q) >= ARG")
+            ("false-positives", po::value<float_t>(), "For probability comparison, probability of false positives")
+            ("false-negatives", po::value<float_t>(), "For probability comparison, probability of false negatives")
+            ("indifference", po::value<float_t>(), "For probability comparison, width of the indifference region")
+            ("indifference-up", po::value<float_t>(), "For probability comparison, upper indifference region width")
+            ("indifference-down", po::value<float_t>(), "For probability comparison, lower indifference region width");
     }
 
 
@@ -260,6 +266,26 @@ namespace VerifyTAPN {
         
         if(vm.count("interval-width"))
             opts.setSmcIntervalWidth(vm["interval-width"].as<float_t>());
+
+        if(vm.count("false-positives"))
+            opts.setFalsePositives(vm["false-positives"].as<float_t>());
+
+        if(vm.count("false-negatives"))
+            opts.setFalseNegatives(vm["false-negatives"].as<float_t>());
+
+        if(vm.count("indifference")) {
+            opts.setIndifferenceUp(vm["indifference"].as<float_t>());
+            opts.setIndifferenceDown(vm["indifference"].as<float_t>());
+        }
+        
+        if(vm.count("indifference-up"))
+            opts.setIndifferenceUp(vm["indifference-up"].as<float_t>());
+        
+        if(vm.count("indifference-down"))
+            opts.setIndifferenceDown(vm["indifference-down"].as<float_t>());
+        
+        if(vm.count("geq"))
+            opts.setTargetProbability(vm["geq"].as<float_t>());
 
         std::vector<std::string> files = po::collect_unrecognized(parsed.options, po::include_positional);
         // remove everything that is just a space

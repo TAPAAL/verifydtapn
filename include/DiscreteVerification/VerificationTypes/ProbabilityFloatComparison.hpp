@@ -20,15 +20,20 @@ class ProbabilityFloatComparison : public SMCVerification {
         bool getResult();
 
         void computeAcceptingBounds(const float alpha, const float beta);
+        void computeIndifferenceRegion(const float p, const float sigma0, const float sigma1);
 
         void printStats() override;
 
-        void printResult();
+        void printResult() override;
 
     protected:
 
-        float bound1;
-        float bound2;
+        float ratio;
+        float p0;
+        float p1;
+        float boundH0;
+        float boundH1;
+        bool result;
         unsigned int validRuns;
 
 };

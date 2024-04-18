@@ -223,6 +223,46 @@ namespace VerifyTAPN {
             defaultRate = rate;
         }
 
+        inline float getFalsePositives() const {
+            return falsePositives;
+        }
+
+        inline void setFalsePositives(float proba) {
+            falsePositives = proba;
+        }
+
+        inline float getFalseNegatives() const {
+            return falseNegatives;
+        }
+
+        inline void setFalseNegatives(float proba) {
+            falseNegatives = proba;
+        }
+
+        inline float getTargetProbability() const {
+            return targetProbability;
+        }
+
+        inline void setTargetProbability(float proba) {
+            targetProbability = proba;
+        }
+
+        inline float getIndifferenceUp() const {
+            return indifferenceUp;
+        }
+
+        inline void setIndifferenceUp(float proba) {
+            indifferenceUp = proba;
+        }
+
+        inline float getIndifferenceDown() const {
+            return indifferenceDown;
+        }
+
+        inline void setIndifferenceDown(float proba) {
+            indifferenceDown = proba;
+        }
+
     protected:
         std::string inputFile;
         std::string queryFile;
@@ -247,6 +287,11 @@ namespace VerifyTAPN {
         float smcConfidence = 0.95;
         float smcIntervalWidth = 0.05;
         float defaultRate = 0.1;
+        float falsePositives = 0.1;
+        float falseNegatives = 0.1;
+        float targetProbability = -1;
+        float indifferenceUp = 0.1;
+        float indifferenceDown = 0.1;
         friend class ArgsParser;
     };
 
