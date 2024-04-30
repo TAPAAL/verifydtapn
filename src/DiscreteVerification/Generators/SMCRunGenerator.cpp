@@ -1,11 +1,11 @@
 /* 
- * File:   RandomRunGenerator.cpp
+ * File:   SMCRunGenerator.cpp
  * Author: Tanguy Dubois
  * 
  * Created on 11 April 2024, 10.13
  */
 
-#include "DiscreteVerification/Generators/RandomRunGenerator.h"
+#include "DiscreteVerification/Generators/SMCRunGenerator.h"
 
 #include <numeric>
 #include <random>
@@ -16,7 +16,7 @@ namespace VerifyTAPN {
 
         using Util::interval;
 
-        void RandomRunGenerator::prepare(NonStrictMarkingBase *parent) {
+        void SMCRunGenerator::prepare(NonStrictMarkingBase *parent) {
             _origin = parent;
             _parent = _origin;
             PlaceList& places = _origin->getPlaceList();
@@ -45,7 +45,7 @@ namespace VerifyTAPN {
             reset();
         }
 
-        void RandomRunGenerator::reset() {
+        void SMCRunGenerator::reset() {
             _parent = new NonStrictMarkingBase(*_origin);
             _transitionIntervals = _defaultTransitionIntervals;
             _maximal = false;
@@ -54,7 +54,7 @@ namespace VerifyTAPN {
             _modifiedPlaces.clear();
         } 
 
-        void RandomRunGenerator::refreshTransitionsIntervals() {
+        void SMCRunGenerator::refreshTransitionsIntervals() {
             PlaceList& places = _parent->getPlaceList();
             std::vector<bool> transitionSeen(_transitionIntervals.size(), false);
             _max_delay = std::numeric_limits<int>::max();
@@ -93,7 +93,7 @@ namespace VerifyTAPN {
             }
         }
 
-        NonStrictMarkingBase* RandomRunGenerator::next() {
+        NonStrictMarkingBase* SMCRunGenerator::next() {
             auto transi_delay = getWinnerTransitionAndDelay();
             TimedTransition* transi = transi_delay.first;
             int delay = transi_delay.second;
@@ -124,7 +124,7 @@ namespace VerifyTAPN {
             return _parent;
         }
 
-        std::pair<TimedTransition*, int> RandomRunGenerator::getWinnerTransitionAndDelay() {
+        std::pair<TimedTransition*, int> SMCRunGenerator::getWinnerTransitionAndDelay() {
             std::vector<size_t> winner_indexs;
             size_t transi_index = 0;
             int date_min = std::numeric_limits<int>::max();
@@ -143,7 +143,7 @@ namespace VerifyTAPN {
                     std::geometric_distribution<> distrib(transition->getProbabilityRate()); 
                     date = std::min(distrib(gen), _max_delay);
                 } else if(_max_delay == std::numeric_limits<int>::max()) {
-                    std::geometric_distribution<> distrib(_defaultRate); //TODO : options default rate
+                    std::geometric_distribution<> distrib(_defaultRate);
                     date = distrib(gen);
                 } else {
                     std::uniform_int_distribution<> distrib(0, _max_delay); 
@@ -171,7 +171,7 @@ namespace VerifyTAPN {
             return std::make_pair(winner, date_min);
         }
 
-        std::vector<interval> RandomRunGenerator::transitionFiringDates(TimedTransition* transi) {
+        std::vector<interval> SMCRunGenerator::transitionFiringDates(TimedTransition* transi) {
             PlaceList &places = _parent->getPlaceList();
             std::vector<interval> firingInterval = { interval(0, std::numeric_limits<int>::max()) };
             std::vector<interval> disabled;
@@ -209,7 +209,7 @@ namespace VerifyTAPN {
             return firingInterval;
         }
 
-        std::vector<interval> RandomRunGenerator::arcFiringDates(TimeInterval time_interval, uint32_t weight, TokenList& tokens) {
+        std::vector<interval> SMCRunGenerator::arcFiringDates(TimeInterval time_interval, uint32_t weight, TokenList& tokens) {
             // We assume tokens is SORTED !
             Util::interval arcInterval(time_interval.getLowerBound(), time_interval.getUpperBound());
             size_t total_tokens = 0;
@@ -248,13 +248,13 @@ namespace VerifyTAPN {
             return firingDates;
         }
 
-        Util::interval RandomRunGenerator::remainingForToken(const interval& arcInterval, const Token& token) {
+        Util::interval SMCRunGenerator::remainingForToken(const interval& arcInterval, const Token& token) {
             interval tokenInterv = arcInterval;
             tokenInterv.delta(-token.getAge());
             return tokenInterv.positive();
         }
 
-        NonStrictMarkingBase* RandomRunGenerator::fire(TimedTransition* transi) {
+        NonStrictMarkingBase* SMCRunGenerator::fire(TimedTransition* transi) {
             if (transi == nullptr) {
                 assert(false);
                 return nullptr;
@@ -341,19 +341,19 @@ namespace VerifyTAPN {
             return child;
         }
 
-        bool RandomRunGenerator::reachedEnd() const {
+        bool SMCRunGenerator::reachedEnd() const {
             return _maximal;
         }
 
-        int RandomRunGenerator::getRunDelay() const {
+        int SMCRunGenerator::getRunDelay() const {
             return _totalTime;
         }
 
-        int RandomRunGenerator::getRunSteps() const {
+        int SMCRunGenerator::getRunSteps() const {
             return _totalSteps;
         }
 
-        void RandomRunGenerator::printTransitionStatistics(std::ostream &out) const {
+        void SMCRunGenerator::printTransitionStatistics(std::ostream &out) const {
             out << std::endl << "TRANSITION STATISTICS";
             for (unsigned int i = 0; i < _transitionsStatistics.size(); i++) {
                 if ((i) % 6 == 0) {

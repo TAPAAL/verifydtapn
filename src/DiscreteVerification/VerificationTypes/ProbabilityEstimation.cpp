@@ -40,7 +40,7 @@ float ProbabilityEstimation::getEstimation() {
 
 void ProbabilityEstimation::computeChernoffHoeffdingBound(const float intervalWidth, const float confidence) {
     // https://link.springer.com/content/pdf/10.1007/b94790.pdf p.78-79
-    float bound = /*4 * */log(2.0 / (1 - confidence)) / pow(2 * intervalWidth, 2);
+    float bound = log(2.0 / (1 - confidence)) / (2.0 * pow(intervalWidth, 2));
     runsNeeded = (unsigned int) ceil(bound);
 }
 

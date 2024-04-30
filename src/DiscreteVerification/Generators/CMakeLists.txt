@@ -9,6 +9,6 @@ add_library(Generators
                 GameStubbornSet.cpp
                 ReducingGameGenerator.cpp
                 RangeVisitor.cpp
-                RandomRunGenerator.cpp)
+                SMCRunGenerator.cpp)
 
 

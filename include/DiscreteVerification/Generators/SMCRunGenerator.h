@@ -5,18 +5,19 @@
  * Created on 11 April 2024, 10.13
  */
 
-#ifndef RANDOMRUNGENERATOR_H
-#define RANDOMRUNGENERATOR_H
+#ifndef SMCRUNGENERATOR_H
+#define SMCRUNGENERATOR_H
 #include "DiscreteVerification/Generators/Generator.h"
 #include "DiscreteVerification/Util/IntervalOps.hpp"
 
 namespace VerifyTAPN {
     namespace DiscreteVerification {
 
-        class RandomRunGenerator {
-        protected:
+        class SMCRunGenerator {
+
         public:
-            RandomRunGenerator(TAPN::TimedArcPetriNet &tapn, float defaultRate = 0.1)
+
+            SMCRunGenerator(TAPN::TimedArcPetriNet &tapn, float defaultRate = 0.1)
             : _tapn(tapn)
             , _defaultTransitionIntervals(tapn.getTransitions().size()) 
             , _transitionsStatistics(tapn.getTransitions().size(), 0)
@@ -44,6 +45,7 @@ namespace VerifyTAPN {
             void printTransitionStatistics(std::ostream &out) const;
             
         protected:
+        
             Util::interval remainingForToken(const Util::interval& arcInterval, const Token& t);
 
             bool _maximal = false;
@@ -65,5 +67,5 @@ namespace VerifyTAPN {
     }
 }
 
-#endif /* RANDOMRUNGENERATOR_H */
+#endif /* SMCRUNGENERATOR_H */
 

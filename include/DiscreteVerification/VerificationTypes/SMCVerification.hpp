@@ -3,7 +3,7 @@
 
 #include "DiscreteVerification/VerificationTypes/Verification.hpp"
 #include "DiscreteVerification/DataStructures/NonStrictMarking.hpp"
-#include "DiscreteVerification/Generators/RandomRunGenerator.h"
+#include "DiscreteVerification/Generators/SMCRunGenerator.h"
 
 namespace VerifyTAPN::DiscreteVerification {
 
@@ -36,7 +36,7 @@ class SMCVerification : public Verification<NonStrictMarking> {
 
     protected:
 
-        RandomRunGenerator runGenerator;
+        SMCRunGenerator runGenerator;
         size_t numberOfRuns;
         unsigned int maxTokensSeen;
         unsigned long totalTime = 0;
