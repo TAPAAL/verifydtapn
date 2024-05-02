@@ -443,25 +443,6 @@ namespace VerifyTAPN {
             int place;
         };
 
-        enum BoundType { None, TimeBound, StepsBound };
-        class RunBound  {
-        public:
-            RunBound() : _type(None) , _bound(0) {}
-            RunBound(const BoundType type, const int bound) :_type(type), _bound(bound) {}
-            BoundType getType() const {
-                return _type;
-            }
-            void setValue(const int new_bound) {
-                _bound = new_bound;
-            }
-            int getValue() const {
-                return _bound;
-            }
-        private:
-            BoundType _type;
-            int _bound;
-        };
-
         // EF : Reachability
         // AG : Safety
         // EG : Preservability
@@ -519,18 +500,9 @@ namespace VerifyTAPN {
                 quantifier = q;
             }
 
-            void setRunBound(RunBound bound) {
-                runBound = bound;
-            }
-
-            RunBound& getRunBound() {
-                return runBound;
-            }
-
         private:
             Quantifier quantifier;
             Expression *expr;
-            RunBound runBound;
         };
 
         std::unique_ptr<Query> toAST(const unfoldtacpn::PQL::Condition_ptr& ptr, const TAPN::TimedArcPetriNet& tapn);

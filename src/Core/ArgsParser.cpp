@@ -258,35 +258,6 @@ namespace VerifyTAPN {
         if(vm.count("strategy-output"))
             opts.setOutputModelFile(vm["strategy-output"].as<std::string>());
 
-        if(vm.count("rate"))
-            opts.setDefaultRate(vm["rate"].as<float_t>());
-
-        if(vm.count("confidence"))
-            opts.setSmcConfidence(vm["confidence"].as<float_t>());
-        
-        if(vm.count("interval-width"))
-            opts.setSmcIntervalWidth(vm["interval-width"].as<float_t>());
-
-        if(vm.count("false-positives"))
-            opts.setFalsePositives(vm["false-positives"].as<float_t>());
-
-        if(vm.count("false-negatives"))
-            opts.setFalseNegatives(vm["false-negatives"].as<float_t>());
-
-        if(vm.count("indifference")) {
-            opts.setIndifferenceUp(vm["indifference"].as<float_t>());
-            opts.setIndifferenceDown(vm["indifference"].as<float_t>());
-        }
-        
-        if(vm.count("indifference-up"))
-            opts.setIndifferenceUp(vm["indifference-up"].as<float_t>());
-        
-        if(vm.count("indifference-down"))
-            opts.setIndifferenceDown(vm["indifference-down"].as<float_t>());
-        
-        if(vm.count("geq"))
-            opts.setTargetProbability(vm["geq"].as<float_t>());
-
         std::vector<std::string> files = po::collect_unrecognized(parsed.options, po::include_positional);
         // remove everything that is just a space
         files.erase(std::remove_if(files.begin(), files.end(),

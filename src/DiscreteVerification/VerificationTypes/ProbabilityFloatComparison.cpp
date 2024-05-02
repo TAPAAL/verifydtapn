@@ -6,17 +6,18 @@
 namespace VerifyTAPN::DiscreteVerification {
 
 ProbabilityFloatComparison::ProbabilityFloatComparison(
-    TAPN::TimedArcPetriNet &tapn, NonStrictMarking &initialMarking, AST::Query *query, VerificationOptions options
+    TAPN::TimedArcPetriNet &tapn, NonStrictMarking &initialMarking, AST::SMCQuery *query, VerificationOptions options
 )
 : SMCVerification(tapn, initialMarking, query, options), validRuns(0), ratio(0)
 { 
-    computeAcceptingBounds(options.getFalsePositives(), options.getFalseNegatives()); //TODO: Options
-    computeIndifferenceRegion(options.getTargetProbability(), options.getIndifferenceUp(), options.getIndifferenceDown());
+    computeAcceptingBounds(smcSettings.falsePositives, smcSettings.falsePositives);
+    computeIndifferenceRegion(smcSettings.geqThan, smcSettings.indifferenceRegionUp, smcSettings.indifferenceRegionDown);
 }
 
 void ProbabilityFloatComparison::handleRunResult(const bool res) {
     bool valid = query->getQuantifier() == PG ? !res : res;
     ratio += valid ? log(p1 / p0) : log((1 - p1) / (1 - p0));
+    validRuns += (int) valid;
 }
 
 bool ProbabilityFloatComparison::handleSuccessor(NonStrictMarking* marking) {
@@ -69,10 +70,10 @@ void ProbabilityFloatComparison::printResult() {
     }*/
     bool result = getResult();
     std::cout << "Probability comparison :" << std::endl;
-    std::cout << "\tQuery : P >= " << options.getTargetProbability() << std::endl;
+    std::cout << "\tQuery : P >= " << smcSettings.geqThan << std::endl;
     std::cout << "\tIndifference region : [" << p1 << "," << p0 << "]" << std::endl;
-    std::cout << "\tFalse positives : " << options.getFalsePositives() << std::endl;
-    std::cout << "\tFalse negatives : " << options.getFalseNegatives() << std::endl;
+    std::cout << "\tFalse positives : " << smcSettings.falsePositives << std::endl;
+    std::cout << "\tFalse negatives : " << smcSettings.falseNegatives << std::endl;
     std::cout << "\tResult : " << result << std::endl;
 }
 

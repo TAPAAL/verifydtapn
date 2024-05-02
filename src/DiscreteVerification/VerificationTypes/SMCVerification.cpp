@@ -49,12 +49,11 @@ void SMCVerification::setMaxTokensIfGreater(unsigned int i) {
 }
 
 bool SMCVerification::reachedRunBound() {
-    RunBound& bound = query->getRunBound();
-    switch(bound.getType()) {
-        case TimeBound: 
-            return runGenerator.getRunDelay() >= bound.getValue();
-        case StepsBound:
-            return runGenerator.getRunSteps() >= bound.getValue();
+    switch(smcSettings.boundType) {
+        case SMCSettings::TimeBound: 
+            return runGenerator.getRunDelay() >= smcSettings.bound;
+        case SMCSettings::StepBound:
+            return runGenerator.getRunSteps() >= smcSettings.bound;
         default:
             return false;
     }

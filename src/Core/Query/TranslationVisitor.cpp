@@ -2,7 +2,7 @@
 
 #include "Core/Query/TranslationVisitor.h"
 #include "Core/TAPN/TAPN.hpp"
-
+#include "Core/Query/SMCQuery.hpp"
 
 namespace VerifyTAPN {
     namespace AST {
@@ -173,25 +173,16 @@ namespace VerifyTAPN {
 
         void TranslationVisitor::_accept(const unfoldtacpn::PQL::PFCondition *condition) {
             check_first(true);
-            unfoldtacpn::PQL::BoundExpr* boundExpr = (unfoldtacpn::PQL::BoundExpr*) condition->bound();
-            RunBound queryBound(
-                boundExpr->getType() == unfoldtacpn::PQL::TimeBoundExpr ? TimeBound : StepsBound,
-                boundExpr->getValue());
+            SMCSettings settings = SMCSettings::fromPQL(condition->settings());
             (*condition)[0]->visit(*this);
-            _result = std::make_unique<Query>(Quantifier::PF, get_e_result());
-            _result->setRunBound(queryBound);
-            
+            _result = std::make_unique<SMCQuery>(Quantifier::PF, settings, get_e_result());            
         }
 
         void TranslationVisitor::_accept(const unfoldtacpn::PQL::PGCondition *condition) {
             check_first(true);
-            unfoldtacpn::PQL::BoundExpr* boundExpr = (unfoldtacpn::PQL::BoundExpr*) condition->bound();
-            RunBound queryBound(
-                boundExpr->getType() == unfoldtacpn::PQL::TimeBoundExpr ? TimeBound : StepsBound,
-                boundExpr->getValue());
+            SMCSettings settings = SMCSettings::fromPQL(condition->settings());
             (*condition)[0]->visit(*this);
-            _result = std::make_unique<Query>(Quantifier::PG, get_e_result());
-            _result->setRunBound(queryBound);
+            _result = std::make_unique<SMCQuery>(Quantifier::PG, settings, get_e_result());    
         }
 
         void TranslationVisitor::_accept(const unfoldtacpn::PQL::BooleanCondition *element) {

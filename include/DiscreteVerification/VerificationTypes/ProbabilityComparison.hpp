@@ -3,6 +3,7 @@
 
 #include "DiscreteVerification/VerificationTypes/Verification.hpp"
 #include "DiscreteVerification/Generators/SMCRunGenerator.h"
+#include "Core/Query/SMCQuery.hpp"
 
 #define INDIFFERENT 0
 #define ACCEPT 1
@@ -15,17 +16,17 @@ class ProbabilityComparison : public Verification<NonStrictMarkingBase> {
     public:
 
         ProbabilityComparison(
-            TAPN::TimedArcPetriNet &tapn, NonStrictMarking &initialMarking, AST::Query *query_1, AST::Query *query_2, VerificationOptions options
+            TAPN::TimedArcPetriNet &tapn, NonStrictMarking &initialMarking, AST::SMCQuery *query_1, AST::SMCQuery *query_2, VerificationOptions options
         );
 
         virtual bool run();
-        virtual bool executeRunFor(AST::Query* query);
+        virtual bool executeRunFor(AST::SMCQuery *query);
 
-        bool handleSuccessor(AST::Query* query, NonStrictMarking* marking);
+        bool handleSuccessor(AST::SMCQuery *query, NonStrictMarking* marking);
 
         void handleRunsResults(bool resQ1, bool resQ2);
 
-        bool reachedRunBound(AST::Query* query);
+        bool reachedRunBound(AST::SMCQuery *query);
 
         bool mustDoAnotherRun();
 
@@ -44,8 +45,8 @@ class ProbabilityComparison : public Verification<NonStrictMarkingBase> {
     protected:
 
         SMCRunGenerator runGenerator;
-        AST::Query* query_1;
-        AST::Query* query_2;
+        AST::SMCQuery *query_1;
+        AST::SMCQuery *query_2;
         size_t numberOfRuns;
 
         bool mayBeIndifferent;

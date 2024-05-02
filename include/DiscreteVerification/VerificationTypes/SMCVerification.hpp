@@ -4,6 +4,7 @@
 #include "DiscreteVerification/VerificationTypes/Verification.hpp"
 #include "DiscreteVerification/DataStructures/NonStrictMarking.hpp"
 #include "DiscreteVerification/Generators/SMCRunGenerator.h"
+#include "Core/Query/SMCQuery.hpp"
 
 namespace VerifyTAPN::DiscreteVerification {
 
@@ -11,11 +12,12 @@ class SMCVerification : public Verification<NonStrictMarking> {
 
     public:
 
-        SMCVerification(TAPN::TimedArcPetriNet &tapn, NonStrictMarking &initialMarking, AST::Query *query,
+        SMCVerification(TAPN::TimedArcPetriNet &tapn, NonStrictMarking &initialMarking, AST::SMCQuery *query,
                         VerificationOptions options) 
             : Verification(tapn, initialMarking, query, options)
-            , runGenerator(tapn, options.getDefaultRate()), numberOfRuns(0), maxTokensSeen(0)
-            {}
+            , runGenerator(tapn, query->getSmcSettings().defaultRate)
+            , numberOfRuns(0), maxTokensSeen(0), smcSettings(query->getSmcSettings())
+            { }
 
         virtual bool run() override;
 
@@ -37,6 +39,7 @@ class SMCVerification : public Verification<NonStrictMarking> {
     protected:
 
         SMCRunGenerator runGenerator;
+        SMCSettings smcSettings;
         size_t numberOfRuns;
         unsigned int maxTokensSeen;
         unsigned long totalTime = 0;

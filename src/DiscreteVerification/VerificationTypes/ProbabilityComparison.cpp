@@ -6,10 +6,10 @@
 namespace VerifyTAPN::DiscreteVerification {
 
 ProbabilityComparison::ProbabilityComparison(
-    TAPN::TimedArcPetriNet &tapn, NonStrictMarking &initialMarking, AST::Query *query_1, AST::Query *query_2, VerificationOptions options
+    TAPN::TimedArcPetriNet &tapn, NonStrictMarking &initialMarking, AST::SMCQuery *query_1, AST::SMCQuery *query_2, VerificationOptions options
 ) : Verification(tapn, initialMarking, query_1, options), maxTokensSeen(0), numberOfRuns(0), result(0), mayBeIndifferent(true),
     acceptingRuns(0), ratio_indifferent(0), finished(false),
-    runGenerator(tapn, options.getDefaultRate())
+    runGenerator(tapn, query_1->getSmcSettings().defaultRate)
 {
     this->query_1 = query_1;
     this->query_2 = query_2;
@@ -26,7 +26,7 @@ bool ProbabilityComparison::run() {
     return true;
 }
 
-bool ProbabilityComparison::executeRunFor(AST::Query* query) {
+bool ProbabilityComparison::executeRunFor(AST::SMCQuery* query) {
     bool runRes = false;
     NonStrictMarkingBase* newMarking = new NonStrictMarkingBase(initialMarking);
     while(!runGenerator.reachedEnd() && !reachedRunBound(query)) {
@@ -73,7 +73,7 @@ void ProbabilityComparison::handleRunsResults(bool resQ1, bool resQ2) {
     }
 }
 
-bool ProbabilityComparison::handleSuccessor(AST::Query* current_query, NonStrictMarking* marking) {
+bool ProbabilityComparison::handleSuccessor(AST::SMCQuery* current_query, NonStrictMarking* marking) {
     marking->cut(placeStats);
 
     QueryVisitor<NonStrictMarking> checker(*marking, tapn);
@@ -103,13 +103,12 @@ void ProbabilityComparison::computeIndifferenceRegion(const float p, const float
 
 }
 
-bool ProbabilityComparison::reachedRunBound(AST::Query* current_query) {
-    RunBound& bound = current_query->getRunBound();
-    switch(bound.getType()) {
-        case TimeBound: 
-            return runGenerator.getRunDelay() >= bound.getValue();
-        case StepsBound:
-            return runGenerator.getRunSteps() >= bound.getValue();
+bool ProbabilityComparison::reachedRunBound(AST::SMCQuery* current_query) {
+    switch(current_query->getSmcSettings().boundType) {
+        case SMCSettings::TimeBound: 
+            return runGenerator.getRunDelay() >= current_query->getSmcSettings().bound;
+        case SMCSettings::StepBound:
+            return runGenerator.getRunSteps() >= current_query->getSmcSettings().bound;
         default:
             return false;
     }

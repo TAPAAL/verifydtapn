@@ -6,11 +6,11 @@
 namespace VerifyTAPN::DiscreteVerification {
 
 ProbabilityEstimation::ProbabilityEstimation(
-    TAPN::TimedArcPetriNet &tapn, NonStrictMarking &initialMarking, AST::Query *query, VerificationOptions options
+    TAPN::TimedArcPetriNet &tapn, NonStrictMarking &initialMarking, AST::SMCQuery *query, VerificationOptions options
 )
 : SMCVerification(tapn, initialMarking, query, options), validRuns(0)
 {
-    computeChernoffHoeffdingBound(options.getSmcIntervalWidth(), options.getSmcConfidence());
+    computeChernoffHoeffdingBound(smcSettings.estimationIntervalWidth, smcSettings.confidence);
 }
 
 bool ProbabilityEstimation::mustDoAnotherRun() {
@@ -56,11 +56,11 @@ void ProbabilityEstimation::printResult() {
         printHumanTrace(m, printStack, query->getQuantifier());
     }*/
     float result = getEstimation();
-    float width = options.getSmcIntervalWidth();
+    float width = smcSettings.estimationIntervalWidth;
     float minBound = std::max(result - width, 0.0f);
     float maxBound = std::min(result + width, 1.0f);
     std::cout << "Probability estimation :" << std::endl;
-    std::cout << "\tConfidence : " << options.getSmcConfidence() * 100 << "%" << std::endl;
+    std::cout << "\tConfidence : " << smcSettings.confidence * 100 << "%" << std::endl;
     std::cout << "\tP in [" << minBound << ";" << maxBound << "]" << std::endl;
 }
 

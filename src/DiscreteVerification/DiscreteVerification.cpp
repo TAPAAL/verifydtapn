@@ -189,11 +189,12 @@ namespace VerifyTAPN { namespace DiscreteVerification {
 
         } else if (options.getVerificationType() == VerificationOptions::DISCRETE) {
             if (query->getQuantifier() == PF || query->getQuantifier() == PG) {
-                if(options.getTargetProbability() > 0) {
-                    ProbabilityFloatComparison estimator(tapn, *initialMarking, query, options);
+                SMCQuery* smcQuery = (SMCQuery*) query;
+                if(smcQuery->getSmcSettings().compareToFloat) {
+                    ProbabilityFloatComparison estimator(tapn, *initialMarking, smcQuery, options);
                     ComputeAndPrint(tapn, estimator, options, query);
                 } else {
-                    ProbabilityEstimation estimator(tapn, *initialMarking, query, options);
+                    ProbabilityEstimation estimator(tapn, *initialMarking, smcQuery, options);
                     ComputeAndPrint(tapn, estimator, options, query);
                 }
             }

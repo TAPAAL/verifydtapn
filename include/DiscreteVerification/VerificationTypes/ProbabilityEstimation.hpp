@@ -10,7 +10,7 @@ class ProbabilityEstimation : public SMCVerification {
     public:
 
         ProbabilityEstimation(
-            TAPN::TimedArcPetriNet &tapn, NonStrictMarking &initialMarking, AST::Query *query, VerificationOptions options
+            TAPN::TimedArcPetriNet &tapn, NonStrictMarking &initialMarking, AST::SMCQuery *query, VerificationOptions options
         );
 
         bool handleSuccessor(NonStrictMarking* marking) override;
