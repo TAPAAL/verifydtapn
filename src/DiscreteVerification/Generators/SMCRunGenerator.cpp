@@ -21,12 +21,12 @@ namespace VerifyTAPN {
             _parent = _origin;
             PlaceList& places = _origin->getPlaceList();
             std::vector<bool> transitionSeen(_defaultTransitionIntervals.size(), false);
-            _max_delay = std::numeric_limits<int>::max();
+            _originMaxDelay = std::numeric_limits<int>::max();
             for(auto &pit : places) {
                 if(pit.place->getInvariant().getBound() != std::numeric_limits<int>::max()) {
                     int place_max_delay = pit.place->getInvariant().getBound() - pit.maxTokenAge();
-                    if(place_max_delay < _max_delay) {
-                        _max_delay = place_max_delay;
+                    if(place_max_delay < _originMaxDelay) {
+                        _originMaxDelay = place_max_delay;
                     }
                 }
                 for(auto arc : pit.place->getInputArcs()) {
@@ -37,7 +37,7 @@ namespace VerifyTAPN {
                     transitionSeen[transi.getIndex()] = true;
                 }
             }
-            std::vector<interval> invInterval = { interval(0, _max_delay) };
+            std::vector<interval> invInterval = { interval(0, _originMaxDelay) };
             for(auto iter = _defaultTransitionIntervals.begin() ; iter != _defaultTransitionIntervals.end() ; iter++) {
                 if(iter->empty()) continue;
                 *iter = Util::setIntersection(*iter, invInterval);
@@ -49,6 +49,7 @@ namespace VerifyTAPN {
             _parent = new NonStrictMarkingBase(*_origin);
             _transitionIntervals = _defaultTransitionIntervals;
             _maximal = false;
+            _max_delay = _originMaxDelay;
             _totalTime = 0;
             _totalSteps = 0;
             _modifiedPlaces.clear();
@@ -97,7 +98,7 @@ namespace VerifyTAPN {
             auto transi_delay = getWinnerTransitionAndDelay();
             TimedTransition* transi = transi_delay.first;
             int delay = transi_delay.second;
-
+            
             if(delay == std::numeric_limits<int>::max()) {
                 _maximal = true;
                 return nullptr;

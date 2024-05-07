@@ -60,6 +60,7 @@ namespace VerifyTAPN {
             int _totalTime = 0;
             int _totalSteps = 0;
             int _max_delay = 0;
+            int _originMaxDelay = 0;
             float _defaultRate = 0.1;
             
         };
