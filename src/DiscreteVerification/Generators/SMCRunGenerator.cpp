@@ -106,7 +106,7 @@ namespace VerifyTAPN {
             _parent->incrementAge(delay);
             _totalTime += delay;
             _modifiedPlaces.clear();
-
+        
             if(transi != nullptr) {
                 _totalSteps++;
                 _transitionsStatistics[transi->getIndex()]++;

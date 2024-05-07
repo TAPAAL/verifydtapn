@@ -500,6 +500,10 @@ namespace VerifyTAPN {
                 quantifier = q;
             }
 
+            bool hasSMCQuantifier() const {
+                return quantifier == PF || quantifier == PG;
+            }
+
         private:
             Quantifier quantifier;
             Expression *expr;

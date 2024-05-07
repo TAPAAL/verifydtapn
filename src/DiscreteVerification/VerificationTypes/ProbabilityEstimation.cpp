@@ -59,8 +59,8 @@ void ProbabilityEstimation::printResult() {
     float width = smcSettings.estimationIntervalWidth;
     float minBound = std::max(result - width, 0.0f);
     float maxBound = std::min(result + width, 1.0f);
-    std::cout << "Probability estimation :" << std::endl;
-    std::cout << "\tConfidence : " << smcSettings.confidence * 100 << "%" << std::endl;
+    std::cout << "Probability estimation:" << std::endl;
+    std::cout << "\tConfidence: " << smcSettings.confidence * 100 << "%" << std::endl;
     std::cout << "\tP in [" << minBound << ";" << maxBound << "]" << std::endl;
 }
 

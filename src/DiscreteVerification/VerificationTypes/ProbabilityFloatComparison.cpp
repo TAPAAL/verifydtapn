@@ -69,12 +69,12 @@ void ProbabilityFloatComparison::printResult() {
         printHumanTrace(m, printStack, query->getQuantifier());
     }*/
     bool result = getResult();
-    std::cout << "Probability comparison :" << std::endl;
-    std::cout << "\tQuery : P >= " << smcSettings.geqThan << std::endl;
-    std::cout << "\tIndifference region : [" << p1 << "," << p0 << "]" << std::endl;
-    std::cout << "\tFalse positives : " << smcSettings.falsePositives << std::endl;
-    std::cout << "\tFalse negatives : " << smcSettings.falseNegatives << std::endl;
-    std::cout << "\tResult : " << result << std::endl;
+    std::cout << "Probability comparison:" << std::endl;
+    std::cout << "\tQuery: P >= " << smcSettings.geqThan << std::endl;
+    std::cout << "\tIndifference region: [" << p1 << "," << p0 << "]" << std::endl;
+    std::cout << "\tFalse positives: " << smcSettings.falsePositives << std::endl;
+    std::cout << "\tFalse negatives: " << smcSettings.falseNegatives << std::endl;
+	std::cout << (result ? "\tHypothesis is satisfied" : "\tHypothesis is NOT satisfied") << std::endl;
 }
 
 }

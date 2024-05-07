@@ -48,12 +48,19 @@ namespace VerifyTAPN { namespace DiscreteVerification {
         }
 #endif
 
-        if (initialMarking->size() > options.getKBound()) {
+        if (initialMarking->size() > options.getKBound() && !query->hasSMCQuantifier()) {
             std::cout << "The specified k-bound is less than the number of tokens in the initial markings.";
             return 1;
         }
-
-        std::cout << options;
+	
+        if(query->hasSMCQuantifier()) {
+            std::cout << "SMC Verification (all irrelevant options will be ignored)" << std::endl;
+            std::cout << "Model file is: " << options.getInputFile() << std::endl;
+            if (!options.getQueryFile().empty())
+                std::cout << "Query file is: " << options.getQueryFile() << std::endl;
+        } else {
+            std::cout << options;
+        }
 
         // Select verification method
         if (options.getWorkflowMode() != VerificationOptions::NOT_WORKFLOW) {
@@ -186,19 +193,17 @@ namespace VerifyTAPN { namespace DiscreteVerification {
             std::cout << "Query is " << (result ? "satisfied" : "NOT satisfied") << "." << std::endl;
             std::cout << "Max number of tokens found in any reachable marking: ";
             std::cout << synthesis.max_tokens() << std::endl;
-
-        } else if (options.getVerificationType() == VerificationOptions::DISCRETE) {
-            if (query->getQuantifier() == PF || query->getQuantifier() == PG) {
-                SMCQuery* smcQuery = (SMCQuery*) query;
-                if(smcQuery->getSmcSettings().compareToFloat) {
-                    ProbabilityFloatComparison estimator(tapn, *initialMarking, smcQuery, options);
-                    ComputeAndPrint(tapn, estimator, options, query);
-                } else {
-                    ProbabilityEstimation estimator(tapn, *initialMarking, smcQuery, options);
-                    ComputeAndPrint(tapn, estimator, options, query);
-                }
+        } else if (query->getQuantifier() == PF || query->getQuantifier() == PG) {
+            SMCQuery* smcQuery = (SMCQuery*) query;
+            if(smcQuery->getSmcSettings().compareToFloat) {
+                ProbabilityFloatComparison estimator(tapn, *initialMarking, smcQuery, options);
+                ComputeAndPrint(tapn, estimator, options, query);
+            } else {
+                ProbabilityEstimation estimator(tapn, *initialMarking, smcQuery, options);
+                ComputeAndPrint(tapn, estimator, options, query);
             }
-            else if (options.getMemoryOptimization() == VerificationOptions::PTRIE) {
+        } else if (options.getVerificationType() == VerificationOptions::DISCRETE) {
+            if (options.getMemoryOptimization() == VerificationOptions::PTRIE) {
                 //TODO fix initialization
                 WaitingList<ptriepointer_t<MetaData *> > *strategy = getWaitingList<ptriepointer_t<MetaData *> >(
                         query, options);
@@ -372,10 +377,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
         estimator.printPlaceStatistics();
 
         std::cout << "Max number of tokens found in any reachable marking: ";
-        if (estimator.maxUsedTokens() > options.getKBound())
-            std::cout << ">" << options.getKBound() << std::endl;
-        else
-            std::cout << estimator.maxUsedTokens() << std::endl;
+        std::cout << estimator.maxUsedTokens() << std::endl;
 
         estimator.printResult();
 

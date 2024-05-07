@@ -123,7 +123,7 @@ void ProbabilityComparison::printResult() {
     std::string resultStr =    result == REJECT ? "Rejected" : 
                             result == ACCEPT ? "Accepted" :
                             "Undecided";
-    std::cout << "Probability comparison :" << std::endl;
+    std::cout << "Probability comparison:" << std::endl;
     std::cout << "\tHypothesis is " << resultStr << std::endl;
 }
 
