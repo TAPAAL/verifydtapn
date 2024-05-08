@@ -9,6 +9,7 @@
 #define SMCRUNGENERATOR_H
 #include "DiscreteVerification/Generators/Generator.h"
 #include "DiscreteVerification/Util/IntervalOps.hpp"
+#include "Core/Query/SMCQuery.hpp"
 
 namespace VerifyTAPN {
     namespace DiscreteVerification {
@@ -17,11 +18,12 @@ namespace VerifyTAPN {
 
         public:
 
-            SMCRunGenerator(TAPN::TimedArcPetriNet &tapn, float defaultRate = 0.1)
+            SMCRunGenerator(TAPN::TimedArcPetriNet &tapn, float defaultRate = 0.1, SMCSemantics semantics = Weak)
             : _tapn(tapn)
             , _defaultTransitionIntervals(tapn.getTransitions().size()) 
             , _transitionsStatistics(tapn.getTransitions().size(), 0)
             , _defaultRate(defaultRate)
+            , _semantics(semantics)
             {};
 
             virtual void prepare(NonStrictMarkingBase *parent);
@@ -43,6 +45,9 @@ namespace VerifyTAPN {
             int getRunSteps() const;
 
             void printTransitionStatistics(std::ostream &out) const;
+
+            void setSemantics(SMCSemantics semantics);
+            SMCSemantics getSemantics() const;
             
         protected:
         
@@ -62,6 +67,7 @@ namespace VerifyTAPN {
             int _max_delay = 0;
             int _originMaxDelay = 0;
             float _defaultRate = 0.1;
+            SMCSemantics _semantics = Weak;
             
         };
 

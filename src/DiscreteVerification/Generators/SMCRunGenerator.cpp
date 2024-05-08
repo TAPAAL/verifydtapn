@@ -138,17 +138,21 @@ namespace VerifyTAPN {
                 }
                 int date;
                 TimedTransition* transition = _tapn.getTransitions()[transi_index];
+                int max_accessible = _semantics == Weak ? _max_delay : std::min(Util::setLength(*iter), _max_delay);
                 if(transition->isUrgent()) {
                     date = iter->front().lower();
                 } else if(transition->hasCustomProbabilityRate()) {
                     std::geometric_distribution<> distrib(transition->getProbabilityRate());
-                    date = std::clamp(distrib(gen), 0, _max_delay);
-                } else if(_max_delay == std::numeric_limits<int>::max()) {
+                    date = std::clamp(distrib(gen), 0, max_accessible);
+                } else if(max_accessible == std::numeric_limits<int>::max()) {
                     std::geometric_distribution<> distrib(_defaultRate);
                     date = distrib(gen);
                 } else {
-                    std::uniform_int_distribution<> distrib(0, _max_delay); 
+                    std::uniform_int_distribution<> distrib(0, max_accessible); 
                     date = distrib(gen);
+                }
+                if(_semantics == Strong) {
+                    date = Util::valueAt(*iter, date);
                 }
                 if(date < date_min) {
                     date_min = date;
@@ -366,6 +370,14 @@ namespace VerifyTAPN {
             }
             out << std::endl;
             out << std::endl;
+        }
+
+        void SMCRunGenerator::setSemantics(SMCSemantics semantics) {
+            _semantics = semantics;
+        }
+
+        SMCSemantics SMCRunGenerator::getSemantics() const {
+            return _semantics;
         }
 
     }

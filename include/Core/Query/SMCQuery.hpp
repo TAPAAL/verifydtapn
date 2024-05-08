@@ -6,6 +6,8 @@
 
 namespace VerifyTAPN::AST {
 
+    enum SMCSemantics { Weak, Strong };
+
     struct SMCSettings {
         enum SMCBoundType { TimeBound, StepBound };
         SMCBoundType boundType;
@@ -19,6 +21,7 @@ namespace VerifyTAPN::AST {
         float estimationIntervalWidth;
         bool compareToFloat;
         float geqThan;
+        SMCSemantics semantics;
 
         static SMCSettings fromPQL(unfoldtacpn::PQL::SMCSettings settings);
     };
