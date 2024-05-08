@@ -141,8 +141,8 @@ namespace VerifyTAPN {
                 if(transition->isUrgent()) {
                     date = iter->front().lower();
                 } else if(transition->hasCustomProbabilityRate()) {
-                    std::geometric_distribution<> distrib(transition->getProbabilityRate()); 
-                    date = std::min(distrib(gen), _max_delay);
+                    std::geometric_distribution<> distrib(transition->getProbabilityRate());
+                    date = std::clamp(distrib(gen), 0, _max_delay);
                 } else if(_max_delay == std::numeric_limits<int>::max()) {
                     std::geometric_distribution<> distrib(_defaultRate);
                     date = distrib(gen);

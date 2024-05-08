@@ -367,11 +367,6 @@ namespace VerifyTAPN { namespace DiscreteVerification {
 
         estimator.run();
 
-        if (options.getGCDLowerGuardsEnabled()) {
-            std::cout << "Lowering all guards by greatest common divisor: " << tapn.getGCD() << std::endl;
-        }
-        std::cout << std::endl;
-
         estimator.printStats();
         estimator.printTransitionStatistics();
         estimator.printPlaceStatistics();
