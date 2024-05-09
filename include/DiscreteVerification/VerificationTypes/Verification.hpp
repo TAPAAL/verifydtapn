@@ -401,7 +401,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
             }
         }
 
-        for (TokenList::const_iterator iter = o_iter; iter != old_tokens.end(); iter++) {
+        for (TokenList::const_iterator iter = n_iter; iter != current_tokens.end(); iter++) {
             for (int i = 0; i < iter->getCount(); i++) {
                 transitionNode->append_node(createTokenNode(doc, place, *iter));
                 tokensFound++;
