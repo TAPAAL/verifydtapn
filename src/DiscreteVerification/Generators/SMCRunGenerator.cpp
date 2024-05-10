@@ -101,9 +101,7 @@ namespace VerifyTAPN {
         }
 
         NonStrictMarkingBase* SMCRunGenerator::next() {
-            auto transi_delay = getWinnerTransitionAndDelay();
-            TimedTransition* transi = transi_delay.first;
-            int delay = transi_delay.second;
+            auto [transi, delay] = getWinnerTransitionAndDelay();
             
             if(delay == std::numeric_limits<int>::max()) {
                 _maximal = true;
