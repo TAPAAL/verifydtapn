@@ -37,6 +37,12 @@ namespace VerifyTAPN {
                     transitionSeen[transi.getIndex()] = true;
                 }
             }
+            for(auto &transi : _tapn.getTransitions()) {
+                if(transi->getPresetSize() == 0) {
+                    _defaultTransitionIntervals[transi->getIndex()] = { interval(0, std::numeric_limits<int>::max()) };
+                    transitionSeen[transi->getIndex()] = true;
+                }
+            }
             std::vector<interval> invInterval = { interval(0, _originMaxDelay) };
             for(auto iter = _defaultTransitionIntervals.begin() ; iter != _defaultTransitionIntervals.end() ; iter++) {
                 if(iter->empty()) continue;
