@@ -36,6 +36,13 @@ namespace VerifyTAPN {
                     _defaultTransitionIntervals[transi.getIndex()] = firingDates;
                     transitionSeen[transi.getIndex()] = true;
                 }
+                for(auto arc : pit.place->getTransportArcs()) {
+                    TimedTransition &transi = arc->getTransition();
+                    if(transitionSeen[transi.getIndex()]) continue;
+                    std::vector<interval> firingDates = transitionFiringDates(&transi);
+                    _defaultTransitionIntervals[transi.getIndex()] = firingDates;
+                    transitionSeen[transi.getIndex()] = true;
+                }
             }
             for(auto &transi : _tapn.getTransitions()) {
                 if(transi->getPresetSize() == 0) {
@@ -83,12 +90,31 @@ namespace VerifyTAPN {
                         _transitionIntervals[transi.getIndex()] = firingDates;
                         transitionSeen[transi.getIndex()] = true;
                     }
+                    for(auto arc : pit.place->getInhibitorArcs()) {
+                        TimedTransition &transi = arc->getOutputTransition();
+                        if(transitionSeen[transi.getIndex()]) continue;
+                        std::vector<interval> firingDates = transitionFiringDates(&transi);
+                        _transitionIntervals[transi.getIndex()] = firingDates;
+                        transitionSeen[transi.getIndex()] = true;
+                    }
+                    for(auto arc : pit.place->getTransportArcs()) {
+                        TimedTransition &transi = arc->getTransition();
+                        if(transitionSeen[transi.getIndex()]) continue;
+                        std::vector<interval> firingDates = transitionFiringDates(&transi);
+                        _transitionIntervals[transi.getIndex()] = firingDates;
+                        transitionSeen[transi.getIndex()] = true;
+                    }
                 }
             }
             for(auto modified : _modifiedPlaces) { // Cleanup disabled transitions
                 TimedPlace place = _tapn.getPlace(modified);
                 for(auto arc : place.getInputArcs()) {
                     int transiIndex = arc->getOutputTransition().getIndex();
+                    if(transitionSeen[transiIndex]) continue;
+                    _transitionIntervals[transiIndex].clear();
+                }
+                for(auto arc : place.getTransportArcs()) {
+                    int transiIndex = arc->getTransition().getIndex();
                     if(transitionSeen[transiIndex]) continue;
                     _transitionIntervals[transiIndex].clear();
                 }
@@ -295,7 +321,10 @@ namespace VerifyTAPN {
                             tokenlist.erase(tokenlist.begin() + tok_index);
                             randomTokenIndex = std::uniform_int_distribution<>(0, tokenlist.size() - 1);
                         }
-                        if(remaining > 0) tok_index = randomTokenIndex(gen);
+                        if(remaining > 0) {
+                            tok_index = randomTokenIndex(gen);
+                            tested = 0;
+                        }
                     } else {
                         tok_index = (tok_index + 1) % tokenlist.size();
                         tested++;
@@ -306,6 +335,7 @@ namespace VerifyTAPN {
                 if(tokenlist.size() == 0) pit = placelist.erase(pit);
             }
 
+            std::vector<std::pair<TransportArc*, int>> toCreate;
             pit = placelist.begin();
             for (auto &transport : transi->getTransportArcs()) {
                 int source = transport->getSource().getIndex();
@@ -328,23 +358,29 @@ namespace VerifyTAPN {
                             tokenlist.erase(tokenlist.begin() + tok_index);
                             randomTokenIndex = std::uniform_int_distribution<>(0, tokenlist.size() - 1);
                         }
-                        if(remaining > 0) tok_index = randomTokenIndex(gen);
-                        child->addTokenInPlace(transport->getDestination(), age);
+                        if(remaining > 0) {
+                            tok_index = randomTokenIndex(gen);
+                            tested = 0;
+                        }
+                        toCreate.push_back(std::make_pair(transport, age));
                     } else {
                         tok_index = (tok_index + 1) % tokenlist.size();
                         tested++;
                     }
                 }
                 assert(remaining == 0);
-                if(tokenlist.size() == 0) pit = placelist.erase(pit);
                 _modifiedPlaces.push_back(source);
-                _modifiedPlaces.push_back(transport->getDestination().getIndex());
+                if(tokenlist.size() == 0) pit = placelist.erase(pit);
             }
-
             for (auto* output : transi->getPostset()) {
                 TimedPlace &place = output->getOutputPlace();
                 Token token = Token(0, output->getWeight());
                 child->addTokenInPlace(place, token);
+                _modifiedPlaces.push_back(place.getIndex());
+            }
+            for (auto [transportArc, age] : toCreate) {
+                TimedPlace &place = transportArc->getDestination();
+                child->addTokenInPlace(place, age);
                 _modifiedPlaces.push_back(place.getIndex());
             }
             return child;
