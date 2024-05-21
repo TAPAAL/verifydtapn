@@ -22,6 +22,7 @@ bool SMCVerification::executeRun() {
         if(runRes) break;
         newMarking = runGenerator.next();
     }
+    delete newMarking;
     totalTime += runGenerator.getRunDelay();
     totalSteps += runGenerator.getRunSteps();
     runGenerator.reset();
