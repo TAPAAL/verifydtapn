@@ -172,8 +172,15 @@ namespace VerifyTAPN {
                 if(transition->isUrgent()) {
                     date = iter->front().lower();
                 } else if(transition->hasCustomProbabilityRate()) {
-                    std::geometric_distribution<> distrib(transition->getProbabilityRate());
-                    date = std::clamp(distrib(gen), 0, max_accessible);
+                    float rate = transition->getProbabilityRate();
+                    std::geometric_distribution<> distrib(rate);
+                    date = distrib(gen);
+                    if(max_accessible < std::numeric_limits<int>::max()) {
+                        float probFail = 1 - rate;
+                        float scaled = pow(probFail, date + 1) + pow(probFail, max_accessible + 1) + pow(probFail, date + max_accessible + 2);
+                        scaled = log(scaled) / log(probFail);
+                        date = std::clamp(( (int) ceil(scaled) ) - 1, 0, max_accessible);
+                    }
                 } else if(max_accessible == std::numeric_limits<int>::max()) {
                     std::geometric_distribution<> distrib(_defaultRate);
                     date = distrib(gen);
