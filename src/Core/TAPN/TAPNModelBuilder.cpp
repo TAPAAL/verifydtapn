@@ -20,10 +20,10 @@ namespace VerifyTAPN {
     }
 
     void TAPNModelBuilder::addTransition(const std::string &name, int player, bool urgent,
-                                        double x, double y)
+                                        double x, double y, float rate)
     {
         auto id = _transitions.size();
-        _transitions.emplace_back(new TimedTransition(id, name, name, urgent, player == 0, x, y));
+        _transitions.emplace_back(new TimedTransition(id, name, name, urgent, player == 0, x, y, rate));
     }
 
     void TAPNModelBuilder::addInputArc(const std::string &place_name,

@@ -171,7 +171,16 @@ namespace VerifyTAPN {
             ("write-unfolded-net", po::value<std::string>(), "Outputs the model to the given file before structural reduction but after unfolding")
             ("bindings,b", "Print bindings to stderr in XML format (only for CPNs, default is not to print)")
             ("write-unfolded-queries", po::value<std::string>(), "Outputs the queries to the given file before query reduction but after unfolding")
-            ("strategy-output", po::value<std::string>(), "File to write synthesized strategy to, use '_' (an underscore) for stdout");
+            ("strategy-output", po::value<std::string>(), "File to write synthesized strategy to, use '_' (an underscore) for stdout")
+            ("rate", po::value<float_t>(), "Default rate for unbounded transitions to use with SMC")
+            ("confidence", po::value<float_t>(), "Confidence for SMC probability estimation")
+            ("interval-width", po::value<float_t>(), "Interval width for SMC probability estimation")
+            ("geq", po::value<float_t>(), "Performs a SMC test to compute if P(q) >= ARG")
+            ("false-positives", po::value<float_t>(), "For probability comparison, probability of false positives")
+            ("false-negatives", po::value<float_t>(), "For probability comparison, probability of false negatives")
+            ("indifference", po::value<float_t>(), "For probability comparison, width of the indifference region")
+            ("indifference-up", po::value<float_t>(), "For probability comparison, upper indifference region width")
+            ("indifference-down", po::value<float_t>(), "For probability comparison, lower indifference region width");
     }
 
 
@@ -248,7 +257,6 @@ namespace VerifyTAPN {
 
         if(vm.count("strategy-output"))
             opts.setOutputModelFile(vm["strategy-output"].as<std::string>());
-
 
         std::vector<std::string> files = po::collect_unrecognized(parsed.options, po::include_positional);
         // remove everything that is just a space
