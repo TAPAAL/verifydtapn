@@ -171,6 +171,9 @@ namespace TAPN {
                         maxConstant = maxConstant < maxArc ? maxArc : maxConstant;
                     }
                 }
+                
+                // If maxConstant is never set, set it to 0
+                maxConstant = maxConstant < 0 ? 0 : maxConstant;
                 place->setMaxConstant(maxConstant);
 
                 for (auto* inhibitorArc : inhibitorArcs) {
