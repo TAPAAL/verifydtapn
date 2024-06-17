@@ -7,7 +7,9 @@
 
 namespace VerifyTAPN {
 namespace TAPN {
-    void TimedArcPetriNet::initialize(bool useGlobalMaxConstant, bool lowerGuardsByGCD) {
+    void TimedArcPetriNet::initialize(const VerificationOptions &options) {
+        bool lowerGuardsByGCD = options.getGCDLowerGuardsEnabled();
+        bool useGlobalMaxConstant = options.getGlobalMaxConstantsEnabled();
 
         // start by doing GCD if enabled
         if (lowerGuardsByGCD) {
@@ -26,7 +28,7 @@ namespace TAPN {
             updateMaxConstant(arc->getInterval());
         }
 
-        findMaxConstants();
+        findMaxConstants(options);
 
         if (useGlobalMaxConstant) {
             for (auto* place : places) {
@@ -117,9 +119,11 @@ namespace TAPN {
         }
     }
 
-    void TimedArcPetriNet::findMaxConstants() {
+    void TimedArcPetriNet::findMaxConstants(const VerificationOptions &options) {
         for (auto* place : places) {
-            int maxConstant = 0;
+            int maxConstant = -1;
+            maxConstant = options.getTrace() == VerificationOptions::FASTEST_TRACE ? 0 : maxConstant;
+
             if (place->getInvariant() != TimeInvariant::LS_INF) {
                 maxConstant = place->getInvariant().getBound();
                 place->setMaxConstant(maxConstant);
