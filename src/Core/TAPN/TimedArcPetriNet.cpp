@@ -119,7 +119,7 @@ namespace TAPN {
 
     void TimedArcPetriNet::findMaxConstants() {
         for (auto* place : places) {
-            int maxConstant = -1;
+            int maxConstant = 0;
             if (place->getInvariant() != TimeInvariant::LS_INF) {
                 maxConstant = place->getInvariant().getBound();
                 place->setMaxConstant(maxConstant);
@@ -171,9 +171,7 @@ namespace TAPN {
                         maxConstant = maxConstant < maxArc ? maxArc : maxConstant;
                     }
                 }
-                
-                // If maxConstant is never set, set it to 0
-                maxConstant = maxConstant < 0 ? 0 : maxConstant;
+        
                 place->setMaxConstant(maxConstant);
 
                 for (auto* inhibitorArc : inhibitorArcs) {
