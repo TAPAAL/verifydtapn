@@ -122,7 +122,10 @@ namespace TAPN {
     void TimedArcPetriNet::findMaxConstants(const VerificationOptions &options) {
         for (auto* place : places) {
             int maxConstant = -1;
-            maxConstant = options.getTrace() == VerificationOptions::FASTEST_TRACE ? 0 : maxConstant;
+
+            // If using fastest trace the value is initialized to 0 to avoid issues with wrong delays
+            // See https://bugs.launchpad.net/tapaal/+bug/2035819
+            maxConstant = options.getTrace() == VerificationOptions::FASTEST_TRACE ? 0 : -1;
 
             if (place->getInvariant() != TimeInvariant::LS_INF) {
                 maxConstant = place->getInvariant().getBound();
