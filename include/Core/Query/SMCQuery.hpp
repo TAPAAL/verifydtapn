@@ -3,10 +3,100 @@
 
 #include "AST.hpp"
 #include <PQL/SMCExpressions.h>
+#include <random>
 
 namespace VerifyTAPN::AST {
 
     enum SMCSemantics { Weak, Strong };
+
+    enum SMCDistributionType {
+        Constant,
+        Uniform,
+        Exponential,
+        Normal,
+    };
+
+    struct SMCUniformParameters {
+        double a;
+        double b;
+    };
+    struct SMCExponentialParameters {
+        double rate;
+    };
+    struct SMCNormalParameters {
+        double mean;
+        double stddev;
+    };
+    struct SMCConstantParameters {
+        double value;
+    };
+
+    union SMCDistributionParameters {
+        SMCUniformParameters uniform;
+        SMCExponentialParameters exp;
+        SMCNormalParameters normal;
+        SMCConstantParameters constant;
+    };
+
+    struct SMCDistribution {
+        SMCDistributionType type;
+        SMCDistributionParameters parameters;
+
+        template<typename T>
+        double sample(T& engine) const {
+            double date = 0;
+            switch(type) {
+                case Constant:
+                    date = parameters.constant.value;
+                    break;
+                case Uniform:
+                    date = std::uniform_real_distribution(parameters.uniform.a, parameters.uniform.b)(engine);
+                    break;
+                case Exponential:
+                    date = std::exponential_distribution(parameters.exp.rate)(engine);
+                    break;
+                case Normal:
+                    date = std::normal_distribution(parameters.normal.mean, parameters.normal.stddev)(engine);
+                    break;
+            }
+            return std::max(date, 0.0);
+        }
+
+        static SMCDistribution urgent() {
+            SMCDistributionParameters params;
+            params.constant.value = 0;
+            return SMCDistribution { Constant, params };
+        }
+
+        static SMCDistribution defaultDistribution() {
+            SMCDistributionParameters params;
+            params.constant.value = 1;
+            return SMCDistribution { Constant, params };
+        }
+
+        static SMCDistribution fromParams(int distrib_id, double param1, double param2) {
+            SMCDistributionType distrib = static_cast<SMCDistributionType>(distrib_id);
+            SMCDistributionParameters params;
+            switch(distrib){
+                case Constant:
+                    params.constant.value = param1;
+                    break; 
+                case Uniform:
+                    params.uniform.a = param1;
+                    params.uniform.b = param2;
+                    break;
+                case Exponential:
+                    params.exp.rate = param1;
+                    break;
+                case Normal:
+                    params.normal.mean = param1;
+                    params.normal.stddev = param2;
+                    break;
+            }
+            return SMCDistribution { distrib, params };
+        }
+
+    };
 
     struct SMCSettings {
         enum SMCBoundType { TimeBound, StepBound };
@@ -16,7 +106,6 @@ namespace VerifyTAPN::AST {
         float falseNegatives;
         float indifferenceRegionUp;
         float indifferenceRegionDown;
-        float defaultRate;
         float confidence;
         float estimationIntervalWidth;
         bool compareToFloat;

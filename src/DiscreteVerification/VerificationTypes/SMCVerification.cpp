@@ -14,15 +14,14 @@ bool SMCVerification::run() {
 
 bool SMCVerification::executeRun() {
     bool runRes = false;
-    NonStrictMarkingBase* newMarking = new NonStrictMarkingBase(initialMarking);
+    RealMarking* newMarking = runGenerator.getMarking();
     while(!runGenerator.reachedEnd() && !reachedRunBound()) {
-        NonStrictMarking* child = new NonStrictMarking(*newMarking);
+        NonStrictMarking* child = new NonStrictMarking(newMarking->generateImage());
         setMaxTokensIfGreater(child->size());
         runRes = handleSuccessor(child);
         if(runRes) break;
         newMarking = runGenerator.next();
     }
-    delete newMarking;
     totalTime += runGenerator.getRunDelay();
     totalSteps += runGenerator.getRunSteps();
     runGenerator.reset();
@@ -31,8 +30,8 @@ bool SMCVerification::executeRun() {
 
 void SMCVerification::printStats() {
     std::cout << "  runs executed:\t" << numberOfRuns << std::endl;
-    std::cout << "  average run length:\t" << (totalSteps / (float) numberOfRuns) << std::endl;
-    std::cout << "  average run time:\t" << (totalTime / (float) numberOfRuns) << std::endl;
+    std::cout << "  average run length:\t" << (totalSteps / (double) numberOfRuns) << std::endl;
+    std::cout << "  average run time:\t" << (totalTime / (double) numberOfRuns) << std::endl;
 }
 
 void SMCVerification::printTransitionStatistics() const {

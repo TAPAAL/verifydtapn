@@ -8,8 +8,11 @@
 #include "TransportArc.hpp"
 #include "InhibitorArc.hpp"
 #include "OutputArc.hpp"
+#include "Core/Query/SMCQuery.hpp"
 
 namespace VerifyTAPN {
+
+    using AST::SMCDistribution;
 
     class SymMarking;
 
@@ -20,10 +23,10 @@ namespace VerifyTAPN {
         public: // typedefs
             typedef std::vector<TimedTransition *> Vector;
         public:
-            TimedTransition(int index, std::string name, std::string id, bool urgent, bool controllable, double x, double y, float rate = -1)
+            TimedTransition(int index, std::string name, std::string id, bool urgent, bool controllable, double x, double y, SMCDistribution distrib = SMCDistribution::defaultDistribution())
                     : index(index), name(std::move(name)), id(std::move(id)), preset(), postset(), transportArcs(),
                       untimedPostset(true),
-                      urgent(urgent), controllable(controllable), _position({x,y}), probabilityRate(rate) {};
+                      urgent(urgent), controllable(controllable), _position({x,y}), _distribution(distrib) {};
 
             TimedTransition() : name("*EMPTY*"), id("-1"), preset(), postset(), transportArcs(), index(-1),
                                 untimedPostset(true), urgent(false) {};
@@ -116,16 +119,12 @@ namespace VerifyTAPN {
                 return _position;
             }
 
-            float getProbabilityRate() const {
-                return probabilityRate;
+            const SMCDistribution& getDistribution() const {
+                return _distribution;
             }
 
-            bool hasCustomProbabilityRate() const {
-                return probabilityRate > 0;
-            }
-
-            inline void setProbabilityRate(float value) {
-                probabilityRate = value;
+            inline void setDistribution(SMCDistribution distrib) {
+                _distribution = distrib;
             }
 
         private: // data
@@ -140,7 +139,7 @@ namespace VerifyTAPN {
             bool urgent = false;
             bool controllable{};
             std::pair<double,double> _position;
-            float probabilityRate = -1;
+            SMCDistribution _distribution;
         };
 
         inline std::ostream &operator<<(std::ostream &out, const TimedTransition &transition) {

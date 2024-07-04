@@ -12,7 +12,6 @@ namespace VerifyTAPN::AST {
             settings.falseNegatives,
             settings.indifferenceRegionUp,
             settings.indifferenceRegionDown,
-            settings.defaultRate,
             settings.confidence,
             settings.estimationIntervalWidth,
             settings.compareToFloat,

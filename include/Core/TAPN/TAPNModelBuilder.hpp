@@ -28,7 +28,7 @@ namespace VerifyTAPN {
                 double y = 0) override;
 
         virtual void addTransition(const std::string &name, int player, bool urgent,
-                                            double, double, float = -1) override;
+                                            double, double, int distrib_id = 0, double param1 = 1.0, double param2 = 0.0) override;
 
         virtual void addInputArc(const std::string &place,
                 const std::string &transition,

@@ -259,6 +259,7 @@ namespace VerifyTAPN {
             opts.setOutputModelFile(vm["strategy-output"].as<std::string>());
 
         std::vector<std::string> files = po::collect_unrecognized(parsed.options, po::include_positional);
+
         // remove everything that is just a space
         files.erase(std::remove_if(files.begin(), files.end(),
             [](auto& s ) {

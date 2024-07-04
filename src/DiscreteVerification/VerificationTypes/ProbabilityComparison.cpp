@@ -9,7 +9,7 @@ ProbabilityComparison::ProbabilityComparison(
     TAPN::TimedArcPetriNet &tapn, NonStrictMarking &initialMarking, AST::SMCQuery *query_1, AST::SMCQuery *query_2, VerificationOptions options
 ) : Verification(tapn, initialMarking, query_1, options), maxTokensSeen(0), numberOfRuns(0), result(0), mayBeIndifferent(true),
     acceptingRuns(0), ratio_indifferent(0), finished(false),
-    runGenerator(tapn, query_1->getSmcSettings().defaultRate)
+    runGenerator(tapn)
 {
     this->query_1 = query_1;
     this->query_2 = query_2;
@@ -28,9 +28,9 @@ bool ProbabilityComparison::run() {
 
 bool ProbabilityComparison::executeRunFor(AST::SMCQuery* query) {
     bool runRes = false;
-    NonStrictMarkingBase* newMarking = new NonStrictMarkingBase(initialMarking);
+    RealMarking* newMarking = new RealMarking(initialMarking);
     while(!runGenerator.reachedEnd() && !reachedRunBound(query)) {
-        NonStrictMarking* child = new NonStrictMarking(*newMarking);
+        NonStrictMarking* child = new NonStrictMarking(newMarking->generateImage());
         setMaxTokensIfGreater(child->size());
         runRes = handleSuccessor(query, child);
         if(runRes) break;
