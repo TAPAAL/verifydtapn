@@ -7,8 +7,6 @@
 
 namespace VerifyTAPN::AST {
 
-    enum SMCSemantics { Weak, Strong };
-
     enum SMCDistributionType {
         Constant,
         Uniform,
@@ -110,7 +108,6 @@ namespace VerifyTAPN::AST {
         float estimationIntervalWidth;
         bool compareToFloat;
         float geqThan;
-        SMCSemantics semantics;
 
         static SMCSettings fromPQL(unfoldtacpn::PQL::SMCSettings settings);
     };

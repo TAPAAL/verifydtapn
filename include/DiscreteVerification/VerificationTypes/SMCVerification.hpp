@@ -15,7 +15,7 @@ class SMCVerification : public Verification<NonStrictMarking> {
         SMCVerification(TAPN::TimedArcPetriNet &tapn, NonStrictMarking &initialMarking, AST::SMCQuery *query,
                         VerificationOptions options) 
             : Verification(tapn, initialMarking, query, options)
-            , runGenerator(tapn, query->getSmcSettings().semantics)
+            , runGenerator(tapn)
             , numberOfRuns(0), maxTokensSeen(0), smcSettings(query->getSmcSettings())
             { }
 

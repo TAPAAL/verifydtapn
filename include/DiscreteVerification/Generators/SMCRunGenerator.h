@@ -20,11 +20,10 @@ namespace VerifyTAPN {
 
         public:
 
-            SMCRunGenerator(TAPN::TimedArcPetriNet &tapn, SMCSemantics semantics = Weak)
+            SMCRunGenerator(TAPN::TimedArcPetriNet &tapn)
             : _tapn(tapn)
             , _defaultTransitionIntervals(tapn.getTransitions().size()) 
             , _transitionsStatistics(tapn.getTransitions().size(), 0)
-            , _semantics(semantics)
             {};
 
             virtual void prepare(NonStrictMarkingBase *parent);
@@ -48,9 +47,6 @@ namespace VerifyTAPN {
             int getRunSteps() const;
 
             void printTransitionStatistics(std::ostream &out) const;
-
-            void setSemantics(SMCSemantics semantics);
-            SMCSemantics getSemantics() const;
             
         protected:
         
@@ -70,7 +66,6 @@ namespace VerifyTAPN {
             int _totalSteps = 0;
             double _max_delay = 0;
             double _originMaxDelay = 0;
-            SMCSemantics _semantics = Weak;
             
         };
 

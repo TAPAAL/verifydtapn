@@ -16,7 +16,6 @@ namespace VerifyTAPN::AST {
             settings.estimationIntervalWidth,
             settings.compareToFloat,
             settings.geqThan,
-            settings.semantics == pql::SMCSettings::SMCSemantics::Weak ? Weak : Strong
         };
     }
 

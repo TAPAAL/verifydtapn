@@ -417,13 +417,5 @@ namespace VerifyTAPN {
             out << std::endl;
         }
 
-        void SMCRunGenerator::setSemantics(SMCSemantics semantics) {
-            _semantics = semantics;
-        }
-
-        SMCSemantics SMCRunGenerator::getSemantics() const {
-            return _semantics;
-        }
-
     }
 }

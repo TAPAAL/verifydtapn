@@ -172,7 +172,6 @@ namespace VerifyTAPN {
             ("bindings,b", "Print bindings to stderr in XML format (only for CPNs, default is not to print)")
             ("write-unfolded-queries", po::value<std::string>(), "Outputs the queries to the given file before query reduction but after unfolding")
             ("strategy-output", po::value<std::string>(), "File to write synthesized strategy to, use '_' (an underscore) for stdout")
-            ("rate", po::value<float_t>(), "Default rate for unbounded transitions to use with SMC")
             ("confidence", po::value<float_t>(), "Confidence for SMC probability estimation")
             ("interval-width", po::value<float_t>(), "Interval width for SMC probability estimation")
             ("geq", po::value<float_t>(), "Performs a SMC test to compute if P(q) >= ARG")
