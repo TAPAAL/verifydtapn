@@ -87,53 +87,39 @@ namespace VerifyTAPN {
             std::random_device rd;
             std::mt19937 gen(rd());
             _max_delay = std::numeric_limits<double>::infinity();
-            for(auto &pit : places) {
-                if(pit.place->getInvariant().getBound() != std::numeric_limits<int>::max()
-                    && pit.tokens.size() > 0) {
-                    double place_max_delay = pit.availableDelay();
-                    if(place_max_delay < _max_delay) {
-                        _max_delay = place_max_delay;
+            for(auto &modified : _modifiedPlaces) {
+                for(auto &pit : places) {
+                    if( pit.place->getIndex() == modified &&
+                        pit.place->getInvariant().getBound() != std::numeric_limits<int>::max() &&
+                        pit.tokens.size() > 0
+                    ) {
+                        double place_max_delay = pit.availableDelay();
+                        if(place_max_delay < _max_delay) {
+                            _max_delay = place_max_delay;
+                        }
                     }
                 }
-                auto placePos = std::find(_modifiedPlaces.begin(), _modifiedPlaces.end(), pit.place->getIndex());
-                if(placePos != _modifiedPlaces.end()) {
-                    _modifiedPlaces.erase(placePos);
-                    for(auto arc : pit.place->getInputArcs()) {
-                        TimedTransition &transi = arc->getOutputTransition();
-                        if(transitionSeen[transi.getIndex()]) continue;
-                        std::vector<interval<double>> firingDates = transitionFiringDates(&transi);
-                        _transitionIntervals[transi.getIndex()] = firingDates;
-                        transitionSeen[transi.getIndex()] = true;
-                    }
-                    for(auto arc : pit.place->getInhibitorArcs()) {
-                        TimedTransition &transi = arc->getOutputTransition();
-                        if(transitionSeen[transi.getIndex()]) continue;
-                        std::vector<interval<double>> firingDates = transitionFiringDates(&transi);
-                        _transitionIntervals[transi.getIndex()] = firingDates;
-                        transitionSeen[transi.getIndex()] = true;
-                    }
-                    for(auto arc : pit.place->getTransportArcs()) {
-                        TimedTransition &transi = arc->getTransition();
-                        if(transitionSeen[transi.getIndex()]) continue;
-                        std::vector<interval<double>> firingDates = transitionFiringDates(&transi);
-                        _transitionIntervals[transi.getIndex()] = firingDates;
-                        transitionSeen[transi.getIndex()] = true;
-                    }
-                }
-            }
-            for(auto modified : _modifiedPlaces) { // Cleanup disabled transitions
-                TimedPlace place = _tapn.getPlace(modified);
+                const TimedPlace& place = _tapn.getPlace(modified);
                 for(auto arc : place.getInputArcs()) {
-                    int transiIndex = arc->getOutputTransition().getIndex();
-                    if(transitionSeen[transiIndex]) continue;
-                    _transitionIntervals[transiIndex].clear();
-                    _dates_sampled[transiIndex] = std::numeric_limits<double>::infinity();
+                    TimedTransition &transi = arc->getOutputTransition();
+                    if(transitionSeen[transi.getIndex()]) continue;
+                    std::vector<interval<double>> firingDates = transitionFiringDates(&transi);
+                    _transitionIntervals[transi.getIndex()] = firingDates;
+                    transitionSeen[transi.getIndex()] = true;
+                }
+                for(auto arc : place.getInhibitorArcs()) {
+                    TimedTransition &transi = arc->getOutputTransition();
+                    if(transitionSeen[transi.getIndex()]) continue;
+                    std::vector<interval<double>> firingDates = transitionFiringDates(&transi);
+                    _transitionIntervals[transi.getIndex()] = firingDates;
+                    transitionSeen[transi.getIndex()] = true;
                 }
                 for(auto arc : place.getTransportArcs()) {
-                    int transiIndex = arc->getTransition().getIndex();
-                    if(transitionSeen[transiIndex]) continue;
-                    _transitionIntervals[transiIndex].clear();
-                    _dates_sampled[transiIndex] = std::numeric_limits<double>::infinity();
+                    TimedTransition &transi = arc->getTransition();
+                    if(transitionSeen[transi.getIndex()]) continue;
+                    std::vector<interval<double>> firingDates = transitionFiringDates(&transi);
+                    _transitionIntervals[transi.getIndex()] = firingDates;
+                    transitionSeen[transi.getIndex()] = true;
                 }
             }
             std::vector<interval<double>> invInterval = { interval<double>(0, _max_delay) };
@@ -286,7 +272,7 @@ namespace VerifyTAPN {
                     size_t nextSet = firstTokenIndex + 1;
                     while(remaining >= 0 && nextSet < tokens.size()) {
                         RealToken nextToken = tokens[nextSet];
-                        Util::intersect<double>(tokensSetInterval, remainingForToken(arcInterval, nextToken));
+                        tokensSetInterval = Util::intersect<double>(tokensSetInterval, remainingForToken(arcInterval, nextToken));
                         if(nextToken.getCount() >= remaining) break;
                         remaining -= nextToken.getCount();
                         nextSet++;

@@ -133,8 +133,8 @@ namespace VerifyTAPN {
                 unsigned int i = 0, j = 0;
 
                 while (i < first.size() && j < second.size()) {
-                    int i1up = first.at(i).upper();
-                    int i2up = second.at(j).upper();
+                    T i1up = first.at(i).upper();
+                    T i2up = second.at(j).upper();
 
                     interval<T> intersection = intersect(first.at(i), second.at(j));
 
@@ -155,8 +155,8 @@ namespace VerifyTAPN {
 
             template<typename T = int>
             std::vector<interval<T>> complement(const interval<T> &element) {
-                const int min_infty = interval<T>::boundDown();
-                const int pls_infty = interval<T>::boundUp();
+                const T min_infty = interval<T>::boundDown();
+                const T pls_infty = interval<T>::boundUp();
                 std::vector<interval<T>> res;
                 if(element.empty()) { 
                     res.push_back(interval<T>(min_infty, pls_infty));

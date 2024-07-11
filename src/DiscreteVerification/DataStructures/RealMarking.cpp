@@ -154,12 +154,14 @@ void RealMarking::addTokenInPlace(const TAPN::TimedPlace &place, RealToken &toke
 {
     size_t index = 0;
     for(auto& pit : places) {
-        if(pit.placeId() != place.getIndex()) {
+        if(pit.placeId() < place.getIndex()) {
             index++;
             continue;
-        };
-        addTokenInPlace(pit, token);
-        return;
+        } else if(pit.placeId() == place.getIndex()) {
+            addTokenInPlace(pit, token);
+            return;
+        }
+        break;
     }
     RealPlace new_place(&place);
     new_place.add(token);
