@@ -6,7 +6,7 @@
 namespace VerifyTAPN::DiscreteVerification {
 
 ProbabilityComparison::ProbabilityComparison(
-    TAPN::TimedArcPetriNet &tapn, NonStrictMarking &initialMarking, AST::SMCQuery *query_1, AST::SMCQuery *query_2, VerificationOptions options
+    TAPN::TimedArcPetriNet &tapn, RealMarking &initialMarking, AST::SMCQuery *query_1, AST::SMCQuery *query_2, VerificationOptions options
 ) : Verification(tapn, initialMarking, query_1, options), maxTokensSeen(0), numberOfRuns(0), result(0), mayBeIndifferent(true),
     acceptingRuns(0), ratio_indifferent(0), finished(false),
     runGenerator(tapn)
@@ -28,9 +28,9 @@ bool ProbabilityComparison::run() {
 
 bool ProbabilityComparison::executeRunFor(AST::SMCQuery* query) {
     bool runRes = false;
-    RealMarking* newMarking = new RealMarking(initialMarking);
+    RealMarking* newMarking = runGenerator.getMarking();
     while(!runGenerator.reachedEnd() && !reachedRunBound(query)) {
-        NonStrictMarking* child = new NonStrictMarking(newMarking->generateImage());
+        RealMarking* child = new RealMarking(*newMarking);
         setMaxTokensIfGreater(child->size());
         runRes = handleSuccessor(query, child);
         if(runRes) break;
@@ -73,10 +73,9 @@ void ProbabilityComparison::handleRunsResults(bool resQ1, bool resQ2) {
     }
 }
 
-bool ProbabilityComparison::handleSuccessor(AST::SMCQuery* current_query, NonStrictMarking* marking) {
-    marking->cut(placeStats);
+bool ProbabilityComparison::handleSuccessor(AST::SMCQuery* current_query, RealMarking* marking) {
 
-    QueryVisitor<NonStrictMarking> checker(*marking, tapn);
+    QueryVisitor<RealMarking> checker(*marking, tapn);
     AST::BoolResult context;
     current_query->accept(checker, context);
 

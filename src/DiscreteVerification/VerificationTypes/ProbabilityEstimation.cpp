@@ -6,7 +6,7 @@
 namespace VerifyTAPN::DiscreteVerification {
 
 ProbabilityEstimation::ProbabilityEstimation(
-    TAPN::TimedArcPetriNet &tapn, NonStrictMarking &initialMarking, AST::SMCQuery *query, VerificationOptions options
+    TAPN::TimedArcPetriNet &tapn, RealMarking &initialMarking, AST::SMCQuery *query, VerificationOptions options
 )
 : SMCVerification(tapn, initialMarking, query, options), validRuns(0)
 {
@@ -22,10 +22,8 @@ void ProbabilityEstimation::handleRunResult(const bool res) {
     else validRuns += res ? 1 : 0;
 }
 
-bool ProbabilityEstimation::handleSuccessor(NonStrictMarking* marking) {
-    marking->cut(placeStats);
-
-    QueryVisitor<NonStrictMarking> checker(*marking, tapn);
+bool ProbabilityEstimation::handleSuccessor(RealMarking* marking) {
+    QueryVisitor<RealMarking> checker(*marking, tapn);
     AST::BoolResult context;
     query->accept(checker, context);
 

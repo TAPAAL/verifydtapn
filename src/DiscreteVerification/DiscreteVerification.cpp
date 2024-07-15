@@ -195,11 +195,12 @@ namespace VerifyTAPN { namespace DiscreteVerification {
             std::cout << synthesis.max_tokens() << std::endl;
         } else if (query->getQuantifier() == PF || query->getQuantifier() == PG) {
             SMCQuery* smcQuery = (SMCQuery*) query;
+            RealMarking marking(&tapn, *initialMarking);
             if(smcQuery->getSmcSettings().compareToFloat) {
-                ProbabilityFloatComparison estimator(tapn, *initialMarking, smcQuery, options);
+                ProbabilityFloatComparison estimator(tapn, marking, smcQuery, options);
                 ComputeAndPrint(tapn, estimator, options, query);
             } else {
-                ProbabilityEstimation estimator(tapn, *initialMarking, smcQuery, options);
+                ProbabilityEstimation estimator(tapn, marking, smcQuery, options);
                 ComputeAndPrint(tapn, estimator, options, query);
             }
         } else if (options.getVerificationType() == VerificationOptions::DISCRETE) {

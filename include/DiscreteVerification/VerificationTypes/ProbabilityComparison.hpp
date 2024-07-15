@@ -11,18 +11,18 @@
 
 namespace VerifyTAPN::DiscreteVerification {
 
-class ProbabilityComparison : public Verification<NonStrictMarkingBase> {
+class ProbabilityComparison : public Verification<RealMarking> {
 
     public:
 
         ProbabilityComparison(
-            TAPN::TimedArcPetriNet &tapn, NonStrictMarking &initialMarking, AST::SMCQuery *query_1, AST::SMCQuery *query_2, VerificationOptions options
+            TAPN::TimedArcPetriNet &tapn, RealMarking &initialMarking, AST::SMCQuery *query_1, AST::SMCQuery *query_2, VerificationOptions options
         );
 
         virtual bool run();
         virtual bool executeRunFor(AST::SMCQuery *query);
 
-        bool handleSuccessor(AST::SMCQuery *query, NonStrictMarking* marking);
+        bool handleSuccessor(AST::SMCQuery *query, RealMarking* marking);
 
         void handleRunsResults(bool resQ1, bool resQ2);
 

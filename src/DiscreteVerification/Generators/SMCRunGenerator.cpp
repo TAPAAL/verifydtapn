@@ -16,7 +16,7 @@ namespace VerifyTAPN {
 
         using Util::interval;
 
-        void SMCRunGenerator::prepare(NonStrictMarkingBase *parent) {
+        void SMCRunGenerator::prepare(RealMarking *parent) {
             _origin = new RealMarking(*parent);
             _parent = new RealMarking(*_origin);
             RealPlaceList& places = _origin->getPlaceList();
@@ -86,19 +86,8 @@ namespace VerifyTAPN {
             std::vector<bool> transitionSeen(_transitionIntervals.size(), false);
             std::random_device rd;
             std::mt19937 gen(rd());
-            _max_delay = std::numeric_limits<double>::infinity();
+            _max_delay = _parent->availableDelay();
             for(auto &modified : _modifiedPlaces) {
-                for(auto &pit : places) {
-                    if( pit.place->getIndex() == modified &&
-                        pit.place->getInvariant().getBound() != std::numeric_limits<int>::max() &&
-                        pit.tokens.size() > 0
-                    ) {
-                        double place_max_delay = pit.availableDelay();
-                        if(place_max_delay < _max_delay) {
-                            _max_delay = place_max_delay;
-                        }
-                    }
-                }
                 const TimedPlace& place = _tapn.getPlace(modified);
                 for(auto arc : place.getInputArcs()) {
                     TimedTransition &transi = arc->getOutputTransition();
@@ -223,29 +212,20 @@ namespace VerifyTAPN {
                 } 
             }
             for(TimedInputArc* arc : transi->getPreset()) {
-                auto pit = places.begin();
-                while(pit != places.end() && pit->place->getIndex() != arc->getInputPlace().getIndex()) {
-                    pit++;
-                }
-                if(pit == places.end()) return disabled;
-                firingInterval = Util::setIntersection<double>(firingInterval, arcFiringDates(arc->getInterval(), arc->getWeight(), pit->tokens));
+                auto &place = _parent->getPlaceList()[arc->getInputPlace().getIndex()];
+                if(place.isEmpty()) return disabled;
+                firingInterval = Util::setIntersection<double>(firingInterval, arcFiringDates(arc->getInterval(), arc->getWeight(), place.tokens));
                 if(firingInterval.empty()) return firingInterval;
             }
             for(TransportArc* arc : transi->getTransportArcs()) {
-                auto pit = places.begin();
-                while(pit != places.end() && pit->place->getIndex() != arc->getSource().getIndex()) {
-                    ++pit;
-                }
-                if(pit == places.end()) return disabled;
+                auto &place = _parent->getPlaceList()[arc->getSource().getIndex()];
+                if(place.isEmpty()) return disabled;
                 TimeInvariant targetInvariant = arc->getDestination().getInvariant();
                 TimeInterval arcInterval = arc->getInterval();
                 if(targetInvariant.getBound() < arcInterval.getUpperBound()) {
                     arcInterval.setUpperBound(targetInvariant.getBound(), targetInvariant.isBoundStrict());
-                } else if(targetInvariant.getBound() == arcInterval.getUpperBound()) {
-                    arcInterval.setUpperBound(targetInvariant.getBound(), 
-                        targetInvariant.isBoundStrict() || arcInterval.isUpperBoundStrict());
-                }
-                firingInterval = Util::setIntersection<double>(firingInterval, arcFiringDates(arcInterval, arc->getWeight(), pit->tokens));
+                } 
+                firingInterval = Util::setIntersection<double>(firingInterval, arcFiringDates(arcInterval, arc->getWeight(), place.tokens));
                 if(firingInterval.empty()) return firingInterval;
             }
             return firingInterval;
@@ -306,14 +286,10 @@ namespace VerifyTAPN {
             auto *child = new RealMarking(*_parent);
             RealPlaceList &placelist = child->getPlaceList();
 
-            auto pit = placelist.begin();
             for (auto &input : transi->getPreset()) {
                 int source = input->getInputPlace().getIndex();
-                while (pit->place->getIndex() != source) {
-                    ++pit;
-                    assert(pit != placelist.end());
-                }
-                RealTokenList& tokenlist = pit->tokens;
+                RealPlace& place = placelist[source];
+                RealTokenList& tokenlist = place.tokens;
                 int remaining = input->getWeight();
                 std::uniform_int_distribution<> randomTokenIndex(0, tokenlist.size() - 1);
                 size_t tok_index = randomTokenIndex(gen);
@@ -337,19 +313,14 @@ namespace VerifyTAPN {
                 }
                 assert(remaining == 0);
                 _modifiedPlaces.push_back(source);
-                if(tokenlist.size() == 0) pit = placelist.erase(pit);
             }
 
-            std::vector<std::pair<TransportArc*, double>> toCreate;
-            pit = placelist.begin();
             for (auto &transport : transi->getTransportArcs()) {
                 int source = transport->getSource().getIndex();
+                int dest = transport->getDestination().getIndex();
                 int destInv = transport->getDestination().getInvariant().getBound();
-                while (pit->place->getIndex() != source) {
-                    ++pit;
-                    assert(pit != placelist.end());
-                }
-                RealTokenList& tokenlist = pit->tokens;
+                RealPlace& place = placelist[source];
+                RealTokenList& tokenlist = place.tokens;
                 int remaining = transport->getWeight();
                 std::uniform_int_distribution<> randomTokenIndex(0, tokenlist.size() - 1);
                 size_t tok_index = randomTokenIndex(gen);
@@ -367,7 +338,7 @@ namespace VerifyTAPN {
                             tok_index = randomTokenIndex(gen);
                             tested = 0;
                         }
-                        toCreate.push_back(std::make_pair(transport, age));
+                        child->addTokenInPlace(transport->getDestination(), age);
                     } else {
                         tok_index = (tok_index + 1) % tokenlist.size();
                         tested++;
@@ -375,17 +346,12 @@ namespace VerifyTAPN {
                 }
                 assert(remaining == 0);
                 _modifiedPlaces.push_back(source);
-                if(tokenlist.size() == 0) pit = placelist.erase(pit);
+                _modifiedPlaces.push_back(dest);
             }
             for (auto* output : transi->getPostset()) {
                 TimedPlace &place = output->getOutputPlace();
                 RealToken token = RealToken(0.0, output->getWeight());
                 child->addTokenInPlace(place, token);
-                _modifiedPlaces.push_back(place.getIndex());
-            }
-            for (auto [transportArc, age] : toCreate) {
-                TimedPlace &place = transportArc->getDestination();
-                child->addTokenInPlace(place, age);
                 _modifiedPlaces.push_back(place.getIndex());
             }
             return child;

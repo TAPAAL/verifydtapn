@@ -26,7 +26,7 @@ namespace VerifyTAPN {
             , _transitionsStatistics(tapn.getTransitions().size(), 0)
             {};
 
-            virtual void prepare(NonStrictMarkingBase *parent);
+            virtual void prepare(RealMarking *parent);
             virtual RealMarking* next();
             virtual void reset();
 

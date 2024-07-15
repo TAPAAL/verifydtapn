@@ -33,19 +33,24 @@ bool RealPlace::remove(RealToken to_remove)
 
 RealTokenList RealMarking::emptyTokenList = RealTokenList();
 
-RealMarking::RealMarking(NonStrictMarkingBase& base)
+RealMarking::RealMarking(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase& base)
 {
+    size_t n_places = tapn->getNumberOfPlaces();
     auto placeList = base.getPlaceList();
-    for(const auto& place : placeList) {
-        places.push_back(RealPlace(place));
+    auto pit = placeList.begin();
+    for(int i = 0 ; i < n_places ; i++) {
+        if(pit != placeList.end() && pit->place->getIndex() == i) {
+            places.push_back(RealPlace(*pit));
+            pit++;
+        } else {
+            places.push_back(RealPlace(&tapn->getPlace(i)));
+        }
     }
 }
 
 RealMarking::RealMarking(const RealMarking& other)
 {
-    for(const auto& place : other.places) {
-        places.push_back(place);
-    }
+    places = other.places;
 }
 
 uint32_t RealMarking::size() const
@@ -64,12 +69,7 @@ RealPlaceList& RealMarking::getPlaceList()
 
 RealTokenList& RealMarking::getTokenList(int placeId)
 {
-    for(auto& place : places) {
-        if(place.placeId() == placeId) {
-            return place.tokens;
-        }
-    }
-    return emptyTokenList;
+    return places[placeId].tokens;
 }
 
 void RealMarking::deltaAge(double x)
@@ -83,6 +83,7 @@ NonStrictMarkingBase RealMarking::generateImage()
 {
     NonStrictMarkingBase marking;
     for(const auto& place : places) {
+        if(place.isEmpty()) continue;
         Place new_place = place.generateImagePlace();
         marking.addTokenInPlace(*new_place.place, new_place.tokens.front());
     }
@@ -91,12 +92,7 @@ NonStrictMarkingBase RealMarking::generateImage()
 
 uint32_t RealMarking::numberOfTokensInPlace(int placeId) const
 {
-    for(const auto& place : places) {
-        if(place.placeId() == placeId) {
-            return place.numberOfTokens();
-        }
-    }
-    return 0;
+    return places[placeId].numberOfTokens();
 }
 
 bool RealMarking::canDeadlock(const TAPN::TimedArcPetriNet &tapn, int maxDelay, bool ignoreCanDelay) const
@@ -112,30 +108,12 @@ bool RealMarking::removeToken(int placeId, double age)
 
 bool RealMarking::removeToken(int placeId, RealToken& token)
 {
-    for(auto& place : places) {
-        if(place.placeId() == placeId) {
-            return place.remove(token);
-        }
-    }
-    return false;
+    return removeToken(places[placeId], token);
 }
 
 bool RealMarking::removeToken(RealPlace &place, RealToken &token)
 {
     return place.remove(token);
-}
-
-void RealMarking::addPlace(RealPlace &place) 
-{
-    int id = place.placeId();
-    int i;
-    for(i = 0 ; i < places.size() ; i++) {
-        int curr_id = places[i].placeId();
-
-        if(id == curr_id) return;
-        if(curr_id > id) break;
-    }
-    places.insert(places.begin() + i, place);
 }
 
 void RealMarking::addTokenInPlace(TAPN::TimedPlace &place, double age)
@@ -147,31 +125,18 @@ void RealMarking::addTokenInPlace(TAPN::TimedPlace &place, double age)
 void RealMarking::addTokenInPlace(RealPlace &place, RealToken &token)
 {
     place.add(token);
-    addPlace(place);
 }
 
 void RealMarking::addTokenInPlace(const TAPN::TimedPlace &place, RealToken &token)
 {
-    size_t index = 0;
-    for(auto& pit : places) {
-        if(pit.placeId() < place.getIndex()) {
-            index++;
-            continue;
-        } else if(pit.placeId() == place.getIndex()) {
-            addTokenInPlace(pit, token);
-            return;
-        }
-        break;
-    }
-    RealPlace new_place(&place);
-    new_place.add(token);
-    places.insert(places.begin() + index, new_place);
+    places[place.getIndex()].add(token);
 }
 
 double RealMarking::availableDelay() const
 {
     double available = std::numeric_limits<double>::infinity();
     for(const auto& place : places) {
+        if(place.isEmpty()) continue;
         double delay = place.availableDelay();
         if(delay < available) {
             available = delay;

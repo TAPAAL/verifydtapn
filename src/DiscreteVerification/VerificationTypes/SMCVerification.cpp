@@ -16,7 +16,7 @@ bool SMCVerification::executeRun() {
     bool runRes = false;
     RealMarking* newMarking = runGenerator.getMarking();
     while(!runGenerator.reachedEnd() && !reachedRunBound()) {
-        NonStrictMarking* child = new NonStrictMarking(newMarking->generateImage());
+        RealMarking* child = new RealMarking(*newMarking);
         setMaxTokensIfGreater(child->size());
         runRes = handleSuccessor(child);
         if(runRes) break;

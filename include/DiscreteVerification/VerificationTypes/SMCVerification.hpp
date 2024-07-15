@@ -8,11 +8,11 @@
 
 namespace VerifyTAPN::DiscreteVerification {
 
-class SMCVerification : public Verification<NonStrictMarking> {
+class SMCVerification : public Verification<RealMarking> {
 
     public:
 
-        SMCVerification(TAPN::TimedArcPetriNet &tapn, NonStrictMarking &initialMarking, AST::SMCQuery *query,
+        SMCVerification(TAPN::TimedArcPetriNet &tapn, RealMarking &initialMarking, AST::SMCQuery *query,
                         VerificationOptions options) 
             : Verification(tapn, initialMarking, query, options)
             , runGenerator(tapn)

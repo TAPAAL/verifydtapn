@@ -6,7 +6,7 @@
 namespace VerifyTAPN::DiscreteVerification {
 
 ProbabilityFloatComparison::ProbabilityFloatComparison(
-    TAPN::TimedArcPetriNet &tapn, NonStrictMarking &initialMarking, AST::SMCQuery *query, VerificationOptions options
+    TAPN::TimedArcPetriNet &tapn, RealMarking &initialMarking, AST::SMCQuery *query, VerificationOptions options
 )
 : SMCVerification(tapn, initialMarking, query, options), validRuns(0), ratio(0)
 { 
@@ -20,10 +20,8 @@ void ProbabilityFloatComparison::handleRunResult(const bool res) {
     validRuns += (int) valid;
 }
 
-bool ProbabilityFloatComparison::handleSuccessor(NonStrictMarking* marking) {
-    marking->cut(placeStats);
-
-    QueryVisitor<NonStrictMarking> checker(*marking, tapn);
+bool ProbabilityFloatComparison::handleSuccessor(RealMarking* marking) {
+    QueryVisitor<RealMarking> checker(*marking, tapn);
     AST::BoolResult context;
     query->accept(checker, context);
 

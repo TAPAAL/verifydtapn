@@ -59,9 +59,7 @@ namespace VerifyTAPN::DiscreteVerification {
             explicit RealPlace(const TAPN::TimedPlace* place) : place(place) { }
             
             RealPlace(const RealPlace& p) : place(p.place) {
-                for (const auto &token : p.tokens) {
-                    tokens.push_back(token);
-                }
+                tokens = p.tokens;
             };
 
             RealPlace(const Place& p) : place(p.place) {
@@ -91,6 +89,9 @@ namespace VerifyTAPN::DiscreteVerification {
             }
 
             inline double maxTokenAge() const {
+                if(tokens.size() == 0) {
+                    return -std::numeric_limits<double>::infinity();
+                }
                 return tokens.back().getAge();
             }
 
@@ -103,12 +104,17 @@ namespace VerifyTAPN::DiscreteVerification {
             bool remove(RealToken to_remove);
 
             double availableDelay() const {
+                if(tokens.size() == 0) return std::numeric_limits<double>::infinity();
                 double delay = ((double) place->getInvariant().getBound()) - maxTokenAge();
                 return delay <= 0.0f ? 0.0f : delay;
             }
 
             inline int placeId() const {
                 return place->getIndex();
+            }
+
+            inline bool isEmpty() const {
+                return tokens.size() == 0;
             }
 
     };
@@ -119,7 +125,7 @@ namespace VerifyTAPN::DiscreteVerification {
 
         public:
 
-            explicit RealMarking(NonStrictMarkingBase& base);
+            explicit RealMarking(TAPN::TimedArcPetriNet* net, NonStrictMarkingBase& base);
             RealMarking(const RealMarking& other);
 
             uint32_t size() const;
@@ -144,8 +150,6 @@ namespace VerifyTAPN::DiscreteVerification {
             bool removeToken(int placeId, RealToken &token);
 
             bool removeToken(RealPlace &place, RealToken &token);
-
-            void addPlace(RealPlace &place);
 
             void addTokenInPlace(TAPN::TimedPlace &place, double age = 0.0f);
 
