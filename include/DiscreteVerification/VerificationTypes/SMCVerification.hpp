@@ -6,6 +6,8 @@
 #include "DiscreteVerification/Generators/SMCRunGenerator.h"
 #include "Core/Query/SMCQuery.hpp"
 
+#include <mutex>
+
 namespace VerifyTAPN::DiscreteVerification {
 
 class SMCVerification : public Verification<RealMarking> {
@@ -21,7 +23,7 @@ class SMCVerification : public Verification<RealMarking> {
 
         virtual bool run() override;
 
-        virtual bool executeRun();
+        virtual bool executeRun(SMCRunGenerator* generator = nullptr);
 
         virtual void printStats() override;
         void printTransitionStatistics() const override;
@@ -29,7 +31,7 @@ class SMCVerification : public Verification<RealMarking> {
         unsigned int maxUsedTokens() override;
         void setMaxTokensIfGreater(unsigned int i);
 
-        virtual bool reachedRunBound();
+        virtual bool reachedRunBound(SMCRunGenerator* generator = nullptr);
         
         virtual void handleRunResult(const bool res) = 0;
         virtual bool mustDoAnotherRun() = 0;
@@ -44,6 +46,8 @@ class SMCVerification : public Verification<RealMarking> {
         unsigned int maxTokensSeen;
         unsigned long totalTime = 0;
         unsigned long totalSteps = 0; 
+
+        std::mutex run_res_mutex;
 
 };
 

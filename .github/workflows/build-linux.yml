@@ -26,13 +26,13 @@ jobs:
     - name: Prebuild
       run: |
         mkdir build && cd build
-        CC=gcc-10 CXX=g++-10 cmake ../ -DCMAKE_BUILD_TYPE=Prebuild
+        CC=gcc-11 CXX=g++-11 cmake ../ -DCMAKE_BUILD_TYPE=Prebuild
         make
 
     - name: Build 
       run: |
         cd build
-        CC=gcc-10 CXX=g++-10 cmake ../ -DCMAKE_BUILD_TYPE=Release
+        CC=gcc-11 CXX=g++-11 cmake ../ -DCMAKE_BUILD_TYPE=Release
         make
 
     - name: Upload artifacts 

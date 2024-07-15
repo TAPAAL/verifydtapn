@@ -1,30 +1,53 @@
 #include "DiscreteVerification/VerificationTypes/SMCVerification.hpp"
 
+#include <thread>
+
 namespace VerifyTAPN::DiscreteVerification {
 
 bool SMCVerification::run() {
     runGenerator.prepare(&initialMarking);
-    while(mustDoAnotherRun()) {
-        bool runRes = executeRun();
-        handleRunResult(runRes);
-        numberOfRuns++;
+
+    size_t n_threads = std::thread::hardware_concurrency();
+    std::cout << ". Using " << n_threads << " threads..." << std::endl;
+
+    std::vector<std::thread*> handles;
+    for(int i = 0 ; i < n_threads ; i++) {
+        auto handle = new std::thread([this]() {
+            SMCRunGenerator generator = runGenerator.copy();
+            bool continueExecution = true;
+            while(continueExecution) {
+                bool runRes = executeRun(&generator);
+                {
+                    std::lock_guard<std::mutex> lock(run_res_mutex);
+                    totalTime += generator.getRunDelay();
+                    totalSteps += generator.getRunSteps();
+                    numberOfRuns++;
+                    handleRunResult(runRes);
+                    continueExecution = mustDoAnotherRun();
+                }
+                generator.reset();
+            }
+        });
+        handles.push_back(handle);
     }
+    for(int i = 0 ; i < n_threads ; i++) {
+        handles[i]->join();
+        delete handles[i];
+    }
+
     return true;
 }
 
-bool SMCVerification::executeRun() {
+bool SMCVerification::executeRun(SMCRunGenerator* generator) {
     bool runRes = false;
-    RealMarking* newMarking = runGenerator.getMarking();
-    while(!runGenerator.reachedEnd() && !reachedRunBound()) {
+    if(generator == nullptr) generator = &runGenerator;
+    RealMarking* newMarking = generator->getMarking();
+    while(!generator->reachedEnd() && !reachedRunBound(generator)) {
         RealMarking* child = new RealMarking(*newMarking);
-        setMaxTokensIfGreater(child->size());
         runRes = handleSuccessor(child);
         if(runRes) break;
-        newMarking = runGenerator.next();
+        newMarking = generator->next();
     }
-    totalTime += runGenerator.getRunDelay();
-    totalSteps += runGenerator.getRunSteps();
-    runGenerator.reset();
     return runRes;
 }
 
@@ -48,12 +71,13 @@ void SMCVerification::setMaxTokensIfGreater(unsigned int i) {
     }
 }
 
-bool SMCVerification::reachedRunBound() {
+bool SMCVerification::reachedRunBound(SMCRunGenerator* generator) {
+    if(generator == nullptr) generator = &runGenerator;
     switch(smcSettings.boundType) {
         case SMCSettings::TimeBound: 
-            return runGenerator.getRunDelay() >= smcSettings.bound;
+            return generator->getRunDelay() >= smcSettings.bound;
         case SMCSettings::StepBound:
-            return runGenerator.getRunSteps() >= smcSettings.bound;
+            return generator->getRunSteps() >= smcSettings.bound;
         default:
             return false;
     }

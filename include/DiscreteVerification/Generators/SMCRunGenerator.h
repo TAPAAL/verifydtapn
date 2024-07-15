@@ -33,6 +33,8 @@ namespace VerifyTAPN {
             virtual RealMarking* next();
             virtual void reset();
 
+            SMCRunGenerator copy() const;
+
             RealMarking* getMarking() { return _parent; }
 
             void refreshTransitionsIntervals();
