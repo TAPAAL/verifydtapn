@@ -60,7 +60,7 @@ namespace VerifyTAPN {
 
         void SMCRunGenerator::reset() {
             std::random_device rd;
-            std::mt19937 gen(rd());
+            std::ranlux48 gen(rd());
             if(_parent != nullptr) {
                 delete _parent;
             }
@@ -85,7 +85,7 @@ namespace VerifyTAPN {
             RealPlaceList& places = _parent->getPlaceList();
             std::vector<bool> transitionSeen(_transitionIntervals.size(), false);
             std::random_device rd;
-            std::mt19937 gen(rd());
+            std::ranlux48 gen(rd());
             _max_delay = _parent->availableDelay();
             for(auto &modified : _modifiedPlaces) {
                 const TimedPlace& place = _tapn.getPlace(modified);
@@ -167,7 +167,7 @@ namespace VerifyTAPN {
             std::vector<size_t> winner_indexs;
             double date_min = std::numeric_limits<double>::infinity();
             std::random_device rd;
-            std::mt19937 gen(rd());
+            std::ranlux48 gen(rd());
             for(int i = 0 ; i < _transitionIntervals.size() ; i++) {
                 auto* intervals = &_transitionIntervals[i];
                 if(!intervals->empty()) {
@@ -282,7 +282,7 @@ namespace VerifyTAPN {
                 return nullptr;
             }
             std::random_device rd; 
-            std::mt19937 gen(rd());
+            std::ranlux48 gen(rd());
             auto *child = new RealMarking(*_parent);
             RealPlaceList &placelist = child->getPlaceList();
 
