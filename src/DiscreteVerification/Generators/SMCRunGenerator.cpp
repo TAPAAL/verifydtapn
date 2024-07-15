@@ -59,8 +59,6 @@ namespace VerifyTAPN {
         }
 
         void SMCRunGenerator::reset() {
-            std::random_device rd;
-            std::ranlux48 gen(rd());
             if(_parent != nullptr) {
                 delete _parent;
             }
@@ -76,7 +74,7 @@ namespace VerifyTAPN {
                 auto* intervals = &_transitionIntervals[i];
                 if(!intervals->empty() && intervals->front().lower() == 0) {
                     const SMCDistribution& distrib = _tapn.getTransitions()[i]->getDistribution();
-                    _dates_sampled[i] = distrib.sample(gen);
+                    _dates_sampled[i] = distrib.sample(_rng);
                 }
             }
         }
@@ -84,8 +82,6 @@ namespace VerifyTAPN {
         void SMCRunGenerator::refreshTransitionsIntervals() {
             RealPlaceList& places = _parent->getPlaceList();
             std::vector<bool> transitionSeen(_transitionIntervals.size(), false);
-            std::random_device rd;
-            std::ranlux48 gen(rd());
             _max_delay = _parent->availableDelay();
             for(auto &modified : _modifiedPlaces) {
                 const TimedPlace& place = _tapn.getPlace(modified);
@@ -123,7 +119,7 @@ namespace VerifyTAPN {
                     _dates_sampled[i] = std::numeric_limits<double>::infinity();
                 } else if(newlyEnabled) {
                     const SMCDistribution& distrib = _tapn.getTransitions()[i]->getDistribution();
-                    _dates_sampled[i] = distrib.sample(gen);
+                    _dates_sampled[i] = distrib.sample(_rng);
                 }
             }
         }
@@ -166,8 +162,6 @@ namespace VerifyTAPN {
         std::pair<TimedTransition*, double> SMCRunGenerator::getWinnerTransitionAndDelay() {
             std::vector<size_t> winner_indexs;
             double date_min = std::numeric_limits<double>::infinity();
-            std::random_device rd;
-            std::ranlux48 gen(rd());
             for(int i = 0 ; i < _transitionIntervals.size() ; i++) {
                 auto* intervals = &_transitionIntervals[i];
                 if(!intervals->empty()) {
@@ -197,7 +191,7 @@ namespace VerifyTAPN {
                 winner = nullptr;
             } else {
                 std::uniform_int_distribution<> distrib(0, winner_indexs.size() - 1);
-                winner = _tapn.getTransitions()[winner_indexs[distrib(gen)]];
+                winner = _tapn.getTransitions()[winner_indexs[distrib(_rng)]];
             }
             return std::make_pair(winner, date_min);
         }
@@ -281,8 +275,6 @@ namespace VerifyTAPN {
                 assert(false);
                 return nullptr;
             }
-            std::random_device rd; 
-            std::ranlux48 gen(rd());
             auto *child = new RealMarking(*_parent);
             RealPlaceList &placelist = child->getPlaceList();
 
@@ -292,7 +284,7 @@ namespace VerifyTAPN {
                 RealTokenList& tokenlist = place.tokens;
                 int remaining = input->getWeight();
                 std::uniform_int_distribution<> randomTokenIndex(0, tokenlist.size() - 1);
-                size_t tok_index = randomTokenIndex(gen);
+                size_t tok_index = randomTokenIndex(_rng);
                 size_t tested = 0;
                 while(remaining > 0 && tested < tokenlist.size()) {
                     if(input->getInterval().contains(tokenlist[tok_index].getAge())) {
@@ -303,7 +295,7 @@ namespace VerifyTAPN {
                             randomTokenIndex = std::uniform_int_distribution<>(0, tokenlist.size() - 1);
                         }
                         if(remaining > 0) {
-                            tok_index = randomTokenIndex(gen);
+                            tok_index = randomTokenIndex(_rng);
                             tested = 0;
                         }
                     } else {
@@ -323,7 +315,7 @@ namespace VerifyTAPN {
                 RealTokenList& tokenlist = place.tokens;
                 int remaining = transport->getWeight();
                 std::uniform_int_distribution<> randomTokenIndex(0, tokenlist.size() - 1);
-                size_t tok_index = randomTokenIndex(gen);
+                size_t tok_index = randomTokenIndex(_rng);
                 size_t tested = 0;
                 while(remaining > 0 && tested < tokenlist.size()) {
                     double age = tokenlist[tok_index].getAge();
@@ -335,7 +327,7 @@ namespace VerifyTAPN {
                             randomTokenIndex = std::uniform_int_distribution<>(0, tokenlist.size() - 1);
                         }
                         if(remaining > 0) {
-                            tok_index = randomTokenIndex(gen);
+                            tok_index = randomTokenIndex(_rng);
                             tested = 0;
                         }
                         child->addTokenInPlace(transport->getDestination(), age);

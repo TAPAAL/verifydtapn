@@ -24,7 +24,10 @@ namespace VerifyTAPN {
             : _tapn(tapn)
             , _defaultTransitionIntervals(tapn.getTransitions().size()) 
             , _transitionsStatistics(tapn.getTransitions().size(), 0)
-            {};
+            {
+                std::random_device rd;
+                _rng = std::ranlux48(rd());
+            };
 
             virtual void prepare(RealMarking *parent);
             virtual RealMarking* next();
@@ -66,6 +69,8 @@ namespace VerifyTAPN {
             int _totalSteps = 0;
             double _max_delay = 0;
             double _originMaxDelay = 0;
+
+            std::ranlux48 _rng;
             
         };
 
