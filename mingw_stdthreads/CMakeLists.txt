@@ -1,5 +1,5 @@
 project(mingw_stdthreads)
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.16)
 
 option(MINGW_STDTHREADS_BUILD_TEST "Build tests")
 option(MINGW_STDTHREADS_GENERATE_STDHEADERS "Generate std-like headers")

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.16)
 project(cmake_stdheaders_generator)
 
 set(output_include_path "${PROJECT_BINARY_DIR}/${PROJECT_NAME}")
