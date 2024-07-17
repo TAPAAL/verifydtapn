@@ -16,7 +16,11 @@ ProbabilityFloatComparison::ProbabilityFloatComparison(
 
 void ProbabilityFloatComparison::handleRunResult(const bool res) {
     bool valid = query->getQuantifier() == PG ? !res : res;
-    ratio += valid ? log(p1 / p0) : log((1 - p1) / (1 - p0));
+    if(p0 >= 1.0f && !valid) {
+        ratio = std::numeric_limits<float>::infinity();
+    } else {
+        ratio += valid ? log(p1 / p0) : log((1 - p1) / (1 - p0));
+    }
     validRuns += (int) valid;
 }
 
@@ -51,8 +55,8 @@ void ProbabilityFloatComparison::computeAcceptingBounds(const float alpha, const
 } 
 
 void ProbabilityFloatComparison::computeIndifferenceRegion(const float p, const float sigma0, const float sigma1) {
-    p0 = p + sigma0;
-    p1 = p - sigma1;
+    p0 = std::clamp(0.0f, p + sigma0, 1.0f);
+    p1 = std::clamp(0.0f, p - sigma1, 1.0f);
 } 
 
 void ProbabilityFloatComparison::printStats() {
