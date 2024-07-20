@@ -9,13 +9,13 @@ on:
   workflow_dispatch:  
 
 concurrency: 
-  group: build-MacOS-${{ github.head_ref }}
+  group: build-MacOS-ARM-${{ github.head_ref }}
   cancel-in-progress: true
 
 jobs:
   build:
     if: github.event.pull_request.draft == false
-    runs-on: macos-latest
+    runs-on: macos-14
 
     steps:
     - uses: actions/checkout@v2
