@@ -50,11 +50,14 @@ namespace VerifyTAPN {
                     transitionSeen[transi->getIndex()] = true;
                 }
             }
+            bool deadlocked = true;
             std::vector<interval<double>> invInterval = { interval<double>(0, _originMaxDelay) };
             for(auto iter = _defaultTransitionIntervals.begin() ; iter != _defaultTransitionIntervals.end() ; iter++) {
                 if(iter->empty()) continue;
+                deadlocked = false;
                 *iter = Util::setIntersection(*iter, invInterval);
             }
+            _origin->setDeadlocked(deadlocked);
             reset();
         }
 
@@ -119,8 +122,10 @@ namespace VerifyTAPN {
                 }
             }
             std::vector<interval<double>> invInterval = { interval<double>(0, _max_delay) };
+            bool deadlocked = true;
             for(int i = 0 ; i < _transitionIntervals.size() ; i++) {
                 _transitionIntervals[i] = Util::setIntersection<double>(_transitionIntervals[i], invInterval);
+                deadlocked &= _transitionIntervals[i].empty();
                 bool enabled = (!_transitionIntervals[i].empty()) && (_transitionIntervals[i].front().lower() == 0);
                 bool newlyEnabled = enabled && (_dates_sampled[i] == std::numeric_limits<double>::infinity());
                 if(!enabled) {
@@ -133,6 +138,7 @@ namespace VerifyTAPN {
                     _dates_sampled[i] = distrib.sample(_rng);
                 }
             }
+            _parent->setDeadlocked(deadlocked);
         }
 
         RealMarking* SMCRunGenerator::next() {

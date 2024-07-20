@@ -51,6 +51,7 @@ RealMarking::RealMarking(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase& bas
 RealMarking::RealMarking(const RealMarking& other)
 {
     places = other.places;
+    deadlocked = other.deadlocked;
 }
 
 uint32_t RealMarking::size() const
