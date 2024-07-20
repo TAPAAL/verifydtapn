@@ -15,7 +15,7 @@ concurrency:
 jobs:
   build:
     if: github.event.pull_request.draft == false
-    runs-on: macos-13
+    runs-on: macos-latest
 
     steps:
     - uses: actions/checkout@v2
@@ -40,4 +40,4 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: verifydtapn-osx64-arm
-        path: '${{github.workspace}}/build/verifydtapn/bin/verifydtapn-osx64-arm'
+        path: '${{github.workspace}}/build/verifydtapn/bin/verifydtapn-osx64'
