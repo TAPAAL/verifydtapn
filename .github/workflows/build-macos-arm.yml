@@ -39,5 +39,5 @@ jobs:
     - name: Upload artifacts 
       uses: actions/upload-artifact@v2
       with:
-        name: verifydtapn-osx64-arm
-        path: '${{github.workspace}}/build/verifydtapn/bin/verifydtapn-osx64'
+        name: verifydtapn-arm64
+        path: '${{github.workspace}}/build/verifydtapn/bin/verifydtapn-arm64'
