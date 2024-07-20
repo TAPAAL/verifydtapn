@@ -21,6 +21,8 @@ class SMCVerification : public Verification<RealMarking> {
 
         virtual bool run() override;
 
+        virtual void prepare() { }
+
         virtual bool executeRun();
 
         virtual void printStats() override;
@@ -43,7 +45,8 @@ class SMCVerification : public Verification<RealMarking> {
         size_t numberOfRuns;
         unsigned int maxTokensSeen;
         unsigned long totalTime = 0;
-        unsigned long totalSteps = 0; 
+        unsigned long totalSteps = 0;
+        int64_t durationMs = 0;
 
 };
 

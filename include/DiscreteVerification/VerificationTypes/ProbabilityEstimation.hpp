@@ -13,9 +13,17 @@ class ProbabilityEstimation : public SMCVerification {
             TAPN::TimedArcPetriNet &tapn, RealMarking &initialMarking, AST::SMCQuery *query, VerificationOptions options
         );
 
+        ProbabilityEstimation(
+            TAPN::TimedArcPetriNet &tapn, RealMarking &initialMarking, AST::SMCQuery *query, VerificationOptions options, unsigned int runs
+        )
+        : SMCVerification(tapn, initialMarking, query, options), validRuns(0), runsNeeded(runs)
+        { }
+
         bool handleSuccessor(RealMarking* marking) override;
         void handleRunResult(const bool res) override;
         bool mustDoAnotherRun() override;
+
+        void prepare() override;
 
         float getEstimation();
 

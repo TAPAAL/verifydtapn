@@ -17,7 +17,13 @@ bool ProbabilityEstimation::mustDoAnotherRun() {
     return numberOfRuns < runsNeeded;
 }
 
-void ProbabilityEstimation::handleRunResult(const bool res) {
+void ProbabilityEstimation::prepare()
+{
+    std::cout << "Need to execute " << runsNeeded << " runs to produce estimation" << std::endl;
+}
+
+void ProbabilityEstimation::handleRunResult(const bool res)
+{
     if(query->getQuantifier() == PG) validRuns += res ? 0 : 1;
     else validRuns += res ? 1 : 0;
 }
@@ -55,11 +61,9 @@ void ProbabilityEstimation::printResult() {
     }*/
     float result = getEstimation();
     float width = smcSettings.estimationIntervalWidth;
-    float minBound = std::max(result - width, 0.0f);
-    float maxBound = std::min(result + width, 1.0f);
     std::cout << "Probability estimation:" << std::endl;
     std::cout << "\tConfidence: " << smcSettings.confidence * 100 << "%" << std::endl;
-    std::cout << "\tP in [" << minBound << ";" << maxBound << "]" << std::endl;
+    std::cout << "\tP = " << result << " ± " << width << std::endl;
 }
 
 }

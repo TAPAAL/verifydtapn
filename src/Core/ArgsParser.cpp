@@ -172,14 +172,9 @@ namespace VerifyTAPN {
             ("bindings,b", "Print bindings to stderr in XML format (only for CPNs, default is not to print)")
             ("write-unfolded-queries", po::value<std::string>(), "Outputs the queries to the given file before query reduction but after unfolding")
             ("strategy-output", po::value<std::string>(), "File to write synthesized strategy to, use '_' (an underscore) for stdout")
-            ("confidence", po::value<float_t>(), "Confidence for SMC probability estimation")
-            ("interval-width", po::value<float_t>(), "Interval width for SMC probability estimation")
             ("geq", po::value<float_t>(), "Performs a SMC test to compute if P(q) >= ARG")
-            ("false-positives", po::value<float_t>(), "For probability comparison, probability of false positives")
-            ("false-negatives", po::value<float_t>(), "For probability comparison, probability of false negatives")
-            ("indifference", po::value<float_t>(), "For probability comparison, width of the indifference region")
-            ("indifference-up", po::value<float_t>(), "For probability comparison, upper indifference region width")
-            ("indifference-down", po::value<float_t>(), "For probability comparison, lower indifference region width");
+            ("benchmark", po::value<unsigned int>(), "Benchmark mode for SMC, runs the number of runs specified to estimate performance");
+            
     }
 
 
@@ -256,6 +251,13 @@ namespace VerifyTAPN {
 
         if(vm.count("strategy-output"))
             opts.setOutputModelFile(vm["strategy-output"].as<std::string>());
+
+        if(vm.count("benchmark")) {
+            opts.setBenchmarkMode(true);
+            if(!vm["benchmark"].empty()) {
+                opts.setBenchmarkRuns(vm["benchmark"].as<unsigned int>());
+            }
+        }
 
         std::vector<std::string> files = po::collect_unrecognized(parsed.options, po::include_positional);
 

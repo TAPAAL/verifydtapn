@@ -196,7 +196,10 @@ namespace VerifyTAPN { namespace DiscreteVerification {
         } else if (query->getQuantifier() == PF || query->getQuantifier() == PG) {
             SMCQuery* smcQuery = (SMCQuery*) query;
             RealMarking marking(&tapn, *initialMarking);
-            if(smcQuery->getSmcSettings().compareToFloat) {
+            if(options.isBenchmarkMode()) {
+                ProbabilityEstimation estimator(tapn, marking, smcQuery, options, options.getBenchmarkRuns());
+                ComputeAndPrint(tapn, estimator, options, query);
+            } else if(smcQuery->getSmcSettings().compareToFloat) {
                 ProbabilityFloatComparison estimator(tapn, marking, smcQuery, options);
                 ComputeAndPrint(tapn, estimator, options, query);
             } else {
