@@ -1,0 +1,43 @@
+name: Build MacOS ARM processor
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+    types: [synchronize, opened, reopened, ready_for_review]
+  workflow_dispatch:  
+
+concurrency: 
+  group: build-MacOS-ARM-${{ github.head_ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    if: github.event.pull_request.draft == false
+    runs-on: macos-14
+
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Install depends
+      run: |
+        brew install cmake flex bison
+    
+    - name: Prebuild
+      run: |
+        mkdir build && cd build
+        CC=gcc-11 CXX=g++-11 cmake ../ -DCMAKE_BUILD_TYPE=Prebuild -DBISON_EXECUTABLE=/opt/homebrew/opt/bison/bin/bison -DFLEX_EXECUTABLE=/opt/homebrew/opt/flex/bin/flex
+        make
+
+    - name: Build 
+      run: |
+        cd build
+        CC=gcc-11 CXX=g++-11 cmake ../ -DCMAKE_BUILD_TYPE=Release -DBISON_EXECUTABLE=/opt/homebrew/opt/bison/bin/bison  -DFLEX_EXECUTABLE=/opt/homebrew/opt/flex/bin/flex
+        make
+
+    - name: Upload artifacts 
+      uses: actions/upload-artifact@v2
+      with:
+        name: verifydtapn-arm64
+        path: '${{github.workspace}}/build/verifydtapn/bin/verifydtapn-osx64'
