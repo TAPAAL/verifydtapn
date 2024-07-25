@@ -199,6 +199,22 @@ namespace VerifyTAPN {
             strategy_output = s;
         }
 
+        inline void setBenchmarkMode(bool bench) {
+            benchmark = bench;
+        }
+
+        inline bool isBenchmarkMode() const {
+            return benchmark;
+        }
+
+        inline void setBenchmarkRuns(unsigned int runs) {
+            benchmarkRuns = runs;
+        }
+
+        inline unsigned int getBenchmarkRuns() const {
+            return benchmarkRuns;
+        }
+
     protected:
         std::string inputFile;
         std::string queryFile;
@@ -220,6 +236,8 @@ namespace VerifyTAPN {
         std::string outputQuery;
         std::set<size_t> querynumbers;
         std::string strategy_output = "";
+        bool benchmark = false;
+        unsigned int benchmarkRuns = 100;
         friend class ArgsParser;
     };
 
