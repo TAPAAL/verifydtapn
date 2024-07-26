@@ -11,6 +11,7 @@ namespace VerifyTAPN::DiscreteVerification {
 bool SMCVerification::parallel_run() {
     prepare();
     runGenerator.prepare(&initialMarking);
+    auto start = std::chrono::steady_clock::now();
 
     size_t n_threads = std::thread::hardware_concurrency();
     std::cout << ". Using " << n_threads << " threads..." << std::endl;
@@ -40,6 +41,9 @@ bool SMCVerification::parallel_run() {
         delete handles[i];
     }
 
+    auto stop = std::chrono::steady_clock::now();
+    durationMs = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count();
+
     return true;
 }
 
@@ -52,7 +56,12 @@ bool SMCVerification::run() {
     while(mustDoAnotherRun()) {
         bool runRes = executeRun();
         handleRunResult(runRes);
+        
+        totalTime += runGenerator.getRunDelay();
+        totalSteps += runGenerator.getRunSteps();
         numberOfRuns++;
+        runGenerator.reset();
+        
         if(numberOfRuns % 100 != 0) continue;
         auto step2 = std::chrono::steady_clock::now();
         stepDuration = std::chrono::duration_cast<std::chrono::milliseconds>(step2 - step1).count();

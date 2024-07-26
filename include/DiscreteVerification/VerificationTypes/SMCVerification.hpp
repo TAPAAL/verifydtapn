@@ -22,6 +22,7 @@ class SMCVerification : public Verification<RealMarking> {
             { }
 
         virtual bool run() override;
+        virtual bool parallel_run();
 
         virtual void prepare() { }
 

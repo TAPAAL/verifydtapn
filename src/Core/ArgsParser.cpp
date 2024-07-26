@@ -173,7 +173,8 @@ namespace VerifyTAPN {
             ("write-unfolded-queries", po::value<std::string>(), "Outputs the queries to the given file before query reduction but after unfolding")
             ("strategy-output", po::value<std::string>(), "File to write synthesized strategy to, use '_' (an underscore) for stdout")
             ("geq", po::value<float_t>(), "Performs a SMC test to compute if P(q) >= ARG")
-            ("benchmark", po::value<unsigned int>(), "Benchmark mode for SMC, runs the number of runs specified to estimate performance");
+            ("benchmark", po::value<unsigned int>(), "Benchmark mode for SMC, runs the number of runs specified to estimate performance")
+            ("parallel", po::bool_switch()->default_value(false), "Enable parallel verification for SMC.");
             
     }
 
@@ -257,6 +258,10 @@ namespace VerifyTAPN {
             if(!vm["benchmark"].empty()) {
                 opts.setBenchmarkRuns(vm["benchmark"].as<unsigned int>());
             }
+        }
+
+        if(vm.count("parallel")) {
+            opts.setParallel(vm["parallel"].as<bool>());
         }
 
         std::vector<std::string> files = po::collect_unrecognized(parsed.options, po::include_positional);

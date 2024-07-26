@@ -215,6 +215,14 @@ namespace VerifyTAPN {
             return benchmarkRuns;
         }
 
+        inline bool isParallel() const {
+            return parallel;
+        }
+
+        inline void setParallel(const bool value) {
+            parallel = value;
+        }
+
     protected:
         std::string inputFile;
         std::string queryFile;
@@ -238,6 +246,7 @@ namespace VerifyTAPN {
         std::string strategy_output = "";
         bool benchmark = false;
         unsigned int benchmarkRuns = 100;
+        bool parallel = false;
         friend class ArgsParser;
     };
 
