@@ -49,12 +49,6 @@ else ()
     set(ARCH_TYPE "win64")
 endif ()
 
-if (ARCH_TYPE MATCHES "win64")
-    option(MINGW_STDTHREADS_GENERATE_STDHEADERS "" ON)
-    add_subdirectory(mingw_stdthreads)
-    target_link_libraries(${TARGET} PRIVATE mingw_stdthreads)
-endif ()
-
 ## Enabled INTERPROCEDURAL_OPTIMIZATION for non-macos
 if (CMAKE_BUILD_TYPE MATCHES Release)
     if (NOT APPLE AND UNIX)
