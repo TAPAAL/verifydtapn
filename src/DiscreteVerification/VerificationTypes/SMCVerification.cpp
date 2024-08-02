@@ -42,7 +42,7 @@ bool SMCVerification::parallel_run() {
     }
 
     auto stop = std::chrono::steady_clock::now();
-    durationMs = std::chrono::duration_cast<std::chrono::nanoseconds>(stop - start).count();
+    durationNs = std::chrono::duration_cast<std::chrono::nanoseconds>(stop - start).count();
 
     return true;
 }
@@ -72,7 +72,7 @@ bool SMCVerification::run() {
         }
     }
     auto stop = std::chrono::steady_clock::now();
-    durationMs = std::chrono::duration_cast<std::chrono::nanoseconds>(stop - start).count();
+    durationNs = std::chrono::duration_cast<std::chrono::nanoseconds>(stop - start).count();
     return true;
 }
 
@@ -93,7 +93,7 @@ void SMCVerification::printStats() {
     std::cout << "  runs executed:\t" << numberOfRuns << std::endl;
     std::cout << "  average run length:\t" << (totalSteps / (double) numberOfRuns) << std::endl;
     std::cout << "  average run time:\t" << (totalTime / (double) numberOfRuns) << std::endl;
-    std::cout << "  verification time:\t" << ((double) durationMs / 1000000.0) << "s" << std::endl;
+    std::cout << "  verification time:\t" << ((double) durationNs / 1000000.0) << "s" << std::endl;
 }
 
 void SMCVerification::printTransitionStatistics() const {

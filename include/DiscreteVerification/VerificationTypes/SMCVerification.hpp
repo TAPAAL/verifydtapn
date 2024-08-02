@@ -49,7 +49,7 @@ class SMCVerification : public Verification<RealMarking> {
         unsigned int maxTokensSeen;
         unsigned long totalTime = 0;
         unsigned long totalSteps = 0;
-        int64_t durationMs = 0;
+        int64_t durationNs = 0;
 
         std::mutex run_res_mutex;
 
