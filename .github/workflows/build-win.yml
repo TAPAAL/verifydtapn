@@ -24,6 +24,8 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install flex bison mingw-w64-x86-64-dev mingw-w64-tools g++-mingw-w64-x86-64 wine wine-binfmt
+        sudo update-alternatives --set x86_64-w64-mingw32-gcc /usr/bin/x86_64-w64-mingw32-gcc-posix
+        sudo update-alternatives --set x86_64-w64-mingw32-g++ /usr/bin/x86_64-w64-mingw32-g++-posix
     
     - name: Prebuild
       run: | 

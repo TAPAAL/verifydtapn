@@ -82,7 +82,18 @@ namespace VerifyTAPN {
             }
         }
 
-        void SMCRunGenerator::refreshTransitionsIntervals() {
+        SMCRunGenerator SMCRunGenerator::copy() const
+        {
+            SMCRunGenerator clone(_tapn);
+            clone._origin = new RealMarking(*_origin);
+            clone._defaultTransitionIntervals = _defaultTransitionIntervals;
+            clone._originMaxDelay = _originMaxDelay;
+            clone.reset();
+            return clone;
+        }
+
+        void SMCRunGenerator::refreshTransitionsIntervals()
+        {
             RealPlaceList& places = _parent->getPlaceList();
             std::vector<bool> transitionSeen(_transitionIntervals.size(), false);
             _max_delay = _parent->availableDelay();

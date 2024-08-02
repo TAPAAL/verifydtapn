@@ -369,8 +369,12 @@ namespace VerifyTAPN { namespace DiscreteVerification {
 
         std::cout << "Starting SMC..." << std::endl;
 
-        estimator.run();
-
+        if(options.isParallel()) {
+            estimator.parallel_run();
+        } else {
+            estimator.run();
+        }
+        
         estimator.printStats();
         estimator.printTransitionStatistics();
         estimator.printPlaceStatistics();
