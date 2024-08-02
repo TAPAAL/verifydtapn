@@ -72,7 +72,7 @@ bool SMCVerification::run() {
         }
     }
     auto stop = std::chrono::steady_clock::now();
-    durationMs = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count();
+    durationMs = std::chrono::duration_cast<std::chrono::nanoseconds>(stop - start).count();
     return true;
 }
 
