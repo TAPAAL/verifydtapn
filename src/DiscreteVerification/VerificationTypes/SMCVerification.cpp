@@ -93,7 +93,7 @@ void SMCVerification::printStats() {
     std::cout << "  runs executed:\t" << numberOfRuns << std::endl;
     std::cout << "  average run length:\t" << (totalSteps / (double) numberOfRuns) << std::endl;
     std::cout << "  average run time:\t" << (totalTime / (double) numberOfRuns) << std::endl;
-    std::cout << "  verification time:\t" << ((double) durationNs / 1000000.0) << "s" << std::endl;
+    std::cout << "  verification time:\t" << ((double) durationNs / 1.0E9) << "s" << std::endl;
 }
 
 void SMCVerification::printTransitionStatistics() const {
