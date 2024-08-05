@@ -28,7 +28,7 @@ bool SMCVerification::parallel_run() {
                     totalTime += generator.getRunDelay();
                     totalSteps += generator.getRunSteps();
                     numberOfRuns++;
-                    handleRunResult(runRes);
+                    handleRunResult(runRes, generator.getRunSteps(), generator.getRunDelay());
                     continueExecution = mustDoAnotherRun();
                 }
                 generator.reset();
@@ -55,7 +55,7 @@ bool SMCVerification::run() {
     int64_t stepDuration;
     while(mustDoAnotherRun()) {
         bool runRes = executeRun();
-        handleRunResult(runRes);
+        handleRunResult(runRes, runGenerator.getRunSteps(), runGenerator.getRunDelay());
         
         totalTime += runGenerator.getRunDelay();
         totalSteps += runGenerator.getRunSteps();

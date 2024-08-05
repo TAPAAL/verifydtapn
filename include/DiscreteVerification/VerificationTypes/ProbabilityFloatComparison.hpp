@@ -14,7 +14,7 @@ class ProbabilityFloatComparison : public SMCVerification {
         );
 
         bool handleSuccessor(RealMarking* marking) override;
-        void handleRunResult(const bool res) override;
+        void handleRunResult(const bool res, int steps, double delay) override;
         bool mustDoAnotherRun() override;
 
         bool getResult();

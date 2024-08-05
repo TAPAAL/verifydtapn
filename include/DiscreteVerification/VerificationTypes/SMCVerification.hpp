@@ -36,7 +36,7 @@ class SMCVerification : public Verification<RealMarking> {
 
         virtual bool reachedRunBound(SMCRunGenerator* generator = nullptr);
         
-        virtual void handleRunResult(const bool res) = 0;
+        virtual void handleRunResult(const bool res, int steps, double delay) = 0;
         virtual bool mustDoAnotherRun() = 0;
 
         virtual void printResult() = 0;

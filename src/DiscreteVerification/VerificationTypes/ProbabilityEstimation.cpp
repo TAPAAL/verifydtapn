@@ -22,10 +22,20 @@ void ProbabilityEstimation::prepare()
     std::cout << "Need to execute " << runsNeeded << " runs to produce estimation" << std::endl;
 }
 
-void ProbabilityEstimation::handleRunResult(const bool res)
+void ProbabilityEstimation::handleRunResult(const bool res, int steps, double delay)
 {
-    if(query->getQuantifier() == PG) validRuns += res ? 0 : 1;
-    else validRuns += res ? 1 : 0;
+    bool valid = (query->getQuantifier() == PF && res) || (query->getQuantifier() == PG && !res);
+    validRuns += valid ? 1 : 0;
+    if(!valid || !options.mustPrintCumulative()) return;
+    int delayCap = (int) ceil(delay);
+    if(validPerStep.size() <= steps) {
+        validPerStep.resize(steps + 1, 0);
+    }
+    if(validPerDelay.size() <= delayCap) {
+        validPerDelay.resize(delayCap + 1, 0);
+    }
+    validPerStep[steps] += 1;
+    validPerDelay[delayCap] += 1;
 }
 
 bool ProbabilityEstimation::handleSuccessor(RealMarking* marking) {
@@ -51,6 +61,20 @@ void ProbabilityEstimation::computeChernoffHoeffdingBound(const float intervalWi
 void ProbabilityEstimation::printStats() {
     SMCVerification::printStats();
     std::cout << "  valid runs:\t" << validRuns << std::endl;
+    if(!options.mustPrintCumulative()) return;
+    std::cout << "  cumulative probability / step :" << std::endl;
+    double acc = 0;
+    for(int i = 0 ; i < validPerStep.size() ; i++) {
+        acc += validPerStep[i] / (double) numberOfRuns;
+        std::cout << i << ":" << acc << ";";
+    }
+    std::cout << std::endl << "  cumulative probability / delay :" << std::endl;
+    acc = 0;
+    for(int i = 0 ; i < validPerDelay.size() ; i++) {
+        acc += validPerDelay[i] / (double) numberOfRuns;
+        std::cout << i << ":" << acc << ";";
+    }
+    std::cout << std::endl;
 }
 
 void ProbabilityEstimation::printResult() {

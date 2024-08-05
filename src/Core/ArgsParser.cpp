@@ -174,7 +174,8 @@ namespace VerifyTAPN {
             ("strategy-output", po::value<std::string>(), "File to write synthesized strategy to, use '_' (an underscore) for stdout")
             ("geq", po::value<float_t>(), "Performs a SMC test to compute if P(q) >= ARG")
             ("benchmark", po::value<unsigned int>(), "Benchmark mode for SMC, runs the number of runs specified to estimate performance")
-            ("parallel", po::bool_switch()->default_value(false), "Enable parallel verification for SMC.");
+            ("parallel", po::bool_switch()->default_value(false), "Enable parallel verification for SMC.")
+            ("print-cumulative-stats", po::bool_switch()->default_value(false), "Prints the cumulative probability stats for SMC quantitative estimation");
             
     }
 
@@ -262,6 +263,10 @@ namespace VerifyTAPN {
 
         if(vm.count("parallel")) {
             opts.setParallel(vm["parallel"].as<bool>());
+        }
+
+        if(vm.count("print-cumulative-stats")) {
+            opts.setPrintCumulative(vm["print-cumulative-stats"].as<bool>());
         }
 
         std::vector<std::string> files = po::collect_unrecognized(parsed.options, po::include_positional);

@@ -20,7 +20,7 @@ class ProbabilityEstimation : public SMCVerification {
         { }
 
         bool handleSuccessor(RealMarking* marking) override;
-        void handleRunResult(const bool res) override;
+        void handleRunResult(const bool res, int steps, double delay) override;
         bool mustDoAnotherRun() override;
 
         void prepare() override;
@@ -37,6 +37,9 @@ class ProbabilityEstimation : public SMCVerification {
 
         unsigned int runsNeeded;
         unsigned int validRuns;
+
+        std::vector<int> validPerStep;
+        std::vector<int> validPerDelay;
 
 };
 

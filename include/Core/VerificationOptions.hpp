@@ -223,6 +223,14 @@ namespace VerifyTAPN {
             parallel = value;
         }
 
+        inline bool mustPrintCumulative() const {
+            return printCumulative;
+        }
+
+        inline void setPrintCumulative(const bool value) {
+            printCumulative = value;
+        }
+
     protected:
         std::string inputFile;
         std::string queryFile;
@@ -247,6 +255,7 @@ namespace VerifyTAPN {
         bool benchmark = false;
         unsigned int benchmarkRuns = 100;
         bool parallel = false;
+        bool printCumulative = false;
         friend class ArgsParser;
     };
 
