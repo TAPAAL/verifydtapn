@@ -62,17 +62,21 @@ void ProbabilityEstimation::printStats() {
     SMCVerification::printStats();
     std::cout << "  valid runs:\t" << validRuns << std::endl;
     if(!options.mustPrintCumulative()) return;
+    unsigned int digits = options.getCumulativeRoundingDigits();
+    double mult = pow(10.0f, digits);
     std::cout << "  cumulative probability / step :" << std::endl;
     double acc = 0;
     for(int i = 0 ; i < validPerStep.size() ; i++) {
         acc += validPerStep[i] / (double) numberOfRuns;
-        std::cout << i << ":" << acc << ";";
+        double toPrint = round(acc * mult) / mult;
+        std::cout << i << ":" << toPrint << ";";
     }
     std::cout << std::endl << "  cumulative probability / delay :" << std::endl;
     acc = 0;
     for(int i = 0 ; i < validPerDelay.size() ; i++) {
         acc += validPerDelay[i] / (double) numberOfRuns;
-        std::cout << i << ":" << acc << ";";
+        double toPrint = round(acc * mult) / mult;
+        std::cout << i << ":" << toPrint << ";";
     }
     std::cout << std::endl;
 }

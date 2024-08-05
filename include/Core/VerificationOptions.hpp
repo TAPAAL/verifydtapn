@@ -231,6 +231,14 @@ namespace VerifyTAPN {
             printCumulative = value;
         }
 
+        inline unsigned int getCumulativeRoundingDigits() const {
+            return cumulativeRoundingDigits;
+        }
+
+        inline void setCumulativeRoundingDigits(const unsigned int value) {
+            cumulativeRoundingDigits = value;
+        }
+
     protected:
         std::string inputFile;
         std::string queryFile;
@@ -256,6 +264,7 @@ namespace VerifyTAPN {
         unsigned int benchmarkRuns = 100;
         bool parallel = false;
         bool printCumulative = false;
+        unsigned int cumulativeRoundingDigits = 2;
         friend class ArgsParser;
     };
 
