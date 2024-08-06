@@ -103,14 +103,9 @@ void ProbabilityComparison::computeIndifferenceRegion(const float p, const float
 }
 
 bool ProbabilityComparison::reachedRunBound(AST::SMCQuery* current_query) {
-    switch(current_query->getSmcSettings().boundType) {
-        case SMCSettings::TimeBound: 
-            return runGenerator.getRunDelay() >= current_query->getSmcSettings().bound;
-        case SMCSettings::StepBound:
-            return runGenerator.getRunSteps() >= current_query->getSmcSettings().bound;
-        default:
-            return false;
-    }
+    return 
+        runGenerator.getRunDelay() >= current_query->getSmcSettings().timeBound ||
+        runGenerator.getRunSteps() >= current_query->getSmcSettings().stepBound;
 }
 
 void ProbabilityComparison::printStats() {

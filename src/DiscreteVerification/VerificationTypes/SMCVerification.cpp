@@ -112,14 +112,9 @@ void SMCVerification::setMaxTokensIfGreater(unsigned int i) {
 
 bool SMCVerification::reachedRunBound(SMCRunGenerator* generator) {
     if(generator == nullptr) generator = &runGenerator;
-    switch(smcSettings.boundType) {
-        case SMCSettings::TimeBound: 
-            return generator->getRunDelay() >= smcSettings.bound;
-        case SMCSettings::StepBound:
-            return generator->getRunSteps() >= smcSettings.bound;
-        default:
-            return false;
-    }
+    return 
+        generator->getRunDelay() >= smcSettings.timeBound ||
+        generator->getRunSteps() >= smcSettings.stepBound;
 }
 
 }

@@ -97,9 +97,8 @@ namespace VerifyTAPN::AST {
     };
 
     struct SMCSettings {
-        enum SMCBoundType { TimeBound, StepBound };
-        SMCBoundType boundType;
-        int bound;
+        int timeBound;
+        int stepBound;
         float falsePositives;
         float falseNegatives;
         float indifferenceRegionUp;

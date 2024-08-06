@@ -6,8 +6,8 @@ namespace VerifyTAPN::AST {
 
     SMCSettings SMCSettings::fromPQL(pql::SMCSettings settings) {
         return {
-            settings.boundType == pql::SMCSettings::TimeBound ? TimeBound : StepBound,
-            settings.bound,
+            settings.timeBound,
+            settings.stepBound,
             settings.falsePositives,
             settings.falseNegatives,
             settings.indifferenceRegionUp,
