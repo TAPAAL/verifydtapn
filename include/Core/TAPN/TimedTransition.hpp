@@ -23,10 +23,11 @@ namespace VerifyTAPN {
         public: // typedefs
             typedef std::vector<TimedTransition *> Vector;
         public:
-            TimedTransition(int index, std::string name, std::string id, bool urgent, bool controllable, double x, double y, SMCDistribution distrib = SMCDistribution::defaultDistribution())
+            TimedTransition(int index, std::string name, std::string id, bool urgent, bool controllable, double x, double y, SMCDistribution distrib = SMCDistribution::defaultDistribution(), double priority = 1)
                     : index(index), name(std::move(name)), id(std::move(id)), preset(), postset(), transportArcs(),
                       untimedPostset(true),
-                      urgent(urgent), controllable(controllable), _position({x,y}), _distribution(distrib) {};
+                      urgent(urgent), controllable(controllable), _position({x,y}), 
+                      _distribution(distrib), _priority(priority) {};
 
             TimedTransition() : name("*EMPTY*"), id("-1"), preset(), postset(), transportArcs(), index(-1),
                                 untimedPostset(true), urgent(false) {};
@@ -127,6 +128,14 @@ namespace VerifyTAPN {
                 _distribution = distrib;
             }
 
+            const double& getPriority() const {
+                return _priority;
+            }
+
+            inline void setPriority(double priority) {
+                _priority = priority;
+            }
+
         private: // data
             const int index = 0;
             std::string name;
@@ -140,6 +149,7 @@ namespace VerifyTAPN {
             bool controllable{};
             std::pair<double,double> _position;
             SMCDistribution _distribution;
+            double _priority;
         };
 
         inline std::ostream &operator<<(std::ostream &out, const TimedTransition &transition) {

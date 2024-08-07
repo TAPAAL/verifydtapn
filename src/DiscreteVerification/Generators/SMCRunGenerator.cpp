@@ -204,13 +204,40 @@ namespace VerifyTAPN {
                 return std::make_pair(nullptr, date_min);
             }
             TimedTransition *winner;
-            if(winner_indexs.size() == 0) { 
+            if(winner_indexs.empty()) { 
                 winner = nullptr;
+            } else if(winner_indexs.size() == 1) {
+                winner = _tapn.getTransitions()[winner_indexs[0]];
             } else {
-                std::uniform_int_distribution<> distrib(0, winner_indexs.size() - 1);
-                winner = _tapn.getTransitions()[winner_indexs[distrib(_rng)]];
+                winner = chooseWeightedWinner(winner_indexs);
             }
             return std::make_pair(winner, date_min);
+        }
+
+        TimedTransition* SMCRunGenerator::chooseWeightedWinner(const std::vector<size_t>& winner_indexs) {
+            double total_weight = 0.0f;
+            std::vector<size_t> infty_weights;
+            for(auto& candidate : winner_indexs) {
+                double priority = _tapn.getTransitions()[candidate]->getPriority();
+                if(priority == std::numeric_limits<double>::infinity()) {
+                    infty_weights.push_back(candidate);
+                } else {
+                    total_weight += priority;
+                }
+            }
+            if(!infty_weights.empty()) {
+                int winner_index = std::uniform_int_distribution<>(0, infty_weights.size() - 1)(_rng);
+                return _tapn.getTransitions()[infty_weights[winner_index]];
+            }
+            double winning_weight = std::uniform_real_distribution<>(0.0, total_weight)(_rng);
+            for(auto& candidate : winner_indexs) {
+                TimedTransition* transi = _tapn.getTransitions()[candidate];
+                winning_weight -= transi->getPriority();
+                if(winning_weight <= 0) {
+                    return transi;
+                }
+            }
+            return _tapn.getTransitions()[winner_indexs[0]];
         }
 
         std::vector<interval<double>> SMCRunGenerator::transitionFiringDates(TimedTransition* transi) {

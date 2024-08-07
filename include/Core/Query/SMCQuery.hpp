@@ -12,6 +12,7 @@ namespace VerifyTAPN::AST {
         Uniform,
         Exponential,
         Normal,
+        Gamma,
     };
 
     struct SMCUniformParameters {
@@ -28,17 +29,23 @@ namespace VerifyTAPN::AST {
     struct SMCConstantParameters {
         double value;
     };
+    struct SMCGammaParameters {
+        double shape;
+        double scale;
+    };
 
     union SMCDistributionParameters {
         SMCUniformParameters uniform;
         SMCExponentialParameters exp;
         SMCNormalParameters normal;
         SMCConstantParameters constant;
+        SMCGammaParameters gamma;
     };
 
     struct SMCDistribution {
         SMCDistributionType type;
         SMCDistributionParameters parameters;
+        bool discretize = false;
 
         template<typename T>
         double sample(T& engine) const {
@@ -56,7 +63,11 @@ namespace VerifyTAPN::AST {
                 case Normal:
                     date = std::normal_distribution(parameters.normal.mean, parameters.normal.stddev)(engine);
                     break;
+                case Gamma:
+                    date = std::gamma_distribution(parameters.gamma.shape, parameters.gamma.scale)(engine);
+                    break;
             }
+            if(discretize) date = round(date);
             return std::max(date, 0.0);
         }
 
@@ -72,7 +83,7 @@ namespace VerifyTAPN::AST {
             return SMCDistribution { Constant, params };
         }
 
-        static SMCDistribution fromParams(int distrib_id, double param1, double param2) {
+        static SMCDistribution fromParams(int distrib_id, double param1, double param2, bool discrete = false) {
             SMCDistributionType distrib = static_cast<SMCDistributionType>(distrib_id);
             SMCDistributionParameters params;
             switch(distrib){
@@ -90,8 +101,14 @@ namespace VerifyTAPN::AST {
                     params.normal.mean = param1;
                     params.normal.stddev = param2;
                     break;
+                case Gamma:
+                    params.gamma.shape = param1;
+                    params.gamma.scale = param2;
+                    break;
+                default:
+                    break;
             }
-            return SMCDistribution { distrib, params };
+            return SMCDistribution { distrib, params, discrete };
         }
 
     };

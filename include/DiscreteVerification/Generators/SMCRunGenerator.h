@@ -56,6 +56,7 @@ namespace VerifyTAPN {
         protected:
         
             Util::interval<double> remainingForToken(const Util::interval<double>& arcInterval, const RealToken& t);
+            TimedTransition* chooseWeightedWinner(const std::vector<size_t>& winner_indexs);
             
             bool _maximal = false;
             TimedArcPetriNet& _tapn;
