@@ -218,7 +218,7 @@ namespace VerifyTAPN {
             double total_weight = 0.0f;
             std::vector<size_t> infty_weights;
             for(auto& candidate : winner_indexs) {
-                double priority = _tapn.getTransitions()[candidate]->getPriority();
+                double priority = _tapn.getTransitions()[candidate]->getWeight();
                 if(priority == std::numeric_limits<double>::infinity()) {
                     infty_weights.push_back(candidate);
                 } else {
@@ -232,7 +232,7 @@ namespace VerifyTAPN {
             double winning_weight = std::uniform_real_distribution<>(0.0, total_weight)(_rng);
             for(auto& candidate : winner_indexs) {
                 TimedTransition* transi = _tapn.getTransitions()[candidate];
-                winning_weight -= transi->getPriority();
+                winning_weight -= transi->getWeight();
                 if(winning_weight <= 0) {
                     return transi;
                 }

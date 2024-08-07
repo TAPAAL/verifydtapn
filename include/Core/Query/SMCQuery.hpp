@@ -45,7 +45,6 @@ namespace VerifyTAPN::AST {
     struct SMCDistribution {
         SMCDistributionType type;
         SMCDistributionParameters parameters;
-        bool discretize = false;
 
         template<typename T>
         double sample(T& engine) const {
@@ -67,7 +66,6 @@ namespace VerifyTAPN::AST {
                     date = std::gamma_distribution(parameters.gamma.shape, parameters.gamma.scale)(engine);
                     break;
             }
-            if(discretize) date = round(date);
             return std::max(date, 0.0);
         }
 
@@ -83,7 +81,7 @@ namespace VerifyTAPN::AST {
             return SMCDistribution { Constant, params };
         }
 
-        static SMCDistribution fromParams(int distrib_id, double param1, double param2, bool discrete = false) {
+        static SMCDistribution fromParams(int distrib_id, double param1, double param2) {
             SMCDistributionType distrib = static_cast<SMCDistributionType>(distrib_id);
             SMCDistributionParameters params;
             switch(distrib){
@@ -108,7 +106,7 @@ namespace VerifyTAPN::AST {
                 default:
                     break;
             }
-            return SMCDistribution { distrib, params, discrete };
+            return SMCDistribution { distrib, params };
         }
 
     };
