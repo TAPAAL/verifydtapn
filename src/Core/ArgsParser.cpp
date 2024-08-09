@@ -175,7 +175,9 @@ namespace VerifyTAPN {
             ("geq", po::value<float_t>(), "Performs a SMC test to compute if P(q) >= ARG")
             ("benchmark", po::value<unsigned int>(), "Benchmark mode for SMC, runs the number of runs specified to estimate performance")
             ("parallel", po::bool_switch()->default_value(false), "Enable parallel verification for SMC.")
-            ("print-cumulative-stats", po::value<unsigned int>(), "Prints the cumulative probability stats for SMC quantitative estimation");
+            ("print-cumulative-stats", po::value<unsigned int>(), "Prints the cumulative probability stats for SMC quantitative estimation")
+            ("steps-scale", po::value<unsigned int>(), "Specify the number of slices to use to print steps cumulative stats (scale = 0 means every step)")
+            ("time-scale", po::value<unsigned int>(), "Specify the number of slices to use to print time cumulative stats (scale = 0 means every 1 unit)");
             
     }
 
@@ -271,6 +273,12 @@ namespace VerifyTAPN {
                 opts.setCumulativeRoundingDigits(vm["print-cumulative-stats"].as<unsigned int>());
             }
         }
+
+        if(vm.count("steps-scale"))
+            opts.setStepsStatsScale(vm["steps-scale"].as<unsigned int>());
+
+        if(vm.count("time-scale"))
+            opts.setTimeStatsScale(vm["time-scale"].as<unsigned int>());
 
         std::vector<std::string> files = po::collect_unrecognized(parsed.options, po::include_positional);
 

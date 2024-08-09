@@ -31,6 +31,8 @@ class ProbabilityEstimation : public SMCVerification {
 
         void printStats() override;
 
+        void printCumulativeStats();
+
         void printResult() override;
 
     protected:
@@ -41,7 +43,7 @@ class ProbabilityEstimation : public SMCVerification {
         unsigned long validRunsSteps = 0;
 
         std::vector<int> validPerStep;
-        std::vector<int> validPerDelay;
+        std::vector<double> validPerDelay;
 
 };
 

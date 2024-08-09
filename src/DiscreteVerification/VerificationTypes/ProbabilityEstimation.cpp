@@ -34,11 +34,8 @@ void ProbabilityEstimation::handleRunResult(const bool res, int steps, double de
     if(validPerStep.size() <= steps) {
         validPerStep.resize(steps + 1, 0);
     }
-    if(validPerDelay.size() <= delayCap) {
-        validPerDelay.resize(delayCap + 1, 0);
-    }
+    validPerDelay.push_back(delay);
     validPerStep[steps] += 1;
-    validPerDelay[delayCap] += 1;
 }
 
 bool ProbabilityEstimation::handleSuccessor(RealMarking* marking) {
@@ -64,24 +61,48 @@ void ProbabilityEstimation::computeChernoffHoeffdingBound(const float intervalWi
 void ProbabilityEstimation::printStats() {
     SMCVerification::printStats();
     std::cout << "  valid runs:\t" << validRuns << std::endl;
-    std::cout << "  average time of a valid run:\t" << (validRunsTime / validRuns) << std::endl;
-    std::cout << "  average length of a valid run:\t" << (validRunsSteps / (double) validRuns) << std::endl;
+    if(validRuns > 0) {
+        std::cout << "  average time of a valid run:\t" << (validRunsTime / validRuns) << std::endl;
+        std::cout << "  average length of a valid run:\t" << (validRunsSteps / (double) validRuns) << std::endl;
+    }
     if(!options.mustPrintCumulative()) return;
+    printCumulativeStats();
+}
+
+void ProbabilityEstimation::printCumulativeStats() {
     unsigned int digits = options.getCumulativeRoundingDigits();
+    unsigned int stepScale = options.getStepsStatsScale();
+    unsigned int timeScale = options.getTimeStatsScale();
     double mult = pow(10.0f, digits);
     std::cout << "  cumulative probability / step :" << std::endl;
     double acc = 0;
+    double binSize = stepScale == 0 ? 1 : validPerStep.size() / (double) stepScale;
+    double bin = 0;
+    double lastAcc = -1;
     for(int i = 0 ; i < validPerStep.size() ; i++) {
-        acc += validPerStep[i] / (double) numberOfRuns;
         double toPrint = round(acc * mult) / mult;
-        std::cout << i << ":" << toPrint << ";";
+        if((i >= bin + binSize || i == (validPerStep.size() - 1)) && toPrint != lastAcc) {
+            bin += binSize;
+            std::cout << bin << ":" << toPrint << ";";
+            lastAcc = toPrint;
+        }
+        acc += validPerStep[i] / (double) numberOfRuns;    
     }
     std::cout << std::endl << "  cumulative probability / delay :" << std::endl;
+    std::sort(validPerDelay.begin(), validPerDelay.end());
     acc = 0;
+    binSize = timeScale == 0 ? 1 : validPerDelay.back() / (double) timeScale;
+    bin = 0;
+    lastAcc = -1;
     for(int i = 0 ; i < validPerDelay.size() ; i++) {
-        acc += validPerDelay[i] / (double) numberOfRuns;
+        double delay = validPerDelay[i];
         double toPrint = round(acc * mult) / mult;
-        std::cout << i << ":" << toPrint << ";";
+        if((delay >= bin + binSize || i == (validPerDelay.size() - 1)) && toPrint != lastAcc) {
+            bin += binSize;
+            std::cout << bin << ":" << toPrint << ";";
+            lastAcc = toPrint;
+        }
+        acc += 1 / (double) numberOfRuns;    
     }
     std::cout << std::endl;
 }

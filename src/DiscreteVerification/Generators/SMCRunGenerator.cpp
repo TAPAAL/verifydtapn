@@ -229,6 +229,10 @@ namespace VerifyTAPN {
                 int winner_index = std::uniform_int_distribution<>(0, infty_weights.size() - 1)(_rng);
                 return _tapn.getTransitions()[infty_weights[winner_index]];
             }
+            if(total_weight == 0) {
+                int winner_index = std::uniform_int_distribution<>(0, winner_indexs.size() - 1)(_rng);
+                return _tapn.getTransitions()[winner_indexs[winner_index]];
+            }
             double winning_weight = std::uniform_real_distribution<>(0.0, total_weight)(_rng);
             for(auto& candidate : winner_indexs) {
                 TimedTransition* transi = _tapn.getTransitions()[candidate];

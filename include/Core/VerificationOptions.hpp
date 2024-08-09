@@ -239,6 +239,22 @@ namespace VerifyTAPN {
             cumulativeRoundingDigits = value;
         }
 
+        inline unsigned int getStepsStatsScale() const {
+            return stepsStatsScale;
+        }
+
+        inline void setStepsStatsScale(const unsigned int value) {
+            stepsStatsScale = value;
+        }
+
+        inline unsigned int getTimeStatsScale() const {
+            return timeStatsScale;
+        }
+
+        inline void setTimeStatsScale(const unsigned int value) {
+            timeStatsScale = value;
+        }
+
     protected:
         std::string inputFile;
         std::string queryFile;
@@ -265,6 +281,8 @@ namespace VerifyTAPN {
         bool parallel = false;
         bool printCumulative = false;
         unsigned int cumulativeRoundingDigits = 2;
+        unsigned int stepsStatsScale = 0;
+        unsigned int timeStatsScale = 0;
         friend class ArgsParser;
     };
 
