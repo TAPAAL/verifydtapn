@@ -171,7 +171,14 @@ namespace VerifyTAPN {
             ("write-unfolded-net", po::value<std::string>(), "Outputs the model to the given file before structural reduction but after unfolding")
             ("bindings,b", "Print bindings to stderr in XML format (only for CPNs, default is not to print)")
             ("write-unfolded-queries", po::value<std::string>(), "Outputs the queries to the given file before query reduction but after unfolding")
-            ("strategy-output", po::value<std::string>(), "File to write synthesized strategy to, use '_' (an underscore) for stdout");
+            ("strategy-output", po::value<std::string>(), "File to write synthesized strategy to, use '_' (an underscore) for stdout")
+            ("geq", po::value<float_t>(), "Performs a SMC test to compute if P(q) >= ARG")
+            ("benchmark", po::value<unsigned int>(), "Benchmark mode for SMC, runs the number of runs specified to estimate performance")
+            ("parallel", po::bool_switch()->default_value(false), "Enable parallel verification for SMC.")
+            ("print-cumulative-stats", po::value<unsigned int>(), "Prints the cumulative probability stats for SMC quantitative estimation")
+            ("steps-scale", po::value<unsigned int>(), "Specify the number of slices to use to print steps cumulative stats (scale = 0 means every step)")
+            ("time-scale", po::value<unsigned int>(), "Specify the number of slices to use to print time cumulative stats (scale = 0 means every 1 unit)");
+            
     }
 
 
@@ -249,8 +256,32 @@ namespace VerifyTAPN {
         if(vm.count("strategy-output"))
             opts.setOutputModelFile(vm["strategy-output"].as<std::string>());
 
+        if(vm.count("benchmark")) {
+            opts.setBenchmarkMode(true);
+            if(!vm["benchmark"].empty()) {
+                opts.setBenchmarkRuns(vm["benchmark"].as<unsigned int>());
+            }
+        }
+
+        if(vm.count("parallel")) {
+            opts.setParallel(vm["parallel"].as<bool>());
+        }
+
+        if(vm.count("print-cumulative-stats")) {
+            opts.setPrintCumulative(true);
+            if(!vm["print-cumulative-stats"].empty()) {
+                opts.setCumulativeRoundingDigits(vm["print-cumulative-stats"].as<unsigned int>());
+            }
+        }
+
+        if(vm.count("steps-scale"))
+            opts.setStepsStatsScale(vm["steps-scale"].as<unsigned int>());
+
+        if(vm.count("time-scale"))
+            opts.setTimeStatsScale(vm["time-scale"].as<unsigned int>());
 
         std::vector<std::string> files = po::collect_unrecognized(parsed.options, po::include_positional);
+
         // remove everything that is just a space
         files.erase(std::remove_if(files.begin(), files.end(),
             [](auto& s ) {

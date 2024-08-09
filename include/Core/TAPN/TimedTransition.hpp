@@ -8,8 +8,11 @@
 #include "TransportArc.hpp"
 #include "InhibitorArc.hpp"
 #include "OutputArc.hpp"
+#include "Core/Query/SMCQuery.hpp"
 
 namespace VerifyTAPN {
+
+    using AST::SMCDistribution;
 
     class SymMarking;
 
@@ -20,10 +23,11 @@ namespace VerifyTAPN {
         public: // typedefs
             typedef std::vector<TimedTransition *> Vector;
         public:
-            TimedTransition(int index, std::string name, std::string id, bool urgent, bool controllable, double x, double y)
+            TimedTransition(int index, std::string name, std::string id, bool urgent, bool controllable, double x, double y, SMCDistribution distrib = SMCDistribution::defaultDistribution(), double weight = 1)
                     : index(index), name(std::move(name)), id(std::move(id)), preset(), postset(), transportArcs(),
                       untimedPostset(true),
-                      urgent(urgent), controllable(controllable), _position({x,y}) {};
+                      urgent(urgent), controllable(controllable), _position({x,y}), 
+                      _distribution(distrib), _weight(weight) {};
 
             TimedTransition() : name("*EMPTY*"), id("-1"), preset(), postset(), transportArcs(), index(-1),
                                 untimedPostset(true), urgent(false) {};
@@ -116,6 +120,22 @@ namespace VerifyTAPN {
                 return _position;
             }
 
+            const SMCDistribution& getDistribution() const {
+                return _distribution;
+            }
+
+            inline void setDistribution(SMCDistribution distrib) {
+                _distribution = distrib;
+            }
+
+            const double& getWeight() const {
+                return _weight;
+            }
+
+            inline void setWeight(double weight) {
+                _weight = weight;
+            }
+
         private: // data
             const int index = 0;
             std::string name;
@@ -128,6 +148,8 @@ namespace VerifyTAPN {
             bool urgent = false;
             bool controllable{};
             std::pair<double,double> _position;
+            SMCDistribution _distribution;
+            double _weight;
         };
 
         inline std::ostream &operator<<(std::ostream &out, const TimedTransition &transition) {

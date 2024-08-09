@@ -2,7 +2,7 @@
 
 #include "Core/Query/TranslationVisitor.h"
 #include "Core/TAPN/TAPN.hpp"
-
+#include "Core/Query/SMCQuery.hpp"
 
 namespace VerifyTAPN {
     namespace AST {
@@ -171,6 +171,20 @@ namespace VerifyTAPN {
             _result = std::make_unique<Query>(_is_synth ? Quantifier::CF : Quantifier::AF, get_e_result());
         }
 
+        void TranslationVisitor::_accept(const unfoldtacpn::PQL::PFCondition *condition) {
+            check_first(true);
+            SMCSettings settings = SMCSettings::fromPQL(condition->settings());
+            (*condition)[0]->visit(*this);
+            _result = std::make_unique<SMCQuery>(Quantifier::PF, settings, get_e_result());            
+        }
+
+        void TranslationVisitor::_accept(const unfoldtacpn::PQL::PGCondition *condition) {
+            check_first(true);
+            SMCSettings settings = SMCSettings::fromPQL(condition->settings());
+            (*condition)[0]->visit(*this);
+            _result = std::make_unique<SMCQuery>(Quantifier::PG, settings, get_e_result());    
+        }
+
         void TranslationVisitor::_accept(const unfoldtacpn::PQL::BooleanCondition *element) {
             check_first();
             _e_result = new BoolExpression(element->value());
@@ -249,5 +263,6 @@ namespace VerifyTAPN {
                 _a_result = new IdentifierExpression(id);
             }
         }
+
     }
 }

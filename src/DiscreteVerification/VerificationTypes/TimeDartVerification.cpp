@@ -30,7 +30,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
 
     std::pair<int, int>
     TimeDartVerification::calculateStart(const TAPN::TimedTransition &transition, NonStrictMarkingBase *marking) {
-        std::vector<Util::interval> start;
+        std::vector<Util::interval<>> start;
         Util::interval initial(0, std::numeric_limits<int32_t>::max());
         start.push_back(initial);
 
@@ -50,7 +50,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
 
         // Standard arcs
         for (auto* arc : transition.getPreset()) {
-            std::vector<Util::interval> intervals;
+            std::vector<Util::interval<>> intervals;
             int range;
             if (arc->getInterval().getUpperBound() == std::numeric_limits<int32_t>::max()) {
                 range = std::numeric_limits<int32_t>::max();
@@ -95,7 +95,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
             Util::interval invGuard(0, arc->getDestination().getInvariant().getBound());
 
             Util::interval arcInterval = Util::intersect(arcGuard, invGuard);
-            std::vector<Util::interval> intervals;
+            std::vector<Util::interval<>> intervals;
             int range;
             if (arcInterval.upper() == std::numeric_limits<int32_t>::max()) {
                 range = std::numeric_limits<int32_t>::max();
@@ -134,7 +134,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
 
         int invariantPart = maxPossibleDelay(marking);
 
-        std::vector<Util::interval> invEnd;
+        std::vector<Util::interval<>> invEnd;
         Util::interval initialInv(0, invariantPart);
         invEnd.push_back(initialInv);
         start = Util::setIntersection(start, invEnd);

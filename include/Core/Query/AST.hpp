@@ -443,8 +443,16 @@ namespace VerifyTAPN {
             int place;
         };
 
+        // EF : Reachability
+        // AG : Safety
+        // EG : Preservability
+        // AF : Liveness
+        // CF : Control liveness
+        // CG : Control Safety
+        // PF : Probability Finally
+        // PG : Probability Globally
         enum Quantifier {
-            EF, AG, EG, AF, CF, CG
+            EF, AG, EG, AF, CF, CG, PF, PG
         };
 
         class Query : public Visitable {
@@ -490,6 +498,10 @@ namespace VerifyTAPN {
 
             void setQuantifier(Quantifier q) {
                 quantifier = q;
+            }
+
+            bool hasSMCQuantifier() const {
+                return quantifier == PF || quantifier == PG;
             }
 
         private:
