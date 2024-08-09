@@ -4,6 +4,8 @@
 #include "AST.hpp"
 #include <PQL/SMCExpressions.h>
 #include <random>
+#include <sstream>
+#include <string>
 
 namespace VerifyTAPN::AST {
 
@@ -13,7 +15,10 @@ namespace VerifyTAPN::AST {
         Exponential,
         Normal,
         Gamma,
+        DiscreteUniform,
     };
+
+    std::string distributionName(SMCDistributionType type);
 
     struct SMCUniformParameters {
         double a;
@@ -33,6 +38,10 @@ namespace VerifyTAPN::AST {
         double shape;
         double scale;
     };
+    struct SMCDiscreteUniformParameters {
+        int a;
+        int b;
+    };
 
     union SMCDistributionParameters {
         SMCUniformParameters uniform;
@@ -40,6 +49,7 @@ namespace VerifyTAPN::AST {
         SMCNormalParameters normal;
         SMCConstantParameters constant;
         SMCGammaParameters gamma;
+        SMCDiscreteUniformParameters discreteUniform;
     };
 
     struct SMCDistribution {
@@ -65,6 +75,8 @@ namespace VerifyTAPN::AST {
                 case Gamma:
                     date = std::gamma_distribution(parameters.gamma.shape, parameters.gamma.scale)(engine);
                     break;
+                case DiscreteUniform:
+                    date = std::uniform_int_distribution(parameters.discreteUniform.a, parameters.discreteUniform.b)(engine);
             }
             return std::max(date, 0.0);
         }
@@ -103,10 +115,46 @@ namespace VerifyTAPN::AST {
                     params.gamma.shape = param1;
                     params.gamma.scale = param2;
                     break;
+                case DiscreteUniform:
+                    params.discreteUniform.a = (int) param1;
+                    params.discreteUniform.b = (int) param2;
+                    break;
                 default:
                     break;
             }
             return SMCDistribution { distrib, params };
+        }
+
+        std::string toXML() const {
+            std::string endField = "\" ";
+            std::stringstream res;
+            res << "distribution=\"";
+            res << distributionName(type) << endField;
+            switch(type) {
+                case Constant:
+                    res << "value=\"" << parameters.constant.value << endField;
+                    break;
+                case Uniform:
+                    res << "a=\"" << parameters.uniform.a << endField;
+                    res << "b=\"" << parameters.uniform.b << endField;
+                    break;
+                case Exponential:
+                    res << "rate=\"" << parameters.exp.rate << endField;
+                    break;
+                case Normal:
+                    res << "mean=\"" << parameters.normal.mean << endField;
+                    res << "stddev=\"" << parameters.normal.stddev << endField;
+                    break;
+                case Gamma:
+                    res << "shape=\"" << parameters.gamma.shape << endField;
+                    res << "scale=\"" << parameters.gamma.scale << endField;
+                    break;
+                case DiscreteUniform:
+                    res << "a=\"" << parameters.discreteUniform.a << endField;
+                    res << "b=\"" << parameters.discreteUniform.b << endField;
+                    break;
+            }
+            return res.str();
         }
 
     };

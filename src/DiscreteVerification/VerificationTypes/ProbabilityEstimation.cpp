@@ -26,7 +26,10 @@ void ProbabilityEstimation::handleRunResult(const bool res, int steps, double de
 {
     bool valid = (query->getQuantifier() == PF && res) || (query->getQuantifier() == PG && !res);
     validRuns += valid ? 1 : 0;
-    if(!valid || !options.mustPrintCumulative()) return;
+    if(!valid) return;
+    validRunsTime += delay;
+    validRunsSteps += steps;
+    if(!options.mustPrintCumulative()) return;
     int delayCap = (int) ceil(delay);
     if(validPerStep.size() <= steps) {
         validPerStep.resize(steps + 1, 0);
@@ -61,6 +64,8 @@ void ProbabilityEstimation::computeChernoffHoeffdingBound(const float intervalWi
 void ProbabilityEstimation::printStats() {
     SMCVerification::printStats();
     std::cout << "  valid runs:\t" << validRuns << std::endl;
+    std::cout << "  average time of a valid run:\t" << (validRunsTime / validRuns) << std::endl;
+    std::cout << "  average length of a valid run:\t" << (validRunsSteps / (double) validRuns) << std::endl;
     if(!options.mustPrintCumulative()) return;
     unsigned int digits = options.getCumulativeRoundingDigits();
     double mult = pow(10.0f, digits);

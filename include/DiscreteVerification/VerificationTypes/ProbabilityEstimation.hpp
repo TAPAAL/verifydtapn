@@ -37,6 +37,8 @@ class ProbabilityEstimation : public SMCVerification {
 
         unsigned int runsNeeded;
         unsigned int validRuns;
+        double validRunsTime = 0;
+        unsigned long validRunsSteps = 0;
 
         std::vector<int> validPerStep;
         std::vector<int> validPerDelay;
