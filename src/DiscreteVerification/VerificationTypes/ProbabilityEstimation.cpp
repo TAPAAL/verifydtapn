@@ -29,12 +29,9 @@ void ProbabilityEstimation::handleRunResult(const bool res, int steps, double de
     if(!valid) return;
     validRunsTime += delay;
     validRunsSteps += steps;
-    if(!options.mustPrintCumulative()) return;
-    int delayCap = (int) ceil(delay);
     if(validPerStep.size() <= steps) {
         validPerStep.resize(steps + 1, 0);
     }
-    validPerDelay.push_back(delay);
     validPerStep[steps] += 1;
 }
 
@@ -61,12 +58,28 @@ void ProbabilityEstimation::computeChernoffHoeffdingBound(const float intervalWi
 void ProbabilityEstimation::printStats() {
     SMCVerification::printStats();
     std::cout << "  valid runs:\t" << validRuns << std::endl;
-    if(validRuns > 0) {
-        std::cout << "  average time of a valid run:\t" << (validRunsTime / validRuns) << std::endl;
-        std::cout << "  average length of a valid run:\t" << (validRunsSteps / (double) validRuns) << std::endl;
-    }
+    if(validRuns > 0) printValidRunsStats();
     if(!options.mustPrintCumulative()) return;
     printCumulativeStats();
+}
+
+void ProbabilityEstimation::printValidRunsStats() {
+    double stepsMean = (validRunsSteps / (double) validRuns);
+    double timeMean = (validRunsTime / validRuns);
+    double stepsAcc = 0;
+    double delayAcc = 0;
+    for(int i = 0 ; i < validPerStep.size() ; i++) {
+        stepsAcc += pow(i - stepsMean, 2.0) * validPerStep[i];
+    }
+    for(int i = 0 ; i < validPerDelay.size() ; i++) {
+        delayAcc += pow(validPerDelay[i] - timeMean, 2.0);
+    }
+    double stepsStdDev = sqrt( stepsAcc / validRuns );
+    double delayStdDev = sqrt( delayAcc / validRuns );
+    std::cout << "  average time of a valid run:\t" << timeMean << std::endl;
+    std::cout << "  valid runs time standard deviation:\t" << delayStdDev << std::endl;
+    std::cout << "  average length of a valid run:\t" << stepsMean << std::endl;
+    std::cout << "  valid runs length standard deviation:\t" << stepsStdDev << std::endl;
 }
 
 void ProbabilityEstimation::printCumulativeStats() {
@@ -102,7 +115,7 @@ void ProbabilityEstimation::printCumulativeStats() {
             std::cout << bin << ":" << toPrint << ";";
             lastAcc = toPrint;
         }
-        acc += 1 / (double) numberOfRuns;    
+        acc += 1 / (double) numberOfRuns;
     }
     std::cout << std::endl;
 }

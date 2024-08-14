@@ -31,6 +31,8 @@ class ProbabilityEstimation : public SMCVerification {
 
         void printStats() override;
 
+        void printValidRunsStats();
+
         void printCumulativeStats();
 
         void printResult() override;
