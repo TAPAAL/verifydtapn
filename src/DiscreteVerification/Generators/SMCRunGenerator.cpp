@@ -21,41 +21,18 @@ namespace VerifyTAPN {
             _parent = new RealMarking(*_origin);
             RealPlaceList& places = _origin->getPlaceList();
             std::vector<bool> transitionSeen(_defaultTransitionIntervals.size(), false);
-            _originMaxDelay = std::numeric_limits<double>::infinity();
-            for(auto &pit : places) {
-                if(pit.place->getInvariant().getBound() != std::numeric_limits<int>::max()) {
-                    double place_max_delay = pit.availableDelay();
-                    if(place_max_delay < _originMaxDelay) {
-                        _originMaxDelay = place_max_delay;
-                    }
-                }
-                for(auto arc : pit.place->getInputArcs()) {
-                    TimedTransition &transi = arc->getOutputTransition();
-                    if(transitionSeen[transi.getIndex()]) continue;
-                    std::vector<interval<double>> firingDates = transitionFiringDates(transi);
-                    _defaultTransitionIntervals[transi.getIndex()] = firingDates;
-                    transitionSeen[transi.getIndex()] = true;
-                }
-                for(auto arc : pit.place->getTransportArcs()) {
-                    TimedTransition &transi = arc->getTransition();
-                    if(transitionSeen[transi.getIndex()]) continue;
-                    std::vector<interval<double>> firingDates = transitionFiringDates(transi);
-                    _defaultTransitionIntervals[transi.getIndex()] = firingDates;
-                    transitionSeen[transi.getIndex()] = true;
-                }
-            }
-            for(auto &transi : _tapn.getTransitions()) {
-                if(transi->getPresetSize() == 0) {
-                    _defaultTransitionIntervals[transi->getIndex()] = { interval<double>(0, std::numeric_limits<double>::infinity()) };
-                    transitionSeen[transi->getIndex()] = true;
-                }
-            }
+            double originMaxDelay = _origin->availableDelay();
             bool deadlocked = true;
-            std::vector<interval<double>> invInterval = { interval<double>(0, _originMaxDelay) };
-            for(auto iter = _defaultTransitionIntervals.begin() ; iter != _defaultTransitionIntervals.end() ; iter++) {
-                if(iter->empty()) continue;
-                deadlocked = false;
-                *iter = Util::setIntersection(*iter, invInterval);
+            std::vector<interval<double>> invInterval = { interval<double>(0, originMaxDelay) };
+            for(auto transi : _tapn.getTransitions()) {
+                if(transi->getPresetSize() == 0) {
+                    _defaultTransitionIntervals[transi->getIndex()] = invInterval;
+                    deadlocked = false;
+                } else {
+                    std::vector<interval<double>> firingDates = transitionFiringDates(transi);
+                    _defaultTransitionIntervals[transi->getIndex()] = Util::setIntersection(firingDates, invInterval);
+                    deadlocked &= _defaultTransitionIntervals[transi->getIndex()].empty();
+                }
             }
             _origin->setDeadlocked(deadlocked);
             reset();
@@ -74,10 +51,8 @@ namespace VerifyTAPN {
             }
             _transitionIntervals = _defaultTransitionIntervals;
             _maximal = false;
-            _max_delay = _originMaxDelay;
             _totalTime = 0;
             _totalSteps = 0;
-            _modifiedPlaces.clear();
             _dates_sampled = std::vector<double>(_transitionIntervals.size(), std::numeric_limits<double>::infinity());
             for(int i = 0 ; i < _dates_sampled.size() ; i++) {
                 auto* intervals = &_transitionIntervals[i];
@@ -93,57 +68,36 @@ namespace VerifyTAPN {
             SMCRunGenerator clone(_tapn);
             clone._origin = new RealMarking(*_origin);
             clone._defaultTransitionIntervals = _defaultTransitionIntervals;
-            clone._originMaxDelay = _originMaxDelay;
             clone.reset();
             return clone;
         }
 
         void SMCRunGenerator::refreshTransitionsIntervals()
         {
-            RealPlaceList& places = _parent->getPlaceList();
-            std::vector<bool> transitionSeen(_transitionIntervals.size(), false);
-            _max_delay = _parent->availableDelay();
-            for(auto &modified : _modifiedPlaces) {
-                const TimedPlace& place = _tapn.getPlace(modified);
-                for(auto arc : place.getInputArcs()) {
-                    TimedTransition &transi = arc->getOutputTransition();
-                    if(transitionSeen[transi.getIndex()]) continue;
-                    std::vector<interval<double>> firingDates = transitionFiringDates(transi);
-                    _transitionIntervals[transi.getIndex()] = firingDates;
-                    transitionSeen[transi.getIndex()] = true;
-                }
-                for(auto arc : place.getInhibitorArcs()) {
-                    TimedTransition &transi = arc->getOutputTransition();
-                    if(transitionSeen[transi.getIndex()]) continue;
-                    std::vector<interval<double>> firingDates = transitionFiringDates(transi);
-                    _transitionIntervals[transi.getIndex()] = firingDates;
-                    transitionSeen[transi.getIndex()] = true;
-                }
-                for(auto arc : place.getTransportArcs()) {
-                    TimedTransition &transi = arc->getTransition();
-                    if(transitionSeen[transi.getIndex()]) continue;
-                    std::vector<interval<double>> firingDates = transitionFiringDates(transi);
-                    _transitionIntervals[transi.getIndex()] = firingDates;
-                    transitionSeen[transi.getIndex()] = true;
-                }
-            }
-            std::vector<interval<double>> invInterval = { interval<double>(0, _max_delay) };
+            double max_delay = _parent->availableDelay();
+            std::vector<interval<double>> invInterval = { interval<double>(0, max_delay) };
             bool deadlocked = true;
-            for(int i = 0 ; i < _transitionIntervals.size() ; i++) {
-                _transitionIntervals[i] = Util::setIntersection<double>(_transitionIntervals[i], invInterval);
-                deadlocked &= _transitionIntervals[i].empty();
+            for(auto transi : _tapn.getTransitions()) {
+                int i = transi->getIndex();
+                if(transi->getPresetSize() == 0) {
+                    _transitionIntervals[i] = invInterval;
+                } else {
+                    std::vector<interval<double>> firingDates = transitionFiringDates(transi);
+                    _transitionIntervals[i] = Util::setIntersection(firingDates, invInterval);                    
+                }
                 bool enabled = (!_transitionIntervals[i].empty()) && (_transitionIntervals[i].front().lower() == 0);
                 bool newlyEnabled = enabled && (_dates_sampled[i] == std::numeric_limits<double>::infinity());
                 if(!enabled) {
                     _dates_sampled[i] = std::numeric_limits<double>::infinity();
-                /*
-                } else if(_transitionIntervals[i].front().upper() == 0 && !newlyEnabled) { // Happens if not fired
-                    _transitionIntervals[i].clear();
-                    _dates_sampled[i] = std::numeric_limits<double>::infinity();
-                */
                 } else if(newlyEnabled) {
                     const SMCDistribution& distrib = _tapn.getTransitions()[i]->getDistribution();
                     _dates_sampled[i] = distrib.sample(_rng);
+                }
+                if(
+                    _dates_sampled[i] != std::numeric_limits<double>::infinity() && 
+                    Util::contains(_transitionIntervals[i], _dates_sampled[i])
+                ) {
+                        deadlocked = false;
                 }
             }
             _parent->setDeadlocked(deadlocked);
@@ -159,7 +113,6 @@ namespace VerifyTAPN {
 
             _parent->deltaAge(delay);
             _totalTime += delay;
-            _modifiedPlaces.clear();
 
             _parent->setPreviousDelay(delay + _parent->getPreviousDelay());
         
@@ -179,10 +132,7 @@ namespace VerifyTAPN {
                 }
             }
 
-            // Translate intervals, so we don't have to compute some of them next
             for(int i = 0 ; i < _transitionIntervals.size() ; i++) {
-                auto* intervals = &_transitionIntervals[i];
-                Util::setDeltaIntoPositive(*intervals, -delay);
                 double date = _dates_sampled[i];
                 _dates_sampled[i] = (date == std::numeric_limits<double>::infinity()) ?
                     std::numeric_limits<double>::infinity() : date - delay;
@@ -259,22 +209,22 @@ namespace VerifyTAPN {
             return _tapn.getTransitions()[winner_indexs[0]];
         }
 
-        std::vector<interval<double>> SMCRunGenerator::transitionFiringDates(const TimedTransition& transi) {
+        std::vector<interval<double>> SMCRunGenerator::transitionFiringDates(TimedTransition* transi) {
             RealPlaceList &places = _parent->getPlaceList();
             std::vector<interval<double>> firingInterval = { interval<double>(0, std::numeric_limits<double>::infinity()) };
             std::vector<interval<double>> disabled;
-            for(InhibitorArc* inhib : transi.getInhibitorArcs()) {
+            for(InhibitorArc* inhib : transi->getInhibitorArcs()) {
                 if(_parent->numberOfTokensInPlace(inhib->getInputPlace().getIndex()) >= inhib->getWeight()) {
                     return disabled;
                 } 
             }
-            for(TimedInputArc* arc : transi.getPreset()) {
+            for(TimedInputArc* arc : transi->getPreset()) {
                 auto &place = _parent->getPlaceList()[arc->getInputPlace().getIndex()];
                 if(place.isEmpty()) return disabled;
                 firingInterval = Util::setIntersection<double>(firingInterval, arcFiringDates(arc->getInterval(), arc->getWeight(), place.tokens));
                 if(firingInterval.empty()) return firingInterval;
             }
-            for(TransportArc* arc : transi.getTransportArcs()) {
+            for(TransportArc* arc : transi->getTransportArcs()) {
                 auto &place = _parent->getPlaceList()[arc->getSource().getIndex()];
                 if(place.isEmpty()) return disabled;
                 TimeInvariant targetInvariant = arc->getDestination().getInvariant();
@@ -367,7 +317,6 @@ namespace VerifyTAPN {
                     }
                 }
                 assert(remaining == 0);
-                _modifiedPlaces.push_back(source);
             }
 
             for (auto &transport : transi->getTransportArcs()) {
@@ -400,14 +349,11 @@ namespace VerifyTAPN {
                     }
                 }
                 assert(remaining == 0);
-                _modifiedPlaces.push_back(source);
-                _modifiedPlaces.push_back(dest);
             }
             for (auto* output : transi->getPostset()) {
                 TimedPlace &place = output->getOutputPlace();
                 RealToken token = RealToken(0.0, output->getWeight());
                 child->addTokenInPlace(place, token);
-                _modifiedPlaces.push_back(place.getIndex());
             }
             return child;
         }

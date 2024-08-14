@@ -39,7 +39,7 @@ namespace VerifyTAPN {
 
             void refreshTransitionsIntervals();
 
-            std::vector<Util::interval<double>> transitionFiringDates(const TimedTransition& transi);
+            std::vector<Util::interval<double>> transitionFiringDates(TimedTransition* transi);
             std::vector<Util::interval<double>> arcFiringDates(TimeInterval time_interval, uint32_t weight, RealTokenList& tokens);
             
             std::pair<TimedTransition*, double> getWinnerTransitionAndDelay();
@@ -71,11 +71,8 @@ namespace VerifyTAPN {
             RealMarking* _origin;
             RealMarking* _parent;
             double _lastDelay = 0;
-            std::vector<int> _modifiedPlaces;
             double _totalTime = 0;
             int _totalSteps = 0;
-            double _max_delay = 0;
-            double _originMaxDelay = 0;
 
             std::ranlux48 _rng;
 
