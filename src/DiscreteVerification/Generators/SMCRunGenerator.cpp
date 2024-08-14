@@ -22,19 +22,15 @@ namespace VerifyTAPN {
             RealPlaceList& places = _origin->getPlaceList();
             std::vector<bool> transitionSeen(_defaultTransitionIntervals.size(), false);
             double originMaxDelay = _origin->availableDelay();
-            bool deadlocked = true;
             std::vector<interval<double>> invInterval = { interval<double>(0, originMaxDelay) };
             for(auto transi : _tapn.getTransitions()) {
                 if(transi->getPresetSize() == 0) {
                     _defaultTransitionIntervals[transi->getIndex()] = invInterval;
-                    deadlocked = false;
                 } else {
                     std::vector<interval<double>> firingDates = transitionFiringDates(transi);
                     _defaultTransitionIntervals[transi->getIndex()] = Util::setIntersection(firingDates, invInterval);
-                    deadlocked &= _defaultTransitionIntervals[transi->getIndex()].empty();
                 }
             }
-            _origin->setDeadlocked(deadlocked);
             reset();
         }
 
@@ -54,13 +50,20 @@ namespace VerifyTAPN {
             _totalTime = 0;
             _totalSteps = 0;
             _dates_sampled = std::vector<double>(_transitionIntervals.size(), std::numeric_limits<double>::infinity());
+            bool deadlocked = true;
             for(int i = 0 ; i < _dates_sampled.size() ; i++) {
                 auto* intervals = &_transitionIntervals[i];
                 if(!intervals->empty() && intervals->front().lower() == 0) {
                     const SMCDistribution& distrib = _tapn.getTransitions()[i]->getDistribution();
                     _dates_sampled[i] = distrib.sample(_rng);
                 }
+                deadlocked &=   _transitionIntervals[i].empty() || 
+                                (
+                                    _transitionIntervals[i].front().upper() == 0 &&
+                                    _dates_sampled[i] > 0
+                                );
             }
+            _parent->setDeadlocked(deadlocked);
         }
 
         SMCRunGenerator SMCRunGenerator::copy() const
@@ -93,12 +96,11 @@ namespace VerifyTAPN {
                     const SMCDistribution& distrib = _tapn.getTransitions()[i]->getDistribution();
                     _dates_sampled[i] = distrib.sample(_rng);
                 }
-                if(
-                    _dates_sampled[i] != std::numeric_limits<double>::infinity() && 
-                    Util::contains(_transitionIntervals[i], _dates_sampled[i])
-                ) {
-                        deadlocked = false;
-                }
+                deadlocked &=   _transitionIntervals[i].empty() || 
+                                (
+                                    _transitionIntervals[i].front().upper() == 0 &&
+                                    _dates_sampled[i] > 0
+                                );
             }
             _parent->setDeadlocked(deadlocked);
         }
