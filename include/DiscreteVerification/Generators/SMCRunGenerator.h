@@ -74,6 +74,8 @@ namespace VerifyTAPN {
             double _originMaxDelay = 0;
 
             std::ranlux48 _rng;
+
+            std::vector<RealMarking*> _trace;
             
         };
 

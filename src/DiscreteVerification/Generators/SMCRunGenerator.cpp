@@ -62,10 +62,11 @@ namespace VerifyTAPN {
         }
 
         void SMCRunGenerator::reset() {
-            if(_parent != nullptr) {
-                delete _parent;
+            for(RealMarking* marking : _trace) {
+                if(marking != nullptr) delete marking;
             }
             _parent = new RealMarking(*_origin);
+            _trace = { new RealMarking(*_origin), _parent };
             _transitionIntervals = _defaultTransitionIntervals;
             _maximal = false;
             _max_delay = _originMaxDelay;
@@ -152,14 +153,20 @@ namespace VerifyTAPN {
             _parent->deltaAge(delay);
             _totalTime += delay;
             _modifiedPlaces.clear();
+
+            _parent->setPreviousDelay(delay + _parent->getPreviousDelay());
         
             if(transi != nullptr) {
                 _totalSteps++;
                 _transitionsStatistics[transi->getIndex()]++;
                 _dates_sampled[transi->getIndex()] = std::numeric_limits<double>::infinity();
                 RealMarking* child = fire(transi);
-                delete _parent;
-                _parent = child;
+                child->setGeneratedBy(transi);
+                child->setParent(_parent);
+                _trace.push_back(child);
+                _parent = new RealMarking(*child);
+                _parent->setParent(child);
+                _trace.push_back(_parent);
             }
 
             // Translate intervals, so we don't have to compute some of them next

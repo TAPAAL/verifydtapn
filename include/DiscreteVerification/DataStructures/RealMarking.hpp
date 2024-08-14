@@ -161,10 +161,26 @@ namespace VerifyTAPN::DiscreteVerification {
 
             void setDeadlocked(const bool dead);
 
+            inline const TAPN::TimedTransition *getGeneratedBy() const { return generatedBy; }
+
+            inline void setGeneratedBy(const TAPN::TimedTransition *generatedBy) { this->generatedBy = generatedBy; }
+
+            inline double getPreviousDelay() const { return fromDelay; }
+
+            inline void setPreviousDelay(const double delay) { this->fromDelay = delay; }
+
+            inline RealMarking* getParent() const { return parent; }
+
+            inline void setParent(RealMarking* marking) { this->parent = marking; }
+
         private:
 
             RealPlaceList places;
             bool deadlocked;
+
+            const TAPN::TimedTransition *generatedBy = nullptr;
+            double fromDelay = 0.0;
+            RealMarking* parent = nullptr;
 
             static RealTokenList emptyTokenList;
 
