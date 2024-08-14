@@ -169,10 +169,6 @@ namespace VerifyTAPN::DiscreteVerification {
 
             inline void setPreviousDelay(const double delay) { this->fromDelay = delay; }
 
-            inline RealMarking* getParent() const { return parent; }
-
-            inline void setParent(RealMarking* marking) { this->parent = marking; }
-
         private:
 
             RealPlaceList places;
@@ -180,7 +176,6 @@ namespace VerifyTAPN::DiscreteVerification {
 
             const TAPN::TimedTransition *generatedBy = nullptr;
             double fromDelay = 0.0;
-            RealMarking* parent = nullptr;
 
             static RealTokenList emptyTokenList;
 

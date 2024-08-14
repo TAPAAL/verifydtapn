@@ -255,6 +255,14 @@ namespace VerifyTAPN {
             timeStatsScale = value;
         }
 
+        inline unsigned int getSmcTraces() const {
+            return smcTraces;
+        }
+
+        inline void setSmcTraces(const unsigned int traces) {
+            smcTraces = traces;
+        }
+
     protected:
         std::string inputFile;
         std::string queryFile;
@@ -283,6 +291,7 @@ namespace VerifyTAPN {
         unsigned int cumulativeRoundingDigits = 2;
         unsigned int stepsStatsScale = 0;
         unsigned int timeStatsScale = 0;
+        unsigned int smcTraces = 0;
         friend class ArgsParser;
     };
 
