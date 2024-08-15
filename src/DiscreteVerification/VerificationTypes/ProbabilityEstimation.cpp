@@ -96,10 +96,12 @@ void ProbabilityEstimation::printCumulativeStats() {
     double lastAcc = -1;
     for(int i = 0 ; i < validPerStep.size() ; i++) {
         double toPrint = round(acc * mult) / mult;
-        if((i >= bin + binSize || i == (validPerStep.size() - 1)) && toPrint != lastAcc) {
+        if((i >= bin + binSize)) {
             bin += binSize;
-            std::cout << bin << ":" << toPrint << ";";
-            lastAcc = toPrint;
+            if(toPrint != lastAcc) {
+                std::cout << bin << ":" << toPrint << ";";
+                lastAcc = toPrint;
+            }
         }
         acc += validPerStep[i] / (double) numberOfRuns;    
     }
@@ -114,7 +116,7 @@ void ProbabilityEstimation::printCumulativeStats() {
         int binIndex = (int) round(delay / binSize);
         bins[binIndex] += 1;
     }
-    for(int i = 0 ; i < bins.size() - 1 ; i++) {
+    for(int i = 0 ; i < bins.size() ; i++) {
         acc += bins[i] / (double) numberOfRuns;
         double toPrint = round(acc * mult) / mult;
         if(toPrint != lastAcc) {
