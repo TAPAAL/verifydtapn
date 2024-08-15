@@ -303,6 +303,7 @@ namespace VerifyTAPN {
         unsigned int cumulativeRoundingDigits = 2;
         unsigned int stepsStatsScale = 0;
         unsigned int timeStatsScale = 0;
+        bool timeStdDev = false;
         unsigned int smcTraces = 0;
         SMCTracesToSave smcTracesToSave = ANY_TRACE;
         friend class ArgsParser;

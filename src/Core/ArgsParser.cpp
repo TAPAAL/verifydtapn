@@ -174,7 +174,7 @@ namespace VerifyTAPN {
             ("strategy-output", po::value<std::string>(), "File to write synthesized strategy to, use '_' (an underscore) for stdout")
             ("smc-benchmark", po::value<unsigned int>(), "Benchmark mode for SMC, runs the number of runs specified to estimate performance")
             ("smc-parallel", po::bool_switch()->default_value(false), "Enable parallel verification for SMC.")
-            ("smc-print-cumulative-stats", po::value<unsigned int>(), "Prints the cumulative probability stats for SMC quantitative estimation")
+            ("smc-print-cumulative-stats", po::value<unsigned int>(), "Prints the cumulative probability stats for SMC quantitative estimation, specifying the rounding precision")
             ("smc-steps-scale", po::value<unsigned int>(), "Specify the number of slices to use to print steps cumulative stats (scale = 0 means every step)")
             ("smc-time-scale", po::value<unsigned int>(), "Specify the number of slices to use to print time cumulative stats (scale = 0 means every 1 unit)")
             ("smc-traces", po::value<unsigned int>(), "Specify the number of SMC run traces to print (default : 0)")

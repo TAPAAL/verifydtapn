@@ -45,7 +45,8 @@ class ProbabilityEstimation : public SMCVerification {
         unsigned long validRunsSteps = 0;
 
         std::vector<int> validPerStep;
-        std::vector<double> validPerDelay;
+        std::vector<float> validPerDelay;
+        float maxValidDuration = 0.0f;
 
 };
 

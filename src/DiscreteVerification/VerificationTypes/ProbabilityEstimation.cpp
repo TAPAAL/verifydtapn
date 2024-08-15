@@ -34,6 +34,7 @@ void ProbabilityEstimation::handleRunResult(const bool res, int steps, double de
     }
     validPerStep[steps] += 1;
     validPerDelay.push_back(delay);
+    if(delay > maxValidDuration) maxValidDuration = delay;
 }
 
 bool ProbabilityEstimation::handleSuccessor(RealMarking* marking) {
@@ -102,23 +103,26 @@ void ProbabilityEstimation::printCumulativeStats() {
         }
         acc += validPerStep[i] / (double) numberOfRuns;    
     }
-    std::cout << std::endl << "  cumulative probability / delay :" << std::endl;
-    std::sort(validPerDelay.begin(), validPerDelay.end());
+    std::cout << (validPerStep.size() - 1) << ":" << getEstimation() << ";" << std::endl;
+    std::cout << "  cumulative probability / delay :" << std::endl;
     acc = 0;
-    binSize = timeScale == 0 ? 1 : validPerDelay.back() / (double) timeScale;
-    bin = 0;
+    binSize = timeScale == 0 ? 1 : maxValidDuration / (double) timeScale;
+    std::vector<double> bins(round(maxValidDuration / binSize), 0);
     lastAcc = -1;
     for(int i = 0 ; i < validPerDelay.size() ; i++) {
         double delay = validPerDelay[i];
+        int binIndex = (int) round(delay / binSize);
+        bins[binIndex] += 1;
+    }
+    for(int i = 0 ; i < bins.size() ; i++) {
+        acc += bins[i] / (double) numberOfRuns;
         double toPrint = round(acc * mult) / mult;
-        if((delay >= bin + binSize || i == (validPerDelay.size() - 1)) && toPrint != lastAcc) {
-            bin += binSize;
-            std::cout << bin << ":" << toPrint << ";";
+        if(toPrint != lastAcc) {
+            std::cout << ((i + 1) * binSize) << ":" << toPrint << ";";
             lastAcc = toPrint;
         }
-        acc += 1 / (double) numberOfRuns;
     }
-    std::cout << std::endl;
+    std::cout << maxValidDuration << ":" << getEstimation() << ";" << std::endl;
 }
 
 void ProbabilityEstimation::printResult() {
