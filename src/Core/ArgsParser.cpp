@@ -176,7 +176,12 @@ namespace VerifyTAPN {
             ("smc-parallel", po::bool_switch()->default_value(false), "Enable parallel verification for SMC.")
             ("smc-print-cumulative-stats", po::value<unsigned int>(), "Prints the cumulative probability stats for SMC quantitative estimation")
             ("smc-steps-scale", po::value<unsigned int>(), "Specify the number of slices to use to print steps cumulative stats (scale = 0 means every step)")
-            ("smc-time-scale", po::value<unsigned int>(), "Specify the number of slices to use to print time cumulative stats (scale = 0 means every 1 unit)");
+            ("smc-time-scale", po::value<unsigned int>(), "Specify the number of slices to use to print time cumulative stats (scale = 0 means every 1 unit)")
+            ("smc-traces", po::value<unsigned int>(), "Specify the number of SMC run traces to print (default : 0)")
+            ("smc-traces-type", po::value<unsigned int>(), "Specify the desired SMC runs to save.\n"
+                  " 0: any (default)\n"
+                  " 1: only runs satisfying the property\n"
+                  " 2: only runs not satisfying the property");
             
     }
 
@@ -278,6 +283,18 @@ namespace VerifyTAPN {
 
         if(vm.count("smc-time-scale"))
             opts.setTimeStatsScale(vm["smc-time-scale"].as<unsigned int>());
+
+        if(vm.count("smc-traces"))
+            opts.setSmcTraces(vm["smc-traces"].as<unsigned int>());
+
+        if(vm.count("smc-traces-type")) {
+            unsigned int type = vm["smc-traces-type"].as<unsigned int>();
+            opts.setTracesToSave(
+                type == 1 ? VerificationOptions::SATISFYING_TRACES : 
+                type == 2 ? VerificationOptions::UNSATISFYING_TRACES :
+                VerificationOptions::ANY_TRACE
+            );
+        }
 
         std::vector<std::string> files = po::collect_unrecognized(parsed.options, po::include_positional);
 

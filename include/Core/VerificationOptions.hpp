@@ -34,6 +34,10 @@ namespace VerifyTAPN {
             NOT_WORKFLOW, WORKFLOW_SOUNDNESS, WORKFLOW_STRONG_SOUNDNESS
         };
 
+        enum SMCTracesToSave {
+            ANY_TRACE, SATISFYING_TRACES, UNSATISFYING_TRACES
+        };
+
         VerificationOptions() = default;
 
     public: // inspectors
@@ -263,6 +267,14 @@ namespace VerifyTAPN {
             smcTraces = traces;
         }
 
+        inline SMCTracesToSave getTracesToSave() const {
+            return smcTracesToSave;
+        }
+
+        inline void setTracesToSave(const SMCTracesToSave toSave) {
+            smcTracesToSave = toSave;
+        }
+
     protected:
         std::string inputFile;
         std::string queryFile;
@@ -292,6 +304,7 @@ namespace VerifyTAPN {
         unsigned int stepsStatsScale = 0;
         unsigned int timeStatsScale = 0;
         unsigned int smcTraces = 0;
+        SMCTracesToSave smcTracesToSave = ANY_TRACE;
         friend class ArgsParser;
     };
 

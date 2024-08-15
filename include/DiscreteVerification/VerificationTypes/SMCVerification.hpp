@@ -41,6 +41,25 @@ class SMCVerification : public Verification<RealMarking> {
 
         virtual void printResult() = 0;
 
+        inline bool mustSaveTrace() const { return traces.size() < options.getSmcTraces(); }
+        void handleTrace(const bool runRes, SMCRunGenerator* generator = nullptr);
+        void saveTrace(SMCRunGenerator* generator = nullptr);
+
+        void getTrace() override;
+
+        void printHumanTrace(RealMarking *m, std::stack<RealMarking *> &stack, AST::Quantifier query);
+
+        void printXMLTrace(RealMarking *m, std::stack<RealMarking *> &stack, AST::Query *query, TAPN::TimedArcPetriNet &tapn);
+
+        rapidxml::xml_node<> *createTransitionNode(RealMarking *old, RealMarking *current, rapidxml::xml_document<> &doc);
+
+        void createTransitionSubNodes(RealMarking *old, RealMarking *current, rapidxml::xml_document<> &doc,
+                                      rapidxml::xml_node<> *transitionNode, const TAPN::TimedPlace &place,
+                                      const TAPN::TimeInterval &interval, int weight);
+
+        rapidxml::xml_node<> *
+        createTokenNode(rapidxml::xml_document<> &doc, const TAPN::TimedPlace &place, const RealToken &token);
+
     protected:
 
         SMCRunGenerator runGenerator;
@@ -52,6 +71,8 @@ class SMCVerification : public Verification<RealMarking> {
         int64_t durationNs = 0;
 
         std::mutex run_res_mutex;
+
+        std::vector<std::stack<RealMarking*>> traces;
 
 };
 

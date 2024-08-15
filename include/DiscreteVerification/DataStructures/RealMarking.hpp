@@ -169,6 +169,8 @@ namespace VerifyTAPN::DiscreteVerification {
 
             inline void setPreviousDelay(const double delay) { this->fromDelay = delay; }
 
+            bool enables(TAPN::TimedTransition* transition);
+
         private:
 
             RealPlaceList places;

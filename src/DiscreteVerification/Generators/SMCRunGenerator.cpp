@@ -105,6 +105,17 @@ namespace VerifyTAPN {
             _parent->setDeadlocked(deadlocked);
         }
 
+        void SMCRunGenerator::disableTransitions(RealMarking* marking) {
+            for(int i = 0 ; i < _dates_sampled.size() ; i++) {
+                double date = _dates_sampled[i];
+                if(date == std::numeric_limits<double>::infinity()) continue;
+                TimedTransition* transition = _tapn.getTransitions()[i];
+                if(!marking->enables(transition)) {
+                    _dates_sampled[i] = std::numeric_limits<double>::infinity();
+                }
+            }
+        }
+
         RealMarking* SMCRunGenerator::next() {
             auto [transi, delay] = getWinnerTransitionAndDelay();
             
@@ -122,7 +133,9 @@ namespace VerifyTAPN {
                 _totalSteps++;
                 _transitionsStatistics[transi->getIndex()]++;
                 _dates_sampled[transi->getIndex()] = std::numeric_limits<double>::infinity();
-                RealMarking* child = fire(transi);
+                auto [inter, child] = fire(transi);
+                disableTransitions(inter);
+                delete inter;
                 child->setGeneratedBy(transi);
                 if(recordTrace) {
                     _trace.push_back(child);
@@ -285,10 +298,10 @@ namespace VerifyTAPN {
             return tokenInterv.positive();
         }
 
-        RealMarking* SMCRunGenerator::fire(TimedTransition* transi) {
+        std::tuple<RealMarking*, RealMarking*> SMCRunGenerator::fire(TimedTransition* transi) {
             if (transi == nullptr) {
                 assert(false);
-                return nullptr;
+                return { nullptr, nullptr };
             }
             auto *child = new RealMarking(*_parent);
             RealPlaceList &placelist = child->getPlaceList();
@@ -321,6 +334,7 @@ namespace VerifyTAPN {
                 assert(remaining == 0);
             }
 
+            std::vector<std::tuple<TimedPlace&, double>> toCreate;
             for (auto &transport : transi->getTransportArcs()) {
                 int source = transport->getSource().getIndex();
                 int dest = transport->getDestination().getIndex();
@@ -344,7 +358,7 @@ namespace VerifyTAPN {
                             tok_index = randomTokenIndex(_rng);
                             tested = 0;
                         }
-                        child->addTokenInPlace(transport->getDestination(), age);
+                        toCreate.push_back({transport->getDestination(), age});
                     } else {
                         tok_index = (tok_index + 1) % tokenlist.size();
                         tested++;
@@ -352,12 +366,18 @@ namespace VerifyTAPN {
                 }
                 assert(remaining == 0);
             }
+
+            RealMarking* intermediary = new RealMarking(*child);
+
             for (auto* output : transi->getPostset()) {
                 TimedPlace &place = output->getOutputPlace();
                 RealToken token = RealToken(0.0, output->getWeight());
                 child->addTokenInPlace(place, token);
             }
-            return child;
+            for (auto [dest, age] : toCreate) {
+                child->addTokenInPlace(dest, age);
+            }
+            return { intermediary, child };
         }
 
         bool SMCRunGenerator::reachedEnd() const {

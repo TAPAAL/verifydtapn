@@ -29,6 +29,8 @@ bool SMCVerification::parallel_run() {
                     totalSteps += generator.getRunSteps();
                     numberOfRuns++;
                     handleRunResult(runRes, generator.getRunSteps(), generator.getRunDelay());
+                    if(mustSaveTrace()) handleTrace(runRes, &generator);
+                    generator.recordTrace = mustSaveTrace();
                     continueExecution = mustDoAnotherRun();
                 }
                 generator.reset();
@@ -56,6 +58,8 @@ bool SMCVerification::run() {
     while(mustDoAnotherRun()) {
         bool runRes = executeRun();
         handleRunResult(runRes, runGenerator.getRunSteps(), runGenerator.getRunDelay());
+        if(mustSaveTrace()) handleTrace(runRes);
+        runGenerator.recordTrace = mustSaveTrace();
         
         totalTime += runGenerator.getRunDelay();
         totalSteps += runGenerator.getRunSteps();
@@ -115,6 +119,68 @@ bool SMCVerification::reachedRunBound(SMCRunGenerator* generator) {
     return 
         generator->getRunDelay() >= smcSettings.timeBound ||
         generator->getRunSteps() >= smcSettings.stepBound;
+}
+
+void SMCVerification::handleTrace(const bool runRes, SMCRunGenerator* generator) {
+    if(generator == nullptr) generator = &runGenerator; 
+    bool valid = query->getQuantifier() == PG ? !runRes : runRes;
+    VerificationOptions::SMCTracesToSave type = options.getTracesToSave();
+    if(type == VerificationOptions::ANY_TRACE) {
+        saveTrace(generator);
+    } else if(type == VerificationOptions::SATISFYING_TRACES && valid) {
+        saveTrace(generator);
+    } else if(type == VerificationOptions::UNSATISFYING_TRACES && !valid) {
+        saveTrace(generator);
+    }
+}
+
+void SMCVerification::saveTrace(SMCRunGenerator* generator) {
+    if(generator == nullptr) generator = &runGenerator;
+    traces.push_back(generator->getTrace());
+}
+
+void SMCVerification::getTrace() {
+
+}
+
+void SMCVerification::printHumanTrace(RealMarking *m, std::stack<RealMarking *> &stack, AST::Quantifier query) {
+
+}
+
+void SMCVerification::printXMLTrace(RealMarking *m, std::stack<RealMarking *> &stack, AST::Query *query, TAPN::TimedArcPetriNet &tapn) {
+
+}
+
+rapidxml::xml_node<> *SMCVerification::createTransitionNode(RealMarking *old, RealMarking *current, rapidxml::xml_document<> &doc) {
+
+}
+
+void SMCVerification::createTransitionSubNodes(RealMarking *old, RealMarking *current, rapidxml::xml_document<> &doc,
+                                rapidxml::xml_node<> *transitionNode, const TAPN::TimedPlace &place,
+                                const TAPN::TimeInterval &interval, int weight) {}
+
+rapidxml::xml_node<> *
+SMCVerification::createTokenNode(rapidxml::xml_document<> &doc, const TAPN::TimedPlace &place, const RealToken &token) {
+    using namespace rapidxml;
+    xml_node<> *tokenNode = doc.allocate_node(node_element, "token");
+    xml_attribute<> *placeAttribute = doc.allocate_attribute("place",
+                                                                doc.allocate_string(place.getName().c_str()));
+    tokenNode->append_attribute(placeAttribute);
+    auto str = std::to_string(token.getAge() * tapn.getGCD());
+    xml_attribute<> *ageAttribute = doc.allocate_attribute("age", doc.allocate_string(
+            str.c_str()));
+    tokenNode->append_attribute(ageAttribute);
+    if (place.getMaxConstant() < token.getAge()) {
+        xml_attribute<> *gtAttribute = doc.allocate_attribute("greaterThanOrEqual",
+                                                                doc.allocate_string("true"));
+        tokenNode->append_attribute(gtAttribute);
+    } else {
+        xml_attribute<> *gtAttribute = doc.allocate_attribute("greaterThanOrEqual",
+                                                                doc.allocate_string("false"));
+        tokenNode->append_attribute(gtAttribute);
+    }
+
+    return tokenNode;
 }
 
 }

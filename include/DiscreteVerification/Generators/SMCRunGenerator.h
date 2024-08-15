@@ -39,12 +39,14 @@ namespace VerifyTAPN {
 
             void refreshTransitionsIntervals();
 
+            void disableTransitions(RealMarking* marking);
+
             std::vector<Util::interval<double>> transitionFiringDates(TimedTransition* transi);
             std::vector<Util::interval<double>> arcFiringDates(TimeInterval time_interval, uint32_t weight, RealTokenList& tokens);
             
             std::pair<TimedTransition*, double> getWinnerTransitionAndDelay();
 
-            RealMarking* fire(TimedTransition* transi);
+            std::tuple<RealMarking*, RealMarking*> fire(TimedTransition* transi);
 
             bool reachedEnd() const;
 

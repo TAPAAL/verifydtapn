@@ -33,6 +33,7 @@ void ProbabilityEstimation::handleRunResult(const bool res, int steps, double de
         validPerStep.resize(steps + 1, 0);
     }
     validPerStep[steps] += 1;
+    validPerDelay.push_back(delay);
 }
 
 bool ProbabilityEstimation::handleSuccessor(RealMarking* marking) {

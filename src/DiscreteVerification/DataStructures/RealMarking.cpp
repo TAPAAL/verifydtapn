@@ -151,4 +151,56 @@ void RealMarking::setDeadlocked(const bool dead)
     deadlocked = dead;
 }
 
+bool RealMarking::enables(TAPN::TimedTransition* transition) {
+    for(auto input : transition->getInhibitorArcs()) {
+        uint32_t weight = input->getWeight();
+        RealTokenList tokens = getTokenList(input->getInputPlace().getIndex());
+        for(auto& token : tokens) {
+            if(token.getCount() > weight) {
+                weight = 0;
+            } else {
+                weight -= token.getCount();
+            }
+            if(weight == 0) break;
+        }
+        if(weight == 0) return false;
+    }
+    for(auto input : transition->getPreset()) {
+        TAPN::TimeInterval interval = input->getInterval();
+        uint32_t weight = input->getWeight();
+        RealTokenList tokens = getTokenList(input->getInputPlace().getIndex());
+        for(auto& token : tokens) {
+            if(interval.contains(token.getAge())) {
+                if(token.getCount() > weight) {
+                    weight = 0;
+                } else {
+                    weight -= token.getCount();
+                }
+            }
+            if(weight == 0) break;
+        }
+        if(weight > 0) return false;
+    }
+    for(auto input : transition->getTransportArcs()) {
+        TAPN::TimedPlace& outputPlace = input->getDestination();
+        TAPN::TimeInterval interval = input->getInterval();
+        if(outputPlace.getInvariant().getBound() < interval.getUpperBound())
+            interval.setUpperBound(outputPlace.getInvariant().getBound(), false);
+        uint32_t weight = input->getWeight();
+        RealTokenList tokens = getTokenList(input->getSource().getIndex());
+        for(auto& token : tokens) {
+            if(interval.contains(token.getAge())) {
+                if(token.getCount() > weight) {
+                    weight = 0;
+                } else {
+                    weight -= token.getCount();
+                }
+            }
+            if(weight == 0) break;
+        }
+        if(weight > 0) return false;
+    }
+    return true;
+}
+
 }
