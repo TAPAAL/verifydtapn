@@ -61,8 +61,8 @@ void ProbabilityEstimation::printStats() {
     SMCVerification::printStats();
     std::cout << "  valid runs:\t" << validRuns << std::endl;
     if(validRuns > 0) printValidRunsStats();
-    if(!options.mustPrintCumulative()) return;
-    printCumulativeStats();
+    if(options.mustPrintCumulative()) printCumulativeStats();
+    
 }
 
 void ProbabilityEstimation::printValidRunsStats() {
@@ -106,23 +106,24 @@ void ProbabilityEstimation::printCumulativeStats() {
     std::cout << (validPerStep.size() - 1) << ":" << getEstimation() << ";" << std::endl;
     std::cout << "  cumulative probability / delay :" << std::endl;
     acc = 0;
-    binSize = timeScale == 0 ? 1 : maxValidDuration / (double) timeScale;
-    std::vector<double> bins(round(maxValidDuration / binSize), 0);
+    binSize = timeScale == 0 ? 1 : (maxValidDuration / (double) timeScale);
+    std::vector<double> bins((size_t) round(maxValidDuration / binSize) + 1, 0.0f);
     lastAcc = -1;
     for(int i = 0 ; i < validPerDelay.size() ; i++) {
         double delay = validPerDelay[i];
         int binIndex = (int) round(delay / binSize);
         bins[binIndex] += 1;
     }
-    for(int i = 0 ; i < bins.size() ; i++) {
+    for(int i = 0 ; i < bins.size() - 1 ; i++) {
         acc += bins[i] / (double) numberOfRuns;
         double toPrint = round(acc * mult) / mult;
         if(toPrint != lastAcc) {
-            std::cout << ((i + 1) * binSize) << ":" << toPrint << ";";
+            double binIndex = std::min(((i + 1) * binSize), (double) maxValidDuration);
+            std::cout << binIndex << ":" << toPrint << ";";
             lastAcc = toPrint;
         }
     }
-    std::cout << maxValidDuration << ":" << getEstimation() << ";" << std::endl;
+    std::cout << std::endl;
 }
 
 void ProbabilityEstimation::printResult() {
