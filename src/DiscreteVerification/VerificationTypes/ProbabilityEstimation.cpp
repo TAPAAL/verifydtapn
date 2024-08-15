@@ -109,18 +109,18 @@ void ProbabilityEstimation::printCumulativeStats() {
     std::cout << "  cumulative probability / delay :" << std::endl;
     acc = 0;
     binSize = timeScale == 0 ? 1 : (maxValidDuration / (double) timeScale);
-    std::vector<double> bins((size_t) round(maxValidDuration / binSize) + 1, 0.0f);
+    std::vector<double> bins((size_t) round(maxValidDuration / binSize), 0.0f);
     lastAcc = -1;
     for(int i = 0 ; i < validPerDelay.size() ; i++) {
         double delay = validPerDelay[i];
-        int binIndex = (int) round(delay / binSize);
+        int binIndex = std::min((size_t) round(delay / binSize), bins.size() - 1);
         bins[binIndex] += 1;
     }
     for(int i = 0 ; i < bins.size() ; i++) {
         acc += bins[i] / (double) numberOfRuns;
         double toPrint = round(acc * mult) / mult;
         if(toPrint != lastAcc) {
-            double binIndex = std::min(((i + 1) * binSize), (double) maxValidDuration);
+            double binIndex = (i + 1) * binSize;
             std::cout << binIndex << ":" << toPrint << ";";
             lastAcc = toPrint;
         }
