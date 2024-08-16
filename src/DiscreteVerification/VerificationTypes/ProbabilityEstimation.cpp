@@ -110,13 +110,18 @@ void ProbabilityEstimation::printCumulativeStats() {
         }
         acc += validPerStep[i] / (double) numberOfRuns;  
     }
-    std::cout << (validPerStep.size() - 1) << ":" << lastAcc << ";";
-    std::cout << (validPerStep.size() - 1) << ":" << getEstimation() << ";" << std::endl;
+    if(!validPerStep.empty()) {
+        std::cout << (validPerStep.size() - 1) << ":" << lastAcc << ";";
+        std::cout << (validPerStep.size() - 1) << ":" << getEstimation() << ";";
+    }
+    std::cout << std::endl;
 
     std::cout << "  cumulative probability / delay :" << std::endl;
     acc = 0;
     binSize = timeScale == 0 ? 1 : (maxValidDuration / (double) timeScale);
-    std::vector<double> bins((size_t) round(maxValidDuration / binSize), 0.0f);
+    std::vector<double> bins(
+        binSize > 0 ? (size_t) round(maxValidDuration / binSize) : 1
+        , 0.0f);
     lastAcc = 0;
     for(int i = 0 ; i < validPerDelay.size() ; i++) {
         double delay = validPerDelay[i];
@@ -134,8 +139,11 @@ void ProbabilityEstimation::printCumulativeStats() {
             lastAcc = toPrint;
         }
     }
-    std::cout << maxValidDuration << ":" << lastAcc << ";";
-    std::cout << maxValidDuration << ":" << getEstimation() << ";" << std::endl;
+    if(validRuns > 0) {
+        std::cout << maxValidDuration << ":" << lastAcc << ";";
+        std::cout << maxValidDuration << ":" << getEstimation() << ";";
+    }
+    std::cout << std::endl;
 }
 
 void ProbabilityEstimation::printResult() {
