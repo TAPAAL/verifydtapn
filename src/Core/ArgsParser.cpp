@@ -175,8 +175,8 @@ namespace VerifyTAPN {
             ("smc-benchmark", po::value<unsigned int>(), "Benchmark mode for SMC, runs the number of runs specified to estimate performance")
             ("smc-parallel", po::bool_switch()->default_value(false), "Enable parallel verification for SMC.")
             ("smc-print-cumulative-stats", po::value<unsigned int>(), "Prints the cumulative probability stats for SMC quantitative estimation, specifying the rounding precision")
-            ("smc-steps-scale", po::value<unsigned int>(), "Specify the number of slices to use to print steps cumulative stats (scale = 0 means every step)")
-            ("smc-time-scale", po::value<unsigned int>(), "Specify the number of slices to use to print time cumulative stats (scale = 0 means every 1 unit)")
+            ("smc-steps-scale", po::value<unsigned int>(), "Specify the number of slices to use to print steps cumulative stats (scale = 0 means every step, default = 500)")
+            ("smc-time-scale", po::value<unsigned int>(), "Specify the number of slices to use to print time cumulative stats (scale = 0 means every 1 unit, default = 500)")
             ("smc-traces", po::value<unsigned int>(), "Specify the number of SMC run traces to print (default : 0)")
             ("smc-traces-type", po::value<unsigned int>(), "Specify the desired SMC runs to save.\n"
                   " 0: any (default)\n"

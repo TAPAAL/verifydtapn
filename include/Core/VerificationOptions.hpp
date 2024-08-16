@@ -301,8 +301,8 @@ namespace VerifyTAPN {
         bool parallel = false;
         bool printCumulative = false;
         unsigned int cumulativeRoundingDigits = 2;
-        unsigned int stepsStatsScale = 0;
-        unsigned int timeStatsScale = 0;
+        unsigned int stepsStatsScale = 500;
+        unsigned int timeStatsScale = 500;
         bool timeStdDev = false;
         unsigned int smcTraces = 0;
         SMCTracesToSave smcTracesToSave = ANY_TRACE;
