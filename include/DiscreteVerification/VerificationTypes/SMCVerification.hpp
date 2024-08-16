@@ -47,9 +47,9 @@ class SMCVerification : public Verification<RealMarking> {
 
         void getTrace() override;
 
-        void printHumanTrace(RealMarking *m, std::stack<RealMarking *> &stack, AST::Quantifier query);
+        void printHumanTrace(std::stack<RealMarking *> &stack, const std::string& name);
 
-        void printXMLTrace(RealMarking *m, std::stack<RealMarking *> &stack, AST::Query *query, TAPN::TimedArcPetriNet &tapn);
+        void printXMLTrace(std::stack<RealMarking *> &stack, const std::string& name, rapidxml::xml_document<> &doc, rapidxml::xml_node<>* list_node);
 
         rapidxml::xml_node<> *createTransitionNode(RealMarking *old, RealMarking *current, rapidxml::xml_document<> &doc);
 

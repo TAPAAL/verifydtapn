@@ -36,11 +36,12 @@ namespace VerifyTAPN {
 
         void SMCRunGenerator::reset() {
             if(_trace.size() > 0) {
-                 for(RealMarking* marking : _trace) {
+                for(RealMarking* marking : _trace) {
                     if(marking != nullptr) delete marking;
                 }
+                _trace.clear();
             }
-            if(!recordTrace && _parent != nullptr) delete _parent;
+            else if(_parent != nullptr) delete _parent;
             _parent = new RealMarking(*_origin);
             if(recordTrace) {
                 _trace = { new RealMarking(*_origin), _parent };
@@ -71,6 +72,7 @@ namespace VerifyTAPN {
             SMCRunGenerator clone(_tapn);
             clone._origin = new RealMarking(*_origin);
             clone._defaultTransitionIntervals = _defaultTransitionIntervals;
+            clone.recordTrace = recordTrace;
             clone.reset();
             return clone;
         }
@@ -411,7 +413,13 @@ namespace VerifyTAPN {
             for(int i = 0 ; i < _trace.size() ; i++) {
                 RealMarking* marking = _trace[_trace.size() - 1 - i];
                 if(marking == nullptr) trace.push(nullptr);
-                else trace.push(new RealMarking(*marking));
+                else {
+                    RealMarking* toSave = new RealMarking(*marking);
+                    toSave->setGeneratedBy(marking->getGeneratedBy());
+                    toSave->setPreviousDelay(marking->getPreviousDelay());
+                    toSave->setDeadlocked(marking->canDeadlock(_tapn, 0));
+                    trace.push(toSave);
+                }
             }
             return trace;
         }

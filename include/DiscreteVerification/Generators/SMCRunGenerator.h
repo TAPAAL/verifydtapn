@@ -29,6 +29,16 @@ namespace VerifyTAPN {
                 _rng = std::ranlux48(rd());
             };
 
+            ~SMCRunGenerator() {
+                delete _origin;
+                if(_trace.size() > 0) {
+                    for(RealMarking* marking : _trace) {
+                        if(marking != nullptr) delete marking;
+                    }
+                }
+                else if(_parent != nullptr) delete _parent;
+            }
+
             virtual void prepare(RealMarking *parent);
             virtual RealMarking* next();
             virtual void reset();

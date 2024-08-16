@@ -19,6 +19,7 @@
 #include "VerificationTypes/WorkflowStrongSoundness.hpp"
 #include "VerificationTypes/ProbabilityEstimation.hpp"
 #include "VerificationTypes/ProbabilityFloatComparison.hpp"
+#include "VerificationTypes/SMCTracesGenerator.hpp"
 #include "VerificationTypes/SMCVerification.hpp"
 #include "SearchStrategies/SearchFactory.h"
 

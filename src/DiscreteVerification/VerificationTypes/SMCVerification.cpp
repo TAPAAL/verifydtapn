@@ -11,6 +11,7 @@ namespace VerifyTAPN::DiscreteVerification {
 bool SMCVerification::parallel_run() {
     prepare();
     runGenerator.prepare(&initialMarking);
+    runGenerator.recordTrace = mustSaveTrace();
     auto start = std::chrono::steady_clock::now();
 
     size_t n_threads = std::thread::hardware_concurrency();
@@ -52,6 +53,7 @@ bool SMCVerification::parallel_run() {
 bool SMCVerification::run() {
     prepare();
     runGenerator.prepare(&initialMarking);
+    runGenerator.recordTrace = mustSaveTrace();
     auto start = std::chrono::steady_clock::now();
     auto step1 = std::chrono::steady_clock::now();
     int64_t stepDuration;
@@ -140,24 +142,148 @@ void SMCVerification::saveTrace(SMCRunGenerator* generator) {
 }
 
 void SMCVerification::getTrace() {
-
+    using namespace rapidxml;
+    std::cerr << "Trace: " << std::endl;
+    if(options.getXmlTrace()) {
+        xml_document<> doc;
+        xml_node<> *root = doc.allocate_node(node_element, "trace-list");
+        doc.append_node(root);
+        for(int i = 0 ; i < traces.size() ; i++) {
+            std::string name = "Simulation" + std::to_string(i + 1);
+            auto& stack = traces[i];
+            printXMLTrace(stack, name, doc, root);
+        }
+        std::cerr << doc;
+    } else {
+        for(int i = 0 ; i < traces.size() ; i++) {
+            std::string name = "Simulation" + std::to_string(i + 1);
+            auto& stack = traces[i];
+            printHumanTrace(stack, name);
+        }
+    }
 }
 
-void SMCVerification::printHumanTrace(RealMarking *m, std::stack<RealMarking *> &stack, AST::Quantifier query) {
-
+void SMCVerification::printHumanTrace(std::stack<RealMarking *> &stack, const std::string& name) {
+    bool isFirst = true;
+    std::cout << "Name: " << name << std::endl;
+    while (!stack.empty()) {
+        if (isFirst) {
+            isFirst = false;
+        } else {
+            RealMarking* marking = stack.top();
+            if(marking->getPreviousDelay() > 0) {
+                std::cout << "\tDelay: " << marking->getPreviousDelay() << std::endl;
+            }
+            if(marking->getGeneratedBy() != nullptr) {
+                std::cout << "\tTransition:" << marking->getGeneratedBy()->getName() << std::endl;
+            }
+            if(marking->canDeadlock(tapn, 0)) {
+                std::cout << "\tDeadlock: " << std::endl;
+            }
+        }
+        std::cout << "Marking: ";
+        for (auto& token_list : stack.top()->getPlaceList()) {
+            for (auto& token : token_list.tokens) {
+                for (int i = 0; i < token.getCount(); i++) {
+                    std::cout << "(" << token_list.place->getName() << "," << token.getAge() << ") ";
+                }
+            }
+        }
+        stack.pop();
+    }
 }
 
-void SMCVerification::printXMLTrace(RealMarking *m, std::stack<RealMarking *> &stack, AST::Query *query, TAPN::TimedArcPetriNet &tapn) {
-
+void SMCVerification::printXMLTrace(std::stack<RealMarking *> &stack, const std::string& name, rapidxml::xml_document<> &doc, rapidxml::xml_node<>* list_node) {
+    using namespace rapidxml;
+    bool isFirst = true;
+    RealMarking *old = nullptr;
+    xml_node<> *root = doc.allocate_node(node_element, "trace");
+    xml_attribute<> *name_attr = doc.allocate_attribute("name", doc.allocate_string(name.c_str()));
+    root->append_attribute(name_attr);
+    list_node->append_node(root);
+    while (!stack.empty()) {
+        if (isFirst) {
+            isFirst = false;
+        } else {
+            RealMarking* marking = stack.top();
+            if(marking->getPreviousDelay() > 0) {
+                std::string str = std::to_string(marking->getPreviousDelay());
+                xml_node<>* node = doc.allocate_node(node_element, "delay", doc.allocate_string(str.c_str()));
+                root->append_node(node);
+            }
+            if(marking->getGeneratedBy() != nullptr) {
+                root->append_node(createTransitionNode(old, marking, doc));
+            }
+            if(marking->canDeadlock(tapn, 0)) {
+                root->append_node(doc.allocate_node(node_element, "deadlock"));
+            }
+        }
+        old = stack.top();
+        stack.pop();
+    }
 }
 
 rapidxml::xml_node<> *SMCVerification::createTransitionNode(RealMarking *old, RealMarking *current, rapidxml::xml_document<> &doc) {
+    using namespace rapidxml;
+    xml_node<> *transitionNode = doc.allocate_node(node_element, "transition");
+    xml_attribute<> *id = doc.allocate_attribute("id", current->getGeneratedBy()->getId().c_str());
+    transitionNode->append_attribute(id);
 
+    for (auto* arc : current->getGeneratedBy()->getPreset()) {
+        createTransitionSubNodes(old, current, doc, transitionNode, arc->getInputPlace(),
+                                     arc->getInterval(), arc->getWeight());
+    }
+
+    for (auto* arc : current->getGeneratedBy()->getTransportArcs()) {
+        createTransitionSubNodes(old, current, doc, transitionNode, arc->getSource(),
+                                     arc->getInterval(), arc->getWeight());
+    }
+
+    return transitionNode;
 }
 
 void SMCVerification::createTransitionSubNodes(RealMarking *old, RealMarking *current, rapidxml::xml_document<> &doc,
                                 rapidxml::xml_node<> *transitionNode, const TAPN::TimedPlace &place,
-                                const TAPN::TimeInterval &interval, int weight) {}
+                                const TAPN::TimeInterval &interval, int weight) {
+    RealTokenList current_tokens = current->getTokenList(place.getIndex());
+    RealTokenList old_tokens = old->getTokenList(place.getIndex());
+    int tokensFound = 0;
+    RealTokenList::const_iterator n_iter = current_tokens.begin();
+    RealTokenList::const_iterator o_iter = old_tokens.begin();
+    while (n_iter != current_tokens.end() && o_iter != old_tokens.end()) {
+        if (n_iter->getAge() == o_iter->getAge()) {
+            for (int i = 0; i < o_iter->getCount() - n_iter->getCount(); i++) {
+                transitionNode->append_node(createTokenNode(doc, place, *n_iter));
+                tokensFound++;
+            }
+            n_iter++;
+            o_iter++;
+        } else {
+            if (n_iter->getAge() > o_iter->getAge()) {
+                transitionNode->append_node(createTokenNode(doc, place, *o_iter));
+                tokensFound++;
+                o_iter++;
+            } else {
+                n_iter++;
+            }
+        }
+    }
+    for (RealTokenList::const_iterator iter = n_iter; iter != current_tokens.end(); iter++) {
+        for (int i = 0; i < iter->getCount(); i++) {
+            transitionNode->append_node(createTokenNode(doc, place, *iter));
+            tokensFound++;
+        }
+    }
+    for (auto& token : old_tokens) {
+        if(tokensFound >= weight) break;
+        if (token.getAge() >= interval.getLowerBound()) {
+            for (int i = 0; i < token.getCount() && tokensFound < weight; i++) {
+                transitionNode->append_node(createTokenNode(doc, place, token));
+                tokensFound++;
+            }
+        }
+    }
+}
 
 rapidxml::xml_node<> *
 SMCVerification::createTokenNode(rapidxml::xml_document<> &doc, const TAPN::TimedPlace &place, const RealToken &token) {

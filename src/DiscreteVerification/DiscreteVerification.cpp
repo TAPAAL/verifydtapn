@@ -196,8 +196,12 @@ namespace VerifyTAPN { namespace DiscreteVerification {
         } else if (query->getQuantifier() == PF || query->getQuantifier() == PG) {
             SMCQuery* smcQuery = (SMCQuery*) query;
             RealMarking marking(&tapn, *initialMarking);
+            SMCVerification* estimator;
             if(options.isBenchmarkMode()) {
                 ProbabilityEstimation estimator(tapn, marking, smcQuery, options, options.getBenchmarkRuns());
+                ComputeAndPrint(tapn, estimator, options, query);
+            } else if(options.getSmcTraces() > 0) {
+                SMCTracesGenerator estimator(tapn, marking, smcQuery, options);
                 ComputeAndPrint(tapn, estimator, options, query);
             } else if(smcQuery->getSmcSettings().compareToFloat) {
                 ProbabilityFloatComparison estimator(tapn, marking, smcQuery, options);
@@ -378,6 +382,10 @@ namespace VerifyTAPN { namespace DiscreteVerification {
         estimator.printStats();
         estimator.printTransitionStatistics();
         estimator.printPlaceStatistics();
+
+        if(options.getSmcTraces() > 0) {
+            estimator.getTrace();
+        }
 
         std::cout << "Max number of tokens found in any reachable marking: ";
         std::cout << estimator.maxUsedTokens() << std::endl;
