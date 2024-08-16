@@ -126,7 +126,7 @@ bool SMCVerification::reachedRunBound(SMCRunGenerator* generator) {
 void SMCVerification::handleTrace(const bool runRes, SMCRunGenerator* generator) {
     if(generator == nullptr) generator = &runGenerator; 
     bool valid = query->getQuantifier() == PG ? !runRes : runRes;
-    VerificationOptions::SMCTracesToSave type = options.getTracesToSave();
+    VerificationOptions::SMCTracesType type = options.getSMCTracesType();
     if(type == VerificationOptions::ANY_TRACE) {
         saveTrace(generator);
     } else if(type == VerificationOptions::SATISFYING_TRACES && valid) {

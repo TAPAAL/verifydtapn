@@ -34,7 +34,7 @@ namespace VerifyTAPN {
             NOT_WORKFLOW, WORKFLOW_SOUNDNESS, WORKFLOW_STRONG_SOUNDNESS
         };
 
-        enum SMCTracesToSave {
+        enum SMCTracesType {
             ANY_TRACE, SATISFYING_TRACES, UNSATISFYING_TRACES
         };
 
@@ -267,12 +267,12 @@ namespace VerifyTAPN {
             smcTraces = traces;
         }
 
-        inline SMCTracesToSave getTracesToSave() const {
-            return smcTracesToSave;
+        inline SMCTracesType getSMCTracesType() const {
+            return smcTracesType;
         }
 
-        inline void setTracesToSave(const SMCTracesToSave toSave) {
-            smcTracesToSave = toSave;
+        inline void setSMCTracesType(const SMCTracesType toSave) {
+            smcTracesType = toSave;
         }
 
     protected:
@@ -301,11 +301,11 @@ namespace VerifyTAPN {
         bool parallel = false;
         bool printCumulative = false;
         unsigned int cumulativeRoundingDigits = 2;
-        unsigned int stepsStatsScale = 500;
-        unsigned int timeStatsScale = 500;
+        unsigned int stepsStatsScale = 2000;
+        unsigned int timeStatsScale = 2000;
         bool timeStdDev = false;
         unsigned int smcTraces = 0;
-        SMCTracesToSave smcTracesToSave = ANY_TRACE;
+        SMCTracesType smcTracesType = ANY_TRACE;
         friend class ArgsParser;
     };
 

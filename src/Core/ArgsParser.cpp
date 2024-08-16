@@ -289,7 +289,7 @@ namespace VerifyTAPN {
 
         if(vm.count("smc-traces-type")) {
             unsigned int type = vm["smc-traces-type"].as<unsigned int>();
-            opts.setTracesToSave(
+            opts.setSMCTracesType(
                 type == 1 ? VerificationOptions::SATISFYING_TRACES : 
                 type == 2 ? VerificationOptions::UNSATISFYING_TRACES :
                 VerificationOptions::ANY_TRACE

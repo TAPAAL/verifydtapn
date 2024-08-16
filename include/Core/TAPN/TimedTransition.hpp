@@ -9,10 +9,12 @@
 #include "InhibitorArc.hpp"
 #include "OutputArc.hpp"
 #include "Core/Query/SMCQuery.hpp"
+#include "StochasticStructure.hpp"
 
 namespace VerifyTAPN {
 
-    using AST::SMCDistribution;
+    using SMC::SMCDistribution;
+    using SMC::SMCFiringMode;
 
     class SymMarking;
 
@@ -136,6 +138,14 @@ namespace VerifyTAPN {
                 _weight = weight;
             }
 
+            const SMCFiringMode& getFiringMode() const {
+                return _firingMode;
+            }
+
+            inline void setFiringMode(SMCFiringMode firingMode) {
+                _firingMode = firingMode;
+            }
+
         private: // data
             const int index = 0;
             std::string name;
@@ -150,6 +160,7 @@ namespace VerifyTAPN {
             std::pair<double,double> _position;
             SMCDistribution _distribution;
             double _weight;
+            SMCFiringMode _firingMode = SMC::Oldest;
         };
 
         inline std::ostream &operator<<(std::ostream &out, const TimedTransition &transition) {

@@ -12,6 +12,7 @@
 #include "DiscreteVerification/Util/IntervalOps.hpp"
 #include "Core/Query/SMCQuery.hpp"
 #include "DiscreteVerification/DataStructures/RealMarking.hpp"
+#include "Core/TAPN/StochasticStructure.hpp"
 
 namespace VerifyTAPN {
     namespace DiscreteVerification {

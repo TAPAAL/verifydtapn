@@ -18,24 +18,6 @@ namespace VerifyTAPN::AST {
             settings.geqThan,
         };
     }
-    
-    std::string distributionName(SMCDistributionType type) {
-        switch(type) {
-            case Constant:
-                return "constant";
-            case Uniform:
-                return "uniform";
-            case Exponential:
-                return "exponential";
-            case Normal:
-                return "normal";
-            case Gamma:
-                return "gamma";
-            case DiscreteUniform:
-                return "discrete uniform";
-        }
-        return "";
-    }
 
     SMCQuery *SMCQuery::clone() const {
         return new SMCQuery(*this);
