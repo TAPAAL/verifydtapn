@@ -55,7 +55,7 @@ namespace VerifyTAPN {
             for(int i = 0 ; i < _dates_sampled.size() ; i++) {
                 auto* intervals = &_transitionIntervals[i];
                 if(!intervals->empty() && intervals->front().lower() == 0) {
-                    const SMCDistribution& distrib = _tapn.getTransitions()[i]->getDistribution();
+                    const Distribution& distrib = _tapn.getTransitions()[i]->getDistribution();
                     _dates_sampled[i] = distrib.sample(_rng);
                 }
                 deadlocked &=   _transitionIntervals[i].empty() || 
@@ -95,7 +95,7 @@ namespace VerifyTAPN {
                 if(!enabled) {
                     _dates_sampled[i] = std::numeric_limits<double>::infinity();
                 } else if(newlyEnabled) {
-                    const SMCDistribution& distrib = _tapn.getTransitions()[i]->getDistribution();
+                    const Distribution& distrib = _tapn.getTransitions()[i]->getDistribution();
                     _dates_sampled[i] = distrib.sample(_rng);
                 }
                 deadlocked &=   _transitionIntervals[i].empty() || 
@@ -299,6 +299,89 @@ namespace VerifyTAPN {
             tokenInterv.delta(-token.getAge());
             return tokenInterv.positive();
         }
+        
+        std::vector<RealToken> SMCRunGenerator::removeRandom(RealTokenList& tokenList, const TimeInterval& interval, const int weight) {
+            std::vector<RealToken> res;
+            int remaining = weight;
+            std::uniform_int_distribution<> randomTokenIndex(0, tokenList.size() - 1);
+            size_t tok_index = randomTokenIndex(_rng);
+            size_t tested = 0;
+            while(remaining > 0 && tested < tokenList.size()) {
+                RealToken& token = tokenList[tok_index];
+                if(interval.contains(token.getAge())) {
+                    res.push_back(RealToken(token.getAge(), 1));
+                    remaining--;
+                    tokenList[tok_index].remove(1);
+                    if(tokenList[tok_index].getCount() == 0) {
+                        tokenList.erase(tokenList.begin() + tok_index);
+                        randomTokenIndex = std::uniform_int_distribution<>(0, tokenList.size() - 1);
+                    }
+                    if(remaining > 0) {
+                        tok_index = randomTokenIndex(_rng);
+                        tested = 0;
+                    }
+                } else {
+                    tok_index = (tok_index + 1) % tokenList.size();
+                    tested++;
+                }
+            }
+            assert(remaining == 0);
+            return res;
+        }
+
+        std::vector<RealToken> SMCRunGenerator::removeYoungest(RealTokenList& tokenList, const TimeInterval& interval, const int weight) {
+            std::vector<RealToken> res;
+            int remaining = weight;
+            auto iter = tokenList.begin();
+            while(iter != tokenList.end()) {
+                double age = iter->getAge();
+                if(!interval.contains(age)) {
+                    iter++;
+                    continue;
+                }
+                int count = iter->getCount();
+                if(count >= remaining) {
+                    res.push_back(RealToken(age, remaining));
+                    iter->remove(remaining);
+                    if(iter->getCount() == 0) tokenList.erase(iter);
+                    remaining = 0;
+                    break;
+                } else {
+                    res.push_back(RealToken(age, count));
+                    remaining -= count;
+                    iter = tokenList.erase(iter);
+                }
+            }
+            assert(remaining == 0);
+            return res;
+        }
+
+        std::vector<RealToken> SMCRunGenerator::removeOldest(RealTokenList& tokenList, const TimeInterval& interval, const int weight) {
+            std::vector<RealToken> res;
+            int remaining = weight;
+            auto iter = tokenList.rbegin();
+            while(iter != tokenList.rend()) {
+                double age = iter->getAge();
+                if(!interval.contains(age)) {
+                    iter++;
+                    continue;
+                }
+                int count = iter->getCount();
+                if(count >= remaining) {
+                    res.push_back(RealToken(age, remaining));
+                    iter->remove(remaining);
+                    if(iter->getCount() == 0) tokenList.erase(std::next(iter).base());
+                    remaining = 0;
+                    break;
+                } else {
+                    res.push_back(RealToken(age, count));
+                    remaining -= count;
+                    iter = decltype(iter)(tokenList.erase(std::next(iter).base()));
+                }
+            }
+            assert(remaining == 0);
+            return res;
+        }
 
         std::tuple<RealMarking*, RealMarking*> SMCRunGenerator::fire(TimedTransition* transi) {
             if (transi == nullptr) {
@@ -309,64 +392,49 @@ namespace VerifyTAPN {
             RealPlaceList &placelist = child->getPlaceList();
 
             for (auto &input : transi->getPreset()) {
-                int source = input->getInputPlace().getIndex();
-                RealPlace& place = placelist[source];
-                RealTokenList& tokenlist = place.tokens;
-                int remaining = input->getWeight();
-                std::uniform_int_distribution<> randomTokenIndex(0, tokenlist.size() - 1);
-                size_t tok_index = randomTokenIndex(_rng);
-                size_t tested = 0;
-                while(remaining > 0 && tested < tokenlist.size()) {
-                    if(input->getInterval().contains(tokenlist[tok_index].getAge())) {
-                        remaining--;
-                        tokenlist[tok_index].remove(1);
-                        if(tokenlist[tok_index].getCount() == 0) {
-                            tokenlist.erase(tokenlist.begin() + tok_index);
-                            randomTokenIndex = std::uniform_int_distribution<>(0, tokenlist.size() - 1);
-                        }
-                        if(remaining > 0) {
-                            tok_index = randomTokenIndex(_rng);
-                            tested = 0;
-                        }
-                    } else {
-                        tok_index = (tok_index + 1) % tokenlist.size();
-                        tested++;
-                    }
+                RealPlace& place = placelist[input->getInputPlace().getIndex()];
+                RealTokenList& tokenList = place.tokens;
+                switch(transi->getFiringMode()) {
+                    case SMC::Random:
+                        removeRandom(tokenList, input->getInterval(), input->getWeight());
+                        break;
+                    case SMC::Oldest:
+                        removeOldest(tokenList, input->getInterval(), input->getWeight());
+                        break;
+                    case SMC::Youngest:
+                        removeYoungest(tokenList, input->getInterval(), input->getWeight());
+                        break;
+                    default:
+                        removeOldest(tokenList, input->getInterval(), input->getWeight());
+                        break;
                 }
-                assert(remaining == 0);
             }
 
-            std::vector<std::tuple<TimedPlace&, double>> toCreate;
+            std::vector<std::tuple<TimedPlace&, RealToken>> toCreate;
             for (auto &transport : transi->getTransportArcs()) {
-                int source = transport->getSource().getIndex();
-                int dest = transport->getDestination().getIndex();
                 int destInv = transport->getDestination().getInvariant().getBound();
-                RealPlace& place = placelist[source];
-                RealTokenList& tokenlist = place.tokens;
-                int remaining = transport->getWeight();
-                std::uniform_int_distribution<> randomTokenIndex(0, tokenlist.size() - 1);
-                size_t tok_index = randomTokenIndex(_rng);
-                size_t tested = 0;
-                while(remaining > 0 && tested < tokenlist.size()) {
-                    double age = tokenlist[tok_index].getAge();
-                    if(transport->getInterval().contains(age) && age <= destInv) {
-                        remaining--;
-                        tokenlist[tok_index].remove(1);
-                        if(tokenlist[tok_index].getCount() == 0) {
-                            tokenlist.erase(tokenlist.begin() + tok_index);
-                            randomTokenIndex = std::uniform_int_distribution<>(0, tokenlist.size() - 1);
-                        }
-                        if(remaining > 0) {
-                            tok_index = randomTokenIndex(_rng);
-                            tested = 0;
-                        }
-                        toCreate.push_back({transport->getDestination(), age});
-                    } else {
-                        tok_index = (tok_index + 1) % tokenlist.size();
-                        tested++;
-                    }
+                RealPlace& place = placelist[transport->getSource().getIndex()];
+                RealTokenList& tokenList = place.tokens;
+                std::vector<RealToken> consumed;
+                TimeInterval interval = transport->getInterval();
+                if(destInv < interval.getUpperBound()) interval.setUpperBound(destInv, false);
+                switch(transi->getFiringMode()) {
+                    case SMC::Random:
+                        consumed = removeRandom(tokenList, interval, transport->getWeight());
+                        break;
+                    case SMC::Oldest:
+                        consumed = removeOldest(tokenList, interval, transport->getWeight());
+                        break;
+                    case SMC::Youngest:
+                        consumed = removeYoungest(tokenList, interval, transport->getWeight());
+                        break;
+                    default:
+                        consumed = removeOldest(tokenList, interval, transport->getWeight());
+                        break;
                 }
-                assert(remaining == 0);
+                for(RealToken token : consumed) {
+                    toCreate.push_back({transport->getDestination(), token});
+                }
             }
 
             RealMarking* intermediary = new RealMarking(*child);
@@ -376,8 +444,8 @@ namespace VerifyTAPN {
                 RealToken token = RealToken(0.0, output->getWeight());
                 child->addTokenInPlace(place, token);
             }
-            for (auto [dest, age] : toCreate) {
-                child->addTokenInPlace(dest, age);
+            for (auto [dest, token] : toCreate) {
+                child->addTokenInPlace(dest, token);
             }
             return { intermediary, child };
         }

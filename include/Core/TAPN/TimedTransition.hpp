@@ -13,8 +13,8 @@
 
 namespace VerifyTAPN {
 
-    using SMC::SMCDistribution;
-    using SMC::SMCFiringMode;
+    using SMC::Distribution;
+    using SMC::FiringMode;
 
     class SymMarking;
 
@@ -25,11 +25,11 @@ namespace VerifyTAPN {
         public: // typedefs
             typedef std::vector<TimedTransition *> Vector;
         public:
-            TimedTransition(int index, std::string name, std::string id, bool urgent, bool controllable, double x, double y, SMCDistribution distrib = SMCDistribution::defaultDistribution(), double weight = 1)
+            TimedTransition(int index, std::string name, std::string id, bool urgent, bool controllable, double x, double y, Distribution distrib = Distribution::defaultDistribution(), double weight = 1, FiringMode firingMode = SMC::Oldest)
                     : index(index), name(std::move(name)), id(std::move(id)), preset(), postset(), transportArcs(),
                       untimedPostset(true),
                       urgent(urgent), controllable(controllable), _position({x,y}), 
-                      _distribution(distrib), _weight(weight) {};
+                      _distribution(distrib), _weight(weight), _firingMode(firingMode) {};
 
             TimedTransition() : name("*EMPTY*"), id("-1"), preset(), postset(), transportArcs(), index(-1),
                                 untimedPostset(true), urgent(false) {};
@@ -122,11 +122,11 @@ namespace VerifyTAPN {
                 return _position;
             }
 
-            const SMCDistribution& getDistribution() const {
+            const Distribution& getDistribution() const {
                 return _distribution;
             }
 
-            inline void setDistribution(SMCDistribution distrib) {
+            inline void setDistribution(Distribution distrib) {
                 _distribution = distrib;
             }
 
@@ -138,11 +138,11 @@ namespace VerifyTAPN {
                 _weight = weight;
             }
 
-            const SMCFiringMode& getFiringMode() const {
+            const FiringMode& getFiringMode() const {
                 return _firingMode;
             }
 
-            inline void setFiringMode(SMCFiringMode firingMode) {
+            inline void setFiringMode(FiringMode firingMode) {
                 _firingMode = firingMode;
             }
 
@@ -158,9 +158,9 @@ namespace VerifyTAPN {
             bool urgent = false;
             bool controllable{};
             std::pair<double,double> _position;
-            SMCDistribution _distribution;
+            Distribution _distribution;
             double _weight;
-            SMCFiringMode _firingMode = SMC::Oldest;
+            FiringMode _firingMode = SMC::Oldest;
         };
 
         inline std::ostream &operator<<(std::ostream &out, const TimedTransition &transition) {

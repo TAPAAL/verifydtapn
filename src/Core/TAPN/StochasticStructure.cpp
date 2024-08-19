@@ -2,7 +2,7 @@
 
 namespace VerifyTAPN::SMC {
 
-    std::string distributionName(SMCDistributionType type) {
+    std::string distributionName(DistributionType type) {
         switch(type) {
             case Constant:
                 return "constant";
@@ -20,19 +20,31 @@ namespace VerifyTAPN::SMC {
         return "";
     }
 
-    SMCDistribution SMCDistribution::urgent() {
-        SMCDistributionParameters params;
+    std::string firingModeName(FiringMode mode) {
+        switch(mode) {
+            case Oldest:
+                return "Oldest";
+            case Youngest:
+                return "Youngest";
+            case Random:
+                return "Random";
+        }
+        return "";
+    }
+
+    Distribution Distribution::urgent() {
+        DistributionParameters params;
         params.constant.value = 0;
-        return SMCDistribution { Constant, params };
+        return Distribution { Constant, params };
     }
-    SMCDistribution SMCDistribution::defaultDistribution() {
-        SMCDistributionParameters params;
+    Distribution Distribution::defaultDistribution() {
+        DistributionParameters params;
         params.constant.value = 1;
-        return SMCDistribution { Constant, params };
+        return Distribution { Constant, params };
     }
-    SMCDistribution SMCDistribution::fromParams(int distrib_id, double param1, double param2) {
-        SMCDistributionType distrib = static_cast<SMCDistributionType>(distrib_id);
-        SMCDistributionParameters params;
+    Distribution Distribution::fromParams(int distrib_id, double param1, double param2) {
+        DistributionType distrib = static_cast<DistributionType>(distrib_id);
+        DistributionParameters params;
         switch(distrib){
             case Constant:
                 params.constant.value = param1;
@@ -59,9 +71,9 @@ namespace VerifyTAPN::SMC {
             default:
                 break;
         }
-        return SMCDistribution { distrib, params };
+        return Distribution { distrib, params };
     }
-    std::string SMCDistribution::toXML() const {
+    std::string Distribution::toXML() const {
         std::string endField = "\" ";
         std::stringstream res;
         res << "distribution=\"";

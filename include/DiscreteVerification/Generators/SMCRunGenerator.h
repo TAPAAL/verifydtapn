@@ -55,6 +55,10 @@ namespace VerifyTAPN {
             std::vector<Util::interval<double>> transitionFiringDates(TimedTransition* transi);
             std::vector<Util::interval<double>> arcFiringDates(TimeInterval time_interval, uint32_t weight, RealTokenList& tokens);
             
+            std::vector<RealToken> removeRandom(RealTokenList& tokenlist, const TimeInterval& interval, const int weight);
+            std::vector<RealToken> removeYoungest(RealTokenList& tokenlist, const TimeInterval& interval, const int weight);
+            std::vector<RealToken> removeOldest(RealTokenList& tokenlist, const TimeInterval& interval, const int weight);
+
             std::pair<TimedTransition*, double> getWinnerTransitionAndDelay();
 
             std::tuple<RealMarking*, RealMarking*> fire(TimedTransition* transi);

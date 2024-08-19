@@ -348,6 +348,7 @@ namespace TAPN {
                 << "\" id=\"" << transition->getName() << "\" name=\"" << transition->getName()
                 << "\" urgent=\"" << std::boolalpha << transition->isUrgent() 
                 << "\" weight=\"" << transition->getWeight()
+                << "\" firingMode=\"" << SMC::firingModeName(transition->getFiringMode())
                 << "\" " << transition->getDistribution().toXML()
                 << ">\n";
             auto [x, y] = transition->getPosition();

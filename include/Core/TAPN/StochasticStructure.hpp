@@ -7,13 +7,15 @@
 
 namespace VerifyTAPN::SMC {
 
-    enum SMCFiringMode {
+    enum FiringMode {
         Oldest,
         Youngest,
         Random
     };
 
-    enum SMCDistributionType {
+    std::string firingModeName(FiringMode type);
+
+    enum DistributionType {
         Constant,
         Uniform,
         Exponential,
@@ -22,7 +24,7 @@ namespace VerifyTAPN::SMC {
         DiscreteUniform,
     };
 
-    std::string distributionName(SMCDistributionType type);
+    std::string distributionName(DistributionType type);
 
     struct SMCUniformParameters {
         double a;
@@ -47,7 +49,7 @@ namespace VerifyTAPN::SMC {
         int b;
     };
 
-    union SMCDistributionParameters {
+    union DistributionParameters {
         SMCUniformParameters uniform;
         SMCExponentialParameters exp;
         SMCNormalParameters normal;
@@ -56,9 +58,9 @@ namespace VerifyTAPN::SMC {
         SMCDiscreteUniformParameters discreteUniform;
     };
 
-    struct SMCDistribution {
-        SMCDistributionType type;
-        SMCDistributionParameters parameters;
+    struct Distribution {
+        DistributionType type;
+        DistributionParameters parameters;
 
         template<typename T>
         double sample(T& engine) const {
@@ -85,11 +87,11 @@ namespace VerifyTAPN::SMC {
             return std::max(date, 0.0);
         }
 
-        static SMCDistribution urgent();
+        static Distribution urgent();
 
-        static SMCDistribution defaultDistribution();
+        static Distribution defaultDistribution();
 
-        static SMCDistribution fromParams(int distrib_id, double param1, double param2);
+        static Distribution fromParams(int distrib_id, double param1, double param2);
 
         std::string toXML() const;
 
