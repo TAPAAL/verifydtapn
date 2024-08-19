@@ -22,11 +22,11 @@ void ProbabilityEstimation::prepare()
     std::cout << "Need to execute " << runsNeeded << " runs to produce estimation" << std::endl;
 }
 
-void ProbabilityEstimation::handleRunResult(const bool res, int steps, double delay)
+void ProbabilityEstimation::handleRunResult(const bool decisive, int steps, double delay)
 {
-    bool valid = (query->getQuantifier() == PF && res) || (query->getQuantifier() == PG && !res);
-    validRuns += valid ? 1 : 0;
-    if(!valid) return;
+    //bool valid = (query->getQuantifier() == PF && decisive) || (query->getQuantifier() == PG && !decisive);
+    if(!decisive) return;
+    validRuns++;
     validRunsTime += delay;
     validRunsSteps += steps;
     if(validPerStep.size() <= steps) {
@@ -50,7 +50,8 @@ bool ProbabilityEstimation::handleSuccessor(RealMarking* marking) {
 }
 
 float ProbabilityEstimation::getEstimation() {
-    return ((float) validRuns) / numberOfRuns;
+    float proba = ((float) validRuns) / numberOfRuns;
+    return (query->getQuantifier() == PG) ? 1 - proba : proba;
 }
 
 void ProbabilityEstimation::computeChernoffHoeffdingBound(const float intervalWidth, const float confidence) {
@@ -61,10 +62,15 @@ void ProbabilityEstimation::computeChernoffHoeffdingBound(const float intervalWi
 
 void ProbabilityEstimation::printStats() {
     SMCVerification::printStats();
-    std::cout << "  valid runs:\t" << validRuns << std::endl;
+    if(query->getQuantifier() == PF) {
+        std::cout << "  valid runs:\t" << validRuns << std::endl;
+        std::cout << "  violating runs:\t" << (numberOfRuns - validRuns) << std::endl;
+    } else {
+        std::cout << "  valid runs:\t" << (numberOfRuns - validRuns) << std::endl;
+        std::cout << "  violating runs:\t" << validRuns << std::endl;
+    }
     if(validRuns > 0) printValidRunsStats();
     if(options.mustPrintCumulative()) printCumulativeStats();
-    
 }
 
 void ProbabilityEstimation::printValidRunsStats() {
@@ -80,10 +86,11 @@ void ProbabilityEstimation::printValidRunsStats() {
     }
     double stepsStdDev = sqrt( stepsAcc / validRuns );
     double delayStdDev = sqrt( delayAcc / validRuns );
-    std::cout << "  average time of a valid run:\t" << timeMean << std::endl;
-    std::cout << "  valid runs time standard deviation:\t" << delayStdDev << std::endl;
-    std::cout << "  average length of a valid run:\t" << stepsMean << std::endl;
-    std::cout << "  valid runs length standard deviation:\t" << stepsStdDev << std::endl;
+    std::string category = (query->getQuantifier() == PF) ? "valid" : "violating";
+    std::cout << "  average time of a " + category + " run:\t" << timeMean << std::endl;
+    std::cout << "  " + category + " runs time standard deviation:\t" << delayStdDev << std::endl;
+    std::cout << "  average length of a " + category + " run:\t" << stepsMean << std::endl;
+    std::cout << "  " + category + " runs length standard deviation:\t" << stepsStdDev << std::endl;
 }
 
 void ProbabilityEstimation::printCumulativeStats() {
@@ -92,12 +99,15 @@ void ProbabilityEstimation::printCumulativeStats() {
     unsigned int timeScale = options.getTimeStatsScale();
     double mult = pow(10.0f, digits);
 
+    double fact = (query->getQuantifier() == PF) ? 1 : -1;
+    double initial = (query->getQuantifier() == PF) ? 0 : 1;
+
     std::cout << "  cumulative probability / step :" << std::endl;
-    double acc = 0;
+    double acc = initial;
     double binSize = stepScale == 0 ? 1 : validPerStep.size() / (double) stepScale;
     double bin = 0;
     double lastAcc = 0;
-    std::cout << 0 << ":" << 0 << ";";
+    std::cout << 0 << ":" << acc << ";";
     for(int i = 0 ; i < validPerStep.size() ; i++) {
         double toPrint = round(acc * mult) / mult;
         if(i >= bin + binSize) {
@@ -108,7 +118,7 @@ void ProbabilityEstimation::printCumulativeStats() {
             }
             bin = round(i / binSize) * binSize;
         }
-        acc += validPerStep[i] / (double) numberOfRuns;  
+        acc += fact * (validPerStep[i] / (double) numberOfRuns);  
     }
     if(!validPerStep.empty()) {
         std::cout << (validPerStep.size() - 1) << ":" << lastAcc << ";";
@@ -117,7 +127,7 @@ void ProbabilityEstimation::printCumulativeStats() {
     std::cout << std::endl;
 
     std::cout << "  cumulative probability / delay :" << std::endl;
-    acc = 0;
+    acc = initial;
     binSize = timeScale == 0 ? 1 : (maxValidDuration / (double) timeScale);
     std::vector<double> bins(
         binSize > 0 ? (size_t) round(maxValidDuration / binSize) : 1
@@ -128,9 +138,9 @@ void ProbabilityEstimation::printCumulativeStats() {
         int binIndex = std::min((size_t) round(delay / binSize), bins.size() - 1);
         bins[binIndex] += 1;
     }
-    std::cout << 0 << ":" << 0 << ";";
+    std::cout << 0 << ":" << acc << ";";
     for(int i = 0 ; i < bins.size() ; i++) {
-        acc += bins[i] / (double) numberOfRuns;
+        acc += fact * (bins[i] / (double) numberOfRuns);
         double toPrint = round(acc * mult) / mult;
         if(toPrint != lastAcc) {
             double binIndex = (i) * binSize;

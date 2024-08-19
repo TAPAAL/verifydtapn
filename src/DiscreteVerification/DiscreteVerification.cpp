@@ -196,7 +196,6 @@ namespace VerifyTAPN { namespace DiscreteVerification {
         } else if (query->getQuantifier() == PF || query->getQuantifier() == PG) {
             SMCQuery* smcQuery = (SMCQuery*) query;
             RealMarking marking(&tapn, *initialMarking);
-            SMCVerification* estimator;
             if(options.isBenchmarkMode()) {
                 ProbabilityEstimation estimator(tapn, marking, smcQuery, options, options.getBenchmarkRuns());
                 ComputeAndPrint(tapn, estimator, options, query);
