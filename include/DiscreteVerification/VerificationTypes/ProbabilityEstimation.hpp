@@ -32,6 +32,10 @@ class ProbabilityEstimation : public SMCVerification {
         void printStats() override;
 
         void printValidRunsStats();
+        void printViolatingRunsStats();
+        void printGlobalRunsStats();
+
+        static void printRunsStats(const std::string category, unsigned long n, unsigned long totalSteps, double totalDelay, std::vector<int> perStep, std::vector<float> perDelay);
 
         void printCumulativeStats();
 
@@ -43,9 +47,13 @@ class ProbabilityEstimation : public SMCVerification {
         unsigned int validRuns;
         double validRunsTime = 0;
         unsigned long validRunsSteps = 0;
+        double violatingRunTime = 0;
+        unsigned long violatingRunSteps = 0;
 
         std::vector<int> validPerStep;
         std::vector<float> validPerDelay;
+        std::vector<int> violatingPerStep;
+        std::vector<float> violatingPerDelay;
         float maxValidDuration = 0.0f;
 
 };

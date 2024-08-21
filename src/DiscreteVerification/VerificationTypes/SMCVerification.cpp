@@ -98,7 +98,7 @@ bool SMCVerification::executeRun(SMCRunGenerator* generator) {
 void SMCVerification::printStats() {
     std::cout << "  runs executed:\t" << numberOfRuns << std::endl;
     std::cout << "  average run length:\t" << (totalSteps / (double) numberOfRuns) << std::endl;
-    std::cout << "  average run time:\t" << (totalTime / (double) numberOfRuns) << std::endl;
+    std::cout << "  average run duration:\t" << (totalTime / (double) numberOfRuns) << std::endl;
     std::cout << "  verification time:\t" << ((double) durationNs / 1.0E9) << "s" << std::endl;
 }
 

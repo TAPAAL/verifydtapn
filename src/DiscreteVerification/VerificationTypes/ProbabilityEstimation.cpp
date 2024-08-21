@@ -25,17 +25,26 @@ void ProbabilityEstimation::prepare()
 void ProbabilityEstimation::handleRunResult(const bool decisive, int steps, double delay)
 {
     //bool valid = (query->getQuantifier() == PF && decisive) || (query->getQuantifier() == PG && !decisive);
-    if(!decisive) return;
-    validRuns++;
-    validRunsTime += delay;
-    validRunsSteps += steps;
-    if(validPerStep.size() <= steps) {
-        validPerStep.resize(steps + 1, 0);
-    }
-    validPerStep[steps] += 1;
-    validPerDelay.push_back(delay);
-    if(delay > maxValidDuration) {
-        maxValidDuration = delay;
+    if(decisive) {
+        validRuns++;
+        validRunsTime += delay;
+        validRunsSteps += steps;
+        if(validPerStep.size() <= steps) {
+            validPerStep.resize(steps + 1, 0);
+        }
+        validPerStep[steps] += 1;
+        validPerDelay.push_back(delay);
+        if(delay > maxValidDuration) {
+            maxValidDuration = delay;
+        }
+    } else {
+        violatingRunTime += delay;
+        violatingRunSteps += steps;
+        if(violatingPerStep.size() <= steps) {
+            violatingPerStep.resize(steps + 1, 0);
+        }
+        violatingPerStep[steps] += 1;
+        violatingPerDelay.push_back(delay);
     }
 }
 
@@ -62,35 +71,76 @@ void ProbabilityEstimation::computeChernoffHoeffdingBound(const float intervalWi
 
 void ProbabilityEstimation::printStats() {
     SMCVerification::printStats();
-    if(query->getQuantifier() == PF) {
-        std::cout << "  valid runs:\t" << validRuns << std::endl;
-        std::cout << "  violating runs:\t" << (numberOfRuns - validRuns) << std::endl;
-    } else {
-        std::cout << "  valid runs:\t" << (numberOfRuns - validRuns) << std::endl;
-        std::cout << "  violating runs:\t" << validRuns << std::endl;
-    }
-    if(validRuns > 0) printValidRunsStats();
+    printGlobalRunsStats();
+    printValidRunsStats();
+    printViolatingRunsStats();
     if(options.mustPrintCumulative()) printCumulativeStats();
 }
 
 void ProbabilityEstimation::printValidRunsStats() {
-    double stepsMean = (validRunsSteps / (double) validRuns);
-    double timeMean = (validRunsTime / validRuns);
+    std::string category = "valid";
+    if(query->getQuantifier() == PF) {
+        printRunsStats(category, validRuns, validRunsSteps, validRunsTime, validPerStep, validPerDelay);
+    } else {
+        printRunsStats(category, numberOfRuns - validRuns, violatingRunSteps, violatingRunTime, violatingPerStep, violatingPerDelay);
+    }
+}
+
+void ProbabilityEstimation::printViolatingRunsStats() {
+    std::string category = "violating";
+    if(query->getQuantifier() == PG) {
+        printRunsStats(category, validRuns, validRunsSteps, validRunsTime, validPerStep, validPerDelay);
+    } else {
+        printRunsStats(category, numberOfRuns - validRuns, violatingRunSteps, violatingRunTime, violatingPerStep, violatingPerDelay);
+    }
+}
+
+void ProbabilityEstimation::printRunsStats(const std::string category, unsigned long n, unsigned long totalSteps, double totalDelay, std::vector<int> perStep, std::vector<float> perDelay) {
+    if(n == 0) {
+        std::cout << "  no " + category + " runs, unable to compute specific statistics" << std::endl;
+        return;
+    }
+    double stepsMean = (totalSteps / (double) n);
+    double timeMean = (totalDelay / n);
+    double stepsAcc = 0;
+    double delayAcc = 0;
+    for(int i = 0 ; i < perStep.size() ; i++) {
+        stepsAcc += pow(i - stepsMean, 2.0) * perStep[i];
+    }
+    for(int i = 0 ; i < perDelay.size() ; i++) {
+        delayAcc += pow(perDelay[i] - timeMean, 2.0);
+    }
+    double stepsStdDev = sqrt( stepsAcc / n );
+    double delayStdDev = sqrt( delayAcc / n );
+    std::cout << "  statistics of " + category + " runs:" << std::endl;
+    std::cout << "    number of " << category << " runs: " << n << std::endl;
+    std::cout << "    duration of a " + category + " run (average):\t" << timeMean << std::endl;
+    std::cout << "    duration of a " + category + " run (std. dev.):\t" << delayStdDev << std::endl;
+    std::cout << "    length of a " + category + " run (average):\t" << stepsMean << std::endl;
+    std::cout << "    length of a " + category + " run (std. dev.):\t" << stepsStdDev << std::endl;
+}
+
+void ProbabilityEstimation::printGlobalRunsStats() {
+    double stepsMean = (totalSteps / (double) numberOfRuns);
+    double timeMean = (totalTime / numberOfRuns);
     double stepsAcc = 0;
     double delayAcc = 0;
     for(int i = 0 ; i < validPerStep.size() ; i++) {
         stepsAcc += pow(i - stepsMean, 2.0) * validPerStep[i];
     }
+    for(int i = 0 ; i < violatingPerStep.size() ; i++) {
+        stepsAcc += pow(i - stepsMean, 2.0) * violatingPerStep[i];
+    }
     for(int i = 0 ; i < validPerDelay.size() ; i++) {
         delayAcc += pow(validPerDelay[i] - timeMean, 2.0);
     }
-    double stepsStdDev = sqrt( stepsAcc / validRuns );
-    double delayStdDev = sqrt( delayAcc / validRuns );
-    std::string category = (query->getQuantifier() == PF) ? "valid" : "violating";
-    std::cout << "  average time of a " + category + " run:\t" << timeMean << std::endl;
-    std::cout << "  " + category + " runs time standard deviation:\t" << delayStdDev << std::endl;
-    std::cout << "  average length of a " + category + " run:\t" << stepsMean << std::endl;
-    std::cout << "  " + category + " runs length standard deviation:\t" << stepsStdDev << std::endl;
+    for(int i = 0 ; i < violatingPerDelay.size() ; i++) {
+        delayAcc += pow(validPerDelay[i] - timeMean, 2.0);
+    }
+    double stepsStdDev = sqrt( stepsAcc / numberOfRuns );
+    double delayStdDev = sqrt( delayAcc / numberOfRuns );
+    std::cout << "  run duration (std. dev.):\t" << delayStdDev << std::endl;
+    std::cout << "  run length (std. dev.):\t" << stepsStdDev << std::endl;
 }
 
 void ProbabilityEstimation::printCumulativeStats() {
