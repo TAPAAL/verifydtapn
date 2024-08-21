@@ -106,7 +106,7 @@ void ProbabilityEstimation::printCumulativeStats() {
     double acc = initial;
     double binSize = stepScale == 0 ? 1 : validPerStep.size() / (double) stepScale;
     double bin = 0;
-    double lastAcc = 0;
+    double lastAcc = acc;
     std::cout << 0 << ":" << acc << ";";
     for(int i = 0 ; i < validPerStep.size() ; i++) {
         double toPrint = round(acc * mult) / mult;
@@ -132,7 +132,7 @@ void ProbabilityEstimation::printCumulativeStats() {
     std::vector<double> bins(
         binSize > 0 ? (size_t) round(maxValidDuration / binSize) : 1
         , 0.0f);
-    lastAcc = 0;
+    lastAcc = acc;
     for(int i = 0 ; i < validPerDelay.size() ; i++) {
         double delay = validPerDelay[i];
         int binIndex = std::min((size_t) round(delay / binSize), bins.size() - 1);
