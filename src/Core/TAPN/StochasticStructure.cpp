@@ -14,8 +14,12 @@ namespace VerifyTAPN::SMC {
                 return "normal";
             case Gamma:
                 return "gamma";
+            case Erlang:
+                return "erlang";
             case DiscreteUniform:
                 return "discrete uniform";
+            case Geometric:
+                return "geometric";
         }
         return "";
     }
@@ -61,12 +65,16 @@ namespace VerifyTAPN::SMC {
                 params.normal.stddev = param2;
                 break;
             case Gamma:
+            case Erlang:
                 params.gamma.shape = param1;
                 params.gamma.scale = param2;
                 break;
             case DiscreteUniform:
                 params.discreteUniform.a = (int) param1;
                 params.discreteUniform.b = (int) param2;
+                break;
+            case Geometric:
+                params.geometric.p = param1;
                 break;
             default:
                 break;
@@ -94,12 +102,16 @@ namespace VerifyTAPN::SMC {
                 res << "stddev=\"" << parameters.normal.stddev << endField;
                 break;
             case Gamma:
+            case Erlang:
                 res << "shape=\"" << parameters.gamma.shape << endField;
                 res << "scale=\"" << parameters.gamma.scale << endField;
                 break;
             case DiscreteUniform:
                 res << "a=\"" << parameters.discreteUniform.a << endField;
                 res << "b=\"" << parameters.discreteUniform.b << endField;
+                break;
+            case Geometric:
+                res << "p=\"" << parameters.geometric.p << endField;
                 break;
         }
         return res.str();

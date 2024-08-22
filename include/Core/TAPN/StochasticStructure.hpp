@@ -21,7 +21,9 @@ namespace VerifyTAPN::SMC {
         Exponential,
         Normal,
         Gamma,
+        Erlang,
         DiscreteUniform,
+        Geometric
     };
 
     std::string distributionName(DistributionType type);
@@ -48,6 +50,9 @@ namespace VerifyTAPN::SMC {
         int a;
         int b;
     };
+    struct SMCGeometricParameters {
+        double p;
+    };
 
     union DistributionParameters {
         SMCUniformParameters uniform;
@@ -56,6 +61,7 @@ namespace VerifyTAPN::SMC {
         SMCConstantParameters constant;
         SMCGammaParameters gamma;
         SMCDiscreteUniformParameters discreteUniform;
+        SMCGeometricParameters geometric;
     };
 
     struct Distribution {
@@ -79,10 +85,15 @@ namespace VerifyTAPN::SMC {
                     date = std::normal_distribution(parameters.normal.mean, parameters.normal.stddev)(engine);
                     break;
                 case Gamma:
+                case Erlang:
                     date = std::gamma_distribution(parameters.gamma.shape, parameters.gamma.scale)(engine);
                     break;
                 case DiscreteUniform:
                     date = std::uniform_int_distribution(parameters.discreteUniform.a, parameters.discreteUniform.b)(engine);
+                    break;
+                case Geometric:
+                    date = std::geometric_distribution(parameters.geometric.p)(engine);
+                    break;
             }
             return std::max(date, 0.0);
         }
