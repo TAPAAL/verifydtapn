@@ -135,7 +135,7 @@ void ProbabilityEstimation::printGlobalRunsStats() {
         delayAcc += pow(validPerDelay[i] - timeMean, 2.0);
     }
     for(int i = 0 ; i < violatingPerDelay.size() ; i++) {
-        delayAcc += pow(validPerDelay[i] - timeMean, 2.0);
+        delayAcc += pow(violatingPerDelay[i] - timeMean, 2.0);
     }
     double stepsStdDev = sqrt( stepsAcc / numberOfRuns );
     double delayStdDev = sqrt( delayAcc / numberOfRuns );
