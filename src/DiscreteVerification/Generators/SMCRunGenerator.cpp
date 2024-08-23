@@ -277,7 +277,10 @@ namespace VerifyTAPN {
                     while(remaining >= 0 && nextSet < tokens.size()) {
                         RealToken nextToken = tokens[nextSet];
                         tokensSetInterval = Util::intersect<double>(tokensSetInterval, remainingForToken(arcInterval, nextToken));
-                        if(nextToken.getCount() >= remaining) break;
+                        if(nextToken.getCount() >= remaining) {
+                            remaining = 0;
+                            break;
+                        }
                         remaining -= nextToken.getCount();
                         nextSet++;
                     }
