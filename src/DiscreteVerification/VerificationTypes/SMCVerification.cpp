@@ -52,8 +52,8 @@ bool SMCVerification::parallel_run() {
 
 bool SMCVerification::run() {
     prepare();
-    runGenerator.prepare(&initialMarking);
     runGenerator.recordTrace = mustSaveTrace();
+    runGenerator.prepare(&initialMarking);
     auto start = std::chrono::steady_clock::now();
     auto step1 = std::chrono::steady_clock::now();
     int64_t stepDuration;
