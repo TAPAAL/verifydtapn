@@ -8,6 +8,8 @@
 #ifndef SMCRUNGENERATOR_H
 #define SMCRUNGENERATOR_H
 
+#include <boost/random/mersenne_twister.hpp>
+
 #include "DiscreteVerification/Generators/Generator.h"
 #include "DiscreteVerification/Util/IntervalOps.hpp"
 #include "Core/Query/SMCQuery.hpp"
@@ -26,8 +28,8 @@ namespace VerifyTAPN {
             , _defaultTransitionIntervals(tapn.getTransitions().size()) 
             , _transitionsStatistics(tapn.getTransitions().size(), 0)
             {
-                std::random_device rd;
-                _rng = std::ranlux48(rd());
+                /*std::random_device rd;
+                _rng = std::ranlux48(rd());*/
             };
 
             ~SMCRunGenerator() {
@@ -61,7 +63,7 @@ namespace VerifyTAPN {
 
             std::pair<TimedTransition*, double> getWinnerTransitionAndDelay();
 
-            std::tuple<RealMarking*, RealMarking*> fire(TimedTransition* transi);
+            RealMarking* fire(TimedTransition* transi);
 
             bool reachedEnd() const;
 
@@ -76,7 +78,6 @@ namespace VerifyTAPN {
             
         protected:
         
-            Util::interval<double> remainingForToken(const Util::interval<double>& arcInterval, const RealToken& t);
             TimedTransition* chooseWeightedWinner(const std::vector<size_t>& winner_indexs);
             
             bool _maximal = false;
@@ -91,7 +92,7 @@ namespace VerifyTAPN {
             double _totalTime = 0;
             int _totalSteps = 0;
 
-            std::ranlux48 _rng;
+            boost::random::mt19937_64 _rng;
 
             std::vector<RealMarking*> _trace;
             

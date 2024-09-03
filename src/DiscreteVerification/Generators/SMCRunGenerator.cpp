@@ -8,6 +8,7 @@
 #include "DiscreteVerification/Generators/SMCRunGenerator.h"
 
 #include <numeric>
+#include <deque>
 #include <random>
 #include <algorithm>
 
@@ -60,6 +61,7 @@ namespace VerifyTAPN {
                 }
                 deadlocked &=   _transitionIntervals[i].empty() || 
                                 (
+                                    _transitionIntervals[i].size() == 1 &&
                                     _transitionIntervals[i].front().upper() == 0 &&
                                     _dates_sampled[i] > 0
                                 );
@@ -88,18 +90,23 @@ namespace VerifyTAPN {
                     _transitionIntervals[i] = invInterval;
                 } else {
                     std::vector<interval<double>> firingDates = transitionFiringDates(transi);
-                    _transitionIntervals[i] = Util::setIntersection(firingDates, invInterval);                    
+                    _transitionIntervals[i] = Util::setIntersection(firingDates, invInterval);
                 }
                 bool enabled = (!_transitionIntervals[i].empty()) && (_transitionIntervals[i].front().lower() == 0);
                 bool newlyEnabled = enabled && (_dates_sampled[i] == std::numeric_limits<double>::infinity());
-                if(!enabled) {
+                bool reachedUpper = enabled && !newlyEnabled && (_transitionIntervals[i].front().upper() == 0) && _dates_sampled[i] > 0;
+                if(!enabled || reachedUpper) {
                     _dates_sampled[i] = std::numeric_limits<double>::infinity();
                 } else if(newlyEnabled) {
                     const Distribution& distrib = _tapn.getTransitions()[i]->getDistribution();
-                    _dates_sampled[i] = distrib.sample(_rng);
+                    double date = distrib.sample(_rng);
+                    if(_transitionIntervals[i].front().upper() > 0 || date == 0) {
+                        _dates_sampled[i] = date;
+                    }
                 }
                 deadlocked &=   _transitionIntervals[i].empty() || 
                                 (
+                                    _transitionIntervals[i].size() == 1 &&
                                     _transitionIntervals[i].front().upper() == 0 &&
                                     _dates_sampled[i] > 0
                                 );
@@ -135,9 +142,7 @@ namespace VerifyTAPN {
                 _totalSteps++;
                 _transitionsStatistics[transi->getIndex()]++;
                 _dates_sampled[transi->getIndex()] = std::numeric_limits<double>::infinity();
-                auto [inter, child] = fire(transi);
-                disableTransitions(inter);
-                delete inter;
+                auto child = fire(transi);
                 child->setGeneratedBy(transi);
                 if(recordTrace) {
                     _trace.push_back(child);
@@ -157,6 +162,13 @@ namespace VerifyTAPN {
 
             refreshTransitionsIntervals();
 
+            /*for(auto& transi : _tapn.getTransitions()) {
+                std::cout << transi->getName() << std::endl;
+                for(auto& interv : _transitionIntervals[transi->getIndex()]) {
+                    std::cout << interv.lower() << ";" << interv.upper() << std::endl;
+                }
+            }*/
+
             return _parent;
         }
 
@@ -166,23 +178,24 @@ namespace VerifyTAPN {
             for(int i = 0 ; i < _transitionIntervals.size() ; i++) {
                 auto* intervals = &_transitionIntervals[i];
                 if(intervals->empty()) continue;
-                interval<double>& first = intervals->front();
-                double date = first.lower() > 0 ? first.lower() :
-                                first.upper() > 0 ? first.upper() : 
-                                std::numeric_limits<double>::infinity();
+                double date = std::numeric_limits<double>::infinity();
+                for(auto& interv : *intervals) {
+                    if(interv.lower() > 0) {
+                        date = interv.lower();
+                        break;
+                    }
+                    if(interv.upper() > 0) {
+                        date = interv.upper();
+                        break;
+                    }
+                }
+                date = std::min(_dates_sampled[i], date);
                 if(date < date_min) {
                     date_min = date;
                     winner_indexs.clear();
                 }
-                date = _dates_sampled[i];
-                if(date != std::numeric_limits<double>::infinity() && date <= first.upper()) {
-                    if(date < date_min) {
-                        date_min = date;
-                        winner_indexs.clear();
-                    }
-                    if(date == date_min) {
-                        winner_indexs.push_back(i);
-                    }
+                if(_dates_sampled[i] == date_min) {
+                    winner_indexs.push_back(i);
                 }
             }
             TimedTransition *winner;
@@ -264,43 +277,25 @@ namespace VerifyTAPN {
             }
             if(total_tokens < weight) return std::vector<interval<double>>();
             std::vector<interval<double>> firingDates;
-            size_t firstTokenIndex = 0;
-            size_t consumedInFirst = 0;
-            while(firstTokenIndex < tokens.size()) {
-                RealToken t = tokens[firstTokenIndex];
-                interval<double> tokensSetInterval = remainingForToken(arcInterval, t);
-                size_t inThisSet = t.getCount() - consumedInFirst;
-                consumedInFirst++;
-                if(inThisSet <= weight) {
-                    size_t remaining = weight - inThisSet;
-                    size_t nextSet = firstTokenIndex + 1;
-                    while(remaining >= 0 && nextSet < tokens.size()) {
-                        RealToken nextToken = tokens[nextSet];
-                        tokensSetInterval = Util::intersect<double>(tokensSetInterval, remainingForToken(arcInterval, nextToken));
-                        if(nextToken.getCount() >= remaining) {
-                            remaining = 0;
-                            break;
+            std::deque<double> selected;
+            for(auto& tokenPckt : tokens) {
+                for(int i = 0 ; i < tokenPckt.getCount() ; i++) {
+                    selected.push_back(tokenPckt.getAge());
+                    if(selected.size() > weight) {
+                        selected.pop_front();
+                    }
+                    if(selected.size() == weight) {
+                        interval<double> tokenSetInterval = interval<double>(0, std::numeric_limits<double>::infinity());
+                        for(auto age : selected) {
+                            interval<double> shifted = arcInterval;
+                            shifted.delta(-age);
+                            tokenSetInterval = Util::intersect(tokenSetInterval, shifted);
                         }
-                        remaining -= nextToken.getCount();
-                        nextSet++;
+                        Util::setAdd(firingDates, tokenSetInterval);
                     }
-                    if(remaining > 0) {
-                        return firingDates; // Reached end of tokens...
-                    }
-                }
-                Util::setAdd<double>(firingDates, tokensSetInterval);
-                if(consumedInFirst >= t.getCount()) {
-                    consumedInFirst = 0;
-                    firstTokenIndex++;
                 }
             }
             return firingDates;
-        }
-
-        Util::interval<double> SMCRunGenerator::remainingForToken(const interval<double>& arcInterval, const RealToken& token) {
-            interval<double> tokenInterv = arcInterval;
-            tokenInterv.delta(-token.getAge());
-            return tokenInterv.positive();
         }
         
         std::vector<RealToken> SMCRunGenerator::removeRandom(RealTokenList& tokenList, const TimeInterval& interval, const int weight) {
@@ -386,10 +381,10 @@ namespace VerifyTAPN {
             return res;
         }
 
-        std::tuple<RealMarking*, RealMarking*> SMCRunGenerator::fire(TimedTransition* transi) {
+        RealMarking* SMCRunGenerator::fire(TimedTransition* transi) {
             if (transi == nullptr) {
                 assert(false);
-                return { nullptr, nullptr };
+                return nullptr;
             }
             auto *child = new RealMarking(*_parent);
             RealPlaceList &placelist = child->getPlaceList();
@@ -440,8 +435,6 @@ namespace VerifyTAPN {
                 }
             }
 
-            RealMarking* intermediary = new RealMarking(*child);
-
             for (auto* output : transi->getPostset()) {
                 TimedPlace &place = output->getOutputPlace();
                 RealToken token = RealToken(0.0, output->getWeight());
@@ -450,7 +443,7 @@ namespace VerifyTAPN {
             for (auto [dest, token] : toCreate) {
                 child->addTokenInPlace(dest, token);
             }
-            return { intermediary, child };
+            return child;
         }
 
         bool SMCRunGenerator::reachedEnd() const {
