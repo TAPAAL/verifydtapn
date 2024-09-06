@@ -17,7 +17,7 @@ class SMCVerification : public Verification<RealMarking> {
         SMCVerification(TAPN::TimedArcPetriNet &tapn, RealMarking &initialMarking, AST::SMCQuery *query,
                         VerificationOptions options) 
             : Verification(tapn, initialMarking, query, options)
-            , runGenerator(tapn)
+            , runGenerator(tapn, options.getSMCNumericPrecision())
             , numberOfRuns(0), maxTokensSeen(0), smcSettings(query->getSmcSettings())
             { }
 

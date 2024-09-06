@@ -23,10 +23,11 @@ namespace VerifyTAPN {
 
         public:
 
-            SMCRunGenerator(TAPN::TimedArcPetriNet &tapn)
+            SMCRunGenerator(TAPN::TimedArcPetriNet &tapn, const unsigned int numericPrecision = 0)
             : _tapn(tapn)
             , _defaultTransitionIntervals(tapn.getTransitions().size()) 
             , _transitionsStatistics(tapn.getTransitions().size(), 0)
+            , _numericPrecision(numericPrecision)
             {
                 /*std::random_device rd;
                 _rng = std::ranlux48(rd());*/
@@ -91,6 +92,8 @@ namespace VerifyTAPN {
             double _lastDelay = 0;
             double _totalTime = 0;
             int _totalSteps = 0;
+
+            unsigned int _numericPrecision = 0;
 
             boost::random::mt19937_64 _rng;
 

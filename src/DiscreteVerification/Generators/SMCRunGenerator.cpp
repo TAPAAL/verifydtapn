@@ -57,7 +57,7 @@ namespace VerifyTAPN {
                 auto* intervals = &_transitionIntervals[i];
                 if(!intervals->empty() && intervals->front().lower() == 0) {
                     const Distribution& distrib = _tapn.getTransitions()[i]->getDistribution();
-                    _dates_sampled[i] = distrib.sample(_rng);
+                    _dates_sampled[i] = distrib.sample(_rng, _numericPrecision);
                 }
                 deadlocked &=   _transitionIntervals[i].empty() || 
                                 (
@@ -73,6 +73,7 @@ namespace VerifyTAPN {
         {
             SMCRunGenerator clone(_tapn);
             clone._origin = new RealMarking(*_origin);
+            clone._numericPrecision = _numericPrecision;
             clone._defaultTransitionIntervals = _defaultTransitionIntervals;
             clone.recordTrace = recordTrace;
             clone.reset();
@@ -99,7 +100,7 @@ namespace VerifyTAPN {
                     _dates_sampled[i] = std::numeric_limits<double>::infinity();
                 } else if(newlyEnabled) {
                     const Distribution& distrib = _tapn.getTransitions()[i]->getDistribution();
-                    double date = distrib.sample(_rng);
+                    double date = distrib.sample(_rng, _numericPrecision);
                     if(_transitionIntervals[i].front().upper() > 0 || date == 0) {
                         _dates_sampled[i] = date;
                     }
@@ -161,13 +162,6 @@ namespace VerifyTAPN {
             }
 
             refreshTransitionsIntervals();
-
-            /*for(auto& transi : _tapn.getTransitions()) {
-                std::cout << transi->getName() << std::endl;
-                for(auto& interv : _transitionIntervals[transi->getIndex()]) {
-                    std::cout << interv.lower() << ";" << interv.upper() << std::endl;
-                }
-            }*/
 
             return _parent;
         }

@@ -275,6 +275,14 @@ namespace VerifyTAPN {
             smcTracesType = toSave;
         }
 
+        inline void setSMCNumericPrecision(const unsigned int precision) {
+            smcNumericPrecision = precision;
+        }
+
+        inline unsigned int getSMCNumericPrecision() const {
+            return smcNumericPrecision;
+        }
+
     protected:
         std::string inputFile;
         std::string queryFile;
@@ -306,6 +314,7 @@ namespace VerifyTAPN {
         bool timeStdDev = false;
         unsigned int smcTraces = 0;
         SMCTracesType smcTracesType = ANY_TRACE;
+        unsigned int smcNumericPrecision = 5;
         friend class ArgsParser;
     };
 

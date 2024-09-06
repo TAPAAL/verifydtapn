@@ -1,10 +1,18 @@
 #include "DiscreteVerification/VerificationTypes/SMCVerification.hpp"
 
 #include <thread>
-
+#include <sstream>
 #include <chrono>
+#include <iomanip>
 
 #define STEP_MS 5000
+
+std::string printDouble(double value, unsigned int precision) {
+    std::ostringstream oss;
+    if(precision == 0) precision = std::numeric_limits<double>::max_digits10;
+    oss << std::fixed << std::setprecision(precision) << value;
+    return oss.str();
+}
 
 namespace VerifyTAPN::DiscreteVerification {
 
@@ -292,7 +300,7 @@ SMCVerification::createTokenNode(rapidxml::xml_document<> &doc, const TAPN::Time
     xml_attribute<> *placeAttribute = doc.allocate_attribute("place",
                                                                 doc.allocate_string(place.getName().c_str()));
     tokenNode->append_attribute(placeAttribute);
-    auto str = std::to_string(token.getAge() * tapn.getGCD());
+    auto str = printDouble(token.getAge(), options.getSMCNumericPrecision());
     xml_attribute<> *ageAttribute = doc.allocate_attribute("age", doc.allocate_string(
             str.c_str()));
     tokenNode->append_attribute(ageAttribute);

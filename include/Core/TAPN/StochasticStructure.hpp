@@ -69,7 +69,7 @@ namespace VerifyTAPN::SMC {
         DistributionParameters parameters;
 
         template<typename T>
-        double sample(T& engine) const {
+        double sample(T& engine, const unsigned int precision = 0) const {
             double date = 0;
             switch(type) {
                 case Constant:
@@ -95,7 +95,10 @@ namespace VerifyTAPN::SMC {
                     date = std::geometric_distribution(parameters.geometric.p)(engine);
                     break;
             }
-            date = round(date * 100000) / 100000;
+            if(precision > 0) {
+                double factor = pow(10.0, precision);
+                date = round(date * factor) / factor;
+            }
             return std::max(date, 0.0);
         }
 

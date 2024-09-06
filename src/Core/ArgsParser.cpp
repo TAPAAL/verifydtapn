@@ -181,7 +181,8 @@ namespace VerifyTAPN {
             ("smc-traces-type", po::value<unsigned int>(), "Specify the desired SMC runs to save.\n"
                   " 0: any (default)\n"
                   " 1: only runs satisfying the property\n"
-                  " 2: only runs not satisfying the property");
+                  " 2: only runs not satisfying the property")
+            ("smc-numeric-precision", po::value<unsigned int>(), "Specify the number of rounding digits to use in SMC verifications (default = 5, 0 means no rounding).");
             
     }
 
@@ -294,6 +295,10 @@ namespace VerifyTAPN {
                 type == 2 ? VerificationOptions::UNSATISFYING_TRACES :
                 VerificationOptions::ANY_TRACE
             );
+        }
+
+        if(vm.count("smc-numeric-precision")) {
+            opts.setSMCNumericPrecision(vm["smc-numeric-precision"].as<unsigned int>());
         }
 
         std::vector<std::string> files = po::collect_unrecognized(parsed.options, po::include_positional);
