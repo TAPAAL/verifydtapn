@@ -95,6 +95,7 @@ namespace VerifyTAPN::SMC {
                     date = std::geometric_distribution(parameters.geometric.p)(engine);
                     break;
             }
+            date = round(date * 100000) / 100000;
             return std::max(date, 0.0);
         }
 

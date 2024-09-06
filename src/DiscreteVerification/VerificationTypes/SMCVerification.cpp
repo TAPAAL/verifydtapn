@@ -296,16 +296,6 @@ SMCVerification::createTokenNode(rapidxml::xml_document<> &doc, const TAPN::Time
     xml_attribute<> *ageAttribute = doc.allocate_attribute("age", doc.allocate_string(
             str.c_str()));
     tokenNode->append_attribute(ageAttribute);
-    if (place.getMaxConstant() < token.getAge()) {
-        xml_attribute<> *gtAttribute = doc.allocate_attribute("greaterThanOrEqual",
-                                                                doc.allocate_string("true"));
-        tokenNode->append_attribute(gtAttribute);
-    } else {
-        xml_attribute<> *gtAttribute = doc.allocate_attribute("greaterThanOrEqual",
-                                                                doc.allocate_string("false"));
-        tokenNode->append_attribute(gtAttribute);
-    }
-
     return tokenNode;
 }
 
