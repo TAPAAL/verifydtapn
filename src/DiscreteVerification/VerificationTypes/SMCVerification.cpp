@@ -215,7 +215,7 @@ void SMCVerification::printXMLTrace(std::stack<RealMarking *> &stack, const std:
         } else {
             RealMarking* marking = stack.top();
             if(marking->getPreviousDelay() > 0) {
-                std::string str = std::to_string(marking->getPreviousDelay());
+                std::string str = printDouble(marking->getPreviousDelay(), options.getSMCNumericPrecision());
                 xml_node<>* node = doc.allocate_node(node_element, "delay", doc.allocate_string(str.c_str()));
                 root->append_node(node);
             }
