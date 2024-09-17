@@ -58,6 +58,13 @@ namespace VerifyTAPN { namespace TAPN {
             return number >= lowerBound && number <= upperBound;
         }
 
+        inline bool contains(double number) const {
+            return 
+                (number >= (double) lowerBound && number <= (double) upperBound) ||
+                (std::abs(number - (double) lowerBound) <= std::numeric_limits<double>::epsilon() * 4) || 
+                (std::abs(number - (double) upperBound) <= std::numeric_limits<double>::epsilon() * 4);
+        }
+
         inline bool intersects(const TimeInterval &other) const {
             assert(!leftStrict);
             assert(!other.leftStrict);

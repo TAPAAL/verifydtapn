@@ -171,7 +171,19 @@ namespace VerifyTAPN {
             ("write-unfolded-net", po::value<std::string>(), "Outputs the model to the given file before structural reduction but after unfolding")
             ("bindings,b", "Print bindings to stderr in XML format (only for CPNs, default is not to print)")
             ("write-unfolded-queries", po::value<std::string>(), "Outputs the queries to the given file before query reduction but after unfolding")
-            ("strategy-output", po::value<std::string>(), "File to write synthesized strategy to, use '_' (an underscore) for stdout");
+            ("strategy-output", po::value<std::string>(), "File to write synthesized strategy to, use '_' (an underscore) for stdout")
+            ("smc-benchmark", po::value<unsigned int>(), "Benchmark mode for SMC, runs the number of runs specified to estimate performance")
+            ("smc-parallel", po::bool_switch()->default_value(false), "Enable parallel verification for SMC.")
+            ("smc-print-cumulative-stats", po::value<unsigned int>(), "Prints the cumulative probability stats for SMC quantitative estimation, specifying the rounding precision")
+            ("smc-steps-scale", po::value<unsigned int>(), "Specify the number of slices to use to print steps cumulative stats (scale = 0 means every step, default = 500)")
+            ("smc-time-scale", po::value<unsigned int>(), "Specify the number of slices to use to print time cumulative stats (scale = 0 means every 1 unit, default = 500)")
+            ("smc-traces", po::value<unsigned int>(), "Specify the number of SMC run traces to print (default : 0)")
+            ("smc-traces-type", po::value<unsigned int>(), "Specify the desired SMC runs to save.\n"
+                  " 0: any (default)\n"
+                  " 1: only runs satisfying the property\n"
+                  " 2: only runs not satisfying the property")
+            ("smc-numeric-precision", po::value<unsigned int>(), "Specify the number of rounding digits to use in SMC verifications (default = 5, 0 means no rounding).");
+            
     }
 
 
@@ -249,8 +261,48 @@ namespace VerifyTAPN {
         if(vm.count("strategy-output"))
             opts.setOutputModelFile(vm["strategy-output"].as<std::string>());
 
+        if(vm.count("smc-benchmark")) {
+            opts.setBenchmarkMode(true);
+            if(!vm["smc-benchmark"].empty()) {
+                opts.setBenchmarkRuns(vm["smc-benchmark"].as<unsigned int>());
+            }
+        }
+
+        if(vm.count("smc-parallel")) {
+            opts.setParallel(vm["smc-parallel"].as<bool>());
+        }
+
+        if(vm.count("smc-print-cumulative-stats")) {
+            opts.setPrintCumulative(true);
+            if(!vm["smc-print-cumulative-stats"].empty()) {
+                opts.setCumulativeRoundingDigits(vm["smc-print-cumulative-stats"].as<unsigned int>());
+            }
+        }
+
+        if(vm.count("smc-steps-scale"))
+            opts.setStepsStatsScale(vm["smc-steps-scale"].as<unsigned int>());
+
+        if(vm.count("smc-time-scale"))
+            opts.setTimeStatsScale(vm["smc-time-scale"].as<unsigned int>());
+
+        if(vm.count("smc-traces"))
+            opts.setSmcTraces(vm["smc-traces"].as<unsigned int>());
+
+        if(vm.count("smc-traces-type")) {
+            unsigned int type = vm["smc-traces-type"].as<unsigned int>();
+            opts.setSMCTracesType(
+                type == 1 ? VerificationOptions::SATISFYING_TRACES : 
+                type == 2 ? VerificationOptions::UNSATISFYING_TRACES :
+                VerificationOptions::ANY_TRACE
+            );
+        }
+
+        if(vm.count("smc-numeric-precision")) {
+            opts.setSMCNumericPrecision(vm["smc-numeric-precision"].as<unsigned int>());
+        }
 
         std::vector<std::string> files = po::collect_unrecognized(parsed.options, po::include_positional);
+
         // remove everything that is just a space
         files.erase(std::remove_if(files.begin(), files.end(),
             [](auto& s ) {

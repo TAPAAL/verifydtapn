@@ -8,8 +8,13 @@
 #include "TransportArc.hpp"
 #include "InhibitorArc.hpp"
 #include "OutputArc.hpp"
+#include "Core/Query/SMCQuery.hpp"
+#include "StochasticStructure.hpp"
 
 namespace VerifyTAPN {
+
+    using SMC::Distribution;
+    using SMC::FiringMode;
 
     class SymMarking;
 
@@ -20,10 +25,11 @@ namespace VerifyTAPN {
         public: // typedefs
             typedef std::vector<TimedTransition *> Vector;
         public:
-            TimedTransition(int index, std::string name, std::string id, bool urgent, bool controllable, double x, double y)
+            TimedTransition(int index, std::string name, std::string id, bool urgent, bool controllable, double x, double y, Distribution distrib = Distribution::defaultDistribution(), double weight = 1, FiringMode firingMode = SMC::Oldest)
                     : index(index), name(std::move(name)), id(std::move(id)), preset(), postset(), transportArcs(),
                       untimedPostset(true),
-                      urgent(urgent), controllable(controllable), _position({x,y}) {};
+                      urgent(urgent), controllable(controllable), _position({x,y}), 
+                      _distribution(distrib), _weight(weight), _firingMode(firingMode) {};
 
             TimedTransition() : name("*EMPTY*"), id("-1"), preset(), postset(), transportArcs(), index(-1),
                                 untimedPostset(true), urgent(false) {};
@@ -116,6 +122,30 @@ namespace VerifyTAPN {
                 return _position;
             }
 
+            const Distribution& getDistribution() const {
+                return _distribution;
+            }
+
+            inline void setDistribution(Distribution distrib) {
+                _distribution = distrib;
+            }
+
+            const double& getWeight() const {
+                return _weight;
+            }
+
+            inline void setWeight(double weight) {
+                _weight = weight;
+            }
+
+            const FiringMode& getFiringMode() const {
+                return _firingMode;
+            }
+
+            inline void setFiringMode(FiringMode firingMode) {
+                _firingMode = firingMode;
+            }
+
         private: // data
             const int index = 0;
             std::string name;
@@ -128,6 +158,9 @@ namespace VerifyTAPN {
             bool urgent = false;
             bool controllable{};
             std::pair<double,double> _position;
+            Distribution _distribution;
+            double _weight;
+            FiringMode _firingMode = SMC::Oldest;
         };
 
         inline std::ostream &operator<<(std::ostream &out, const TimedTransition &transition) {

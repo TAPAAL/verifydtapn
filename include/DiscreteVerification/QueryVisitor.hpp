@@ -184,7 +184,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
     template<typename T>
     void QueryVisitor<T>::visit(Query &query, AST::Result &context) {
         query.getChild()->accept(*this, context);
-        if (query.getQuantifier() == AG || query.getQuantifier() == AF) {
+        if (query.getQuantifier() == AG || query.getQuantifier() == AF || query.getQuantifier() == PG) {
             static_cast<BoolResult &>(context).value
                     = !static_cast<BoolResult &>(context).value;
         }
