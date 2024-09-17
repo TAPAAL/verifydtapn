@@ -8,8 +8,6 @@
 #ifndef SMCRUNGENERATOR_H
 #define SMCRUNGENERATOR_H
 
-#include <boost/random/mersenne_twister.hpp>
-
 #include "DiscreteVerification/Generators/Generator.h"
 #include "DiscreteVerification/Util/IntervalOps.hpp"
 #include "Core/Query/SMCQuery.hpp"
@@ -29,8 +27,8 @@ namespace VerifyTAPN {
             , _transitionsStatistics(tapn.getTransitions().size(), 0)
             , _numericPrecision(numericPrecision)
             {
-                /*std::random_device rd;
-                _rng = std::ranlux48(rd());*/
+                std::random_device rd;
+                _rng = std::ranlux48(rd());
             };
 
             ~SMCRunGenerator() {
@@ -95,7 +93,7 @@ namespace VerifyTAPN {
 
             unsigned int _numericPrecision = 0;
 
-            boost::random::mt19937_64 _rng;
+            std::ranlux48 _rng;
 
             std::vector<RealMarking*> _trace;
             
