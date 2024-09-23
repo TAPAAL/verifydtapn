@@ -347,7 +347,10 @@ namespace TAPN {
             out << "<transition player=\"" << (transition->isControllable() ? 0 : 1)
                 << "\" id=\"" << transition->getName() << "\" name=\"" << transition->getName()
                 << "\" urgent=\"" << std::boolalpha << transition->isUrgent() 
-                << "\" weight=\"" << transition->getWeight()
+                << "\" weight=\"" << (
+                    transition->getWeight() == std::numeric_limits<double>::infinity() ?
+                    "Infinity" : std::to_string(transition->getWeight())
+                )
                 << "\" firingMode=\"" << SMC::firingModeName(transition->getFiringMode())
                 << "\" " << transition->getDistribution().toXML()
                 << ">\n";
