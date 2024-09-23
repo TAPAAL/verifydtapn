@@ -349,7 +349,7 @@ namespace TAPN {
                 << "\" urgent=\"" << std::boolalpha << transition->isUrgent() 
                 << "\" weight=\"" << (
                     transition->getWeight() == std::numeric_limits<double>::infinity() ?
-                    "Infinity" : std::to_string(transition->getWeight())
+                    "inf" : std::to_string(transition->getWeight())
                 )
                 << "\" firingMode=\"" << SMC::firingModeName(transition->getFiringMode())
                 << "\" " << transition->getDistribution().toXML()
