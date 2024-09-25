@@ -4,6 +4,7 @@
 #include <sstream>
 #include <chrono>
 #include <iomanip>
+#include <algorithm>
 
 #define STEP_MS 5000
 
@@ -32,12 +33,14 @@ bool SMCVerification::parallel_run() {
             bool continueExecution = true;
             while(continueExecution) {
                 bool runRes = executeRun(&generator);
+                double runDuration = std::min(generator.getRunDelay(), (double) smcSettings.timeBound);
+                int runSteps = std::min(generator.getRunSteps(), smcSettings.stepBound);
                 {
                     std::lock_guard<std::mutex> lock(run_res_mutex);
-                    totalTime += generator.getRunDelay();
-                    totalSteps += generator.getRunSteps();
+                    totalTime += runDuration;
+                    totalSteps += runSteps;
                     numberOfRuns++;
-                    handleRunResult(runRes, generator.getRunSteps(), generator.getRunDelay());
+                    handleRunResult(runRes, runSteps, runDuration);
                     if(mustSaveTrace()) handleTrace(runRes, &generator);
                     generator.recordTrace = mustSaveTrace();
                     continueExecution = mustDoAnotherRun();
@@ -67,12 +70,14 @@ bool SMCVerification::run() {
     int64_t stepDuration;
     while(mustDoAnotherRun()) {
         bool runRes = executeRun();
-        handleRunResult(runRes, runGenerator.getRunSteps(), runGenerator.getRunDelay());
+        double runDuration = std::min(runGenerator.getRunDelay(), (double) smcSettings.timeBound);
+        int runSteps = std::min(runGenerator.getRunSteps(), smcSettings.stepBound);
+        handleRunResult(runRes, runSteps, runDuration);
         if(mustSaveTrace()) handleTrace(runRes);
         runGenerator.recordTrace = mustSaveTrace();
         
-        totalTime += runGenerator.getRunDelay();
-        totalSteps += runGenerator.getRunSteps();
+        totalTime += runDuration;
+        totalSteps += runSteps;
         numberOfRuns++;
         runGenerator.reset();
         
