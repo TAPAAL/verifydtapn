@@ -25,7 +25,7 @@ namespace VerifyTAPN {
             double originMaxDelay = _origin->availableDelay();
             std::vector<interval<double>> invInterval = { interval<double>(0, originMaxDelay) };
             for(auto transi : _tapn.getTransitions()) {
-                if(transi->getPresetSize() == 0) {
+                if(transi->getPresetSize() == 0 && transi->getNumberOfInhibitorArcs() == 0) {
                     _defaultTransitionIntervals[transi->getIndex()] = invInterval;
                 } else {
                     std::vector<interval<double>> firingDates = transitionFiringDates(transi);
@@ -87,7 +87,7 @@ namespace VerifyTAPN {
             bool deadlocked = true;
             for(auto transi : _tapn.getTransitions()) {
                 int i = transi->getIndex();
-                if(transi->getPresetSize() == 0) {
+                if(transi->getPresetSize() == 0 && transi->getNumberOfInhibitorArcs() == 0) {
                     _transitionIntervals[i] = invInterval;
                 } else {
                     std::vector<interval<double>> firingDates = transitionFiringDates(transi);

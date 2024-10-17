@@ -68,7 +68,9 @@ namespace VerifyTAPN {
 
             inline unsigned int getNumberOfInputArcs() const { return preset.size(); };
 
-            inline unsigned int getNumberOfTransportArcs() const { return transportArcs.size(); };
+            inline unsigned int getNumberOfTransportArcs() const { return transportArcs.size(); }
+
+            inline unsigned int getNumberOfInhibitorArcs() const { return inhibitorArcs.size(); }
 
             inline bool isConservative() const { return preset.size() == postset.size(); }
 
