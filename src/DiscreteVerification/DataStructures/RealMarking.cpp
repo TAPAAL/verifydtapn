@@ -52,6 +52,7 @@ RealMarking::RealMarking(const RealMarking& other)
 {
     places = other.places;
     deadlocked = other.deadlocked;
+    totalAge = other.totalAge;
 }
 
 uint32_t RealMarking::size() const
@@ -78,6 +79,7 @@ void RealMarking::deltaAge(double x)
     for(auto& place : places) {
         place.deltaAge(x);
     }
+    totalAge += x;
 }
 
 NonStrictMarkingBase RealMarking::generateImage()
