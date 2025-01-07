@@ -136,8 +136,8 @@ void SMCVerification::setMaxTokensIfGreater(unsigned int i) {
 bool SMCVerification::reachedRunBound(SMCRunGenerator* generator) {
     if(generator == nullptr) generator = &runGenerator;
     return 
-        generator->getRunDelay() >= smcSettings.timeBound ||
-        generator->getRunSteps() >= smcSettings.stepBound;
+        generator->getRunDelay() > smcSettings.timeBound ||
+        generator->getRunSteps() > smcSettings.stepBound;
 }
 
 void SMCVerification::handleTrace(const bool runRes, SMCRunGenerator* generator) {
