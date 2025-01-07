@@ -160,10 +160,10 @@ void SMCVerification::saveTrace(SMCRunGenerator* generator) {
 
 void SMCVerification::initWatchs(unsigned int n_threads) {
     std::vector<Observable>& obs = getSmcQuery()->getObservables();
-    watchs.reserve(obs.size());
+    watchs.resize(obs.size());
     for(int i = 0 ; i < obs.size() ; i++) {
-        WatchExpression* expr = std::get<1>(obs[i]);
-        Watch w(expr);
+        ArithmeticExpression* expr = std::get<1>(obs[i]);
+        Watch w(&tapn, expr);
         watchs[i].resize(n_threads, w);
     }
     watch_aggrs.resize(obs.size());

@@ -3,6 +3,9 @@
 
 #include "AST.hpp"
 #include <PQL/SMCExpressions.h>
+#include "Core/TAPN/WatchExpression.hpp"
+
+using VerifyTAPN::TAPN::Observable;
 
 namespace VerifyTAPN::AST {
 

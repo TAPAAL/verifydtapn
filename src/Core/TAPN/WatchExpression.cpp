@@ -1,42 +1,20 @@
 #include "Core/TAPN/WatchExpression.hpp"
+#include "DiscreteVerification/QueryVisitor.hpp"
+#include "DiscreteVerification/DataStructures/RealMarking.hpp"
 
 using namespace VerifyTAPN::TAPN;
 using VerifyTAPN::DiscreteVerification::RealMarking;
+using VerifyTAPN::DiscreteVerification::QueryVisitor;
 
 using std::vector;
-
-double WatchPlace::eval(RealMarking *marking)
-{
-    double sum = 0.0;
-    for(const int& id : _ids) {
-        sum += marking->numberOfTokensInPlace(id);
-    }
-}
-
-double WatchAdd::eval(RealMarking *marking)
-{
-    return _left->eval(marking) + _right->eval(marking);
-}
-
-double WatchSubtract::eval(RealMarking *marking)
-{
-    return _left->eval(marking) - _right->eval(marking);
-}
-
-double WatchMultiply::eval(RealMarking *marking)
-{
-    return _left->eval(marking) * _right->eval(marking);
-}
-
-double WatchDivide::eval(RealMarking *marking)
-{
-    return _left->eval(marking) / _right->eval(marking);
-}
 
 float Watch::new_marking(RealMarking *marking)
 {
     float timestamp = marking->getTotalAge();
-    double value = _expr->eval(marking);
+    QueryVisitor<RealMarking> checker(*marking, *_tapn);
+    IntResult res;
+    _expr->accept(checker, res);
+    double value = res.value;
     _values.push_back(value);
     _timestamps.push_back(timestamp);
     return value;
@@ -93,6 +71,7 @@ void WatchAggregator::aggregate(unsigned int stepBins, unsigned int timeBins)
         float binSize = ((float) longest) / stepBins;
         for(int i = 0 ; i < step_avg.size() ; i++) {
             size_t bin = floor(i / binSize);
+            bin = std::min(bin, (size_t) stepBins - 1);
             if(bin >= step_bins.size()) {
                 step_avg_bins.push_back(step_avg[i] / n_watchs);
                 step_max_bins.push_back(step_max[i]);
@@ -123,6 +102,7 @@ void WatchAggregator::aggregate(unsigned int stepBins, unsigned int timeBins)
         float timestamp = timestamps[i];
         float value = time_values[i];
         size_t bin = floor(timestamp / binSize);
+        bin = std::min(bin, (size_t) timeBins - 1);
         if(std::isnan(timestamps_bins[bin])) {
             timestamps_bins[bin] = bin * binSize;
             time_avg[bin] = value / n_watchs;
@@ -168,6 +148,9 @@ void VerifyTAPN::TAPN::printPlot(std::stringstream &stream, const std::string &t
 {
     stream << title << std::endl;
     for(int i = 0 ; i < x.size() ; i++) {
+        if(std::isnan(x[i]) || std::isnan(y[i])) {
+            continue;
+        }
         stream << x[i] << ":" << y[i] << ";";
     }
     stream << std::endl;

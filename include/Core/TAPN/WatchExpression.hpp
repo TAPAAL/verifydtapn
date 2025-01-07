@@ -1,91 +1,28 @@
 #ifndef WATCH_EXPR_HPP_
 #define WATCH_EXPR_HPP_
 
-#include "DiscreteVerification/DataStructures/RealMarking.hpp"
+#include "Core/Query/AST.hpp"
 
+namespace VerifyTAPN::DiscreteVerification {
+    class RealMarking;
+}
 using VerifyTAPN::DiscreteVerification::RealMarking;
 
+using VerifyTAPN::AST::ArithmeticExpression;
+
 namespace VerifyTAPN::TAPN {
-
-    class WatchExpression {
-        public:
-            virtual double eval(RealMarking* marking) = 0;
-    };
-
-    class WatchConstant : public WatchExpression {
-        protected:
-            double _value;
-        public:
-            WatchConstant(double value) 
-                : _value(value) { }
-
-            double eval(RealMarking* marking) override { return _value; }
-    };
-
-    class WatchPlace : public WatchExpression {
-        protected:
-            std::vector<int> _ids;
-        public:
-            WatchPlace(std::vector<int> ids) 
-                : _ids(ids) { }
-
-            double eval(RealMarking* marking) override;
-    };
-
-    class WatchAdd : public WatchExpression {
-        protected:
-            std::unique_ptr<WatchExpression> _left;
-            std::unique_ptr<WatchExpression> _right;
-        public:
-            WatchAdd(WatchExpression* left, WatchExpression* right) 
-                : _left(left), _right(right) { }
-
-            double eval(RealMarking* marking) override;
-    };
-
-    class WatchSubtract : public WatchExpression {
-        protected:
-            std::unique_ptr<WatchExpression> _left;
-            std::unique_ptr<WatchExpression> _right;
-        public:
-            WatchSubtract(WatchExpression* left, WatchExpression* right) 
-                : _left(left), _right(right) { }
-
-            double eval(RealMarking* marking) override;
-    };
-
-    class WatchMultiply : public WatchExpression {
-        protected:
-            std::unique_ptr<WatchExpression> _left;
-            std::unique_ptr<WatchExpression> _right;
-        public:
-            WatchMultiply(WatchExpression* left, WatchExpression* right) 
-                : _left(left), _right(right) { }
-
-            double eval(RealMarking* marking) override;
-    };
-
-    class WatchDivide : public WatchExpression {
-        protected:
-            std::unique_ptr<WatchExpression> _left;
-            std::unique_ptr<WatchExpression> _right;
-        public:
-            WatchDivide(WatchExpression* left, WatchExpression* right) 
-                : _left(left), _right(right) { }
-
-            double eval(RealMarking* marking) override;
-    };
 
     class Watch {
         friend class WatchAggregator;
 
         protected:
-            WatchExpression* _expr;
+            ArithmeticExpression* _expr;
             std::vector<float> _values;
             std::vector<float> _timestamps;
+            TimedArcPetriNet* _tapn;
 
         public:
-            Watch(WatchExpression* expr) : _expr(expr) { }
+            Watch(TimedArcPetriNet* tapn, ArithmeticExpression* expr) : _expr(expr), _tapn(tapn) { }
 
             float new_marking(RealMarking* marking);
 
@@ -117,7 +54,7 @@ namespace VerifyTAPN::TAPN {
             std::vector<float> timestamps;
     };
 
-    using Observable = std::tuple<std::string, WatchExpression*>;
+    using Observable = std::tuple<std::string, ArithmeticExpression*>;
 
     void printPlot(std::stringstream& stream, const std::string& title, const std::vector<float>& x, const std::vector<float> y);
     void printIntXPlot(std::stringstream& stream, const std::string& title, const std::vector<float> y);
