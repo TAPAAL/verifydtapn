@@ -27,13 +27,13 @@ jobs:
     - name: Prebuild
       run: |
         mkdir build && cd build
-        CC=gcc-14 CXX=g++-14 cmake ../ -DCMAKE_BUILD_TYPE=Prebuild -DBISON_EXECUTABLE=/usr/local/opt/bison/bin/bison -DFLEX_EXECUTABLE=/usr/local/opt/flex/bin/flex
+        CC=gcc-14 CXX=g++-14 cmake ../ -DCMAKE_BUILD_TYPE=Prebuild -DBISON_EXECUTABLE=/opt/homebrew/opt/bison/bin/bison -DFLEX_EXECUTABLE=/opt/homebrew/opt/flex/bin/flex
         make
 
     - name: Build 
       run: |
         cd build
-        CC=gcc-14 CXX=g++-14 cmake ../ -DCMAKE_BUILD_TYPE=Release -DBISON_EXECUTABLE=/usr/local/opt/bison/bin/bison -DFLEX_EXECUTABLE=/usr/local/opt/flex/bin/flex
+        CC=gcc-14 CXX=g++-14 cmake ../ -DCMAKE_BUILD_TYPE=Release -DBISON_EXECUTABLE=/opt/homebrew/opt/bison/bin/bison -DFLEX_EXECUTABLE=/opt/homebrew/opt/flex/bin/flex
         make
 
     - name: Upload artifacts 
