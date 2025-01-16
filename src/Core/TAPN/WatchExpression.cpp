@@ -44,10 +44,12 @@ void WatchAggregator::new_watch(Watch* watch)
             step_avg.push_back(x);
             step_min.push_back(x);
             step_max.push_back(x);
+            step_runs_count.push_back(1);
         } else {
             if(x > step_max[i]) step_max[i] = x;
             if(x < step_min[i]) step_min[i] = x;
             step_avg[i] += x;
+            step_runs_count[i]++;
         }
         float tstamp = watch->_timestamps[i];
         timestamps.push_back(tstamp); // Might be faster to insert whole vector after, but not sure :/
@@ -62,7 +64,7 @@ void WatchAggregator::aggregate(unsigned int stepBins, unsigned int timeBins)
     step_bins.clear();
     if(stepBins == 0 || stepBins >= longest) {
         for(int i = 0 ; i < longest ; i++) {
-            step_avg[i] /= n_watchs;
+            step_avg[i] /= step_runs_count[i];
             step_bins.push_back(i);
         }
     }
@@ -79,7 +81,7 @@ void WatchAggregator::aggregate(unsigned int stepBins, unsigned int timeBins)
                 step_bins.push_back(bin * binSize);
                 continue;
             }
-            step_avg_bins[bin] += step_avg[i] / n_watchs;
+            step_avg_bins[bin] += step_avg[i] / step_runs_count[i];
             if(step_max[i] > step_max_bins[bin]) {
                 step_max_bins[bin] = step_max[i];
             }
@@ -125,6 +127,7 @@ void WatchAggregator::reset()
     step_avg.clear();
     step_min.clear();
     step_max.clear();
+    step_runs_count.clear();
     time_values.clear();
     time_avg.clear();
     time_min.clear();

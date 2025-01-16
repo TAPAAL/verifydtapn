@@ -47,6 +47,7 @@ namespace VerifyTAPN::TAPN {
             std::vector<float> step_avg;
             std::vector<float> step_min;
             std::vector<float> step_max;
+            std::vector<float> step_runs_count;
             std::vector<float> time_values;
             std::vector<float> time_avg;
             std::vector<float> time_min;
