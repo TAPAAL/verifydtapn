@@ -27,7 +27,6 @@ jobs:
             echo "$(uname -m) detected. This test must be run on x86_64"
             exit -1
         fi
-        exit 0
     
     - name: Install depends
       run: |
