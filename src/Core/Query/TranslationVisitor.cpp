@@ -193,7 +193,11 @@ namespace VerifyTAPN {
             check_first(true);
             SMCSettings settings = SMCSettings::fromPQL(condition->settings());
             (*condition)[0]->visit(*this);
-            _result = std::make_unique<SMCQuery>(Quantifier::PG, settings, get_e_result());    
+            auto smcQuery = new SMCQuery(Quantifier::PG, settings, get_e_result());
+            for(const auto& obs : condition->getObservables()) {
+                smcQuery->getObservables().push_back(translateObservable(obs));
+            }
+            _result = std::unique_ptr<SMCQuery>(smcQuery); 
         }
 
         void TranslationVisitor::_accept(const unfoldtacpn::PQL::BooleanCondition *element) {
