@@ -70,18 +70,21 @@ void WatchAggregator::aggregate(unsigned int stepBins, unsigned int timeBins)
     }
     else {
         vector<float> step_avg_bins, step_min_bins, step_max_bins;
+        vector<size_t> bin_runs_count(stepBins, (size_t) 0);
         float binSize = ((float) longest) / stepBins;
         for(int i = 0 ; i < step_avg.size() ; i++) {
             size_t bin = floor(i / binSize);
             bin = std::min(bin, (size_t) stepBins - 1);
             if(bin >= step_bins.size()) {
-                step_avg_bins.push_back(step_avg[i] / n_watchs);
+                step_avg_bins.push_back(step_avg[i]);
                 step_max_bins.push_back(step_max[i]);
                 step_min_bins.push_back(step_min[i]);
+                bin_runs_count[bin] += step_runs_count[i];
                 step_bins.push_back(bin * binSize);
                 continue;
             }
-            step_avg_bins[bin] += step_avg[i] / step_runs_count[i];
+            step_avg_bins[bin] += step_avg[i];
+            bin_runs_count[bin] += step_runs_count[i];
             if(step_max[i] > step_max_bins[bin]) {
                 step_max_bins[bin] = step_max[i];
             }
@@ -89,9 +92,13 @@ void WatchAggregator::aggregate(unsigned int stepBins, unsigned int timeBins)
                 step_min_bins[bin] = step_min[i];
             }
         }
+        for(int b = 0 ; b < stepBins ; b++) {
+            step_avg_bins[b] /= bin_runs_count[b];
+        }
         step_avg = step_avg_bins;
         step_min = step_min_bins;
         step_max = step_max_bins;
+        bin_runs_count.clear();
     }
     step_runs_count.clear();
 
