@@ -93,6 +93,7 @@ void WatchAggregator::aggregate(unsigned int stepBins, unsigned int timeBins)
         step_min = step_min_bins;
         step_max = step_max_bins;
     }
+    step_runs_count.clear();
 
     float timestampmax = timestamps.back();
     float binSize = timestampmax / timeBins;
@@ -100,6 +101,7 @@ void WatchAggregator::aggregate(unsigned int stepBins, unsigned int timeBins)
     time_avg = std::vector(timestamps_bins); 
     time_min = std::vector(timestamps_bins);
     time_max = std::vector(timestamps_bins);
+    std::vector<size_t> time_runs_count = std::vector(timeBins, (size_t) 0);
     for(int i = 0 ; i < time_values.size() ; i++) {
         float timestamp = timestamps[i];
         float value = time_values[i];
@@ -107,16 +109,24 @@ void WatchAggregator::aggregate(unsigned int stepBins, unsigned int timeBins)
         bin = std::min(bin, (size_t) timeBins - 1);
         if(std::isnan(timestamps_bins[bin])) {
             timestamps_bins[bin] = bin * binSize;
-            time_avg[bin] = value / n_watchs;
+            time_avg[bin] = value;
             time_max[bin] = value;
             time_min[bin] = value;
+            time_runs_count[bin]++;
             continue;
         }
-        time_avg[bin] += value / n_watchs;
+        time_avg[bin] += value;
         if(value > time_max[bin]) time_max[bin] = value;
         if(value < time_min[bin]) time_min[bin] = value;
+        time_runs_count[bin]++;
     }
     timestamps = timestamps_bins;
+    for(size_t i = 0 ; i < timeBins ; i++) {
+        if(!std::isnan(timestamps[i])) {
+            time_avg[i] /= time_runs_count[i];
+        }   
+    }
+    time_runs_count.clear();
     time_values.clear();
 }
 
