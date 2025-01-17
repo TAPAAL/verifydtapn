@@ -42,7 +42,7 @@ bool SMCVerification::parallel_run() {
                     totalTime += runDuration;
                     totalSteps += runSteps;
                     numberOfRuns++;
-                    handleRunResult(runRes, runSteps, runDuration);
+                    handleRunResult(runRes, runSteps, runDuration, generator._thread_id);
                     if(mustSaveTrace()) handleTrace(runRes, &generator);
                     generator.recordTrace = mustSaveTrace();
                     continueExecution = mustDoAnotherRun();

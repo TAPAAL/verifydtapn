@@ -53,6 +53,7 @@ RealMarking::RealMarking(const RealMarking& other)
     places = other.places;
     deadlocked = other.deadlocked;
     totalAge = other.totalAge;
+    _thread_id = other._thread_id;
 }
 
 uint32_t RealMarking::size() const

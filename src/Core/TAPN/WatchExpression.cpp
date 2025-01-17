@@ -26,6 +26,10 @@ void Watch::reset()
     _timestamps.clear();
 }
 
+size_t Watch::n_values() const {
+    return _values.size();
+}
+
 std::string Watch::get_plots(const std::string& name) const 
 {
     std::stringstream plots;

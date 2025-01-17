@@ -58,8 +58,8 @@ bool ProbabilityEstimation::handleSuccessor(RealMarking* marking) {
     AST::BoolResult context;
     query->accept(checker, context);
 
-    for(auto& threads_watchs : watchs) {
-        Watch& w = threads_watchs[marking->_thread_id];
+    for(int i = 0 ; i < watchs.size() ; i++) {
+        Watch& w = watchs[i][marking->_thread_id];
         w.new_marking(marking);
     }
 

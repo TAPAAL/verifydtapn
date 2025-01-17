@@ -29,6 +29,8 @@ namespace VerifyTAPN::TAPN {
             std::string get_plots(const std::string& name) const;
 
             void reset();
+
+            size_t n_values() const;
     };
 
     class WatchAggregator {
