@@ -98,6 +98,7 @@ void WatchAggregator::aggregate(unsigned int stepBins, unsigned int timeBins)
         }
         for(int b = 0 ; b < stepBins ; b++) {
             step_avg_bins[b] /= bin_runs_count[b];
+            global_steps_avg += step_avg_bins[b] / stepBins;
         }
         step_avg = step_avg_bins;
         step_min = step_min_bins;
@@ -135,6 +136,7 @@ void WatchAggregator::aggregate(unsigned int stepBins, unsigned int timeBins)
     for(size_t i = 0 ; i < timeBins ; i++) {
         if(!std::isnan(timestamps[i])) {
             time_avg[i] /= time_runs_count[i];
+            global_time_avg += time_avg[i] / timeBins;
         }   
     }
     time_runs_count.clear();
@@ -154,7 +156,10 @@ void WatchAggregator::reset()
     time_min.clear();
     time_max.clear();
     timestamps.clear();
+    global_steps_avg = 0.0;
+    global_time_avg = 0.0;
 }
+
 std::string WatchAggregator::get_plots(const std::string& name) const
 {
     std::stringstream plots;
@@ -165,6 +170,8 @@ std::string WatchAggregator::get_plots(const std::string& name) const
     printPlot(plots, id + " avg/time", timestamps, time_avg);
     printPlot(plots, id + " min/time", timestamps, time_min);
     printPlot(plots, id + " max/time", timestamps, time_max);
+    plots << id << " Global steps avg.: " << global_steps_avg << std::endl;
+    plots << id << " Global time avg.: " << global_time_avg << std::endl;
     return plots.str();
 }
 
