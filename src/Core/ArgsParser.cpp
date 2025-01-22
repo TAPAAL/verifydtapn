@@ -285,6 +285,9 @@ namespace VerifyTAPN {
         if(vm.count("smc-time-scale"))
             opts.setTimeStatsScale(vm["smc-time-scale"].as<unsigned int>());
 
+        if(vm.count("smc-obs-scale"))
+            opts.setObsStatsScale(vm["smc-obs-scale"].as<unsigned int>());
+
         if(vm.count("smc-traces"))
             opts.setSmcTraces(vm["smc-traces"].as<unsigned int>());
 

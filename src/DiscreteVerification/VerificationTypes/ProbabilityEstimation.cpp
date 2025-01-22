@@ -220,7 +220,7 @@ void ProbabilityEstimation::printCumulativeStats() {
 void ProbabilityEstimation::printWatchStats() {
     auto& obs = getSmcQuery()->getObservables();
     for(int i = 0 ; i < obs.size() ; i++) {
-        watch_aggrs[i].aggregate(options.getStepsStatsScale(), options.getTimeStatsScale());
+        watch_aggrs[i].aggregate(options.getObsStatsScale(), options.getObsStatsScale());
         std::string plot = watch_aggrs[i].get_plots(std::get<0>(obs[i]));
         std::cout << plot;
         watch_aggrs[i].reset();
