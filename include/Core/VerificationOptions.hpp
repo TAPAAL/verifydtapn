@@ -319,7 +319,7 @@ namespace VerifyTAPN {
         unsigned int cumulativeRoundingDigits = 2;
         unsigned int stepsStatsScale = 2000;
         unsigned int timeStatsScale = 2000;
-        unsigned int obsStatsScale = 100;
+        unsigned int obsStatsScale = 500;
         bool timeStdDev = false;
         unsigned int smcTraces = 0;
         SMCTracesType smcTracesType = ANY_TRACE;
