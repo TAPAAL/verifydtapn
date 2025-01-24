@@ -64,7 +64,7 @@ void WatchAggregator::new_watch(Watch* watch)
     n_watchs++;
 }
 
-void WatchAggregator::aggregate(unsigned int stepBins, unsigned int timeBins)
+void WatchAggregator::aggregateSteps(unsigned int stepBins)
 {
     size_t longest = step_avg.size();
     step_bins.clear();
@@ -108,7 +108,10 @@ void WatchAggregator::aggregate(unsigned int stepBins, unsigned int timeBins)
         bin_runs_count.clear();
     }
     step_runs_count.clear();
+}
 
+void WatchAggregator::aggregateTime(unsigned int timeBins)
+{
     if(timeBins == 0) {
         std::vector<size_t> indexs(time_values.size());
         std::iota(indexs.begin(), indexs.end(), 0);
@@ -164,6 +167,12 @@ void WatchAggregator::aggregate(unsigned int stepBins, unsigned int timeBins)
     time_values.clear();
 }
 
+void WatchAggregator::aggregate(unsigned int stepBins, unsigned int timeBins)
+{
+    aggregateSteps(stepBins);
+    aggregateTime(timeBins);
+}
+
 void WatchAggregator::reset()
 {
     n_watchs = 0;
@@ -198,21 +207,29 @@ std::string WatchAggregator::get_plots(const std::string& name) const
 
 void VerifyTAPN::TAPN::printPlot(std::stringstream &stream, const std::string &title, const std::vector<float> &x, const std::vector<float> y)
 {
+    float prev = std::numeric_limits<float>::quiet_NaN();
     stream << title << std::endl;
     for(int i = 0 ; i < x.size() ; i++) {
         if(std::isnan(x[i]) || std::isnan(y[i])) {
             continue;
         }
-        stream << x[i] << ":" << y[i] << ";";
+        float value = y[i];
+        if(!std::isnan(prev) && value == prev) continue;
+        stream << x[i] << ":" << value << ";";
+        prev = value;
     }
     stream << std::endl;
 }
 
 void VerifyTAPN::TAPN::printIntXPlot(std::stringstream &stream, const std::string &title, const std::vector<float> y)
 {
+    float prev = std::numeric_limits<float>::quiet_NaN();
     stream << title << std::endl;
     for(int i = 0 ; i < y.size() ; i++) {
-        stream << i << ":" << y[i] << ";";
+        float value = y[i];
+        if(!std::isnan(prev) && value == prev) continue;
+        stream << i << ":" << value << ";";
+        prev = value;
     }
     stream << std::endl;
 }

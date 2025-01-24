@@ -56,8 +56,17 @@ namespace VerifyTAPN::TAPN {
             std::vector<float> time_max;
             std::vector<float> timestamps;
 
+            std::vector<std::vector<float>> watch_values;
+            std::vector<std::vector<float>> watch_timestamps;
+
             float global_steps_avg = 0.0;
             float global_time_avg = 0.0;
+
+        private:
+
+            void aggregateSteps(unsigned int stepBins);
+            void aggregateTime(unsigned int timeBins);
+
     };
 
     using Observable = std::tuple<std::string, ArithmeticExpression*>;

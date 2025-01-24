@@ -25,6 +25,14 @@ bool SMCTracesGenerator::handleSuccessor(RealMarking* marking) {
     QueryVisitor<RealMarking> checker(*marking, tapn);
     AST::BoolResult context;
     query->accept(checker, context);
+
+    if(marking->getGeneratedBy() != nullptr) {
+        for(int i = 0 ; i < watchs.size() ; i++) {
+            Watch& w = watchs[i][marking->_thread_id];
+            w.new_marking(marking);
+        }
+    }
+
     delete marking;
     return context.value;
 }
