@@ -19,7 +19,10 @@ namespace VerifyTAPN::TAPN {
             ArithmeticExpression* _expr;
             std::vector<float> _values;
             std::vector<float> _timestamps;
+            std::vector<unsigned short> _steps;
             TimedArcPetriNet* _tapn;
+
+            short _current_step = 0;
 
         public:
             Watch(TimedArcPetriNet* tapn, ArithmeticExpression* expr) : _expr(expr), _tapn(tapn) { }
@@ -44,26 +47,26 @@ namespace VerifyTAPN::TAPN {
 
             std::string get_plots(const std::string& name) const;
 
-            int n_watchs = 0;
             std::vector<float> step_bins;
             std::vector<float> step_avg;
             std::vector<float> step_min;
             std::vector<float> step_max;
-            std::vector<float> step_runs_count;
-            std::vector<float> time_values;
+
+            std::vector<float> timestamps;
             std::vector<float> time_avg;
             std::vector<float> time_min;
             std::vector<float> time_max;
-            std::vector<float> timestamps;
 
             std::vector<std::vector<float>> watch_values;
             std::vector<std::vector<float>> watch_timestamps;
+            std::vector<std::vector<unsigned short>> watch_steps;
 
             float global_steps_avg = 0.0;
             float global_time_avg = 0.0;
 
         private:
 
+            void resetAggregation();
             void aggregateSteps(unsigned int stepBins);
             void aggregateTime(unsigned int timeBins);
 
@@ -71,7 +74,23 @@ namespace VerifyTAPN::TAPN {
 
     using Observable = std::tuple<std::string, ArithmeticExpression*>;
 
-    void printPlot(std::stringstream& stream, const std::string& title, const std::vector<float>& x, const std::vector<float> y);
+    template<typename T>
+    void printPlot(std::stringstream& stream, const std::string& title, const std::vector<T>& x, const std::vector<float> y)
+    {
+        float prev = std::numeric_limits<float>::quiet_NaN();
+        stream << title << std::endl;
+        for(int i = 0 ; i < x.size() ; i++) {
+            if(std::isnan(x[i]) || std::isnan(y[i])) {
+                continue;
+            }
+            float value = y[i];
+            if(!std::isnan(prev) && value == prev) continue;
+            stream << x[i] << ":" << value << ";";
+            prev = value;
+        }
+        stream << std::endl;
+    }
+
     void printIntXPlot(std::stringstream& stream, const std::string& title, const std::vector<float> y);
 
 }

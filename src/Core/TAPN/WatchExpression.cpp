@@ -17,8 +17,12 @@ float Watch::new_marking(RealMarking *marking)
     IntResult res;
     _expr->accept(checker, res);
     double value = res.value;
-    _values.push_back(value);
-    _timestamps.push_back(timestamp);
+    if(_values.size() == 0 || value != _values.back()) {
+        _values.push_back(value);
+        _timestamps.push_back(timestamp);
+        _steps.push_back(_current_step);
+    }
+    _current_step++;
     return value;
 }
 
@@ -26,6 +30,8 @@ void Watch::reset()
 {
     _values.clear();
     _timestamps.clear();
+    _steps.clear();
+    _current_step = 0;
 }
 
 size_t Watch::n_values() const {
@@ -37,80 +43,37 @@ std::string Watch::get_plots(const std::string& name) const
     std::stringstream plots;
     std::vector<float> bins;
     std::string id = "(" + name + ")";
-    printIntXPlot(plots, id + " value/step", _values);
+    printPlot(plots, id + " value/step", _steps, _values);
     printPlot(plots, id + " value/time", _timestamps, _values);
     return plots.str();
 }
 
 void WatchAggregator::new_watch(Watch* watch)
 {
-    for(int i = 0 ; i < watch->_values.size() ; i++) {
-        float x = watch->_values[i];
-        if(i >= step_avg.size()) {
-            step_avg.push_back(x);
-            step_min.push_back(x);
-            step_max.push_back(x);
-            step_runs_count.push_back(1);
-        } else {
-            if(x > step_max[i]) step_max[i] = x;
-            if(x < step_min[i]) step_min[i] = x;
-            step_avg[i] += x;
-            step_runs_count[i]++;
-        }
-        float tstamp = watch->_timestamps[i];
-        timestamps.push_back(tstamp); // Might be faster to insert whole vector after, but not sure :/
-        time_values.push_back(x);
-    }
-    n_watchs++;
+    watch_values.push_back(watch->_values);
+    watch_timestamps.push_back(watch->_timestamps);
+    watch_steps.push_back(watch->_steps);
 }
 
-void WatchAggregator::aggregateSteps(unsigned int stepBins)
+void WatchAggregator::aggregateSteps(unsigned int nBins)
 {
-    size_t longest = step_avg.size();
-    step_bins.clear();
-    if(stepBins == 0 || stepBins >= longest) {
-        for(int i = 0 ; i < longest ; i++) {
-            step_avg[i] /= step_runs_count[i];
-            step_bins.push_back(i);
+    unsigned short longest = 0;
+    for(const auto& steps : watch_steps) {
+        auto& max_step = steps.back();
+        if(max_step > longest) {
+            longest = max_step;
         }
     }
-    else {
-        vector<float> step_avg_bins, step_min_bins, step_max_bins;
-        vector<size_t> bin_runs_count(stepBins, (size_t) 0);
-        float binSize = ((float) longest) / stepBins;
-        for(int i = 0 ; i < step_avg.size() ; i++) {
-            size_t bin = floor(i / binSize);
-            bin = std::min(bin, (size_t) stepBins - 1);
-            if(bin >= step_bins.size()) {
-                step_avg_bins.push_back(step_avg[i]);
-                step_max_bins.push_back(step_max[i]);
-                step_min_bins.push_back(step_min[i]);
-                bin_runs_count[bin] += step_runs_count[i];
-                step_bins.push_back(bin * binSize);
-                continue;
-            }
-            step_avg_bins[bin] += step_avg[i];
-            bin_runs_count[bin] += step_runs_count[i];
-            if(step_max[i] > step_max_bins[bin]) {
-                step_max_bins[bin] = step_max[i];
-            }
-            if(step_min[i] < step_min_bins[bin]) {
-                step_min_bins[bin] = step_min[i];
-            }
-        }
-        for(int b = 0 ; b < stepBins ; b++) {
-            step_avg_bins[b] /= bin_runs_count[b];
-            global_steps_avg += step_avg_bins[b] / stepBins;
-        }
-        step_avg = step_avg_bins;
-        step_min = step_min_bins;
-        step_max = step_max_bins;
-        bin_runs_count.clear();
+    if(nBins == 0 || nBins >= longest) {
+        nBins = longest;
     }
-    step_runs_count.clear();
+    step_avg = std::vector(nBins, std::numeric_limits<float>::quiet_NaN());
+    step_min = step_avg;
+    step_max = step_avg;
+    
 }
 
-void WatchAggregator::aggregateTime(unsigned int timeBins)
+void WatchAggregator::aggregateTime(unsigned int nBins)
 {
     if(timeBins == 0) {
         std::vector<size_t> indexs(time_values.size());
@@ -167,27 +130,35 @@ void WatchAggregator::aggregateTime(unsigned int timeBins)
     time_values.clear();
 }
 
+void WatchAggregator::resetAggregation() 
+{
+    step_bins.clear();
+    step_avg.clear();
+    step_min.clear();
+    step_max.clear();
+
+    timestamps.clear();
+    time_avg.clear();
+    time_min.clear();
+    time_max.clear();
+
+    global_steps_avg = 0.0;
+    global_time_avg = 0.0;
+}
+
 void WatchAggregator::aggregate(unsigned int stepBins, unsigned int timeBins)
 {
+    resetAggregation();
     aggregateSteps(stepBins);
     aggregateTime(timeBins);
 }
 
 void WatchAggregator::reset()
 {
-    n_watchs = 0;
-    step_bins.clear();
-    step_avg.clear();
-    step_min.clear();
-    step_max.clear();
-    step_runs_count.clear();
-    time_values.clear();
-    time_avg.clear();
-    time_min.clear();
-    time_max.clear();
-    timestamps.clear();
-    global_steps_avg = 0.0;
-    global_time_avg = 0.0;
+    watch_values.clear();
+    watch_timestamps.clear();
+    watch_steps.clear();
+    resetAggregation();
 }
 
 std::string WatchAggregator::get_plots(const std::string& name) const
@@ -203,22 +174,6 @@ std::string WatchAggregator::get_plots(const std::string& name) const
     plots << id << " Global steps avg.: " << global_steps_avg << std::endl;
     plots << id << " Global time avg.: " << global_time_avg << std::endl;
     return plots.str();
-}
-
-void VerifyTAPN::TAPN::printPlot(std::stringstream &stream, const std::string &title, const std::vector<float> &x, const std::vector<float> y)
-{
-    float prev = std::numeric_limits<float>::quiet_NaN();
-    stream << title << std::endl;
-    for(int i = 0 ; i < x.size() ; i++) {
-        if(std::isnan(x[i]) || std::isnan(y[i])) {
-            continue;
-        }
-        float value = y[i];
-        if(!std::isnan(prev) && value == prev) continue;
-        stream << x[i] << ":" << value << ";";
-        prev = value;
-    }
-    stream << std::endl;
 }
 
 void VerifyTAPN::TAPN::printIntXPlot(std::stringstream &stream, const std::string &title, const std::vector<float> y)
