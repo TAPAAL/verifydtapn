@@ -33,6 +33,11 @@ void SMCTracesGenerator::printResult() {
     std::cout << "Generated " << traces.size() << " random traces" << std::endl;
 }
 
+void SMCTracesGenerator::printStats() {
+    SMCVerification::printStats();
+    printWatchStats();
+}
+
 void SMCTracesGenerator::printWatchStats() {
     std::vector<Observable>& obs = getSmcQuery()->getObservables();
     for(int run_i = 0 ; run_i < savedWatchs.size() ; run_i++) {

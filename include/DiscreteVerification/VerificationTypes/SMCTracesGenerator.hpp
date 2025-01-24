@@ -27,6 +27,8 @@ class SMCTracesGenerator : public SMCVerification {
 
         void printWatchStats();
 
+	void printStats() override;
+
         void handleTrace(const bool runRes, SMCRunGenerator* generator = nullptr) override;
 
     private:
