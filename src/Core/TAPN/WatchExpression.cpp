@@ -67,10 +67,47 @@ void WatchAggregator::aggregateSteps(unsigned int nBins)
     if(nBins == 0 || nBins >= longest) {
         nBins = longest;
     }
-    step_avg = std::vector(nBins, std::numeric_limits<float>::quiet_NaN());
+    float delta = longest / nBins;
+    step_avg = std::vector(nBins + 1, std::numeric_limits<float>::quiet_NaN());
     step_min = step_avg;
     step_max = step_avg;
-    
+    std::vector<float> current_values(watch_steps.size(), std::numeric_limits<float>::quiet_NaN());
+    std::vector<size_t> current_indexs(watch_steps.size(), 0);
+    for(int i = 0 ; i < nBins ; i++) {
+        float current_x = i * delta;
+        float avg = 0;
+        float min = std::numeric_limits<float>::quiet_NaN();
+        float max = std::numeric_limits<float>::quiet_NaN();
+        int n_runs = 0;
+        for(int j = 0 ; j < watch_steps.size() ; j++) {
+            size_t idx = current_indexs[j];
+            while(idx < watch_steps[j].size() - 1 && watch_steps[j][idx + 1] <= current_x) {
+                idx++;
+                float value = watch_values[j][idx];
+                if(std::isnan(max) || value > max) {
+                    max = value;
+                }
+                if(std::isnan(min) || value < min) {
+                    min = value;
+                }
+                current_values[j] = value;
+            }
+            current_indexs[j] = idx;
+            if(idx < watch_steps[j].size() - 1) {
+                avg += current_values[j];
+                if(std::isnan(max) || current_values[j] > max) {
+                    max = current_values[j];
+                }
+                if(std::isnan(min) || current_values[j] < min) {
+                    min = current_values[j];
+                }
+                n_runs++;
+            }
+        }
+        step_avg[i] = avg / n_runs;
+        step_min[i] = min;
+        step_max[i] = max;
+    }
 }
 
 void WatchAggregator::aggregateTime(unsigned int nBins)
