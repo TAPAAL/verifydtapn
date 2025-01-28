@@ -72,9 +72,9 @@ void WatchAggregator::new_watch(Watch* watch)
 
 void WatchAggregator::aggregateSteps(unsigned int nBins)
 {
-    unsigned short longest = 0;
+    unsigned int longest = 0;
     for(const auto& steps : watch_steps) {
-        unsigned short max_step = steps.back();
+        unsigned int max_step = steps.back();
         if(max_step > longest) {
             longest = max_step;
         }

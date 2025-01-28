@@ -23,7 +23,7 @@ namespace VerifyTAPN::TAPN {
             ArithmeticExpression* _expr;
             std::vector<float> _values;
             std::vector<float> _timestamps;
-            std::vector<unsigned short> _steps;
+            std::vector<unsigned int> _steps;
             TimedArcPetriNet* _tapn;
 
             float _max_time = 0;
@@ -65,7 +65,7 @@ namespace VerifyTAPN::TAPN {
 
             std::vector<std::vector<float>> watch_values;
             std::vector<std::vector<float>> watch_timestamps;
-            std::vector<std::vector<unsigned short>> watch_steps;
+            std::vector<std::vector<unsigned int>> watch_steps;
 
             float global_steps_avg = 0.0;
             float global_time_avg = 0.0;
