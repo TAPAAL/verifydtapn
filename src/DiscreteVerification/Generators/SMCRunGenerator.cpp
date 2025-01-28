@@ -134,6 +134,11 @@ namespace VerifyTAPN {
                 return nullptr;
             }
 
+            if(recordTrace && _parent->getGeneratedBy() != nullptr) {
+                _parent = new RealMarking(*_parent);
+                _trace.push_back(_parent);
+            }
+
             _parent->deltaAge(delay);
             _totalTime += delay;
 
@@ -147,12 +152,10 @@ namespace VerifyTAPN {
                 child->setGeneratedBy(transi);
                 if(recordTrace) {
                     _trace.push_back(child);
-                    _parent = new RealMarking(*child);
-                    _trace.push_back(_parent);
                 } else {
                     delete _parent;
-                    _parent = child;
                 }
+                _parent = child;
             }
 
             for(int i = 0 ; i < _transitionIntervals.size() ; i++) {

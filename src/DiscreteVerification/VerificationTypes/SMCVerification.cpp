@@ -105,6 +105,7 @@ bool SMCVerification::executeRun(SMCRunGenerator* generator) {
     while(!generator->reachedEnd() && !reachedRunBound(generator)) {
         RealMarking* child = new RealMarking(*newMarking);
         child->_thread_id = generator->_thread_id;
+        child->setGeneratedBy(newMarking->getGeneratedBy());
         runRes = handleSuccessor(child);
         if(runRes) break;
         newMarking = generator->next();

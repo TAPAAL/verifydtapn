@@ -26,11 +26,9 @@ bool SMCTracesGenerator::handleSuccessor(RealMarking* marking) {
     AST::BoolResult context;
     query->accept(checker, context);
 
-    if(marking->getGeneratedBy() != nullptr) {
-        for(int i = 0 ; i < watchs.size() ; i++) {
-            Watch& w = watchs[i][marking->_thread_id];
-            w.new_marking(marking);
-        }
+    for(int i = 0 ; i < watchs.size() ; i++) {
+        Watch& w = watchs[i][marking->_thread_id];
+        w.new_marking(marking);
     }
 
     delete marking;
@@ -50,7 +48,6 @@ void SMCTracesGenerator::printWatchStats() {
     std::vector<Observable>& obs = getSmcQuery()->getObservables();
     for(int run_i = 0 ; run_i < savedWatchs.size() ; run_i++) {
         std::vector<Watch>& runWatchs = savedWatchs[run_i];
-        std::cout << "observations of run " << run_i << ":" << std::endl;
         for(int i = 0 ; i < obs.size() ; i++) {
             std::string plot = runWatchs[i].get_plots(std::get<0>(obs[i]));
             std::cout << plot << std::endl;
@@ -78,7 +75,8 @@ void SMCTracesGenerator::saveWatchs(const unsigned int thread_id) {
     std::vector<Watch> toSave;
     for(int i = 0 ; i < watchs.size() ; i++) {
         Watch& w = watchs[i][thread_id];
-        toSave.push_back(w);
+        w.close();
+        toSave.push_back(Watch(w));
         w.reset();
     }
     savedWatchs.push_back(toSave);

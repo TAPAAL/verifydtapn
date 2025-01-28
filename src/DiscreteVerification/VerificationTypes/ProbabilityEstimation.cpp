@@ -27,6 +27,7 @@ void ProbabilityEstimation::handleRunResult(const bool decisive, int steps, doub
     //bool valid = (query->getQuantifier() == PF && decisive) || (query->getQuantifier() == PG && !decisive);
     for(int i = 0 ; i < watch_aggrs.size() ; i++) {
         Watch* w = &watchs[i][thread_id];
+        w->close();
         watch_aggrs[i].new_watch(w);
         w->reset();
     }
@@ -58,11 +59,9 @@ bool ProbabilityEstimation::handleSuccessor(RealMarking* marking) {
     AST::BoolResult context;
     query->accept(checker, context);
 
-    if(marking->getGeneratedBy() != nullptr) {
-        for(int i = 0 ; i < watchs.size() ; i++) {
-            Watch& w = watchs[i][marking->_thread_id];
-            w.new_marking(marking);
-        }
+    for(int i = 0 ; i < watchs.size() ; i++) {
+        Watch& w = watchs[i][marking->_thread_id];
+        w.new_marking(marking);
     }
 
     delete marking;

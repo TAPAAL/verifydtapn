@@ -3,6 +3,10 @@
 
 #include "Core/Query/AST.hpp"
 
+#include <cmath>
+#include <string>
+#include <sstream>
+
 namespace VerifyTAPN::DiscreteVerification {
     class RealMarking;
 }
@@ -22,12 +26,14 @@ namespace VerifyTAPN::TAPN {
             std::vector<unsigned short> _steps;
             TimedArcPetriNet* _tapn;
 
-            short _current_step = 0;
+            float _max_time = 0;
+            float _max_step = 0;
 
         public:
             Watch(TimedArcPetriNet* tapn, ArithmeticExpression* expr) : _expr(expr), _tapn(tapn) { }
 
             float new_marking(RealMarking* marking);
+            void close();
 
             std::string get_plots(const std::string& name) const;
 
@@ -68,6 +74,7 @@ namespace VerifyTAPN::TAPN {
 
             void resetAggregation();
             void aggregateSteps(unsigned int stepBins);
+            void infiniteTimeAggreg();
             void aggregateTime(unsigned int timeBins);
 
     };
@@ -80,18 +87,16 @@ namespace VerifyTAPN::TAPN {
         float prev = std::numeric_limits<float>::quiet_NaN();
         stream << title << std::endl;
         for(int i = 0 ; i < x.size() ; i++) {
-            if(std::isnan(x[i]) || std::isnan(y[i])) {
+            if(std::isnan(y[i])) {
                 continue;
             }
             float value = y[i];
-            if(!std::isnan(prev) && value == prev) continue;
+            //if(!std::isnan(prev) && value == prev && i < x.size() - 1) continue;
             stream << x[i] << ":" << value << ";";
             prev = value;
         }
         stream << std::endl;
     }
-
-    void printIntXPlot(std::stringstream& stream, const std::string& title, const std::vector<float> y);
 
 }
 
