@@ -22,9 +22,15 @@ void ProbabilityEstimation::prepare()
     std::cout << "Need to execute " << runsNeeded << " runs to produce estimation" << std::endl;
 }
 
-void ProbabilityEstimation::handleRunResult(const bool decisive, int steps, double delay)
+void ProbabilityEstimation::handleRunResult(const bool decisive, int steps, double delay, unsigned int thread_id)
 {
     //bool valid = (query->getQuantifier() == PF && decisive) || (query->getQuantifier() == PG && !decisive);
+    for(int i = 0 ; i < watch_aggrs.size() ; i++) {
+        Watch* w = &watchs[i][thread_id];
+        w->close();
+        watch_aggrs[i].new_watch(w);
+        w->reset();
+    }
     if(decisive) {
         validRuns++;
         validRunsTime += delay;
@@ -53,6 +59,11 @@ bool ProbabilityEstimation::handleSuccessor(RealMarking* marking) {
     AST::BoolResult context;
     query->accept(checker, context);
 
+    for(int i = 0 ; i < watchs.size() ; i++) {
+        Watch& w = watchs[i][marking->_thread_id];
+        w.new_marking(marking);
+    }
+
     delete marking;
 
     return context.value;
@@ -75,11 +86,12 @@ void ProbabilityEstimation::printStats() {
     printValidRunsStats();
     printViolatingRunsStats();
     if(options.mustPrintCumulative()) printCumulativeStats();
+    printWatchStats();
 }
 
 void ProbabilityEstimation::printValidRunsStats() {
     std::string category = "valid";
-    if(query->getQuantifier() == PF) {
+    if(query->getQuantifier() == PF) { 
         printRunsStats(category, validRuns, validRunsSteps, validRunsTime, validPerStep, validPerDelay);
     } else {
         printRunsStats(category, numberOfRuns - validRuns, violatingRunSteps, violatingRunTime, violatingPerStep, violatingPerDelay);
@@ -204,6 +216,16 @@ void ProbabilityEstimation::printCumulativeStats() {
         std::cout << maxValidDuration << ":" << getEstimation() << ";";
     }
     std::cout << std::endl;
+}
+
+void ProbabilityEstimation::printWatchStats() {
+    auto& obs = getSmcQuery()->getObservables();
+    for(int i = 0 ; i < obs.size() ; i++) {
+        watch_aggrs[i].aggregate(options.getObsStatsScale(), options.getObsStatsScale());
+        std::string plot = watch_aggrs[i].get_plots(std::get<0>(obs[i]));
+        std::cout << plot;
+        watch_aggrs[i].reset();
+    }
 }
 
 void ProbabilityEstimation::printResult() {
