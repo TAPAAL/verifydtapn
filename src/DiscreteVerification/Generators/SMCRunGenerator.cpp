@@ -481,7 +481,7 @@ namespace VerifyTAPN {
         }
 
         void SMCRunGenerator::printPlaceStatistics(std::ostream &out) const {
-            out << std::endl << "PLACE STATISTICS";
+            out << std::endl << "PLACE-BOUND STATISTICS";
             for (unsigned int i = 0; i < _placesStatistics.size(); i++) {
                 if ((i) % 6 == 0) {
                     out << std::endl;

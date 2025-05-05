@@ -31,6 +31,7 @@ class SMCVerification : public Verification<RealMarking> {
 
         virtual void printStats() override;
         void printTransitionStatistics() const override;
+        void printPlaceStatistics() override;
 
         unsigned int maxUsedTokens() override;
         void setMaxTokensIfGreater(unsigned int i);
