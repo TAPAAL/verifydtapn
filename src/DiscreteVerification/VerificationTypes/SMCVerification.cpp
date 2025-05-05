@@ -127,7 +127,7 @@ void SMCVerification::printTransitionStatistics() const {
 }
 
 void SMCVerification::printPlaceStatistics() {
-    runGenerator.printPlaceStatistics(std::cout);
+    runGenerator.printPlaceStatistics(std::cout, numberOfRuns);
 }
 
 unsigned int SMCVerification::maxUsedTokens() {
