@@ -49,6 +49,8 @@ bool SMCVerification::parallel_run() {
                 }
                 generator.reset();
             }
+            std::lock_guard<std::mutex> lock(run_res_mutex);
+            runGenerator.mergeStatistics(generator);
         });
         handles.push_back(handle);
     }

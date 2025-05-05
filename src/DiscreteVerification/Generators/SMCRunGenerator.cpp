@@ -32,6 +32,9 @@ namespace VerifyTAPN {
                     _defaultTransitionIntervals[transi->getIndex()] = Util::setIntersection(firingDates, invInterval);
                 }
             }
+            for(auto place : _tapn.getPlaces()) {
+                _placesStatistics[place->getIndex()] = parent->numberOfTokensInPlace(place->getIndex());
+            }
             reset();
         }
 
@@ -436,9 +439,17 @@ namespace VerifyTAPN {
                 TimedPlace &place = output->getOutputPlace();
                 RealToken token = RealToken(0.0, output->getWeight());
                 child->addTokenInPlace(place, token);
+                int place_i = place.getIndex();
+                if(child->numberOfTokensInPlace(place_i) > _placesStatistics[place_i]) {
+                    _placesStatistics[place_i] = child->numberOfTokensInPlace(place_i);
+                }
             }
             for (auto [dest, token] : toCreate) {
                 child->addTokenInPlace(dest, token);
+                int place_i = dest.getIndex();
+                if(child->numberOfTokensInPlace(place_i) > _placesStatistics[place_i]) {
+                    _placesStatistics[place_i] = child->numberOfTokensInPlace(place_i);
+                }
             }
             return child;
         }
@@ -455,18 +466,43 @@ namespace VerifyTAPN {
             return _totalSteps;
         }
 
-        void SMCRunGenerator::printTransitionStatistics(std::ostream &out) const {
+        void SMCRunGenerator::printTransitionStatistics(std::ostream &out, const size_t& n) const {
             out << std::endl << "TRANSITION STATISTICS";
             for (unsigned int i = 0; i < _transitionsStatistics.size(); i++) {
                 if ((i) % 6 == 0) {
                     out << std::endl;
-                    out << "<" << _tapn.getTransitions()[i]->getName() << ":" << _transitionsStatistics[i] << ">";
+                    out << "<" << _tapn.getTransitions()[i]->getName() << ":" << (_transitionsStatistics[i] / n) << ">";
                 } else {
-                    out << " <" << _tapn.getTransitions()[i]->getName() << ":" << _transitionsStatistics[i] << ">";
+                    out << " <" << _tapn.getTransitions()[i]->getName() << ":" << (_transitionsStatistics[i] / n) << ">";
                 }
             }
             out << std::endl;
             out << std::endl;
+        }
+
+        void SMCRunGenerator::printPlaceStatistics(std::ostream &out) const {
+            out << std::endl << "PLACE STATISTICS";
+            for (unsigned int i = 0; i < _placesStatistics.size(); i++) {
+                if ((i) % 6 == 0) {
+                    out << std::endl;
+                    out << "<" << _tapn.getPlaces()[i]->getName() << ":" << _placesStatistics[i] << ">";
+                } else {
+                    out << " <" << _tapn.getPlaces()[i]->getName() << ":" << _placesStatistics[i] << ">";
+                }
+            }
+            out << std::endl;
+            out << std::endl;
+        }
+
+        void SMCRunGenerator::mergeStatistics(const SMCRunGenerator& other) {
+            for(int i = 0 ; i < _transitionsStatistics.size() ; i++) {
+                _transitionsStatistics[i] += other._transitionsStatistics[i];
+            }
+            for(int i = 0 ; i < _placesStatistics.size() ; i++) {
+                if(_placesStatistics[i] < other._placesStatistics[i]) {
+                    _placesStatistics[i] = other._placesStatistics[i];
+                }
+            }
         }
 
         std::stack<RealMarking*> SMCRunGenerator::getTrace() const {
