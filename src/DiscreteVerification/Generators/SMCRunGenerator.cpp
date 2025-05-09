@@ -472,9 +472,9 @@ namespace VerifyTAPN {
             for (unsigned int i = 0; i < _transitionsStatistics.size(); i++) {
                 if ((i) % 6 == 0) {
                     out << std::endl;
-                    out << "<" << _tapn.getTransitions()[i]->getName() << ":" << (((double) _transitionsStatistics[i]) / n) << ">";
+                    out << "<" << _tapn.getTransitions()[i]->getName() << ";" << (((double) _transitionsStatistics[i]) / n) << ">";
                 } else {
-                    out << " <" << _tapn.getTransitions()[i]->getName() << ":" << (((double) _transitionsStatistics[i]) / n) << ">";
+                    out << " <" << _tapn.getTransitions()[i]->getName() << ";" << (((double) _transitionsStatistics[i]) / n) << ">";
                 }
             }
             out << std::endl;
@@ -486,9 +486,9 @@ namespace VerifyTAPN {
             for (unsigned int i = 0; i < _placesStatistics.size(); i++) {
                 if ((i) % 6 == 0) {
                     out << std::endl;
-                    out << "<" << _tapn.getPlaces()[i]->getName() << ":" << (((double) _placesStatistics[i]) / n) << ">";
+                    out << "<" << _tapn.getPlaces()[i]->getName() << ";" << (((double) _placesStatistics[i]) / n) << ">";
                 } else {
-                    out << " <" << _tapn.getPlaces()[i]->getName() << ":" << (((double) _placesStatistics[i]) / n) << ">";
+                    out << " <" << _tapn.getPlaces()[i]->getName() << ";" << (((double) _placesStatistics[i]) / n) << ">";
                 }
             }
             out << std::endl;
