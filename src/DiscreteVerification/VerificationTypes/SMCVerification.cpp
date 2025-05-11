@@ -49,6 +49,8 @@ bool SMCVerification::parallel_run() {
                 }
                 generator.reset();
             }
+            std::lock_guard<std::mutex> lock(run_res_mutex);
+            runGenerator.mergeStatistics(generator);
         });
         handles.push_back(handle);
     }
@@ -121,7 +123,11 @@ void SMCVerification::printStats() {
 }
 
 void SMCVerification::printTransitionStatistics() const {
-    runGenerator.printTransitionStatistics(std::cout);
+    runGenerator.printTransitionStatistics(std::cout, numberOfRuns);
+}
+
+void SMCVerification::printPlaceStatistics() {
+    runGenerator.printPlaceStatistics(std::cout, numberOfRuns);
 }
 
 unsigned int SMCVerification::maxUsedTokens() {

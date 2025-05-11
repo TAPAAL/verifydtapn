@@ -25,6 +25,8 @@ namespace VerifyTAPN {
             : _tapn(tapn)
             , _defaultTransitionIntervals(tapn.getTransitions().size()) 
             , _transitionsStatistics(tapn.getTransitions().size(), 0)
+            , _currentPlacesStatistics(tapn.getNumberOfPlaces(), 0)
+            , _placesStatistics(tapn.getNumberOfPlaces(), 0)
             , _numericPrecision(numericPrecision)
             {
                 std::random_device rd;
@@ -69,7 +71,9 @@ namespace VerifyTAPN {
             double getRunDelay() const;
             int getRunSteps() const;
 
-            void printTransitionStatistics(std::ostream &out) const;
+            void printTransitionStatistics(std::ostream &out, const size_t& n = 1) const;
+            void printPlaceStatistics(std::ostream &out, const size_t& n = 1) const;
+            void mergeStatistics(const SMCRunGenerator& other);
 
             std::stack<RealMarking*> getTrace() const;
 
@@ -87,6 +91,8 @@ namespace VerifyTAPN {
             std::vector<std::vector<Util::interval<double>>> _transitionIntervals; // Type not pretty, but need disjoint intervals
             std::vector<double> _dates_sampled;
             std::vector<uint32_t> _transitionsStatistics;
+            std::vector<uint32_t> _currentPlacesStatistics;
+            std::vector<uint32_t> _placesStatistics;
             RealMarking* _origin;
             RealMarking* _parent;
             double _lastDelay = 0;
