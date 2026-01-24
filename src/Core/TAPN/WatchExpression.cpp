@@ -2,20 +2,24 @@
 #include "DiscreteVerification/QueryVisitor.hpp"
 #include "DiscreteVerification/DataStructures/RealMarking.hpp"
 
+#include "DiscreteVerification/Util/ClockValue.hpp"
+
 #include <numeric>
 
 using namespace VerifyTAPN::TAPN;
 using VerifyTAPN::DiscreteVerification::RealMarking;
 using VerifyTAPN::DiscreteVerification::QueryVisitor;
 
+using VerifyTAPN::DiscreteVerification::Util::clockToDouble;
+
 using std::vector;
 
-float Watch::new_marking(RealMarking *marking)
+float Watch::new_marking(RealMarking *marking, const uint32_t precision)
 {
     if(_max_step > 0 && marking->getGeneratedBy() == nullptr) {
         return _values.back();
     }
-    float timestamp = marking->getTotalAge();
+    float timestamp = clockToDouble(marking->getTotalAge(), precision);
     QueryVisitor<RealMarking> checker(*marking, *_tapn);
     IntResult res;
     _expr->accept(checker, res);

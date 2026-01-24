@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <map>
 #include <cassert>
+#include <cstdint>
 
 namespace VerifyTAPN { namespace TAPN {
 

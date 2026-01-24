@@ -4,6 +4,7 @@
 #include <random>
 #include <sstream>
 #include <string>
+#include <vector>
 
 namespace VerifyTAPN::SMC {
 
@@ -25,7 +26,8 @@ namespace VerifyTAPN::SMC {
         DiscreteUniform,
         Geometric,
         Triangular,
-        LogNormal
+        LogNormal,
+        Custom
     };
 
     std::string distributionName(DistributionType type);
@@ -64,6 +66,10 @@ namespace VerifyTAPN::SMC {
         double logMean;
         double logStddev;
     };
+    struct SMCCustomParameters {
+        double* values;
+        int len;
+    };
 
     union DistributionParameters {
         SMCUniformParameters uniform;
@@ -75,6 +81,7 @@ namespace VerifyTAPN::SMC {
         SMCGeometricParameters geometric;
         SMCTriangularParameters triangular;
         SMCLogNormalParameters logNormal;
+        SMCCustomParameters custom;
     };
 
     struct Distribution {
@@ -82,7 +89,7 @@ namespace VerifyTAPN::SMC {
         DistributionParameters parameters;
 
         template<typename T>
-        double sample(T& engine, const unsigned int precision = 0) const {
+        double sample(T& engine, int& index) const {
             double date = 0;
             switch(type) {
                 case Constant:
@@ -116,10 +123,10 @@ namespace VerifyTAPN::SMC {
                 case LogNormal: 
                     date = std::lognormal_distribution(parameters.logNormal.logMean, parameters.logNormal.logStddev)(engine);
                     break;
-            }
-            if(precision > 0) {
-                double factor = pow(10.0, precision);
-                date = round(date * factor) / factor;
+                case Custom:
+                    date = parameters.custom.values[index];
+                    index = (index + 1) % parameters.custom.len;
+                    break;
             }
             return std::max(date, 0.0);
         }

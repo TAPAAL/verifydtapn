@@ -75,7 +75,7 @@ RealTokenList& RealMarking::getTokenList(int placeId)
     return places[placeId].tokens;
 }
 
-void RealMarking::deltaAge(double x)
+void RealMarking::deltaAge(clockValue x)
 {
     for(auto& place : places) {
         place.deltaAge(x);
@@ -104,7 +104,7 @@ bool RealMarking::canDeadlock(const TAPN::TimedArcPetriNet &tapn, int maxDelay, 
     return deadlocked;
 }
 
-bool RealMarking::removeToken(int placeId, double age)
+bool RealMarking::removeToken(int placeId, clockValue age)
 {
     RealToken token(age, 1);
     return removeToken(placeId, token);
@@ -120,7 +120,7 @@ bool RealMarking::removeToken(RealPlace &place, RealToken &token)
     return place.remove(token);
 }
 
-void RealMarking::addTokenInPlace(TAPN::TimedPlace &place, double age)
+void RealMarking::addTokenInPlace(TAPN::TimedPlace &place, clockValue age)
 {
     RealToken token(age, 1);
     addTokenInPlace(place, token);
@@ -136,12 +136,12 @@ void RealMarking::addTokenInPlace(const TAPN::TimedPlace &place, RealToken &toke
     places[place.getIndex()].add(token);
 }
 
-double RealMarking::availableDelay() const
+clockValue RealMarking::availableDelay(const uint32_t precision) const
 {
-    double available = std::numeric_limits<double>::infinity();
+    clockValue available = std::numeric_limits<clockValue>::max();
     for(const auto& place : places) {
         if(place.isEmpty()) continue;
-        double delay = place.availableDelay();
+        clockValue delay = place.availableDelay(precision);
         if(delay < available) {
             available = delay;
         }
@@ -154,7 +154,7 @@ void RealMarking::setDeadlocked(const bool dead)
     deadlocked = dead;
 }
 
-bool RealMarking::enables(TAPN::TimedTransition* transition) {
+bool RealMarking::enables(TAPN::TimedTransition* transition, const uint32_t precision) {
     for(auto input : transition->getInhibitorArcs()) {
         uint32_t weight = input->getWeight();
         RealTokenList tokens = getTokenList(input->getInputPlace().getIndex());
@@ -170,10 +170,13 @@ bool RealMarking::enables(TAPN::TimedTransition* transition) {
     }
     for(auto input : transition->getPreset()) {
         TAPN::TimeInterval interval = input->getInterval();
+        clockValue lower = toClock(interval.getLowerBound(), precision);
+        clockValue upper = toClock(interval.getUpperBound(), precision);
         uint32_t weight = input->getWeight();
         RealTokenList tokens = getTokenList(input->getInputPlace().getIndex());
         for(auto& token : tokens) {
-            if(interval.contains(token.getAge())) {
+            clockValue age = token.getAge();
+            if(lower <= age && upper >= age) {
                 if(token.getCount() > weight) {
                     weight = 0;
                 } else {
@@ -189,10 +192,13 @@ bool RealMarking::enables(TAPN::TimedTransition* transition) {
         TAPN::TimeInterval interval = input->getInterval();
         if(outputPlace.getInvariant().getBound() < interval.getUpperBound())
             interval.setUpperBound(outputPlace.getInvariant().getBound(), false);
+        clockValue lower = toClock(interval.getLowerBound(), precision);
+        clockValue upper = toClock(interval.getUpperBound(), precision);
         uint32_t weight = input->getWeight();
         RealTokenList tokens = getTokenList(input->getSource().getIndex());
         for(auto& token : tokens) {
-            if(interval.contains(token.getAge())) {
+            clockValue age = token.getAge();
+            if(lower <= age && upper >= age) {
                 if(token.getCount() > weight) {
                     weight = 0;
                 } else {

@@ -4,6 +4,9 @@
 #include <vector>
 #include "Core/TAPN/TAPN.hpp"
 #include "DiscreteVerification/DataStructures/NonStrictMarkingBase.hpp"
+#include "DiscreteVerification/Util/ClockValue.hpp"
+
+using namespace VerifyTAPN::DiscreteVerification::Util;
 
 namespace VerifyTAPN::DiscreteVerification {
 
@@ -11,15 +14,15 @@ namespace VerifyTAPN::DiscreteVerification {
 
         private:
 
-            double age;
+            clockValue age;
             int count;
 
         public:
 
-            RealToken(double age, int count) : age(age), count(count) { }
+            RealToken(clockValue value, int count) : age(value), count(count) { }
             RealToken(const RealToken&) = default;
             RealToken(const Token& t) : count(t.getCount()) {
-                age = (double) t.getAge();
+                age = t.getAge();
             }
 
             inline int cmp(const RealToken &t) const {
@@ -33,15 +36,15 @@ namespace VerifyTAPN::DiscreteVerification {
 
             inline int getCount() const { return count; };
 
-            inline double getAge() const { return age; };
+            inline clockValue getAge() const { return age; };
 
-            inline void setAge(double i) { age = i; };
+            inline void setAge(clockValue i) { age = i; };
 
             inline void setCount(int i) { count = i; };
 
             inline void remove(int num) { count = count - num; };
 
-            inline void deltaAge(double x) {
+            inline void deltaAge(clockValue x) {
                 age += x;
             }
 
@@ -82,31 +85,35 @@ namespace VerifyTAPN::DiscreteVerification {
                 return count;
             }
 
-            inline void deltaAge(double x) {
+            inline void deltaAge(clockValue x) {
                 for(auto& token : tokens) {
                     token.deltaAge(x);
                 }
             }
 
-            inline double maxTokenAge() const {
+            inline clockValue maxTokenAge() const {
                 if(tokens.size() == 0) {
-                    return -std::numeric_limits<double>::infinity();
+                    return 0;
                 }
                 return tokens.back().getAge();
             }
 
             void add(RealToken new_token);
 
-            void add(double age = 0.0f) {
+            void add(clockValue age = 0) {
                 add(RealToken(age, 1));
             }
 
             bool remove(RealToken to_remove);
 
-            double availableDelay() const {
-                if(tokens.size() == 0) return std::numeric_limits<double>::infinity();
-                double delay = ((double) place->getInvariant().getBound()) - maxTokenAge();
-                return delay <= 0.0f ? 0.0f : delay;
+            clockValue availableDelay(const uint32_t precision) const {
+                if(tokens.size() == 0) return std::numeric_limits<clockValue>::max();
+                clockValue bound = toClock(place->getInvariant().getBound(), precision);
+                clockValue maxAge = maxTokenAge();
+                if(bound < maxAge) {
+                    return 0;
+                }
+                return bound - maxAge;
             }
 
             inline int placeId() const {
@@ -133,7 +140,7 @@ namespace VerifyTAPN::DiscreteVerification {
             RealPlaceList& getPlaceList();
             RealTokenList& getTokenList(int placeId);
 
-            void deltaAge(double x);
+            void deltaAge(clockValue x);
 
             NonStrictMarkingBase generateImage();
 
@@ -145,19 +152,19 @@ namespace VerifyTAPN::DiscreteVerification {
                 return canDeadlock(tapn, maxDelay, false);
             };
 
-            bool removeToken(int placeId, double age);
+            bool removeToken(int placeId, clockValue age);
 
             bool removeToken(int placeId, RealToken &token);
 
             bool removeToken(RealPlace &place, RealToken &token);
 
-            void addTokenInPlace(TAPN::TimedPlace &place, double age = 0.0f);
+            void addTokenInPlace(TAPN::TimedPlace &place, clockValue age = 0);
 
             void addTokenInPlace(RealPlace &place, RealToken &token);
 
             void addTokenInPlace(const TAPN::TimedPlace &place, RealToken &token);
 
-            double availableDelay() const;
+            clockValue availableDelay(const uint32_t precision) const;
 
             void setDeadlocked(const bool dead);
 
@@ -165,13 +172,13 @@ namespace VerifyTAPN::DiscreteVerification {
 
             inline void setGeneratedBy(const TAPN::TimedTransition *generatedBy) { this->generatedBy = generatedBy; }
 
-            inline double getPreviousDelay() const { return fromDelay; }
+            inline clockValue getPreviousDelay() const { return fromDelay; }
 
-            inline double getTotalAge() const { return totalAge; }
+            inline clockValue getTotalAge() const { return totalAge; }
 
-            inline void setPreviousDelay(const double delay) { this->fromDelay = delay; }
+            inline void setPreviousDelay(const clockValue delay) { this->fromDelay = delay; }
 
-            bool enables(TAPN::TimedTransition* transition);
+            bool enables(TAPN::TimedTransition* transition, const uint32_t precision);
 
             unsigned int _thread_id = 0;
 
@@ -181,8 +188,8 @@ namespace VerifyTAPN::DiscreteVerification {
             bool deadlocked;
 
             const TAPN::TimedTransition *generatedBy = nullptr;
-            double fromDelay = 0.0;
-            double totalAge = 0.0;
+            clockValue fromDelay = 0;
+            clockValue totalAge = 0;
 
             static RealTokenList emptyTokenList;
 

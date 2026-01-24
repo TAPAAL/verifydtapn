@@ -61,7 +61,7 @@ bool ProbabilityEstimation::handleSuccessor(RealMarking* marking) {
 
     for(int i = 0 ; i < watchs.size() ; i++) {
         Watch& w = watchs[i][marking->_thread_id];
-        w.new_marking(marking);
+        w.new_marking(marking, options.getSMCNumericPrecision());
     }
 
     delete marking;

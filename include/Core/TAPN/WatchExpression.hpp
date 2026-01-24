@@ -32,7 +32,7 @@ namespace VerifyTAPN::TAPN {
         public:
             Watch(TimedArcPetriNet* tapn, ArithmeticExpression* expr) : _expr(expr), _tapn(tapn) { }
 
-            float new_marking(RealMarking* marking);
+            float new_marking(RealMarking* marking, const uint32_t precision);
             void close();
 
             std::string get_plots(const std::string& name) const;

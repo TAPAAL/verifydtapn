@@ -36,7 +36,7 @@ class SMCVerification : public Verification<RealMarking> {
         unsigned int maxUsedTokens() override;
         void setMaxTokensIfGreater(unsigned int i);
 
-        virtual bool reachedRunBound(SMCRunGenerator* generator = nullptr);
+        virtual bool reachedRunBound(clockValue timeBound, int stepBound, SMCRunGenerator* generator = nullptr);
         
         virtual void handleRunResult(const bool res, int steps, double delay, unsigned int thread_id = 0) = 0;
         virtual bool mustDoAnotherRun() = 0;

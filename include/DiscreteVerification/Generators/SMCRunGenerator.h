@@ -10,6 +10,7 @@
 
 #include "DiscreteVerification/Generators/Generator.h"
 #include "DiscreteVerification/Util/IntervalOps.hpp"
+#include "DiscreteVerification/Util/ClockValue.hpp"
 #include "Core/Query/SMCQuery.hpp"
 #include "DiscreteVerification/DataStructures/RealMarking.hpp"
 #include "Core/TAPN/StochasticStructure.hpp"
@@ -17,11 +18,13 @@
 namespace VerifyTAPN {
     namespace DiscreteVerification {
 
+        using Util::clockValue;
+
         class SMCRunGenerator {
 
         public:
 
-            SMCRunGenerator(TAPN::TimedArcPetriNet &tapn, const unsigned int numericPrecision = 0)
+            SMCRunGenerator(TAPN::TimedArcPetriNet &tapn, const unsigned int numericPrecision)
             : _tapn(tapn)
             , _defaultTransitionIntervals(tapn.getTransitions().size()) 
             , _transitionsStatistics(tapn.getTransitions().size(), 0)
@@ -55,20 +58,20 @@ namespace VerifyTAPN {
 
             void disableTransitions(RealMarking* marking);
 
-            std::vector<Util::interval<double>> transitionFiringDates(TimedTransition* transi);
-            std::vector<Util::interval<double>> arcFiringDates(TimeInterval time_interval, uint32_t weight, RealTokenList& tokens);
+            std::vector<Util::interval<clockValue>> transitionFiringDates(TimedTransition* transi);
+            std::vector<Util::interval<clockValue>> arcFiringDates(TimeInterval time_interval, uint32_t weight, RealTokenList& tokens);
             
             std::vector<RealToken> removeRandom(RealTokenList& tokenlist, const TimeInterval& interval, const int weight);
             std::vector<RealToken> removeYoungest(RealTokenList& tokenlist, const TimeInterval& interval, const int weight);
             std::vector<RealToken> removeOldest(RealTokenList& tokenlist, const TimeInterval& interval, const int weight);
 
-            std::pair<TimedTransition*, double> getWinnerTransitionAndDelay();
+            std::pair<TimedTransition*, clockValue> getWinnerTransitionAndDelay();
 
             RealMarking* fire(TimedTransition* transi);
 
             bool reachedEnd() const;
 
-            double getRunDelay() const;
+            clockValue getRunDelay() const;
             int getRunSteps() const;
 
             void printTransitionStatistics(std::ostream &out, const size_t& n = 1) const;
@@ -87,19 +90,20 @@ namespace VerifyTAPN {
             
             bool _maximal = false;
             TimedArcPetriNet& _tapn;
-            std::vector<std::vector<Util::interval<double>>> _defaultTransitionIntervals; // Type not pretty, but need disjoint intervals
-            std::vector<std::vector<Util::interval<double>>> _transitionIntervals; // Type not pretty, but need disjoint intervals
-            std::vector<double> _dates_sampled;
+            std::vector<std::vector<Util::interval<clockValue>>> _defaultTransitionIntervals; // Type not pretty, but need disjoint intervals
+            std::vector<std::vector<Util::interval<clockValue>>> _transitionIntervals; // Type not pretty, but need disjoint intervals
+            std::vector<clockValue> _dates_sampled;
             std::vector<uint32_t> _transitionsStatistics;
             std::vector<uint32_t> _currentPlacesStatistics;
             std::vector<uint32_t> _placesStatistics;
             RealMarking* _origin;
             RealMarking* _parent;
-            double _lastDelay = 0;
-            double _totalTime = 0;
+            clockValue _lastDelay = 0;
+            clockValue _totalTime = 0;
             int _totalSteps = 0;
+            int _sample_index = 0;
 
-            unsigned int _numericPrecision = 0;
+            uint32_t _numericPrecision = 0;
 
             std::ranlux48 _rng;
 

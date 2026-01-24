@@ -1,5 +1,7 @@
 #include "Core/TAPN/StochasticStructure.hpp"
 
+#include <cstring>
+
 namespace VerifyTAPN::SMC {
 
     std::string distributionName(DistributionType type) {
@@ -24,6 +26,8 @@ namespace VerifyTAPN::SMC {
                 return "triangular";
             case LogNormal:
                 return "log normal";
+            case Custom:
+                return "custom";
         }
         return "";
     }
@@ -53,6 +57,7 @@ namespace VerifyTAPN::SMC {
     Distribution Distribution::fromParams(int distrib_id, std::vector<double> raw_params) {
         DistributionType distrib = static_cast<DistributionType>(distrib_id);
         DistributionParameters params;
+        double* values;
         switch(distrib){
             case Constant:
                 params.constant.value = raw_params[0];
@@ -88,6 +93,12 @@ namespace VerifyTAPN::SMC {
             case LogNormal:
                 params.logNormal.logMean = raw_params[0];
                 params.logNormal.logStddev = raw_params[1];
+                break;
+            case Custom:
+                values = (double*) std::malloc(raw_params.size() * sizeof(double));
+                std::memcpy(values, raw_params.data(), raw_params.size() * sizeof(double));
+                params.custom.values = values;
+                params.custom.len = raw_params.size();
                 break;
             default:
                 break;

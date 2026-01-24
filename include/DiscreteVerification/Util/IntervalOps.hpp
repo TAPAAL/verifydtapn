@@ -58,11 +58,40 @@ namespace VerifyTAPN {
 
                 void delta(T dx) {
                     if(empty()) return;
-                    if(low != boundDown()) {
+                    if(std::numeric_limits<T>::is_integer) {
+                        if(boundUp() - dx < high) {
+                            high = boundUp();
+                        } else {
+                            high += dx;
+                        }
+                        if(boundUp() - dx < low) {
+                            low = boundUp();
+                        } else {
+                            low += dx;
+                        }
+                    } else {
+                        high += dx;
                         low += dx;
                     }
-                    if(high != boundUp()) {
-                        high += dx;
+                }
+
+                void delta_neg(T dx) {
+                    if(empty()) return;
+                    if(std::numeric_limits<T>::is_integer) {
+                        if(boundDown() + dx > low) {
+                            low = boundDown();
+                        } else {
+                            low -= dx;
+                        }
+                        if(boundDown() + dx > high) {
+                            low = boundUp();
+                            high = boundDown();
+                        } else {
+                            high -= dx;
+                        }
+                    } else {
+                        high -= dx;
+                        low -= dx;
                     }
                 }
 

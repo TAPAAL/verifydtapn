@@ -15,20 +15,20 @@
 namespace VerifyTAPN {
     namespace DiscreteVerification {
 
-        using Util::interval;
+        using namespace Util;
 
         void SMCRunGenerator::prepare(RealMarking *parent) {
             _origin = new RealMarking(*parent);
             _parent = new RealMarking(*_origin);
             RealPlaceList& places = _origin->getPlaceList();
             std::vector<bool> transitionSeen(_defaultTransitionIntervals.size(), false);
-            double originMaxDelay = _origin->availableDelay();
-            std::vector<interval<double>> invInterval = { interval<double>(0, originMaxDelay) };
+            clockValue originMaxDelay = _origin->availableDelay(_numericPrecision);
+            std::vector<interval<clockValue>> invInterval = { interval<clockValue>(0, originMaxDelay) };
             for(auto transi : _tapn.getTransitions()) {
                 if(transi->getPresetSize() == 0 && transi->getNumberOfInhibitorArcs() == 0) {
                     _defaultTransitionIntervals[transi->getIndex()] = invInterval;
                 } else {
-                    std::vector<interval<double>> firingDates = transitionFiringDates(transi);
+                    std::vector<interval<clockValue>> firingDates = transitionFiringDates(transi);
                     _defaultTransitionIntervals[transi->getIndex()] = Util::setIntersection(firingDates, invInterval);
                 }
             }
@@ -51,13 +51,14 @@ namespace VerifyTAPN {
             _maximal = false;
             _totalTime = 0;
             _totalSteps = 0;
-            _dates_sampled = std::vector<double>(_transitionIntervals.size(), std::numeric_limits<double>::infinity());
+            _sample_index = 0;
+            _dates_sampled = std::vector<clockValue>(_transitionIntervals.size(), std::numeric_limits<clockValue>::max());
             bool deadlocked = true;
             for(int i = 0 ; i < _dates_sampled.size() ; i++) {
                 auto* intervals = &_transitionIntervals[i];
                 if(!intervals->empty() && intervals->front().lower() == 0) {
                     const Distribution& distrib = _tapn.getTransitions()[i]->getDistribution();
-                    _dates_sampled[i] = distrib.sample(_rng, _numericPrecision);
+                    _dates_sampled[i] = toClock(distrib.sample(_rng, _sample_index), _numericPrecision);
                 }
                 deadlocked &=   _transitionIntervals[i].empty() || 
                                 (
@@ -75,7 +76,7 @@ namespace VerifyTAPN {
 
         SMCRunGenerator SMCRunGenerator::copy() const
         {
-            SMCRunGenerator clone(_tapn);
+            SMCRunGenerator clone(_tapn, _numericPrecision);
             clone._origin = new RealMarking(*_origin);
             clone._numericPrecision = _numericPrecision;
             clone._defaultTransitionIntervals = _defaultTransitionIntervals;
@@ -86,25 +87,25 @@ namespace VerifyTAPN {
 
         void SMCRunGenerator::refreshTransitionsIntervals()
         {
-            double max_delay = _parent->availableDelay();
-            std::vector<interval<double>> invInterval = { interval<double>(0, max_delay) };
+            clockValue max_delay = _parent->availableDelay(_numericPrecision);
+            std::vector<interval<clockValue>> invInterval = { interval<clockValue>(0, max_delay) };
             bool deadlocked = true;
             for(auto transi : _tapn.getTransitions()) {
                 int i = transi->getIndex();
                 if(transi->getPresetSize() == 0 && transi->getNumberOfInhibitorArcs() == 0) {
                     _transitionIntervals[i] = invInterval;
                 } else {
-                    std::vector<interval<double>> firingDates = transitionFiringDates(transi);
+                    std::vector<interval<clockValue>> firingDates = transitionFiringDates(transi);
                     _transitionIntervals[i] = Util::setIntersection(firingDates, invInterval);
                 }
                 bool enabled = (!_transitionIntervals[i].empty()) && (_transitionIntervals[i].front().lower() == 0);
-                bool newlyEnabled = enabled && (_dates_sampled[i] == std::numeric_limits<double>::infinity());
+                bool newlyEnabled = enabled && (_dates_sampled[i] == std::numeric_limits<clockValue>::max());
                 bool reachedUpper = enabled && !newlyEnabled && (_transitionIntervals[i].front().upper() == 0) && _dates_sampled[i] > 0;
                 if(!enabled || reachedUpper) {
-                    _dates_sampled[i] = std::numeric_limits<double>::infinity();
+                    _dates_sampled[i] = std::numeric_limits<clockValue>::max();
                 } else if(newlyEnabled) {
                     const Distribution& distrib = _tapn.getTransitions()[i]->getDistribution();
-                    double date = distrib.sample(_rng, _numericPrecision);
+                    clockValue date = toClock(distrib.sample(_rng, _sample_index), _numericPrecision);
                     if(_transitionIntervals[i].front().upper() > 0 || date == 0) {
                         _dates_sampled[i] = date;
                     }
@@ -121,11 +122,11 @@ namespace VerifyTAPN {
 
         void SMCRunGenerator::disableTransitions(RealMarking* marking) {
             for(int i = 0 ; i < _dates_sampled.size() ; i++) {
-                double date = _dates_sampled[i];
-                if(date == std::numeric_limits<double>::infinity()) continue;
+                clockValue date = _dates_sampled[i];
+                if(date == std::numeric_limits<clockValue>::max()) continue;
                 TimedTransition* transition = _tapn.getTransitions()[i];
-                if(!marking->enables(transition)) {
-                    _dates_sampled[i] = std::numeric_limits<double>::infinity();
+                if(!marking->enables(transition, _numericPrecision)) {
+                    _dates_sampled[i] = std::numeric_limits<clockValue>::max();
                 }
             }
         }
@@ -133,7 +134,7 @@ namespace VerifyTAPN {
         RealMarking* SMCRunGenerator::next() {
             auto [transi, delay] = getWinnerTransitionAndDelay();
             
-            if(delay == std::numeric_limits<double>::infinity()) {
+            if(delay == std::numeric_limits<clockValue>::max()) {
                 _maximal = true;
                 return nullptr;
             }
@@ -143,7 +144,18 @@ namespace VerifyTAPN {
                 _trace.push_back(_parent);
             }
 
+            // std::cout << "Marking ---------------" << std::endl;
+            // for(auto& place : _parent->getPlaceList()) {
+            //     if(place.numberOfTokens() == 0) continue;
+            //     std::cout << "place " << place.placeId() << " ";
+            //     for(auto& tok : place.tokens) {
+            //         std::cout << tok.getAge() << ", ";
+            //     }
+            //     std::cout << std::endl;
+            // }
+
             _parent->deltaAge(delay);
+
             _totalTime += delay;
 
             _parent->setPreviousDelay(delay + _parent->getPreviousDelay());
@@ -151,7 +163,7 @@ namespace VerifyTAPN {
             if(transi != nullptr) {
                 _totalSteps++;
                 _transitionsStatistics[transi->getIndex()]++;
-                _dates_sampled[transi->getIndex()] = std::numeric_limits<double>::infinity();
+                _dates_sampled[transi->getIndex()] = std::numeric_limits<clockValue>::max();
                 auto child = fire(transi);
                 child->setGeneratedBy(transi);
                 if(recordTrace) {
@@ -163,9 +175,9 @@ namespace VerifyTAPN {
             }
 
             for(int i = 0 ; i < _transitionIntervals.size() ; i++) {
-                double date = _dates_sampled[i];
-                _dates_sampled[i] = (date == std::numeric_limits<double>::infinity()) ?
-                    std::numeric_limits<double>::infinity() : date - delay;
+                clockValue date = _dates_sampled[i];
+                _dates_sampled[i] = (date == std::numeric_limits<clockValue>::max()) ?
+                    std::numeric_limits<clockValue>::max() : date - delay;
             }
 
             refreshTransitionsIntervals();
@@ -173,13 +185,13 @@ namespace VerifyTAPN {
             return _parent;
         }
 
-        std::pair<TimedTransition*, double> SMCRunGenerator::getWinnerTransitionAndDelay() {
+        std::pair<TimedTransition*, clockValue> SMCRunGenerator::getWinnerTransitionAndDelay() {
             std::vector<size_t> winner_indexs;
-            double date_min = std::numeric_limits<double>::infinity();
+            clockValue date_min = std::numeric_limits<clockValue>::max();
             for(int i = 0 ; i < _transitionIntervals.size() ; i++) {
                 auto* intervals = &_transitionIntervals[i];
                 if(intervals->empty()) continue;
-                double date = std::numeric_limits<double>::infinity();
+                clockValue date = std::numeric_limits<clockValue>::max();
                 for(auto& interv : *intervals) {
                     if(interv.lower() > 0) {
                         date = interv.lower();
@@ -211,7 +223,7 @@ namespace VerifyTAPN {
         }
 
         TimedTransition* SMCRunGenerator::chooseWeightedWinner(const std::vector<size_t>& winner_indexs) {
-            double total_weight = 0.0f;
+            clockValue total_weight = 0;
             std::vector<size_t> infty_weights;
             for(auto& candidate : winner_indexs) {
                 double priority = _tapn.getTransitions()[candidate]->getWeight();
@@ -240,10 +252,10 @@ namespace VerifyTAPN {
             return _tapn.getTransitions()[winner_indexs[0]];
         }
 
-        std::vector<interval<double>> SMCRunGenerator::transitionFiringDates(TimedTransition* transi) {
+        std::vector<interval<clockValue>> SMCRunGenerator::transitionFiringDates(TimedTransition* transi) {
             RealPlaceList &places = _parent->getPlaceList();
-            std::vector<interval<double>> firingInterval = { interval<double>(0, std::numeric_limits<double>::infinity()) };
-            std::vector<interval<double>> disabled;
+            std::vector<interval<clockValue>> firingInterval = { interval<clockValue>(0, std::numeric_limits<clockValue>::max()) };
+            std::vector<interval<clockValue>> disabled;
             for(InhibitorArc* inhib : transi->getInhibitorArcs()) {
                 if(_parent->numberOfTokensInPlace(inhib->getInputPlace().getIndex()) >= inhib->getWeight()) {
                     return disabled;
@@ -252,7 +264,7 @@ namespace VerifyTAPN {
             for(TimedInputArc* arc : transi->getPreset()) {
                 auto &place = _parent->getPlaceList()[arc->getInputPlace().getIndex()];
                 if(place.isEmpty()) return disabled;
-                firingInterval = Util::setIntersection<double>(firingInterval, arcFiringDates(arc->getInterval(), arc->getWeight(), place.tokens));
+                firingInterval = Util::setIntersection<clockValue>(firingInterval, arcFiringDates(arc->getInterval(), arc->getWeight(), place.tokens));
                 if(firingInterval.empty()) return firingInterval;
             }
             for(TransportArc* arc : transi->getTransportArcs()) {
@@ -263,22 +275,24 @@ namespace VerifyTAPN {
                 if(targetInvariant.getBound() < arcInterval.getUpperBound()) {
                     arcInterval.setUpperBound(targetInvariant.getBound(), targetInvariant.isBoundStrict());
                 } 
-                firingInterval = Util::setIntersection<double>(firingInterval, arcFiringDates(arcInterval, arc->getWeight(), place.tokens));
+                firingInterval = Util::setIntersection<clockValue>(firingInterval, arcFiringDates(arcInterval, arc->getWeight(), place.tokens));
                 if(firingInterval.empty()) return firingInterval;
             }
             return firingInterval;
         }
 
-        std::vector<interval<double>> SMCRunGenerator::arcFiringDates(TimeInterval time_interval, uint32_t weight, RealTokenList& tokens) {
+        std::vector<interval<clockValue>> SMCRunGenerator::arcFiringDates(TimeInterval time_interval, uint32_t weight, RealTokenList& tokens) {
             // We assume tokens is SORTED !
-            Util::interval<double> arcInterval(time_interval.getLowerBound(), time_interval.getUpperBound());
+            clockValue lower = toClock(time_interval.getLowerBound(), _numericPrecision);
+            clockValue upper = toClock(time_interval.getUpperBound(), _numericPrecision);
+            Util::interval<clockValue> arcInterval(lower, upper);
             size_t total_tokens = 0;
             for(auto &t : tokens) {
                 total_tokens += t.getCount();
             }
-            if(total_tokens < weight) return std::vector<interval<double>>();
-            std::vector<interval<double>> firingDates;
-            std::deque<double> selected;
+            if(total_tokens < weight) return std::vector<interval<clockValue>>();
+            std::vector<interval<clockValue>> firingDates;
+            std::deque<clockValue> selected;
             for(auto& tokenPckt : tokens) {
                 for(int i = 0 ; i < tokenPckt.getCount() ; i++) {
                     selected.push_back(tokenPckt.getAge());
@@ -286,10 +300,10 @@ namespace VerifyTAPN {
                         selected.pop_front();
                     }
                     if(selected.size() == weight) {
-                        interval<double> tokenSetInterval = interval<double>(0, std::numeric_limits<double>::infinity());
+                        interval<clockValue> tokenSetInterval = interval<clockValue>(0, std::numeric_limits<clockValue>::max());
                         for(auto age : selected) {
-                            interval<double> shifted = arcInterval;
-                            shifted.delta(-age);
+                            interval<clockValue> shifted = arcInterval;
+                            shifted.delta_neg(age);
                             tokenSetInterval = Util::intersect(tokenSetInterval, shifted);
                         }
                         Util::setAdd(firingDates, tokenSetInterval);
@@ -305,10 +319,13 @@ namespace VerifyTAPN {
             std::uniform_int_distribution<> randomTokenIndex(0, tokenList.size() - 1);
             size_t tok_index = randomTokenIndex(_rng);
             size_t tested = 0;
+            clockValue lower = toClock(interval.getLowerBound(), _numericPrecision);
+            clockValue upper = toClock(interval.getUpperBound(), _numericPrecision);
             while(remaining > 0 && tested < tokenList.size()) {
                 RealToken& token = tokenList[tok_index];
-                if(interval.contains(token.getAge())) {
-                    res.push_back(RealToken(token.getAge(), 1));
+                clockValue age = token.getAge();
+                if(lower <= age && upper >= age) {
+                    res.push_back(RealToken(age, 1));
                     remaining--;
                     tokenList[tok_index].remove(1);
                     if(tokenList[tok_index].getCount() == 0) {
@@ -332,9 +349,11 @@ namespace VerifyTAPN {
             std::vector<RealToken> res;
             int remaining = weight;
             auto iter = tokenList.begin();
+            clockValue lower = toClock(interval.getLowerBound(), _numericPrecision);
+            clockValue upper = toClock(interval.getUpperBound(), _numericPrecision);
             while(iter != tokenList.end()) {
-                double age = iter->getAge();
-                if(!interval.contains(age)) {
+                clockValue age = iter->getAge();
+                if(lower > age || upper < age) {
                     iter++;
                     continue;
                 }
@@ -359,9 +378,11 @@ namespace VerifyTAPN {
             std::vector<RealToken> res;
             int remaining = weight;
             auto iter = tokenList.rbegin();
+            clockValue lower = toClock(interval.getLowerBound(), _numericPrecision);
+            clockValue upper = toClock(interval.getUpperBound(), _numericPrecision);
             while(iter != tokenList.rend()) {
-                double age = iter->getAge();
-                if(!interval.contains(age)) {
+                clockValue age = iter->getAge();
+                if(lower > age || upper < age) {
                     iter++;
                     continue;
                 }
@@ -438,7 +459,7 @@ namespace VerifyTAPN {
 
             for (auto* output : transi->getPostset()) {
                 TimedPlace &place = output->getOutputPlace();
-                RealToken token = RealToken(0.0, output->getWeight());
+                RealToken token = RealToken(0, output->getWeight());
                 child->addTokenInPlace(place, token);
                 int place_i = place.getIndex();
                 if(child->numberOfTokensInPlace(place_i) > _currentPlacesStatistics[place_i]) {
@@ -459,7 +480,7 @@ namespace VerifyTAPN {
             return _maximal;
         }
 
-        double SMCRunGenerator::getRunDelay() const {
+        clockValue SMCRunGenerator::getRunDelay() const {
             return _totalTime;
         }
 
