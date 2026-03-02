@@ -124,6 +124,9 @@ namespace VerifyTAPN::SMC {
                     date = std::lognormal_distribution(parameters.logNormal.logMean, parameters.logNormal.logStddev)(engine);
                     break;
                 case Custom:
+                    if (index == -1) {
+                        index = std::uniform_int_distribution<int>(0, parameters.custom.len - 1)(engine);
+                    }
                     date = parameters.custom.values[index];
                     index = (index + 1) % parameters.custom.len;
                     break;

@@ -24,13 +24,14 @@ namespace VerifyTAPN {
 
         public:
 
-            SMCRunGenerator(TAPN::TimedArcPetriNet &tapn, const unsigned int numericPrecision)
+            SMCRunGenerator(TAPN::TimedArcPetriNet &tapn, const unsigned int numericPrecision, bool customRandomStart = false) 
             : _tapn(tapn)
             , _defaultTransitionIntervals(tapn.getTransitions().size()) 
             , _transitionsStatistics(tapn.getTransitions().size(), 0)
             , _currentPlacesStatistics(tapn.getNumberOfPlaces(), 0)
             , _placesStatistics(tapn.getNumberOfPlaces(), 0)
             , _numericPrecision(numericPrecision)
+            , _customRandomStart(customRandomStart)
             {
                 std::random_device rd;
                 _rng = std::ranlux48(rd());
@@ -96,12 +97,13 @@ namespace VerifyTAPN {
             std::vector<uint32_t> _transitionsStatistics;
             std::vector<uint32_t> _currentPlacesStatistics;
             std::vector<uint32_t> _placesStatistics;
-            RealMarking* _origin;
-            RealMarking* _parent;
+            RealMarking* _origin = nullptr;
+            RealMarking* _parent = nullptr;
             clockValue _lastDelay = 0;
             clockValue _totalTime = 0;
             int _totalSteps = 0;
             int _sample_index = 0;
+            bool _customRandomStart = false;
 
             uint32_t _numericPrecision = 0;
 

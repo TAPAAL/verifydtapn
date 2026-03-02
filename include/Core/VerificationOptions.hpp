@@ -291,6 +291,14 @@ namespace VerifyTAPN {
             return smcNumericPrecision;
         }
 
+        inline bool getSmcCustomRandomStart() const {
+            return smcCustomRandomStart;
+        }
+
+        inline void setSmcCustomRandomStart(bool value) {
+            smcCustomRandomStart = value;
+        }
+
     protected:
         std::string inputFile;
         std::string queryFile;
@@ -324,6 +332,7 @@ namespace VerifyTAPN {
         unsigned int smcTraces = 0;
         SMCTracesType smcTracesType = ANY_TRACE;
         unsigned int smcNumericPrecision = 5;
+        bool smcCustomRandomStart = false;
         friend class ArgsParser;
     };
 
