@@ -51,7 +51,7 @@ namespace VerifyTAPN {
             _maximal = false;
             _totalTime = 0;
             _totalSteps = 0;
-            _sample_index = _customRandomStart ? -1 : 0;
+            _sample_index = -1;
             _dates_sampled = std::vector<clockValue>(_transitionIntervals.size(), std::numeric_limits<clockValue>::max());
             bool deadlocked = true;
             for(int i = 0 ; i < _dates_sampled.size() ; i++) {
@@ -76,7 +76,7 @@ namespace VerifyTAPN {
 
         SMCRunGenerator SMCRunGenerator::copy() const
         {
-            SMCRunGenerator clone(_tapn, _numericPrecision, _customRandomStart);
+            SMCRunGenerator clone(_tapn, _numericPrecision);
             clone._origin = new RealMarking(*_origin);
             clone._numericPrecision = _numericPrecision;
             clone._defaultTransitionIntervals = _defaultTransitionIntervals;

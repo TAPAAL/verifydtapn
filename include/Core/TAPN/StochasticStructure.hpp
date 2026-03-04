@@ -69,6 +69,7 @@ namespace VerifyTAPN::SMC {
     struct SMCCustomParameters {
         double* values;
         int len;
+        bool randomStart;
     };
 
     union DistributionParameters {
@@ -125,7 +126,11 @@ namespace VerifyTAPN::SMC {
                     break;
                 case Custom:
                     if (index == -1) {
-                        index = std::uniform_int_distribution<int>(0, parameters.custom.len - 1)(engine);
+                        if (parameters.custom.randomStart) {
+                            index = std::uniform_int_distribution<int>(0, parameters.custom.len - 1)(engine);
+                        } else {
+                            index = 0;
+                        }
                     }
                     date = parameters.custom.values[index];
                     index = (index + 1) % parameters.custom.len;
@@ -138,7 +143,7 @@ namespace VerifyTAPN::SMC {
 
         static Distribution defaultDistribution();
 
-        static Distribution fromParams(int distrib_id, std::vector<double> params);
+        static Distribution fromParams(int distrib_id, std::vector<double> params, bool customRandomStart = false);
 
         std::string toXML() const;
 
