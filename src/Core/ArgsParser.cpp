@@ -184,7 +184,7 @@ namespace VerifyTAPN {
                   " 1: only runs satisfying the property\n"
                   " 2: only runs not satisfying the property")
             ("smc-numeric-precision", po::value<unsigned int>(), "Specify the number of rounding digits to use in SMC verifications (default = 5, 0 means no rounding).")
-            ("smc-seed", po::value<uint64_t>(), "Seed the random generator (default: uses std::random_device if not set)");
+            ("smc-seed", po::value<uint64_t>(), "Seed the random generator. Will only produce deterministic results if --smc-parallel is not enabled (default: uses std::random_device if not set).");
             
     }
 
