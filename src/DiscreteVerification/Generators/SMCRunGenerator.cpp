@@ -76,7 +76,7 @@ namespace VerifyTAPN {
 
         SMCRunGenerator SMCRunGenerator::copy() const
         {
-            SMCRunGenerator clone(_tapn, _numericPrecision);
+            SMCRunGenerator clone(_tapn, _numericPrecision, _seedOpt);
             clone._origin = new RealMarking(*_origin);
             clone._numericPrecision = _numericPrecision;
             clone._defaultTransitionIntervals = _defaultTransitionIntervals;

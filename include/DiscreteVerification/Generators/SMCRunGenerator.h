@@ -24,16 +24,21 @@ namespace VerifyTAPN {
 
         public:
 
-            SMCRunGenerator(TAPN::TimedArcPetriNet &tapn, const unsigned int numericPrecision) 
+            SMCRunGenerator(TAPN::TimedArcPetriNet &tapn, const unsigned int numericPrecision, std::optional<uint64_t> seedOpt)
             : _tapn(tapn)
             , _defaultTransitionIntervals(tapn.getTransitions().size()) 
             , _transitionsStatistics(tapn.getTransitions().size(), 0)
             , _currentPlacesStatistics(tapn.getNumberOfPlaces(), 0)
             , _placesStatistics(tapn.getNumberOfPlaces(), 0)
+            , _seedOpt(seedOpt)
             , _numericPrecision(numericPrecision)
             {
-                std::random_device rd;
-                _rng = std::ranlux48(rd());
+                if (!seedOpt.has_value()) {
+                    std::random_device rd;
+                    _rng = std::ranlux48(rd());
+                } else {
+                    _rng = std::ranlux48(seedOpt.value());
+                }
             };
 
             ~SMCRunGenerator() {
@@ -103,6 +108,7 @@ namespace VerifyTAPN {
             int _totalSteps = 0;
             int _sample_index = 0;
 
+            std::optional<uint64_t> _seedOpt;
             uint32_t _numericPrecision = 0;
 
             std::ranlux48 _rng;

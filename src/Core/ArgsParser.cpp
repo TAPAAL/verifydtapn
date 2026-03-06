@@ -184,7 +184,7 @@ namespace VerifyTAPN {
                   " 1: only runs satisfying the property\n"
                   " 2: only runs not satisfying the property")
             ("smc-numeric-precision", po::value<unsigned int>(), "Specify the number of rounding digits to use in SMC verifications (default = 5, 0 means no rounding).")
-            ("smc-custom-random-start", po::bool_switch()->default_value(false), "Start custom distributions at a randomly chosen position.");
+            ("smc-seed", po::value<uint64_t>(), "Seed the random generator (default: uses std::random_device if not set)");
             
     }
 
@@ -306,8 +306,8 @@ namespace VerifyTAPN {
             opts.setSMCNumericPrecision(vm["smc-numeric-precision"].as<unsigned int>());
         }
 
-        if(vm.count("smc-custom-random-start")) {
-            opts.setSmcCustomRandomStart(vm["smc-custom-random-start"].as<bool>());
+        if(vm.count("smc-seed")) {
+            opts.setSmcSeed(vm["smc-seed"].as<uint64_t>());
         }
 
         std::vector<std::string> files = po::collect_unrecognized(parsed.options, po::include_positional);

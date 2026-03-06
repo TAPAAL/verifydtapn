@@ -4,7 +4,7 @@
 #include <string>
 #include <iosfwd>
 #include <utility>
-#include <utility>
+#include <optional>
 #include <vector>
 #include <map>
 #include <set>
@@ -291,12 +291,12 @@ namespace VerifyTAPN {
             return smcNumericPrecision;
         }
 
-        inline bool getSmcCustomRandomStart() const {
-            return smcCustomRandomStart;
+        inline std::optional<uint64_t> getSmcSeed() const {
+            return smcSeed;
         }
 
-        inline void setSmcCustomRandomStart(bool value) {
-            smcCustomRandomStart = value;
+        inline void setSmcSeed(uint64_t seed) {
+            smcSeed = seed;
         }
 
     protected:
@@ -332,7 +332,7 @@ namespace VerifyTAPN {
         unsigned int smcTraces = 0;
         SMCTracesType smcTracesType = ANY_TRACE;
         unsigned int smcNumericPrecision = 5;
-        bool smcCustomRandomStart = false;
+        std::optional<uint64_t> smcSeed = std::nullopt;
         friend class ArgsParser;
     };
 
