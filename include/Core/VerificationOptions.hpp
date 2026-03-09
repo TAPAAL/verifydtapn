@@ -8,6 +8,7 @@
 #include <vector>
 #include <map>
 #include <set>
+#include <cstdint>
 
 namespace VerifyTAPN {
 
