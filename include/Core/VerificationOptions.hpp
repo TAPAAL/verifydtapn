@@ -4,10 +4,11 @@
 #include <string>
 #include <iosfwd>
 #include <utility>
-#include <utility>
+#include <optional>
 #include <vector>
 #include <map>
 #include <set>
+#include <cstdint>
 
 namespace VerifyTAPN {
 
@@ -291,6 +292,14 @@ namespace VerifyTAPN {
             return smcNumericPrecision;
         }
 
+        inline std::optional<uint64_t> getSmcSeed() const {
+            return smcSeed;
+        }
+
+        inline void setSmcSeed(uint64_t seed) {
+            smcSeed = seed;
+        }
+
     protected:
         std::string inputFile;
         std::string queryFile;
@@ -324,6 +333,7 @@ namespace VerifyTAPN {
         unsigned int smcTraces = 0;
         SMCTracesType smcTracesType = ANY_TRACE;
         unsigned int smcNumericPrecision = 5;
+        std::optional<uint64_t> smcSeed = std::nullopt;
         friend class ArgsParser;
     };
 

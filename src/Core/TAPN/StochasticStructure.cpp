@@ -54,7 +54,7 @@ namespace VerifyTAPN::SMC {
         params.constant.value = 1;
         return Distribution { Constant, params };
     }
-    Distribution Distribution::fromParams(int distrib_id, std::vector<double> raw_params) {
+    Distribution Distribution::fromParams(int distrib_id, std::vector<double> raw_params, bool customRandomStart) {
         DistributionType distrib = static_cast<DistributionType>(distrib_id);
         DistributionParameters params;
         double* values;
@@ -99,6 +99,7 @@ namespace VerifyTAPN::SMC {
                 std::memcpy(values, raw_params.data(), raw_params.size() * sizeof(double));
                 params.custom.values = values;
                 params.custom.len = raw_params.size();
+                params.custom.randomStart = customRandomStart;
                 break;
             default:
                 break;
