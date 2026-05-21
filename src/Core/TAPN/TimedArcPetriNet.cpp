@@ -354,7 +354,14 @@ namespace TAPN {
         for (auto* transition : transitions) {
             out << "<transition player=\"" << (transition->isControllable() ? 0 : 1)
                 << "\" id=\"" << transition->getName() << "\" name=\"" << transition->getName()
-                << "\" urgent=\"" << std::boolalpha << transition->isUrgent() << "\">\n";
+                << "\" urgent=\"" << std::boolalpha << transition->isUrgent() 
+                << "\" weight=\"" << (
+                    transition->getWeight() == std::numeric_limits<double>::infinity() ?
+                    "inf" : std::to_string(transition->getWeight())
+                )
+                << "\" firingMode=\"" << SMC::firingModeName(transition->getFiringMode())
+                << "\" " << transition->getDistribution().toXML()
+                << ">\n";
             auto [x, y] = transition->getPosition();
             out << "\t<graphics><position x=\"" << x << "\" y=\"" << y << "\" /></graphics>\n";
             out << "</transition>\n";

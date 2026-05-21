@@ -18,6 +18,9 @@ namespace VerifyTAPN { namespace DiscreteVerification {
     void VerifyAndPrint(TAPN::TimedArcPetriNet &tapn, Verification<T> &verifier, VerificationOptions &options,
                         AST::Query *query);
 
+    void ComputeAndPrint(TAPN::TimedArcPetriNet &tapn, SMCVerification &verifier, VerificationOptions &options,
+                        AST::Query *query);
+
     DiscreteVerification::DiscreteVerification() {
         // TODO Auto-generated constructor stub
 
@@ -45,12 +48,19 @@ namespace VerifyTAPN { namespace DiscreteVerification {
         }
 #endif
 
-        if (initialMarking->size() > options.getKBound()) {
+        if (initialMarking->size() > options.getKBound() && !query->hasSMCQuantifier()) {
             std::cout << "The specified k-bound is less than the number of tokens in the initial markings.";
             return 1;
         }
-
-        std::cout << options;
+	
+        if(query->hasSMCQuantifier()) {
+            std::cout << "SMC Verification (all irrelevant options will be ignored)" << std::endl;
+            std::cout << "Model file is: " << options.getInputFile() << std::endl;
+            if (!options.getQueryFile().empty())
+                std::cout << "Query file is: " << options.getQueryFile() << std::endl;
+        } else {
+            std::cout << options;
+        }
 
         // Select verification method
         if (options.getWorkflowMode() != VerificationOptions::NOT_WORKFLOW) {
@@ -183,9 +193,23 @@ namespace VerifyTAPN { namespace DiscreteVerification {
             std::cout << "Query is " << (result ? "satisfied" : "NOT satisfied") << "." << std::endl;
             std::cout << "Max number of tokens found in any reachable marking: ";
             std::cout << synthesis.max_tokens() << std::endl;
-
+        } else if (query->getQuantifier() == PF || query->getQuantifier() == PG) {
+            SMCQuery* smcQuery = (SMCQuery*) query;
+            RealMarking marking(&tapn, *initialMarking);
+            if(options.isBenchmarkMode()) {
+                ProbabilityEstimation estimator(tapn, marking, smcQuery, options, options.getBenchmarkRuns());
+                ComputeAndPrint(tapn, estimator, options, query);
+            } else if(options.getSmcTraces() > 0) {
+                SMCTracesGenerator estimator(tapn, marking, smcQuery, options);
+                ComputeAndPrint(tapn, estimator, options, query);
+            } else if(smcQuery->getSmcSettings().compareToFloat) {
+                ProbabilityFloatComparison estimator(tapn, marking, smcQuery, options);
+                ComputeAndPrint(tapn, estimator, options, query);
+            } else {
+                ProbabilityEstimation estimator(tapn, marking, smcQuery, options);
+                ComputeAndPrint(tapn, estimator, options, query);
+            }
         } else if (options.getVerificationType() == VerificationOptions::DISCRETE) {
-
             if (options.getMemoryOptimization() == VerificationOptions::PTRIE) {
                 //TODO fix initialization
                 WaitingList<ptriepointer_t<MetaData *> > *strategy = getWaitingList<ptriepointer_t<MetaData *> >(
@@ -341,5 +365,31 @@ namespace VerifyTAPN { namespace DiscreteVerification {
                 std::cout << "A trace could not be generated due to the query result" << std::endl;
             }
         }
+    }
+
+    void ComputeAndPrint(TAPN::TimedArcPetriNet &tapn, SMCVerification &estimator, VerificationOptions &options,
+                        AST::Query *query) {
+
+        std::cout << "Starting SMC..." << std::endl;
+
+        if(options.isParallel()) {
+            estimator.parallel_run();
+        } else {
+            estimator.run();
+        }
+        
+        estimator.printStats();
+        estimator.printTransitionStatistics();
+        estimator.printPlaceStatistics();
+
+        if(options.getSmcTraces() > 0) {
+            estimator.getTrace();
+        }
+
+        std::cout << "Max number of tokens found in any reachable marking: ";
+        std::cout << estimator.maxUsedTokens() << std::endl;
+
+        estimator.printResult();
+
     }
 } }

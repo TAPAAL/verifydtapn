@@ -4,10 +4,11 @@
 #include <string>
 #include <iosfwd>
 #include <utility>
-#include <utility>
+#include <optional>
 #include <vector>
 #include <map>
 #include <set>
+#include <cstdint>
 
 namespace VerifyTAPN {
 
@@ -32,6 +33,10 @@ namespace VerifyTAPN {
 
         enum WorkflowMode {
             NOT_WORKFLOW, WORKFLOW_SOUNDNESS, WORKFLOW_STRONG_SOUNDNESS
+        };
+
+        enum SMCTracesType {
+            ANY_TRACE, SATISFYING_TRACES, UNSATISFYING_TRACES
         };
 
         VerificationOptions() = default;
@@ -199,6 +204,102 @@ namespace VerifyTAPN {
             strategy_output = s;
         }
 
+        inline void setBenchmarkMode(bool bench) {
+            benchmark = bench;
+        }
+
+        inline bool isBenchmarkMode() const {
+            return benchmark;
+        }
+
+        inline void setBenchmarkRuns(unsigned int runs) {
+            benchmarkRuns = runs;
+        }
+
+        inline unsigned int getBenchmarkRuns() const {
+            return benchmarkRuns;
+        }
+
+        inline bool isParallel() const {
+            return parallel;
+        }
+
+        inline void setParallel(const bool value) {
+            parallel = value;
+        }
+
+        inline bool mustPrintCumulative() const {
+            return printCumulative;
+        }
+
+        inline void setPrintCumulative(const bool value) {
+            printCumulative = value;
+        }
+
+        inline unsigned int getCumulativeRoundingDigits() const {
+            return cumulativeRoundingDigits;
+        }
+
+        inline void setCumulativeRoundingDigits(const unsigned int value) {
+            cumulativeRoundingDigits = value;
+        }
+
+        inline unsigned int getStepsStatsScale() const {
+            return stepsStatsScale;
+        }
+
+        inline void setStepsStatsScale(const unsigned int value) {
+            stepsStatsScale = value;
+        }
+
+        inline unsigned int getTimeStatsScale() const {
+            return timeStatsScale;
+        }
+
+        inline void setTimeStatsScale(const unsigned int value) {
+            timeStatsScale = value;
+        }
+
+        inline unsigned int getObsStatsScale() const {
+            return obsStatsScale;
+        }
+
+        inline void setObsStatsScale(const unsigned int value) {
+            obsStatsScale = value;
+        }
+
+        inline unsigned int getSmcTraces() const {
+            return smcTraces;
+        }
+
+        inline void setSmcTraces(const unsigned int traces) {
+            smcTraces = traces;
+        }
+
+        inline SMCTracesType getSMCTracesType() const {
+            return smcTracesType;
+        }
+
+        inline void setSMCTracesType(const SMCTracesType toSave) {
+            smcTracesType = toSave;
+        }
+
+        inline void setSMCNumericPrecision(const unsigned int precision) {
+            smcNumericPrecision = precision;
+        }
+
+        inline unsigned int getSMCNumericPrecision() const {
+            return smcNumericPrecision;
+        }
+
+        inline std::optional<uint64_t> getSmcSeed() const {
+            return smcSeed;
+        }
+
+        inline void setSmcSeed(uint64_t seed) {
+            smcSeed = seed;
+        }
+
     protected:
         std::string inputFile;
         std::string queryFile;
@@ -220,6 +321,19 @@ namespace VerifyTAPN {
         std::string outputQuery;
         std::set<size_t> querynumbers;
         std::string strategy_output = "";
+        bool benchmark = false;
+        unsigned int benchmarkRuns = 100;
+        bool parallel = false;
+        bool printCumulative = false;
+        unsigned int cumulativeRoundingDigits = 2;
+        unsigned int stepsStatsScale = 2000;
+        unsigned int timeStatsScale = 2000;
+        unsigned int obsStatsScale = 500;
+        bool timeStdDev = false;
+        unsigned int smcTraces = 0;
+        SMCTracesType smcTracesType = ANY_TRACE;
+        unsigned int smcNumericPrecision = 5;
+        std::optional<uint64_t> smcSeed = std::nullopt;
         friend class ArgsParser;
     };
 

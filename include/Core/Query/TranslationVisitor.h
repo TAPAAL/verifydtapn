@@ -13,6 +13,8 @@
 #include <PQL/Visitor.h>
 #include <iostream>
 
+#include "Core/TAPN/WatchExpression.hpp"
+
 namespace VerifyTAPN {
     namespace TAPN {
         class TimedArcPetriNet;
@@ -34,6 +36,8 @@ namespace VerifyTAPN {
         public:
             TranslationVisitor(const TAPN::TimedArcPetriNet& net);
 
+            TAPN::Observable translateObservable(const unfoldtacpn::PQL::Observable& obs);
+
             std::unique_ptr<Query> translate(const unfoldtacpn::PQL::Condition& condition);
             void _accept(const unfoldtacpn::PQL::NotCondition *element) override;
             void _accept(const unfoldtacpn::PQL::AndCondition *element) override;
@@ -48,6 +52,8 @@ namespace VerifyTAPN {
             void _accept(const unfoldtacpn::PQL::EGCondition *condition) override;
             void _accept(const unfoldtacpn::PQL::AGCondition *condition) override;
             void _accept(const unfoldtacpn::PQL::AFCondition *condition) override;
+            void _accept(const unfoldtacpn::PQL::PFCondition *condition) override;
+            void _accept(const unfoldtacpn::PQL::PGCondition *condition) override;
             void _accept(const unfoldtacpn::PQL::BooleanCondition *element) override;
             void _accept(const unfoldtacpn::PQL::UnfoldedIdentifierExpr *element) override;
             void _accept(const unfoldtacpn::PQL::LiteralExpr *element) override;
