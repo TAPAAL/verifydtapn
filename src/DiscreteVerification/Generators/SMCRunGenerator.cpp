@@ -132,7 +132,7 @@ namespace VerifyTAPN {
         }
 
         RealMarking* SMCRunGenerator::next() {
-            auto [transi, delay] = getWinnerTransitionAndDelay();
+            clockValue delay = getNextDelay();
             
             if(delay == std::numeric_limits<clockValue>::max()) {
                 _maximal = true;
@@ -159,6 +159,16 @@ namespace VerifyTAPN {
             _totalTime += delay;
 
             _parent->setPreviousDelay(delay + _parent->getPreviousDelay());
+
+            for(int i = 0 ; i < _transitionIntervals.size() ; i++) {
+                clockValue date = _dates_sampled[i];
+                _dates_sampled[i] = (date == std::numeric_limits<clockValue>::max()) ?
+                    std::numeric_limits<clockValue>::max() : date - delay;
+            }
+
+            refreshTransitionsIntervals();
+
+            TimedTransition* transi = getWinner();
         
             if(transi != nullptr) {
                 _totalSteps++;
@@ -174,19 +184,12 @@ namespace VerifyTAPN {
                 _parent = child;
             }
 
-            for(int i = 0 ; i < _transitionIntervals.size() ; i++) {
-                clockValue date = _dates_sampled[i];
-                _dates_sampled[i] = (date == std::numeric_limits<clockValue>::max()) ?
-                    std::numeric_limits<clockValue>::max() : date - delay;
-            }
-
             refreshTransitionsIntervals();
 
             return _parent;
         }
 
-        std::pair<TimedTransition*, clockValue> SMCRunGenerator::getWinnerTransitionAndDelay() {
-            std::vector<size_t> winner_indexs;
+        clockValue SMCRunGenerator::getNextDelay() {
             clockValue date_min = std::numeric_limits<clockValue>::max();
             for(int i = 0 ; i < _transitionIntervals.size() ; i++) {
                 auto* intervals = &_transitionIntervals[i];
@@ -205,21 +208,25 @@ namespace VerifyTAPN {
                 date = std::min(_dates_sampled[i], date);
                 if(date < date_min) {
                     date_min = date;
-                    winner_indexs.clear();
                 }
-                if(_dates_sampled[i] == date_min) {
+            }
+            return date_min;
+        }
+
+        TimedTransition* SMCRunGenerator::getWinner() {
+            std::vector<size_t> winner_indexs;
+            for(int i = 0 ; i < _dates_sampled.size() ; i++) {
+                if(_dates_sampled[i] == 0) {
                     winner_indexs.push_back(i);
                 }
             }
-            TimedTransition *winner;
-            if(winner_indexs.empty()) { 
-                winner = nullptr;
-            } else if(winner_indexs.size() == 1) {
+            TimedTransition *winner = nullptr;
+            if(winner_indexs.size() == 1) {
                 winner = _tapn.getTransitions()[winner_indexs[0]];
-            } else {
+            } else if(winner_indexs.size() > 1) {
                 winner = chooseWeightedWinner(winner_indexs);
             }
-            return std::make_pair(winner, date_min);
+            return winner;
         }
 
         TimedTransition* SMCRunGenerator::chooseWeightedWinner(const std::vector<size_t>& winner_indexs) {
