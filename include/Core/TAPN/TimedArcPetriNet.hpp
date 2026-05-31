@@ -85,7 +85,7 @@ namespace TAPN {
         void setAllControllable(bool value);
 
     public: // modifiers
-        void initialize(const VerificationOptions &options);
+        void initialize(bool useGlobalMaxConstant, bool lowerGuardsByGCD);
 
         bool containsOrphanTransitions();
 
@@ -103,7 +103,7 @@ namespace TAPN {
 
         void markUntimedPlaces();
 
-        void findMaxConstants(const VerificationOptions &options);
+        void findMaxConstants();
 
     private: // data
         TimedPlace::Vector places;

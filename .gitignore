@@ -6,3 +6,4 @@ src/Core/QueryParser/Parser.hpp
 src/Core/QueryParser/location.hh
 src/Core/QueryParser/position.hh
 src/Core/QueryParser/stack.hh
+.vscode
