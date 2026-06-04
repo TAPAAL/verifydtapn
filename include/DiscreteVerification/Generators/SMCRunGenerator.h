@@ -70,7 +70,8 @@ namespace VerifyTAPN {
             std::vector<RealToken> removeYoungest(RealTokenList& tokenlist, const TimeInterval& interval, const int weight);
             std::vector<RealToken> removeOldest(RealTokenList& tokenlist, const TimeInterval& interval, const int weight);
 
-            std::pair<TimedTransition*, clockValue> getWinnerTransitionAndDelay();
+            clockValue getNextDelay();
+            TimedTransition* getWinner();
 
             RealMarking* fire(TimedTransition* transi);
 
