@@ -7,6 +7,8 @@
 
 #include "DiscreteVerification/DeadlockVisitor.hpp"
 
+#include <iostream>
+
 namespace VerifyTAPN { namespace DiscreteVerification {
 
     using namespace AST;
@@ -49,8 +51,13 @@ namespace VerifyTAPN { namespace DiscreteVerification {
         static_cast<BoolResult &>(context).value = true;
     }
 
-    void DeadlockVisitor::visit(NumberExpression &expr, Result &context) {
+    void DeadlockVisitor::visit(IntExpression &expr, Result &context) {
         static_cast<BoolResult &>(context).value = false;
+    }
+
+    void DeadlockVisitor::visit(RealExpression &expr, Result &context) {
+        std::cerr << "Real numbers are not supported in DeadlockVisitor\n";
+        std::exit(1);
     }
 
     void DeadlockVisitor::visit(IdentifierExpression &expr, Result &context) {

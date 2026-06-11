@@ -1,6 +1,8 @@
 #include "Core/Query/NormalizationVisitor.hpp"
 #include "Core/Query/AST.hpp"
 
+#include <iostream>
+
 namespace VerifyTAPN {
 namespace AST {
 
@@ -65,7 +67,12 @@ namespace AST {
         }
     }
 
-    void NormalizationVisitor::visit(NumberExpression &expr, Result &context) {
+    void NormalizationVisitor::visit(IntExpression &expr, Result &context) {
+    }
+
+    void NormalizationVisitor::visit(RealExpression &expr, Result &context) {
+        std::cerr << "Real numbers are not supported in NormalizationVisitor\n";
+        std::exit(1);
     }
 
     void NormalizationVisitor::visit(IdentifierExpression &expr, Result &context) {

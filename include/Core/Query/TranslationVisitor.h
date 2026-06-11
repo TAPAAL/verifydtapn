@@ -56,7 +56,8 @@ namespace VerifyTAPN {
             void _accept(const unfoldtacpn::PQL::PGCondition *condition) override;
             void _accept(const unfoldtacpn::PQL::BooleanCondition *element) override;
             void _accept(const unfoldtacpn::PQL::UnfoldedIdentifierExpr *element) override;
-            void _accept(const unfoldtacpn::PQL::LiteralExpr *element) override;
+            void _accept(const unfoldtacpn::PQL::LiteralIntExpr *element) override;
+            void _accept(const unfoldtacpn::PQL::LiteralRealExpr *element) override;
             void _accept(const unfoldtacpn::PQL::PlusExpr *element) override;
             void _accept(const unfoldtacpn::PQL::MultiplyExpr *element) override;
             void _accept(const unfoldtacpn::PQL::MinusExpr *element) override;

@@ -7,6 +7,8 @@
 
 #include "Core/PlaceVisitor.hpp"
 
+#include <iostream>
+
 namespace VerifyTAPN { 
 
     void PlaceVisitor::visit(NotExpression &expr, Result &context) {
@@ -38,7 +40,12 @@ namespace VerifyTAPN {
         query.getChild()->accept(*this, context);
     }
 
-    void PlaceVisitor::visit(NumberExpression &expr, Result &context) {}
+    void PlaceVisitor::visit(IntExpression &expr, Result &context) {}
+
+    void PlaceVisitor::visit(RealExpression &expr, Result &context) {
+        std::cerr << "Real numbers are not supported in PlaceVisitor\n";
+        std::exit(1);
+    }
 
     void PlaceVisitor::visit(IdentifierExpression &expr, Result &context) {
         auto &v = static_cast< AST::IntVectorResult & >(context);
