@@ -137,7 +137,8 @@ namespace VerifyTAPN { namespace DiscreteVerification {
                 : ReachabilitySearch<S>(tapn, initialMarking, query, options) {
             this->pwList = new PWListHybrid(tapn, waiting_list, options.getKBound(), tapn.getNumberOfPlaces(),
                                             tapn.getMaxConstant(), false,
-                                            options.getTrace() != VerificationOptions::NO_TRACE);
+                                            options.getTrace() != VerificationOptions::NO_TRACE,
+                                            options.getTrace() == VerificationOptions::FASTEST_TRACE);
         };
 
         virtual void deleteMarking(NonStrictMarking *m) {

@@ -99,17 +99,19 @@ namespace VerifyTAPN { namespace DiscreteVerification {
                 return true;
             }
  
-            // Requeue if found cheaper path
-            int newDelay = marking->calculateTotalDelay();
-            if (newDelay < existing->totalDelay) {
-                existing->totalDelay = newDelay;
-                if (makeTrace) {
-                    auto *tmeta = static_cast<MetaDataWithTraceAndEncoding *>(existing);
-                    tmeta->generatedBy = marking->getGeneratedBy();
-                    tmeta->parent = parent;
+            // Requeue if found cheaper path when looking for fastest trace
+            if (fastestTrace && existing != nullptr) {
+                int newDelay = marking->calculateTotalDelay();
+                if (newDelay < existing->totalDelay) {
+                    existing->totalDelay = newDelay;
+                    if (makeTrace) {
+                        auto *tmeta = static_cast<MetaDataWithTraceAndEncoding *>(existing);
+                        tmeta->generatedBy = marking->getGeneratedBy();
+                        tmeta->parent = parent;
+                    }
+                    waiting_list->add(marking, res.second);
+                    return true;
                 }
-                waiting_list->add(marking, res.second);
-                return true;
             }
         }
         return res.first;
