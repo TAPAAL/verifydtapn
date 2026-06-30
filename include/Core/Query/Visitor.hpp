@@ -16,7 +16,11 @@ namespace VerifyTAPN { namespace AST {
 
     class BoolExpression;
 
+    template <typename T>
     class NumberExpression;
+
+    using IntExpression = NumberExpression<int>;
+    using RealExpression = NumberExpression<float>;
 
     class IdentifierExpression;
 
@@ -43,6 +47,7 @@ namespace VerifyTAPN { namespace AST {
     };
 
     typedef SpecificResult<int> IntResult;
+    typedef SpecificResult<float> RealResult;
     typedef SpecificResult<bool> BoolResult;
     typedef SpecificResult<std::vector<int> > IntVectorResult;
 
@@ -64,7 +69,9 @@ namespace VerifyTAPN { namespace AST {
 
         virtual void visit(DeadlockExpression &expr, Result &context) = 0;
 
-        virtual void visit(NumberExpression &expr, Result &context) = 0;
+        virtual void visit(IntExpression &expr, Result &context) = 0;
+
+        virtual void visit(RealExpression &expr, Result &context) = 0;
 
         virtual void visit(IdentifierExpression &expr, Result &context) = 0;
 

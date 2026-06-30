@@ -58,7 +58,9 @@ namespace VerifyTAPN { namespace DiscreteVerification {
 
         void visit(DeadlockExpression &expr, Result &context) override;
 
-        void visit(NumberExpression &expr, Result &context) override;
+        void visit(IntExpression &expr, Result &context) override;
+
+        void visit(RealExpression &expr, Result &context) override;
 
         void visit(IdentifierExpression &expr, Result &context) override;
 

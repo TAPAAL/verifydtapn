@@ -7,6 +7,8 @@
 
 #include "DiscreteVerification/Generators/RangeVisitor.h"
 
+#include <iostream>
+
 namespace VerifyTAPN {
     namespace DiscreteVerification {
 
@@ -146,9 +148,14 @@ namespace VerifyTAPN {
                 val.value = 0; // unknown
         }
 
-        void RangeVisitor::visit(NumberExpression &expr, Result &context) {
+        void RangeVisitor::visit(IntExpression &expr, Result &context) {
             auto& val = static_cast<PairResult&>(context);
             val.value = std::make_pair<int64_t>(expr.getValue(), expr.getValue());
+        }
+
+        void RangeVisitor::visit(RealExpression &expr, Result &context) {
+            std::cerr << "Real numbers are not supported in RangeVisitor\n";
+            std::exit(1);
         }
 
         void RangeVisitor::visit(IdentifierExpression &expr, Result &context) {

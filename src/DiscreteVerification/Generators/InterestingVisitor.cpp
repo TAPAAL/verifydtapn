@@ -2,6 +2,8 @@
 #include "DiscreteVerification/Generators/InterestingVisitor.h"
 #include "DiscreteVerification/Generators/ReducingGenerator.hpp"
 
+#include <iostream>
+
 namespace VerifyTAPN {
 namespace DiscreteVerification {
     void InterestingVisitor::clear() {
@@ -21,9 +23,9 @@ namespace DiscreteVerification {
             expr.getLeft().accept(*this, context);
             expr.getRight().accept(*this, context);
         } else {
-            if (expr.getLeft().eval)
+            if (expr.getLeft().getEval<bool>())
                 expr.getLeft().accept(*this, context);
-            else if (expr.getRight().eval)
+            else if (expr.getRight().getEval<bool>())
                 expr.getRight().accept(*this, context);
         }
     }
@@ -33,9 +35,9 @@ namespace DiscreteVerification {
             expr.getLeft().accept(*this, context);
             expr.getRight().accept(*this, context);
         } else {
-            if (!expr.getLeft().eval)
+            if (!expr.getLeft().getEval<bool>())
                 expr.getLeft().accept(*this, context);
-            else if (!expr.getRight().eval)
+            else if (!expr.getRight().getEval<bool>())
                 expr.getRight().accept(*this, context);
         }
     }
@@ -53,21 +55,21 @@ namespace DiscreteVerification {
         {
             case AtomicProposition::LT:
             case AtomicProposition::LE:
-                if (!expr.eval && !_negated)
+                if (!expr.getEval<bool>() && !_negated)
                     incdec(false, true);
-                else if (expr.eval && _negated)
+                else if (expr.getEval<bool>() && _negated)
                     incdec(true, false);
                 break;
             case AtomicProposition::EQ:
             case AtomicProposition::NE:
             {
                 bool neg = _negated == (expr.getOperator() == AtomicProposition::EQ);
-                if (!expr.eval && !neg) {
-                    if (expr.getLeft().eval < expr.getRight().eval)
+                if (!expr.getEval<bool>() && !neg) {
+                    if (expr.getLeft().getEval<bool>() < expr.getRight().getEval<bool>())
                         incdec(true, false);
                     else
                         incdec(false, true);
-                } else if (expr.eval && neg) {
+                } else if (expr.getEval<bool>() && neg) {
                     incdec(true, true);
                     incdec(false, false);
                 }
@@ -91,8 +93,13 @@ namespace DiscreteVerification {
         if (!_negated) _deadlock = !_negated;
     }
 
-    void InterestingVisitor::visit(NumberExpression &expr, Result &context) {
+    void InterestingVisitor::visit(IntExpression &expr, Result &context) {
         // nothing!
+    }
+
+    void InterestingVisitor::visit(RealExpression &expr, Result &context) {
+        std::cerr << "Real numbers are not supported in InterestingVisitor\n";
+        std::exit(1);
     }
 
     void InterestingVisitor::visit(IdentifierExpression &expr, Result &context) {

@@ -85,14 +85,6 @@ namespace VerifyTAPN {
             return new MultiplyExpression(*this);
         }
 
-        void NumberExpression::accept(Visitor &visitor, Result &context) {
-            visitor.visit(*this, context);
-        }
-
-        NumberExpression *NumberExpression::clone() const {
-            return new NumberExpression(*this);
-        }
-
         void IdentifierExpression::accept(Visitor &visitor, Result &context) {
             visitor.visit(*this, context);
         }
