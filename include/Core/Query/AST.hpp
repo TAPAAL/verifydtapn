@@ -7,6 +7,7 @@
 
 #include <string>
 #include <iostream>
+#include <variant>
 
 namespace VerifyTAPN {
     namespace TAPN {
@@ -17,9 +18,33 @@ namespace VerifyTAPN {
 
         class Visitable {
         public:
-            virtual void accept(Visitor &visitor, Result &context) = 0;
+            using EvalType = std::variant<int32_t, float, bool>;
 
-            int32_t eval = 0;
+            virtual void accept(Visitor &visitor, Result &context) = 0;
+        
+            template<typename T>
+            T getEval() const {
+                return std::get<T>(eval);
+            }
+
+            void setEval(EvalType value) {
+                eval = value;
+            }
+
+            template<typename T>
+            bool hasEval() const {
+                return std::holds_alternative<T>(eval);
+            }
+
+            double getNumericalValue() const {
+                if (hasEval<float>()) return getEval<float>();
+                if (hasEval<int32_t>()) return getEval<int32_t>();
+                if (hasEval<bool>()) return getEval<bool>() ? 1.0 : 0.0;
+                return 0.0;
+            }
+
+        private:
+            EvalType eval = 0;
         };
 
         class Expression : public Visitable {
@@ -385,10 +410,11 @@ namespace VerifyTAPN {
             void accept(Visitor &visitor, Result &context) override;
         };
 
+        template <typename T>
         class NumberExpression : public ArithmeticExpression {
         public:
 
-            explicit NumberExpression(int i) : value(i) {
+            explicit NumberExpression(T i) : value(i) {
             }
 
             NumberExpression(const NumberExpression &other) : value(other.value) {
@@ -399,19 +425,22 @@ namespace VerifyTAPN {
                 return *this;
             };
 
-            int getValue() const {
+            T getValue() const {
                 return value;
             };
 
             ~NumberExpression() override = default;
 
+            NumberExpression* clone() const override {
+                return new NumberExpression(*this);
+            }
 
-            NumberExpression *clone() const override;
-
-            void accept(Visitor &visitor, Result &context) override;
+            void accept(Visitor &visitor, Result &context) override {
+                visitor.visit(*this, context);
+            }
 
         private:
-            int value;
+            T value;
         };
 
         class IdentifierExpression : public ArithmeticExpression {

@@ -13,6 +13,9 @@
 #include "Core/Query/AST.hpp"
 
 #include <exception>
+#include <iostream>
+#include <cassert>
+#include <variant>
 
 namespace VerifyTAPN { namespace DiscreteVerification {
 
@@ -51,7 +54,9 @@ namespace VerifyTAPN { namespace DiscreteVerification {
 
         void visit(DeadlockExpression &expr, AST::Result &context) override;
 
-        void visit(NumberExpression &expr, AST::Result &context) override;
+        void visit(IntExpression &expr, AST::Result &context) override;
+
+        void visit(RealExpression &expr, AST::Result &context) override;
 
         void visit(IdentifierExpression &expr, AST::Result &context) override;
 
@@ -64,7 +69,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
         void visit(PlusExpression &expr, AST::Result &context) override;
 
     private:
-        bool compare(int numberOfTokensInPlace, AtomicProposition::op_e op, int n) const;
+        bool compare(double leftVal, AtomicProposition::op_e op, double rightVal) const;
 
     private:
         const T &marking;
@@ -78,8 +83,8 @@ namespace VerifyTAPN { namespace DiscreteVerification {
     void QueryVisitor<T>::visit(NotExpression &expr, AST::Result &context) {
         BoolResult c;
         expr.getChild().accept(*this, c);
-        expr.eval = !c.value;
-        static_cast<BoolResult &>(context).value = expr.eval;
+        expr.setEval(!c.value);
+        static_cast<BoolResult &>(context).value = expr.getEval<bool>();
     }
 
     template<typename T>
@@ -93,7 +98,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
             expr.getRight().accept(*this, right);
             static_cast<BoolResult &>(context).value = right.value;
         }
-        expr.eval = static_cast<BoolResult &>(context).value;
+        expr.setEval(static_cast<BoolResult &>(context).value);
     }
 
     template<typename T>
@@ -108,87 +113,105 @@ namespace VerifyTAPN { namespace DiscreteVerification {
             expr.getRight().accept(*this, right);
             static_cast<BoolResult &>(context).value = right.value;
         }
-        expr.eval = static_cast<BoolResult &>(context).value;
+        expr.setEval(static_cast<BoolResult &>(context).value);
     }
 
     template<typename T>
     void QueryVisitor<T>::visit(AtomicProposition &expr, AST::Result &context) {
-        IntResult left;
-        expr.getLeft().accept(*this, left);
-        IntResult right;
-        expr.getRight().accept(*this, right);
+        expr.getLeft().accept(*this, context);
+        double leftVal = expr.getLeft().getNumericalValue();
 
-        static_cast<BoolResult &>(context).value
-                = compare(left.value, expr.getOperator(), right.value);
-        expr.eval = static_cast<BoolResult &>(context).value;
+        expr.getRight().accept(*this, context);
+        double rightVal = expr.getRight().getNumericalValue();
+
+        static_cast<BoolResult &>(context).value = compare(leftVal, expr.getOperator(), rightVal);
+        expr.setEval(static_cast<BoolResult &>(context).value);
     }
 
     template<typename T>
     void QueryVisitor<T>::visit(BoolExpression &expr, AST::Result &context) {
-        static_cast<BoolResult &>(context).value
-                = expr.getValue();
-        expr.eval = expr.getValue();
+        static_cast<BoolResult &>(context).value = expr.getValue();
+        expr.setEval(expr.getValue());
     }
 
     template<typename T>
-    void QueryVisitor<T>::visit(NumberExpression &expr, AST::Result &context) {
-        ((IntResult &) context).value = expr.getValue();
-        expr.eval = static_cast<IntResult &>(context).value;
+    void QueryVisitor<T>::visit(IntExpression &expr, AST::Result &context) {
+        expr.setEval(static_cast<int32_t>(expr.getValue()));
+    }
+
+    template<typename T>
+    void QueryVisitor<T>::visit(RealExpression &expr, AST::Result &context) {
+        expr.setEval(static_cast<float>(expr.getValue()));
     }
 
     template<typename T>
     void QueryVisitor<T>::visit(IdentifierExpression &expr, AST::Result &context) {
-        ((IntResult &) context).value = marking.numberOfTokensInPlace(expr.getPlace());
-        expr.eval = static_cast<IntResult &>(context).value;
+        int tokens = marking.numberOfTokensInPlace(expr.getPlace());
+        expr.setEval(static_cast<int32_t>(tokens));
     }
 
     template<typename T>
     void QueryVisitor<T>::visit(MultiplyExpression &expr, AST::Result &context) {
-        IntResult left;
-        expr.getLeft().accept(*this, left);
-        IntResult right;
-        expr.getRight().accept(*this, right);
-        ((IntResult &) context).value = left.value * right.value;
-        expr.eval = static_cast<IntResult &>(context).value;
+        expr.getLeft().accept(*this, context);
+        expr.getRight().accept(*this, context);
+        
+        double result = expr.getLeft().getNumericalValue() * expr.getRight().getNumericalValue();
+        
+        if (expr.getLeft().template hasEval<float>() || expr.getRight().template hasEval<float>()) {
+            expr.setEval(static_cast<float>(result));
+        } else {
+            expr.setEval(static_cast<int32_t>(result));
+        }
     }
 
     template<typename T>
     void QueryVisitor<T>::visit(MinusExpression &expr, AST::Result &context) {
-        IntResult value;
-        expr.getValue().accept(*this, value);
-        ((IntResult &) context).value = -value.value;
-        expr.eval = static_cast<IntResult &>(context).value;
+        expr.getValue().accept(*this, context);
+        
+        double result = -expr.getValue().getNumericalValue();
+        
+        if (expr.getValue().template hasEval<float>()) {
+            expr.setEval(static_cast<float>(result));
+        } else {
+            expr.setEval(static_cast<int32_t>(result));
+        }
     }
 
     template<typename T>
     void QueryVisitor<T>::visit(SubtractExpression &expr, AST::Result &context) {
-        IntResult left;
-        expr.getLeft().accept(*this, left);
-        IntResult right;
-        expr.getRight().accept(*this, right);
-        ((IntResult &) context).value = left.value - right.value;
-        expr.eval = static_cast<IntResult &>(context).value;
+        expr.getLeft().accept(*this, context);
+        expr.getRight().accept(*this, context);
+        
+        double result = expr.getLeft().getNumericalValue() - expr.getRight().getNumericalValue();
+        
+        if (expr.getLeft().template hasEval<float>() || expr.getRight().template hasEval<float>()) {
+            expr.setEval(static_cast<float>(result));
+        } else {
+            expr.setEval(static_cast<int32_t>(result));
+        }
     }
 
     template<typename T>
     void QueryVisitor<T>::visit(PlusExpression &expr, AST::Result &context) {
-        IntResult left;
-        expr.getLeft().accept(*this, left);
-        IntResult right;
-        expr.getRight().accept(*this, right);
-        ((IntResult &) context).value = left.value + right.value;
-        expr.eval = static_cast<IntResult &>(context).value;
+        expr.getLeft().accept(*this, context);
+        expr.getRight().accept(*this, context);
+        
+        double result = expr.getLeft().getNumericalValue() + expr.getRight().getNumericalValue();
+        
+        if (expr.getLeft().template hasEval<float>() || expr.getRight().template hasEval<float>()) {
+            expr.setEval(static_cast<float>(result));
+        } else {
+            expr.setEval(static_cast<int32_t>(result));
+        }
     }
-
 
     template<typename T>
     void QueryVisitor<T>::visit(Query &query, AST::Result &context) {
         query.getChild()->accept(*this, context);
         if (query.getQuantifier() == AG || query.getQuantifier() == AF || query.getQuantifier() == PG) {
-            static_cast<BoolResult &>(context).value
-                    = !static_cast<BoolResult &>(context).value;
+            static_cast<BoolResult &>(context).value = !static_cast<BoolResult &>(context).value;
         }
-        query.eval = static_cast<IntResult &>(context).value;
+        query.setEval(static_cast<bool>(static_cast<BoolResult &>(context).value));
     }
 
     template<typename T>
@@ -197,19 +220,17 @@ namespace VerifyTAPN { namespace DiscreteVerification {
             deadlockChecked = true;
             deadlocked = marking.canDeadlock(tapn, maxDelay);
         }
-        static_cast<BoolResult &>(context).value
-                = deadlocked;
-        expr.eval = static_cast<BoolResult &>(context).value;
+        static_cast<BoolResult &>(context).value = deadlocked;
+        expr.setEval(deadlocked);
     }
 
     template<typename T>
-    bool QueryVisitor<T>::compare(int numberOfTokensInPlace, AtomicProposition::op_e op, int n) const {
-        
+    bool QueryVisitor<T>::compare(double leftVal, AtomicProposition::op_e op, double rightVal) const {
         switch(op) {
-            case AtomicProposition::LT: return numberOfTokensInPlace < n;
-            case AtomicProposition::LE: return numberOfTokensInPlace <= n;
-            case AtomicProposition::EQ: return numberOfTokensInPlace == n;
-            case AtomicProposition::NE: return numberOfTokensInPlace != n;
+            case AtomicProposition::LT: return leftVal < rightVal;
+            case AtomicProposition::LE: return leftVal <= rightVal;
+            case AtomicProposition::EQ: return leftVal == rightVal;
+            case AtomicProposition::NE: return leftVal != rightVal;
             default: assert(false);
         }
         return false;

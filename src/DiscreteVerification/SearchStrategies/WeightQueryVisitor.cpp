@@ -7,6 +7,8 @@
 
 #include "DiscreteVerification/SearchStrategies/WeightQueryVisitor.hpp"
 
+#include <iostream>
+
 namespace VerifyTAPN { namespace DiscreteVerification {
 
     void WeightQueryVisitor::visit(NotExpression &expr, Result &context) {
@@ -54,8 +56,13 @@ namespace VerifyTAPN { namespace DiscreteVerification {
                 = compare(left.value, expr.getOperator(), right.value);
     }
 
-    void WeightQueryVisitor::visit(NumberExpression &expr, Result &context) {
+    void WeightQueryVisitor::visit(IntExpression &expr, Result &context) {
         ((IntResult &) context).value = expr.getValue();
+    }
+
+    void WeightQueryVisitor::visit(RealExpression &expr, Result &context) {
+        std::cerr << "Real numbers are not supported in WeightQueryVisitor\n";
+        std::exit(1);
     }
 
     void WeightQueryVisitor::visit(IdentifierExpression &expr, Result &context) {

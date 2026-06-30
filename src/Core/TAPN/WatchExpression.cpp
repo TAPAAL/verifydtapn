@@ -21,9 +21,11 @@ float Watch::new_marking(RealMarking *marking, const uint32_t precision)
     }
     float timestamp = clockToDouble(marking->getTotalAge(), precision);
     QueryVisitor<RealMarking> checker(*marking, *_tapn);
-    IntResult res;
-    _expr->accept(checker, res);
-    double value = res.value;
+    std::unique_ptr<AST::Result> res;
+    if (_expr->hasEval<float>()) res = std::make_unique<AST::RealResult>();
+    else res = std::make_unique<AST::IntResult>();
+    _expr->accept(checker, *res);
+    double value = _expr->getNumericalValue();
     if(_values.size() == 0 || value != _values.back()) {
         _values.push_back(value);
         _timestamps.push_back(timestamp);

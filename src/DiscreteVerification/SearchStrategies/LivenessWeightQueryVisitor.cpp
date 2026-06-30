@@ -7,6 +7,8 @@
 
 #include "DiscreteVerification/SearchStrategies/LivenessWeightQueryVisitor.hpp"
 
+#include <iostream>
+
 namespace VerifyTAPN { namespace DiscreteVerification {
 
     void LivenessWeightQueryVisitor::visit(NotExpression &expr, Result &context) {
@@ -50,8 +52,13 @@ namespace VerifyTAPN { namespace DiscreteVerification {
                 = compare(left.value, expr.getOperator(), right.value);
     }
 
-    void LivenessWeightQueryVisitor::visit(NumberExpression &expr, Result &context) {
+    void LivenessWeightQueryVisitor::visit(IntExpression &expr, Result &context) {
         ((IntResult &) context).value = expr.getValue();
+    }
+
+    void LivenessWeightQueryVisitor::visit(RealExpression &expr, Result &context) {
+        std::cerr << "Real numbers are not supported in LivenessWeightQueryVisitor\n";
+        std::exit(1);
     }
 
     void LivenessWeightQueryVisitor::visit(IdentifierExpression &expr, Result &context) {
