@@ -103,10 +103,12 @@ namespace VerifyTAPN { namespace DiscreteVerification {
                      int nplaces,
                      int mage,
                      bool isLiveness,
-                     bool makeTrace) :
+                     bool makeTrace,
+                     bool fastestTrace = false) :
                 PWListBase(isLiveness),
                 waiting_list(w_l),
                 makeTrace(makeTrace),
+                fastestTrace(fastestTrace),
                 passed(),
                 encoder(tapn, knumber) {
             discoveredMarkings = 0;
@@ -149,6 +151,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
 
         WaitingList<ptriepointer_t<MetaData *> > *waiting_list;
         bool makeTrace;
+        bool fastestTrace;
     public:
         MetaDataWithTraceAndEncoding *parent;
         ptrie_t<MetaData *> passed;

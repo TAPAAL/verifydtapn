@@ -8,7 +8,6 @@
 namespace VerifyTAPN {
 namespace TAPN {
     void TimedArcPetriNet::initialize(bool useGlobalMaxConstant, bool lowerGuardsByGCD) {
-
         // start by doing GCD if enabled
         if (lowerGuardsByGCD) {
             GCDLowerGuards();

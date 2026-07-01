@@ -85,7 +85,7 @@ namespace TAPN {
         void setAllControllable(bool value);
 
     public: // modifiers
-        void initialize(bool useGlobalMaxConstant, bool disableLowerGuards);
+        void initialize(bool useGlobalMaxConstant, bool lowerGuardsByGCD);
 
         bool containsOrphanTransitions();
 
