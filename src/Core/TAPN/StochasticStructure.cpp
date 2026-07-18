@@ -56,6 +56,9 @@ namespace VerifyTAPN::SMC {
     }
     Distribution Distribution::fromParams(int distrib_id, std::vector<double> raw_params, bool customRandomStart) {
         DistributionType distrib = static_cast<DistributionType>(distrib_id);
+        if (raw_params.empty() && distrib != Custom) {
+            return defaultDistribution();
+        }
         DistributionParameters params;
         double* values;
         switch(distrib){
