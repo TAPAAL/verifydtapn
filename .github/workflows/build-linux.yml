@@ -29,18 +29,19 @@ jobs:
         CC=gcc-11 CXX=g++-11 cmake ../ -DCMAKE_BUILD_TYPE=Prebuild
         make
 
-    - name: Test
-      run: |
-        cd build
-        CC=gcc-11 CXX=g++-11 cmake ../ -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON -DVERIFYDTAPN_TEST=ON
-        make -j$(nproc)
-        CTEST_OUTPUT_ON_FAILURE=1 make test
-
     - name: Build
       run: |
         cd build
-        CC=gcc-11 CXX=g++-11 cmake ../ -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -DVERIFYDTAPN_TEST=OFF
+        CC=gcc-11 CXX=g++-11 cmake ../ -DCMAKE_BUILD_TYPE=Release
         make
+
+    - name: Test
+      run: |
+        mkdir build-test && cd build-test
+        CC=gcc-11 CXX=g++-11 cmake ../ -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON -DVERIFYDTAPN_TEST=ON
+        make rapidxml-ext sparsehash-ext unfoldtacpn-ext boost-ext
+        make -j$(nproc)
+        CTEST_OUTPUT_ON_FAILURE=1 make test
 
     - name: Upload artifacts 
       uses: actions/upload-artifact@v4
