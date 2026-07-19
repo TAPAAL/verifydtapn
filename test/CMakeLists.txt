@@ -14,3 +14,9 @@ add_test(NAME build_net COMMAND build_net)
 
 set_tests_properties(build_net PROPERTIES
     ENVIRONMENT TEST_FILES=${CMAKE_CURRENT_SOURCE_DIR})
+
+add_test(NAME fastest_trace_delay
+    COMMAND sh ${CMAKE_CURRENT_SOURCE_DIR}/fastest_trace/check_delay.sh
+        $<TARGET_FILE:verifydtapn-${ARCH_TYPE}>
+        ${CMAKE_CURRENT_SOURCE_DIR}/fastest_trace/model.xml
+        ${CMAKE_CURRENT_SOURCE_DIR}/fastest_trace/query.xml)

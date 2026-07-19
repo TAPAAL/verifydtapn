@@ -1,0 +1,88 @@
+<pnml>
+<net id="ComposedModel" type="P/T net">
+<place id="TAPN1__in" name="TAPN1__in" invariant="&lt; inf" initialMarking="1" >
+<graphics><position x="450" y="105" /></graphics></place>
+<place id="TAPN1__finsihed" name="TAPN1__finsihed" invariant="&lt; inf" initialMarking="0" >
+<graphics><position x="480" y="735" /></graphics></place>
+<place id="TAPN1__P2" name="TAPN1__P2" invariant="&lt; inf" initialMarking="0" >
+<graphics><position x="450" y="240" /></graphics></place>
+<place id="TAPN1__P3" name="TAPN1__P3" invariant="&lt;= 5" initialMarking="0" >
+<graphics><position x="330" y="360" /></graphics></place>
+<place id="TAPN1__P4" name="TAPN1__P4" invariant="&lt;= 3" initialMarking="0" >
+<graphics><position x="615" y="360" /></graphics></place>
+<place id="TAPN1__P5" name="TAPN1__P5" invariant="&lt; inf" initialMarking="0" >
+<graphics><position x="105" y="345" /></graphics></place>
+<place id="TAPN1__P6" name="TAPN1__P6" invariant="&lt; inf" initialMarking="0" >
+<graphics><position x="885" y="345" /></graphics></place>
+<place id="TAPN1__P7" name="TAPN1__P7" invariant="&lt; inf" initialMarking="0" >
+<graphics><position x="465" y="480" /></graphics></place>
+<place id="TAPN1__P8" name="TAPN1__P8" invariant="&lt;= 7" initialMarking="0" >
+<graphics><position x="345" y="615" /></graphics></place>
+<place id="TAPN1__P9" name="TAPN1__P9" invariant="&lt;= 4" initialMarking="0" >
+<graphics><position x="675" y="600" /></graphics></place>
+<place id="TAPN1__P10" name="TAPN1__P10" invariant="&lt; inf" initialMarking="0" >
+<graphics><position x="105" y="615" /></graphics></place>
+<place id="TAPN1__P11" name="TAPN1__P11" invariant="&lt; inf" initialMarking="0" >
+<graphics><position x="915" y="600" /></graphics></place>
+<place id="TAPN1__out" name="TAPN1__out" invariant="&lt; inf" initialMarking="0" >
+<graphics><position x="870" y="735" /></graphics></place>
+<place id="TAPN1__Deadline" name="TAPN1__Deadline" invariant="&lt;= 12" initialMarking="0" >
+<graphics><position x="945" y="450" /></graphics></place>
+<transition player="0" id="TAPN1__init" name="TAPN1__init" weight="1.0" firingMode="Random" distribution="constant" value="1.0" urgent="true">
+<graphics><position x="450" y="165" /></graphics></transition>
+<transition player="0" id="TAPN1__T1" name="TAPN1__T1" weight="1.0" firingMode="Random" distribution="constant" value="1.0" urgent="false">
+<graphics><position x="405" y="285" /></graphics></transition>
+<transition player="0" id="TAPN1__T2" name="TAPN1__T2" weight="1.0" firingMode="Random" distribution="constant" value="1.0" urgent="false">
+<graphics><position x="540" y="285" /></graphics></transition>
+<transition player="0" id="TAPN1__T3" name="TAPN1__T3" weight="1.0" firingMode="Random" distribution="constant" value="1.0" urgent="false">
+<graphics><position x="390" y="405" /></graphics></transition>
+<transition player="0" id="TAPN1__T4" name="TAPN1__T4" weight="1.0" firingMode="Random" distribution="constant" value="1.0" urgent="false">
+<graphics><position x="555" y="405" /></graphics></transition>
+<transition player="0" id="TAPN1__T5" name="TAPN1__T5" weight="1.0" firingMode="Random" distribution="constant" value="1.0" urgent="false">
+<graphics><position x="420" y="540" /></graphics></transition>
+<transition player="0" id="TAPN1__T6" name="TAPN1__T6" weight="1.0" firingMode="Random" distribution="constant" value="1.0" urgent="false">
+<graphics><position x="555" y="540" /></graphics></transition>
+<transition player="0" id="TAPN1__T7" name="TAPN1__T7" weight="1.0" firingMode="Random" distribution="constant" value="1.0" urgent="false">
+<graphics><position x="435" y="660" /></graphics></transition>
+<transition player="0" id="TAPN1__T8" name="TAPN1__T8" weight="1.0" firingMode="Random" distribution="constant" value="1.0" urgent="false">
+<graphics><position x="540" y="660" /></graphics></transition>
+<transition player="0" id="TAPN1__T9" name="TAPN1__T9" weight="1.0" firingMode="Random" distribution="constant" value="1.0" urgent="true">
+<graphics><position x="675" y="735" /></graphics></transition>
+<inputArc inscription="[0,inf)" source="TAPN1__in" target="TAPN1__init" />
+<inputArc inscription="[0,inf)" source="TAPN1__P2" target="TAPN1__T1" />
+<inputArc inscription="[0,inf)" source="TAPN1__P5" target="TAPN1__T1" />
+<inputArc inscription="[0,inf)" source="TAPN1__P2" target="TAPN1__T2" />
+<inputArc inscription="[0,inf)" source="TAPN1__P6" target="TAPN1__T2" />
+<inputArc inscription="[5,inf)" source="TAPN1__P3" target="TAPN1__T3" />
+<inputArc inscription="[3,inf)" source="TAPN1__P4" target="TAPN1__T4" />
+<inputArc inscription="[0,inf)" source="TAPN1__P7" target="TAPN1__T5" />
+<inputArc inscription="[0,inf)" source="TAPN1__P7" target="TAPN1__T6" weight="2"/>
+<inputArc inscription="[4,inf)" source="TAPN1__P9" target="TAPN1__T8" />
+<inputArc inscription="[7,inf)" source="TAPN1__P8" target="TAPN1__T7" />
+<inputArc inscription="[0,inf)" source="TAPN1__P10" target="TAPN1__T5" />
+<inputArc inscription="[0,inf)" source="TAPN1__P11" target="TAPN1__T6" />
+<inputArc inscription="[0,inf)" source="TAPN1__finsihed" target="TAPN1__T9" weight="5"/>
+<inputArc inscription="[0,inf)" source="TAPN1__P6" target="TAPN1__T9" weight="2"/>
+<inputArc inscription="[0,inf)" source="TAPN1__P11" target="TAPN1__T9" />
+<inputArc inscription="[0,inf)" source="TAPN1__P5" target="TAPN1__T9" weight="2"/>
+<inputArc inscription="[0,inf)" source="TAPN1__P10" target="TAPN1__T9" weight="2"/>
+<outputArc inscription="1" source="TAPN1__init" target="TAPN1__P2" weight="5"/>
+<outputArc inscription="1" source="TAPN1__init" target="TAPN1__P5" weight="2"/>
+<outputArc inscription="1" source="TAPN1__init" target="TAPN1__P6" weight="2"/>
+<outputArc inscription="1" source="TAPN1__init" target="TAPN1__P10" weight="2"/>
+<outputArc inscription="1" source="TAPN1__init" target="TAPN1__P11" />
+<outputArc inscription="1" source="TAPN1__T1" target="TAPN1__P3" />
+<outputArc inscription="1" source="TAPN1__T2" target="TAPN1__P4" />
+<outputArc inscription="1" source="TAPN1__T3" target="TAPN1__P7" />
+<outputArc inscription="1" source="TAPN1__T4" target="TAPN1__P7" />
+<outputArc inscription="1" source="TAPN1__T3" target="TAPN1__P5" />
+<outputArc inscription="1" source="TAPN1__T4" target="TAPN1__P6" />
+<outputArc inscription="1" source="TAPN1__T5" target="TAPN1__P8" />
+<outputArc inscription="1" source="TAPN1__T6" target="TAPN1__P9" />
+<outputArc inscription="1" source="TAPN1__T8" target="TAPN1__finsihed" weight="2"/>
+<outputArc inscription="1" source="TAPN1__T7" target="TAPN1__finsihed" />
+<outputArc inscription="1" source="TAPN1__T7" target="TAPN1__P10" />
+<outputArc inscription="1" source="TAPN1__T8" target="TAPN1__P11" />
+<outputArc inscription="1" source="TAPN1__T9" target="TAPN1__out" />
+</net>
+</pnml>

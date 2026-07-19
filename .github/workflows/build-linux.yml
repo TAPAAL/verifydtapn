@@ -21,19 +21,27 @@ jobs:
     - name: ubuntu install depends
       run: |
         sudo apt-get update
-        sudo apt-get install -f flex bison
-    
+        sudo apt-get install -f flex bison libboost-all-dev
+
     - name: Prebuild
       run: |
         mkdir build && cd build
         CC=gcc-11 CXX=g++-11 cmake ../ -DCMAKE_BUILD_TYPE=Prebuild
         make
 
-    - name: Build 
+    - name: Build
       run: |
         cd build
         CC=gcc-11 CXX=g++-11 cmake ../ -DCMAKE_BUILD_TYPE=Release
         make
+
+    - name: Test
+      run: |
+        mkdir build-test && cd build-test
+        CC=gcc-11 CXX=g++-11 cmake ../ -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON -DVERIFYDTAPN_TEST=ON
+        make rapidxml-ext sparsehash-ext unfoldtacpn-ext boost-ext
+        make -j$(nproc)
+        CTEST_OUTPUT_ON_FAILURE=1 make test
 
     - name: Upload artifacts 
       uses: actions/upload-artifact@v4
