@@ -71,7 +71,6 @@
 			"name": "win64-release",
 			"displayName": "Windows Release",
 			"description": "Configure Windows Cross-Compile Release build",
-            "inherits": "use-gcc",
 			"generator": "Ninja",
 			"binaryDir": "${sourceDir}/build-${presetName}",
 			"toolchainFile": "${sourceDir}/toolchain-x86_64-w64-mingw32.cmake",
