@@ -42,7 +42,7 @@ Build the Windows release:
 cmake --workflow win64-release
 ```
 
-## CMake workflows
+## CMake Workflows
 
 | Workflow | Purpose | Build directory |
 | --- | --- | --- |
@@ -50,5 +50,3 @@ cmake --workflow win64-release
 | `debug` | Debug build | `build-debug` |
 | `test` | Release build and tests | `build-test` |
 | `win64-release` | Windows cross-compiled release | `build-win64-release` |
-
-cmake --list-presets=all```
