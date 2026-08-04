@@ -108,7 +108,7 @@ if (VERIFYDTAPN_GetDependencies)
         URL_HASH SHA256=f22143b5528e081123c3c5ed437e92f648fe69748e95fa6e2bd41484e2986cc3
         PATCH_COMMAND echo "${BOOST_CONFIG_JAM}" $<SEMICOLON>  > config.jam
         CONFIGURE_COMMAND ./bootstrap.sh --prefix=${CMAKE_BINARY_DIR}/external cxxflags="-arch x86_64" --without-icu
-        BUILD_COMMAND ./b2 --user-config=config.jam --prefix=${CMAKE_BINARY_DIR}/external --with-program_options --layout=system cxxstd=17 cflags="-fPIC" cxxflags="-fPIC" address-model=64 ${BOOST_B2_OPTS} variant=release link=static runtime-link=static install
+        BUILD_COMMAND ./b2 --user-config=config.jam --prefix=${CMAKE_BINARY_DIR}/external --with-program_options --with-test --layout=system cxxstd=17 cflags="-fPIC" cxxflags="-fPIC" address-model=64 ${BOOST_B2_OPTS} variant=release link=static runtime-link=static install
         BUILD_BYPRODUCTS ${BOOST_PROGRAM_OPTIONS_LIBRARY}
         BUILD_IN_SOURCE 1
         INSTALL_COMMAND ""
@@ -142,6 +142,7 @@ else ( )
         set(Boost_USE_RELEASE_LIBS ON)
         set(Boost_USE_MULTITHREADED OFF)
         set(Boost_USE_STATIC_LIBS ${VERIFYDTAPN_Static})
+        set(Boost_USE_STATIC_RUNTIME ${VERIFYDTAPN_Static})
         find_package(Boost 1.66 REQUIRED COMPONENTS program_options)
         include_directories(${Boost_INCLUDE_DIR})
     endif()

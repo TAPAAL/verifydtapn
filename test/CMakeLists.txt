@@ -3,8 +3,6 @@ include_directories (${TEST_SOURCE_DIR}/src
                      ${Boost_INCLUDE_DIRS}
                      ${verifydtapn_SOURCE_DIR}
                      )
-add_definitions (-DBOOST_TEST_DYN_LINK)
-
 add_executable (build_net build_net.cpp)
 
 
