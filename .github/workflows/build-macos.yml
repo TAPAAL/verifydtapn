@@ -13,8 +13,9 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  CC: gcc-16
-  CXX: g++-16
+  GCC_VERSION: 16
+  CC: gcc-${GCC_VERSION}
+  CXX: gcc-${GCC_VERSION}
 
 jobs:
   build:
