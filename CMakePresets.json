@@ -1,0 +1,235 @@
+{
+	"version": 6,
+	"cmakeMinimumRequired": {
+		"major": 3,
+		"minor": 31,
+		"patch": 0
+	},
+	"configurePresets": [
+		{
+			"name": "prebuild",
+			"displayName": "Prebuild",
+			"description": "Configure external dependencies prebuild",
+			"generator": "Ninja",
+			"binaryDir": "${sourceDir}/build",
+			"cacheVariables": {
+				"CMAKE_BUILD_TYPE": "Prebuild",
+				"BUILD_TESTING": "OFF",
+				"VERIFYDTAPN_TEST": "OFF"
+			}
+		},
+		{
+			"name": "release",
+			"displayName": "Release",
+			"description": "Configure Release build",
+			"generator": "Ninja",
+			"binaryDir": "${sourceDir}/build",
+			"cacheVariables": {
+				"CMAKE_BUILD_TYPE": "Release",
+				"BUILD_TESTING": "OFF",
+				"VERIFYDTAPN_TEST": "OFF"
+			}
+		},
+		{
+			"name": "debug",
+			"displayName": "Debug",
+			"description": "Configure Debug build",
+			"generator": "Ninja",
+			"binaryDir": "${sourceDir}/build",
+			"cacheVariables": {
+				"CMAKE_BUILD_TYPE": "Debug",
+				"BUILD_TESTING": "OFF",
+				"VERIFYDTAPN_TEST": "OFF"
+			}
+		},
+		{
+			"name": "test",
+			"displayName": "Test",
+			"description": "Configure build with testing enabled",
+			"generator": "Ninja",
+			"binaryDir": "${sourceDir}/build",
+			"cacheVariables": {
+				"CMAKE_BUILD_TYPE": "Release",
+				"BUILD_TESTING": "ON",
+				"VERIFYDTAPN_TEST": "ON",
+				"Boost_USE_STATIC_LIBS": "ON"
+			}
+		},
+		{
+			"name": "win64-release",
+			"displayName": "Windows Release",
+			"description": "Configure Windows Cross-Compile Release build",
+			"generator": "Ninja",
+			"binaryDir": "${sourceDir}/build",
+			"toolchainFile": "${sourceDir}/toolchain-x86_64-w64-mingw32.cmake",
+			"cacheVariables": {
+				"CMAKE_BUILD_TYPE": "Release",
+				"BUILD_TESTING": "OFF",
+				"VERIFYDTAPN_TEST": "OFF"
+			}
+		}
+	],
+	"buildPresets": [
+		{
+			"name": "prebuild",
+			"configurePreset": "prebuild"
+		},
+		{
+			"name": "release-deps",
+			"configurePreset": "release",
+			"targets": [
+				"rapidxml-ext",
+				"sparsehash-ext",
+				"unfoldtacpn-ext",
+				"boost-ext"
+			]
+		},
+		{
+			"name": "release",
+			"configurePreset": "release"
+		},
+		{
+			"name": "debug-deps",
+			"configurePreset": "debug",
+			"targets": [
+				"rapidxml-ext",
+				"sparsehash-ext",
+				"unfoldtacpn-ext",
+				"boost-ext"
+			]
+		},
+		{
+			"name": "debug",
+			"configurePreset": "debug"
+		},
+		{
+			"name": "test-deps",
+			"configurePreset": "test",
+			"targets": [
+				"rapidxml-ext",
+				"sparsehash-ext",
+				"unfoldtacpn-ext",
+				"boost-ext"
+			]
+		},
+		{
+			"name": "test-build",
+			"configurePreset": "test"
+		},
+		{
+			"name": "win64-release-deps",
+			"configurePreset": "win64-release",
+			"targets": [
+				"rapidxml-ext",
+				"sparsehash-ext",
+				"unfoldtacpn-ext",
+				"boost-ext"
+			]
+		},
+		{
+			"name": "win64-release",
+			"configurePreset": "win64-release"
+		}
+	],
+	"testPresets": [
+		{
+			"name": "test",
+			"configurePreset": "test",
+			"output": {
+				"outputOnFailure": true
+			}
+		}
+	],
+	"workflowPresets": [
+		{
+			"name": "prebuild",
+			"displayName": "Prebuild Workflow",
+			"steps": [
+				{
+					"type": "configure",
+					"name": "prebuild"
+				},
+				{
+					"type": "build",
+					"name": "prebuild"
+				}
+			]
+		},
+		{
+			"name": "release",
+			"displayName": "Release Workflow",
+			"steps": [
+				{
+					"type": "configure",
+					"name": "release"
+				},
+				{
+					"type": "build",
+					"name": "release-deps"
+				},
+				{
+					"type": "build",
+					"name": "release"
+				}
+			]
+		},
+		{
+			"name": "debug",
+			"displayName": "Debug Workflow",
+			"steps": [
+				{
+					"type": "configure",
+					"name": "debug"
+				},
+				{
+					"type": "build",
+					"name": "debug-deps"
+				},
+				{
+					"type": "build",
+					"name": "debug"
+				}
+			]
+		},
+		{
+			"name": "test",
+			"displayName": "Test Workflow",
+			"steps": [
+				{
+					"type": "configure",
+					"name": "test"
+				},
+				{
+					"type": "build",
+					"name": "test-deps"
+				},
+				{
+					"type": "build",
+					"name": "test-build"
+				},
+				{
+					"type": "test",
+					"name": "test"
+				}
+			]
+		},
+		{
+			"name": "win64-release",
+			"displayName": "Windows Release Workflow",
+			"steps": [
+				{
+					"type": "configure",
+					"name": "win64-release"
+				},
+				{
+					"type": "build",
+					"name": "win64-release-deps"
+				},
+				{
+					"type": "build",
+					"name": "win64-release"
+				}
+			]
+		}
+	]
+}

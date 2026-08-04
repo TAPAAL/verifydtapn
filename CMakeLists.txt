@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.31)
 
 ## Default to release builds, must be set before project
 if (NOT CMAKE_BUILD_TYPE OR CMAKE_BUILD_TYPE STREQUAL "")
@@ -70,6 +70,9 @@ if (VERIFYDTAPN_GetDependencies)
     include(ExternalProject)
     # Install location should be ${EXTERNAL_INSTALL_LOCATION}
 
+    set(BOOST_PROGRAM_OPTIONS_LIBRARY
+        ${EXTERNAL_INSTALL_LOCATION}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}boost_program_options${CMAKE_STATIC_LIBRARY_SUFFIX})
+
     ExternalProject_add(rapidxml-ext
         URL https://downloads.sourceforge.net/project/rapidxml/rapidxml/rapidxml%201.13/rapidxml-1.13.zip
         URL_HASH SHA512=6c10583e6631ccdb0217d0a5381172cb4c1046226de6ef1acf398d85e81d145228e14c3016aefcd7b70a1db8631505b048d8b4f5d4b0dbf1811d2482eefdd265
@@ -105,7 +108,8 @@ if (VERIFYDTAPN_GetDependencies)
         URL_HASH SHA256=f22143b5528e081123c3c5ed437e92f648fe69748e95fa6e2bd41484e2986cc3
         PATCH_COMMAND echo "${BOOST_CONFIG_JAM}" $<SEMICOLON>  > config.jam
         CONFIGURE_COMMAND ./bootstrap.sh --prefix=${CMAKE_BINARY_DIR}/external cxxflags="-arch x86_64" --without-icu
-        BUILD_COMMAND ./b2 --user-config=config.jam --prefix=${CMAKE_BINARY_DIR}/external --with-program_options cxxstd=17 cflags="-fPIC" cxxflags="-fPIC" address-model=64 ${BOOST_B2_OPTS} variant=release link=static runtime-link=static install
+        BUILD_COMMAND ./b2 --user-config=config.jam --prefix=${CMAKE_BINARY_DIR}/external --with-program_options --layout=system cxxstd=17 cflags="-fPIC" cxxflags="-fPIC" address-model=64 ${BOOST_B2_OPTS} variant=release link=static runtime-link=static install
+        BUILD_BYPRODUCTS ${BOOST_PROGRAM_OPTIONS_LIBRARY}
         BUILD_IN_SOURCE 1
         INSTALL_COMMAND ""
     )
@@ -130,28 +134,21 @@ if (CMAKE_BUILD_TYPE MATCHES Prebuild)
     add_custom_target( prebuild )
     add_dependencies( prebuild boost-ext rapidxml-ext unfoldtacpn-ext sparsehash-ext)
 else ( )
-
-    set(Boost_USE_RELEASE_LIBS ON)
-    set(Boost_USE_MULTITHREADED OFF)
-    if (NOT BUILD_TESTING)
-        set(Boost_USE_STATIC_LIBS ON)
-    else ()
-        set(Boost_USE_STATIC_LIBS OFF)
-    endif()
-
-    if(NOT BUILD_TESTING)
-        set(Boost_USE_STATIC_RUNTIME ON)
-        set(Boost_USE_STATIC_LIBS ON)
-        set(Boost_USE_RELEASE_LIBS ON)
-        set(Boost_USE_MULTITHREADED OFF)
+    if(VERIFYDTAPN_GetDependencies AND NOT BUILD_TESTING)
+        add_library(Boost::program_options STATIC IMPORTED)
+        set_target_properties(Boost::program_options PROPERTIES
+            IMPORTED_LOCATION ${BOOST_PROGRAM_OPTIONS_LIBRARY})
     else()
-        set(Boost_USE_STATIC_LIBS OFF)
         set(Boost_USE_RELEASE_LIBS ON)
         set(Boost_USE_MULTITHREADED OFF)
+        if(BUILD_TESTING)
+            set(Boost_USE_STATIC_LIBS OFF)
+        else()
+            set(Boost_USE_STATIC_LIBS ${VERIFYDTAPN_Static})
+        endif()
+        find_package(Boost 1.66 REQUIRED COMPONENTS program_options)
+        include_directories(${Boost_INCLUDE_DIR})
     endif()
-
-    find_package(Boost 1.66 REQUIRED program_options)
-    include_directories(${Boost_INCLUDE_DIR})
 
     # Set Macros
     add_compile_definitions(VERIFYDTAPN_VERSION=\"${VERIFYDTAPN_VERSION}\")
