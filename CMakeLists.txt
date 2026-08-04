@@ -9,11 +9,11 @@ endif()
 set(VERIFYDTAPN_NAME "verifydtapn")
 set(VERIFYDTAPN_VERSION 3.6.2)
 
-if (NOT ENV{CC} OR "$ENV{CC}" STREQUAL "")
+if (NOT DEFINED ENV{CC} OR "$ENV{CC}" STREQUAL "")
     set(CMAKE_C_COMPILER "gcc")
 endif()
 
-if (NOT ENV{CXX} OR "$ENV{CXX}" STREQUAL "")
+if (NOT DEFINED ENV{CXX} OR "$ENV{CXX}" STREQUAL "")
     if (DEFINED ENV{CCX} AND NOT "$ENV{CCX}" STREQUAL "")
         set(CMAKE_CXX_COMPILER "$ENV{CCX}")
     else()
