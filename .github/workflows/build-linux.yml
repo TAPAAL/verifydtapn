@@ -24,7 +24,7 @@ jobs:
     - name: ubuntu install depends
       run: |
         sudo apt update
-        sudo apt install -f flex bison libboost-all-dev ninja-build gcc-${GCC_VERSION} g++-${GCC_VERSION}
+        sudo apt install -f flex bison ninja-build gcc-${GCC_VERSION} g++-${GCC_VERSION}
 
     - name: Build Release
       run: cmake --workflow release

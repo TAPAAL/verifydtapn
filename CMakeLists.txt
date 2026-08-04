@@ -72,6 +72,8 @@ if (VERIFYDTAPN_GetDependencies)
 
     set(BOOST_PROGRAM_OPTIONS_LIBRARY
         ${EXTERNAL_INSTALL_LOCATION}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}boost_program_options${CMAKE_STATIC_LIBRARY_SUFFIX})
+    set(BOOST_UNIT_TEST_FRAMEWORK_LIBRARY
+        ${EXTERNAL_INSTALL_LOCATION}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}boost_unit_test_framework${CMAKE_STATIC_LIBRARY_SUFFIX})
 
     ExternalProject_add(rapidxml-ext
         URL https://downloads.sourceforge.net/project/rapidxml/rapidxml/rapidxml%201.13/rapidxml-1.13.zip
@@ -109,7 +111,7 @@ if (VERIFYDTAPN_GetDependencies)
         PATCH_COMMAND echo "${BOOST_CONFIG_JAM}" $<SEMICOLON>  > config.jam
         CONFIGURE_COMMAND ./bootstrap.sh --prefix=${CMAKE_BINARY_DIR}/external cxxflags="-arch x86_64" --without-icu
         BUILD_COMMAND ./b2 --user-config=config.jam --prefix=${CMAKE_BINARY_DIR}/external --with-program_options --with-test --layout=system cxxstd=17 cflags="-fPIC" cxxflags="-fPIC" address-model=64 ${BOOST_B2_OPTS} variant=release link=static runtime-link=static install
-        BUILD_BYPRODUCTS ${BOOST_PROGRAM_OPTIONS_LIBRARY}
+        BUILD_BYPRODUCTS ${BOOST_PROGRAM_OPTIONS_LIBRARY} ${BOOST_UNIT_TEST_FRAMEWORK_LIBRARY}
         BUILD_IN_SOURCE 1
         INSTALL_COMMAND ""
     )
@@ -134,7 +136,7 @@ if (CMAKE_BUILD_TYPE MATCHES Prebuild)
     add_custom_target( prebuild )
     add_dependencies( prebuild boost-ext rapidxml-ext unfoldtacpn-ext sparsehash-ext)
 else ( )
-    if(VERIFYDTAPN_GetDependencies AND NOT BUILD_TESTING)
+    if(VERIFYDTAPN_GetDependencies)
         add_library(Boost::program_options STATIC IMPORTED)
         set_target_properties(Boost::program_options PROPERTIES
             IMPORTED_LOCATION ${BOOST_PROGRAM_OPTIONS_LIBRARY})

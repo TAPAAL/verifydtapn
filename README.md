@@ -4,7 +4,7 @@
 Install the build tool:
 ```bash
 sudo apt update
-sudo apt install cmake ninja-build flex bison libboost-all-dev build-essential
+sudo apt install cmake ninja-build flex bison build-essential
 ```
 
 Build a release:
