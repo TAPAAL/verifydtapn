@@ -7,9 +7,18 @@
 	},
 	"configurePresets": [
 		{
+			"name": "use-gcc",
+			"hidden": true,
+			"cacheVariables": {
+				"CMAKE_C_COMPILER": "gcc",
+				"CMAKE_CXX_COMPILER": "g++"
+			}
+		},
+		{
 			"name": "prebuild",
 			"displayName": "Prebuild",
 			"description": "Configure external dependencies prebuild",
+			"inherits": "use-gcc",
 			"generator": "Ninja",
 			"binaryDir": "${sourceDir}/build-${presetName}",
 			"cacheVariables": {
@@ -22,6 +31,7 @@
 			"name": "release",
 			"displayName": "Release",
 			"description": "Configure Release build",
+			"inherits": "use-gcc",
 			"generator": "Ninja",
 			"binaryDir": "${sourceDir}/build-${presetName}",
 			"cacheVariables": {
@@ -34,6 +44,7 @@
 			"name": "debug",
 			"displayName": "Debug",
 			"description": "Configure Debug build",
+			"inherits": "use-gcc",
 			"generator": "Ninja",
 			"binaryDir": "${sourceDir}/build-${presetName}",
 			"cacheVariables": {
@@ -46,6 +57,7 @@
 			"name": "test",
 			"displayName": "Test",
 			"description": "Configure build with testing enabled",
+			"inherits": "use-gcc",
 			"generator": "Ninja",
 			"binaryDir": "${sourceDir}/build-${presetName}",
 			"cacheVariables": {
@@ -59,6 +71,7 @@
 			"name": "win64-release",
 			"displayName": "Windows Release",
 			"description": "Configure Windows Cross-Compile Release build",
+            "inherits": "use-gcc",
 			"generator": "Ninja",
 			"binaryDir": "${sourceDir}/build-${presetName}",
 			"toolchainFile": "${sourceDir}/toolchain-x86_64-w64-mingw32.cmake",
