@@ -12,7 +12,8 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  GCC_VERSION: 16
+  CC: gcc-16
+  CXX: g++-16
 
 jobs:
   build:
@@ -28,15 +29,9 @@ jobs:
 
     - name: Build Release
       run: cmake --workflow release
-      env:
-        CC: gcc-${{ env.GCC_VERSION }}
-        CXX: g++-${{ env.GCC_VERSION }}
 
     - name: Test
       run: cmake --workflow test
-      env:
-        CC: gcc-${{ env.GCC_VERSION }}
-        CXX: g++-${{ env.GCC_VERSION }}
 
     - name: Upload artifacts 
       uses: actions/upload-artifact@v7.0.1

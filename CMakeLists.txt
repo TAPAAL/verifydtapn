@@ -8,6 +8,19 @@ endif()
 # Project Definition
 set(VERIFYDTAPN_NAME "verifydtapn")
 set(VERIFYDTAPN_VERSION 3.6.2)
+
+if (NOT ENV{CC} OR "$ENV{CC}" STREQUAL "")
+    set(CMAKE_C_COMPILER "gcc")
+endif()
+
+if (NOT ENV{CXX} OR "$ENV{CXX}" STREQUAL "")
+    if (DEFINED ENV{CCX} AND NOT "$ENV{CCX}" STREQUAL "")
+        set(CMAKE_CXX_COMPILER "$ENV{CCX}")
+    else()
+        set(CMAKE_CXX_COMPILER "g++")
+    endif()
+endif()
+
 project(${VERIFYDTAPN_NAME} VERSION ${VERIFYDTAPN_VERSION} LANGUAGES CXX C)
 
 

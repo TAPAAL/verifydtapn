@@ -10,8 +10,8 @@
 			"name": "use-gcc",
 			"hidden": true,
 			"cacheVariables": {
-				"CMAKE_C_COMPILER": "gcc",
-				"CMAKE_CXX_COMPILER": "g++"
+				"CMAKE_C_COMPILER": "$env{CC}",
+				"CMAKE_CXX_COMPILER": "$env{CXX}"
 			}
 		},
 		{
