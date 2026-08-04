@@ -13,8 +13,6 @@ concurrency:
 
 env:
   GCC_VERSION: 16
-  CC: gcc-${GCC_VERSION}
-  CXX: gcc-${GCC_VERSION}
 
 jobs:
   build:
@@ -27,6 +25,8 @@ jobs:
       run: |
         sudo apt update
         sudo apt install -f flex bison ninja-build gcc-${GCC_VERSION} g++-${GCC_VERSION}
+        echo "CC=gcc-${GCC_VERSION}" >> "$GITHUB_ENV"
+        echo "CXX=g++-${GCC_VERSION}" >> "$GITHUB_ENV"
 
     - name: Build Release
       run: cmake --workflow release
