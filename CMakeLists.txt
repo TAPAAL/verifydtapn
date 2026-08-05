@@ -9,7 +9,34 @@ endif()
 set(VERIFYDTAPN_NAME "verifydtapn")
 set(VERIFYDTAPN_VERSION 3.6.2)
 
+
+# Select GCC compiler
+set(DESIRED_GCC_VERSION "$ENV{GCC_VERSION}")
+if (NOT CMAKE_C_COMPILER AND NOT DEFINED ENV{CC})
+    find_program(GCC_REQ_C "gcc-${DESIRED_GCC_VERSION}")
+    if (GCC_REQ_C)
+        set(CMAKE_C_COMPILER "${GCC_REQ_C}" CACHE STRING "C compiler")
+    else()
+        set(CMAKE_C_COMPILER "gcc" CACHE STRING "C compiler")
+    endif()
+endif()
+
+if (NOT CMAKE_CXX_COMPILER AND NOT DEFINED ENV{CXX})
+    find_program(GCC_REQ_CXX "g++-${DESIRED_GCC_VERSION}")
+    if (GCC_REQ_CXX)
+        set(CMAKE_CXX_COMPILER "${GCC_REQ_CXX}" CACHE STRING "CXX compiler")
+    else()
+        set(CMAKE_CXX_COMPILER "g++" CACHE STRING "CXX compiler")
+    endif()
+endif()
+
 project(${VERIFYDTAPN_NAME} VERSION ${VERIFYDTAPN_VERSION} LANGUAGES CXX C)
+
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS DESIRED_GCC_VERSION)
+        message(FATAL_ERROR "GCC version ${DESIRED_GCC_VERSION} or newer is required (from GCC_VERSION in CMakePresets.json), but found GCC ${CMAKE_CXX_COMPILER_VERSION}")
+    endif()
+endif()
 
 
 # C++ Definition

@@ -11,10 +11,6 @@
 			"hidden": true,
 			"environment": {
 				"GCC_VERSION": "16"
-			},
-			"cacheVariables": {
-				"CMAKE_C_COMPILER": "gcc-$env{GCC_VERSION}",
-				"CMAKE_CXX_COMPILER": "g++-$env{GCC_VERSION}"
 			}
 		},
 		{
