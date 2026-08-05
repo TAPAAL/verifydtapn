@@ -31,14 +31,14 @@ namespace VerifyTAPN { namespace DiscreteVerification {
     }
 
     int
-    DiscreteVerification::run(TAPN::TimedArcPetriNet &tapn, const std::vector<int>& initialPlacement, AST::Query *query,
+    DiscreteVerification::run(TAPN::TimedArcPetriNet &tapn, const std::vector<TokenList>& initialTokens, AST::Query *query,
                               VerificationOptions &options) {
         if (!tapn.isNonStrict()) {
             std::cout << "The supplied net contains strict intervals." << std::endl;
             return -1;
         }
 
-        NonStrictMarking *initialMarking = new NonStrictMarking(tapn, initialPlacement);
+        NonStrictMarking *initialMarking = new NonStrictMarking(tapn, initialTokens);
 
         std::cout << "MC: " << tapn.getMaxConstant() << std::endl;
 #if DEBUG

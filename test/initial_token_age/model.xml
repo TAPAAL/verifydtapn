@@ -1,0 +1,11 @@
+<pnml>
+    <net id="ComposedModel" type="P/T net">
+        <place id="P" name="P" invariant="&lt; inf" initialMarking="1">
+            <initialMarkingAge>
+                <token age="2"/>
+            </initialMarkingAge>
+        </place>
+        <transition player="0" id="T" name="T" urgent="false"/>
+        <inputArc inscription="[3,3]" source="P" target="T"/>
+    </net>
+</pnml>

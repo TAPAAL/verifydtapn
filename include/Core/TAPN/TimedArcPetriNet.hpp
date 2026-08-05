@@ -14,10 +14,15 @@
 
 #include <iostream>
 #include <set>
+#include <vector>
 #include "google/sparse_hash_map"
 #include <boost/functional/hash.hpp>
 
 namespace VerifyTAPN {
+namespace DiscreteVerification {
+    class Token;
+    using TokenList = std::vector<Token>;
+}
 namespace TAPN {
 
     class TimedArcPetriNet {
@@ -85,13 +90,14 @@ namespace TAPN {
         void setAllControllable(bool value);
 
     public: // modifiers
-        void initialize(bool useGlobalMaxConstant, bool lowerGuardsByGCD);
+        void initialize(bool useGlobalMaxConstant, bool lowerGuardsByGCD,
+                        std::vector<DiscreteVerification::TokenList>& initialTokens);
 
         bool containsOrphanTransitions();
 
-        void GCDLowerGuards();
+        void GCDLowerGuards(std::vector<DiscreteVerification::TokenList>& initialTokens);
 
-        void toTAPNXML(std::ostream& out, const std::vector<int>& initial) const;
+        void toTAPNXML(std::ostream& out, const std::vector<DiscreteVerification::TokenList>& initial) const;
 
 
 

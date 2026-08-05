@@ -2,8 +2,10 @@
 #define VERIFYTAPN_TAPNXMLPARSER_HPP_
 
 #include "Core/TAPN/TAPN.hpp"
-#include <TAPNBuilderInterface.h>
+#include "DiscreteVerification/DataStructures/NonStrictMarkingBase.hpp" 
 
+#include <TAPNBuilderInterface.h>
+#include "types.hpp"
 #include <string>
 #include <vector>
 
@@ -24,6 +26,7 @@ namespace VerifyTAPN {
                 int tokens,
                 bool strict,
                 int bound,
+                unfoldtacpn::types::InitialTokenAges &&initialAges,
                 double x = 0,
                 double y = 0) override;
 
@@ -45,7 +48,7 @@ namespace VerifyTAPN {
                 const std::string& target, int weight,
                 bool lstrict, bool ustrict, int lower, int upper) override;
 
-        const std::vector<int>& initialMarking() const {
+        const std::vector<DiscreteVerification::TokenList>& initialMarking() const {
             return _initialMarking;
         }
 
@@ -61,7 +64,7 @@ namespace VerifyTAPN {
         OutputArc::Vector _outputArcs;
         TransportArc::Vector _transportArcs;
         InhibitorArc::Vector _inhibitorArcs;
-        std::vector<int> _initialMarking;
+        std::vector<DiscreteVerification::TokenList> _initialMarking;
     };
 }
 
