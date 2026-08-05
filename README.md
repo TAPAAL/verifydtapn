@@ -1,7 +1,7 @@
 # verifydtapn
 ## Linux
 
-Install the build tool:
+Install dependencies:
 ```bash
 sudo apt update
 sudo apt install cmake ninja-build flex bison gcc-16 g++-16
@@ -16,11 +16,10 @@ cmake --workflow release
 
 Install xcode through App Store.
 
-Install cmake, gcc, boost and google-sparsehash,
-for example using homebrew as follows:
+Install dependencies:
 
 ```bash
-brew install cmake gcc@16 flex bison ninja
+brew install cmake ninja flex bison gcc@16
 ```
 
 Build a release:
@@ -30,13 +29,13 @@ cmake --workflow release
 
 ## Windows (Cross Compile)
 
-Install MinGW64:
+Install dependencies:
 ```bash
 sudo apt update
 sudo apt install cmake ninja-build flex bison mingw-w64
 ```
 
-Build the Windows release:
+Build a Windows release:
 
 ```bash
 cmake --workflow win64-release
