@@ -4,7 +4,7 @@
 Install the build tool:
 ```bash
 sudo apt update
-sudo apt install cmake ninja-build flex bison build-essential
+sudo apt install cmake ninja-build flex bison gcc-16 g++-16
 ```
 
 Build a release:
@@ -20,7 +20,7 @@ Install cmake, gcc, boost and google-sparsehash,
 for example using homebrew as follows:
 
 ```bash
-brew install cmake gcc flex bison ninja
+brew install cmake gcc@16 flex bison ninja
 ```
 
 Build a release:

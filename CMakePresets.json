@@ -9,9 +9,12 @@
 		{
 			"name": "use-gcc",
 			"hidden": true,
+			"environment": {
+				"GCC_VERSION": "16"
+			},
 			"cacheVariables": {
-				"CMAKE_C_COMPILER": "$env{CC}",
-				"CMAKE_CXX_COMPILER": "$env{CXX}"
+				"CMAKE_C_COMPILER": "gcc-$env{GCC_VERSION}",
+				"CMAKE_CXX_COMPILER": "g++-$env{GCC_VERSION}"
 			}
 		},
 		{

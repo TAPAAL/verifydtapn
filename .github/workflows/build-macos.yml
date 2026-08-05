@@ -12,9 +12,6 @@ concurrency:
   group: build-MacOS-${{ github.head_ref }}
   cancel-in-progress: true
 
-env:
-  GCC_VERSION: 16
-
 jobs:
   build:
     if: github.event.pull_request.draft == false
@@ -35,9 +32,8 @@ jobs:
     
     - name: Install depends
       run: |
-        brew install cmake flex bison ninja gcc@${GCC_VERSION}
-        echo "CC=gcc-${GCC_VERSION}" >> "$GITHUB_ENV"
-        echo "CXX=g++-${GCC_VERSION}" >> "$GITHUB_ENV"
+        GCC_VERSION=$(jq -er '.configurePresets[] | select(.name == "use-gcc") | .environment.GCC_VERSION | select(test("^[0-9]+$"))' CMakePresets.json)
+        brew install cmake flex bison ninja "gcc@${GCC_VERSION}"
     
     - name: Build Release
       run: |

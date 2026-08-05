@@ -11,9 +11,6 @@ concurrency:
   group: build-Linux-${{ github.head_ref }}
   cancel-in-progress: true
 
-env:
-  GCC_VERSION: 16
-
 jobs:
   build:
     runs-on: ubuntu-26.04
@@ -23,10 +20,9 @@ jobs:
     
     - name: ubuntu install depends
       run: |
+        GCC_VERSION=$(jq -er '.configurePresets[] | select(.name == "use-gcc") | .environment.GCC_VERSION | select(test("^[0-9]+$"))' CMakePresets.json)
         sudo apt update
-        sudo apt install -f flex bison ninja-build gcc-${GCC_VERSION} g++-${GCC_VERSION}
-        echo "CC=gcc-${GCC_VERSION}" >> "$GITHUB_ENV"
-        echo "CXX=g++-${GCC_VERSION}" >> "$GITHUB_ENV"
+        sudo apt install -f flex bison ninja-build "gcc-${GCC_VERSION}" "g++-${GCC_VERSION}"
 
     - name: Build Release
       run: cmake --workflow release
