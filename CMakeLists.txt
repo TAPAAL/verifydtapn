@@ -101,6 +101,7 @@ find_package(BISON 3.5.0 REQUIRED)
 
 if (VERIFYDTAPN_GetDependencies)
     include(ExternalProject)
+    find_package(Patch REQUIRED)
     include(ProcessorCount)
     ProcessorCount(DEPENDENCY_JOBS)
     if (NOT DEPENDENCY_JOBS)
@@ -149,7 +150,8 @@ if (VERIFYDTAPN_GetDependencies)
         boost-ext
         URL https://archives.boost.io/release/1.78.0/source/boost_1_78_0.zip #https://boostorg.jfrog.io/artifactory/main/release/1.78.0/source/boost_1_78_0.zip
         URL_HASH SHA256=f22143b5528e081123c3c5ed437e92f648fe69748e95fa6e2bd41484e2986cc3
-        PATCH_COMMAND echo "${BOOST_CONFIG_JAM}" $<SEMICOLON>  > config.jam
+        PATCH_COMMAND ${Patch_EXECUTABLE} -p1 -i ${CMAKE_SOURCE_DIR}/cmake/boost-1.78-b2-apple-gcc.patch
+        COMMAND echo "${BOOST_CONFIG_JAM}" $<SEMICOLON>  > config.jam
         CONFIGURE_COMMAND ${BOOST_CONFIGURE_COMMAND}
         BUILD_COMMAND ./b2 -j${DEPENDENCY_JOBS} --user-config=config.jam --prefix=${CMAKE_BINARY_DIR}/external --with-program_options --with-test --layout=system toolset=${BOOST_TOOLSET} cxxstd=17 cflags="-fPIC" cxxflags="-fPIC" address-model=64 ${BOOST_B2_OPTS} variant=release link=static runtime-link=static install
         BUILD_BYPRODUCTS ${BOOST_PROGRAM_OPTIONS_LIBRARY} ${BOOST_UNIT_TEST_FRAMEWORK_LIBRARY}
