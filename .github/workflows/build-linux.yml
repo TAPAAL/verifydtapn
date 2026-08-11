@@ -20,7 +20,8 @@ jobs:
     
     - name: ubuntu install depends
       run: |
-        GCC_VERSION=$(jq -er '.configurePresets[] | select(.name == "use-gcc") | .environment.GCC_VERSION | select(test("^[0-9]+$"))' CMakePresets.json)
+        GCC_VERSION=$(sed -nE 's/^set\(DEFAULT_GCC_VERSION ([0-9]+)\)$/\1/p' CMakeLists.txt)
+        [[ $GCC_VERSION =~ ^[0-9]+$ ]]
         sudo apt update
         sudo apt install -f flex bison ninja-build "gcc-${GCC_VERSION}" "g++-${GCC_VERSION}"
 
