@@ -164,36 +164,30 @@ if (VERIFYDTAPN_GetDependencies)
 endif ()
 
 
-if (CMAKE_BUILD_TYPE MATCHES Prebuild)
-    # dummy for pre-build
-    add_custom_target( prebuild )
-    add_dependencies( prebuild boost-ext rapidxml-ext unfoldtacpn-ext sparsehash-ext)
-else ( )
-    if(VERIFYDTAPN_GetDependencies)
-        add_library(Boost::program_options STATIC IMPORTED)
-        set_target_properties(Boost::program_options PROPERTIES
-            IMPORTED_LOCATION ${BOOST_PROGRAM_OPTIONS_LIBRARY})
-    else()
-        set(Boost_USE_RELEASE_LIBS ON)
-        set(Boost_USE_MULTITHREADED OFF)
-        set(Boost_USE_STATIC_LIBS ${VERIFYDTAPN_Static})
-        find_package(Boost 1.66 REQUIRED COMPONENTS program_options)
-        include_directories(${Boost_INCLUDE_DIR})
-    endif()
+if(VERIFYDTAPN_GetDependencies)
+    add_library(Boost::program_options STATIC IMPORTED)
+    set_target_properties(Boost::program_options PROPERTIES
+        IMPORTED_LOCATION ${BOOST_PROGRAM_OPTIONS_LIBRARY})
+else()
+    set(Boost_USE_RELEASE_LIBS ON)
+    set(Boost_USE_MULTITHREADED OFF)
+    set(Boost_USE_STATIC_LIBS ${VERIFYDTAPN_Static})
+    find_package(Boost 1.66 REQUIRED COMPONENTS program_options)
+    include_directories(${Boost_INCLUDE_DIR})
+endif()
 
-    # Set Macros
-    add_compile_definitions(VERIFYDTAPN_VERSION=\"${VERIFYDTAPN_VERSION}\")
-    add_compile_definitions(VERIFYDTAPN_NAME=\"verifydtapn-${ARCH_TYPE}\")
+# Set Macros
+add_compile_definitions(VERIFYDTAPN_VERSION=\"${VERIFYDTAPN_VERSION}\")
+add_compile_definitions(VERIFYDTAPN_NAME=\"verifydtapn-${ARCH_TYPE}\")
 
 
 
-    # Source
-    include_directories(include)
-    add_subdirectory(${CMAKE_SOURCE_DIR}/src/)
+# Source
+include_directories(include)
+add_subdirectory(${CMAKE_SOURCE_DIR}/src/)
 
 
-    if(BUILD_TESTING AND VERIFYDTAPN_TEST)
-        enable_testing()
-        add_subdirectory(test)
-    endif()
-endif( )
+if(BUILD_TESTING AND VERIFYDTAPN_TEST)
+    enable_testing()
+    add_subdirectory(test)
+endif()
