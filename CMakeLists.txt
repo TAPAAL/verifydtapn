@@ -16,39 +16,30 @@ set(VERIFYDTAPN_VERSION 3.6.2)
 set(DESIRED_GCC_VERSION "$ENV{GCC_VERSION}")
 if (DESIRED_GCC_VERSION STREQUAL "")
     set(DESIRED_GCC_VERSION ${DEFAULT_GCC_VERSION})
-else()
-    set(GCC_VERSION_SPECIFIED ON)
 endif()
 
-if (NOT CMAKE_C_COMPILER AND NOT DEFINED ENV{CC})
-    find_program(GCC_REQ_C "gcc-${DESIRED_GCC_VERSION}")
-    if (GCC_REQ_C)
-        set(CMAKE_C_COMPILER "${GCC_REQ_C}" CACHE STRING "C compiler")
-    else()
-        set(CMAKE_C_COMPILER "gcc" CACHE STRING "C compiler")
-        set(GCC_VERSION_FALLBACK ON)
-    endif()
+if (NOT CMAKE_C_COMPILER)
+    find_program(GCC_REQ_C NAMES "gcc-${DESIRED_GCC_VERSION}" gcc REQUIRED)
+    set(CMAKE_C_COMPILER "${GCC_REQ_C}" CACHE STRING "C compiler")
 endif()
 
-if (NOT CMAKE_CXX_COMPILER AND NOT DEFINED ENV{CXX})
-    find_program(GCC_REQ_CXX "g++-${DESIRED_GCC_VERSION}")
-    if (GCC_REQ_CXX)
-        set(CMAKE_CXX_COMPILER "${GCC_REQ_CXX}" CACHE STRING "CXX compiler")
-    else()
-        set(CMAKE_CXX_COMPILER "g++" CACHE STRING "CXX compiler")
-        set(GCC_VERSION_FALLBACK ON)
-    endif()
+if (NOT CMAKE_CXX_COMPILER)
+    find_program(GCC_REQ_CXX NAMES "g++-${DESIRED_GCC_VERSION}" g++ REQUIRED)
+    set(CMAKE_CXX_COMPILER "${GCC_REQ_CXX}" CACHE STRING "CXX compiler")
 endif()
 
 project(${VERIFYDTAPN_NAME} VERSION ${VERIFYDTAPN_VERSION} LANGUAGES CXX C)
 
-if (GCC_VERSION_SPECIFIED AND GCC_VERSION_FALLBACK)
-    message(WARNING "GCC_VERSION=${DESIRED_GCC_VERSION} was specified, but gcc-${DESIRED_GCC_VERSION} or g++-${DESIRED_GCC_VERSION} was not found. Falling back to ${CMAKE_C_COMPILER} and ${CMAKE_CXX_COMPILER}")
+if (NOT CMAKE_C_COMPILER_ID STREQUAL "GNU" OR NOT CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    message(FATAL_ERROR "GCC is required, but found ${CMAKE_C_COMPILER_ID} and ${CMAKE_CXX_COMPILER_ID}")
 endif()
 
-if (NOT CMAKE_CROSSCOMPILING AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS DESIRED_GCC_VERSION)
-        message(FATAL_ERROR "GCC version ${DESIRED_GCC_VERSION} or newer is required, but found GCC ${CMAKE_CXX_COMPILER_VERSION}")
+if (NOT CMAKE_CROSSCOMPILING)
+    if (NOT CMAKE_C_COMPILER_VERSION MATCHES "^${DESIRED_GCC_VERSION}([.].*)?$")
+        message(FATAL_ERROR "GCC ${DESIRED_GCC_VERSION} is required, but found GCC ${CMAKE_C_COMPILER_VERSION}")
+    endif()
+    if (NOT CMAKE_CXX_COMPILER_VERSION MATCHES "^${DESIRED_GCC_VERSION}([.].*)?$")
+        message(FATAL_ERROR "G++ ${DESIRED_GCC_VERSION} is required, but found G++ ${CMAKE_CXX_COMPILER_VERSION}")
     endif()
 endif()
 
@@ -136,28 +127,31 @@ if (VERIFYDTAPN_GetDependencies)
 	    CMAKE_ARGS -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}  -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION} -DCMAKE_BUILD_TYPE=Release -DFLEX_EXECUTABLE=${FLEX_EXECUTABLE} -DBISON_EXECUTABLE=${BISON_EXECUTABLE}
     )
 
-    if (UNIX AND NOT APPLE)
-        set(BOOST_CONFIG_JAM "using gcc : : ${CMAKE_CXX_COMPILER}")
-        set(BOOST_B2_OPTS "")
-    elseif (APPLE)
-        set(BOOST_CONFIG_JAM "using gcc : : ${CMAKE_CXX_COMPILER}")
-        set(BOOST_B2_OPTS "")
-    else ()
-        set(BOOST_CONFIG_JAM "using gcc : : ${CMAKE_CXX_COMPILER}")
-        set(BOOST_B2_OPTS target-os=windows binary-format=pe abi=ms threading=multi threadapi=win32)
-    endif ()
+    set(BOOST_TOOLSET gcc)
+    set(BOOST_CONFIG_JAM "using ${BOOST_TOOLSET} : : ${CMAKE_CXX_COMPILER}")
+    set(BOOST_B2_OPTS "")
 
     if (ARCH_TYPE MATCHES "win64")
-	    set(BOOST_CONFIG_JAM "using gcc : : ${CMAKE_CXX_COMPILER}")
+        set(BOOST_B2_OPTS target-os=windows binary-format=pe abi=ms threading=multi threadapi=win32)
         set(SPARSEHASH_HOST --host x86_64-w64-mingw32 )
     endif ()
+
+    if (CMAKE_CROSSCOMPILING)
+        set(BOOST_CONFIGURE_COMMAND ./bootstrap.sh --prefix=${CMAKE_BINARY_DIR}/external --without-icu)
+    else ()
+        set(BOOST_CONFIGURE_COMMAND
+            ./tools/build/src/engine/build.sh --cxx=${CMAKE_CXX_COMPILER} gcc
+            COMMAND ${CMAKE_COMMAND} -E copy tools/build/src/engine/b2 b2
+            COMMAND ./bootstrap.sh --with-bjam=./b2 --with-toolset=gcc --prefix=${CMAKE_BINARY_DIR}/external --without-icu)
+    endif ()
+
     ExternalProject_Add(
         boost-ext
         URL https://archives.boost.io/release/1.78.0/source/boost_1_78_0.zip #https://boostorg.jfrog.io/artifactory/main/release/1.78.0/source/boost_1_78_0.zip
         URL_HASH SHA256=f22143b5528e081123c3c5ed437e92f648fe69748e95fa6e2bd41484e2986cc3
         PATCH_COMMAND echo "${BOOST_CONFIG_JAM}" $<SEMICOLON>  > config.jam
-        CONFIGURE_COMMAND ./bootstrap.sh --prefix=${CMAKE_BINARY_DIR}/external cxxflags="-arch x86_64" --without-icu
-        BUILD_COMMAND ./b2 -j${DEPENDENCY_JOBS} --user-config=config.jam --prefix=${CMAKE_BINARY_DIR}/external --with-program_options --with-test --layout=system cxxstd=17 cflags="-fPIC" cxxflags="-fPIC" address-model=64 ${BOOST_B2_OPTS} variant=release link=static runtime-link=static install
+        CONFIGURE_COMMAND ${BOOST_CONFIGURE_COMMAND}
+        BUILD_COMMAND ./b2 -j${DEPENDENCY_JOBS} --user-config=config.jam --prefix=${CMAKE_BINARY_DIR}/external --with-program_options --with-test --layout=system toolset=${BOOST_TOOLSET} cxxstd=17 cflags="-fPIC" cxxflags="-fPIC" address-model=64 ${BOOST_B2_OPTS} variant=release link=static runtime-link=static install
         BUILD_BYPRODUCTS ${BOOST_PROGRAM_OPTIONS_LIBRARY} ${BOOST_UNIT_TEST_FRAMEWORK_LIBRARY}
         BUILD_IN_SOURCE 1
         INSTALL_COMMAND ""
@@ -167,8 +161,8 @@ if (VERIFYDTAPN_GetDependencies)
     ExternalProject_Add( sparsehash-ext
 	    URL https://github.com/sparsehash/sparsehash/archive/sparsehash-2.0.4.zip
 	    CONFIGURE_COMMAND CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} ./configure --prefix=${CMAKE_BINARY_DIR}/external CXXFLAGS=-std=c++11 ${SPARSEHASH_HOST}
-	    BUILD_COMMAND CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} make -j${DEPENDENCY_JOBS}
-	    INSTALL_COMMAND make install
+	    BUILD_COMMAND ""
+	    INSTALL_COMMAND make install-data
             BUILD_IN_SOURCE 1
     )
 
