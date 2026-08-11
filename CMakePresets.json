@@ -10,7 +10,7 @@
 			"name": "use-gcc",
 			"hidden": true,
 			"environment": {
-				"GCC_VERSION": "16"
+				"GCC_VERSION": "$penv{GCC_VERSION}"
 			}
 		},
 		{

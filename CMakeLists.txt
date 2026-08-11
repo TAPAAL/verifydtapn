@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.31)
 
+set(DEFAULT_GCC_VERSION 16)
+
 ## Default to release builds, must be set before project
 if (NOT CMAKE_BUILD_TYPE OR CMAKE_BUILD_TYPE STREQUAL "")
     set(CMAKE_BUILD_TYPE "Release" CACHE STRING "" FORCE)
@@ -12,12 +14,19 @@ set(VERIFYDTAPN_VERSION 3.6.2)
 
 # Select GCC compiler
 set(DESIRED_GCC_VERSION "$ENV{GCC_VERSION}")
+if (DESIRED_GCC_VERSION STREQUAL "")
+    set(DESIRED_GCC_VERSION ${DEFAULT_GCC_VERSION})
+else()
+    set(GCC_VERSION_SPECIFIED ON)
+endif()
+
 if (NOT CMAKE_C_COMPILER AND NOT DEFINED ENV{CC})
     find_program(GCC_REQ_C "gcc-${DESIRED_GCC_VERSION}")
     if (GCC_REQ_C)
         set(CMAKE_C_COMPILER "${GCC_REQ_C}" CACHE STRING "C compiler")
     else()
         set(CMAKE_C_COMPILER "gcc" CACHE STRING "C compiler")
+        set(GCC_VERSION_FALLBACK ON)
     endif()
 endif()
 
@@ -27,14 +36,19 @@ if (NOT CMAKE_CXX_COMPILER AND NOT DEFINED ENV{CXX})
         set(CMAKE_CXX_COMPILER "${GCC_REQ_CXX}" CACHE STRING "CXX compiler")
     else()
         set(CMAKE_CXX_COMPILER "g++" CACHE STRING "CXX compiler")
+        set(GCC_VERSION_FALLBACK ON)
     endif()
 endif()
 
 project(${VERIFYDTAPN_NAME} VERSION ${VERIFYDTAPN_VERSION} LANGUAGES CXX C)
 
+if (GCC_VERSION_SPECIFIED AND GCC_VERSION_FALLBACK)
+    message(WARNING "GCC_VERSION=${DESIRED_GCC_VERSION} was specified, but gcc-${DESIRED_GCC_VERSION} or g++-${DESIRED_GCC_VERSION} was not found. Falling back to ${CMAKE_C_COMPILER} and ${CMAKE_CXX_COMPILER}")
+endif()
+
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS DESIRED_GCC_VERSION)
-        message(FATAL_ERROR "GCC version ${DESIRED_GCC_VERSION} or newer is required (from GCC_VERSION in CMakePresets.json), but found GCC ${CMAKE_CXX_COMPILER_VERSION}")
+        message(FATAL_ERROR "GCC version ${DESIRED_GCC_VERSION} or newer is required, but found GCC ${CMAKE_CXX_COMPILER_VERSION}")
     endif()
 endif()
 
