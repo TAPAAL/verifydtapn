@@ -96,6 +96,11 @@ find_package(BISON 3.5.0 REQUIRED)
 
 if (VERIFYDTAPN_GetDependencies)
     include(ExternalProject)
+    include(ProcessorCount)
+    ProcessorCount(DEPENDENCY_JOBS)
+    if (NOT DEPENDENCY_JOBS)
+        set(DEPENDENCY_JOBS 1)
+    endif()
     # Install location should be ${EXTERNAL_INSTALL_LOCATION}
 
     set(BOOST_PROGRAM_OPTIONS_LIBRARY
@@ -138,7 +143,7 @@ if (VERIFYDTAPN_GetDependencies)
         URL_HASH SHA256=f22143b5528e081123c3c5ed437e92f648fe69748e95fa6e2bd41484e2986cc3
         PATCH_COMMAND echo "${BOOST_CONFIG_JAM}" $<SEMICOLON>  > config.jam
         CONFIGURE_COMMAND ./bootstrap.sh --prefix=${CMAKE_BINARY_DIR}/external cxxflags="-arch x86_64" --without-icu
-        BUILD_COMMAND ./b2 --user-config=config.jam --prefix=${CMAKE_BINARY_DIR}/external --with-program_options --with-test --layout=system cxxstd=17 cflags="-fPIC" cxxflags="-fPIC" address-model=64 ${BOOST_B2_OPTS} variant=release link=static runtime-link=static install
+        BUILD_COMMAND ./b2 -j${DEPENDENCY_JOBS} --user-config=config.jam --prefix=${CMAKE_BINARY_DIR}/external --with-program_options --with-test --layout=system cxxstd=17 cflags="-fPIC" cxxflags="-fPIC" address-model=64 ${BOOST_B2_OPTS} variant=release link=static runtime-link=static install
         BUILD_BYPRODUCTS ${BOOST_PROGRAM_OPTIONS_LIBRARY} ${BOOST_UNIT_TEST_FRAMEWORK_LIBRARY}
         BUILD_IN_SOURCE 1
         INSTALL_COMMAND ""
@@ -148,7 +153,7 @@ if (VERIFYDTAPN_GetDependencies)
     ExternalProject_Add( sparsehash-ext
 	    URL https://github.com/sparsehash/sparsehash/archive/sparsehash-2.0.4.zip
 	    CONFIGURE_COMMAND CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} ./configure --prefix=${CMAKE_BINARY_DIR}/external CXXFLAGS=-std=c++11 ${SPARSEHASH_HOST}
-	    BUILD_COMMAND CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} make
+	    BUILD_COMMAND CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} make -j${DEPENDENCY_JOBS}
 	    INSTALL_COMMAND make install
             BUILD_IN_SOURCE 1
     )
