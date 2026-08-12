@@ -1,14 +1,18 @@
-find_package (Boost COMPONENTS unit_test_framework REQUIRED)
+if(VERIFYDTAPN_GetDependencies)
+    add_library(Boost::unit_test_framework STATIC IMPORTED)
+    set_target_properties(Boost::unit_test_framework PROPERTIES
+        IMPORTED_LOCATION ${BOOST_UNIT_TEST_FRAMEWORK_LIBRARY})
+else()
+    find_package(Boost COMPONENTS unit_test_framework REQUIRED)
+endif()
 include_directories (${TEST_SOURCE_DIR}/src
                      ${Boost_INCLUDE_DIRS}
                      ${verifydtapn_SOURCE_DIR}
                      )
-add_definitions (-DBOOST_TEST_DYN_LINK)
-
 add_executable (build_net build_net.cpp)
 
 
-target_link_libraries(build_net ${Boost_LIBRARIES} verifydtapn DiscreteVerification Core)
+target_link_libraries(build_net Boost::unit_test_framework verifydtapn DiscreteVerification Core)
 
 add_test(NAME build_net COMMAND build_net)
 

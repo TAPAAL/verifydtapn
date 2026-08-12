@@ -1,4 +1,6 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.31)
+
+set(DEFAULT_GCC_VERSION 16)
 
 ## Default to release builds, must be set before project
 if (NOT CMAKE_BUILD_TYPE OR CMAKE_BUILD_TYPE STREQUAL "")
@@ -8,7 +10,38 @@ endif()
 # Project Definition
 set(VERIFYDTAPN_NAME "verifydtapn")
 set(VERIFYDTAPN_VERSION 3.6.2)
+
+
+# Select GCC compiler
+set(DESIRED_GCC_VERSION "$ENV{GCC_VERSION}")
+if (DESIRED_GCC_VERSION STREQUAL "")
+    set(DESIRED_GCC_VERSION ${DEFAULT_GCC_VERSION})
+endif()
+
+if (NOT CMAKE_C_COMPILER)
+    find_program(GCC_REQ_C NAMES "gcc-${DESIRED_GCC_VERSION}" gcc REQUIRED)
+    set(CMAKE_C_COMPILER "${GCC_REQ_C}" CACHE STRING "C compiler")
+endif()
+
+if (NOT CMAKE_CXX_COMPILER)
+    find_program(GCC_REQ_CXX NAMES "g++-${DESIRED_GCC_VERSION}" g++ REQUIRED)
+    set(CMAKE_CXX_COMPILER "${GCC_REQ_CXX}" CACHE STRING "CXX compiler")
+endif()
+
 project(${VERIFYDTAPN_NAME} VERSION ${VERIFYDTAPN_VERSION} LANGUAGES CXX C)
+
+if (NOT CMAKE_C_COMPILER_ID STREQUAL "GNU" OR NOT CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    message(FATAL_ERROR "GCC is required, but found ${CMAKE_C_COMPILER_ID} and ${CMAKE_CXX_COMPILER_ID}")
+endif()
+
+if (NOT CMAKE_CROSSCOMPILING)
+    if (NOT CMAKE_C_COMPILER_VERSION MATCHES "^${DESIRED_GCC_VERSION}([.].*)?$")
+        message(FATAL_ERROR "GCC ${DESIRED_GCC_VERSION} is required, but found GCC ${CMAKE_C_COMPILER_VERSION}")
+    endif()
+    if (NOT CMAKE_CXX_COMPILER_VERSION MATCHES "^${DESIRED_GCC_VERSION}([.].*)?$")
+        message(FATAL_ERROR "G++ ${DESIRED_GCC_VERSION} is required, but found G++ ${CMAKE_CXX_COMPILER_VERSION}")
+    endif()
+endif()
 
 
 # C++ Definition
@@ -68,7 +101,17 @@ find_package(BISON 3.5.0 REQUIRED)
 
 if (VERIFYDTAPN_GetDependencies)
     include(ExternalProject)
+    include(ProcessorCount)
+    ProcessorCount(DEPENDENCY_JOBS)
+    if (NOT DEPENDENCY_JOBS)
+        set(DEPENDENCY_JOBS 1)
+    endif()
     # Install location should be ${EXTERNAL_INSTALL_LOCATION}
+
+    set(BOOST_PROGRAM_OPTIONS_LIBRARY
+        ${EXTERNAL_INSTALL_LOCATION}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}boost_program_options${CMAKE_STATIC_LIBRARY_SUFFIX})
+    set(BOOST_UNIT_TEST_FRAMEWORK_LIBRARY
+        ${EXTERNAL_INSTALL_LOCATION}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}boost_unit_test_framework${CMAKE_STATIC_LIBRARY_SUFFIX})
 
     ExternalProject_add(rapidxml-ext
         URL https://downloads.sourceforge.net/project/rapidxml/rapidxml/rapidxml%201.13/rapidxml-1.13.zip
@@ -81,31 +124,35 @@ if (VERIFYDTAPN_GetDependencies)
     ExternalProject_add(unfoldtacpn-ext
         GIT_REPOSITORY https://github.com/TAPAAL/unfoldTACPN
         GIT_TAG main #5948ffff5a084eccef7c2758b8df371b170fa68d 
-	    CMAKE_ARGS -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}  -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION} -DBUILD_TESTING=OFF -DCMAKE_BUILD_TYPE=Release -DFLEX_EXECUTABLE=${FLEX_EXECUTABLE} -DBISON_EXECUTABLE=${BISON_EXECUTABLE}
+	    CMAKE_ARGS -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}  -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION} -DCMAKE_BUILD_TYPE=Release -DFLEX_EXECUTABLE=${FLEX_EXECUTABLE} -DBISON_EXECUTABLE=${BISON_EXECUTABLE}
     )
 
-    if (UNIX AND NOT APPLE)
-        set(BOOST_CONFIG_JAM "using gcc : : ${CMAKE_CXX_COMPILER}")
-        set(BOOST_B2_OPTS "")
-    elseif (APPLE)
-        set(BOOST_CONFIG_JAM "using gcc : : ${CMAKE_CXX_COMPILER}")
-        set(BOOST_B2_OPTS "")
-    else ()
-        set(BOOST_CONFIG_JAM "using gcc : : ${CMAKE_CXX_COMPILER}")
-        set(BOOST_B2_OPTS target-os=windows binary-format=pe abi=ms threading=multi threadapi=win32)
-    endif ()
+    set(BOOST_TOOLSET gcc)
+    set(BOOST_CONFIG_JAM "using ${BOOST_TOOLSET} : : ${CMAKE_CXX_COMPILER}")
+    set(BOOST_B2_OPTS "")
 
     if (ARCH_TYPE MATCHES "win64")
-	    set(BOOST_CONFIG_JAM "using gcc : : ${CMAKE_CXX_COMPILER}")
+        set(BOOST_B2_OPTS target-os=windows binary-format=pe abi=ms threading=multi threadapi=win32)
         set(SPARSEHASH_HOST --host x86_64-w64-mingw32 )
     endif ()
+
+    if (CMAKE_CROSSCOMPILING)
+        set(BOOST_CONFIGURE_COMMAND ./bootstrap.sh --prefix=${CMAKE_BINARY_DIR}/external --without-icu)
+    else ()
+        set(BOOST_CONFIGURE_COMMAND
+            ./tools/build/src/engine/build.sh --cxx=${CMAKE_CXX_COMPILER} gcc
+            COMMAND ${CMAKE_COMMAND} -E copy tools/build/src/engine/b2 b2
+            COMMAND ./bootstrap.sh --with-bjam=./b2 --with-toolset=gcc --prefix=${CMAKE_BINARY_DIR}/external --without-icu)
+    endif ()
+
     ExternalProject_Add(
         boost-ext
-        URL https://archives.boost.io/release/1.78.0/source/boost_1_78_0.zip #https://boostorg.jfrog.io/artifactory/main/release/1.78.0/source/boost_1_78_0.zip
-        URL_HASH SHA256=f22143b5528e081123c3c5ed437e92f648fe69748e95fa6e2bd41484e2986cc3
+        URL https://archives.boost.io/release/1.91.0/source/boost_1_91_0.zip
+        URL_HASH SHA256=69c6f32fbda3c478fb310ec251e6699e5e584dbc71afb5425c2f6e98c9540a77
         PATCH_COMMAND echo "${BOOST_CONFIG_JAM}" $<SEMICOLON>  > config.jam
-        CONFIGURE_COMMAND ./bootstrap.sh --prefix=${CMAKE_BINARY_DIR}/external cxxflags="-arch x86_64" --without-icu
-        BUILD_COMMAND ./b2 --user-config=config.jam --prefix=${CMAKE_BINARY_DIR}/external --with-program_options cxxstd=17 cflags="-fPIC" cxxflags="-fPIC" address-model=64 ${BOOST_B2_OPTS} variant=release link=static runtime-link=static install
+        CONFIGURE_COMMAND ${BOOST_CONFIGURE_COMMAND}
+        BUILD_COMMAND ./b2 -j${DEPENDENCY_JOBS} --user-config=config.jam --prefix=${CMAKE_BINARY_DIR}/external --with-program_options --with-test --layout=system toolset=${BOOST_TOOLSET} cxxstd=17 cflags="-fPIC" cxxflags="-fPIC" address-model=64 ${BOOST_B2_OPTS} variant=release link=static runtime-link=static install
+        BUILD_BYPRODUCTS ${BOOST_PROGRAM_OPTIONS_LIBRARY} ${BOOST_UNIT_TEST_FRAMEWORK_LIBRARY}
         BUILD_IN_SOURCE 1
         INSTALL_COMMAND ""
     )
@@ -114,8 +161,8 @@ if (VERIFYDTAPN_GetDependencies)
     ExternalProject_Add( sparsehash-ext
 	    URL https://github.com/sparsehash/sparsehash/archive/sparsehash-2.0.4.zip
 	    CONFIGURE_COMMAND CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} ./configure --prefix=${CMAKE_BINARY_DIR}/external CXXFLAGS=-std=c++11 ${SPARSEHASH_HOST}
-	    BUILD_COMMAND CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} make
-	    INSTALL_COMMAND make install
+	    BUILD_COMMAND ""
+	    INSTALL_COMMAND make install-data
             BUILD_IN_SOURCE 1
     )
 
@@ -125,47 +172,30 @@ if (VERIFYDTAPN_GetDependencies)
 endif ()
 
 
-if (CMAKE_BUILD_TYPE MATCHES Prebuild)
-    # dummy for pre-build
-    add_custom_target( prebuild )
-    add_dependencies( prebuild boost-ext rapidxml-ext unfoldtacpn-ext sparsehash-ext)
-else ( )
-
+if(VERIFYDTAPN_GetDependencies)
+    add_library(Boost::program_options STATIC IMPORTED)
+    set_target_properties(Boost::program_options PROPERTIES
+        IMPORTED_LOCATION ${BOOST_PROGRAM_OPTIONS_LIBRARY})
+else()
     set(Boost_USE_RELEASE_LIBS ON)
     set(Boost_USE_MULTITHREADED OFF)
-    if (NOT BUILD_TESTING)
-        set(Boost_USE_STATIC_LIBS ON)
-    else ()
-        set(Boost_USE_STATIC_LIBS OFF)
-    endif()
-
-    if(NOT BUILD_TESTING)
-        set(Boost_USE_STATIC_RUNTIME ON)
-        set(Boost_USE_STATIC_LIBS ON)
-        set(Boost_USE_RELEASE_LIBS ON)
-        set(Boost_USE_MULTITHREADED OFF)
-    else()
-        set(Boost_USE_STATIC_LIBS OFF)
-        set(Boost_USE_RELEASE_LIBS ON)
-        set(Boost_USE_MULTITHREADED OFF)
-    endif()
-
-    find_package(Boost 1.66 REQUIRED program_options)
+    set(Boost_USE_STATIC_LIBS ${VERIFYDTAPN_Static})
+    find_package(Boost 1.66 REQUIRED COMPONENTS program_options)
     include_directories(${Boost_INCLUDE_DIR})
+endif()
 
-    # Set Macros
-    add_compile_definitions(VERIFYDTAPN_VERSION=\"${VERIFYDTAPN_VERSION}\")
-    add_compile_definitions(VERIFYDTAPN_NAME=\"verifydtapn-${ARCH_TYPE}\")
-
-
-
-    # Source
-    include_directories(include)
-    add_subdirectory(${CMAKE_SOURCE_DIR}/src/)
+# Set Macros
+add_compile_definitions(VERIFYDTAPN_VERSION=\"${VERIFYDTAPN_VERSION}\")
+add_compile_definitions(VERIFYDTAPN_NAME=\"verifydtapn-${ARCH_TYPE}\")
 
 
-    if(BUILD_TESTING AND VERIFYDTAPN_TEST)
-        enable_testing()
-        add_subdirectory(test)
-    endif()
-endif( )
+
+# Source
+include_directories(include)
+add_subdirectory(${CMAKE_SOURCE_DIR}/src/)
+
+
+if(BUILD_TESTING AND VERIFYDTAPN_TEST)
+    enable_testing()
+    add_subdirectory(test)
+endif()

@@ -18,7 +18,7 @@ jobs:
     runs-on: macos-15-intel
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v7.0.1
     - name: Check architecture
       shell: bash
       run: |
@@ -32,22 +32,17 @@ jobs:
     
     - name: Install depends
       run: |
-        brew install cmake flex bison
+        GCC_VERSION=$(sed -nE 's/^set\(DEFAULT_GCC_VERSION ([0-9]+)\)$/\1/p' CMakeLists.txt)
+        [[ $GCC_VERSION =~ ^[0-9]+$ ]]
+        brew install cmake flex bison ninja "gcc@${GCC_VERSION}"
     
-    - name: Prebuild
+    - name: Build Release
       run: |
-        mkdir build && cd build
-        CC=gcc-14 CXX=g++-14 cmake ../ -DCMAKE_BUILD_TYPE=Prebuild -DBISON_EXECUTABLE=/usr/local/opt/bison/bin/bison -DFLEX_EXECUTABLE=/usr/local/opt/flex/bin/flex
-        make
-
-    - name: Build 
-      run: |
-        cd build
-        CC=gcc-14 CXX=g++-14 cmake ../ -DCMAKE_BUILD_TYPE=Release -DBISON_EXECUTABLE=/usr/local/opt/bison/bin/bison -DFLEX_EXECUTABLE=/usr/local/opt/flex/bin/flex
-        make
+        export PATH="$(brew --prefix bison)/bin:$(brew --prefix flex)/bin:$PATH"
+        cmake --workflow release
 
     - name: Upload artifacts 
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7.0.1
       with:
         name: verifydtapn-osx64
-        path: '${{github.workspace}}/build/verifydtapn/bin/verifydtapn-osx64'
+        path: '${{github.workspace}}/build-release/verifydtapn/bin/verifydtapn-osx64'

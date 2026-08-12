@@ -13,38 +13,26 @@ concurrency:
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-26.04
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v7.0.1
     
     - name: ubuntu install depends
       run: |
-        sudo apt-get update
-        sudo apt-get install -f flex bison libboost-all-dev
+        GCC_VERSION=$(sed -nE 's/^set\(DEFAULT_GCC_VERSION ([0-9]+)\)$/\1/p' CMakeLists.txt)
+        [[ $GCC_VERSION =~ ^[0-9]+$ ]]
+        sudo apt update
+        sudo apt install -f flex bison ninja-build "gcc-${GCC_VERSION}" "g++-${GCC_VERSION}"
 
-    - name: Prebuild
-      run: |
-        mkdir build && cd build
-        CC=gcc-11 CXX=g++-11 cmake ../ -DCMAKE_BUILD_TYPE=Prebuild
-        make
-
-    - name: Build
-      run: |
-        cd build
-        CC=gcc-11 CXX=g++-11 cmake ../ -DCMAKE_BUILD_TYPE=Release
-        make
+    - name: Build Release
+      run: cmake --workflow release
 
     - name: Test
-      run: |
-        mkdir build-test && cd build-test
-        CC=gcc-11 CXX=g++-11 cmake ../ -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON -DVERIFYDTAPN_TEST=ON
-        make rapidxml-ext sparsehash-ext unfoldtacpn-ext boost-ext
-        make -j$(nproc)
-        CTEST_OUTPUT_ON_FAILURE=1 make test
+      run: cmake --workflow test
 
     - name: Upload artifacts 
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7.0.1
       with:
         name: verifydtapn-linux64
-        path: '${{github.workspace}}/build/verifydtapn/bin/verifydtapn-linux64'
+        path: '${{github.workspace}}/build-release/verifydtapn/bin/verifydtapn-linux64'
