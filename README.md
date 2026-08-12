@@ -49,3 +49,8 @@ cmake --workflow win64-release
 | `debug` | Debug build | `build-debug` |
 | `test` | Release build and tests | `build-test` |
 | `win64-release` | Windows cross-compiled release | `build-win64-release` |
+
+The default GCC version can be overridden by setting the `GCC_VERSION` environment variable:
+```bash
+GCC_VERSION=12 cmake --workflow release
+```

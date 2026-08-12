@@ -10,20 +10,7 @@
 			"name": "use-gcc",
 			"hidden": true,
 			"environment": {
-				"GCC_VERSION": "16"
-			}
-		},
-		{
-			"name": "prebuild",
-			"displayName": "Prebuild",
-			"description": "Configure external dependencies prebuild",
-			"inherits": "use-gcc",
-			"generator": "Ninja",
-			"binaryDir": "${sourceDir}/build-${presetName}",
-			"cacheVariables": {
-				"CMAKE_BUILD_TYPE": "Prebuild",
-				"BUILD_TESTING": "OFF",
-				"VERIFYDTAPN_TEST": "OFF"
+				"GCC_VERSION": "$penv{GCC_VERSION}"
 			}
 		},
 		{
@@ -81,10 +68,6 @@
 		}
 	],
 	"buildPresets": [
-		{
-			"name": "prebuild",
-			"configurePreset": "prebuild"
-		},
 		{
 			"name": "release-deps",
 			"configurePreset": "release",
@@ -152,20 +135,6 @@
 		}
 	],
 	"workflowPresets": [
-		{
-			"name": "prebuild",
-			"displayName": "Prebuild Workflow",
-			"steps": [
-				{
-					"type": "configure",
-					"name": "prebuild"
-				},
-				{
-					"type": "build",
-					"name": "prebuild"
-				}
-			]
-		},
 		{
 			"name": "release",
 			"displayName": "Release Workflow",
