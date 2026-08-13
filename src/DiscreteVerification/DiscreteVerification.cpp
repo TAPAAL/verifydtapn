@@ -195,7 +195,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
             std::cout << synthesis.max_tokens() << std::endl;
         } else if (query->getQuantifier() == PF || query->getQuantifier() == PG) {
             SMCQuery* smcQuery = (SMCQuery*) query;
-            RealMarking marking(&tapn, *initialMarking);
+            RealMarking marking(&tapn, *initialMarking, options.getSMCNumericPrecision());
             if(options.isBenchmarkMode()) {
                 ProbabilityEstimation estimator(tapn, marking, smcQuery, options, options.getBenchmarkRuns());
                 ComputeAndPrint(tapn, estimator, options, query);

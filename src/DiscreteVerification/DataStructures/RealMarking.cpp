@@ -33,14 +33,14 @@ bool RealPlace::remove(RealToken to_remove)
 
 RealTokenList RealMarking::emptyTokenList = RealTokenList();
 
-RealMarking::RealMarking(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase& base)
+RealMarking::RealMarking(TAPN::TimedArcPetriNet* tapn, NonStrictMarkingBase& base, uint32_t precision)
 {
     size_t n_places = tapn->getNumberOfPlaces();
     auto placeList = base.getPlaceList();
     auto pit = placeList.begin();
     for(int i = 0 ; i < n_places ; i++) {
         if(pit != placeList.end() && pit->place->getIndex() == i) {
-            places.push_back(RealPlace(*pit));
+            places.push_back(RealPlace(*pit, precision));
             pit++;
         } else {
             places.push_back(RealPlace(&tapn->getPlace(i)));
