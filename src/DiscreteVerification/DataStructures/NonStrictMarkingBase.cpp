@@ -7,6 +7,7 @@
 
 #include "DiscreteVerification/DataStructures/NonStrictMarkingBase.hpp"
 #include <limits>
+#include <vector>
 
 namespace VerifyTAPN { namespace DiscreteVerification {
 
@@ -16,15 +17,12 @@ namespace VerifyTAPN { namespace DiscreteVerification {
         // empty constructor
     }
 
-    NonStrictMarkingBase::NonStrictMarkingBase(const TAPN::TimedArcPetriNet &tapn, const std::vector<int> &v)
+    NonStrictMarkingBase::NonStrictMarkingBase(const TAPN::TimedArcPetriNet &tapn, const std::vector<TokenList> &initialTokens)
             : children(0), parent(nullptr), generatedBy(nullptr) {
-        for(size_t i = 0; i < v.size(); ++i)
-        {
-            if(v[i] > 0)
-            {
-                places.emplace_back(Place(&tapn.getPlace(i)));
-                places.back().tokens.emplace_back(0, v[i]);
-            }
+        for (size_t i = 0; i < initialTokens.size(); ++i) {
+            if (initialTokens[i].empty()) continue;
+            places.emplace_back(&tapn.getPlace(i));
+            places.back().tokens = initialTokens[i];
         }
     }
 

@@ -21,15 +21,15 @@ int main(int argc, char *argv[]) {
     std::unique_ptr<std::stringstream> output_stream = std::make_unique<std::stringstream>();
     unfoldtacpn::ColoredPetriNetBuilder builder(options.getPrintBindings() ? output_stream.get() : nullptr);
 
-    auto [initialPlacement, tapn] = parse_net_file(builder, options.getInputFile());
+    auto [initialTokens, tapn] = parse_net_file(builder, options.getInputFile());
     if(!options.getOutputModelFile().empty())
     {
         std::fstream of(options.getOutputModelFile(), std::ios::out);
-        tapn->toTAPNXML(of, initialPlacement);
+        tapn->toTAPNXML(of, initialTokens);
         of.close();
     }
 
-    tapn->initialize(options.getGlobalMaxConstantsEnabled(), options.getGCDLowerGuardsEnabled());
+    tapn->initialize(options.getGlobalMaxConstantsEnabled(), options.getGCDLowerGuardsEnabled(), initialTokens);
 
     if (options.getCalculateCmax()) {
         std::cout << options << std::endl;
@@ -66,9 +66,8 @@ int main(int argc, char *argv[]) {
 
     tapn->updatePlaceTypes(query.get(), options);
 
-    int result = DiscreteVerification::DiscreteVerification::run(*tapn, initialPlacement, query.get(), options);
+    int result = DiscreteVerification::DiscreteVerification::run(*tapn, initialTokens, query.get(), options);
 
     return result;
 }
-
 

@@ -31,14 +31,14 @@ namespace VerifyTAPN { namespace DiscreteVerification {
     }
 
     int
-    DiscreteVerification::run(TAPN::TimedArcPetriNet &tapn, const std::vector<int>& initialPlacement, AST::Query *query,
+    DiscreteVerification::run(TAPN::TimedArcPetriNet &tapn, const std::vector<TokenList>& initialTokens, AST::Query *query,
                               VerificationOptions &options) {
         if (!tapn.isNonStrict()) {
             std::cout << "The supplied net contains strict intervals." << std::endl;
             return -1;
         }
 
-        NonStrictMarking *initialMarking = new NonStrictMarking(tapn, initialPlacement);
+        NonStrictMarking *initialMarking = new NonStrictMarking(tapn, initialTokens);
 
         std::cout << "MC: " << tapn.getMaxConstant() << std::endl;
 #if DEBUG
@@ -195,7 +195,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
             std::cout << synthesis.max_tokens() << std::endl;
         } else if (query->getQuantifier() == PF || query->getQuantifier() == PG) {
             SMCQuery* smcQuery = (SMCQuery*) query;
-            RealMarking marking(&tapn, *initialMarking);
+            RealMarking marking(&tapn, *initialMarking, options.getSMCNumericPrecision());
             if(options.isBenchmarkMode()) {
                 ProbabilityEstimation estimator(tapn, marking, smcQuery, options, options.getBenchmarkRuns());
                 ComputeAndPrint(tapn, estimator, options, query);

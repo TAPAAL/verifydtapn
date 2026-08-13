@@ -139,7 +139,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
     public:
         NonStrictMarkingBase();
 
-        NonStrictMarkingBase(const TAPN::TimedArcPetriNet &tapn, const std::vector<int> &v);
+        NonStrictMarkingBase(const TAPN::TimedArcPetriNet &tapn, const std::vector<TokenList> &initialTokens);
 
         NonStrictMarkingBase(const NonStrictMarkingBase &nsm);
 

@@ -1,5 +1,6 @@
 #include "Core/TAPN/TimedArcPetriNet.hpp"
 #include "Core/TAPN/TimeInterval.hpp"
+#include "DiscreteVerification/DataStructures/NonStrictMarkingBase.hpp"
 
 #include <limits>
 #include <numeric>
@@ -7,10 +8,11 @@
 
 namespace VerifyTAPN {
 namespace TAPN {
-    void TimedArcPetriNet::initialize(bool useGlobalMaxConstant, bool lowerGuardsByGCD) {
+    void TimedArcPetriNet::initialize(bool useGlobalMaxConstant, bool lowerGuardsByGCD,
+                                      std::vector<DiscreteVerification::TokenList>& initialTokens) {
         // start by doing GCD if enabled
         if (lowerGuardsByGCD) {
-            GCDLowerGuards();
+            GCDLowerGuards(initialTokens);
         }
 
         for (unsigned int i = 0; i < places.size(); i++) {
@@ -50,7 +52,7 @@ namespace TAPN {
         return false;
     }
 
-    void TimedArcPetriNet::GCDLowerGuards() {
+    void TimedArcPetriNet::GCDLowerGuards(std::vector<DiscreteVerification::TokenList>& initialTokens) {
         std::set<int> constants;
 
         for (auto* place : places) {
@@ -64,6 +66,11 @@ namespace TAPN {
         for (auto* transportArc : transportArcs) {
             constants.insert(transportArc->getInterval().getLowerBound());
             constants.insert(transportArc->getInterval().getUpperBound());
+        }
+        for (const auto& tokens : initialTokens) {
+            for (const auto& token : tokens) {
+                constants.insert(token.getAge());
+            }
         }
 
         constants.erase(0);
@@ -93,6 +100,11 @@ namespace TAPN {
         }
         for (auto* transportArc : transportArcs) {
             transportArc->divideIntervalBy(gcd);
+        }
+        for (auto& tokens : initialTokens) {
+            for (auto& token : tokens) {
+                token.setAge(token.getAge() / gcd);
+            }
         }
     }
 
@@ -315,7 +327,7 @@ namespace TAPN {
         out << std::endl;
     }
 
-    void TimedArcPetriNet::toTAPNXML(std::ostream& out, const std::vector<int>& initial) const
+    void TimedArcPetriNet::toTAPNXML(std::ostream& out, const std::vector<DiscreteVerification::TokenList>& initial) const
     {
         out << R"(<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <pnml xmlns="http://www.informatik.hu-berlin.de/top/pnml/ptNetb">
@@ -337,7 +349,27 @@ namespace TAPN {
             {
                 out << "&lt;=" << inv.getBound();
             }
-            out << "\" initialMarking=\"" << initial[place->getIndex()] << "\">\n";
+            int totalTokens = 0;
+            if (place->getIndex() < static_cast<int>(initial.size())) {
+                for (const auto& token : initial[place->getIndex()]) {
+                    totalTokens += token.getCount();
+                }
+            }
+            out << "\" initialMarking=\"" << totalTokens << "\">\n";
+            bool wroteInitialAges = false;
+            if (place->getIndex() < static_cast<int>(initial.size())) {
+                for (const auto& token : initial[place->getIndex()]) {
+                    if (token.getAge() == 0) continue;
+                    if (!wroteInitialAges) {
+                        out << "\t<initialMarkingAge>\n";
+                        wroteInitialAges = true;
+                    }
+                    for (int i = 0; i < token.getCount(); ++i) {
+                        out << "\t\t<token age=\"" << token.getAge() << "\"/>\n";
+                    }
+                }
+            }
+            if (wroteInitialAges) out << "\t</initialMarkingAge>\n";
             out << "\t<graphics><position x=\"" << x << "\" y=\"" << y << "\" /></graphics>\n";
             out << "</place>\n";
         }
@@ -420,5 +452,3 @@ namespace TAPN {
     }
 }
 }
-
-

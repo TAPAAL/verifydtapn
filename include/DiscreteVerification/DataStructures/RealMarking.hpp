@@ -21,8 +21,8 @@ namespace VerifyTAPN::DiscreteVerification {
 
             RealToken(clockValue value, int count) : age(value), count(count) { }
             RealToken(const RealToken&) = default;
-            RealToken(const Token& t) : count(t.getCount()) {
-                age = t.getAge();
+            RealToken(const Token& t, uint32_t precision) : count(t.getCount()) {
+                age = toClock(t.getAge(), precision);
             }
 
             inline int cmp(const RealToken &t) const {
@@ -65,9 +65,9 @@ namespace VerifyTAPN::DiscreteVerification {
                 tokens = p.tokens;
             };
 
-            RealPlace(const Place& p) : place(p.place) {
+            RealPlace(const Place& p, uint32_t precision) : place(p.place) {
                 for(const auto& token : p.tokens) {
-                    tokens.push_back(RealToken(token));
+                    tokens.push_back(RealToken(token, precision));
                 }
             }
 
@@ -132,7 +132,7 @@ namespace VerifyTAPN::DiscreteVerification {
 
         public:
 
-            explicit RealMarking(TAPN::TimedArcPetriNet* net, NonStrictMarkingBase& base);
+            explicit RealMarking(TAPN::TimedArcPetriNet* net, NonStrictMarkingBase& base, uint32_t precision);
             RealMarking(const RealMarking& other);
 
             uint32_t size() const;

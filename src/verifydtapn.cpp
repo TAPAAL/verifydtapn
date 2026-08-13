@@ -59,7 +59,7 @@ namespace VerifyTAPN {
         return nullptr;
     }
 
-    std::pair<std::vector<int>, std::unique_ptr<TAPN::TimedArcPetriNet>>
+    std::pair<std::vector<DiscreteVerification::TokenList>, std::unique_ptr<TAPN::TimedArcPetriNet>>
     build_net(unfoldtacpn::ColoredPetriNetBuilder& builder) {
         TAPNModelBuilder modelBuilder;
         builder.unfold(modelBuilder);
@@ -67,7 +67,7 @@ namespace VerifyTAPN {
             {modelBuilder.make_tapn()}};
     }
 
-    std::pair<std::vector<int>, std::unique_ptr<TAPN::TimedArcPetriNet>>
+    std::pair<std::vector<DiscreteVerification::TokenList>, std::unique_ptr<TAPN::TimedArcPetriNet>>
     parse_net_file(unfoldtacpn::ColoredPetriNetBuilder& builder, const std::string& filename) {
         std::ifstream mf(filename);
         builder.parseNet(mf);

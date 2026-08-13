@@ -84,3 +84,24 @@ BOOST_AUTO_TEST_CASE(inhib_guard)
     BOOST_REQUIRE_EQUAL(trans->getNumberOfTransportArcs(), 0);
 
 }
+
+BOOST_AUTO_TEST_CASE(gcd_lower_respects_initial_token_age)
+{
+    unfoldtacpn::ColoredPetriNetBuilder builder;
+    auto file = loadFile("../initial_token_age/model.xml");
+    builder.parseNet(file);
+    auto [initialTokens, tapn] = build_net(builder);
+
+    tapn->initialize(false, true, initialTokens);
+
+    BOOST_REQUIRE_EQUAL(tapn->getGCD(), 1);
+    BOOST_REQUIRE_EQUAL(initialTokens[0][0].getAge(), 2);
+    BOOST_REQUIRE_EQUAL(tapn->getInputArcs()[0]->getInterval().getLowerBound(), 3);
+
+    std::stringstream unfolded;
+    tapn->toTAPNXML(unfolded, initialTokens);
+    unfoldtacpn::ColoredPetriNetBuilder reparsedBuilder;
+    reparsedBuilder.parseNet(unfolded);
+    auto [reparsedTokens, reparsedTapn] = build_net(reparsedBuilder);
+    BOOST_REQUIRE_EQUAL(reparsedTokens[0][0].getAge(), 2);
+}

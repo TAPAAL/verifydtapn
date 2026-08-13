@@ -1,7 +1,11 @@
 #include "Core/TAPN/TAPNModelBuilder.hpp"
+#include "DiscreteVerification/DataStructures/NonStrictMarkingBase.hpp" 
 
 #include <string>
 #include <algorithm>
+#include <map>
+#include <cstdint>
+#include <types.hpp>
 
 namespace VerifyTAPN {
 
@@ -9,14 +13,28 @@ namespace VerifyTAPN {
             int tokens,
             bool strict,
             int bound,
+            unfoldtacpn::types::InitialTokenAges &&initialAges,
             double x,
             double y)
     {
         TimeInvariant timeInvariant = TimeInvariant(strict, bound);
         auto id = _places.size();
         _places.emplace_back(new TimedPlace(id, name, name, timeInvariant, x, y));
-        _initialMarking.emplace_back(tokens);
 
+        std::map<int, int> ageCountMap;
+        for (auto age : initialAges) {
+            ++ageCountMap[age];
+        }
+        
+        auto ageZeroTokens = tokens - initialAges.size();
+        if (ageZeroTokens > 0) {
+            ageCountMap[0] += ageZeroTokens;
+        }
+
+        _initialMarking.emplace_back();
+        for (const auto& [age, count] : ageCountMap) {
+            _initialMarking.back().emplace_back(age, count);
+        }
     }
 
     void TAPNModelBuilder::addTransition(const std::string &name, int player, bool urgent,
