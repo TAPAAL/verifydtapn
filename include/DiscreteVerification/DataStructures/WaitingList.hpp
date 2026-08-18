@@ -76,8 +76,8 @@ namespace VerifyTAPN { namespace DiscreteVerification {
     };
 
     template<class T>
-    struct less : public std::binary_function<WeightedItem<T>, WeightedItem<T>, bool> {
-        bool operator()(const WeightedItem<T> x, const WeightedItem<T> y) const {
+    struct less {
+        bool operator()(const WeightedItem<T>& x, const WeightedItem<T>& y) const {
             return x.weight > y.weight;
         }
     };
