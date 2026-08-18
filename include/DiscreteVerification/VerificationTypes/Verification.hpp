@@ -5,6 +5,7 @@
 #include "../DeadlockVisitor.hpp"
 
 #include "Core/TAPN/TimedPlace.hpp"
+#include "Core/TraceMapper.hpp"
 
 #include <stack>
 #include <iostream>
@@ -85,8 +86,12 @@ namespace VerifyTAPN { namespace DiscreteVerification {
         rapidxml::xml_node<> *
         createTokenNode(rapidxml::xml_document<> &doc, const TAPN::TimedPlace &place, const Token &token);
 
-        void generateTraceStack(T *m, std::stack<T *> *result, std::stack<T *> *liveness = nullptr);
+        void setTraceMapper(const TraceMapper* mapper) {
+            this->_mapper = mapper;
+        }
 
+        void generateTraceStack(T *m, std::stack<T *> *result, std::stack<T *> *liveness = nullptr);
+        
         std::stack<T *> trace{};
     protected:
         TAPN::TimedArcPetriNet &tapn;
@@ -94,13 +99,14 @@ namespace VerifyTAPN { namespace DiscreteVerification {
         AST::Query *query;
         VerificationOptions options;
         std::vector<int> placeStats{};
+        const TraceMapper* _mapper = nullptr;
 
     };
 
     template<typename T>
     Verification<T>::Verification(TAPN::TimedArcPetriNet &tapn, T &initialMarking, AST::Query *query,
                                   VerificationOptions options)
-            : tapn(tapn), initialMarking(initialMarking), query(query), options(std::move(std::move(options))),
+            : tapn(tapn), initialMarking(initialMarking), query(query), options(std::move(options)),
               placeStats(tapn.getNumberOfPlaces()) {
 
     }
@@ -132,7 +138,12 @@ namespace VerifyTAPN { namespace DiscreteVerification {
                 isFirst = false;
             } else {
                 if (stack.top()->getGeneratedBy()) {
-                    std::cout << "\tTransistion: " << stack.top()->getGeneratedBy()->getName() << std::endl;
+                    std::string_view transName = stack.top()->getGeneratedBy()->getName();
+                    if (_mapper) {
+                        transName = _mapper->mapTransition(transName);
+                    }
+
+                    std::cout << "\tTransistion: " << transName << std::endl;
                 } else {
                     int i = 1;
                     T *old = stack.top();
@@ -165,9 +176,16 @@ namespace VerifyTAPN { namespace DiscreteVerification {
             //Print marking
             std::cout << "Marking: ";
             for (auto& token_list : stack.top()->getPlaceList()) {
+                std::string_view pName = token_list.place->getName();
+                if (_mapper) {
+                    auto mapped = _mapper->mapPlace(pName);
+                    if (!mapped) continue;
+                    pName = *mapped;
+                }
+
                 for (auto& token : token_list.tokens) {
                     for (int i = 0; i < token.getCount(); i++) {
-                        std::cout << "(" << token_list.place->getName() << "," << token.getAge() << ") ";
+                        std::cout << "(" << pName << "," << token.getAge() << ") ";
                     }
                 }
             }
@@ -355,7 +373,12 @@ namespace VerifyTAPN { namespace DiscreteVerification {
     rapidxml::xml_node<> *Verification<T>::createTransitionNode(T *old, T *current, rapidxml::xml_document<> &doc) {
         using namespace rapidxml;
         xml_node<> *transitionNode = doc.allocate_node(node_element, "transition");
-        xml_attribute<> *id = doc.allocate_attribute("id", current->getGeneratedBy()->getId().c_str());
+        std::string_view transId = current->getGeneratedBy()->getId();
+        if (_mapper) {
+            transId = _mapper->mapTransition(transId);
+        }
+
+        xml_attribute<> *id = doc.allocate_attribute("id", doc.allocate_string(transId.data(), transId.size()));
         transitionNode->append_attribute(id);
 
         for (auto* arc : current->getGeneratedBy()->getPreset()) {
@@ -385,14 +408,20 @@ namespace VerifyTAPN { namespace DiscreteVerification {
         while (n_iter != current_tokens.end() && o_iter != old_tokens.end()) {
             if (n_iter->getAge() == o_iter->getAge()) {
                 for (int i = 0; i < o_iter->getCount() - n_iter->getCount(); i++) {
-                    transitionNode->append_node(createTokenNode(doc, place, *n_iter));
+                    if (auto* tokenNode = createTokenNode(doc, place, *n_iter)) {
+                        transitionNode->append_node(tokenNode);
+                    }
+
                     tokensFound++;
                 }
                 n_iter++;
                 o_iter++;
             } else {
                 if (n_iter->getAge() > o_iter->getAge()) {
-                    transitionNode->append_node(createTokenNode(doc, place, *o_iter));
+                    if (auto* tokenNode = createTokenNode(doc, place, *o_iter)) {
+                        transitionNode->append_node(tokenNode);
+                    }
+
                     tokensFound++;
                     o_iter++;
                 } else {
@@ -403,7 +432,10 @@ namespace VerifyTAPN { namespace DiscreteVerification {
 
         for (TokenList::const_iterator iter = n_iter; iter != current_tokens.end(); iter++) {
             for (int i = 0; i < iter->getCount(); i++) {
-                transitionNode->append_node(createTokenNode(doc, place, *iter));
+                if (auto* tokenNode = createTokenNode(doc, place, *iter)) {
+                    transitionNode->append_node(tokenNode);
+                }
+
                 tokensFound++;
             }
         }
@@ -412,7 +444,10 @@ namespace VerifyTAPN { namespace DiscreteVerification {
             if(tokensFound >= weight) break;
             if (token.getAge() >= interval.getLowerBound()) {
                 for (int i = 0; i < token.getCount() && tokensFound < weight; i++) {
-                    transitionNode->append_node(createTokenNode(doc, place, token));
+                    if (auto* tokenNode = createTokenNode(doc, place, token)) {
+                        transitionNode->append_node(tokenNode);
+                    }
+
                     tokensFound++;
                 }
             }
@@ -424,9 +459,19 @@ namespace VerifyTAPN { namespace DiscreteVerification {
     Verification<T>::createTokenNode(rapidxml::xml_document<> &doc, const TAPN::TimedPlace &place,
                                      const Token &token) {
         using namespace rapidxml;
+        std::string_view placeName = place.getName();
+        if (_mapper) {
+            auto mapped = _mapper->mapPlace(placeName);
+            if (!mapped) {
+                return nullptr;
+            }
+
+            placeName = *mapped;
+        }
+
         xml_node<> *tokenNode = doc.allocate_node(node_element, "token");
         xml_attribute<> *placeAttribute = doc.allocate_attribute("place",
-                                                                 doc.allocate_string(place.getName().c_str()));
+                                                                 doc.allocate_string(placeName.data(), placeName.size()));
         tokenNode->append_attribute(placeAttribute);
         auto str = std::to_string(token.getAge() * tapn.getGCD());
         xml_attribute<> *ageAttribute = doc.allocate_attribute("age", doc.allocate_string(

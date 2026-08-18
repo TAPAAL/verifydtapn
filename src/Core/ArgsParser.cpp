@@ -185,7 +185,7 @@ namespace VerifyTAPN {
                   " 2: only runs not satisfying the property")
             ("smc-numeric-precision", po::value<unsigned int>(), "Specify the number of rounding digits to use in SMC verifications (default = 5, 0 means no rounding).")
             ("smc-seed", po::value<uint64_t>(), "Seed the random generator using a 64-bit integer. Will only produce deterministic results if --smc-parallel is not enabled (default: uses std::random_device if not set).")
-            ("map-original-trace", po::value<bool>(), "Map unfolded traces back to the original net (CPN Only).");
+            ("map-original-trace", po::bool_switch()->default_value(false), "Map unfolded traces back to the original net (CPN Only).");
     }
 
 

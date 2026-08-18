@@ -272,7 +272,12 @@ void SMCVerification::printXMLTrace(std::stack<RealMarking *> &stack, const std:
 rapidxml::xml_node<> *SMCVerification::createTransitionNode(RealMarking *old, RealMarking *current, rapidxml::xml_document<> &doc) {
     using namespace rapidxml;
     xml_node<> *transitionNode = doc.allocate_node(node_element, "transition");
-    xml_attribute<> *id = doc.allocate_attribute("id", current->getGeneratedBy()->getId().c_str());
+    std::string_view transId = current->getGeneratedBy()->getId();
+    if (_mapper) {
+        transId = _mapper->mapTransition(transId);
+    }
+
+    xml_attribute<> *id = doc.allocate_attribute("id", doc.allocate_string(transId.data(), transId.size()));
     transitionNode->append_attribute(id);
 
     for (auto* arc : current->getGeneratedBy()->getPreset()) {
@@ -299,14 +304,20 @@ void SMCVerification::createTransitionSubNodes(RealMarking *old, RealMarking *cu
     while (n_iter != current_tokens.end() && o_iter != old_tokens.end()) {
         if (n_iter->getAge() == o_iter->getAge()) {
             for (int i = 0; i < o_iter->getCount() - n_iter->getCount(); i++) {
-                transitionNode->append_node(createTokenNode(doc, place, *n_iter));
+                if (auto* tokenNode = createTokenNode(doc, place, *n_iter)) {
+                    transitionNode->append_node(tokenNode);
+                }
+
                 tokensFound++;
             }
             n_iter++;
             o_iter++;
         } else {
             if (n_iter->getAge() > o_iter->getAge()) {
-                transitionNode->append_node(createTokenNode(doc, place, *o_iter));
+                if (auto* tokenNode = createTokenNode(doc, place, *o_iter)) {
+                    transitionNode->append_node(tokenNode);
+                }
+
                 tokensFound++;
                 o_iter++;
             } else {
@@ -316,7 +327,10 @@ void SMCVerification::createTransitionSubNodes(RealMarking *old, RealMarking *cu
     }
     for (RealTokenList::const_iterator iter = n_iter; iter != current_tokens.end(); iter++) {
         for (int i = 0; i < iter->getCount(); i++) {
-            transitionNode->append_node(createTokenNode(doc, place, *iter));
+            if (auto* tokenNode = createTokenNode(doc, place, *iter)) {
+                transitionNode->append_node(tokenNode);
+            }
+
             tokensFound++;
         }
     }
@@ -325,7 +339,10 @@ void SMCVerification::createTransitionSubNodes(RealMarking *old, RealMarking *cu
         double age = clockToDouble(token.getAge(), options.getSMCNumericPrecision());
         if (age >= interval.getLowerBound()) {
             for (int i = 0; i < token.getCount() && tokensFound < weight; i++) {
-                transitionNode->append_node(createTokenNode(doc, place, token));
+                if (auto* tokenNode = createTokenNode(doc, place, token)) {
+                    transitionNode->append_node(tokenNode);
+                }
+
                 tokensFound++;
             }
         }
@@ -335,9 +352,19 @@ void SMCVerification::createTransitionSubNodes(RealMarking *old, RealMarking *cu
 rapidxml::xml_node<> *
 SMCVerification::createTokenNode(rapidxml::xml_document<> &doc, const TAPN::TimedPlace &place, const RealToken &token) {
     using namespace rapidxml;
+    std::string_view placeName = place.getName();
+    if (_mapper) {
+        auto mapped = _mapper->mapPlace(placeName);
+        if (!mapped) {
+            return nullptr;
+        }
+        
+        placeName = *mapped;
+    }
+
     xml_node<> *tokenNode = doc.allocate_node(node_element, "token");
     xml_attribute<> *placeAttribute = doc.allocate_attribute("place",
-                                                                doc.allocate_string(place.getName().c_str()));
+                                                                doc.allocate_string(placeName.data(), placeName.size()));
     tokenNode->append_attribute(placeAttribute);
     auto str = printDouble(token.getAge(), options.getSMCNumericPrecision());
     xml_attribute<> *ageAttribute = doc.allocate_attribute("age", doc.allocate_string(

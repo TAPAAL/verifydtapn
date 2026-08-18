@@ -2,6 +2,7 @@
 #include "verifydtapn.h"
 #include "Core/ArgsParser.hpp"
 #include "DiscreteVerification/DiscreteVerification.hpp"
+#include "Core/TraceMapper.hpp"
 
 #include <iostream>
 #include <fstream>
@@ -66,7 +67,12 @@ int main(int argc, char *argv[]) {
 
     tapn->updatePlaceTypes(query.get(), options);
 
-    int result = DiscreteVerification::DiscreteVerification::run(*tapn, initialTokens, query.get(), options);
+    TraceMapper mapper;
+    if (options.getMapOriginalTrace()) {
+        mapper = TraceMapper::fromBuilder(builder);
+    }
+
+    int result = DiscreteVerification::DiscreteVerification::run(*tapn, initialTokens, query.get(), options, options.getMapOriginalTrace() ? &mapper : nullptr);
 
     return result;
 }

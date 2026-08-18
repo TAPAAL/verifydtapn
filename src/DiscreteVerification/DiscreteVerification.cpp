@@ -9,6 +9,7 @@
 #include "DiscreteVerification/DeadlockVisitor.hpp"
 #include "DiscreteVerification/VerificationTypes/SafetySynthesis.h"
 #include "DiscreteVerification/Generators/ReducingGenerator.hpp"
+#include "Core/TraceMapper.hpp"
 
 #include <fstream>
 
@@ -16,10 +17,10 @@ namespace VerifyTAPN { namespace DiscreteVerification {
 
     template<typename T>
     void VerifyAndPrint(TAPN::TimedArcPetriNet &tapn, Verification<T> &verifier, VerificationOptions &options,
-                        AST::Query *query);
+                        AST::Query *query, const TraceMapper* mapper);
 
     void ComputeAndPrint(TAPN::TimedArcPetriNet &tapn, SMCVerification &verifier, VerificationOptions &options,
-                        AST::Query *query);
+                        AST::Query *query, const TraceMapper* mapper);
 
     DiscreteVerification::DiscreteVerification() {
         // TODO Auto-generated constructor stub
@@ -32,7 +33,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
 
     int
     DiscreteVerification::run(TAPN::TimedArcPetriNet &tapn, const std::vector<TokenList>& initialTokens, AST::Query *query,
-                              VerificationOptions &options) {
+                              VerificationOptions &options, const TraceMapper* mapper) {
         if (!tapn.isNonStrict()) {
             std::cout << "The supplied net contains strict intervals." << std::endl;
             return -1;
@@ -93,7 +94,8 @@ namespace VerifyTAPN { namespace DiscreteVerification {
                         tapn,
                         *verifier,
                         options,
-                        query);
+                        query,
+                        mapper);
                 verifier->printExecutionTime(std::cout);
                 verifier->printMessages(std::cout);
 #ifdef CLEANUP
@@ -115,7 +117,8 @@ namespace VerifyTAPN { namespace DiscreteVerification {
                         tapn,
                         *verifier,
                         options,
-                        query);
+                        query,
+                        mapper);
                 verifier->printExecutionTime(std::cout);
 #ifdef CLEANUP
                 delete verifier;
@@ -198,16 +201,16 @@ namespace VerifyTAPN { namespace DiscreteVerification {
             RealMarking marking(&tapn, *initialMarking, options.getSMCNumericPrecision());
             if(options.isBenchmarkMode()) {
                 ProbabilityEstimation estimator(tapn, marking, smcQuery, options, options.getBenchmarkRuns());
-                ComputeAndPrint(tapn, estimator, options, query);
+                ComputeAndPrint(tapn, estimator, options, query, mapper);
             } else if(options.getSmcTraces() > 0) {
                 SMCTracesGenerator estimator(tapn, marking, smcQuery, options);
-                ComputeAndPrint(tapn, estimator, options, query);
+                ComputeAndPrint(tapn, estimator, options, query, mapper);
             } else if(smcQuery->getSmcSettings().compareToFloat) {
                 ProbabilityFloatComparison estimator(tapn, marking, smcQuery, options);
-                ComputeAndPrint(tapn, estimator, options, query);
+                ComputeAndPrint(tapn, estimator, options, query, mapper);
             } else {
                 ProbabilityEstimation estimator(tapn, marking, smcQuery, options);
-                ComputeAndPrint(tapn, estimator, options, query);
+                ComputeAndPrint(tapn, estimator, options, query, mapper);
             }
         } else if (options.getVerificationType() == VerificationOptions::DISCRETE) {
             if (options.getMemoryOptimization() == VerificationOptions::PTRIE) {
@@ -221,7 +224,8 @@ namespace VerifyTAPN { namespace DiscreteVerification {
                             tapn,
                             verifier,
                             options,
-                            query);
+                            query,
+                            mapper);
                 } else if (query->getQuantifier() == EF || query->getQuantifier() == AG) {
                     if (options.getPartialOrderReduction()) {
                         auto verifier = ReachabilitySearchPTrie<ReducingGenerator>(tapn, *initialMarking, query,
@@ -230,7 +234,8 @@ namespace VerifyTAPN { namespace DiscreteVerification {
                                 tapn,
                                 verifier,
                                 options,
-                                query);
+                                query,
+                                mapper);
                     } else {
                         auto verifier = ReachabilitySearchPTrie<Generator>(tapn, *initialMarking, query, options,
                                                                            strategy);
@@ -238,7 +243,8 @@ namespace VerifyTAPN { namespace DiscreteVerification {
                                 tapn,
                                 verifier,
                                 options,
-                                query);
+                                query,
+                                mapper);
                     }
 
                 }
@@ -251,7 +257,8 @@ namespace VerifyTAPN { namespace DiscreteVerification {
                             tapn,
                             verifier,
                             options,
-                            query);
+                            query,
+                            mapper);
                 } else if (query->getQuantifier() == EF || query->getQuantifier() == AG) {
                     if (options.getPartialOrderReduction()) {
                         auto verifier = ReachabilitySearch<ReducingGenerator>(tapn, *initialMarking, query, options,
@@ -260,7 +267,8 @@ namespace VerifyTAPN { namespace DiscreteVerification {
                                 tapn,
                                 verifier,
                                 options,
-                                query);
+                                query,
+                                mapper);
                     } else {
                         auto verifier = ReachabilitySearch<Generator>(tapn, *initialMarking, query, options,
                                                                       strategy);
@@ -268,7 +276,8 @@ namespace VerifyTAPN { namespace DiscreteVerification {
                                 tapn,
                                 verifier,
                                 options,
-                                query);
+                                query,
+                                mapper);
                     }
                 }
                 delete strategy;
@@ -290,7 +299,8 @@ namespace VerifyTAPN { namespace DiscreteVerification {
                             tapn,
                             verifier,
                             options,
-                            query);
+                            query,
+                            mapper);
                     delete strategy;
                 } else {
                     WaitingList<WaitingDart *> *strategy = getWaitingList<WaitingDart *>(query, options);
@@ -299,7 +309,8 @@ namespace VerifyTAPN { namespace DiscreteVerification {
                             tapn,
                             verifier,
                             options,
-                            query);
+                            query,
+                            mapper);
                     delete strategy;
                 }
             } else if (query->getQuantifier() == EF || query->getQuantifier() == AG) {
@@ -315,7 +326,8 @@ namespace VerifyTAPN { namespace DiscreteVerification {
                             tapn,
                             verifier,
                             options,
-                            query);
+                            query,
+                            mapper);
                     delete strategy;
                 } else {
                     WaitingList<TimeDartBase *> *strategy = getWaitingList<TimeDartBase *>(query, options);
@@ -325,7 +337,8 @@ namespace VerifyTAPN { namespace DiscreteVerification {
                             tapn,
                             verifier,
                             options,
-                            query);
+                            query,
+                            mapper);
                     delete strategy;
                 }
             }
@@ -336,7 +349,8 @@ namespace VerifyTAPN { namespace DiscreteVerification {
 
     template<typename T>
     void VerifyAndPrint(TAPN::TimedArcPetriNet &tapn, Verification<T> &verifier, VerificationOptions &options,
-                        AST::Query *query) {
+                        AST::Query *query, const TraceMapper* mapper) {
+        verifier.setTraceMapper(mapper);
         bool result = (!options.isWorkflow() && (query->getQuantifier() == AG || query->getQuantifier() == AF))
                       ? !verifier.run() : verifier.run();
 
@@ -368,9 +382,9 @@ namespace VerifyTAPN { namespace DiscreteVerification {
     }
 
     void ComputeAndPrint(TAPN::TimedArcPetriNet &tapn, SMCVerification &estimator, VerificationOptions &options,
-                        AST::Query *query) {
-
+                        AST::Query *query, const TraceMapper* mapper) {
         std::cout << "Starting SMC..." << std::endl;
+        estimator.setTraceMapper(mapper);
 
         if(options.isParallel()) {
             estimator.parallel_run();
