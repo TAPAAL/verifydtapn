@@ -184,8 +184,8 @@ namespace VerifyTAPN {
                   " 1: only runs satisfying the property\n"
                   " 2: only runs not satisfying the property")
             ("smc-numeric-precision", po::value<unsigned int>(), "Specify the number of rounding digits to use in SMC verifications (default = 5, 0 means no rounding).")
-            ("smc-seed", po::value<uint64_t>(), "Seed the random generator using a 64-bit integer. Will only produce deterministic results if --smc-parallel is not enabled (default: uses std::random_device if not set).");
-            
+            ("smc-seed", po::value<uint64_t>(), "Seed the random generator using a 64-bit integer. Will only produce deterministic results if --smc-parallel is not enabled (default: uses std::random_device if not set).")
+            ("map-original-trace", po::value<bool>(), "Map unfolded traces back to the original net (CPN Only).");
     }
 
 
@@ -308,6 +308,10 @@ namespace VerifyTAPN {
 
         if(vm.count("smc-seed")) {
             opts.setSmcSeed(vm["smc-seed"].as<uint64_t>());
+        }
+
+        if (vm.count("map-original-trace")) {
+            opts.setMapOriginalTrace(vm["map-original-trace"].as<bool>());
         }
 
         std::vector<std::string> files = po::collect_unrecognized(parsed.options, po::include_positional);

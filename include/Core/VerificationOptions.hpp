@@ -300,6 +300,14 @@ namespace VerifyTAPN {
             smcSeed = seed;
         }
 
+        inline bool getMapOriginalTrace() const {
+            return mapOriginalTrace;
+        }
+
+        inline void setMapOriginalTrace(bool mapOriginalTrace) {
+            this->mapOriginalTrace = mapOriginalTrace;
+        }
+
     protected:
         std::string inputFile;
         std::string queryFile;
@@ -334,6 +342,7 @@ namespace VerifyTAPN {
         SMCTracesType smcTracesType = ANY_TRACE;
         unsigned int smcNumericPrecision = 5;
         std::optional<uint64_t> smcSeed = std::nullopt;
+        bool mapOriginalTrace = false;
         friend class ArgsParser;
     };
 
