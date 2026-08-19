@@ -184,8 +184,9 @@ namespace VerifyTAPN {
                   " 1: only runs satisfying the property\n"
                   " 2: only runs not satisfying the property")
             ("smc-numeric-precision", po::value<unsigned int>(), "Specify the number of rounding digits to use in SMC verifications (default = 5, 0 means no rounding).")
-            ("smc-seed", po::value<uint64_t>(), "Seed the random generator using a 64-bit integer. Will only produce deterministic results if --smc-parallel is not enabled (default: uses std::random_device if not set).");
-            
+            ("smc-seed", po::value<uint64_t>(), "Seed the random generator using a 64-bit integer. Will only produce deterministic results if --smc-parallel is not enabled (default: uses std::random_device if not set).")
+            ("map-original-trace", po::bool_switch()->default_value(false), "Map unfolded traces back to the original net (CPN Only).")
+            ("interactive-mode", po::bool_switch()->default_value(false), "Interactive simulation mode (CPN Only).");
     }
 
 
@@ -310,6 +311,14 @@ namespace VerifyTAPN {
             opts.setSmcSeed(vm["smc-seed"].as<uint64_t>());
         }
 
+        if (vm.count("map-original-trace")) {
+            opts.setMapOriginalTrace(vm["map-original-trace"].as<bool>());
+        }
+
+        if (vm.count("interactive-mode")) {
+            opts.setInteractiveMode(vm["interactive-mode"].as<bool>());
+        }
+
         std::vector<std::string> files = po::collect_unrecognized(parsed.options, po::include_positional);
 
         // remove everything that is just a space
@@ -322,10 +331,11 @@ namespace VerifyTAPN {
             }
         ), files.end());
         if (opts.getWorkflowMode() == VerificationOptions::WORKFLOW_SOUNDNESS ||
-            opts.getWorkflowMode() == VerificationOptions::WORKFLOW_STRONG_SOUNDNESS) {
+            opts.getWorkflowMode() == VerificationOptions::WORKFLOW_STRONG_SOUNDNESS ||
+            opts.getInteractiveMode()) {
             if(files.size() != 1)
             {
-                std::cerr << "Expected exactly 1 trailing file (the model) for workflow verification, got [";
+                std::cerr << "Expected exactly 1 trailing file (the model), got [";
                 for(size_t i = 0; i < files.size(); ++i)
                 {
                     if(i != 0) std::cerr << ", ";
