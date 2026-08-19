@@ -308,6 +308,14 @@ namespace VerifyTAPN {
             this->mapOriginalTrace = mapOriginalTrace;
         }
 
+        inline bool getInteractiveMode() const {
+            return interactiveMode;
+        }
+
+        inline void setInteractiveMode(bool interactiveMode) {
+            this->interactiveMode = interactiveMode;
+        }
+
     protected:
         std::string inputFile;
         std::string queryFile;
@@ -343,6 +351,7 @@ namespace VerifyTAPN {
         unsigned int smcNumericPrecision = 5;
         std::optional<uint64_t> smcSeed = std::nullopt;
         bool mapOriginalTrace = false;
+        bool interactiveMode = false;
         friend class ArgsParser;
     };
 

@@ -45,7 +45,7 @@ endif()
 
 
 # C++ Definition
-set(CMAKE_CXX_STANDARD 26)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 
@@ -147,8 +147,8 @@ if (VERIFYDTAPN_GetDependencies)
 
     ExternalProject_Add(
         boost-ext
-        URL https://archives.boost.io/release/1.92.0/source/boost_1_92_0.zip
-        URL_HASH SHA256=c46baee75ed4b558cf6553630d0615a147ed582812917b57e6f0839d1954549f
+        URL https://archives.boost.io/release/1.91.0/source/boost_1_91_0.zip
+        URL_HASH SHA256=69c6f32fbda3c478fb310ec251e6699e5e584dbc71afb5425c2f6e98c9540a77
         PATCH_COMMAND echo "${BOOST_CONFIG_JAM}" $<SEMICOLON>  > config.jam
         CONFIGURE_COMMAND ${BOOST_CONFIGURE_COMMAND}
         BUILD_COMMAND ./b2 -j${DEPENDENCY_JOBS} --user-config=config.jam --prefix=${CMAKE_BINARY_DIR}/external --with-program_options --with-test --layout=system toolset=${BOOST_TOOLSET} cxxstd=${CMAKE_CXX_STANDARD} cflags="-fPIC" cxxflags="-fPIC" address-model=64 ${BOOST_B2_OPTS} variant=release link=static runtime-link=static install

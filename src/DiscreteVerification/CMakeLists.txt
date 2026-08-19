@@ -7,6 +7,7 @@ add_subdirectory(Generators)
 
 
 add_library(DiscreteVerification DeadlockVisitor.cpp
-        DiscreteVerification.cpp)
+        DiscreteVerification.cpp
+        InteractiveMode.cpp)
 
 target_link_libraries(DiscreteVerification Core DataStructures Util SearchStrategies VerificationTypes Generators)

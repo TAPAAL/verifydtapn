@@ -2,6 +2,7 @@
 #include "verifydtapn.h"
 #include "Core/ArgsParser.hpp"
 #include "DiscreteVerification/DiscreteVerification.hpp"
+#include "DiscreteVerification/InteractiveMode.hpp"
 #include "Core/TraceMapper.hpp"
 
 #include <iostream>
@@ -44,6 +45,11 @@ int main(int argc, char *argv[]) {
 
     if (options.getPrintBindings()) {
         std::cout << output_stream.get()->str();
+    }
+
+    if (options.getInteractiveMode()) {
+        TraceMapper mapper = TraceMapper::fromBuilder(builder);
+        return DiscreteVerification::InteractiveMode::run(*tapn, initialTokens, builder, mapper, options);
     }
     
     std::unique_ptr<AST::Query> query = make_query(builder, options, *tapn);

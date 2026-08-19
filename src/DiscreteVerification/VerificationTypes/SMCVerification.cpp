@@ -6,6 +6,7 @@
 #include <chrono>
 #include <iomanip>
 #include <algorithm>
+#include <string_view>
 
 #define STEP_MS 5000
 
@@ -272,13 +273,30 @@ void SMCVerification::printXMLTrace(std::stack<RealMarking *> &stack, const std:
 rapidxml::xml_node<> *SMCVerification::createTransitionNode(RealMarking *old, RealMarking *current, rapidxml::xml_document<> &doc) {
     using namespace rapidxml;
     xml_node<> *transitionNode = doc.allocate_node(node_element, "transition");
-    std::string_view transId = current->getGeneratedBy()->getId();
+    const std::string& unfoldedTransId = current->getGeneratedBy()->getId();
+    std::string_view transId = unfoldedTransId;
     if (_mapper) {
-        transId = _mapper->mapTransition(transId);
+        transId = _mapper->mapTransition(unfoldedTransId);
     }
 
-    xml_attribute<> *id = doc.allocate_attribute("id", doc.allocate_string(transId.data(), transId.size()));
+    xml_attribute<> *id = doc.allocate_attribute("id", doc.allocate_string(transId.data()));
     transitionNode->append_attribute(id);
+
+    if (_mapper) {
+        const auto& bindings = _mapper->getBindings(unfoldedTransId);
+        if (!bindings.empty()) {
+            xml_node<> *bindingsNode = doc.allocate_node(node_element, "bindings");
+            for (const auto& [varId, colorVal] : bindings) {
+                xml_node<> *varNode = doc.allocate_node(node_element, "variable");
+                varNode->append_attribute(doc.allocate_attribute("id", doc.allocate_string(varId.data())));
+                xml_node<> *colorNode = doc.allocate_node(node_element, "color", doc.allocate_string(colorVal.data()));
+                varNode->append_node(colorNode);
+                bindingsNode->append_node(varNode);
+            }
+            
+            transitionNode->append_node(bindingsNode);
+        }
+    }
 
     for (auto* arc : current->getGeneratedBy()->getPreset()) {
         createTransitionSubNodes(old, current, doc, transitionNode, arc->getInputPlace(),
@@ -354,17 +372,14 @@ SMCVerification::createTokenNode(rapidxml::xml_document<> &doc, const TAPN::Time
     using namespace rapidxml;
     std::string_view placeName = place.getName();
     if (_mapper) {
-        auto mapped = _mapper->mapPlace(placeName);
-        if (!mapped) {
-            return nullptr;
-        }
-        
+        auto mapped = _mapper->mapPlace(place.getName());
+        if (!mapped) return nullptr;
         placeName = *mapped;
     }
 
     xml_node<> *tokenNode = doc.allocate_node(node_element, "token");
     xml_attribute<> *placeAttribute = doc.allocate_attribute("place",
-                                                                doc.allocate_string(placeName.data(), placeName.size()));
+                                                                doc.allocate_string(placeName.data()));
     tokenNode->append_attribute(placeAttribute);
     auto str = printDouble(token.getAge(), options.getSMCNumericPrecision());
     xml_attribute<> *ageAttribute = doc.allocate_attribute("age", doc.allocate_string(

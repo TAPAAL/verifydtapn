@@ -9,10 +9,11 @@
 
 #include <stack>
 #include <iostream>
+#include <string_view>
 
 #include <rapidxml.hpp>
 /* Adding declarations to make it compatible with gcc 4.7 and greater */
-namespace rapidxml { namespace internal {
+namespace rapidxml::internal {
     template<class OutIt, class Ch>
     inline OutIt print_children(OutIt out, const xml_node <Ch> *node, int flags, int indent);
 
@@ -39,13 +40,13 @@ namespace rapidxml { namespace internal {
 
     template<class OutIt, class Ch>
     inline OutIt print_pi_node(OutIt out, const xml_node <Ch> *node, int flags, int indent);
-} }
+}
 
 #include <rapidxml_print.hpp>
 #include <utility>
 #include <utility>
 
-namespace VerifyTAPN { namespace DiscreteVerification {
+namespace VerifyTAPN::DiscreteVerification {
     template<typename T>
     class Verification {
     public:
@@ -138,12 +139,29 @@ namespace VerifyTAPN { namespace DiscreteVerification {
                 isFirst = false;
             } else {
                 if (stack.top()->getGeneratedBy()) {
-                    std::string_view transName = stack.top()->getGeneratedBy()->getName();
+                    const std::string& unfoldedTransName = stack.top()->getGeneratedBy()->getName();
+                    std::string_view transName = unfoldedTransName;
                     if (_mapper) {
-                        transName = _mapper->mapTransition(transName);
+                        transName = _mapper->mapTransition(unfoldedTransName);
                     }
 
-                    std::cout << "\tTransistion: " << transName << std::endl;
+                    std::cout << "\tTransistion: " << transName;
+                    if (_mapper) {
+                        const auto& bindings = _mapper->getBindings(unfoldedTransName);
+                        if (!bindings.empty()) {
+                            std::cout << " [";
+                            bool first = true;
+                            for (const auto& [varId, colorVal] : bindings) {
+                                if (!first) std::cout << ", ";
+                                first = false;
+                                std::cout << varId << "=" << colorVal;
+                            }
+                            
+                            std::cout << "]";
+                        }
+                    }
+
+                    std::cout << '\n';
                 } else {
                     int i = 1;
                     T *old = stack.top();
@@ -178,7 +196,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
             for (auto& token_list : stack.top()->getPlaceList()) {
                 std::string_view pName = token_list.place->getName();
                 if (_mapper) {
-                    auto mapped = _mapper->mapPlace(pName);
+                    auto mapped = _mapper->mapPlace(token_list.place->getName());
                     if (!mapped) continue;
                     pName = *mapped;
                 }
@@ -373,13 +391,30 @@ namespace VerifyTAPN { namespace DiscreteVerification {
     rapidxml::xml_node<> *Verification<T>::createTransitionNode(T *old, T *current, rapidxml::xml_document<> &doc) {
         using namespace rapidxml;
         xml_node<> *transitionNode = doc.allocate_node(node_element, "transition");
-        std::string_view transId = current->getGeneratedBy()->getId();
+        const std::string& unfoldedTransId = current->getGeneratedBy()->getId();
+        std::string_view transId = unfoldedTransId;
         if (_mapper) {
-            transId = _mapper->mapTransition(transId);
+            transId = _mapper->mapTransition(unfoldedTransId);
         }
 
-        xml_attribute<> *id = doc.allocate_attribute("id", doc.allocate_string(transId.data(), transId.size()));
+        xml_attribute<> *id = doc.allocate_attribute("id", doc.allocate_string(transId.data()));
         transitionNode->append_attribute(id);
+
+        if (_mapper) {
+            const auto& bindings = _mapper->getBindings(unfoldedTransId);
+            if (!bindings.empty()) {
+                xml_node<> *bindingsNode = doc.allocate_node(node_element, "bindings");
+                for (const auto& [varId, colorVal] : bindings) {
+                    xml_node<> *varNode = doc.allocate_node(node_element, "variable");
+                    varNode->append_attribute(doc.allocate_attribute("id", doc.allocate_string(varId.data())));
+                    xml_node<> *colorNode = doc.allocate_node(node_element, "color", doc.allocate_string(colorVal.data()));
+                    varNode->append_node(colorNode);
+                    bindingsNode->append_node(varNode);
+                }
+                
+                transitionNode->append_node(bindingsNode);
+            }
+        }
 
         for (auto* arc : current->getGeneratedBy()->getPreset()) {
             createTransitionSubNodes(old, current, doc, transitionNode, arc->getInputPlace(),
@@ -461,17 +496,14 @@ namespace VerifyTAPN { namespace DiscreteVerification {
         using namespace rapidxml;
         std::string_view placeName = place.getName();
         if (_mapper) {
-            auto mapped = _mapper->mapPlace(placeName);
-            if (!mapped) {
-                return nullptr;
-            }
-
+            auto mapped = _mapper->mapPlace(place.getName());
+            if (!mapped) return nullptr;
             placeName = *mapped;
         }
 
         xml_node<> *tokenNode = doc.allocate_node(node_element, "token");
         xml_attribute<> *placeAttribute = doc.allocate_attribute("place",
-                                                                 doc.allocate_string(placeName.data(), placeName.size()));
+                                                                 doc.allocate_string(placeName.data()));
         tokenNode->append_attribute(placeAttribute);
         auto str = std::to_string(token.getAge() * tapn.getGCD());
         xml_attribute<> *ageAttribute = doc.allocate_attribute("age", doc.allocate_string(
@@ -507,6 +539,6 @@ namespace VerifyTAPN { namespace DiscreteVerification {
             } while (!(liveness->empty()));
         }
     }
-} }
+}
 
 #endif
