@@ -46,10 +46,11 @@ namespace VerifyTAPN { namespace AST {
         T value;
     };
 
-    typedef SpecificResult<int> IntResult;
-    typedef SpecificResult<float> RealResult;
-    typedef SpecificResult<bool> BoolResult;
-    typedef SpecificResult<std::vector<int> > IntVectorResult;
+    using IntResult = SpecificResult<int>;
+    using RealResult = SpecificResult<float>;
+    using NumberResult = SpecificResult<double>;
+    using BoolResult = SpecificResult<bool>;
+    using IntVectorResult = SpecificResult<std::vector<int>>;
 
     class Visitor {
     public:

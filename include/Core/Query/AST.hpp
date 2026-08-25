@@ -18,33 +18,8 @@ namespace VerifyTAPN {
 
         class Visitable {
         public:
-            using EvalType = std::variant<int32_t, float, bool>;
-
+            virtual ~Visitable() = default;
             virtual void accept(Visitor &visitor, Result &context) = 0;
-        
-            template<typename T>
-            T getEval() const {
-                return std::get<T>(eval);
-            }
-
-            void setEval(EvalType value) {
-                eval = value;
-            }
-
-            template<typename T>
-            bool hasEval() const {
-                return std::holds_alternative<T>(eval);
-            }
-
-            double getNumericalValue() const {
-                if (hasEval<float>()) return getEval<float>();
-                if (hasEval<int32_t>()) return getEval<int32_t>();
-                if (hasEval<bool>()) return getEval<bool>() ? 1.0 : 0.0;
-                return 0.0;
-            }
-
-        private:
-            EvalType eval = 0;
         };
 
         class Expression : public Visitable {
