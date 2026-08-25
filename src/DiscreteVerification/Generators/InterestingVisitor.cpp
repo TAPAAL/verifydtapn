@@ -1,8 +1,10 @@
 
 #include "DiscreteVerification/Generators/InterestingVisitor.h"
 #include "DiscreteVerification/Generators/ReducingGenerator.hpp"
+#include "DiscreteVerification/QueryVisitor.hpp"
 
 #include <iostream>
+#include <cassert>
 
 namespace VerifyTAPN {
 namespace DiscreteVerification {
@@ -23,10 +25,19 @@ namespace DiscreteVerification {
             expr.getLeft().accept(*this, context);
             expr.getRight().accept(*this, context);
         } else {
-            if (expr.getLeft().getEval<bool>())
+            assert(_marking != nullptr);
+            QueryVisitor<NonStrictMarkingBase> qv(const_cast<NonStrictMarkingBase&>(*_marking), _tapn);
+            BoolResult leftRes;
+            expr.getLeft().accept(qv, leftRes);
+            if (leftRes.value) {
                 expr.getLeft().accept(*this, context);
-            else if (expr.getRight().getEval<bool>())
-                expr.getRight().accept(*this, context);
+            } else {
+                BoolResult rightRes;
+                expr.getRight().accept(qv, rightRes);
+                if (rightRes.value) {
+                    expr.getRight().accept(*this, context);
+                }
+            }
         }
     }
 
@@ -35,10 +46,19 @@ namespace DiscreteVerification {
             expr.getLeft().accept(*this, context);
             expr.getRight().accept(*this, context);
         } else {
-            if (!expr.getLeft().getEval<bool>())
+            assert(_marking != nullptr);
+            QueryVisitor<NonStrictMarkingBase> qv(const_cast<NonStrictMarkingBase&>(*_marking), _tapn);
+            BoolResult leftRes;
+            expr.getLeft().accept(qv, leftRes);
+            if (!leftRes.value) {
                 expr.getLeft().accept(*this, context);
-            else if (!expr.getRight().getEval<bool>())
-                expr.getRight().accept(*this, context);
+            } else {
+                BoolResult rightRes;
+                expr.getRight().accept(qv, rightRes);
+                if (!rightRes.value) {
+                    expr.getRight().accept(*this, context);
+                }
+            }
         }
     }
 
@@ -51,25 +71,35 @@ namespace DiscreteVerification {
             if (id2) expr.getRight().accept(*this, ic);
             else expr.getRight().accept(*this, dc);
         };
+        assert(_marking != nullptr);
+        QueryVisitor<NonStrictMarkingBase> qv(const_cast<NonStrictMarkingBase&>(*_marking), _tapn);
+        BoolResult propRes;
+        expr.accept(qv, propRes);
+        bool eval = propRes.value;
+
         switch(expr.getOperator())
         {
             case AtomicProposition::LT:
             case AtomicProposition::LE:
-                if (!expr.getEval<bool>() && !_negated)
+                if (!eval && !_negated)
                     incdec(false, true);
-                else if (expr.getEval<bool>() && _negated)
+                else if (eval && _negated)
                     incdec(true, false);
                 break;
             case AtomicProposition::EQ:
             case AtomicProposition::NE:
             {
                 bool neg = _negated == (expr.getOperator() == AtomicProposition::EQ);
-                if (!expr.getEval<bool>() && !neg) {
-                    if (expr.getLeft().getEval<bool>() < expr.getRight().getEval<bool>())
+                if (!eval && !neg) {
+                    NumberResult leftNum, rightNum;
+                    expr.getLeft().accept(qv, leftNum);
+                    expr.getRight().accept(qv, rightNum);
+                    if (leftNum.value < rightNum.value) {
                         incdec(true, false);
-                    else
+                    } else {
                         incdec(false, true);
-                } else if (expr.getEval<bool>() && neg) {
+                    }
+                } else if (eval && neg) {
                     incdec(true, true);
                     incdec(false, false);
                 }

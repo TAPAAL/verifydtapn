@@ -243,11 +243,9 @@ namespace VerifyTAPN {
         }
 
         void StubbornSet::ample_set(const TAPN::TimedPlace *inv_place, const TAPN::TimedTransition *trans) {
-            
-            QueryVisitor<NonStrictMarkingBase> visitor(*_parent, _tapn);
-            BoolResult context;
-            _query->accept(visitor, context);
+            _interesting.setMarking(_parent);
             _interesting.clear();
+            BoolResult context;
             _query->accept(_interesting, context);
 
             // compute the set of unprocessed
