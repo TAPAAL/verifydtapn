@@ -397,57 +397,44 @@ namespace VerifyTAPN::DiscreteVerification {
 
         int maxDelay = _getMaxPossibleDelay(currentMarking, generator);
 
-        std::map<std::string, std::vector<TraceMapper::BindingList>> enabledByOrigTrans;
-        std::map<std::string, std::vector<TraceMapper::BindingList>> delayEnabledByOrigTrans;
-        std::map<std::string, int> minDelayByOrigTrans;
+        using ReportedBinding = std::pair<TraceMapper::BindingList, std::optional<int>>;
+        std::map<std::string, std::vector<ReportedBinding>> bindingsByOrigTrans;
 
         for (const auto* trans : _tapn.getTransitions()) {
             std::string_view origTrans = _mapper.mapTransition(trans->getName());
             const auto& bindings = _mapper.getBindings(trans->getName());
 
             if (generator.is_enabled(trans)) {
-                enabledByOrigTrans[std::string(origTrans)].push_back(bindings);
+                bindingsByOrigTrans[std::string(origTrans)].emplace_back(bindings, std::nullopt);
             } else {
                 int minDelay = 0;
                 if (maxDelay >= 1 && _isDelayEnabled(trans, currentMarking, maxDelay, minDelay, generator)) {
-                    std::string key(origTrans);
-                    delayEnabledByOrigTrans[key].push_back(bindings);
-                    auto it = minDelayByOrigTrans.find(key);
-                    if (it == minDelayByOrigTrans.end() || minDelay < it->second) {
-                        minDelayByOrigTrans[key] = minDelay;
-                    }
+                    bindingsByOrigTrans[std::string(origTrans)].emplace_back(bindings, minDelay);
                 }
             }
         }
 
-        auto printTransitionBindings = [&out](const auto& bindingLists) {
-            for (const auto& bindingList : bindingLists) {
-                out << "\t\t<binding>\n";
-                for (const auto& [varId, colorVal] : bindingList) {
-                    out << "\t\t\t<variable id=\"" << varId << "\">\n";
-                    out << "\t\t\t\t<color>" << colorVal << "</color>\n";
-                    out << "\t\t\t</variable>\n";
-                }
-                out << "\t\t</binding>\n";
+        auto printBinding = [&out](const TraceMapper::BindingList& bindingList, std::optional<int> minDelay = std::nullopt) {
+            out << "\t\t<binding";
+            if (minDelay) out << " min-delay=\"" << *minDelay << "\"";
+            out << ">\n";
+            for (const auto& [varId, colorVal] : bindingList) {
+                out << "\t\t\t<variable id=\"" << varId << "\">\n";
+                out << "\t\t\t\t<color>" << colorVal << "</color>\n";
+                out << "\t\t\t</variable>\n";
             }
+            out << "\t\t</binding>\n";
         };
 
         out << "<valid-bindings>\n";
-        for (const auto& [origTrans, bindingLists] : enabledByOrigTrans) {
+        for (const auto& [origTrans, bindingLists] : bindingsByOrigTrans) {
             out << "\t<transition id=\"" << origTrans << "\">\n";
-            printTransitionBindings(bindingLists);
+            for (const auto& [binding, minDelay] : bindingLists) {
+                printBinding(binding, minDelay);
+            }
             out << "\t</transition>\n";
         }
-        out << "</valid-bindings>\n";
-
-        out << "<delay-enabled-bindings>\n";
-        for (const auto& [origTrans, bindingLists] : delayEnabledByOrigTrans) {
-            int md = minDelayByOrigTrans[origTrans];
-            out << "\t<transition id=\"" << origTrans << "\" delay-enabled=\"true\" min-delay=\"" << md << "\">\n";
-            printTransitionBindings(bindingLists);
-            out << "\t</transition>\n";
-        }
-        out << "</delay-enabled-bindings>";
+        out << "</valid-bindings>";
     }
 
     void InteractiveMode::_parseColorSubterms(rapidxml::xml_node<>* node, int count, std::vector<std::pair<std::string, int>>& out) const {

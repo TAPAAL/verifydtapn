@@ -402,18 +402,16 @@ namespace VerifyTAPN::DiscreteVerification {
 
         if (_mapper) {
             const auto& bindings = _mapper->getBindings(unfoldedTransId);
-            if (!bindings.empty()) {
-                xml_node<> *bindingsNode = doc.allocate_node(node_element, "bindings");
-                for (const auto& [varId, colorVal] : bindings) {
-                    xml_node<> *varNode = doc.allocate_node(node_element, "variable");
-                    varNode->append_attribute(doc.allocate_attribute("id", doc.allocate_string(varId.data())));
-                    xml_node<> *colorNode = doc.allocate_node(node_element, "color", doc.allocate_string(colorVal.data()));
-                    varNode->append_node(colorNode);
-                    bindingsNode->append_node(varNode);
-                }
-                
-                transitionNode->append_node(bindingsNode);
+            xml_node<> *bindingsNode = doc.allocate_node(node_element, "bindings");
+            for (const auto& [varId, colorVal] : bindings) {
+                xml_node<> *varNode = doc.allocate_node(node_element, "variable");
+                varNode->append_attribute(doc.allocate_attribute("id", doc.allocate_string(varId.data())));
+                xml_node<> *colorNode = doc.allocate_node(node_element, "color", doc.allocate_string(colorVal.data()));
+                varNode->append_node(colorNode);
+                bindingsNode->append_node(varNode);
             }
+
+            transitionNode->append_node(bindingsNode);
         }
 
         for (auto* arc : current->getGeneratedBy()->getPreset()) {
