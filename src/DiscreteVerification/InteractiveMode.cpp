@@ -541,6 +541,9 @@ namespace VerifyTAPN::DiscreteVerification {
                     ? _tapn.getPlaceIndex(unfoldedName)
                     : _tapn.getPlaceIndex(origPlace);
                 addToken(idx, age, count);
+
+                int sumIdx = _tapn.getPlaceIndex("__" + origPlace + "__SUM");
+                addToken(sumIdx, age, count);
             };
 
             bool hasTokenElements = false;
