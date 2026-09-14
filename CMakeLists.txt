@@ -151,7 +151,7 @@ if (VERIFYDTAPN_GetDependencies)
         URL_HASH SHA256=69c6f32fbda3c478fb310ec251e6699e5e584dbc71afb5425c2f6e98c9540a77
         PATCH_COMMAND echo "${BOOST_CONFIG_JAM}" $<SEMICOLON>  > config.jam
         CONFIGURE_COMMAND ${BOOST_CONFIGURE_COMMAND}
-        BUILD_COMMAND ./b2 -j${DEPENDENCY_JOBS} --user-config=config.jam --prefix=${CMAKE_BINARY_DIR}/external --with-program_options --with-test --layout=system toolset=${BOOST_TOOLSET} cxxstd=17 cflags="-fPIC" cxxflags="-fPIC" address-model=64 ${BOOST_B2_OPTS} variant=release link=static runtime-link=static install
+        BUILD_COMMAND ./b2 -j${DEPENDENCY_JOBS} --user-config=config.jam --prefix=${CMAKE_BINARY_DIR}/external --with-program_options --with-test --layout=system toolset=${BOOST_TOOLSET} cxxstd=${CMAKE_CXX_STANDARD} cflags="-fPIC" cxxflags="-fPIC" address-model=64 ${BOOST_B2_OPTS} variant=release link=static runtime-link=static install
         BUILD_BYPRODUCTS ${BOOST_PROGRAM_OPTIONS_LIBRARY} ${BOOST_UNIT_TEST_FRAMEWORK_LIBRARY}
         BUILD_IN_SOURCE 1
         INSTALL_COMMAND ""

@@ -2,6 +2,8 @@
 #include "verifydtapn.h"
 #include "Core/ArgsParser.hpp"
 #include "DiscreteVerification/DiscreteVerification.hpp"
+#include "DiscreteVerification/InteractiveMode.hpp"
+#include "Core/TraceMapper.hpp"
 
 #include <iostream>
 #include <fstream>
@@ -44,6 +46,11 @@ int main(int argc, char *argv[]) {
     if (options.getPrintBindings()) {
         std::cout << output_stream.get()->str();
     }
+
+    if (options.getInteractiveMode()) {
+        TraceMapper mapper = TraceMapper::fromBuilder(builder);
+        return DiscreteVerification::InteractiveMode::run(*tapn, initialTokens, builder, mapper, options);
+    }
     
     std::unique_ptr<AST::Query> query = make_query(builder, options, *tapn);
     assert(query);
@@ -66,7 +73,12 @@ int main(int argc, char *argv[]) {
 
     tapn->updatePlaceTypes(query.get(), options);
 
-    int result = DiscreteVerification::DiscreteVerification::run(*tapn, initialTokens, query.get(), options);
+    TraceMapper mapper;
+    if (options.getMapOriginalTrace()) {
+        mapper = TraceMapper::fromBuilder(builder);
+    }
+
+    int result = DiscreteVerification::DiscreteVerification::run(*tapn, initialTokens, query.get(), options, options.getMapOriginalTrace() ? &mapper : nullptr);
 
     return result;
 }

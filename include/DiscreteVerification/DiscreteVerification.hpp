@@ -26,6 +26,7 @@
 #include "Core/TAPN/TAPN.hpp"
 #include "Core/Query/AST.hpp"
 #include "Core/VerificationOptions.hpp"
+#include "Core/TraceMapper.hpp"
 
 #include <rapidxml.hpp>
 #include <rapidxml_print.hpp>
@@ -44,7 +45,7 @@ namespace VerifyTAPN { namespace DiscreteVerification {
         virtual ~DiscreteVerification();
 
         static int run(TAPN::TimedArcPetriNet &tapn, const std::vector<TokenList>& initialTokens, AST::Query *query,
-                       VerificationOptions &options);
+                       VerificationOptions &options, const TraceMapper* mapper);
 
     };
 } }
