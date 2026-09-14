@@ -9,7 +9,7 @@ endif()
 
 # Project Definition
 set(VERIFYDTAPN_NAME "verifydtapn")
-set(VERIFYDTAPN_VERSION 3.6.2)
+set(VERIFYDTAPN_VERSION 3.7.0)
 
 
 # Select GCC compiler
