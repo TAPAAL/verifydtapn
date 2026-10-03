@@ -260,6 +260,29 @@ void SMCVerification::printXMLTrace(std::stack<RealMarking *> &stack, const std:
             }
             if(marking->getGeneratedBy() != nullptr) {
                 root->append_node(createTransitionNode(old, marking, doc));
+                if (_mapper) {
+                    auto* markingNode = doc.allocate_node(node_element, "marking");
+                    for (const auto& place : marking->getPlaceList()) {
+                        auto originalPlace = _mapper->mapPlace(place.place->getName());
+                        if (!originalPlace || place.tokens.empty()) continue;
+                        auto* placeNode = doc.allocate_node(node_element, "place");
+                        placeNode->append_attribute(doc.allocate_attribute("id", doc.allocate_string(originalPlace->data())));
+                        auto color = _mapper->getColor(place.place->getName());
+                        for (const auto& token : place.tokens) {
+                            auto* tokenNode = doc.allocate_node(node_element, "token");
+                            auto age = printDouble(token.getAge(), options.getSMCNumericPrecision());
+                            auto count = std::to_string(token.getCount());
+                            tokenNode->append_attribute(doc.allocate_attribute("age", doc.allocate_string(age.data())));
+                            tokenNode->append_attribute(doc.allocate_attribute("count", doc.allocate_string(count.data())));
+                            tokenNode->append_attribute(doc.allocate_attribute("color", doc.allocate_string(color.data())));
+                            placeNode->append_node(tokenNode);
+                        }
+                        
+                        markingNode->append_node(placeNode);
+                    }
+
+                    root->append_node(markingNode);
+                }
             }
             if(marking->canDeadlock(tapn, 0)) {
                 root->append_node(doc.allocate_node(node_element, "deadlock"));
