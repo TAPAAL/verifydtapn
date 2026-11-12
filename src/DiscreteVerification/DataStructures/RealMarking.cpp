@@ -70,7 +70,17 @@ RealPlaceList& RealMarking::getPlaceList()
     return places;
 }
 
+const RealPlaceList& RealMarking::getPlaceList() const noexcept
+{
+    return places;
+}
+
 RealTokenList& RealMarking::getTokenList(int placeId)
+{
+    return places[placeId].tokens;
+}
+
+const RealTokenList& RealMarking::getTokenList(int placeId) const noexcept
 {
     return places[placeId].tokens;
 }

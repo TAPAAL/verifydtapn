@@ -31,7 +31,8 @@ int main(int argc, char *argv[]) {
         of.close();
     }
 
-    tapn->initialize(options.getGlobalMaxConstantsEnabled(), options.getGCDLowerGuardsEnabled(), initialTokens);
+    tapn->initialize(options.getGlobalMaxConstantsEnabled(),
+                     options.getGCDLowerGuardsEnabled() && !options.getInteractiveMode(), initialTokens);
 
     if (options.getCalculateCmax()) {
         std::cout << options << std::endl;

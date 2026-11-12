@@ -138,7 +138,9 @@ namespace VerifyTAPN::DiscreteVerification {
             uint32_t size() const;
     
             RealPlaceList& getPlaceList();
+            [[nodiscard]] const RealPlaceList& getPlaceList() const noexcept;
             RealTokenList& getTokenList(int placeId);
+            [[nodiscard]] const RealTokenList& getTokenList(int placeId) const noexcept;
 
             void deltaAge(clockValue x);
 

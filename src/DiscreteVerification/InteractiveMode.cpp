@@ -1,40 +1,190 @@
 #include "DiscreteVerification/InteractiveMode.hpp"
-#include "DiscreteVerification/Generators/Generator.h"
-#include "DiscreteVerification/Generators/NextEnabledGenerator.h"
+#include "Core/TAPN/TimeInterval.hpp"
+#include "Core/TAPN/TimedArcPetriNet.hpp"
+#include "Core/TAPN/TimedTransition.hpp"
+#include "Core/TraceMapper.hpp"
+#include "Core/VerificationOptions.hpp"
+#include "DiscreteVerification/DataStructures/NonStrictMarkingBase.hpp"
+#include "DiscreteVerification/DataStructures/RealMarking.hpp"
+#include "DiscreteVerification/Util/IntervalOps.hpp"
 
+#include <Colored/ColoredPetriNetBuilder.h>
 #include <algorithm>
+#include <cstdint>
 #include <cstring>
-#include <iomanip>
+#include <exception>
 #include <iostream>
-#include <sstream>
-#include <set>
 #include <limits>
-#include <string_view>
+#include <map>
+#include <memory>
+#include <rapidxml.hpp>
+#include <sstream>
+#include <stdexcept>
+#include <string>
+#include <tuple>
+#include <utility>
+#include <vector>
 
 namespace VerifyTAPN::DiscreteVerification {
-    int InteractiveMode::run(
-        TAPN::TimedArcPetriNet& tapn,
-        const std::vector<TokenList>& initialTokens,
-        const unfoldtacpn::ColoredPetriNetBuilder& builder,
-        const TraceMapper& mapper,
-        const VerificationOptions& options
-    ) {
-        InteractiveMode self(tapn, initialTokens, builder, mapper, options);
-        return self._run_internal();
+    int InteractiveMode::run(TAPN::TimedArcPetriNet& tapn, const std::vector<TokenList>& initialTokens,
+        const unfoldtacpn::ColoredPetriNetBuilder& builder, const TraceMapper& mapper,
+        const VerificationOptions& options) {
+        try {
+            InteractiveMode self(tapn, initialTokens, builder, mapper, options);
+            return self.runInternal();
+        } catch (const std::exception& e) {
+            std::cerr << "Interactive simulation failed: " << e.what() << '\n';
+            return 1;
+        }
     }
 
-    InteractiveMode::InteractiveMode(
-        TAPN::TimedArcPetriNet& tapn,
-        const std::vector<TokenList>& initialTokens,
-        const unfoldtacpn::ColoredPetriNetBuilder& builder,
-        const TraceMapper& mapper,
-        const VerificationOptions& options
-    ) : _tapn(tapn), _builder(builder), _mapper(mapper), _options(options),
-        _currentMarking(std::make_unique<NonStrictMarking>(tapn, initialTokens)) {
+    InteractiveMode::InteractiveMode(TAPN::TimedArcPetriNet& tapn, const std::vector<TokenList>& initialTokens,
+        const unfoldtacpn::ColoredPetriNetBuilder& builder, const TraceMapper& mapper,
+        const VerificationOptions& options)
+        : tapn_(tapn), builder_(builder), mapper_(mapper),
+          precision_(options.getSMCNumericPrecision() == 0 ? 10 : options.getSMCNumericPrecision()) {
+        for (uint32_t i = 0; i < precision_; ++i) {
+            if (scale_ > (std::numeric_limits<Clock>::max() - 1) / 10) {
+                throw std::out_of_range("Interactive time precision exceeds the clock range");
+            }
+
+            scale_ *= 10;
+        }
+
+        for (const auto* place : tapn_.getPlaces()) {
+            static_cast<void>(bound(place->getInvariant().getBound()));
+        }
+
+        for (const auto* arc : tapn_.getInputArcs()) {
+            static_cast<void>(ageInterval(arc->getInterval()));
+        }
+
+        for (const auto* arc : tapn_.getTransportArcs()) {
+            static_cast<void>(ageInterval(arc->getInterval()));
+        }
+
+        NonStrictMarkingBase initial(tapn, initialTokens);
+        currentMarking_ = std::make_unique<RealMarking>(&tapn, initial, precision_);
+        currentMarking_->setDeadlocked(false);
     }
 
-    int InteractiveMode::_run_internal() {
-        auto initialMarkingInput = _readUntilDoubleNewline(std::cin);
+    InteractiveMode::Clock InteractiveMode::parseTime(const std::string& value) const {
+        const Clock largest = std::numeric_limits<Clock>::max() - 1;
+        Clock whole = 0;
+        Clock fraction = 0;
+        uint32_t digits = 0;
+        bool decimal = false;
+        bool hasDigit = false;
+        for (const char c : value) {
+            if (c == '.' && !decimal) {
+                decimal = true;
+                continue;
+            }
+
+            if (c < '0' || c > '9') {
+                throw std::invalid_argument("Expected a nonnegative decimal time: " + value);
+            }
+
+            hasDigit = true;
+            const Clock digit = c - '0';
+            if (!decimal) {
+                if (whole > (largest - digit) / 10) {
+                    throw std::out_of_range("Time is too large: " + value);
+                }
+                whole = whole * 10 + digit;
+            } else if (digits < precision_) {
+                fraction = fraction * 10 + digit;
+                ++digits;
+            } else if (digit != 0) {
+                throw std::invalid_argument("Time exceeds interactive precision of " + std::to_string(precision_) +
+                                            " decimal places: " + value);
+            }
+        }
+
+        if (!hasDigit) {
+            throw std::invalid_argument("Expected a nonnegative decimal time: " + value);
+        }
+
+        while (digits++ < precision_) {
+            fraction *= 10;
+        }
+
+        if (whole > (largest - fraction) / scale_) {
+            throw std::out_of_range("Time is too large: " + value);
+        }
+
+        return whole * scale_ + fraction;
+    }
+
+    std::string InteractiveMode::formatTime(Clock value) const {
+        std::string result = std::to_string(value / scale_);
+        if (value % scale_ != 0) {
+            auto fraction = std::to_string(value % scale_);
+            fraction.insert(0, precision_ - fraction.size(), '0');
+            while (fraction.back() == '0') {
+                fraction.pop_back();
+            }
+
+            result += "." + fraction;
+        }
+
+        return result;
+    }
+
+    InteractiveMode::Clock InteractiveMode::bound(int value) const {
+        if (value == std::numeric_limits<int>::max()) {
+            return std::numeric_limits<Clock>::max();
+        }
+
+        if (value < 0 || static_cast<Clock>(value) > (std::numeric_limits<Clock>::max() - 1) / scale_) {
+            throw std::out_of_range("Model bound exceeds the interactive clock range");
+        }
+
+        return static_cast<Clock>(value) * scale_;
+    }
+
+    InteractiveMode::DelayInterval InteractiveMode::ageInterval(const TAPN::TimeInterval& interval) const {
+        Clock low = bound(interval.getLowerBound());
+        Clock high = bound(interval.getUpperBound());
+        if (low == std::numeric_limits<Clock>::max() || (high == 0 && interval.isUpperBoundStrict())) {
+            return {1, 0};
+        }
+
+        if (interval.isLowerBoundStrict()) {
+            ++low;
+        }
+
+        if (high != std::numeric_limits<Clock>::max() && interval.isUpperBoundStrict()) {
+            --high;
+        }
+
+        return {low, high};
+    }
+
+    InteractiveMode::Clock InteractiveMode::invariantUpper(const TAPN::TimeInvariant& invariant) const {
+        Clock high = bound(invariant.getBound());
+        if (high != 0 && high != std::numeric_limits<Clock>::max() && invariant.isBoundStrict()) {
+            --high;
+        }
+
+        return high;
+    }
+
+    bool InteractiveMode::validMarking(const RealMarking& marking) const {
+        const auto& places = marking.getPlaceList();
+        return std::all_of(places.begin(), places.end(), [this](const auto& place) {
+            if (place.isEmpty()) {
+                return true;
+            }
+
+            const auto& invariant = place.place->getInvariant();
+            return !(invariant.getBound() == 0 && invariant.isBoundStrict()) &&
+                   place.maxTokenAge() <= invariantUpper(invariant);
+        });
+    }
+
+    int InteractiveMode::runInternal() {
+        auto initialMarkingInput = readUntilDoubleNewline(std::cin);
         if (initialMarkingInput.empty()) {
             return 0;
         }
@@ -42,104 +192,79 @@ namespace VerifyTAPN::DiscreteVerification {
         rapidxml::xml_document<> initialMarkingXml;
         try {
             initialMarkingXml.parse<0>(initialMarkingInput.data());
-            auto newMarking = _parseMarking(initialMarkingXml, std::cerr);
-            if (newMarking) {
-                _currentMarking = std::move(newMarking);
+            auto newMarking = parseMarking(initialMarkingXml, std::cerr);
+            if (!newMarking) {
+                return 1;
             }
+
+            currentMarking_ = std::move(newMarking);
         } catch (const std::exception& e) {
-            std::cerr << "Error parsing initial marking XML: " << e.what() << std::endl;
+            std::cerr << "Error parsing initial marking XML: " << e.what() << '\n';
             return 1;
         }
 
-        _printValidBindings(std::cout, *_currentMarking);
+        printValidBindings(std::cout, *currentMarking_);
         std::cout << "\n\n" << std::flush;
 
         while (true) {
-            auto input = _readUntilDoubleNewline(std::cin);
+            auto input = readUntilDoubleNewline(std::cin);
             if (input.empty()) {
                 return 0;
             }
+            const size_t start = input.find_first_not_of(" \t\r\n");
+            if (start == std::string::npos) {
+                continue;
+            }
 
-            size_t start = input.find_first_not_of(" \t\r\n");
-            if (start == std::string::npos) continue;
-            size_t end = input.find_last_not_of(" \t\r\n");
-            std::string trimmed = input.substr(start, end - start + 1);
-
-            if (trimmed == "EXIT") {
+            const size_t end = input.find_last_not_of(" \t\r\n");
+            if (input.substr(start, end - start + 1) == "EXIT") {
                 return 0;
             }
 
-            rapidxml::xml_document<> inputXml;
             try {
+                rapidxml::xml_document<> inputXml;
                 inputXml.parse<0>(input.data());
+                const auto* root = inputXml.first_node();
+                if (root == nullptr) {
+                    throw std::invalid_argument("No XML element found");
+                }
+                const std::string rootName = root->name();
+                if (rootName == "marking") {
+                    auto newMarking = parseMarking(inputXml, std::cerr);
+                    if (newMarking) {
+                        currentMarking_ = std::move(newMarking);
+                    }
+                } else if (rootName == "transition") {
+                    if (const auto* selected = parseTransition(inputXml, std::cerr)) {
+                        fireTransition(selected);
+                    }
+                } else if (rootName == "delay") {
+                    Clock amount = scale_;
+                    if (const auto* attr = root->first_attribute("value")) {
+                        amount = parseTime(attr->value());
+                    } else if ((root->value() != nullptr) && strlen(root->value()) > 0) {
+                        amount = parseTime(root->value());
+                    }
+                    if (amount <= getMaxPossibleDelay(*currentMarking_)) {
+                        currentMarking_->deltaAge(amount);
+                    } else {
+                        std::cerr << "Delay is blocked by an invariant or urgent transition" << '\n';
+                    }
+                } else {
+                    throw std::invalid_argument("Unknown interactive command: " + rootName);
+                }
             } catch (const std::exception& e) {
-                std::cerr << "Error parsing input XML: " << e.what() << std::endl;
-                continue;
+                std::cerr << "Error executing interactive command: " << e.what() << '\n';
             }
 
-            auto* root = inputXml.first_node();
-            if (!root) {
-                std::cerr << "No XML element found" << std::endl;
-                continue;
-            }
-
-            std::string rootName = root->name();
-            if (rootName == "marking") {
-                auto newMarking = _parseMarking(inputXml, std::cerr);
-                if (newMarking) {
-                    _currentMarking = std::move(newMarking);
-                }
-            } else if (rootName == "transition") {
-                auto selected = _parseTransition(inputXml, std::cerr);
-                if (selected.has_value()) {
-                    _fireTransition(selected->first);
-                    _printCurrentMarking(std::cout, *_currentMarking);
-                    std::cout << "\n\n";
-                }
-            } else if (rootName == "delay") {
-                int amount = 1;
-                if (auto* valAttr = root->first_attribute("value")) {
-                    amount = std::stoi(valAttr->value());
-                } else if (root->value() && strlen(root->value()) > 0) {
-                    amount = std::stoi(root->value());
-                }
-
-                bool delayPossible = true;
-                // Check urgent transitions
-                NextEnabledGenerator neg(_tapn);
-                neg.prepare(_currentMarking.get());
-                for (const auto* t : _tapn.getTransitions()) {
-                    if (t->isUrgent() && neg.is_enabled(t)) {
-                        delayPossible = false;
-                        break;
-                    }
-                }
-                // Check place invariants
-                if (delayPossible) {
-                    for (const auto& placeObj : _currentMarking->getPlaceList()) {
-                        int inv = placeObj.place->getInvariant().getBound();
-                        if (placeObj.maxTokenAge() + amount > inv) {
-                            delayPossible = false;
-                            break;
-                        }
-                    }
-                }
-
-                if (delayPossible) {
-                    _currentMarking->incrementAge(amount);
-                }
-                _printCurrentMarking(std::cout, *_currentMarking);
-                std::cout << "\n\n";
-            }
-
-            _printValidBindings(std::cout, *_currentMarking);
+            printCurrentMarking(std::cout, *currentMarking_);
+            std::cout << "\n\n";
+            printValidBindings(std::cout, *currentMarking_);
             std::cout << "\n\n" << std::flush;
         }
-
-        return 0;
     }
 
-    std::string InteractiveMode::_readUntilDoubleNewline(std::istream& in) {
+    std::string InteractiveMode::readUntilDoubleNewline(std::istream& in) {
         in >> std::noskipws;
         std::stringstream rv;
         std::string line;
@@ -161,331 +286,286 @@ namespace VerifyTAPN::DiscreteVerification {
         return rv.str();
     }
 
-    void InteractiveMode::_printCurrentMarking(std::ostream& out, const NonStrictMarkingBase& currentMarking) const {
+    void InteractiveMode::printCurrentMarking(std::ostream& out, const RealMarking& currentMarking) const {
         out << "<marking>\n";
-
-        // Group tokens by original place name
-        std::map<std::string, std::vector<std::tuple<std::string, int, int>>> placeTokens;
-
+        std::map<std::string, std::vector<std::tuple<std::string, Clock, int>>> placeTokens;
         for (const auto& placeObj : currentMarking.getPlaceList()) {
-            const TAPN::TimedPlace* place = placeObj.place;
-            if (placeObj.numberOfTokens() <= 0) continue;
-
-            const std::string& unfoldedName = place->getName();
-            auto origPlace = _mapper.mapPlace(unfoldedName);
-            if (!origPlace) continue;
-
-            std::string_view colorName = _mapper.getColor(unfoldedName);
-
+            if (placeObj.isEmpty()) {
+                continue;
+            }
+            const auto& unfoldedName = placeObj.place->getName();
+            auto origPlace = mapper_.mapPlace(unfoldedName);
+            if (!origPlace) {
+                continue;
+            }
+            auto colorName = mapper_.getColor(unfoldedName);
             for (const auto& token : placeObj.tokens) {
-                placeTokens[std::string(*origPlace)].emplace_back(std::string(colorName), token.getAge(), token.getCount());
+                placeTokens[std::string(*origPlace)].emplace_back(colorName, token.getAge(), token.getCount());
             }
         }
-
         for (const auto& [origPlace, tokens] : placeTokens) {
             out << "\t<place id=\"" << origPlace << "\">\n";
             for (const auto& [colorName, age, count] : tokens) {
-                out << "\t\t<token age=\"" << age << "\" count=\"" << count << "\" color=\"" << colorName << "\"/>\n";
+                out << "\t\t<token age=\"" << formatTime(age) << "\" count=\"" << count << "\" color=\"" << colorName
+                    << "\"/>\n";
             }
             out << "\t</place>\n";
         }
-
         out << "</marking>";
     }
 
-    void InteractiveMode::_fireTransition(const TAPN::TimedTransition* trans) {
-        NextEnabledGenerator neg(_tapn);
-        neg.prepare(_currentMarking.get());
-
-        if (!neg.is_enabled(trans)) {
-            int maxDelay = _getMaxPossibleDelay(*_currentMarking, neg);
-            int minDelay = 0;
-            if (!_isDelayEnabled(trans, *_currentMarking, maxDelay, minDelay, neg)) {
-                std::cerr << "Transition " << trans->getName() << " is not enabled" << std::endl;
-                return;
-            }
-            _currentMarking->incrementAge(minDelay);
-            neg.prepare(_currentMarking.get());
+    std::vector<InteractiveMode::DelayInterval> InteractiveMode::computeArcDelayWindows(
+        const TAPN::TimedPlace& place, uint32_t weight, DelayInterval ages, const RealMarking& marking) {
+        if (ages.empty()) {
+            return {};
+        }
+        if (weight <= 0) {
+            return {{0, std::numeric_limits<Clock>::max()}};
         }
 
-        Generator generator(_tapn, nullptr);
-        generator.prepare(_currentMarking.get());
-        if (generator.only_transition(trans)) {
-            if (NonStrictMarkingBase* next = generator.next(false)) {
-                _currentMarking.reset(next);
+        std::map<Clock, int64_t> events;
+        for (const auto& token : marking.getTokenList(place.getIndex())) {
+            const Clock age = token.getAge();
+            if (age > ages.high) {
+                continue;
+            }
+            const Clock low = ages.low > age ? ages.low - age : 0;
+            const Clock high = ages.high == std::numeric_limits<Clock>::max() ? ages.high : ages.high - age;
+            events[low] += token.getCount();
+            if (high != std::numeric_limits<Clock>::max()) {
+                events[high + 1] -= token.getCount();
             }
         }
+
+        std::vector<DelayInterval> result;
+        int64_t count = 0;
+        Clock low = 0;
+        for (const auto& [date, delta] : events) {
+            const bool wasEnabled = count >= weight;
+            count += delta;
+            if (!wasEnabled && count >= weight) {
+                low = date;
+            } else if (wasEnabled && count < weight) {
+                result.emplace_back(low, date - 1);
+            }
+        }
+        if (count >= weight) {
+            result.emplace_back(low, std::numeric_limits<Clock>::max());
+        }
+        return result;
     }
 
-    std::optional<InteractiveMode::DelayInterval> InteractiveMode::_computeArcDelayWindow(
-        const TAPN::TimedPlace& place,
-        int weight,
-        const TAPN::TimeInterval& interval,
-        const NonStrictMarkingBase& marking
-    ) const {
-        const auto& placeList = marking.getPlaceList();
-
-        auto pit = placeList.begin();
-        while (pit != placeList.end() && pit->place->getIndex() < place.getIndex()) {
-            ++pit;
-        }
-
-        if (pit == placeList.end() || pit->place->getIndex() != place.getIndex()) {
-            return std::nullopt;
-        }
-
-        int totalTokens = pit->numberOfTokens();
-        if (totalTokens < weight) {
-            return std::nullopt;
-        }
-
-        // Build token ages in descending order
-        std::vector<int> tokenAges;
-        tokenAges.reserve(totalTokens);
-        for (auto it = pit->tokens.rbegin(); it != pit->tokens.rend(); ++it) {
-            for (int c = 0; c < it->getCount(); ++c) {
-                tokenAges.push_back(it->getAge());
+    std::vector<InteractiveMode::DelayInterval> InteractiveMode::getTransitionDelayRanges(
+        const TAPN::TimedTransition* trans, const RealMarking& marking, Clock maxAllowedDelay) const {
+        for (const auto* arc : trans->getInhibitorArcs()) {
+            if (marking.numberOfTokensInPlace(arc->getInputPlace().getIndex()) >= arc->getWeight()) {
+                return {};
             }
         }
-
-        int arc_low  = std::numeric_limits<int>::max();
-        int arc_high = std::numeric_limits<int>::min();
-        bool found = false;
-
-        for (size_t k = 0; k + weight <= tokenAges.size(); ++k) {
-            int oldestAge   = tokenAges[k];
-            int youngestAge = tokenAges[k + weight - 1];
-
-            int low_k = interval.isLowerBoundStrict()
-                ? (interval.getLowerBound() + 1 - youngestAge)
-                : (interval.getLowerBound()     - youngestAge);
-            low_k = std::max(0, low_k);
-
-            int high_k;
-            if (interval.getUpperBound() == std::numeric_limits<int>::max() ||
-                interval.getUpperBound() == std::numeric_limits<unsigned int>::max()) {
-                high_k = std::numeric_limits<int>::max();
-            } else if (interval.isUpperBoundStrict()) {
-                high_k = interval.getUpperBound() - 1 - oldestAge;
-            } else {
-                high_k = interval.getUpperBound() - oldestAge;
-            }
-
-            if (low_k <= high_k) {
-                found    = true;
-                arc_low  = std::min(arc_low,  low_k);
-                arc_high = std::max(arc_high, high_k);
-            }
-        }
-
-        if (!found) {
-            return std::nullopt;
-        }
-        
-        return DelayInterval{arc_low, arc_high};
-    }
-
-    std::optional<InteractiveMode::DelayInterval> InteractiveMode::_getTransitionDelayRange(
-        const TAPN::TimedTransition* trans,
-        const NonStrictMarkingBase& marking,
-        int maxAllowedDelay,
-        const NextEnabledGenerator& generator
-    ) const {
-        if (generator.is_inhibited(trans)) {
-            return std::nullopt;
-        }
-
-        int trans_low  = 0;
-        int trans_high = maxAllowedDelay;
-
-        auto applyWindow = [&](const TAPN::TimedPlace& place, int weight, const TAPN::TimeInterval& interval) -> bool {
-            auto r = _computeArcDelayWindow(place, weight, interval, marking);
-            if (!r) return false;
-            trans_low  = std::max(trans_low,  r->low);
-            trans_high = std::min(trans_high, r->high);
-            return trans_low <= trans_high;
-        };
-
+        std::vector<DelayInterval> ranges{{0, maxAllowedDelay}};
         for (const auto* arc : trans->getPreset()) {
-            if (!applyWindow(arc->getInputPlace(), arc->getWeight(), arc->getInterval())) {
-                return std::nullopt;
+            ranges = Util::setIntersection(ranges, computeArcDelayWindows(arc->getInputPlace(), arc->getWeight(),
+                                                       ageInterval(arc->getInterval()), marking));
+            if (ranges.empty()) {
+                return ranges;
+            }
+        }
+        for (const auto* arc : trans->getTransportArcs()) {
+            const auto& invariant = arc->getDestination().getInvariant();
+            if (invariant.getBound() == 0 && invariant.isBoundStrict()) {
+                return {};
+            }
+            auto ages = Util::intersect(ageInterval(arc->getInterval()), DelayInterval(0, invariantUpper(invariant)));
+            ranges = Util::setIntersection(
+                ranges, computeArcDelayWindows(arc->getSource(), arc->getWeight(), ages, marking));
+            if (ranges.empty()) {
+                return ranges;
+            }
+        }
+        for (const auto* arc : trans->getPostset()) {
+            const auto& invariant = arc->getOutputPlace().getInvariant();
+            if (invariant.getBound() == 0 && invariant.isBoundStrict()) {
+                return {};
             }
         }
 
-        for (const auto* transport : trans->getTransportArcs()) {
-            if (!applyWindow(transport->getSource(), transport->getWeight(), transport->getInterval())) {
-                return std::nullopt;
-            }
-        }
-
-        if (trans_low > trans_high) {
-            return std::nullopt;
-        }
-
-        return DelayInterval{trans_low, trans_high};
+        return ranges;
     }
 
-    int InteractiveMode::_getMaxPossibleDelay(const NonStrictMarkingBase& marking, const NextEnabledGenerator& generator) const {
-        // If any urgent transition is enabled at delay 0, delay > 0 is blocked
-        for (const auto* t : _tapn.getTransitions()) {
-            if (t->isUrgent() && generator.is_enabled(t)) {
+    InteractiveMode::Clock InteractiveMode::getMaxPossibleDelay(const RealMarking& marking) const {
+        Clock maxDelay = std::numeric_limits<Clock>::max() - 1 - marking.getTotalAge();
+        for (const auto& place : marking.getPlaceList()) {
+            if (place.isEmpty()) {
+                continue;
+            }
+            const Clock age = place.maxTokenAge();
+            const Clock upper =
+                std::min(invariantUpper(place.place->getInvariant()), std::numeric_limits<Clock>::max() - 1);
+            if (upper < age) {
                 return 0;
             }
+            maxDelay = std::min(maxDelay, upper - age);
         }
 
-        // Check place invariants for all places holding tokens
-        int maxDelay = std::numeric_limits<int>::max();
-        for (const auto& placeObj : marking.getPlaceList()) {
-            if (placeObj.numberOfTokens() == 0) continue;
-            int maxAge = placeObj.maxTokenAge();
-            const auto& inv = placeObj.place->getInvariant();
-            if (inv.getBound() != std::numeric_limits<int>::max() &&
-                inv.getBound() != std::numeric_limits<unsigned int>::max()) {
-                int placeMax;
-                if (inv.isBoundStrict()) {
-                    placeMax = inv.getBound() - 1 - maxAge;
-                } else {
-                    placeMax = inv.getBound() - maxAge;
-                }
-                if (placeMax < maxDelay) {
-                    maxDelay = placeMax;
-                }
+        for (const auto* trans : tapn_.getTransitions()) {
+            if (!trans->isUrgent()) {
+                continue;
+            }
+            auto ranges = getTransitionDelayRanges(trans, marking, maxDelay);
+            if (!ranges.empty()) {
+                maxDelay = std::min(maxDelay, ranges.front().low);
             }
         }
-
-        maxDelay = std::max(0, maxDelay);
-
-        // Check if any urgent transition becomes enabled at some delay
-        for (const auto* t : _tapn.getTransitions()) {
-            if (t->isUrgent()) {
-                auto range = _getTransitionDelayRange(t, marking, maxDelay, generator);
-                if (range.has_value() && range->low <= maxDelay) {
-                    maxDelay = std::min(maxDelay, range->low);
-                }
-            }
-        }
-
         return maxDelay;
     }
 
-    bool InteractiveMode::_isDelayEnabled(
-        const TAPN::TimedTransition* trans,
-        const NonStrictMarkingBase& marking,
-        int maxPossibleDelay,
-        int& outMinDelay,
-        const NextEnabledGenerator& generator
-    ) const {
-        if (maxPossibleDelay < 1) return false;
-
-        auto range = _getTransitionDelayRange(trans, marking, maxPossibleDelay, generator);
-        if (!range.has_value()) return false;
-
-        int eff_low = std::max(1, range->low);
-        int eff_high = std::min(maxPossibleDelay, range->high);
-
-        if (eff_low <= eff_high) {
-            outMinDelay = eff_low;
-            return true;
+    std::vector<RealToken> InteractiveMode::consumeTokens(
+        RealMarking& marking, const TAPN::TimedPlace& place, uint32_t weight, DelayInterval ages) {
+        std::vector<RealToken> consumed;
+        auto& tokens = marking.getTokenList(place.getIndex());
+        for (auto it = tokens.begin(); it != tokens.end() && weight > 0;) {
+            if (ages.empty() || it->getAge() < ages.low || it->getAge() > ages.high) {
+                ++it;
+                continue;
+            }
+            const int count = static_cast<int>(std::min(weight, static_cast<uint32_t>(it->getCount())));
+            consumed.emplace_back(it->getAge(), count);
+            it->remove(count);
+            weight -= count;
+            if (it->getCount() == 0) {
+                it = tokens.erase(it);
+            } else {
+                ++it;
+            }
         }
-
-        return false;
+        if (weight > 0) {
+            throw std::invalid_argument("Insufficient eligible tokens to fire transition");
+        }
+        return consumed;
     }
 
-    void InteractiveMode::_printValidBindings(std::ostream& out, const NonStrictMarkingBase& currentMarking) const {
-        NextEnabledGenerator generator(_tapn);
-        generator.prepare(&currentMarking);
-
-        int maxDelay = _getMaxPossibleDelay(currentMarking, generator);
-
-        using ReportedBinding = std::pair<TraceMapper::BindingList, std::optional<int>>;
-        std::map<std::string, std::vector<ReportedBinding>> bindingsByOrigTrans;
-
-        for (const auto* trans : _tapn.getTransitions()) {
-            std::string_view origTrans = _mapper.mapTransition(trans->getName());
-            const auto& bindings = _mapper.getBindings(trans->getName());
-
-            if (generator.is_enabled(trans)) {
-                bindingsByOrigTrans[std::string(origTrans)].emplace_back(bindings, std::nullopt);
-            } else {
-                int minDelay = 0;
-                if (maxDelay >= 1 && _isDelayEnabled(trans, currentMarking, maxDelay, minDelay, generator)) {
-                    bindingsByOrigTrans[std::string(origTrans)].emplace_back(bindings, minDelay);
-                }
+    void InteractiveMode::fireTransition(const TAPN::TimedTransition* trans) {
+        auto ranges = getTransitionDelayRanges(trans, *currentMarking_, getMaxPossibleDelay(*currentMarking_));
+        if (ranges.empty()) {
+            std::cerr << "Transition " << trans->getName() << " is not enabled" << '\n';
+            return;
+        }
+        auto next = std::make_unique<RealMarking>(*currentMarking_);
+        next->deltaAge(ranges.front().low);
+        for (const auto* arc : trans->getPreset()) {
+            consumeTokens(*next, arc->getInputPlace(), arc->getWeight(), ageInterval(arc->getInterval()));
+        }
+        std::vector<std::pair<const TAPN::TimedPlace*, RealToken>> transported;
+        for (const auto* arc : trans->getTransportArcs()) {
+            auto ages = Util::intersect(ageInterval(arc->getInterval()),
+                DelayInterval(0, invariantUpper(arc->getDestination().getInvariant())));
+            for (auto token : consumeTokens(*next, arc->getSource(), arc->getWeight(), ages)) {
+                transported.emplace_back(&arc->getDestination(), token);
             }
         }
 
-        auto printBinding = [&out](const TraceMapper::BindingList& bindingList, std::optional<int> minDelay = std::nullopt) {
-            out << "\t\t<binding";
-            if (minDelay) out << " min-delay=\"" << *minDelay << "\"";
-            out << ">\n";
-            for (const auto& [varId, colorVal] : bindingList) {
-                out << "\t\t\t<variable id=\"" << varId << "\">\n";
-                out << "\t\t\t\t<color>" << colorVal << "</color>\n";
-                out << "\t\t\t</variable>\n";
+        for (const auto* arc : trans->getPostset()) {
+            if (arc->getWeight() > static_cast<uint32_t>(std::numeric_limits<int>::max())) {
+                throw std::out_of_range("Output arc weight exceeds the token count range");
             }
-            out << "\t\t</binding>\n";
-        };
+            RealToken token(0, static_cast<int>(arc->getWeight()));
+            next->addTokenInPlace(arc->getOutputPlace(), token);
+        }
 
+        for (auto& [place, token] : transported) {
+            next->addTokenInPlace(*place, token);
+        }
+        if (!validMarking(*next)) {
+            throw std::invalid_argument("Firing violates a place invariant");
+        }
+
+        currentMarking_ = std::move(next);
+    }
+
+    void InteractiveMode::printValidBindings(std::ostream& out, const RealMarking& currentMarking) const {
+        const Clock maxDelay = getMaxPossibleDelay(currentMarking);
+        using ReportedBinding = std::pair<TraceMapper::BindingList, Clock>;
+        std::map<std::string, std::vector<ReportedBinding>> bindingsByOrigTrans;
+        for (const auto* trans : tapn_.getTransitions()) {
+            auto ranges = getTransitionDelayRanges(trans, currentMarking, maxDelay);
+            if (!ranges.empty()) {
+                bindingsByOrigTrans[std::string(mapper_.mapTransition(trans->getName()))].emplace_back(
+                    mapper_.getBindings(trans->getName()), ranges.front().low);
+            }
+        }
         out << "<valid-bindings>\n";
         for (const auto& [origTrans, bindingLists] : bindingsByOrigTrans) {
             out << "\t<transition id=\"" << origTrans << "\">\n";
             for (const auto& [binding, minDelay] : bindingLists) {
-                printBinding(binding, minDelay);
+                out << "\t\t<binding";
+                if (minDelay != 0) {
+                    out << " min-delay=\"" << formatTime(minDelay) << "\"";
+                }
+                out << ">\n";
+                for (const auto& [varId, colorVal] : binding) {
+                    out << "\t\t\t<variable id=\"" << varId << "\">\n";
+                    out << "\t\t\t\t<color>" << colorVal << "</color>\n";
+                    out << "\t\t\t</variable>\n";
+                }
+                out << "\t\t</binding>\n";
             }
             out << "\t</transition>\n";
         }
         out << "</valid-bindings>";
     }
 
-    void InteractiveMode::_parseColorSubterms(rapidxml::xml_node<>* node, int count, std::vector<std::pair<std::string, int>>& out) const {
-        if (!node) return;
-        std::string name = node->name();
-        if (name == "structure" || name == "subterm") {
-            for (auto* child = node->first_node(); child; child = child->next_sibling()) {
-                _parseColorSubterms(child, count, out);
-            }
-        } else if (name == "add") {
-            for (auto* child = node->first_node(); child; child = child->next_sibling()) {
-                _parseColorSubterms(child, count, out);
+    void InteractiveMode::parseColorSubterms(
+        const rapidxml::xml_node<>* node, int count, std::vector<std::pair<std::string, int>>& out) {
+        if (node == nullptr) {
+            return;
+        }
+        const std::string name = node->name();
+        if (name == "structure" || name == "subterm" || name == "add") {
+            for (const auto* child = node->first_node(); child != nullptr; child = child->next_sibling()) {
+                parseColorSubterms(child, count, out);
             }
         } else if (name == "numberof") {
             int currentCount = 1;
-            rapidxml::xml_node<>* colorSubterm = nullptr;
-            for (auto* sub = node->first_node("subterm"); sub; sub = sub->next_sibling("subterm")) {
-                if (auto* numConst = sub->first_node("numberconstant")) {
-                    if (auto* valAttr = numConst->first_attribute("value")) {
+            const rapidxml::xml_node<>* colorSubterm = nullptr;
+            for (const auto* sub = node->first_node("subterm"); sub != nullptr; sub = sub->next_sibling("subterm")) {
+                if (const auto* numConst = sub->first_node("numberconstant")) {
+                    if (const auto* valAttr = numConst->first_attribute("value")) {
                         currentCount = std::stoi(valAttr->value());
                     }
                 } else {
                     colorSubterm = sub;
                 }
             }
-            if (colorSubterm) {
-                _parseColorSubterms(colorSubterm, currentCount, out);
+            if (colorSubterm != nullptr) {
+                parseColorSubterms(colorSubterm, currentCount, out);
             }
         } else if (name == "useroperator") {
-            if (auto* decl = node->first_attribute("declaration")) {
+            if (const auto* decl = node->first_attribute("declaration")) {
                 out.emplace_back(decl->value(), count);
             }
         } else if (name == "dotconstant") {
             out.emplace_back("dot", count);
         } else if (name == "finiteintrangeconstant") {
-            if (auto* val = node->first_attribute("value")) {
+            if (const auto* val = node->first_attribute("value")) {
                 out.emplace_back(val->value(), count);
             }
         } else if (name == "tuple") {
             std::string tupleStr = "(";
             bool first = true;
-            for (auto* sub = node->first_node("subterm"); sub; sub = sub->next_sibling("subterm")) {
-                auto* child = sub->first_node();
-                if (!child) continue;
-                if (!first) tupleStr += ",";
+            for (const auto* sub = node->first_node("subterm"); sub != nullptr; sub = sub->next_sibling("subterm")) {
+                const auto* child = sub->first_node();
+                if (child == nullptr) {
+                    continue;
+                }
+                if (!first) {
+                    tupleStr += ",";
+                }
                 first = false;
                 if (std::string(child->name()) == "dotconstant") {
                     tupleStr += "dot";
-                } else if (auto* decl = child->first_attribute("declaration")) {
+                } else if (const auto* decl = child->first_attribute("declaration")) {
                     tupleStr += decl->value();
-                } else if (auto* val = child->first_attribute("value")) {
+                } else if (const auto* val = child->first_attribute("value")) {
                     tupleStr += val->value();
                 }
             }
@@ -494,127 +574,128 @@ namespace VerifyTAPN::DiscreteVerification {
         }
     }
 
-    std::vector<std::pair<std::string, int>> InteractiveMode::_parseStructureExpressions(rapidxml::xml_node<>* placeNode) const {
+    std::vector<std::pair<std::string, int>> InteractiveMode::parseStructureExpressions(
+        const rapidxml::xml_node<>* placeNode) {
         std::vector<std::pair<std::string, int>> result;
-        for (auto* child = placeNode->first_node(); child; child = child->next_sibling()) {
-            _parseColorSubterms(child, 1, result);
+        for (const auto* child = placeNode->first_node(); child != nullptr; child = child->next_sibling()) {
+            parseColorSubterms(child, 1, result);
         }
         return result;
     }
 
-    std::unique_ptr<NonStrictMarkingBase> InteractiveMode::_parseMarking(
-        const rapidxml::xml_document<>& markingXml,
-        std::ostream& errorOut
-    ) {
-        auto* root = markingXml.first_node("marking");
-        if (!root) {
-            errorOut << "Expected <marking> root node" << std::endl;
+    std::unique_ptr<RealMarking> InteractiveMode::parseMarking(
+        const rapidxml::xml_document<>& markingXml, std::ostream& errorOut) const {
+        const auto* root = markingXml.first_node("marking");
+        if (root == nullptr) {
+            errorOut << "Expected <marking> root node" << '\n';
             return nullptr;
         }
 
-        std::vector<TokenList> placeTokens(_tapn.getPlaces().size());
+        const std::vector<TokenList> emptyTokens(tapn_.getPlaces().size());
+        NonStrictMarkingBase empty(tapn_, emptyTokens);
+        auto marking = std::make_unique<RealMarking>(&tapn_, empty, precision_);
+        marking->setDeadlocked(false);
 
-        auto addToken = [&](int idx, int age, int count) {
-            if (idx != TAPN::TimedPlace::BottomIndex() && idx >= 0 && (size_t)idx < placeTokens.size()) {
-                bool found = false;
-                for (auto& tok : placeTokens[idx]) {
-                    if (tok.getAge() == age) {
-                        tok.setCount(tok.getCount() + count);
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found) {
-                    placeTokens[idx].emplace_back(age, count);
-                }
+        auto addToken = [&](int idx, Clock age, int count) {
+            if (count <= 0) {
+                throw std::invalid_argument("Token count must be positive");
+            }
+            if (idx != TAPN::TimedPlace::BottomIndex() && idx >= 0 &&
+                static_cast<size_t>(idx) < tapn_.getPlaces().size()) {
+                RealToken token(age, count);
+                marking->addTokenInPlace(tapn_.getPlace(idx), token);
             }
         };
 
-        for (auto* placeNode = root->first_node("place"); placeNode; placeNode = placeNode->next_sibling("place")) {
-            auto* idAttr = placeNode->first_attribute("id");
-            if (!idAttr) continue;
+        for (const auto* placeNode = root->first_node("place"); placeNode != nullptr;
+            placeNode = placeNode->next_sibling("place")) {
+            const auto* idAttr = placeNode->first_attribute("id");
+            if (idAttr == nullptr) {
+                continue;
+            }
             std::string origPlace = idAttr->value();
 
-            auto resolveAndAdd = [&](const std::string& colorName, int age, int count) {
+            auto resolveAndAdd = [&](const std::string& colorName, Clock age, int count) {
                 std::string unfoldedName;
-                int idx = _builder.resolvePlace(origPlace, colorName, unfoldedName)
-                    ? _tapn.getPlaceIndex(unfoldedName)
-                    : _tapn.getPlaceIndex(origPlace);
+                const int idx = builder_.resolvePlace(origPlace, colorName, unfoldedName)
+                                    ? tapn_.getPlaceIndex(unfoldedName)
+                                    : tapn_.getPlaceIndex(origPlace);
                 addToken(idx, age, count);
 
-                int sumIdx = _tapn.getPlaceIndex("__" + origPlace + "__SUM");
+                const int sumIdx = tapn_.getPlaceIndex("__" + origPlace + "__SUM");
                 addToken(sumIdx, age, count);
             };
 
             bool hasTokenElements = false;
-            for (auto* tokenNode = placeNode->first_node("token"); tokenNode; tokenNode = tokenNode->next_sibling("token")) {
+            for (const auto* tokenNode = placeNode->first_node("token"); tokenNode != nullptr;
+                tokenNode = tokenNode->next_sibling("token")) {
                 hasTokenElements = true;
-                int age = 0;
+                Clock age = 0;
                 int count = 1;
-                if (auto* ageAttr   = tokenNode->first_attribute("age"))   age   = std::stoi(ageAttr->value());
-                if (auto* countAttr = tokenNode->first_attribute("count")) count = std::stoi(countAttr->value());
+                if (const auto* ageAttr = tokenNode->first_attribute("age")) {
+                    age = parseTime(ageAttr->value());
+                }
+                if (const auto* countAttr = tokenNode->first_attribute("count")) {
+                    count = std::stoi(countAttr->value());
+                }
                 std::string colorName = "dot";
-                if (auto* colorAttr = tokenNode->first_attribute("color")) colorName = colorAttr->value();
+                if (const auto* colorAttr = tokenNode->first_attribute("color")) {
+                    colorName = colorAttr->value();
+                }
                 resolveAndAdd(colorName, age, count);
             }
 
-            if (hasTokenElements) continue;
+            if (hasTokenElements) {
+                continue;
+            }
 
-            for (const auto& [colorName, count] : _parseStructureExpressions(placeNode)) {
+            for (const auto& [colorName, count] : parseStructureExpressions(placeNode)) {
                 resolveAndAdd(colorName, 0, count);
             }
         }
 
-        for (auto& list : placeTokens) {
-            std::sort(list.begin(), list.end(), [](const Token& a, const Token& b) {
-                return a.getAge() < b.getAge();
-            });
+        if (!validMarking(*marking)) {
+            errorOut << "Marking violates a place invariant" << '\n';
+            return nullptr;
         }
-
-        return std::make_unique<NonStrictMarking>(_tapn, placeTokens);
+        return marking;
     }
 
-    std::optional<std::pair<const TAPN::TimedTransition*, TraceMapper::BindingList>>
-    InteractiveMode::_parseTransition(const rapidxml::xml_document<>& transitionXml, std::ostream& errorOut) const {
+    const TAPN::TimedTransition* InteractiveMode::parseTransition(
+        const rapidxml::xml_document<>& transitionXml, std::ostream& errorOut) const {
         const auto* transitionNode = transitionXml.first_node();
-        if (!transitionNode || std::string(transitionNode->name()) != "transition") {
-            errorOut << "Expected <transition> tag" << std::endl;
-            return std::nullopt;
+        if ((transitionNode == nullptr) || std::string(transitionNode->name()) != "transition") {
+            errorOut << "Expected <transition> tag" << '\n';
+            return nullptr;
         }
         const auto* idAttr = transitionNode->first_attribute("id");
-        if (!idAttr) {
-            errorOut << "Missing id attribute on <transition>" << std::endl;
-            return std::nullopt;
+        if (idAttr == nullptr) {
+            errorOut << "Missing id attribute on <transition>" << '\n';
+            return nullptr;
         }
-        std::string origTransId = idAttr->value();
+        const std::string origTransId = idAttr->value();
 
         TraceMapper::BindingList parsedBindings;
         if (const auto* bindingNode = transitionNode->first_node("binding")) {
-            for (const auto* varNode = bindingNode->first_node("variable"); varNode; varNode = varNode->next_sibling("variable")) {
+            for (const auto* varNode = bindingNode->first_node("variable"); varNode != nullptr;
+                varNode = varNode->next_sibling("variable")) {
                 const auto* varIdAttr = varNode->first_attribute("id");
                 const auto* colorNode = varNode->first_node("color");
-                if (varIdAttr && colorNode && colorNode->value()) {
+                if ((varIdAttr != nullptr) && (colorNode != nullptr) && (colorNode->value() != nullptr)) {
                     parsedBindings.emplace_back(varIdAttr->value(), colorNode->value());
                 }
             }
         }
         std::sort(parsedBindings.begin(), parsedBindings.end());
 
-        const TAPN::TimedTransition* matchedTransition = nullptr;
-        for (const auto* t : _tapn.getTransitions()) {
-            if (_mapper.mapTransition(t->getName()) == origTransId) {
-                if (_mapper.getBindings(t->getName()) == parsedBindings) {
-                    matchedTransition = t;
-                    break;
-                }
+        for (const auto* t : tapn_.getTransitions()) {
+            if (mapper_.mapTransition(t->getName()) == origTransId &&
+                mapper_.getBindings(t->getName()) == parsedBindings) {
+                return t;
             }
         }
 
-        if (!matchedTransition) {
-            errorOut << "Could not find transition \"" << origTransId << "\" with given bindings" << std::endl;
-            return std::nullopt;
-        }
-
-        return std::make_pair(matchedTransition, parsedBindings);
+        errorOut << "Could not find transition \"" << origTransId << "\" with given bindings" << '\n';
+        return nullptr;
     }
 }
